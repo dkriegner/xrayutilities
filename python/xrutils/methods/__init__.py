@@ -1,17 +1,4 @@
 
-#import functions and classes from lattice
-from lattice import LatticeBase
-from lattice import Lattice
-from lattice import Crystal
-from lattice import Transform
-from lattice import CubicLattice
-from lattice import CoordinateTransform
-
-from material import Material
-from material import Si
-from material import Ge
-from material import SiGeAlloy
-
 #import objects from the misc module
 from misc import scattang
 from misc import lam2en
