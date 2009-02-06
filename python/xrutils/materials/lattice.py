@@ -70,17 +70,17 @@ class Lattice(object):
         in the base vectors. 
 
         requiered input arguments:
-        eps .............. a vector with the 6 independent strain components
+        eps .............. a 3x3 matrix independent strain components
         """
 
         if isinstance(eps,list):
             eps = numpy.array(eps,dtype=numpy.double)
         
-        u1 = self.a1*esp[:3]
+        u1 = (eps*self.a1[numpy.newaxis,:]).sum(axis=1)
         self.a1 = self.a1 + u1
-        u2 = self.a2*eps[:3]
+        u2 = (eps*self.a2[numpy.newaxis,:]).sum(axis=1)
         self.a2 = self.a2 + u2
-        u3 = self.a3*eps[:3]
+        u3 = (eps*self.a3[numpy.newaxis,:]).sum(axis=1)
         self.a3 = self.a3 + u3
 
 
