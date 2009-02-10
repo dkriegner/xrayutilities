@@ -1,5 +1,84 @@
 import numpy
 
+map_ijkl2ij = {"00":0,"11":1,"22":2,
+               "12":3,"20":4,"01":5,
+               "21":6,"02":7,"10":8}
+map_ij2ijkl = {"0":[0,0],"1":[1,1],"2":[2,2],
+        "3":[1,2],"4":[2,0],"5":[0,1],
+        "6":[2,1],"7":[0,2],"8":[1,0]}
+
+def index_map_ijkl2ij(i,j):
+    return map_ijkl2ij["%i%i" %(i,j)] 
+
+def index_map_ij2ijkl(ij):
+    return map_ij2ijkl["%i" %ij]
+
+
+def Cij2Cijkl(cij):
+    #{{{1
+    """
+    Cij2Cijkl(cij):
+    Converts the elastic constants matrix (tensor of rank 2) to 
+    the full rank 4 cijkl tensor.
+
+    required input arguments:
+    cij ................ (6,6) cij matrix as a numpy array
+
+    return value:
+    cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+    """
+
+    #first have to build a 9x9 matrix from the 6x6 one
+    m = numpy.zeros((9,9),dtype=numpy.double)
+    m[0:6,0:6] = cij[:,:]
+    m[6:9,0:6] = cij[3:6,:]
+    m[0:6,6:9] = cij[:,3:6]
+    m[6:9,6:9] = cij[3:6,3:6]
+
+    #now create the full tensor
+    cijkl = numpy.zeros((3,3,3,3),dtype=numpy.double)
+
+    for i in range(0,3):
+        for j in range(0,3):
+            for k in range(0,3):
+                for l in range(0,3):
+                    mi = index_map_ijkl2ij(i,j)
+                    mj = index_map_ijkl2ij(k,l)
+                    cijkl[i,j,k,l] = m[mi,mj]
+    print m
+    return cijkl
+    #}}}1
+
+def Cijkl2Cij(cijkl):
+    #{{{1
+    """
+    Cijkl2Cij(cijkl):
+    Converts the full rank 4 tensor of the elastic constants to 
+    the (6,6) matrix of elastic constants.
+
+    required input arguments:
+    cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+
+    return value:
+    cij ................ (6,6) cij matrix as a numpy array
+    """
+    
+    #build the temporary 9x9 matrix
+    m = numpy.zeros((9,9),dtype=numpy.double)
+
+    for i in range(0,9):
+        for j in range(0,9):
+            ij = index_map_ij2ijkl(i)
+            kl = index_map_ij2ijkl(j)
+            m[i,j] = cijkl[ij[0],ij[1],kl[0],kl[1]]
+
+    print m
+    cij = m[0:6,0:6]
+
+    return cij
+    #}}}1
+
+
 class Transform(object):
     def __init__(self,matrix):
         self.matrix = matrix
@@ -22,12 +101,12 @@ class Transform(object):
             #matrix product in pure array notation
             if len(p.shape)==1:
                 #argument is a vector
-                print "transform a vector ..."
+                #print "transform a vector ..."
                 b = (self.matrix*p[numpy.newaxis,:]).sum(axis=1)
                 olist.append(b)
             elif len(p.shape)==2 and p.shape[0]==3 and p.shape[1]==3:
                 #argument is a matrix
-                print "transform a matrix ..."
+                #print "transform a matrix ..."
                 b = numpy.zeros(p.shape,dtype=numpy.double)
                 b2 = numpy.zeros(p.shape,dtype=numpy.double)
                 for i in range(3):
@@ -40,7 +119,26 @@ class Transform(object):
                         b2[i,j] = (b[i,:]*self.imatrix[:,j]).sum()
 
                 olist.append(b2)
+            elif len(p.shape)==4 and p.shape[0]==3 and p.shape[1]==3 and\
+                 p.shape[2] == 3 and p.shape[3] == 3:
+                print "transform a tensor"
+                #transformation of a 
+                cp = numpy.zeros(p.shape,dtype=numpy.double)
+                for i in range(0,3):
+                    for j in range(0,3):
+                        for k in range(0,3):
+                            for l in range(0,3):
+                                
+                                #run over the double sums
+                                for g in range(0,3):
+                                    for h in range(0,3):
+                                        for m in range(0,3):
+                                            for n in range(0,3):
+                                                cp[i,j,k,l] += self.matrix[i,g]*self.matrix[j,h]*\
+                                                               p[g,h,m,n]*\
+                                                               self.matrix[k,m]*self.matrix[l,n]
 
+                olist.append(cp)
     
         if len(args) == 1:
             return olist[0]
