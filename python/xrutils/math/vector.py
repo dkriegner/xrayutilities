@@ -77,7 +77,7 @@ def VecDot(v1,v2):
     #}}}1
 
 
-def VecAngle(v1,v2,deg=false):
+def VecAngle(v1,v2,deg=False):
     """
     VecAngle(v1,v2,deg=false):
     calculate the angle between two vectors. The following
