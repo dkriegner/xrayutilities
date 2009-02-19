@@ -2,15 +2,20 @@
 
 import lattice
 import copy
+import numpy
+from numpy import linalg
 
 class Material(object):
+    #{{{1
     def __init__(self,name,lat,c11,c12,c44):
+        #{{{2
         self.name = name
         self.lattice = lat
         self.rlattice = lat.ReciprocalLattice()
         self._c11 = c11
         self._c12 = c12
         self._c44 = c44
+        #}}}2
 
     def _getc11(self):
         return self._c11
@@ -41,6 +46,7 @@ class Material(object):
     nu  = property(_getnu)
 
     def Q(self,hkl):
+        #{{{2
         """
         Q(hkl,**keyargs):
         Return the Q-space position for a certain material.
@@ -53,8 +59,10 @@ class Material(object):
         p = self.rlattice.GetPoint(hkl[0],hkl[1],hkl[2])
 
         return p
+        #}}}2
 
     def __str__(self):
+        #{{{2
         ostr ="Material: %s\n" %self.name
         ostr += "Elastic constants:\n"
         ostr += "c11 = %e\n" %self.c11
@@ -69,7 +77,7 @@ class Material(object):
         ostr += self.rlattice.__str__()
 
         return ostr
-
+        #}}}2
 
     def ApplyStrain(self,strain,**keyargs):
         #let strain act on the base vectors
@@ -83,6 +91,7 @@ class Material(object):
         Calculate the mismatch strain between  
         """
         print "not implemented yet"
+    #}}}1
 
 
 #calculate some predifined materials
@@ -93,17 +102,21 @@ InP  = Material("InP",lattice.CubicLattice(5.8687),10.11e+11,5.61e+11,4.56e+11)
 GaAs = Material("GaAs",lattice.CubicLattice(5.65325),11.9e+11,5.34e+11,5.96e+11)
 
 class AlloyAB(Material):
+    #{{{1
     def __init__(self,matA,matB,x):
+        #{{{2
         Material.__init__(self,"None",copy.deepcopy(matA.lattice),matA.c11,matA.c12,matA.c44)
         self.matA = matA
         self.matB = matB
         self.xb = 0
         self._setxb(x)
+        #}}}2
 
     def _getxb(self):
         return self.xb
 
     def _setxb(self,x):
+        #{{{2
         self.xb = x
         self.name = "%s(%2.2f)%s(%2.2f)" %(self.matA.name,1.-x,self.matB.name,x)
         #modify the lattice
@@ -119,15 +132,19 @@ class AlloyAB(Material):
         self.c11 = (self.matB.c11-self.matA.c11)*x+self.matA.c11
         self.c12 = (self.matB.c12-self.matA.c12)*x+self.matA.c12
         self.c44 = (self.matB.c44-self.matA.c44)*x+self.matA.c44
+        #}}}2
 
     x = property(_getxb,_setxb)
+    #}}}1
 
 
 class SiGe(AlloyAB):
+    #{{{1
     def __init__(self,x):
         AlloyAB.__init__(self,Si,Ge,x)
 
     def _setxb(self,x):
+        #{{{2
         a = self.matA.lattice.a1[0]
         print "jump to base class"
         AlloyAB._setxb(self,x)
@@ -136,5 +153,58 @@ class SiGe(AlloyAB):
         a = a+0.2*x+0.027*x**2
         self.lattice = lattice.CubicLattice(a)
         self.rlattice = self.lattice.ReciprocalLattice()
+        #}}}2
    
     x = property(AlloyAB._getxb,_setxb)
+    #}}}1
+
+def PseudomorphicMaterial(submat,layermat):
+    #{{{1
+    """
+    PseudomprohicMaterial(submat,layermat):
+    This function returns a material whos lattice is pseudomorphic on a
+    particular substrate material.
+    This function works meanwhile only for cubit materials.
+
+    required input arguments:
+    submat .................... substrate material
+    layermat .................. bulk material of the layer
+
+    return value:
+    An instance of Material holding the new pseudomorphically strained 
+    material.
+    """
+    pmat = copy.copy(layermat)
+
+    a1 = submat.lattice.a1
+    a2 = submat.lattice.a2
+
+    #calculate the normal lattice parameter
+
+    abulk = layermat.lattice.a1[0] 
+    ap    = a1[0]
+    c11 = layermat.c11
+    c12 = layermat.c12
+    a3 = numpy.zeros(3,dtype=numpy.double)
+    a3[2] =  abulk-2.0*c12*(ap-abulk)/c11
+    #set the new lattice for the pseudomorphic material
+    pmat.lattice = lattice.Lattice(a1,a2,a3)
+
+    return pmat
+    #}}}1
+
+def AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
+    #{{{1
+    """
+    AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
+    Assemble the elastic constants matrix for a cubic system. This function 
+    simply reduces writting work and therefore the risk of typos.
+    """
+
+    m = numpy.array([[c11,c12,c12,0,0,0],[c12,c11,c12,0,0,0],[c12,c12,c11,0,0,0],
+                     [0,0,0,c44,0,0],[0,0,0,0,c44,0],[0,0,0,0,0,c44]],
+                     dtype=numpy.double)
+    return m
+    #}}}1
+
+
