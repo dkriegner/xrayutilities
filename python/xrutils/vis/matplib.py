@@ -7,36 +7,6 @@ from matplotlib import pyplot as xplt
 import matplotlib.widgets as widgets
 import numpy
 
-def align_int_range(data,frac=0.5,ind=1):
-    """
-    align_int_range(data):
-    This function sets the minimum of a data array to a fraction of the 
-    second smallest value.
-    The idea behind this function is to avoid plotting problems if 
-    many data points are 0, which causes problems in the case of log10 plots.
-
-    required input arguments:
-    data ................. a numpy data array
-
-    optional keyword arguments:
-    ind .................. which of the smallest values to choose for alignment
-    frac ................. the fraction 
-    """
-
-    l = (data.reshape(data.size)).tolist()
-    l.sort()
-    min = l[0]
-    for x in l:
-        if x>min:
-            break
-
-    del l
-    data[data<x] = frac*x
-
-    return data
-
-
-
 class XFigure(object):
     def __init__(self,fig):
         self.figure = fig
@@ -102,6 +72,8 @@ class DataPicker(object):
                                 cont -> contour plot x and y must be both of
                                 shape nxm
                                 pcol -> pcolor plot x and y as for image.
+        xl .................... string with the label for the x-axis
+        yl .................... string with the label for the y-axis
         the default plotting style is pcolor
         """
         self.figure = xplt.figure()
@@ -114,7 +86,6 @@ class DataPicker(object):
         self.move_mid = self.figure.canvas.mpl_connect("motion_notify_event",
                                                        self.__move_event_handler__)
 
-        #have to ajust the main window to plot 
         #the positions on the canvas
         b = self.figure.subplotpars.bottom 
         self.figure.subplots_adjust(bottom=b+0.025)
@@ -141,18 +112,10 @@ class DataPicker(object):
         
         #the list where the annotations are stored that show selected points
         self.anot_sel_list = []
-
-        #plot text on the bottom 
-        self.text_fmt = "x=%e, y=%e"
-        self.text_x = 0.25
-        self.text_y = 0.005
-        self.text = self.figure.text(self.text_x,self.text_y,self.text_fmt %(0,0))
-        self.text.set_animated(True)
-
-        #here comes the tricky part
-        self.figure.draw_artist(self.text)
-        self.canvas.blit(self.figure.bbox)
+        self.text_fmt = "%e %e"
         self.cursor = None
+
+
 
     def plotdata(self):
         #clear the axis from all content 
@@ -166,31 +129,26 @@ class DataPicker(object):
 
         self.figure.colorbar(self.plot)
         self.canvas.draw()
-        #after plotting everything we have to save a background image
-        self.background = self.canvas.copy_from_bbox(self.figure.bbox)
         
 
     def __getitem__(self,index):
         return self.plist[index]
 
     def __pick_event_handler__(self,event):
-        if event.inaxes:
-            print "point: (%e, %e)" %(event.x,event.y)
-            self.plist.append((event.xdata,event.ydata))
-            self.anot_sel_list.append(self.axis.plot([event.xdata],[event.ydata],"ko"))
-            self.axis.draw()
+        if event.inaxes == self.axis:
+            print "point: (%e, %e)" %(event.xdata,event.ydata)
+            xlim = self.axis.get_xlim()
+            ylim = self.axis.get_ylim()
+            if event.x>=xlim[0] and event.x<=xlim[1] and\
+               event.y>=ylim[0] and event.x<=ylim[1]:
+                self.plist.append((event.xdata,event.ydata))
+                self.anot_sel_list.append(self.axis.plot([event.xdata],[event.ydata],"ko"))
+                self.axis.draw()
 
     def __move_event_handler__(self,event):
         if event.inaxes:
             #print cursor position to the canvas
-            self.text.set_text(self.text_fmt %(event.xdata,event.ydata))
-            #restore the background image
-            self.canvas.restore_region(self.background)
-            #draw the text artist
-            self.figure.draw_artist(self.text)
-            #redraw only the changed area
-            self.canvas.blit(self.figure.bbox)
-
+            self.figure.canvas.toolbar.set_message(self.text_fmt %(event.xdata,event.ydata))
 
     def __del__(self):
         self.figure.canvas.mpl_disconnect(self.pick_mid)
