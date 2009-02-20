@@ -50,6 +50,18 @@ _gridder3d.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="alig
 
 _gridder3d_th = _library.gridder3d
 
+_ang2q_xrd2d = _library.a2q_xrd2d
+_ang2q_xrd2d.restype = ctypes.c_int
+
+_ang2q_xrd2d_th = _library.a2q_xrd2d_th
+_ang2q_xrd2d_th.restype = ctypes.c_int
+
+_ang2q_xrd3d    = _library.a2q_xrd3d
+_ang2q_xrd3d.restype = ctypes.c_int
+
+_ang2q_xrd3d_th = _library.a2q_xrd3d_th
+_ang2q_xrd3d_th.restype = ctypes.c_int
+
 
 
 

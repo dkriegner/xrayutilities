@@ -42,6 +42,8 @@ int a2q_xrd2d(double *om,double *th2,double *qx,double *qz,unsigned int n,
 }
 /*}}}1*/
 
+
+
 int a2q_xrd2d_th(unsigned int nth,
                  double *om,double *th2,double *qx,double *qz,unsigned int n,
                  double lambda,double geom,
@@ -169,6 +171,41 @@ void *a2q_xrd2d_thworker(void *args)
 }
 /*}}}1*/
 
+
+
+int a2q_xrd3d(double *om,double *th2,double *del,
+              double *qx,double *qy,double *qz,
+              unsigned int n,double lambda,double *geom,
+              double dom,double dth2,double ddelta)
+/*{{{1*/
+{
+    
+    double k02;
+    unsigned int i;
+    double omega;
+    double tth;
+    double delta;
+    double tmp1;
+    double tmp2;
+
+
+    k02 = 4.*M_PI/lambda;
+
+    for(i=0;i<n;i++){
+        omega = om[i] - dom;
+        tth   = th2[i] - dth2;
+        delta = del[i] - ddelta;
+        tmp1  = sin(0.5*tth);
+        tmp2  = 0.5*tth - omega;
+
+        qx[i] = k02*tmp1*sin(geom*tmp2);
+        qy[i] = k02*tmp1*sin(geom*tmp2)*sin(delta)
+        qz[i] = k02*tmp1*cos(geom*tmp2)*cos(delta);
+    }
+
+    return(0);
+}
+/*}}}1*/
 				
 int a2q_gid(double *th2,double *qa,double *qr,unsigned int n,double ai,
             double *af,unsigned int naf,double lambda){
