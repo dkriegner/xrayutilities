@@ -53,6 +53,38 @@ def xfigure(*args,**keyargs):
 
     return xf 
 
+class PointSelect(object):
+    def __init__(self,figure):
+        self.figure = figure
+        self.xpos = 0
+        self.ypos = 0
+
+        self.mid = self.figure.canvas.mpl_connect("button_press_event",self.__button_press_event__)
+        self.mid2 = self.figure.canvas.mpl_connect("motion_notify_event",self.__move_event_handler__)
+    
+    def __move_event_handler__(self,event):
+        if event.inaxes:
+            #print cursor position to the canvas
+            self.figure.canvas.toolbar.set_message("%e %e" %(event.xdata,event.ydata))
+
+    def __button_press_event__(self,event):
+        if event.inaxes:
+            self.figure.canvas.mpl_disconnect(self.mid)
+            self.figure.canvas.mpl_disconnect(self.mid2)
+            self.xpos = event.xdata
+            self.ypos = event.ydata
+
+    def SetFigure(self,figure):
+        self.figure = figure
+        self.xpos = 0
+        self.ypos = 0
+
+        self.mid = self.figure.canvas.mpl_connect("button_press_event",self.__button_press_event__)
+        self.mid2 = self.figure.canvas.mpl_connect("motion_notify_event",self.__move_event_handler__)
+
+    def __str__(self):
+        return "%e %e\n" %(self.xpos,self.ypos)
+
 
 class DataPicker(object):
     def __init__(self,array,**keyargs):
@@ -75,6 +107,11 @@ class DataPicker(object):
         xl .................... string with the label for the x-axis
         yl .................... string with the label for the y-axis
         the default plotting style is pcolor
+
+        keybord commands:
+        d ...................... clear the point list
+        p ...................... toogle picking on of
+        c ...................... activate crosshair cursor
         """
         self.figure = xplt.figure()
         self.canvas = self.figure.canvas
@@ -85,6 +122,8 @@ class DataPicker(object):
                                                        self.__pick_event_handler__)
         self.move_mid = self.figure.canvas.mpl_connect("motion_notify_event",
                                                        self.__move_event_handler__)
+        self.key_mid  = self.figure.canvas.mpl_connect("key_press_event",
+                                                       self.__key_event_handler__)
 
         #the positions on the canvas
         b = self.figure.subplotpars.bottom 
@@ -115,6 +154,7 @@ class DataPicker(object):
         self.text_fmt = "%e %e"
         self.cursor = None
 
+        self.PickFlag = True
 
 
     def plotdata(self):
@@ -136,23 +176,46 @@ class DataPicker(object):
 
     def __pick_event_handler__(self,event):
         if event.inaxes == self.axis:
-            print "point: (%e, %e)" %(event.xdata,event.ydata)
             xlim = self.axis.get_xlim()
             ylim = self.axis.get_ylim()
-            if event.x>=xlim[0] and event.x<=xlim[1] and\
-               event.y>=ylim[0] and event.x<=ylim[1]:
+            print xlim
+            print ylim
+            if event.xdata>=xlim[0] and event.xdata<=xlim[1] and\
+               event.ydata>=ylim[0] and event.ydata<=ylim[1] and self.PickFlag:
+                print "point: (%e, %e)" %(event.xdata,event.ydata)
                 self.plist.append((event.xdata,event.ydata))
-                self.anot_sel_list.append(self.axis.plot([event.xdata],[event.ydata],"ko"))
-                self.axis.draw()
+                self.anot_sel_list.append(self.axis.plot([event.xdata],[event.ydata],"ko")[0])
+                self.canvas.draw()
+                self.axis.set_xlim(xlim[0],xlim[1])
+                self.axis.set_ylim(ylim[0],ylim[1])
+                self.canvas.draw()
 
     def __move_event_handler__(self,event):
         if event.inaxes:
             #print cursor position to the canvas
             self.figure.canvas.toolbar.set_message(self.text_fmt %(event.xdata,event.ydata))
 
+    def __key_event_handler__(self,event):
+        if event.key=="d":
+            self.clear()
+        elif event.key=="c":
+            self.crosshair()
+        elif event.key == "g":
+            self.grid()
+        elif event.key=="p":
+            if self.PickFlag:
+                self.PickFlag = False
+                print "set data selection inactive"
+                return None
+            else:
+                self.PickFlag = True
+                print "activate data selection"
+                return None
+
     def __del__(self):
         self.figure.canvas.mpl_disconnect(self.pick_mid)
         self.figure.canvas.mpl_disconnect(self.move_mid)
+        self.figure.canvas.mpl_disconnect(self.key_mid)
         xplt.close(self.figure)
 
     def __str__(self):
@@ -166,6 +229,12 @@ class DataPicker(object):
 
     def clear(self):
         self.plist = []
+        for o in self.anot_sel_list:
+            self.axis.lines.remove(o)
+
+        self.anot_sel_list = []
+
+        self.canvas.draw()
 
 
     def crosshair(self,*arg):
@@ -176,16 +245,16 @@ class DataPicker(object):
                 color = "white"
 
             self.cursor = widgets.Cursor(self.axis,useblit=True,
-                          color=color,linewidth=2)
+                          color=color,linewidth=1)
         else:
             self.cursor = None
+
+        self.canvas.draw()
             
 
     def grid(self):
         self.axis.grid()
-        self.text.set_text("")
         self.canvas.draw()
-        self.background = self.canvas.copy_from_bbox(self.figure.bbox)
 
         
 

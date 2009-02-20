@@ -189,6 +189,7 @@ def PseudomorphicMaterial(submat,layermat):
     a3[2] =  abulk-2.0*c12*(ap-abulk)/c11
     #set the new lattice for the pseudomorphic material
     pmat.lattice = lattice.Lattice(a1,a2,a3)
+    pmat.rlattice = pmat.lattice.ReciprocalLattice()
 
     return pmat
     #}}}1

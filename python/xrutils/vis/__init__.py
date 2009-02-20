@@ -1,5 +1,5 @@
 from matplib import DataPicker
-from matplib import align_int_range
+from matplib import PointSelect
 
 from dataselect import Profile1D_3D
 from dataselect import Profile1D_2D

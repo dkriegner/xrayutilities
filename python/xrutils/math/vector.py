@@ -98,10 +98,10 @@ def VecAngle(v1,v2,deg=False):
     float value with the angle inclined by the two vectors
     """
     #{{{1
-    u1 = VecUnit(v1tmp)
-    u2 = VecUnit(v2tmp)
+    u1 = VecUnit(v1)
+    u2 = VecUnit(v2)
 
-    alpha = numpy.arcos(VecDot(u1,u2))
+    alpha = numpy.arccos(VecDot(u1,u2))
     if deg:
         alpha = 180.*alpha/numpy.pi
 

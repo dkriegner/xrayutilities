@@ -1,5 +1,11 @@
 import math
 import io
 import materials
-import methods
 import vis
+
+from experiment import Experiment
+from experiment import HXRD
+from experiment import GID
+from experiment import GISAXS
+
+from gridder import Gridder2D

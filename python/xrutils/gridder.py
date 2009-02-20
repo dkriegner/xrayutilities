@@ -50,7 +50,7 @@ class Gridder2D(Gridder):
         self.gdata = numpy.zeros((nx,ny),dtype=numpy.double)
         self.gnorm = numpy.zeros((nx,ny),dtype=numpy.double)
 
-    def SetPoints(self,nx,ny):
+    def SetResolution(self,nx,ny):
         self.nx = nx
         self.ny = ny
 
@@ -65,7 +65,8 @@ class Gridder2D(Gridder):
         (nx).
         """
         dx = (self.xmax-self.xmin)/(self.nx-1)
-        return numpy.arange(self.xmin,self.xmax+0.5*dx,dx,dtype=numpy.double)
+        ax = self.xmin+dx*numpy.arange(0,self.nx)
+        return ax
 
     def GetYAxis(self):
         """
@@ -73,7 +74,8 @@ class Gridder2D(Gridder):
         Return the y-axis if the gridded data as a numpy array of shape (ny).
         """
         dy = (self.ymax-self.ymin)/(self.ny-1)
-        return numpy.arange(self.ymin,self.ymax+0.5*dy,dy,dtype=numpy.double)
+        ax = self.ymin + dy*numpy.arange(0,self.ny)
+        return ax
 
     def GetXMatrix(self):
         """
@@ -83,8 +85,6 @@ class Gridder2D(Gridder):
         """
         m = numpy.ones((self.nx,self.ny),dtype=numpy.double)
         a = self.GetXAxis()
-        print a.shape
-        print m.shape
 
         return m*a[:,numpy.newaxis]
 
