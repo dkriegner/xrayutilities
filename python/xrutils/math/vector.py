@@ -15,11 +15,11 @@ def VecNorm(v):
     """
     #{{{1
     if isinstance(v,list):
-        vtmp = numpy.ndarray(v,dtype=numpy.double)
+        vtmp = numpy.array(v,dtype=numpy.double)
     elif isinstance(v,numpy.ndarray):
         vtmp = v.astype(numpy.double)
     else:
-        raise TypeError,"Vector must be a list or numpy arra"
+        raise TypeError,"Vector must be a list or numpy array"
 
     return numpy.sqrt((vtmp**2).sum())
     #}}}1
@@ -37,9 +37,9 @@ def VecUnit(v):
     """
     #{{{1
     if isinstance(v,list):
-        vtmp = numpy.ndarray(v,dtype=numpy.double)
+        vtmp = numpy.array(v,dtype=numpy.double)
     elif isinstance(v,numpy.ndarray):
-        vtmp = v
+        vtmp = v.astype(numpy.double)
     else:
         raise TypeError,"Vector must be a list or numpy arra"
 
@@ -60,16 +60,16 @@ def VecDot(v1,v2):
     """
     #{{{1
     if isinstance(v1,list):
-        v1tmp = numpy.ndarray(v1,dtype=numpy.double)
+        v1tmp = numpy.array(v1,dtype=numpy.double)
     elif isinstance(v1,numpy.ndarray):
-        v1tmp = v1
+        v1tmp = v1.astype(numpy.double)
     else:
         raise TypeError,"Vector must be a list or numpy arra"
     
     if isinstance(v2,list):
-        v2tmp = numpy.ndarray(v2,dtype=numpy.double)
+        v2tmp = numpy.array(v2,dtype=numpy.double)
     elif isinstance(v2,numpy.ndarray):
-        v2tmp = v2
+        v2tmp = v2.astype(numpy.double)
     else:
         raise TypeError,"Vector must be a list or numpy arra"
 
@@ -100,6 +100,7 @@ def VecAngle(v1,v2,deg=False):
     #{{{1
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
+    print u1,u2
 
     alpha = numpy.arccos(VecDot(v1,v2)/u1/u2)
     if deg:
