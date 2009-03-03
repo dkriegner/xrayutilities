@@ -17,7 +17,7 @@ def VecNorm(v):
     if isinstance(v,list):
         vtmp = numpy.ndarray(v,dtype=numpy.double)
     elif isinstance(v,numpy.ndarray):
-        vtmp = v
+        vtmp = v.astype(numpy.double)
     else:
         raise TypeError,"Vector must be a list or numpy arra"
 
@@ -43,7 +43,7 @@ def VecUnit(v):
     else:
         raise TypeError,"Vector must be a list or numpy arra"
 
-    return v/VecNorm(v)
+    return vtmp/VecNorm(vtmp)
     #}}}1
 
 def VecDot(v1,v2):
