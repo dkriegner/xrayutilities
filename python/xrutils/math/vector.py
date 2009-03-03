@@ -21,7 +21,7 @@ def VecNorm(v):
     else:
         raise TypeError,"Vector must be a list or numpy arra"
 
-    return numpy.sqrt((v**2).sum())
+    return numpy.sqrt((vtmp**2).sum())
     #}}}1
 
 def VecUnit(v):
@@ -98,10 +98,10 @@ def VecAngle(v1,v2,deg=False):
     float value with the angle inclined by the two vectors
     """
     #{{{1
-    u1 = VecUnit(v1)
-    u2 = VecUnit(v2)
+    u1 = VecNorm(v1)
+    u2 = VecNorm(v2)
 
-    alpha = numpy.arccos(VecDot(u1,u2))
+    alpha = numpy.arccos(VecDot(v1,v2)/u1/u2)
     if deg:
         alpha = 180.*alpha/numpy.pi
 
