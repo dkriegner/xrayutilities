@@ -45,7 +45,6 @@ def Cij2Cijkl(cij):
                     mi = index_map_ijkl2ij(i,j)
                     mj = index_map_ijkl2ij(k,l)
                     cijkl[i,j,k,l] = m[mi,mj]
-    print m
     return cijkl
     #}}}1
 
@@ -72,7 +71,6 @@ def Cijkl2Cij(cijkl):
             kl = index_map_ij2ijkl(j)
             m[i,j] = cijkl[ij[0],ij[1],kl[0],kl[1]]
 
-    print m
     cij = m[0:6,0:6]
 
     return cij
@@ -144,6 +142,7 @@ class Transform(object):
             return olist[0]
         else:
             return olist
+
     def __str__(self):
         ostr = ""
         ostr += "Transformation matrix:\n"
