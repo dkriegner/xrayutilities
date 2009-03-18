@@ -12,7 +12,7 @@ if "install" in COMMAND_LINE_TARGETS:
     #write the config.py file
     fid = open("./python/xrutils/config.py","w")
     pref = GetOption("prefix")
-    libpath = os.path.join(pref,"lib/libxrayutils.so")
+    libpath = os.path.join(pref,"lib/libxrutils.so")
     fid.write("clib_path = \"%s\"" %libpath)
     fid.close()
 
