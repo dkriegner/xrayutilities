@@ -33,3 +33,23 @@ is available.
 
 Installing the Python module
 ----------------------------
+
+If you have installed the Python package in a directory unknown to your 
+local Python distribution you have to tell Python where to look for 
+the Package. There are several ways how to do this:
+
+-) add the directory where the package is installed to your 
+   PYTHONPATH environment variable.
+
+-) add the path to sys.path in the .pythonrc file placed in your home 
+   directory.
+
+   import sys
+   sys.path.append("path to the xrutils package")
+
+-) simply apply the previous method in every script where you want to 
+   use the xrutils package before importing the package:
+
+   import sys
+   sys.path.append("path to the xrutils package")
+   import xrutils
