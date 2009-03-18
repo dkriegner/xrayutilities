@@ -16,10 +16,14 @@ if "install" in COMMAND_LINE_TARGETS:
     fid.write("clib_path = \"%s\"" %libpath)
     fid.close()
 
-#add the aliases
+#add the aliases for install target
 ilpath = env.Alias("instlib","$PREFIX/lib")
 iltool = env.Alias("insttool","$PREFIX/bin")
 env.Alias("install",[ilpath,iltool])
+
+#add aliases for documentation target
+ugdoc = env.Alias("ugdoc","doc/manual/xrutils.pdf")
+env.Alias("doc",[ugdoc])
 
 dbg = env.Clone()
 opt = env.Clone()
@@ -30,4 +34,4 @@ Export("dbg")
 Export("opt")
 
 #add subdirectories
-SConscript(["src/SConscript"])
+SConscript(["src/SConscript","doc/manual/SConscript"])

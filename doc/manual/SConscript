@@ -1,0 +1,4 @@
+#build the user manual with pdflatex
+Import("opt")
+
+opt.PDF("xrutils.pdf","xrutils.tex")
