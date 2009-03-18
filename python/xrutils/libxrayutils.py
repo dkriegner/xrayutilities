@@ -7,9 +7,10 @@
 
 import numpy
 import ctypes
+import config
 
 
-_library = ctypes.CDLL("libxrayutils.so")
+_library = ctypes.cdll.LoadLibrary(config.clib_path)
 
 #attach functions from the gridder module
 _gridder2d = _library.gridder2d

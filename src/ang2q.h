@@ -24,7 +24,7 @@ int a2q_xrd2d(double *om,double *th2,
               double lambda,double geom,double dom,double dth2);
 int a2q_xrd3d(double *om,double *th2,double *delta,
               double *qx,double *qy,double *qz,
-              unsigned int n,double lambda,double *geom,
+              unsigned int n,double lambda,double geom,
               double dom,double dth2,double ddelta);
 
 /*functions and data types for xrd/xrr q-space converions using multithreading*/

@@ -175,7 +175,7 @@ void *a2q_xrd2d_thworker(void *args)
 
 int a2q_xrd3d(double *om,double *th2,double *del,
               double *qx,double *qy,double *qz,
-              unsigned int n,double lambda,double *geom,
+              unsigned int n,double lambda,double geom,
               double dom,double dth2,double ddelta)
 /*{{{1*/
 {
@@ -199,7 +199,7 @@ int a2q_xrd3d(double *om,double *th2,double *del,
         tmp2  = 0.5*tth - omega;
 
         qx[i] = k02*tmp1*sin(geom*tmp2);
-        qy[i] = k02*tmp1*sin(geom*tmp2)*sin(delta)
+        qy[i] = k02*tmp1*sin(geom*tmp2)*sin(delta);
         qz[i] = k02*tmp1*cos(geom*tmp2)*cos(delta);
     }
 

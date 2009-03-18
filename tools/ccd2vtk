@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+import sys
+import optparse
+import numpy
+import xrutils as xu
+import pyvtk
+
+help_str = """
+ccd2vtk - converts raw CCD detector data to a VTK file with volume data.
+
+This small program converts CCD frames to a VTK file with volume data 
+for 3D visualization.
+"""
+
+
+def show_help():
+    print help_str
+
+
+#---------------------Setup command line options-------------------------
+#{{{1
+oparse = optparse.OptionParser()
+
+class ProgramConfiguration(object):
+    def __init__(self):
+        pass
+
+def program_setup(options):
+    #{{{2
+    cnf = ProgramConfiguration()
+    if options.file_template=="":
+        print "you must provide a template for input files!"
+        sys.exit()
+    else:
+        cnf.input_file_template = options.file_template
+
+    cnf.output_file = options.output_file
+
+    if options.main_index_range == "":
+        print "you must provide a range for the input files!"
+        sys.exit()
+    else:
+        rl = options.main_index_range.split(":")
+        conf.main_range = range(int(rl[0]),int(rl[2]),int(rl[1]))
+
+    if options.sec_index_range != "":
+        rl = options.sec_index_range.split(":")
+        conf.sec_range = range(int(rl[0]),int(rl[2]),int(rl[1]))
+    else:
+        conf.sec_range = None
+
+    if options.x_roi != "":
+        rl = options.x_roi.split(",")
+        conf.x_roi = [int(rl[0]),int(rl[1])]
+    else:
+        conf.x_roi = None
+
+    if options.y_roi != "":
+        rl = options.y_roi.split(",")
+        conf.y_roi = [int(rl[0]),int(rl[1])]
+    else:
+        conf.y_roi = None
+
+    return conf
+    #}}}2
+
+def get_ccd_size(conf):
+    
+    if conf.sec_range == None:
+        fname = conf.input_file_template %(conf.main_range[0])
+    else:
+        fname = conf.input_file_template %(conf.main_range[0],conf.sec_range[0])
+
+    try:
+        f = xu.io.EDFFile(fname)
+        f.ReadData()
+    except:
+        print "error reading data file %s!" %fname
+        sys.Exit()
+
+    return f.data.shape
+
+
+#add command line options
+oparse.add_option("-t","--template",dest="file_template",type="string",default="",
+                  help="filename template as C format string",
+                  metavar="TEMPLATE")
+oparse.add_option("-o","--out-file",dest="output_file",type="string",
+                  default="ccd.vtk",
+                  help="filename of the resulting VTK file",
+                  metavar="FILE")
+oparse.add_option("-m","--main-index",dest="main_index_range",type="string",
+                  default="",
+                  help="main index range for the CCD frames",
+                  metavar="START:STEP:STOP")
+oparse.add_option("-s","--sec-index",dest="sec_index_range",type="string",
+                  help="secondary index range for CCD frames",
+                  metavar="START:STEP:STOP")
+oparse.add_option("-d","--dark-template",dest="darf_file_template",
+                  default="",
+                  help = "file template for dark current images",
+                  metavar="C FORMAT STRING")
+oparse.add_option("-c","--corr-strat",dest="correction_strategy",type="string",
+                  default="no",
+                  help="dark current correction strategy",
+                  metavar="NO,INDIVIDUAL,COLLECTIVE")
+oparse.add_option("-f","--filter-size",dest="filter_size",type="string",
+                  default="",
+                  help="size of the filter box",
+                  metavar="nxm")
+oparse.add_option("--roi-x",dest="x_roi",type="string",default="",
+                  help="ROI in x-direction",metavar="START,STOP")
+oparse.add_option("--roi-y",dest="y_roi",type="string",default="",
+                  help="ROI in y-direction",metavar="START,STOP")
+
+(options,arguments) = oparse.parse_args()
+prgcnf = program_setup(options)
+
+#}}}1
+
+#program main reading loop
+for i in range(len(prgcnf.main_range)):
+    if prgcnf.sec_range==None:
+        #no partial images must be read
+        pass
+    else:
+        for j in prgcnf.sec_range:
+            fname = prgcnf.input_file_template %(i,j)
+            try:
+                f = xu.io.EDFFile(fname)
+                f.ReadData()
+                      
