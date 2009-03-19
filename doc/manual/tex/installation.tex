@@ -1,9 +1,101 @@
 %%%installation notes
 
-
+Installing {\tt xrutils} is a three steps process
+\begin{enumerate}
+\item install required C libraries and Python modules
+\item build and install the {\tt xrutils} C library
+\item install the Python module
+\end{enumerate}
+All steps are described in detail in this chapter.
 
 \section{Required third party software}
+To keep the coding effort as small as possible {\tt xrutils} depends on a 
+large number of third party libraries and Python modules. 
+
+The following C/C++ libraries are needed 
+\begin{description}
+\item[VTK] the Visualization Toolkit, a large C++ library for 3D data
+visualization
+\item[HDF5] a versatile binary data format (library is implemented in C).
+Although the library is not called directly, it is needed by the pytables Python
+module (see below).
+\end{description}
+
+Additionally, the following Python modules must be installed in order to make 
+{\tt xrutils} work as intended
+\begin{description}
+\item[Numpy] a Python module providing numerical array objects
+\item[VTK Python bindings] usually contained in the VTK distribution, however,
+on some system the Python bindings must be installed separately 
+\item[Python-Tables] a powerful Python interface to HDF5
+\item[Matplotlib] a Python module for high quality 1D and 2D plotting
+\item[pyvtk] reading and writing legacy VTK files
+\end{description}
+After installing all required packages you can continue with installing and
+building the C library.
 
 \section{Building and installing the C library}
 
+{\tt xrutils} user the SCons build system to compile the C components of the
+system. You can build the library simply by typing 
+\begin{verbatim}
+>scons
+\end{verbatim}
+in the root directory of the source distribution. After building the library can
+be installed with
+\begin{verbatim}
+>scons install --prefix=<install path>
+\end{verbatim}
+The library is installed in {\tt<install path>/lib}. It is absolutely necessary
+to perform this step before installing the Python module since during
+installation of the C library a file {\tt config.py} is created in the top
+package of the Python module containing the path to the C library. This is in so
+far important that the {\tt ctypes} module used to access C library functions
+uses this path to find the library. In principal this step could have been
+omitted on Linux systems where environment variables can be used to tell the
+system where to look for shared libraries. However, on Windows systems, for
+instance, no such facility exists and therefore, relying on such mechanisms
+would make the installation process highly platform dependent. 
+
+The documentation can be build with 
+\begin{verbatim}
+>scons doc
+\end{verbatim}
+which creates this file under {\tt doc/manual/}.
+
+Finally after installing the C library you can continue with installing the
+Python module.
+
 \section{Installing the Python package}
+
+Installation of the Python module is done via the {\tt distutils} package
+shipped with every Python distribution. Actually, two installation modes are 
+supported
+\begin{itemize}
+ \item system wide installation in the system wide Python installation
+ \item local to a single user only.
+\end{itemize}
+
+In the first case, to install {\tt xrutils} into the global Python installation
+simply run
+\begin{verbatim}
+>python setup.py
+\end{verbatim}
+From the root directory of the {\tt xrutils} source distribution (this is the
+directory where also the {\tt SConstruct} file resides). Since your system-wide
+Python installation is setup correctly you are done with the installation.
+
+If you want to install
+{\tt xrutils} only local to a single user use
+\begin{verbatim}
+>python setup.py --home=<local install path>
+\end{verbatim}
+In this case the {\tt xrutils} package is installed under {\tt <local install
+path>/lib/python}. Finally you need to make your Python installation aware of
+were to look for the module. For this case append the installation directory to
+your {\tt PYTHONPATH} environment variable by 
+\begin{verbatim}
+>export PYTHONPATH=$PYTHONPATH:<local install path>/lib/python
+\end{verbatim}
+on a terminal. Or, to make this configuration persistent append this line to
+your local {\tt .bashrc} file in your home directory.

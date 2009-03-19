@@ -4,7 +4,7 @@ AddOption("--prefix",dest="prefix",type="string",
           default="/usr/local",metavar="INSTPREFIX",
           action="store",nargs=1)
 
-env = Environment(PREFIX=GetOption("prefix"),
+env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
                   CCFLAGS=["-fPIC","-Wall","-pthread"],
                   LIBS=["m","pthread"])
 
@@ -17,13 +17,10 @@ if "install" in COMMAND_LINE_TARGETS:
     fid.close()
 
 #add the aliases for install target
-ilpath = env.Alias("instlib","$PREFIX/lib")
-iltool = env.Alias("insttool","$PREFIX/bin")
-env.Alias("install",[ilpath,iltool])
+env.Alias("install",["$PREFIX/lib","$PREFIX/bin"])
 
 #add aliases for documentation target
-ugdoc = env.Alias("ugdoc","doc/manual/xrutils.pdf")
-env.Alias("doc",[ugdoc])
+env.Alias("doc",["doc/manual/xrutils.pdf"])
 
 dbg = env.Clone()
 opt = env.Clone()

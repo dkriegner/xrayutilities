@@ -5,7 +5,6 @@ Import("opt")
 sources = File(["gridder.c","ang2q.c"])
 objects_opt = opt.SharedObject(sources)
 lib = opt.SharedLibrary("xrutils",objects_opt)
-print lib
 Default(lib)
 
 #install the library
