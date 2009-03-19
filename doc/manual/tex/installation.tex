@@ -79,7 +79,7 @@ supported
 In the first case, to install {\tt xrutils} into the global Python installation
 simply run
 \begin{verbatim}
->python setup.py
+>python setup.py install
 \end{verbatim}
 From the root directory of the {\tt xrutils} source distribution (this is the
 directory where also the {\tt SConstruct} file resides). Since your system-wide
@@ -88,7 +88,7 @@ Python installation is setup correctly you are done with the installation.
 If you want to install
 {\tt xrutils} only local to a single user use
 \begin{verbatim}
->python setup.py --home=<local install path>
+>python setup.py install --home=<local install path>
 \end{verbatim}
 In this case the {\tt xrutils} package is installed under {\tt <local install
 path>/lib/python}. Finally you need to make your Python installation aware of
