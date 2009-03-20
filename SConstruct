@@ -12,7 +12,10 @@ if "install" in COMMAND_LINE_TARGETS:
     #write the config.py file
     fid = open("./python/xrutils/config.py","w")
     pref = GetOption("prefix")
-    libpath = os.path.join(pref,"lib/libxrutils.so")
+    if os.sys.platform == "darwin":
+        libpath = os.path.join(pref,"lib","libxrutils.dylib")
+    elif os.sys.platform == "linux2":
+        libpath = os.path.join(pref,"lib","libxrutils.so")
     fid.write("clib_path = \"%s\"" %libpath)
     fid.close()
 
