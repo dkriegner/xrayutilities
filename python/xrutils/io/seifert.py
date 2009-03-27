@@ -72,6 +72,8 @@ class SeifertHeader(object):
             value = self.__getattribute__(a)
             obj._v_attrs.__setattr__(a,value)
 
+
+
 class SeifertMultiScan(object):
     def __init__(self,filename,m_scan,m2):
         """
@@ -340,8 +342,20 @@ class SeifertScan(object):
 
         h5.flush() 
 
-    def dump2mlab(self,fname):
+    def dump2mlab(self,fname,*args):
+        """
+        dump2mlab(fname):
+        Save the data from a Seifert scan to a matlab file.
+
+        required input arugments:
+        fname .................. name of the matlab file
+
+        optional position arguments:
+        names to use to store the motors. The first must be the name 
+        for the intensity array. The number of names must be equal to the second 
+        element of the shape of the data object.
+
+        """
         pass
-        
 
 
