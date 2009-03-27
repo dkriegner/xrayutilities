@@ -112,7 +112,6 @@ class CCD(Detector):
         self.xroi = [0,xchans-1]
         self.yroi = [0,ychans-1]
 
-    def Channel2Angle(self,
         
 
 
