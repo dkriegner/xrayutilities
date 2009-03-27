@@ -148,11 +148,93 @@ def Gridder3D(Gridder2D):
         self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
         self.gnorm = numpy.zeros((nx,ny,nz),dtype=numpy.double)
 
-    def GetZMatrix(self):
-        pass
+    def GetXMatrix(self):
+        """
+        GetXMatrix():
+        Return x axis in form of a matrix of shape (nx,ny,nz). The axis value 
+        vary along the first index (nx).
+        """
+        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
+        a = self.GetXAxis()
 
+        return m*a[:,numpy.newaxis]
+    
+    def GetYMatrix(self):
+        """
+        GetYMatrix():
+        Return y axis in form of a matrx of shape (nx,ny,nz) where the 
+        axis values vary along the second index ny.
+        """
+        a = self.GetYAxis()
+        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
+
+        return m*a[numpy.newaxis,:,numpy.newaxis]
+    
     def GetZAxis(self):
-        pass
+        """
+        GetZAxis():
+        Return the z-axis if the gridded data as a numpy array of shape (nz).
+        """
+        dy = (self.zmax-self.zmin)/(self.nz-1)
+        az = self.zmin + dz*numpy.arange(0,self.nz)
+        return az
+
+    def GetZMatrix(self):
+        """
+        GetZMatrix():
+        Return z axis in form of a matrx of shape (nx,ny,nz) where the 
+        axis values vary along the third index nz.
+        """
+        a = self.GetZAxis()
+        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
+
+        return m*a[numpy.newaxis,numpy.newaxis,:]
+        
+
+    def GridData(self,x,y,z,data):
+        """
+        GridData(x,y,data):
+        Perform gridding on a set of data. After running the gridder 
+        the gdata object in the class is holding the gridded data.
+
+        required input argument:
+        x ............... numpy array of arbitrary shape with x positions
+        y ............... numpy array of arbitrary shape with y positions
+        z ............... numpy array fo arbitrary shape with z positions
+        data ............ numpy array of arbitrary shape with data values
+        """
+
+        x = x.reshape(x.size)
+        y = y.reshape(y.size)
+        z = z.reshape(z.size)
+        data = data.reshape(data.size)
+
+        self.xmin = x.min()
+        self.xmax = x.max()
+        self.ymin = y.min()
+        self.ymax = y.max()
+        self.zmin = z.min()
+        self.zmax = z.max()
+
+        if self.nthreads != 0:
+            #use threaded code
+            print "using threaded code ..."
+            libxrayutils._gridder3d_th(ctypes.c_uint(self.nthreads),x,y,z,data,ctypes.c_uint(x.size),
+                                      ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
+                                      ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
+                                      ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
+                                      ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
+                                      self.gdata,self.gnorm,self.flags)
+        else:
+            #use sequential code - good for small data
+            print "using sequential code ..."
+            print self.flags
+            libxrayutils._gridder3d(x,y,z,data,ctypes.c_uint(x.size),
+                                   ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
+                                   ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
+                                   ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
+                                   ctypes.c_double(self.zmin),ctypes.c_doubel(self.zmax),
+                                   self.gdata,self.gnorm,ctypes.c_int(self.flags))
 
   
 

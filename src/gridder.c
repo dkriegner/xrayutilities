@@ -173,22 +173,7 @@ int gridder2d_th(unsigned int nth,
     }
 
     /*run here the local code for this threads*/
-    start = 0;
-    stop  = thargs[0].npres + thargs[0].npth;
-    for(i=start;i<stop;i++){
-        if ((x[i]<xmin)||(x[i]>xmax)) continue;
-        if ((y[i]<ymin)||(y[i]>ymax)) continue;
-
-        x_index = (unsigned int)rint((thargs[0].x[i]-thargs[0].xmin)/thargs[0].dx);
-        y_index = (unsigned int)rint((thargs[0].y[i]-thargs[0].ymin)/thargs[0].dy);
-
-        offset = x_index*thargs[0].ny+y_index;
-
-        pthread_mutex_lock(&gridder_mutex); 
-        thargs[0].odata[offset] += thargs[0].data[i];
-        thargs[0].norm[offset] += 1.;
-        pthread_mutex_unlock(&gridder_mutex);
-    }
+    gridder2d_th_worker((void *)&thargs[0]);
 
     /*once the local code is inished all other threads are joined to 
      *until they are finished*/
@@ -228,12 +213,28 @@ void *gridder2d_th_worker(void *arg)
     unsigned int offset;
     _ThGridderArgs tharg;
     unsigned int start,stop;
+    unsigned int *x_index_buffer;
+    unsigned int *y_index_buffer;
+    unsigned int *offset_buffer;
+    unsigned int *data_index_buffer;
+    unsigned int valid_point_count=0;
+    unsigned int index;
 
     tharg = *(_ThGridderArgs *)arg;
 
     /*the master loop over all data points*/
-    start = tharg.npres + tharg.thid*tharg.npth;
-    stop  = start + tharg.npth;
+    if(tharg.thid==0){
+        start = 0;
+        stop  = tharg.npres + tharg.npth;
+    }else{
+        start = tharg.npres + tharg.thid*tharg.npth;
+        stop  = start + tharg.npth;
+    }
+    
+    /*allocate memory of the offset buffer*/
+    offset_buffer = malloc(sizeof(unsigned int)*tharg.npth);
+    data_index_buffer = malloc(sizeof(unsigned int)*tharg.npth);
+
     for(i=start;i<stop;i++){
         if ((tharg.x[i]<tharg.xmin)||(tharg.x[i]>tharg.xmax)) continue;
         if ((tharg.y[i]<tharg.ymin)||(tharg.y[i]>tharg.ymax)) continue;
@@ -242,17 +243,34 @@ void *gridder2d_th_worker(void *arg)
         y_index = (unsigned int)rint((tharg.y[i]-tharg.ymin)/tharg.dy);
 
         offset = x_index*tharg.ny+y_index;
+        offset_buffer[valid_point_count] = offset;
+        data_index_buffer[valid_point_count] = i;
+        valid_point_count++;
 
-        /*set mutex lock*/
-        pthread_mutex_lock(&gridder_mutex);
-        tharg.odata[offset] += tharg.data[i];
-        tharg.norm[offset] += 1.;
-        pthread_mutex_unlock(&gridder_mutex);
-
-        /*release mutex lock*/
     }
 
-    pthread_exit(NULL);
+    pthread_mutex_lock(&gridder_mutex);
+    for(i=0;i<valid_point_count;i++){
+        offset = offset_buffer[i];
+        index  = data_index_buffer[i];
+        tharg.odata[offset] += tharg.data[index];
+        tharg.norm[offset] += 1.; 
+    }
+    pthread_mutex_unlock(&gridder_mutex);
+
+
+    free(offset_buffer);
+    free(data_index_buffer);
+
+    if(tharg.thid==0){
+        /*if the calling thread is the zero thread return 0 to avoid 
+         *the entire program is exiting
+         */
+        return(0);
+    }else{
+        /*any other thread returns with pthread_exit()*/
+        pthread_exit(NULL);
+    }
 }
 /*}}}1*/
 
@@ -267,7 +285,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     double *gnorm;
     unsigned int i;
     unsigned int offset;
-    int x_index,y_index,z_index;
+    unsigned int x_index,y_index,z_index;
 
 
     /*determine axis minimum and maximum*/
@@ -302,9 +320,9 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
 
     /*the master loop over all data points*/
     for(i=0;i<n;i++){
-        x_index = rint((x[i]-xmin)/dx);
-        y_index = rint((y[i]-ymin)/dy);
-        z_index = rint((z[i]-zmin)/dz);
+        x_index = (unsigned int)rint((x[i]-xmin)/dx);
+        y_index = (unsigned int)rint((y[i]-ymin)/dy);
+        z_index = (unsigned int)rint((z[i]-zmin)/dz);
 
         offset = x_index*ny*nz+y_index*nz+z_index;
         odata[offset] += data[i];
@@ -449,7 +467,7 @@ int gridder3d_th(unsigned int nth,
     }
 
     /*run here the local code for this threads*/
-    start = 0;
+    start = 0; 
     stop  = thargs[0].npres + thargs[0].npth;
     for(i=start;i<stop;i++){
         x_index = rint((thargs[0].x[i]-thargs[0].xmin)/thargs[0].dx);
@@ -501,19 +519,37 @@ void *gridder3d_th_worker(void *arg)
     unsigned int offset;
     _ThGridderArgs tharg;
     unsigned int start,stop;
+    unsigned int *offset_buffer;
+    unsigned int *data_index_buffer;
+    unsigned int valid_point_count;
+    unsigned int index;
 
     tharg = *(_ThGridderArgs *)arg;
 
+    /*allocate local buffer memory*/
+    offset_buffer = malloc(sizeof(unsigned int)*thargs.npth);
+    data_index_buffer = malloc(sizeof(unsigned int)*thargs.npth);
+
     /*the master loop over all data points*/
-    start = tharg.npres + tharg.thid*tharg.npth;
-    stop  = start + tharg.npth;
+    if (tharg.thid ==0 ){
+        start = 0;
+        stop  = tharg.npres + tharg.npth;
+    }else{
+        start = tharg.npres + tharg.thid*tharg.npth;
+        stop  = start + tharg.npth;
+    }
+
     for(i=start;i<stop;i++){
-        x_index = rint((tharg.x[i]-tharg.xmin)/tharg.dx);
-        y_index = rint((tharg.y[i]-tharg.ymin)/tharg.dy);
-        z_index = rint((tharg.z[i]-tharg.zmin)/tharg.dz);
+        x_index = (unsigned int)rint((tharg.x[i]-tharg.xmin)/tharg.dx);
+        y_index = (unsigned int)rint((tharg.y[i]-tharg.ymin)/tharg.dy);
+        z_index = (unsigned int)rint((tharg.z[i]-tharg.zmin)/tharg.dz);
 
         offset = x_index*tharg.ny*tharg.nz+y_index*tharg.nz
                  +z_index;
+
+        offset_buffer[valid_point_count] = offset;
+        data_index_buffer[valid_point_count] = i;
+        valid_point_count ++;
 
         pthread_mutex_lock(&gridder_mutex);
         tharg.odata[offset] += tharg.data[i];
@@ -521,7 +557,25 @@ void *gridder3d_th_worker(void *arg)
         pthread_mutex_unlock(&gridder_mutex);
     }
 
-    pthread_exit(NULL);
+    /*copy data*/
+    pthread_mutex_lock(&gridder_mutex);
+    for(i=0;i<valid_point_count;i++){
+        offset = offset_buffer[i];
+        index  = data_index_buffer[i];
+        tharg.odata[offset] += tharg.data[index];
+        tharg.norm[offset]  += 1.;
+    }
+    pthread_mutex_unlock(&gridder_mutex);
+
+    /*free local memory*/
+    free(offset_buffer);
+    free(data_index_buffer);
+
+    if (tharg.thid==0){
+        return(0);
+    }else{
+        pthread_exit(NULL);
+    }
 }
 /*}}}1*/
 

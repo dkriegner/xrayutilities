@@ -19,3 +19,6 @@ from dataselect import IntPlane
 from dataselect import XYPlane
 from dataselect import YZPlane
 from dataselect import XZPlane
+
+from numpy_support import vtk_to_numpy
+from numpy_support import numpy_to_vtk
