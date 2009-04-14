@@ -84,7 +84,6 @@ class EDFFile(object):
         offset = 0
 
         while True:
-            offset = self.fid.tell()
             line_buffer = self.fid.readline()
            
             #remove leading and trailing whitespace symbols
@@ -96,7 +95,11 @@ class EDFFile(object):
             
             if hdr_flag:                 
                 #stop reading when the end of the header is reached
-                if line_buffer == "}": break  
+                if line_buffer == "}": 
+                    #place offset reading here - here we get the 
+                    #real starting position of the binary data!!!!
+                    offset = self.fid.tell()
+                    break  
                 
                 #continue if the line has no content
                 if line_buffer == "": continue                

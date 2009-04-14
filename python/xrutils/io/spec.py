@@ -18,6 +18,7 @@ import tables
 #define some uesfull regular expressions
 SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")
 SPEC_multi_blank = re.compile(r"\s+")
+SPEC_multi_blank2 = re.compile(r"\s\s+")
 SPEC_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+") #denotes a numeric value
 SPEC_dataline = re.compile(r"^[+-]*\d.*")
 
@@ -31,9 +32,12 @@ SPEC_colnames = re.compile(r"^#L")
 SPEC_MCAFormat = re.compile(r"^#@MCA")
 SPEC_MCAChannels = re.compile(r"^#@CHANN")
 SPEC_headerline = re.compile(r"^#")
+SPEC_scanbroken = re.compile(r"#C")
 
 
 DEBUG_FLAG = False;
+
+scan_status_flags = ["OK","ABORTED","CORRUPTED"]
 
 class SPECScan(object):
     """
@@ -41,7 +45,7 @@ class SPECScan(object):
     Represents a single SPEC scan. 
     """
     def __init__(self,name,scannr,command,date,time,itime,colnames,hoffset,
-                 doffset,fid,imopnames,imopvalues):
+                 doffset,fid,imopnames,imopvalues,scan_status):
         """
         Constructor for the SPECScan class.
 
@@ -55,6 +59,9 @@ class SPECScan(object):
         hoffset .......... file byte offset to the header of the scan
         doffset .......... file byte offset to the data section of the scan
         fid .............. file ID of the SPEC file the scan belongs to
+        imopnames ........ motor names for the initial motor positions array
+        imopvalues ....... intial motor positions array
+        scan_status ...... is one of the values 
         
         """
         self.name = name            #name of the scan
@@ -66,6 +73,12 @@ class SPECScan(object):
         self.hoffset = hoffset      #file offset where the header data starts
         self.doffset = doffset      #file offset where the data section starts
         self.fid = fid              #descriptor of the file holding the data
+
+        if scan_status in scan_status_flags:
+            self.scan_status = scan_status
+        else:
+            self.scan_status = "CORRUPTED"
+            print "unknown scan status flag - set to CORRUPTED"
         
         #setup the initial motor positions dictionary - set the motor names
         self.init_motor_pos = {}    #dictionary holding the initial motor positions        
@@ -166,6 +179,10 @@ class SPECScan(object):
             line_buffer = self.fid.readline()
             line_buffer = line_buffer.strip()            
             if line_buffer=="" or SPEC_headerline.match(line_buffer): break
+            #check if scan is broken
+            if SPEC_scanbroken.findall(line_buffer) != []:
+                self.scan_status = "ABORTED"
+                break
                 
             if mca_counter == 0:
                 #the line is a scalar data line                
@@ -493,6 +510,12 @@ class SPECFile(object):
                 line_buffer = SPEC_colnames.sub("",line_buffer)
                 line_buffer = line_buffer.strip()                
                 col_names = SPEC_multi_blank.split(line_buffer)  
+
+                #this is a fix in the case that blanks are allowed in 
+                #motor and detector names (only a single balanks is supported 
+                #meanwhile)
+                if len(col_names)>nofcols:
+                    col_names = SPEC_multi_blank2.split(line_buffer)
                 
             elif SPEC_MCAFormat.match(line_buffer) and scan_started:                
                 mca_col_number = int(SPEC_num_value.findall(line_buffer)[0])
