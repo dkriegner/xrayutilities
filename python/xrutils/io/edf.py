@@ -82,6 +82,7 @@ class EDFFile(object):
         hdr_flag = False
         ml_value_flag = False #marks a multiline header
         offset = 0
+        byte_order = ""
 
         while True:
             line_buffer = self.fid.readline()
@@ -134,6 +135,8 @@ class EDFFile(object):
 
         #to read the data we have to open the file in binary mode
         binfid = open(self.full_filename,"rb")
+        byte_order = self.header["ByteOrder"]
+        print byte_order
         #evaluate some header entries
         fmt_str = DataTypeDict[self.header[self.dtkey]]
         #hdr_size = int(self.header["EDF_HeaderSize"])

@@ -474,6 +474,7 @@ class SPECFile(object):
                 scan_started = True
                 scan_has_mca = False
                 scan_header_offset = self.last_offset               
+                scan_status = "OK"
 
             #if the line contains the date and time information
             elif SPEC_datetime.match(line_buffer) and scan_started:
@@ -541,7 +542,7 @@ class SPECFile(object):
                 s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
                              date,time,itime,col_names,
                              scan_header_offset,scan_data_offset,self.fid,
-                             self.init_motor_names,init_motor_values)
+                             self.init_motor_names,init_motor_values,scan_status)
                 if scan_has_mca:
                     s.SetMCAParams(mca_col_number,mca_channels,mca_start,
                                    mca_stop)
