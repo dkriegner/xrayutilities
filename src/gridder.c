@@ -527,8 +527,8 @@ void *gridder3d_th_worker(void *arg)
     tharg = *(_ThGridderArgs *)arg;
 
     /*allocate local buffer memory*/
-    offset_buffer = malloc(sizeof(unsigned int)*thargs.npth);
-    data_index_buffer = malloc(sizeof(unsigned int)*thargs.npth);
+    offset_buffer = malloc(sizeof(unsigned int)*tharg.npth);
+    data_index_buffer = malloc(sizeof(unsigned int)*tharg.npth);
 
     /*the master loop over all data points*/
     if (tharg.thid ==0 ){
