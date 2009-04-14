@@ -14,9 +14,7 @@ def detrowcorr(mca,**keyargs):
     threshold ......... default is 10% -> if the row sum is 10% lower than the sourounding.
     range ............. range of rows to be corrected
     """
-    
-    for i in range(mca.shape[0]):
-	#loop over all rows
+    pass    
 
 
 def detcolcorr(mca):

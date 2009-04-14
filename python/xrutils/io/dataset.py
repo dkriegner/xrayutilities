@@ -19,6 +19,7 @@ class DataRecord(object):
 
     def __str__(self):
         #string representation of the record
+        pass
         
 
 
@@ -29,9 +30,9 @@ class Dataset(object):
         self.coldict = {};
         self.nofrows = 0;
 
-    def getrec(self,index,
+    
 
-    def plot1d(*args,**keyargs):
+    def plot1d(self,*args,**keyargs):
         #check if data is ok for 1D plotting
         #this is the case for the following situations:
         #if only one argument is given
@@ -71,7 +72,8 @@ class Dataset(object):
         else:
             plotopts = "b-";
 
-        if keyargs.has_key("po")
+        if keyargs.has_key("po"):
+            pass
 
         #build x-axis and y-axis label
         xaxis_name = xname+xunit;
@@ -90,7 +92,8 @@ class Dataset(object):
 
 
         #first situation - x and y are 1D arrays
-        if len(xaxis.shape)==1 and len(yaxis.shape)==1
+        if len(xaxis.shape)==1 and len(yaxis.shape)==1:
+            pass
 
 
         if keyargs.has_key("ps"):
@@ -102,7 +105,7 @@ class Dataset(object):
             self.plot = figure.plot(xaxis,yaxis,plotopts);
         
 
-    def plot2d(xnamy,yname,yname):
+    def plot2d(xnamy,xname,yname):
         pass
 
     def dump2hdf5(self,h5file):
