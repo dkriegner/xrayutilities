@@ -136,7 +136,6 @@ class EDFFile(object):
         #to read the data we have to open the file in binary mode
         binfid = open(self.full_filename,"rb")
         byte_order = self.header["ByteOrder"]
-        print byte_order
         #evaluate some header entries
         fmt_str = DataTypeDict[self.header[self.dtkey]]
         #hdr_size = int(self.header["EDF_HeaderSize"])
@@ -176,6 +175,8 @@ class EDFFile(object):
             self.data = numpy.array(num_data,dtype=dtype.double)
             
         self.data = self.data.reshape(dimy,dimx)
+        if byte_order != "LowByteFirst":
+            print "check byte order - not low byte first"
 
         #close the binary file descriptor
         binfid.close()
