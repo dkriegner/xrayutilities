@@ -140,7 +140,7 @@ class Gridder2D(Gridder):
     def GridDataChunked(self,xobj,yobj,zobj):
         pass
 
-def Gridder3D(Gridder2D):
+class Gridder3D(Gridder2D):
     def __init__(self,nx,ny,nz):
         Gridder2D.__init__(self,nx,ny)
 
