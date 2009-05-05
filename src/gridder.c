@@ -276,25 +276,25 @@ void *gridder2d_th_worker(void *arg)
 
 int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
               unsigned int nx,unsigned int ny,unsigned int nz,
+              double xmin, double xmax, double ymin, double ymax, 
+              double zmin, double zmax,
               double *odata,double *norm,int flags)
 /*{{{1*/
 {
-    double xmin,xmax,dx;
-    double ymin,ymax,dy;
-    double zmin,zmax,dz;
+    double dx,dy,dz;
     double *gnorm;
     unsigned int i;
     unsigned int offset;
     unsigned int x_index,y_index,z_index;
 
-
+    /* minima and maxima are now calculated in python code */
     /*determine axis minimum and maximum*/
-    xmin = get_min(x,n);
+    /*xmin = get_min(x,n);
     xmax = get_max(x,n);
     ymin = get_min(y,n);
     ymax = get_max(y,n);
     zmin = get_min(z,n);
-    zmax = get_max(z,n);
+    zmax = get_max(z,n);*/
 
     dx = (xmax-xmin)/(double)(nx-1);
     dy = (ymax-ymin)/(double)(ny-1);
@@ -351,6 +351,8 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
 int gridder3d_th(unsigned int nth,
                  double *x,double *y,double *z,double *data,unsigned int n,
                  unsigned int nx,unsigned int ny,unsigned int nz,
+                 double xmin, double xmax, double ymin, double ymax, 
+                 double zmin, double zmax,
                  double *odata,double *norm,int flags)
 /*{{{1*/
 {
@@ -358,9 +360,7 @@ int gridder3d_th(unsigned int nth,
     pthread_attr_t thattr;
     _ThGridderArgs *thargs;
     int npth,npres;
-    double xmin,xmax,dx;
-    double ymin,ymax,dy;
-    double zmin,zmax,dz;
+    double dx,dy,dz;
     double *gnorm;
     unsigned int i;
     unsigned int offset;
@@ -369,14 +369,14 @@ int gridder3d_th(unsigned int nth,
     int rc;
     void *status;
 
-
+    /* minima and maxima are now calculated in python code */
     /*determine axis minimum and maximum*/
-    xmin = get_min(x,n);
+    /*xmin = get_min(x,n);
     xmax = get_max(x,n);
     ymin = get_min(y,n);
     ymax = get_max(y,n);
     zmin = get_min(z,n);
-    zmax = get_max(z,n);
+    zmax = get_max(z,n);*/
 
     dx = (xmax-xmin)/(double)(nx-1);
     dy = (ymax-ymin)/(double)(ny-1);
@@ -579,7 +579,8 @@ void *gridder3d_th_worker(void *arg)
 }
 /*}}}1*/
 
-
+/* folling functions shouldn't be needed anymore 
+ * -> replaced by numpy code */ 
 double get_min(double *a,unsigned int n)
 /*{{{1*/
 {
@@ -612,3 +613,4 @@ double get_max(double *a,unsigned int n)
     return(m);
 }
 /*}}}1*/
+

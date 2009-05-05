@@ -45,6 +45,8 @@ _gridder3d.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="alig
                        numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned,contiguous"),
                        numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned,contiguous"),
                        ctypes.c_uint,ctypes.c_uint,ctypes.c_uint,ctypes.c_uint,
+                       ctypes.c_double,ctypes.c_double,ctypes.c_double,
+                       ctypes.c_double,ctypes.c_double,ctypes.c_double,
                        numpy.ctypeslib.ndpointer(numpy.double,ndim=3,flags="aligned,contiguous"),
                        numpy.ctypeslib.ndpointer(numpy.double,ndim=3,flags="aligned,contiguous"),
                        ctypes.c_int]

@@ -208,7 +208,7 @@ class Gridder3D(Gridder2D):
         y = y.reshape(y.size)
         z = z.reshape(z.size)
         data = data.reshape(data.size)
-
+        
         self.xmin = x.min()
         self.xmax = x.max()
         self.ymin = y.min()
@@ -219,6 +219,7 @@ class Gridder3D(Gridder2D):
         if self.nthreads != 0:
             #use threaded code
             print "using threaded code ..."
+            print self.flags
             libxrayutils._gridder3d_th(ctypes.c_uint(self.nthreads),x,y,z,data,ctypes.c_uint(x.size),
                                       ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
                                       ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
@@ -233,8 +234,8 @@ class Gridder3D(Gridder2D):
                                    ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
                                    ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
                                    ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-                                   ctypes.c_double(self.zmin),ctypes.c_doubel(self.zmax),
-                                   self.gdata,self.gnorm,ctypes.c_int(self.flags))
+                                   ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
+                                   self.gdata,self.gnorm,self.flags)
 
   
 

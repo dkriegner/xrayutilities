@@ -60,11 +60,15 @@ void *gridder2d_th_worker(void *arg);
 
 int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
               unsigned int nx,unsigned int ny,unsigned int nz,
+              double xmin, double xmax, double ymin, double ymax, 
+              double zmin, double zmax,
               double *odata,double *norm,int flags);
 
 int gridder3d_th(unsigned int nth,
                  double *x,double *y,double *z,double *data,unsigned int n,
                  unsigned int nx,unsigned int ny,unsigned int nz,
+                 double xmin, double xmax, double ymin, double ymax, 
+                 double zmin, double zmax,
                  double *odata,double *norm,int flags);
 void *gridder3d_th_worker(void *arg);
 

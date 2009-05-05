@@ -9,3 +9,4 @@ from experiment import GID
 from experiment import GISAXS
 
 from gridder import Gridder2D
+from gridder import Gridder3D
