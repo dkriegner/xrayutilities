@@ -155,6 +155,11 @@ class SPECScan(object):
         GetData():
         Set the data attribute of the scan class.
         """
+
+        if self.scan_status == "ABORTED":
+            print "scan has been aborted - no data available!"
+            return None
+
         if not self.has_mca:
             print "scan contains no MCA data"
         
@@ -411,8 +416,9 @@ class SPECFile(object):
         for s in self.scan_list:
             if not g.__contains__(s.name):            
                 s.ReadData()
-                s.Save2HDF5(h5,group=g,comp=compflag)
-                s.ClearData()        
+                if s.data:
+                    s.Save2HDF5(h5,group=g,comp=compflag)
+                    s.ClearData()        
 
     def Update(self):
         """
@@ -527,6 +533,22 @@ class SPECFile(object):
                 mca_channels = int(line_list[0])
                 mca_start = int(line_list[1])
                 mca_stop = int(line_list[2])              
+
+            elif SPEC_scanbroken.findall(line_buffer)!=[] and scan_started:
+                #this is the case when a scan is broken and no data has been
+                #written 
+                s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
+                             date,time,itime,col_names,
+                             scan_header_offset,scan_data_offset,self.fid,
+                             self.init_motor_names,init_motor_values,"ABORTED")
+                self.scan_list.append(s)
+                        
+                #reset control flags
+                scan_started = False
+                scan_has_mca = False
+                #reset initial motor positions flag
+                init_motor_values = []
+
 
             elif SPEC_dataline.match(line_buffer) and scan_started:
                 #this is now the real end of the header block.
