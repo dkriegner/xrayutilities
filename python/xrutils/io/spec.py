@@ -158,6 +158,7 @@ class SPECScan(object):
 
         if self.scan_status == "ABORTED":
             print "scan has been aborted - no data available!"
+            self.data = None
             return None
 
         if not self.has_mca:
