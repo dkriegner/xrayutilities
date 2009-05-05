@@ -417,7 +417,7 @@ class SPECFile(object):
         for s in self.scan_list:
             if not g.__contains__(s.name):            
                 s.ReadData()
-                if s.data:
+                if s.data != None:
                     s.Save2HDF5(h5,group=g,comp=compflag)
                     s.ClearData()        
 
