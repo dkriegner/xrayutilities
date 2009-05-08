@@ -157,7 +157,7 @@ class Gridder3D(Gridder2D):
         m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
         a = self.GetXAxis()
 
-        return m*a[:,numpy.newaxis]
+        return m*a[:,numpy.newaxis,numpy.newaxis]
     
     def GetYMatrix(self):
         """
@@ -175,7 +175,7 @@ class Gridder3D(Gridder2D):
         GetZAxis():
         Return the z-axis if the gridded data as a numpy array of shape (nz).
         """
-        dy = (self.zmax-self.zmin)/(self.nz-1)
+        dz = (self.zmax-self.zmin)/(self.nz-1)
         az = self.zmin + dz*numpy.arange(0,self.nz)
         return az
 
