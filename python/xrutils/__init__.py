@@ -1,7 +1,9 @@
 import math
 import io
 import materials
-import vis
+#the vis module is meanwhile deactivated - needs to 
+#be rewritten.
+#import vis
 
 from experiment import Experiment
 from experiment import HXRD
