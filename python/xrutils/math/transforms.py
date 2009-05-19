@@ -198,3 +198,21 @@ def CoordinateTransform(v1,v2,v3):
     m = numpy.array([e1,e2,e3])
     
     return Transform(m)
+
+def XRotation(alpha,deg=True):
+    """
+    XRotation(alpha,deg=True):
+    Returns a transform that represents a rotation about the x-axis 
+    by an angle alpha. If deg=True the angle is assumed to be in 
+    degree, otherwise the function expects radiants.
+    """
+
+    if deg:
+        sina = numpy.sin(numpy.pi*alpha/180.)
+        cosa = numpy.cos(numpy.pi*alpha/180.)
+    else:
+        sina = numpy.sin(alpha)
+        cosa = numpy.cos(alpha)
+
+    m = numpy.array([[1,0,0],[0,cosa,-sina],[0,sina,cosa]],dtype=numpy.double)
+    return Transform(m)
