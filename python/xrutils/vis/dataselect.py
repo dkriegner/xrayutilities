@@ -56,6 +56,19 @@ def AlignInt(data,frac=0.5,ind=1):
     return data
     #}}}1
 
+def AlignDynRange(data,order,value = 0):
+    """
+    AlignDynRange(data,value = 0):
+    Align the dynamic range of data to a certain order of magnitudes.
+
+    """
+
+    imax = data.max()
+    imin = imax/10**order
+    data[data<=imin] = value
+
+    return data
+
 def Align2DData(data):
     #{{{1
     """

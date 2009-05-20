@@ -13,6 +13,7 @@ from dataselect import YProfile1D_2D
 
 from dataselect import Align2DData
 from dataselect import AlignInt
+from dataselect import AlignDynRange
 
 from dataselect import Plane
 from dataselect import IntPlane
