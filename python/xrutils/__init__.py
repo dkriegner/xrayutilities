@@ -3,7 +3,11 @@ import io
 import materials
 #the vis module is meanwhile deactivated - needs to 
 #be rewritten.
-import vis
+try:
+    import vis
+except:
+    print "Visualization module cannot be imported!"
+    print "an will therefore not be available!"
 
 from experiment import Experiment
 from experiment import HXRD

@@ -53,6 +53,8 @@ class Gridder2D(Gridder):
     def SetResolution(self,nx,ny):
         self.nx = nx
         self.ny = ny
+        self.gdata = numpy.zeros((nx,ny),dtype=numpy.double)
+        self.gnorm = numpy.zeros((nx,ny),dtype=numpy.double)
 
     def ClearData(self):
         self.gdata[...] = 0
