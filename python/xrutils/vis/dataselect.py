@@ -26,8 +26,93 @@
 
 import numpy
 
+def RSM1DInterpOn2D(data,qx,qz,qxi,qzi,data_aligned=True):
+    """
+
+    """
+    #{{{
+    try:
+        n = qxi.shape[0]
+    except:
+        pass
+
+    try:
+        n = qzi.shape[0]
+    except:
+        pass
+
+    if not isinstance(qxi,numpy.ndarray):
+        qxi = qxi*numpy.ones((n),dtype=numpy.float)
+
+    if not isinstance(qzi,numpy.ndarray):
+        qzi = qzi*numpy.ones((n),dtype=numpy.float)
+
+
+    odata = numpy.zeros((n),dtype=numpy.float)
+
+    #shape of the input data
+    nxd = qx.shape[0]
+    nzd = qz.shape[0]
+
+    for i in range(n):
+        #find the cell used for the data
+        x = qxi[i]
+        z = qzi[i]
+
+        #if the point is outside the domain continue with 
+        #loop 
+        if x < qx.min() or x>qx.max(): continue
+        if z < qz.min() or z>qz.max(): continue
+    
+        x_index = 0
+        z_index = 0
+        for j in range(nxd-1):
+            if x >= qx[j] and x<qx[j+1]: 
+                x_index = j
+                break
+
+        for j in range(nzd-1):
+            if z >= qz[j] and z<qz[j+1]:
+                z_index = j
+                break
+
+        #calculate the step width in the input data
+        dx = abs(qx[x_index+1]-qx[x_index])
+        dz = abs(qz[z_index+1]-qz[z_index])
+
+        r = (x-qx[x_index])/dx
+        s = (z-qz[z_index])/dz
+
+        w0 = (1-r)*(1-s)
+        w1 = r*(1-s)
+        w2 = s*(1-r)
+        w3 = r*s
+        print x_index,z_index,r,s,w0,w1,w2,w3
+
+        if data_aligned:
+            d0 = data[z_index,x_index]
+            d1 = data[z_index,x_index+1]
+            d2 = data[z_index+1,x_index]
+            d3 = data[z_index+1,x_index+1]
+        else:
+            d0 = data[x_index,z_index]
+            d1 = data[x_index+1,z_index]
+            d2 = data[x_index,z_index+1]
+            d3 = data[x_index+1,z_index+1]
+
+
+        odata[i] = w0*d0+w1*d1+w2*d2+w3*d3
+
+    return odata
+            
+
+
+    
+    
+    #}}}
+
 def AlignInt(data,frac=0.5,ind=1):
-    #{{{1
+    #{{{
     """
     AlignInt(data):
     This function sets the minimum of a data array to a fraction of the 
@@ -54,7 +139,7 @@ def AlignInt(data,frac=0.5,ind=1):
     data[data<x] = frac*x
 
     return data
-    #}}}1
+    #}}}
 
 def AlignDynRange(data,order,value = 0):
     """
@@ -62,15 +147,17 @@ def AlignDynRange(data,order,value = 0):
     Align the dynamic range of data to a certain order of magnitudes.
 
     """
+    #{{{
 
     imax = data.max()
     imin = imax/10**order
     data[data<=imin] = value
 
     return data
+    #}}}
 
 def Align2DData(data):
-    #{{{1
+    #{{{
     """
     Align2DData(data):
     Aligns data for plotting. Due to the storage scheme for data used 
@@ -85,10 +172,10 @@ def Align2DData(data):
     flipped and rotated 2D numpy array
     """
     return numpy.flipud(numpy.rot90(data))
-    #}}}1
+    #}}}
 
 def GetAxisBounds(axis,x):
-    #{{{1
+    #{{{
     """
     GetAxisBounds(axis,x):
     Return the upper and lower axis node value surounding an 
@@ -116,7 +203,7 @@ def GetAxisBounds(axis,x):
         if axis[i]>=x: break
 
     return [axis[i-1],axis[i],i-1,i]
-    #}}}1
+    #}}}
 
 #------------------low level 1D Profile functions-----------------
 def Profile1D_3D(data,dim,axis,pos):

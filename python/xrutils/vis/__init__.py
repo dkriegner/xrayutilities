@@ -1,6 +1,7 @@
 from matplib import DataPicker
 from matplib import PointSelect
 
+from dataselect import RSM1DInterpOn2D
 from dataselect import Profile1D_3D
 from dataselect import Profile1D_2D
 from dataselect import IntProfile1D_3D

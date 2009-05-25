@@ -216,3 +216,41 @@ def XRotation(alpha,deg=True):
 
     m = numpy.array([[1,0,0],[0,cosa,-sina],[0,sina,cosa]],dtype=numpy.double)
     return Transform(m)
+
+def YRotation(alpha,deg=True):
+    """
+    YRotation(alpha,deg=True):
+    Returns a transform that represents a rotation about the y-axis 
+    by an angle alpha. If deg=True the angle is assumed to be in 
+    degree, otherwise the function expects radiants.
+    """
+
+    if deg:
+        sina = numpy.sin(numpy.pi*alpha/180.)
+        cosa = numpy.cos(numpy.pi*alpha/180.)
+    else:
+        sina = numpy.sin(alpha)
+        cosa = numpy.cos(alpha)
+
+    m = numpy.array([[cosa,0,sina],[0,1,0],[-sina,0,cosa]],dtype=numpy.double)
+    return Transform(m)
+
+def ZRotation(alpha,deg=True):
+    """
+    ZRotation(alpha,deg=True):
+    Returns a transform that represents a rotation about the z-axis 
+    by an angle alpha. If deg=True the angle is assumed to be in 
+    degree, otherwise the function expects radiants.
+    """
+
+    if deg:
+        sina = numpy.sin(numpy.pi*alpha/180.)
+        cosa = numpy.cos(numpy.pi*alpha/180.)
+    else:
+        sina = numpy.sin(alpha)
+        cosa = numpy.cos(alpha)
+
+    m = numpy.array([[cosa,-sina,0],[sina,cosa,0],[0,0,1]],dtype=numpy.double)
+    return Transform(m)
+
+
