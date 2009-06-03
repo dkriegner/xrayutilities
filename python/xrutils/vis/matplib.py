@@ -53,6 +53,94 @@ def xfigure(*args,**keyargs):
 
     return xf 
 
+class MeasureDistance(object):
+    def __init__(self,figure):
+        self.figure = figure
+        self.mid = self.figure.canvas.mpl_connect("button_press_event",self.__button_press_event__)
+        self.p1 = None
+        self.p2 = None
+        self.d  = None
+        self.d_list = []
+
+    def __button_press_event__(self,event):
+        if event.inaxes:
+            if self.p1 == None:
+                self.p1 = numpy.array([event.xdata,event.ydata])
+            else:
+                self.p2 = numpy.array([event.xdata,event.ydata])
+                self.d = self.p2-self.p1
+
+                print self.d
+                self.d_list.append(self.d)
+                self.p1 = None
+                self.p2 = None
+
+    def Average(self):
+        a = numpy.zeros((2),dtype=numpy.double)
+
+        for d in self.d_list:
+            a += d
+
+        a = a/len(self.d_list)
+        print "average distance: %e %e" %(a[0],a[1])
+        return a
+
+    def Clear(self):
+        self.d_list = []
+
+    def Disconnect(self):
+        self.figure.canvas.mpl_disconnect(self.mid)
+
+    def SetFigure(self,figure):
+        self.figure = figure
+        self.mid = self.figure.canvas.mpl_connect("button_press_event",self.__button_press_event__)
+
+class MeasurePeriod(object):
+    def __init__(self,figure):
+        self.figure = figure
+        self.mid = self.figure.canvas.mpl_connect("button_press_event",self.__button_press_event__)
+        self.p1 = None
+        self.p2 = None
+        self.d  = None
+        self.p  = None
+        self.p_list = []
+
+    def __button_press_event__(self,event):
+        if event.inaxes:
+            if self.p1 == None:
+                self.p1 = numpy.array([event.xdata,event.ydata])
+            else:
+                self.p2 = numpy.array([event.xdata,event.ydata])
+                self.d = self.p2-self.p1
+                self.p = 2.*numpy.pi/self.d
+
+                print self.p
+                self.p_list.append(self.p)
+                self.p1 = None
+                self.p2 = None
+
+    def Average(self):
+        a = numpy.zeros((2),dtype=numpy.double)
+        for p in self.p_list:
+            a += p
+
+        a = a/len(self.p_list)
+        print "average period: %e %e" %(a[0],a[1])
+
+        return a
+
+    def Clear(self):
+        self.p_list = []
+
+    def Disconnect(self):
+        self.figure.canvas.mpl_disconnect(self.mid)
+
+    def SetFigure(self,figure):
+        self.figure = figure
+        self.mid = self.figure.canvas.mpl_connect("button_press_event",self.__button_press_event__)
+
+
+
 class PointSelect(object):
     def __init__(self,figure):
         self.figure = figure

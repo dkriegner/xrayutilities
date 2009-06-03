@@ -1,5 +1,7 @@
 from matplib import DataPicker
 from matplib import PointSelect
+from matplib import MeasureDistance
+from matplib import MeasurePeriod
 
 from dataselect import RSM1DInterpOn2D
 from dataselect import Profile1D_3D

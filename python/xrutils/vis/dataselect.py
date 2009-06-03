@@ -87,7 +87,6 @@ def RSM1DInterpOn2D(data,qx,qz,qxi,qzi,data_aligned=True):
         w1 = r*(1-s)
         w2 = s*(1-r)
         w3 = r*s
-        print x_index,z_index,r,s,w0,w1,w2,w3
 
         if data_aligned:
             d0 = data[z_index,x_index]
