@@ -8,6 +8,9 @@ from material import Ge
 from material import SiGe
 from material import InAs
 from material import InP
+from material import PbTe
+from material import CdTe
+from material import PbSe
 from material import AlloyAB
 from material import PseudomorphicMaterial
 

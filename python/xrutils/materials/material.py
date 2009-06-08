@@ -100,6 +100,9 @@ Ge = Material("Ge",lattice.CubicLattice(5.65785),124.0e+9,41.3e+9,68.3e+9)
 InAs = Material("InAs",lattice.CubicLattice(6.0583),8.34e+11,4.54e+11,3.95e+11)
 InP  = Material("InP",lattice.CubicLattice(5.8687),10.11e+11,5.61e+11,4.56e+11)
 GaAs = Material("GaAs",lattice.CubicLattice(5.65325),11.9e+11,5.34e+11,5.96e+11)
+CdTe = Material("CdTe",lattice.CubicLattice(6.48),53.5,36.7,19.9)
+PbTe = Material("PbTe",lattice.CubicLattice(6.462),93.6,7.7,13.4)
+PbSe = Material("PbSe",lattice.CubicLattice(6.126),123.7,19.3,15.9)
 
 class AlloyAB(Material):
     #{{{1
