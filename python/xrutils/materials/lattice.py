@@ -41,6 +41,11 @@ class LatticeBase(list):
         return ostr
 
 class Lattice(object):
+    """
+    class Lattice:
+    This object represents a Bravais lattice. A lattice consists of a 
+    base 
+    """
     def __init__(self,a1,a2,a3):
         if isinstance(a1,list):
             self.a1 = numpy.array(a1,dtype=numpy.double)
@@ -111,7 +116,6 @@ class Crystal(object):
     def __init__(self,base,lat):
         self.Lattice = lat
         self.Base = base
-
     
 
 #some idiom functions to simplify lattice creation
@@ -131,6 +135,15 @@ def CubicLattice(a):
     return Lattice([a,0,0],[0,a,0],[0,0,a])
 
 #some lattice related functions
+
+def DiamondLattice(a):
+	pass
+	
+def FCCLattice(a):
+	pass
+	
+def BCCLattice(a):
+	pass
 
 
 

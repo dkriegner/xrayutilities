@@ -3,6 +3,7 @@
 from lattice import LatticeBase
 from lattice import Lattice
 from lattice import Crystal
+from lattice import CubicLattice
 from material import Si
 from material import Ge
 from material import SiGe
@@ -13,4 +14,5 @@ from material import CdTe
 from material import PbSe
 from material import AlloyAB
 from material import PseudomorphicMaterial
+from material import Material
 

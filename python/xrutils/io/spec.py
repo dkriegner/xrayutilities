@@ -39,6 +39,32 @@ DEBUG_FLAG = False;
 
 scan_status_flags = ["OK","ABORTED","CORRUPTED"]
 
+class SPECMCA(object):
+    """
+    SPECMCA - represents an MCA object in a SPEC file.
+    This class is an abstract class not itended for being used directly.
+    Instead use one of the derived classes SPECMCAFile or SPECMCAInline.
+
+    """
+    def __init__(self,nchan,roistart,roistop):
+        self.n_channels = nchan
+        self.roi_start  = roistart
+        self.roi_stop   = roistop
+
+class SPECMCAFile(SPECMCA):
+    def __init__(self):
+        SPECMCA.__init__(self)
+
+    def ReadData(self):
+        pass
+
+class SPECMCAInline(SPECMCA):
+    def __init__(self):
+        SPEMCA.__init__(self)
+
+    def ReadData(self):
+        pass
+
 class SPECScan(object):
     """
     class SPECScan:

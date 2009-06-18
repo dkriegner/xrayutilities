@@ -37,9 +37,9 @@ class Experiment(object):
 
         if keyargs.has_key("en"):
             self._en = keyargs["en"]
-            self._wl = _c_const*_h_const/self._en/_e_const
+            self._wl = _c_const*_h_const/self._en/_e_const/1.e-10
         else:
-            self._en = _c_const*_h_const/self._wl/_e_const
+            self._en = _c_const*_h_const/self._wl/1.e-10/_e_const
 
         self.k0 = numpy.pi*2./self._wl
         #}}}2
@@ -74,10 +74,10 @@ class Experiment(object):
         #}}}2
 
     def _get_energy(self):
-        return self.en
+        return self._en
 
     def _get_wavelength(self):
-        return self.wl
+        return self._wl
 
     energy = property(_get_energy,_set_energy)
     wavelength = property(_get_wavelength,_set_wavelength)
@@ -155,6 +155,8 @@ class Experiment(object):
 class HXRD(Experiment):
     def __init__(self,idir,ndir,**keyargs):
         Experiment.__init__(self,idir,ndir,**keyargs)
+
+        self.geometry = "hi_lo"
 
     def TiltCorr(self,q,a,deg=False):
         """
@@ -269,12 +271,14 @@ class HXRD(Experiment):
             om = om1
         else:
             om = om1
+
+        #have to take now the scattering geometry into account
         
         rad2deg = 180./numpy.pi
         if deg:
-            return [rad2deg*om,rad2deg*tth,rad2deg*delta]
+            return [rad2deg*delta,rad2deg*om,rad2deg*tth]
         else:
-            return [om,tth,delta]
+            return [delta,om,tth,delta]
 
 
 
