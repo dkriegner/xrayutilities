@@ -2,6 +2,18 @@
 
 import numpy
 
+class Atom(object):
+    def __init__(self,name,pos):
+        self.name = name
+        if isinstance(pos,list):
+            self.pos = numpy.array(list,dtype=numpy.double)
+        elif isinstance(pos,numpy.ndarray):
+            self.pos = pos
+        else:
+            raise TypeError,"Atom position must be array or list!"
+
+
+
 class LatticeBase(list):
     """
     The LatticeBase class implements a container for a set of 
