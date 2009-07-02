@@ -313,7 +313,6 @@ def PseudomorphicMaterial(submat,layermat):
     An instance of Material holding the new pseudomorphically strained 
     material.
     """
-    pmat = copy.copy(layermat)
 
     a1 = submat.lattice.a1
     a2 = submat.lattice.a2
@@ -322,13 +321,15 @@ def PseudomorphicMaterial(submat,layermat):
 
     abulk = layermat.lattice.a1[0] 
     ap    = a1[0]
-    c11 = layermat.c11
-    c12 = layermat.c12
+    c11 = layermat.cij[0,0]
+    c12 = layermat.cij[0,1]
     a3 = numpy.zeros(3,dtype=numpy.double)
     a3[2] =  abulk-2.0*c12*(ap-abulk)/c11
-    #set the new lattice for the pseudomorphic material
-    pmat.lattice = lattice.Lattice(a1,a2,a3)
-    pmat.rlattice = pmat.lattice.ReciprocalLattice()
+    #create the pseudomorphic lattice
+    pmlatt = lattice.Lattice(a1,a2,a3)
+
+    #create the new material
+    pmat = Material("layermat.name",pmlatt,layermat.cij)
 
     return pmat
     #}}}1
