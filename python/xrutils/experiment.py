@@ -213,6 +213,9 @@ class HXRD(Experiment):
             ltth = (tth-dtth)*deg2rad
             lom  = (om-dom)*deg2rad
             ldel = delta*deg2rad
+        else:
+            ltth = tth - dtth
+            lom  = om - dom
 
         
         qx=2.0*self.k0*numpy.sin(ltth*0.5)*numpy.sin(lom-0.5*ltth)*numpy.sin(ldel)
