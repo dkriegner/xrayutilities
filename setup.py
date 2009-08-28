@@ -10,5 +10,6 @@ setup(name="xrutils",
       package_dir={'':'python'},
       packages=["xrutils","xrutils.math","xrutils.vis",
                 "xrutils.io","xrutils.materials",
-                "xrutils.methods"]
+                "xrutils.methods"],
+      package_data={"xrutils.materials":["data/*.db"]}
       )
