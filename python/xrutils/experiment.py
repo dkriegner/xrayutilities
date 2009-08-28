@@ -212,10 +212,11 @@ class HXRD(Experiment):
         if deg:
             ltth = (tth-dtth)*deg2rad
             lom  = (om-dom)*deg2rad
-            ldel = delta*deg2rad
+            ldel = (delta-ddel)*deg2rad
         else:
             ltth = tth - dtth
             lom  = om - dom
+            ldel = delta-ddel
 
         
         qx=2.0*self.k0*numpy.sin(ltth*0.5)*numpy.sin(lom-0.5*ltth)*numpy.sin(ldel)
