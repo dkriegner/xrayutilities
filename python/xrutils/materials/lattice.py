@@ -1,16 +1,58 @@
 #module handling crystall lattice structures
+#
 
 import numpy
+import database
+from numpy.linalg import norm
+from . import __path__
+
+_db = database.DataBase(__path__[0]+"/data/test.db")
+_db.Open()
 
 class Atom(object):
-    def __init__(self,name,pos):
+    def __init__(self,name):
         self.name = name
-        if isinstance(pos,list):
-            self.pos = numpy.array(list,dtype=numpy.double)
-        elif isinstance(pos,numpy.ndarray):
-            self.pos = pos
+        
+        
+    def f0(self,q):
+        _db.SetMaterial(self.name)
+        
+        if isinstance(q,numpy.ndarray) or isinstance(q,list):
+            d = numpy.zeros((len(q)),dtype=numpy.double)
+            for i in range(len(q)):
+                d[i] = _db.GetF0(q[i])
+                
+            return d
         else:
-            raise TypeError,"Atom position must be array or list!"
+            return _db.GetF0(q)
+                
+    def f1(self,en):
+        _db.SetMaterial(self.name)
+        
+        if isinstance(en,numpy.ndarray) or isinstance(en,list):
+            d = numpy.zeros((len(en)),dtype=numpy.double)
+            for i in range(len(en)):
+                d[i] = _db.GetF1(en[i])
+                
+            return d
+        else:
+            return _db.GetF1(en)
+        
+    def f2(self,en):
+        _db.SetMaterial(self.name)
+        
+        if isinstance(en,numpy.ndarray) or isinstance(en,list):
+            d = numpy.zeros((len(en)),dtype=numpy.double)
+            for i in range(len(en)):
+                d[i] = _db.GetF2(en[i])
+                
+            return d
+        else:
+            return _db.GetF2(en)
+        
+    def __str__(self):
+        return self.name
+        
 
 
 
@@ -23,34 +65,45 @@ class LatticeBase(list):
     def __init__(self,*args,**keyargs):
        list.__init__(self,*args,**keyargs) 
 
-    def append(self,point):
-        if isinstance(point,list):
-            p = numpy.array(point,dtype=numpy.double)
-        elif isinstance(point,numpy.ndarray):
-            p = point
+    def append(self,atom,pos):
+        if not isinstance(atom,Atom):           
+            raise TypeError,"atom must be an instance of class Atom"
+            
+        if isinstance(pos,list):
+            pos = numpy.array(pos,dtype=numpy.double)
+        elif isinstance(pos,numpy.ndarray):
+            pos = pos
+        else:
+            raise TypeError,"Atom position must be array or list!"
+
+        list.append(self,(atom,pos))
+
+
+    def __setitem__(self,key,data):
+        (atom,pos) = data
+        if not isinstance(atom,Atom):
+            raise TypeError,"atom must be an instance of class Atom!"
+            
+        if isinstance(pos,list):
+            p = numpy.array(pos,dtype=numpy.double)
+        elif isinstance(pos,numpy.ndarray):
+            p = pos
         else:
             raise TypeError,"point must be a list or numpy array of shape (3)"
 
-        list.append(self,p)
-
-
-    def __setitem__(self,key,point):
-        if isinstance(point,list):
-            p = numpy.array(point,dtype=numpy.double)
-        elif isinstance(point,numpy.ndarray):
-            p = point
-        else:
-            raise TypeError,"point must be a list or numpy array of shape (3)"
-
-        list.__setitem__(self,key,p)
+        list.__setitem__(self,key,(atom,p))
 
     def __str__(self):
         ostr = ""
         for i in range(list.__len__(self)):
-            p = list.__getitem__(self,i)
-            ostr += "Base point %i: (%f %f %f)\n" %(i,p[0],p[1],p[2])
+            (atom,p) = list.__getitem__(self,i)
+            
+            ostr += "Base point %i: %s (%f %f %f)\n" %(i,atom.__str__(),p[0],p[1],p[2])
 
         return ostr
+        
+        
+    
 
 class Lattice(object):
     """
@@ -58,7 +111,7 @@ class Lattice(object):
     This object represents a Bravais lattice. A lattice consists of a 
     base 
     """
-    def __init__(self,a1,a2,a3):
+    def __init__(self,a1,a2,a3,base=None):
         if isinstance(a1,list):
             self.a1 = numpy.array(a1,dtype=numpy.double)
         elif isinstance(a1,numpy.ndarray):
@@ -79,6 +132,14 @@ class Lattice(object):
             self.a3 = a3
         else:
             raise TypeError,"a3 must be a list or a numpy array"
+            
+        if base!=None:
+            if not isinstance(base,LatticeBase):
+                raise TypeError,"lattice base must be an instance of class LatticeBase"
+            else:
+                self.base = base
+        else:
+            self.base = None
 
     def ApplyStrain(self,eps):
         """
@@ -121,13 +182,28 @@ class Lattice(object):
         ostr += "a1 = (%f %f %f)\n" %(self.a1[0],self.a1[1],self.a1[2])
         ostr += "a2 = (%f %f %f)\n" %(self.a2[0],self.a2[1],self.a2[2])
         ostr += "a3 = (%f %f %f)\n" %(self.a3[0],self.a3[1],self.a3[2])
+        
+        if self.base:
+            ostr += "Lattice base:\n"
+            ostr += self.base.__str__()
 
         return ostr
-
-class Crystal(object):
-    def __init__(self,base,lat):
-        self.Lattice = lat
-        self.Base = base
+            
+    def StructurFactor(self,en,q):
+        if isinstance(q,list):
+            q = numpy.array(q,dtype=numpy.double)
+        elif isinstance(q,numpy.ndarray):
+            pass
+        else:
+            raise TypeError,"q must be a list or numpy array!"
+            
+        s = 0.+0.j
+        for a,p in self.base:
+            r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
+            f = a.f0(norm(q))+a.f1(en)+1.j*a.f2(en)                    
+            s += f*numpy.exp(-1.j*numpy.dot(r,q))
+            
+        return s
     
 
 #some idiom functions to simplify lattice creation
@@ -148,14 +224,55 @@ def CubicLattice(a):
 
 #some lattice related functions
 
-def DiamondLattice(a):
-	pass
-	
+def ZincBlendeLattice(aa,ab,a):
+    
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0])
+    lb.append(aa,[0.5,0,0.5])
+    lb.append(aa,[0,0.5,0.5])
+    lb.append(ab,[0.25,0.25,0.25])
+    lb.append(ab,[0.75,0.75,0.25])
+    lb.append(ab,[0.75,0.25,0.75])
+    lb.append(ab,[0.25,0.75,0.75])
+    
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+    
+    l = Lattice(a1,a2,a3,base=lb)    
+    
+    return l
+
+def DiamondLattice(aa,a):
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0])
+    lb.append(aa,[0.5,0,0.5])
+    lb.append(aa,[0,0.5,0.5])
+    lb.append(aa,[0.25,0.25,0.25])
+    lb.append(aa,[0.75,0.75,0.25])
+    lb.append(aa,[0.75,0.25,0.75])
+    lb.append(aa,[0.25,0.75,0.75])
+    
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+    
+    l = Lattice(a1,a2,a3,base=lb)    
+    
+    return l
+    
+    
 def FCCLattice(a):
-	pass
-	
+    pass
+    
 def BCCLattice(a):
-	pass
+    pass
 
 
 
