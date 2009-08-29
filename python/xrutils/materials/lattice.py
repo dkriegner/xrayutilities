@@ -5,9 +5,15 @@ import numpy
 import database
 from numpy.linalg import norm
 from . import __path__
+import atexit
 
 _db = database.DataBase(__path__[0]+"/data/test.db")
 _db.Open()
+
+def _db_cleanup():
+    _db.Close()
+
+atexit.register(_db_cleanup)
 
 class Atom(object):
     def __init__(self,name):
