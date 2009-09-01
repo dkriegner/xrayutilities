@@ -210,6 +210,57 @@ class Lattice(object):
             s += f*numpy.exp(-1.j*numpy.dot(r,q))
             
         return s
+        
+    def StructureFactorForEnergy(self,en,q0):
+        #for constant q
+        if isinstance(q0,list):
+            q = numpy.array(q0,dtype=numpy.double)
+        elif isinstance(q,numpy.ndarray):
+            q = q0
+        else:
+            raise TypeError,"q must be a list or numpy array!"
+            
+        if isinstance(en,list):
+            en = numpy.array(en,dtype=numpy.double)
+        elif isinstance(en,numpy.ndarray):
+            pass
+        else:
+            raise TypeError,"Energy data must be provided as a list or numpy array!"
+            
+            
+        s = 0.+0.j
+        f0 = a.f0(norm(q))
+        
+        for a,p in self.base:
+            r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
+            f = f0+a.f1(en)+1.j*a.f2(en)                    
+            s += f*numpy.exp(-1.j*numpy.dot(r,q))
+            
+        return s
+        
+    def StructureFactorForQ(self,q,en0):
+        #for constant energy
+        if isinstance(q,list):
+            q = numpy.array(q,dtype=numpy.double)
+        elif isinstance(q,numpy.ndarray):
+            pass
+        else:
+            raise TypeError,"q must be a list or numpy array!"
+            
+            
+        s = 0.+0.j
+        f1 = a.f1(en0)
+        f2 = a.f2(en0)
+        
+        #need here some special treatement since we pass a 
+        for a,p in self.base:
+            r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
+            f = a.f0(q)+f1+1.j*f2
+            s += f*numpy.exp(-1.j*numpy.dot(r,q))
+            
+        return s
+        
+    
     
 
 #some idiom functions to simplify lattice creation
