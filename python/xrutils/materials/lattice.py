@@ -66,7 +66,7 @@ class LatticeBase(list):
     """
     The LatticeBase class implements a container for a set of 
     points that form the base of a crystal lattice. An instance of this class
-    can be treated as a simple container objects. 
+    can be treated as a simple container object. 
     """
     def __init__(self,*args,**keyargs):
        list.__init__(self,*args,**keyargs) 
@@ -207,7 +207,7 @@ class Lattice(object):
         for a,p in self.base:
             r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
             f = a.f0(norm(q))+a.f1(en)+1.j*a.f2(en)                    
-            s += f*numpy.exp(-1.j*numpy.dot(r,q))
+            s += f*numpy.exp(-1.j*numpy.dot(q,r))
             
         return s
         
@@ -229,16 +229,20 @@ class Lattice(object):
             
             
         s = 0.+0.j
-        f0 = a.f0(norm(q))
+        f0 = []
+        for at in self.base:
+            f0.append(a.f0(norm(q)))
         
-        for a,p in self.base:
+        for i in range(len(self.base)):
+            a = self.base[i][0]
+            p = self.base[i][1]
             r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
-            f = f0+a.f1(en)+1.j*a.f2(en)                    
-            s += f*numpy.exp(-1.j*numpy.dot(r,q))
+            f = f0[i]+a.f1(en)+1.j*a.f2(en)                    
+            s += f*numpy.exp(-1.j*numpy.dot(q,r))
             
         return s
         
-    def StructureFactorForQ(self,q,en0):
+    def StructureFactorForQ(self,en0,q):
         #for constant energy
         if isinstance(q,list):
             q = numpy.array(q,dtype=numpy.double)
@@ -249,20 +253,29 @@ class Lattice(object):
             
             
         s = 0.+0.j
-        f1 = a.f1(en0)
-        f2 = a.f2(en0)
+        # buffer the energy dependent parts of the scattering factor
+        f1 = []
+        f2 = []
+        for at in self.base:
+            f1.append(at[0].f1(en0))
+            f2.append(at[0].f2(en0))
         
         #need here some special treatement since we pass a 
-        for a,p in self.base:
+        for i in range(len(self.base)):
+            a = self.base[i][0]
+            p = self.base[i][1]
             r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
-            f = a.f0(q)+f1+1.j*f2
+            f = numpy.zeros(len(q))
+            for j in range(len(q)):
+                f[j] = a.f0(norm(q[j]))
+            f += f1[i]+1.j*f2[i]
             s += f*numpy.exp(-1.j*numpy.dot(q,r))
             
         return s
-        
-    
-    
 
+# still a lot of overhead, because normaly we do have 2 different types of atoms in a 8 atom base, but we calculate all 8 times which is obviously not necessary. One would have to reorganize the things in the LatticeBase class, and introduce something like an atom type and than only store the type in the List.        
+    
+    
 #some idiom functions to simplify lattice creation
 
 def CubicLattice(a):
@@ -325,12 +338,37 @@ def DiamondLattice(aa,a):
     return l
     
     
-def FCCLattice(a):
-    pass
+def FCCLattice(aa,a):
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0])
+    lb.append(aa,[0.5,0,0.5])
+    lb.append(aa,[0,0.5,0.5])
     
-def BCCLattice(a):
-    pass
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+    
+    l = Lattice(a1,a2,a3,base=lb)
 
+    return l
+    
+def BCCLattice(aa,a):
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0.5])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
 
 
 
