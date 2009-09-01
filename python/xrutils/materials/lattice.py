@@ -195,7 +195,7 @@ class Lattice(object):
 
         return ostr
             
-    def StructurFactor(self,en,q):
+    def StructureFactor(self,en,q):
         if isinstance(q,list):
             q = numpy.array(q,dtype=numpy.double)
         elif isinstance(q,numpy.ndarray):
@@ -256,7 +256,7 @@ class Lattice(object):
         for a,p in self.base:
             r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
             f = a.f0(q)+f1+1.j*f2
-            s += f*numpy.exp(-1.j*numpy.dot(r,q))
+            s += f*numpy.exp(-1.j*numpy.dot(q,r))
             
         return s
         
