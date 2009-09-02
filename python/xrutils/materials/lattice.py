@@ -295,7 +295,7 @@ def CubicLattice(a):
 #some lattice related functions
 
 def ZincBlendeLattice(aa,ab,a):
-    
+    #{{{1 
     #create lattice base
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
@@ -315,30 +315,16 @@ def ZincBlendeLattice(aa,ab,a):
     l = Lattice(a1,a2,a3,base=lb)    
     
     return l
+    #}}}1
 
 def DiamondLattice(aa,a):
-    #create lattice base
-    lb = LatticeBase()
-    lb.append(aa,[0,0,0])
-    lb.append(aa,[0.5,0.5,0])
-    lb.append(aa,[0.5,0,0.5])
-    lb.append(aa,[0,0.5,0.5])
-    lb.append(aa,[0.25,0.25,0.25])
-    lb.append(aa,[0.75,0.75,0.25])
-    lb.append(aa,[0.75,0.25,0.75])
-    lb.append(aa,[0.25,0.75,0.75])
-    
-    #create lattice vectors
-    a1 = [a,0,0]
-    a2 = [0,a,0]
-    a3 = [0,0,a]
-    
-    l = Lattice(a1,a2,a3,base=lb)    
-    
-    return l
-    
+    #{{{1
+    # Diamond is ZincBlende with two times the same atom
+    return ZincBlendeLattice(aa,aa,a)
+    #}}}1
     
 def FCCLattice(aa,a):
+    #{{{1
     #create lattice base
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
@@ -354,8 +340,10 @@ def FCCLattice(aa,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
+    #}}}1
     
 def BCCLattice(aa,a):
+    #{{{1
     #create lattice base
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
@@ -369,6 +357,21 @@ def BCCLattice(aa,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
+    #}}}1
 
+def NaClLattice(aa,ab,a):
+    #{{{1
+    #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(ab,[0.5,0.5,0.5])
 
+    #create lattice vectors
+    a1 = [0,0.5*a,0.5*a]
+    a2 = [0.5*a,0,0.5*a]
+    a3 = [0.5*a,0.5*a,0]
 
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1

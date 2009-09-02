@@ -15,6 +15,7 @@ from material import InP
 from material import PbTe
 from material import CdTe
 from material import PbSe
+from material import V
 from material import AlloyAB
 from material import PseudomorphicMaterial
 from material import Material

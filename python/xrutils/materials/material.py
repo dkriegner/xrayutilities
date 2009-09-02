@@ -1,6 +1,7 @@
 #class module impolements a certain material
 
 import lattice
+import elements
 import copy
 import numpy
 from numpy import linalg
@@ -239,6 +240,8 @@ PbTe = Material("PbTe",lattice.CubicLattice(6.464),
                    CubicElasticTensor(93.6,7.7,13.4))
 PbSe = Material("PbSe",lattice.CubicLattice(6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
+V = Material("V",lattice.BCCLattice(elements.V,3.03),
+                   numpy.zeros((6,6),dtype=numpy.double))
 
 class AlloyAB(Material):
     #{{{1
