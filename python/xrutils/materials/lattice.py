@@ -227,18 +227,25 @@ class Lattice(object):
         else:
             raise TypeError,"Energy data must be provided as a list or numpy array!"
             
-            
-        s = 0.+0.j
-        f0 = []
+         # create list of different atoms and buffer the scattering factors
+        atoms = []
+        f = []
+        types = []
         for at in self.base:
-            f0.append(a.f0(norm(q)))
+            try: 
+                idx = atoms.index(at[0])
+                types.append(idx)
+            except ValueError:
+                #add atom type to list and calculate the scattering factor
+                types.append(len(atoms))
+                f.append( at[0].f0(norm(q)) + at[0].f1(en) +1.j*at[0].f2(en) )
+                atoms.append(at[0])
         
+        s = 0.+0.j                
         for i in range(len(self.base)):
-            a = self.base[i][0]
             p = self.base[i][1]
             r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
-            f = f0[i]+a.f1(en)+1.j*a.f2(en)                    
-            s += f*numpy.exp(-1.j*numpy.dot(q,r))
+            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
             
         return s
         
@@ -251,25 +258,28 @@ class Lattice(object):
         else:
             raise TypeError,"q must be a list or numpy array!"
             
-            
-        s = 0.+0.j
-        # buffer the energy dependent parts of the scattering factor
-        f1 = []
-        f2 = []
+        # create list of different atoms and buffer the scattering factors
+        atoms = []
+        f = []
+        types = []
         for at in self.base:
-            f1.append(at[0].f1(en0))
-            f2.append(at[0].f2(en0))
+            try: 
+                idx = atoms.index(at[0])
+                types.append(idx)
+            except ValueError:
+                #add atom type to list and calculate the scattering factor
+                types.append(len(atoms))
+                f_q = numpy.zeros(len(q))
+                for j in range(len(q)):
+                    f_q[j] = at[0].f0(norm(q[j]))
+                f.append( f_q + at[0].f1(en0) +1.j*at[0].f2(en0) )
+                atoms.append(at[0])
         
-        #need here some special treatement since we pass a 
+        s = 0.+0.j                
         for i in range(len(self.base)):
-            a = self.base[i][0]
             p = self.base[i][1]
             r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
-            f = numpy.zeros(len(q))
-            for j in range(len(q)):
-                f[j] = a.f0(norm(q[j]))
-            f += f1[i]+1.j*f2[i]
-            s += f*numpy.exp(-1.j*numpy.dot(q,r))
+            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
             
         return s
 
@@ -362,6 +372,7 @@ def BCCLattice(aa,a):
 def NaClLattice(aa,ab,a):
     #{{{1
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
+    print("Warning: NaCl lattice is not using a cubic lattice structure") 
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
     lb.append(ab,[0.5,0.5,0.5])
@@ -375,3 +386,59 @@ def NaClLattice(aa,ab,a):
 
     return l
     #}}}1
+
+def RutileLattice(aa,ab,a,c,u):
+    #{{{1
+    #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
+    # P4_2/mmm(136) aa=2a,ab=4f; x \approx 0.305 (VO_2)
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0.5])
+    lb.append(ab,[u,u,0.])
+    lb.append(ab,[-u,-u,0.])
+    lb.append(ab,[0.5+u,0.5-u,0.5])
+    lb.append(ab,[0.5-u,0.5+u,0.5])
+
+    #create lattice vectors
+    a1 = [a,0.,0.]
+    a2 = [0.,a,0.]
+    a3 = [0.,0.,c]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
+def BaddeleyiteLattice(aa,ab,a,b,c,beta,deg=True):
+    #{{{1
+    #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
+    # P2_1/c(14), aa=4e,ab=2*4e  
+    lb = LatticeBase()
+    lb.append(aa,[0.242,0.975,0.025])
+    lb.append(aa,[-0.242,0.975+0.5,-0.025+0.5])
+    lb.append(aa,[-0.242,-0.975,-0.025])
+    lb.append(aa,[0.242,-0.975+0.5,0.025+0.5])
+    
+    lb.append(ab,[0.1,0.21,0.20])
+    lb.append(ab,[-0.1,0.21+0.5,-0.20+0.5])
+    lb.append(ab,[-0.1,-0.21,-0.20])
+    lb.append(ab,[0.1,-0.21+0.5,0.20+0.5])
+
+    lb.append(ab,[0.39,0.69,0.29])
+    lb.append(ab,[-0.39,0.69+0.5,-0.29+0.5])
+    lb.append(ab,[-0.39,-0.69,-0.29])
+    lb.append(ab,[0.39,-0.69+0.5,0.29+0.5])
+
+    #create lattice vectors
+    d2r= numpy.pi/180.
+    if deg: beta=beta*d2r
+    a1 = numpy.array([a,0.,0.],dtype=numpy.double)
+    a2 = numpy.array([0.,b,0.],dtype=numpy.double)
+    a3 = numpy.array([c*numpy.cos(beta),0.,c*numpy.sin(beta)],dtype=numpy.double)
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
+
+

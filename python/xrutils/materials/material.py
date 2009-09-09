@@ -242,6 +242,11 @@ PbSe = Material("PbSe",lattice.CubicLattice(6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
 V = Material("V",lattice.BCCLattice(elements.V,3.03),
                    numpy.zeros((6,6),dtype=numpy.double))
+VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.88,0.305),
+                   numpy.zeros((6,6),dtype=numpy.double))
+VO2_Baddeleyite = Material("VO_2",lattice.BaddeleyiteLattice(elements.V,elements.O,5.75,5.42,5.38,122.6),
+                   numpy.zeros((6,6),dtype=numpy.double))
+
 
 class AlloyAB(Material):
     #{{{1

@@ -16,6 +16,8 @@ from material import PbTe
 from material import CdTe
 from material import PbSe
 from material import V
+from material import VO2_Rutile
+from material import VO2_Baddeleyite
 from material import AlloyAB
 from material import PseudomorphicMaterial
 from material import Material
