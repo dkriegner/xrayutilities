@@ -369,7 +369,7 @@ def BCCLattice(aa,a):
     return l
     #}}}1
 
-def NaClLattice(aa,ab,a):
+def RockSaltLattice(aa,ab,a):
     #{{{1
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
     print("Warning: NaCl lattice is not using a cubic lattice structure") 
@@ -381,6 +381,29 @@ def NaClLattice(aa,ab,a):
     a1 = [0,0.5*a,0.5*a]
     a2 = [0.5*a,0,0.5*a]
     a3 = [0.5*a,0.5*a,0]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
+def RockSalt_Cubic_Lattice(aa,ab,a):
+    #{{{1
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0])
+    lb.append(aa,[0,0.5,0.5])
+    lb.append(aa,[0.5,0,0.5])
+
+    lb.append(ab,[0.5,0,0])
+    lb.append(ab,[0,0.5,0])
+    lb.append(ab,[0,0,0.5])
+    lb.append(ab,[0.5,0.5,0.5])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
 
     l = Lattice(a1,a2,a3,base=lb)
 

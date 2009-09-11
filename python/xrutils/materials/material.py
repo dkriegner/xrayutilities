@@ -224,23 +224,23 @@ def CubicElasticTensor(c11,c12,c44):
     return m
 
 #calculate some predifined materials
-Si = Material("Si",lattice.CubicLattice(5.43104),
+Si = Material("Si",lattice.DiamondLattice(elements.Si,5.43104),
                    CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9))
-Ge = Material("Ge",lattice.CubicLattice(5.65785),
+Ge = Material("Ge",lattice.DiamondLattice(elements.Ge,5.65785),
                    CubicElasticTensor(124.0e+9,41.3e+9,68.3e+9))
-InAs = Material("InAs",lattice.CubicLattice(6.0583),
+InAs = Material("InAs",lattice.ZincBlendeLattice(elements.In,elements.As,6.0583),
                    CubicElasticTensor(8.34e+11,4.54e+11,3.95e+11))
-InP  = Material("InP",lattice.CubicLattice(5.8687),
+InP  = Material("InP",lattice.ZincBlendeLattice(elements.In,elements.P,5.8687),
                    CubicElasticTensor(10.11e+11,5.61e+11,4.56e+11))
-GaAs = Material("GaAs",lattice.CubicLattice(5.65325),
+GaAs = Material("GaAs",lattice.ZincBlendeLattice(elements.Ga,elements.As,5.65325),
                    CubicElasticTensor(11.9e+11,5.34e+11,5.96e+11))
-CdTe = Material("CdTe",lattice.CubicLattice(6.482),
+CdTe = Material("CdTe",lattice.ZincBlendeLattice(elements.Cd,elements.Te,6.482),
                    CubicElasticTensor(53.5,36.7,19.9))
-PbTe = Material("PbTe",lattice.CubicLattice(6.464),
+PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.464),
                    CubicElasticTensor(93.6,7.7,13.4))
-PbSe = Material("PbSe",lattice.CubicLattice(6.128),
+PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
-V = Material("V",lattice.BCCLattice(elements.V,3.03),
+V = Material("V",lattice.BCCLattice(elements.V,3.024),
                    numpy.zeros((6,6),dtype=numpy.double))
 VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.88,0.305),
                    numpy.zeros((6,6),dtype=numpy.double))

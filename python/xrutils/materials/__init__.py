@@ -6,6 +6,13 @@ from lattice import Lattice
 from lattice import CubicLattice
 from lattice import ZincBlendeLattice
 from lattice import DiamondLattice
+from lattice import FCCLattice
+from lattice import BCCLattice
+from lattice import RockSaltLattice
+from lattice import RockSalt_Cubic_Lattice
+from lattice import RutileLattice
+from lattice import BaddeleyiteLattice
+
 import elements
 from material import Si
 from material import Ge
