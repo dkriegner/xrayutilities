@@ -169,13 +169,17 @@ class Lattice(object):
 
 
     def ReciprocalLattice(self):
-        V = (self.a3*numpy.cross(self.a1,self.a2)).sum()
+        V = self.UnitCellVolume()
         p = 2.*numpy.pi/V
         b1 = p*numpy.cross(self.a2,self.a3)
         b2 = p*numpy.cross(self.a3,self.a1)
         b3 = p*numpy.cross(self.a1,self.a2)
 
         return Lattice(b1,b2,b3)
+
+    def UnitCellVolume(self):
+        V = numpy.dot(self.a3,numpy.cross(self.a1,self.a2))
+        return V
 
     def GetPoint(self,*args):
         if len(args)<3:
