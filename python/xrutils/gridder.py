@@ -56,52 +56,44 @@ class Gridder2D(Gridder):
         self.gdata = numpy.zeros((nx,ny),dtype=numpy.double)
         self.gnorm = numpy.zeros((nx,ny),dtype=numpy.double)
 
-    def ClearData(self):
-        self.gdata[...] = 0
-        self.gnorm[...] = 0
-    
-    def GetXAxis(self):
-        """
-        GetXAxis():
-        Return the x-axis if the gridded data as a numpy array of shape
-        (nx).
-        """
+    def __get_xaxis(self):
         dx = (self.xmax-self.xmin)/(self.nx-1)
         ax = self.xmin+dx*numpy.arange(0,self.nx)
         return ax
 
-    def GetYAxis(self):
-        """
-        GetYAxis():
-        Return the y-axis if the gridded data as a numpy array of shape (ny).
-        """
+    def __get_yaxis(self):
         dy = (self.ymax-self.ymin)/(self.ny-1)
         ax = self.ymin + dy*numpy.arange(0,self.ny)
         return ax
 
-    def GetXMatrix(self):
-        """
-        GetXMatrix():
-        Return x axis in form of a matrix of shape (nx,ny). The axis value 
-        vary along the first index (x,axis).
-        """
+    def __get_xmatrix(self):
         m = numpy.ones((self.nx,self.ny),dtype=numpy.double)
-        a = self.GetXAxis()
+        a = self.xaxis
 
         return m*a[:,numpy.newaxis]
 
-    def GetYMatrix(self):
-        """
-        GetYMatrix():
-        Return y axis in form of a matrx of shape (nx,ny) where the 
-        axis values vary along the second index ny.
-        """
-        a = self.GetYAxis()
+    def __get_ymatrix(self):
+        a = self.yaxis
         m = numpy.ones((self.nx,self.ny),dtype=numpy.double)
 
         return m*a[numpy.newaxis,:]
 
-    def GridData(self,x,y,data):
+    def __get_data(self):
+        return self.gdata.copy()
+
+    yaxis = property(__get_yaxis)
+    xaxis = property(__get_xaxis)
+    xmatrix = property(__get_xmatrix)
+    ymatrix = property(__get_ymatrix)
+    data = property(__get_data)
+
+
+    def Clear(self):
+        self.gdata[...] = 0
+        self.gnorm[...] = 0
+
+
+    def __call__(self,*args):
         """
         GridData(x,y,data):
         Perform gridding on a set of data. 
@@ -112,6 +104,9 @@ class Gridder2D(Gridder):
         data ............ numpy array of arbitrary shape with data values
         """
 
+        x = args[0]
+        y = args[1]
+        data = args[2]
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         data = data.reshape(data.size)
