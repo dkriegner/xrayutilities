@@ -22,6 +22,7 @@ from material import InP
 from material import PbTe
 from material import CdTe
 from material import PbSe
+from material import GaN
 from material import V
 from material import VO2_Rutile
 from material import VO2_Baddeleyite

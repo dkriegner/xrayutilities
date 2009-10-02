@@ -212,7 +212,6 @@ def CubicElasticTensor(c11,c12,c44):
     CubicElasticTensor(c11,c12,c44):
     Assemble the 6x6 matrix of elastic constants for a cubic material.
 
-
     """
     m = numpy.zeros((6,6),dtype=numpy.double)
     m[0,0] = c11; m[1,1] = c11; m[2,2] = c11;
@@ -220,6 +219,22 @@ def CubicElasticTensor(c11,c12,c44):
     m[0,1] = m[0,2] = c12
     m[1,0] = m[1,2] = c12
     m[2,0] = m[2,1] = c12
+
+    return m
+
+def HexagonalElasticTensor(c11,c12,c13,c33,c44):
+    """
+    HexagonalElasticTensor(c11,c12,c13,c33,c44):
+    Assemble the 6x6 matrix of elastic constants for a hexagonal material.
+
+    """
+    m = numpy.zeros((6,6),dtype=numpy.double)
+    m[0,0] = m[1,1] = c11 
+    m[2,2] = c33
+    m[3,3] = m[4,4] = c44 
+    m[5,5] = 0.5*(c11-c12)
+    m[0,1] = m[1,0] = c12
+    m[0,2] = m[1,2] = m[2,0] = m[2,1] = c12
 
     return m
 
@@ -240,6 +255,8 @@ PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.
                    CubicElasticTensor(93.6,7.7,13.4))
 PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
+GaN = Material("GaN",lattice.Wurtzite(elements.Ga,elements.N,3.189,5.186),
+                   HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9)) # elastic properties in Pa
 V = Material("V",lattice.BCCLattice(elements.V,3.024),
                    numpy.zeros((6,6),dtype=numpy.double))
 VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.88,0.305),
