@@ -32,7 +32,10 @@ SPEC_colnames = re.compile(r"^#L")
 SPEC_MCAFormat = re.compile(r"^#@MCA")
 SPEC_MCAChannels = re.compile(r"^#@CHANN")
 SPEC_headerline = re.compile(r"^#")
-SPEC_scanbroken = re.compile(r"#C")
+SPEC_scanbroken = re.compile(r"#C[a-zA-Z0-9: .]*Scan aborted")
+SPEC_scanresumed = re.compile(r"#C[a-zA-Z0-9: .]*Scan resumed")
+SPEC_commentline = re.compile(r"#C")
+
 
 
 DEBUG_FLAG = False;
@@ -206,16 +209,34 @@ class SPECScan(object):
 
         record_list = [] #from this list the record array while be built
         
-        mca_counter = 0;
+        mca_counter = 0
+        scan_aborted_flag = False
+
         while True:
             line_buffer = self.fid.readline()
             line_buffer = line_buffer.strip()            
-            if line_buffer=="" or SPEC_headerline.match(line_buffer): break
+            if line_buffer=="": break #EOF
             #check if scan is broken
-            if SPEC_scanbroken.findall(line_buffer) != []:
-                self.scan_status = "ABORTED"
-                break
-                
+            if SPEC_scanbroken.findall(line_buffer) != [] or scan_aborted_flag:
+                # need to check next line(s) to know if scan is resumed
+                # read until end of comment block or end of file
+                if not scan_aborted_flag:
+                    scan_aborted_flag = True
+                    self.scan_status = "ABORTED"
+                    print "Scan aborted"
+                    continue
+                elif SPEC_scanresumed.match(line_buffer):
+                    self.scan_status = "OK"
+                    scan_aborted_flag = False
+                    print "Scan resumed"
+                    continue
+                elif SPEC_commentline.match(line_buffer):
+                    continue
+                else:
+                    break
+            
+            if SPEC_headerline.match(line_buffer) or SPEC_commentline.match(line_buffer): break
+
             if mca_counter == 0:
                 #the line is a scalar data line                
                 line_list = SPEC_num_value.findall(line_buffer)
