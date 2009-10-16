@@ -255,7 +255,7 @@ PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.
                    CubicElasticTensor(93.6,7.7,13.4))
 PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
-GaN = Material("GaN",lattice.Wurtzite(elements.Ga,elements.N,3.189,5.186),
+GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186),
                    HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9)) # elastic properties in Pa
 V = Material("V",lattice.BCCLattice(elements.V,3.024),
                    numpy.zeros((6,6),dtype=numpy.double))

@@ -12,6 +12,9 @@ from lattice import RockSaltLattice
 from lattice import RockSalt_Cubic_Lattice
 from lattice import RutileLattice
 from lattice import BaddeleyiteLattice
+from lattice import WurtziteLattice
+from lattice import Hexagonal3CLattice
+from lattice import Hexagonal4HLattice
 
 import elements
 from material import Si
