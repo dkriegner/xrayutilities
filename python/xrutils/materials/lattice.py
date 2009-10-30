@@ -183,7 +183,9 @@ class Lattice(object):
 
     def GetPoint(self,*args):
         if len(args)<3:
-            raise IndexError,"need 3 indices for the lattice point"
+            args = args[0]
+            if len(args)<3:
+                raise IndexError,"need 3 indices for the lattice point"
 
         return args[0]*self.a1+args[1]*self.a2+args[2]*self.a3
 
