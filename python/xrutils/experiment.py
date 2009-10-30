@@ -2,7 +2,10 @@
 
 import numpy
 import math
-    
+import materials
+from numpy.linalg import norm
+
+
 _e_const = 1.60219e-19
 _h_const = 6.62602e-34
 _c_const = 2.997925e8
@@ -153,6 +156,7 @@ class Experiment(object):
 
 
 class HXRD(Experiment):
+    #{{{1
     def __init__(self,idir,ndir,**keyargs):
         Experiment.__init__(self,idir,ndir,**keyargs)
 
@@ -282,8 +286,8 @@ class HXRD(Experiment):
         if deg:
             return [rad2deg*delta,rad2deg*om,rad2deg*tth]
         else:
-            return [delta,om,tth,delta]
-
+            return [delta,om,tth]
+    #}}}1
 
 
 class GID(Experiment):
@@ -293,6 +297,153 @@ class GISAXS(Experiment):
     pass
 
 
+class Powder(Experiment):
+    #{{{1
+    """
+    Experimental class for powder diffraction
+    This class is able to produce a powder spectrum for the given material
+    """
+    def __init__(self,mat,**keyargs):
+        Experiment.__init__(self,[0,0,0],[0,0,0],**keyargs)
+        if isinstance(mat,materials.Material):
+            self.mat = mat
+        else:
+            raise TypeError,"mat must be an instance of class Material"
+
+        self.digits = 5
+
+    def PowderIntensity(self):
+        """
+        Calculates the powder intensity and positions up to an angle of 180 deg
+        and stores the result in:
+            data .... array with intensities
+            ang ..... angular position of intensities
+            qpos .... reciprocal space position of intensities
+        """
+        
+        # calculate maximal Bragg indices
+        hmax = int(numpy.ceil(norm(self.mat.lattice.a1)*self.k0/numpy.pi))
+        hmin = -hmax
+        kmax = int(numpy.ceil(norm(self.mat.lattice.a2)*self.k0/numpy.pi))
+        kmin = -kmax
+        lmax = int(numpy.ceil(norm(self.mat.lattice.a3)*self.k0/numpy.pi))
+        lmin = -lmax
+        
+        qlist = []
+        qabslist = []
+        hkllist = []
+        # calculate structure factor for each reflex
+        for h in range(hmin,hmax+1):
+            for k in range(kmin,kmax+1):
+                for l in range(lmin,lmax+1):
+                    q = self.mat.rlattice.GetPoint(h,k,l)
+                    if norm(q)<2*self.k0:
+                        qlist.append(q)
+                        hkllist.append([h,k,l])
+                        qabslist.append(numpy.round(norm(q),self.digits))
+        
+        qabs = numpy.array(qabslist,dtype=numpy.double)
+        s = self.mat.lattice.StructureFactorForQ(self.energy,qlist)
+        r = numpy.absolute(s)**2
+
+        _tmp_data = numpy.zeros(r.size,dtype=[('q',numpy.double),('r',numpy.double),('hkl',list)])
+        _tmp_data['q'] = qabs
+        _tmp_data['r'] = r
+        _tmp_data['hkl'] = hkllist
+        # sort the list and compress equal entries
+        _tmp_data.sort(order='q')
+
+        self.qpos = [0]
+        self.data = [0]
+        self.hkl = [[0,0,0]]
+        for r in _tmp_data:
+            if r[0] == self.qpos[-1]:
+                self.data[-1] += r[1]
+            elif numpy.round(r[1],self.digits) != 0.:
+                self.qpos.append(r[0])
+                self.data.append(r[1])
+                self.hkl.append(r[2])
+
+        # cat first element to get rid of q = [0,0,0] divergence
+        self.qpos = numpy.array(self.qpos[1:],dtype=numpy.double)
+        self.ang = self.Q2Ang(self.qpos)  
+        self.data = numpy.array(self.data[1:],dtype=numpy.double)
+        self.hkl = self.hkl[1:]
+
+        # correct data for polarization and lorentzfactor and unit cell volume
+        # and also include Debye-Waller factor for later implementation
+        # see L.S. Zevin : Quantitative X-Ray Diffractometry 
+        # page 18ff
+        polarization_factor = (1+numpy.cos(numpy.deg2rad(2*self.ang))**2)/2.
+        lorentz_factor = 1./(numpy.sin(numpy.deg2rad(self.ang))**2*numpy.cos(numpy.deg2rad(self.ang)))
+        B=0 # do not have B data yet: they need to be implemented in lattice base class and feeded by the material initialization also the debye waller factor needs to be included there and not here
+        debye_waller_factor = numpy.exp(-2*B*numpy.sin(numpy.deg2rad(self.ang))**2/self._wl**2)
+        unitcellvol = self.mat.lattice.UnitCellVolume()
+        self.data = self.data * polarization_factor * lorentz_factor / unitcellvol**2
+
+    def Convolute(self,stepwidth,width,min=0,max=90):
+        """
+        Convolutes the intensity positions with Gaussians with angular width 
+        of "width". returns array of angular positions with corresponding intensity
+            theta ... array with angular positions
+            int ..... intensity at the positions ttheta
+        """
+        
+        # define a gaussion which is needed for convolution
+        def gauss(amp,x0,sigma,x):
+            return amp*numpy.exp(-(x-x0)**2/(2*sigma**2))
+        
+        # convolute each peak with a gaussian and add them up
+        theta = numpy.arange(min,max,stepwidth)
+        intensity = numpy.zeros(theta.size,dtype=numpy.double)
+        
+        for i in range(self.ang.size):
+            intensity += gauss(self.data[i],self.ang[i],width,theta)
+
+        return theta,intensity
+
+    def Ang2Q(self,th,deg=True):
+        """
+        Converts theta angles to reciprocal space positions 
+        returns the absolute value of momentum transfer
+        """
+        if deg:
+            lth = numpy.deg2rad(th)
+        else:
+            lth = th
+
+        qpos = 2*self.k0*numpy.sin(lth)
+        return qpos
+
+    def Q2Ang(self,qpos,deg=True):
+        """
+        Converts reciprocal space values to theta angles
+        """
+        th = numpy.arcsin(qpos/(2*self.k0))
+
+        if deg:
+            th= numpy.rad2deg(th)
+
+        return th
+    
+    def __str__(self):
+        """
+        Prints out available information about the material and reflections
+        """
+        ostr = "\nPowder diffraction object \n"
+        ostr += "-------------------------\n"
+        ostr += "Material: "+ self.mat.name + "\n"
+        ostr += "Lattice:\n" + self.mat.lattice.__str__()
+        if self.qpos != None:
+            max = self.data.max()
+            ostr += "\nReflections: \n"
+            ostr += "--------------\n"
+            ostr += "      h k l     |    tth    |    Int     |   Int (%)\n"
+            for i in range(self.qpos.size):
+                ostr += "%15s   %8.4f   %10.2f  %10.2f\n" % (self.hkl[i].__str__(), 2*self.ang[i],self.data[i], self.data[i]/max*100.)
+
+        return ostr
+    #}}}1        
 
     
 
