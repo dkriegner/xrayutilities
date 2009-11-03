@@ -533,3 +533,52 @@ def Hexagonal3CLattice(aa,ab,a,c):
     return l
     #}}}1
 
+def QuartzLattice(aa,ab,a,b,c):
+    #{{{1
+    #create lattice base: data from american mineralogist 65 (1980) 920-930
+    lb = LatticeBase()
+    lb.append(aa,[0.4697,0.,0.])
+    lb.append(aa,[0.,0.4697,2/3.])
+    lb.append(aa,[-0.4697,-0.4697,1/3.])
+
+    lb.append(ab,[0.4135,0.2669,0.1191])
+    lb.append(ab,[0.2669,0.4135,2/3.-0.1191])
+    lb.append(ab,[-0.2669,0.4135-0.2669,2/3.+0.1191])
+    lb.append(ab,[-0.4135,-0.4135+0.2669,1/3.-0.1191])
+    lb.append(ab,[-0.4135+0.2669,-0.4135,1/3.+0.1191])
+    lb.append(ab,[0.4135-0.2669,-0.2669,-0.1191])
+
+    #create lattice vectors alpha=beta=90 gamma=120
+    ca = numpy.cos(numpy.deg2rad(90))
+    cb = numpy.cos(numpy.deg2rad(90))
+    cg = numpy.cos(numpy.deg2rad(120))
+    sa = numpy.sin(numpy.deg2rad(90))
+    sb = numpy.sin(numpy.deg2rad(90))
+    sg = numpy.sin(numpy.deg2rad(120))
+
+    a1 = a*numpy.array([1,0,0],dtype=numpy.double)
+    a2 = b*numpy.array([cg,sg,0],dtype=numpy.double)
+    a3 = c*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)    
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
+def TetragonalIndiumLattice(aa,a,c):
+    #{{{1
+    #create lattice base: I4/mmm (139) site symmetry (2a) 
+    # data from: Journal of less common-metals 7 (1964) 17-22 (see american mineralogist database) 
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0.5])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,c]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+

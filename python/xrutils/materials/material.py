@@ -263,6 +263,10 @@ VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.
                    numpy.zeros((6,6),dtype=numpy.double))
 VO2_Baddeleyite = Material("VO_2",lattice.BaddeleyiteLattice(elements.V,elements.O,5.75,5.42,5.38,122.6),
                    numpy.zeros((6,6),dtype=numpy.double))
+Quartz = Material("SiO_2",lattice.QuartzLattice(elements.Si,elements.O,4.916,4.916,5.4054),
+                   numpy.zeros((6,6),dtype=numpy.double))
+Indium = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461),
+                   numpy.zeros((6,6),dtype=numpy.double))
 
 
 class AlloyAB(Material):

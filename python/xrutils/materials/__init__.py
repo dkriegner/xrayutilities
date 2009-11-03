@@ -15,6 +15,8 @@ from lattice import BaddeleyiteLattice
 from lattice import WurtziteLattice
 from lattice import Hexagonal3CLattice
 from lattice import Hexagonal4HLattice
+from lattice import QuartzLattice
+from lattice import TetragonalIndiumLattice
 
 import elements
 from material import Si
@@ -22,6 +24,7 @@ from material import Ge
 from material import SiGe
 from material import InAs
 from material import InP
+from material import GaAs
 from material import PbTe
 from material import CdTe
 from material import PbSe
@@ -29,6 +32,8 @@ from material import GaN
 from material import V
 from material import VO2_Rutile
 from material import VO2_Baddeleyite
+from material import Quartz
+from material import Indium
 from material import AlloyAB
 from material import PseudomorphicMaterial
 from material import Material
