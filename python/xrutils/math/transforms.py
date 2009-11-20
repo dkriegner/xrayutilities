@@ -190,9 +190,9 @@ def CoordinateTransform(v1,v2,v3):
         raise TypeError,"vector must be a list or numpy array"
 
     #normalize base vectors
-    e1 = e1/numpy.sqrt((e1**2).sum())
-    e2 = e2/numpy.sqrt((e2**2).sum())
-    e3 = e3/numpy.sqrt((e3**2).sum())
+    e1 = e1/numpy.linalg.norm(e1)
+    e2 = e2/numpy.linalg.norm(e2)
+    e3 = e3/numpy.linalg.norm(e3)
 
     #assemble the transformation matrix
     m = numpy.array([e1,e2,e3])
