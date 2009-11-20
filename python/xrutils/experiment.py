@@ -304,7 +304,7 @@ class Powder(Experiment):
     This class is able to produce a powder spectrum for the given material
     """
     def __init__(self,mat,**keyargs):
-        Experiment.__init__(self,[0,0,0],[0,0,0],**keyargs)
+        Experiment.__init__(self,[0,1,0],[0,0,1],**keyargs)
         if isinstance(mat,materials.Material):
             self.mat = mat
         else:
@@ -438,9 +438,10 @@ class Powder(Experiment):
             max = self.data.max()
             ostr += "\nReflections: \n"
             ostr += "--------------\n"
-            ostr += "      h k l     |    tth    |    Int     |   Int (%)\n"
+            ostr += "      h k l     |    tth    |    |Q|    |    Int     |   Int (%)\n"
+            ostr += "   ---------------------------------------------------------------\n"
             for i in range(self.qpos.size):
-                ostr += "%15s   %8.4f   %10.2f  %10.2f\n" % (self.hkl[i].__str__(), 2*self.ang[i],self.data[i], self.data[i]/max*100.)
+                ostr += "%15s   %8.4f   %8.3f   %10.2f  %10.2f\n" % (self.hkl[i].__str__(), 2*self.ang[i],self.qpos[i],self.data[i], self.data[i]/max*100.)
 
         return ostr
     #}}}1        
