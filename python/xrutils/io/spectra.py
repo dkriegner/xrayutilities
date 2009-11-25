@@ -32,15 +32,14 @@ class Spectra(object):
 
 
 
-    def recarray2hdf5(self,rec,name,desc,**keyargs):
+    def recarray2hdf5(self,h5g,rec,name,desc,**keyargs):
         """
         recarray2hdf5(h5,g,rec,**keyargs):
         Save a record array in an HDF5 file. A pytables table 
         object is used to store the data.
 
         required input arguments:
-        h5 ................. HDF5 file object
-        g .................. group object or path
+        h5g ................. HDF5 group object or path
         rec ................ record array
         name ............... name of the table in the file
         desc ............... description of the table in the file
@@ -62,7 +61,7 @@ class Spectra(object):
 
         #create the table object
         try:
-            tab = self.h5_file.createTable(self.h5_group,name,tab_desc,desc)
+            tab = self.h5_file.createTable(h5g,name,tab_desc,desc)
         except:
             print "Error creating table object %s!"
             return None
@@ -129,7 +128,7 @@ class Spectra(object):
             print "cannot create scan group!"
             return None
 
-        self.recarray2hdf5(data,"data","SPECTRA tabular data")
+        self.recarray2hdf5(sg,data,"data","SPECTRA tabular data")
 
         #write attribute data
         for k in hdr.keys():

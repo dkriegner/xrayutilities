@@ -15,3 +15,5 @@ from spec import SPECFile
 from spec import SPECScan
 
 from edf import EDFFile
+
+from spectra import Spectra
