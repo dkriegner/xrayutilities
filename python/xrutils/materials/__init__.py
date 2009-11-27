@@ -15,8 +15,10 @@ from lattice import BaddeleyiteLattice
 from lattice import WurtziteLattice
 from lattice import Hexagonal3CLattice
 from lattice import Hexagonal4HLattice
+from lattice import Hexagonal6HLattice
 from lattice import QuartzLattice
 from lattice import TetragonalIndiumLattice
+from lattice import TrigonalR3mh
 
 import elements
 from material import Si
@@ -32,8 +34,10 @@ from material import GaN
 from material import V
 from material import VO2_Rutile
 from material import VO2_Baddeleyite
+from material import Ag2Se
 from material import Quartz
 from material import Indium
+from material import Antimony
 from material import AlloyAB
 from material import PseudomorphicMaterial
 from material import Material

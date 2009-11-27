@@ -492,16 +492,17 @@ def WurtziteLattice(aa,ab,a,c):
 def Hexagonal4HLattice(aa,ab,a,c):
     #{{{1
     #create lattice base: data from laue atlas (hexagonal ZnS) + brainwork by B. Mandl and D. Kriegner
+    # ABAC
     lb = LatticeBase()
-    lb.append(aa,[0.,0.,0.])
-    lb.append(aa,[1/3.,2/3.,0.25])
-    lb.append(aa,[0.,0.,0.5])
-    lb.append(aa,[2/3.,1/3.,0.75])
+    lb.append(aa,[0.,0.,0.]) # A
+    lb.append(aa,[1/3.,2/3.,0.25]) # B
+    lb.append(aa,[0.,0.,0.5]) # A
+    lb.append(aa,[2/3.,1/3.,0.75]) # C
     
-    lb.append(ab,[0.,0.,0.+3/16.])
-    lb.append(ab,[1/3.,2/3.,0.25+3/16.])
-    lb.append(ab,[0.,0.,0.5+3/16.])
-    lb.append(ab,[2/3.,1/3.,0.75+3/16.])
+    lb.append(ab,[0.,0.,0.+3/16.]) # A
+    lb.append(ab,[1/3.,2/3.,0.25+3/16.]) # B
+    lb.append(ab,[0.,0.,0.5+3/16.]) # A
+    lb.append(ab,[2/3.,1/3.,0.75+3/16.]) # C
 
     #create lattice vectors
     a1 = numpy.array([a,0.,0.],dtype=numpy.double)
@@ -509,6 +510,52 @@ def Hexagonal4HLattice(aa,ab,a,c):
     a3 = numpy.array([0.,0.,c],dtype=numpy.double)
     l = Lattice(a1,a2,a3,base=lb)
 
+    return l
+    #}}}1
+
+def Hexagonal6HLattice(aa,ab,a,c):
+    #{{{1
+    #create lattice base: https://www.ifm.liu.se/semicond/new_page/research/sic/Chapter2.html + brainwork by B. Mandl and D. Kriegner
+    # ABCACB
+    lb = LatticeBase()
+    lb.append(aa,[0.,0.,0.]) # A
+    lb.append(aa,[1/3.,2/3.,1/6.]) # B
+    lb.append(aa,[2/3.,1/3.,2/6.]) # C
+    lb.append(aa,[0.,0.,3/6.]) # A
+    lb.append(aa,[2/3.,1/3.,4/6.]) # C
+    lb.append(aa,[1/3.,2/3.,5/6.]) # B
+
+    lb.append(ab,[0.,0.,0.+3/24.]) # A
+    lb.append(ab,[1/3.,2/3.,1/6.+3/24.]) # B
+    lb.append(ab,[2/3.,1/3.,2/6.+3/24.]) # C
+    lb.append(ab,[0.,0.,3/6.+3/24.]) # A
+    lb.append(ab,[2/3.,1/3.,4/6.+3/24.]) # C
+    lb.append(ab,[1/3.,2/3.,5/6.+3/24.]) # B
+
+    #create lattice vectors
+    a1 = numpy.array([a,0.,0.],dtype=numpy.double)
+    a2 = numpy.array([-a/2.,numpy.sqrt(3)*a/2.,0.],dtype=numpy.double)
+    a3 = numpy.array([0.,0.,c],dtype=numpy.double)
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
+def TrigonalR3mh(aa,a,c):
+    #{{{1
+    # create Lattice base from american mineralogist: R3mh (166)
+    # http://rruff.geo.arizona.edu/AMS/download.php?id=12092.amc&down=amc
+    lb = LatticeBase()
+    lb.append(aa,[0.,0.,0.23349])
+    lb.append(aa,[2/3.,1/3.,1/3.+0.23349])
+    lb.append(aa,[1/3.,2/3.,2/3.+0.23349])
+
+    #create lattice vectors
+    a1 = numpy.array([a,0.,0.],dtype=numpy.double)
+    a2 = numpy.array([a/2.,numpy.sqrt(3)*a/2.,0.],dtype=numpy.double)
+    a3 = numpy.array([0.,0.,c],dtype=numpy.double)
+    l = Lattice(a1,a2,a3,base=lb)
+    
     return l
     #}}}1
 
@@ -581,4 +628,37 @@ def TetragonalIndiumLattice(aa,a,c):
 
     return l
     #}}}1
+
+def NaumanniteLattice(aa,ab,a,b,c):
+    #{{{1
+    #create lattice base: P 21 21 21 
+    # data from: american mineralogist 
+    # http://rruff.geo.arizona.edu/AMS/download.php?id=00261.amc&down=amc
+    lb = LatticeBase()
+    lb.append(aa,[0.107,0.369,0.456])
+    lb.append(aa,[0.5-0.107,0.5+0.369,0.5-0.456])
+    lb.append(aa,[0.5+0.107,-0.369,-0.456])
+    lb.append(aa,[-0.107,0.5-0.369,0.5+0.456])
+    
+    lb.append(aa,[0.728,0.029,0.361])
+    lb.append(aa,[0.5-0.728,0.5+0.029,0.5-0.361])
+    lb.append(aa,[0.5+0.728,-0.029,-0.361])
+    lb.append(aa,[-0.728,0.5-0.029,0.5+0.361])
+
+    lb.append(ab,[0.358,0.235,0.149])
+    lb.append(ab,[0.5-0.358,0.5+0.235,0.5-0.149])
+    lb.append(ab,[0.5+0.358,-0.235,-0.149])
+    lb.append(ab,[-0.358,0.5-0.235,0.5+0.149])
+    
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,b,0]
+    a3 = [0,0,c]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
+
 

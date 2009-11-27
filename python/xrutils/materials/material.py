@@ -259,6 +259,8 @@ GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186)
                    HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9)) # elastic properties in Pa
 V = Material("V",lattice.BCCLattice(elements.V,3.024),
                    numpy.zeros((6,6),dtype=numpy.double))
+Ag2Se = Material("Ag2Se",lattice.NaumanniteLattice(elements.Ag,elements.Se,4.333,7.062,7.764),
+                   numpy.zeros((6,6),dtype=numpy.double))
 VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.88,0.305),
                    numpy.zeros((6,6),dtype=numpy.double))
 VO2_Baddeleyite = Material("VO_2",lattice.BaddeleyiteLattice(elements.V,elements.O,5.75,5.42,5.38,122.6),
@@ -267,7 +269,8 @@ Quartz = Material("SiO_2",lattice.QuartzLattice(elements.Si,elements.O,4.916,4.9
                    numpy.zeros((6,6),dtype=numpy.double))
 Indium = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461),
                    numpy.zeros((6,6),dtype=numpy.double))
-
+Antimony = Material("Sb",lattice.TrigonalR3mh(elements.Sb,4.307,11.273),
+                   numpy.zeros((6,6),dtype=numpy.double))
 
 class AlloyAB(Material):
     #{{{1

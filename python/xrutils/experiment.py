@@ -381,24 +381,26 @@ class Powder(Experiment):
         unitcellvol = self.mat.lattice.UnitCellVolume()
         self.data = self.data * polarization_factor * lorentz_factor / unitcellvol**2
 
-    def Convolute(self,stepwidth,width,min=0,max=90):
+    def Convolute(self,stepwidth,width,min=0,max=None):
         """
-        Convolutes the intensity positions with Gaussians with angular width 
+        Convolutes the intensity positions with Gaussians with width in momentum space 
         of "width". returns array of angular positions with corresponding intensity
             theta ... array with angular positions
             int ..... intensity at the positions ttheta
         """
         
+        if not max: max= 2*self.k0
         # define a gaussion which is needed for convolution
         def gauss(amp,x0,sigma,x):
             return amp*numpy.exp(-(x-x0)**2/(2*sigma**2))
         
         # convolute each peak with a gaussian and add them up
-        theta = numpy.arange(min,max,stepwidth)
+        qcoord = numpy.arange(min,max,stepwidth)
+        theta = self.Q2Ang(qcoord)
         intensity = numpy.zeros(theta.size,dtype=numpy.double)
         
         for i in range(self.ang.size):
-            intensity += gauss(self.data[i],self.ang[i],width,theta)
+            intensity += gauss(self.data[i],self.qpos[i],width,qcoord)
 
         return theta,intensity
 
