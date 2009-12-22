@@ -8,7 +8,6 @@
 
 import re
 import tables
-import Numeric
 import numpy
 
 
