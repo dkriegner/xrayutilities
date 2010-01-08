@@ -2,9 +2,11 @@
 
 import lattice
 import elements
+import xrutils.math as math
 import copy
 import numpy
 from numpy import linalg
+import scipy.optimize
 
 map_ijkl2ij = {"00":0,"11":1,"22":2,
                "12":3,"20":4,"01":5,
@@ -138,13 +140,13 @@ class Material(object):
         return self.lattice.a3
     
     def _getb1(self):
-        return self.rlattice.b1
+        return self.rlattice.a1
     
     def _getb2(self):
-        return self.rlattice.b2
+        return self.rlattice.a2
     
     def _getb3(self):
-        return self.rlattice.b3
+        return self.rlattice.a3
 
     mu  = property(_getmu)
     lam = property(_getlam)
@@ -157,16 +159,21 @@ class Material(object):
     b3 = property(_getb3)
 
 
-    def Q(self,hkl):
+    def Q(self,*hkl):
         #{{{2
         """
-        Q(hkl,**keyargs):
+        Q(hkl):
         Return the Q-space position for a certain material.
 
         required input arguments:
         hkl ............. list or numpy array with the Miller indices
+                          ( or Q(h,k,l) is also possible)
 
         """
+        if len(hkl)<3:
+            hkl = hkl[0]
+            if len(hkl)<3:
+                raise IndexError,"need 3 indices for the lattice point"
 
         p = self.rlattice.GetPoint(hkl[0],hkl[1],hkl[2])
         if self.transform: p = self.transform(p)
@@ -276,7 +283,7 @@ class AlloyAB(Material):
     #{{{1
     def __init__(self,matA,matB,x):
         #{{{2
-        Material.__init__(self,"None",copy.deepcopy(matA.lattice),matA.cij)
+        Material.__init__(self,"None",copy.copy(matA.lattice),matA.cij)
         self.matA = matA
         self.matB = matB
         self.xb = 0
@@ -306,6 +313,105 @@ class AlloyAB(Material):
         #}}}2
 
     x = property(_getxb,_setxb)
+
+    def ContentB(self,q_inp,q_perp,hkl,sur):
+        #{{{2
+        """
+        function that determines the content of B 
+        in the alloy from the reciprocal space position 
+        of an assymetric peak and also sets the content 
+        in the current material
+
+        Parameter
+        ---------
+        q_inp : inplane peak position of reflection hkl of 
+                the alloy in reciprocal space
+        q_perp : perpendicular peak position of the reflection 
+                 hkl of the alloy in reciprocal space
+        hkl : Miller indices of the measured assymetric reflection
+        sur : Miller indices of the surface (determines the perpendicular
+              direction)
+
+        Returns
+        -------
+        content : the content of B in the alloy determined from the input variables
+
+        """
+
+        print "Warning (AlloyAB.ContentB): the function only works for cubic materials and needs further testing, \n handle results with care!"
+
+        # check input parameters
+        if isinstance(q_inp,numpy.ScalarType) and numpy.isfinite(q_inp):
+            q_inp = float(q_inp)
+        else:
+            raise TypeError,"First argument (q_inp) must be a scalar!"
+        if isinstance(q_perp,numpy.ScalarType) and numpy.isfinite(q_perp):
+            q_perp = float(q_perp)
+        else:
+            raise TypeError,"Second argument (q_perp) must be a scalar!"
+        if isinstance(hkl,(list,tuple,numpy.ndarray)):
+            hkl = numpy.array(hkl,dtype=numpy.double)
+        else:
+            raise TypeError,"Third argument (hkl) must be of type list, tuple or numpy.ndarray"
+        if isinstance(sur,(list,tuple,numpy.ndarray)):
+            sur = numpy.array(sur,dtype=numpy.double)
+        else:
+            raise TypeError,"Fourth argument (sur) must be of type list, tuple or numpy.ndarray"
+                  
+        # check if reflection is asymmetric
+        if numpy.linalg.norm(numpy.cross(self.rlattice.GetPoint(hkl),self.rlattice.GetPoint(sur))) < 1.e-8:
+            # raise costom error
+            raise ReflectionError,"Miller indices of a symmetric reflection were given where an asymmetric reflection is needed"
+
+        # calculate lattice constants from reciprocal space positions
+        n = self.rlattice.GetPoint(sur)/numpy.linalg.norm(self.rlattice.GetPoint(sur))
+        q_hkl = self.rlattice.GetPoint(hkl)
+        # the following two lines are incorrect
+        ainp = 2*numpy.pi/q_inp * numpy.linalg.norm(numpy.cross(n,hkl))
+        aperp = 2*numpy.pi/q_perp * numpy.abs(numpy.dot(n,hkl))
+
+        # transform the elastic tensors to a coordinate frame attached to the surface normal
+        inp1 = numpy.cross(n,q_hkl)/numpy.linalg.norm(numpy.cross(n,q_hkl))
+        inp2 = numpy.cross(n,inp1)
+        trans = math.CoordinateTransform(inp1,inp2,n)
+
+        cijA = Cijkl2Cij(trans(self.matA.cijkl))
+        cijB = Cijkl2Cij(trans(self.matB.cijkl))
+
+        # define lambda functions for all things in the equation to solve
+        a1 = lambda x: (self.matB.lattice.a1-self.matA.lattice.a1)*x+self.matA.lattice.a1
+        a2 = lambda x: (self.matB.lattice.a2-self.matA.lattice.a2)*x+self.matA.lattice.a2
+        a3 = lambda x: (self.matB.lattice.a3-self.matA.lattice.a3)*x+self.matA.lattice.a3
+        V = lambda x: numpy.dot(a3(x),numpy.cross(a1(x),a2(x)))
+        b1 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a2(x),a3(x))
+        b2 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a3(x),a1(x))
+        b3 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a1(x),a2(x))
+        qsurx = lambda x: sur[0]*b1(x)+sur[1]*b2(x)+sur[2]*b3(x)
+        qhklx = lambda x: hkl[0]*b1(x)+hkl[1]*b2(x)+hkl[2]*b3(x)
+        
+        # the following two lines are incorrect!!!!
+        abulk_inp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),inp2) * numpy.linalg.norm(numpy.cross(n,hkl)))
+        abulk_perp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),n) * numpy.inner(n,hkl))
+        print abulk_inp(0.), abulk_perp(0.)
+
+        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
+
+        equation = lambda x: (aperp-abulk_perp(x)) + (ainp - abulk_inp(x))*frac(x)
+
+        self.inp1=inp1
+        self.inp2=inp2
+        self.normal=n
+        self.qhklx=qhklx
+
+        self.aperp= aperp
+        self.ainp = ainp
+
+        x = scipy.optimize.brentq(equation,-0.1,1.1)
+
+        #self._setxb(x)
+
+        return x
+        #}}}2
     #}}}1
 
 
