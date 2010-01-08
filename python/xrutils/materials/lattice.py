@@ -208,7 +208,9 @@ class Lattice(object):
             pass
         else:
             raise TypeError,"q must be a list or numpy array!"
-            
+           
+        if self.base==None: return 1.
+         
         s = 0.+0.j
         for a,p in self.base:
             r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
@@ -232,6 +234,8 @@ class Lattice(object):
             pass
         else:
             raise TypeError,"Energy data must be provided as a list or numpy array!"
+
+        if self.base==None: return 1.
             
          # create list of different atoms and buffer the scattering factors
         atoms = []
@@ -264,6 +268,8 @@ class Lattice(object):
         else:
             raise TypeError,"q must be a list or numpy array!"
             
+        if self.base==None: return numpy.ones(len(q))
+
         # create list of different atoms and buffer the scattering factors
         atoms = []
         f = []
