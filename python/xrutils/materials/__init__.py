@@ -26,6 +26,7 @@ from material import Ge
 from material import SiGe
 from material import InAs
 from material import InP
+from material import GaP
 from material import GaAs
 from material import PbTe
 from material import CdTe

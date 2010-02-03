@@ -1,4 +1,4 @@
-#class module impolements a certain material
+#class module implements a certain material
 
 import lattice
 import elements
@@ -7,6 +7,7 @@ import copy
 import numpy
 from numpy import linalg
 import scipy.optimize
+import warnings
 
 map_ijkl2ij = {"00":0,"11":1,"22":2,
                "12":3,"20":4,"01":5,
@@ -14,6 +15,8 @@ map_ijkl2ij = {"00":0,"11":1,"22":2,
 map_ij2ijkl = {"0":[0,0],"1":[1,1],"2":[2,2],
         "3":[1,2],"4":[2,0],"5":[0,1],
         "6":[2,1],"7":[0,2],"8":[1,0]}
+
+_epsilon = 1e-7 # small number (should be saved somewhere more global but is needed)
 
 def index_map_ijkl2ij(i,j):
     return map_ijkl2ij["%i%i" %(i,j)] 
@@ -245,25 +248,28 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
 
     return m
 
-#calculate some predifined materials
+#calculate some predefined materials 
+# PLEASE use N/m^2 as unit for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa)
 Si = Material("Si",lattice.DiamondLattice(elements.Si,5.43104),
                    CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9))
 Ge = Material("Ge",lattice.DiamondLattice(elements.Ge,5.65785),
                    CubicElasticTensor(124.0e+9,41.3e+9,68.3e+9))
 InAs = Material("InAs",lattice.ZincBlendeLattice(elements.In,elements.As,6.0583),
-                   CubicElasticTensor(8.34e+11,4.54e+11,3.95e+11))
+                   CubicElasticTensor(8.34e+10,4.54e+10,3.95e+10))
 InP  = Material("InP",lattice.ZincBlendeLattice(elements.In,elements.P,5.8687),
-                   CubicElasticTensor(10.11e+11,5.61e+11,4.56e+11))
+                   CubicElasticTensor(10.11e+10,5.61e+10,4.56e+10))
+GaP  = Material("GaP",lattice.ZincBlendeLattice(elements.Ga,elements.P,5.4505),
+                   CubicElasticTensor(14.05e+10,6.20e+10,7.03e+10))
 GaAs = Material("GaAs",lattice.ZincBlendeLattice(elements.Ga,elements.As,5.65325),
-                   CubicElasticTensor(11.9e+11,5.34e+11,5.96e+11))
+                   CubicElasticTensor(11.9e+10,5.34e+10,5.96e+10))
 CdTe = Material("CdTe",lattice.ZincBlendeLattice(elements.Cd,elements.Te,6.482),
-                   CubicElasticTensor(53.5,36.7,19.9))
+                   CubicElasticTensor(53.5,36.7,19.9)) # ? Unit of elastic constants
 PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.464),
                    CubicElasticTensor(93.6,7.7,13.4))
 PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
 GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186),
-                   HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9)) # elastic properties in Pa
+                   HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9)) 
 V = Material("V",lattice.BCCLattice(elements.V,3.024),
                    numpy.zeros((6,6),dtype=numpy.double))
 Ag2Se = Material("Ag2Se",lattice.NaumanniteLattice(elements.Ag,elements.Se,4.333,7.062,7.764),
@@ -313,6 +319,76 @@ class AlloyAB(Material):
         #}}}2
 
     x = property(_getxb,_setxb)
+
+    def RelaxationTriangle(self,hkl,sub,exp):
+        """
+        function which returns the relaxation trianlge for a 
+        Alloy of given composition. Reciprocal space coordinates are
+        calculated using the user-supplied experimental class
+
+        Parameter
+        ---------
+        hkl : Miller Indices
+        sub : substrate material or lattice constant (Instance of Material class or float)
+        exp : Experiment class from which the Transformation object and ndir are needed
+
+        Returns
+        -------
+        qy,qz : reciprocal space coordinates of the corners of the relaxation triangle
+
+        """
+        if isinstance(hkl,(list,tuple,numpy.ndarray)):
+            hkl = numpy.array(hkl,dtype=numpy.double)
+        else:
+            raise TypeError,"First argument (hkl) must be of type list, tuple or numpy.ndarray"
+        #if not isinstance(exp,xrutils.Experiment):
+        #    raise TypeError,"Third argument (exp) must be an instance of xrutils.Experiment"
+        transform =exp.transform
+        ndir =exp.ndir/numpy.linalg.norm(exp.ndir)
+
+        if isinstance(sub,Material):
+            asub = numpy.linalg.norm(sub.lattice.a1)
+        elif isinstance(sub,float):
+            asub = sub
+        else:
+            raise TypeError,"Second argument (sub) must be of type float or an instance of xrutils.materials.Material"
+
+        # test if inplane direction of hkl is the same as the one for the experiment otherwise warn the user
+        hklinplane = numpy.cross(numpy.cross(exp.ndir,hkl),exp.ndir)
+        if (numpy.linalg.norm(numpy.cross(hklinplane,exp.idir)) > _epsilon):
+            warnings.warn("AlloyAB: given hkl differs from the geometry of the Experiment instance in the azimuthal direction")
+
+        # calculate relaxed points for matA and matB as general as possible:
+        a1 = lambda x: (self.matB.lattice.a1-self.matA.lattice.a1)*x+self.matA.lattice.a1
+        a2 = lambda x: (self.matB.lattice.a2-self.matA.lattice.a2)*x+self.matA.lattice.a2
+        a3 = lambda x: (self.matB.lattice.a3-self.matA.lattice.a3)*x+self.matA.lattice.a3
+        V = lambda x: numpy.dot(a3(x),numpy.cross(a1(x),a2(x)))
+        b1 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a2(x),a3(x))
+        b2 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a3(x),a1(x))
+        b3 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a1(x),a2(x))
+        qhklx = lambda x: hkl[0]*b1(x)+hkl[1]*b2(x)+hkl[2]*b3(x)
+
+        qr_i = transform(qhklx(self.x))[1]
+        qr_p = transform(qhklx(self.x))[2]
+        qs_i = 2*numpy.pi/asub * numpy.linalg.norm(numpy.cross(ndir,hkl))
+        qs_p = 2*numpy.pi/asub * numpy.abs(numpy.dot(ndir,hkl))
+
+        # calculate pseudomorphic points for A and B
+        # transform elastic constants to correct coordinate frame
+        cijA = Cijkl2Cij(transform(self.matA.cijkl))
+        cijB = Cijkl2Cij(transform(self.matB.cijkl))
+        abulk = lambda x: numpy.linalg.norm(a1(x))
+        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
+        aperp = lambda x: abulk(self.x)*( 1 + frac(x)*(1 - asub/abulk(self.x)) )
+        
+        qp_i = 2*numpy.pi/asub * numpy.linalg.norm(numpy.cross(ndir,hkl))
+        qp_p = 2*numpy.pi/aperp(self.x) * numpy.abs(numpy.dot(ndir,hkl))
+
+        #assembly return values
+        qy= numpy.array([qr_i,qp_i,qs_i,qr_i],dtype=numpy.double)
+        qz= numpy.array([qr_p,qp_p,qs_p,qr_p],dtype=numpy.double)
+        
+        return qy,qz
 
     def ContentB(self,q_inp,q_perp,hkl,sur):
         #{{{2
@@ -366,7 +442,7 @@ class AlloyAB(Material):
         # calculate lattice constants from reciprocal space positions
         n = self.rlattice.GetPoint(sur)/numpy.linalg.norm(self.rlattice.GetPoint(sur))
         q_hkl = self.rlattice.GetPoint(hkl)
-        # the following two lines are incorrect
+        # the following two lines are not generally true! only cubic materials
         ainp = 2*numpy.pi/q_inp * numpy.linalg.norm(numpy.cross(n,hkl))
         aperp = 2*numpy.pi/q_perp * numpy.abs(numpy.dot(n,hkl))
 
@@ -389,7 +465,7 @@ class AlloyAB(Material):
         qsurx = lambda x: sur[0]*b1(x)+sur[1]*b2(x)+sur[2]*b3(x)
         qhklx = lambda x: hkl[0]*b1(x)+hkl[1]*b2(x)+hkl[2]*b3(x)
         
-        # the following two lines are incorrect!!!!
+        # the following two lines are not generally true! only cubic materials
         abulk_inp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),inp2) * numpy.linalg.norm(numpy.cross(n,hkl)))
         abulk_perp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),n) * numpy.inner(n,hkl))
         print abulk_inp(0.), abulk_perp(0.)
@@ -397,14 +473,6 @@ class AlloyAB(Material):
         frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
 
         equation = lambda x: (aperp-abulk_perp(x)) + (ainp - abulk_inp(x))*frac(x)
-
-        self.inp1=inp1
-        self.inp2=inp2
-        self.normal=n
-        self.qhklx=qhklx
-
-        self.aperp= aperp
-        self.ainp = ainp
 
         x = scipy.optimize.brentq(equation,-0.1,1.1)
 
@@ -441,7 +509,7 @@ def PseudomorphicMaterial(submat,layermat):
     PseudomprohicMaterial(submat,layermat):
     This function returns a material whos lattice is pseudomorphic on a
     particular substrate material.
-    This function works meanwhile only for cubit materials.
+    This function works meanwhile only for cubic materials.
 
     required input arguments:
     submat .................... substrate material
