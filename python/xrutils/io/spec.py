@@ -102,6 +102,7 @@ class SPECScan(object):
         self.hoffset = hoffset      #file offset where the header data starts
         self.doffset = doffset      #file offset where the data section starts
         self.fid = fid              #descriptor of the file holding the data
+        self.ischanged = True       #flag to force resave to hdf5 file in Save2HDF5()
 
         if scan_status in scan_status_flags:
             self.scan_status = scan_status
@@ -269,9 +270,7 @@ class SPECScan(object):
                     mca_counter = 0
                     
         #convert the lists in the data dictionary to numpy arrays
-        print len(record_list)
-        print len(record_list[0])
-        print len(type_desc["names"])
+        print "%s: %d %d %d" %(self.name,len(record_list),len(record_list[0]),len(type_desc["names"]))
         self.data = numpy.rec.fromrecords(record_list,dtype=type_desc)
 
         #reset the file pointer position
@@ -327,7 +326,8 @@ class SPECScan(object):
         if keyargs.has_key("desc"):
             group_desc = keyargs["desc"]
         else:
-            group_desc = self.command
+            group_desc = self.command        
+
         
         #create the dictionary describing the table
         tab_desc_dict = {} 
@@ -354,8 +354,11 @@ class SPECScan(object):
             except:
                 #if the group already exists the name must be changed and 
                 #another will be made to create the group.
-                group_title = group_title + "_%i" %(copy_count)
-                copy_count = copy_count + 1
+                if self.ischanged:
+                    g = h5file.removeNode(rootgroup,group_title,recursive=True)
+                else:
+                    group_title = group_title + "_%i" %(copy_count)
+                    copy_count = copy_count + 1
                 
         if compflag:
             tab = h5file.createTable(g,"data",tab_desc_dict,"scan data",filters=f)        
@@ -426,6 +429,9 @@ class SPECFile(object):
         
     def __getitem__(self,index):    	
     	return self.scan_list[index]
+
+    def __len__(self):
+        return scan_list.__len__()
     	
     def __str__(self):        
 		ostr = ""
@@ -448,7 +454,7 @@ class SPECFile(object):
         
         optional keyword arguments:
         comp .................. activate compression - true by default
-        name .................. optinal name for the file group
+        name .................. optional name for the file group
         """
         
         try:
@@ -462,11 +468,12 @@ class SPECFile(object):
             compflag = True
             
         for s in self.scan_list:
-            if not g.__contains__(s.name):            
+            if ((not g.__contains__(s.name)) or s.ischanged):
                 s.ReadData()
                 if s.data != None:
                     s.Save2HDF5(h5,group=g,comp=compflag)
-                    s.ClearData()        
+                    s.ClearData()
+                    s.ischanged = False
 
     def Update(self):
         """
@@ -489,7 +496,13 @@ class SPECFile(object):
 
         #reparse the SPEC file
         print "reparsing file for new scans ...";
+        # mark last found scan as not saved to force reread
+        idx = len(self.scan_list)
+        if idx>0:
+            lastscan = self.scan_list[idx-1]
+            lastscan.ischanged=True
         self.Parse()
+
 
     def Parse(self):
         """
@@ -497,7 +510,7 @@ class SPECFile(object):
         Parses the file from the starting at last_offset and adding found scans
         to the scan list.
         """
-        #move to the last read position in the fiel
+        #move to the last read position in the file
         self.fid.seek(self.last_offset,0)
         scan_started = False
         scan_has_mca = False
