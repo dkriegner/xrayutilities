@@ -4,11 +4,12 @@ import numpy
 import math
 import materials
 from numpy.linalg import norm
-
+import warnings
 
 _e_const = 1.60219e-19
 _h_const = 6.62602e-34
 _c_const = 2.997925e8
+_epsilon = 1.e-7
 
 class Experiment(object):
     #{{{1
@@ -28,6 +29,14 @@ class Experiment(object):
         else:
             raise TypeError,"normal direction must be list or numpy array"
         
+        #test the given direction to be not parallel and warn if not perpendicular
+        if(norm(numpy.cross(self.idir,self.ndir))<_epsilon):
+            raise ValueError("given inplane direction is parallel to normal direction, they must be linear independent!")
+        if(numpy.dot(self.idir,self.ndir)> _epsilon):
+            self.idir = numpy.cross(numpy.cross(self.ndir,self.idir),self.ndir)
+            self.idir = self.idir/norm(self.idir)
+            warnings.warn("Experiment: given inplane direction is not perpendicular to normal direction\n -> Experiment class uses the following direction with the same azimuth:\n %s" %(' '.join(map(str,numpy.round(self.idir,3)))))
+
         #set the coordinate transform for the azimuth used in the experiment
         v1 = numpy.cross(self.ndir,self.idir)
         self.transform = math.CoordinateTransform(v1,self.idir,self.ndir)
@@ -229,7 +238,7 @@ class HXRD(Experiment):
 
         return [qx,qy,qz];    
 
-    def Q2Ang(self,Q,trans=False,geom="hi_lo",deg=True):
+    def Q2Ang(self,Q,trans=True,geom="hi_lo",deg=True):
         """
         Q2Ang(Q,trans=False):
         Convert a reciprocal space vector Q to scattering angles.
@@ -281,7 +290,11 @@ class HXRD(Experiment):
             om = om1
 
         #have to take now the scattering geometry into account
-        
+        if(geom=="hi_lo" and om<tth/2.):
+            om = tth-om
+        elif(geom=="lo_hi" and om>tth/2.):
+            om = tth-om
+
         rad2deg = 180./numpy.pi
         if deg:
             return [rad2deg*delta,rad2deg*om,rad2deg*tth]
