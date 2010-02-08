@@ -368,8 +368,8 @@ class AlloyAB(Material):
         b3 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a1(x),a2(x))
         qhklx = lambda x: hkl[0]*b1(x)+hkl[1]*b2(x)+hkl[2]*b3(x)
 
-        qr_i = transform(qhklx(self.x))[1]
-        qr_p = transform(qhklx(self.x))[2]
+        qr_i = numpy.abs(transform(qhklx(self.x))[1])
+        qr_p = numpy.abs(transform(qhklx(self.x))[2])
         qs_i = 2*numpy.pi/asub * numpy.linalg.norm(numpy.cross(ndir,hkl))
         qs_p = 2*numpy.pi/asub * numpy.abs(numpy.dot(ndir,hkl))
 
