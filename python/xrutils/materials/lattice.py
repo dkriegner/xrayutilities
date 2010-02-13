@@ -602,12 +602,12 @@ def QuartzLattice(aa,ab,a,b,c):
     lb.append(ab,[0.4135-0.2669,-0.2669,-0.1191])
 
     #create lattice vectors alpha=beta=90 gamma=120
-    ca = numpy.cos(numpy.deg2rad(90))
-    cb = numpy.cos(numpy.deg2rad(90))
-    cg = numpy.cos(numpy.deg2rad(120))
-    sa = numpy.sin(numpy.deg2rad(90))
-    sb = numpy.sin(numpy.deg2rad(90))
-    sg = numpy.sin(numpy.deg2rad(120))
+    ca = numpy.cos(numpy.radians(90))
+    cb = numpy.cos(numpy.radians(90))
+    cg = numpy.cos(numpy.radians(120))
+    sa = numpy.sin(numpy.radians(90))
+    sb = numpy.sin(numpy.radians(90))
+    sg = numpy.sin(numpy.radians(120))
 
     a1 = a*numpy.array([1,0,0],dtype=numpy.double)
     a2 = b*numpy.array([cg,sg,0],dtype=numpy.double)

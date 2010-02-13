@@ -387,10 +387,10 @@ class Powder(Experiment):
         # and also include Debye-Waller factor for later implementation
         # see L.S. Zevin : Quantitative X-Ray Diffractometry 
         # page 18ff
-        polarization_factor = (1+numpy.cos(numpy.deg2rad(2*self.ang))**2)/2.
-        lorentz_factor = 1./(numpy.sin(numpy.deg2rad(self.ang))**2*numpy.cos(numpy.deg2rad(self.ang)))
+        polarization_factor = (1+numpy.cos(numpy.radians(2*self.ang))**2)/2.
+        lorentz_factor = 1./(numpy.sin(numpy.radians(self.ang))**2*numpy.cos(numpy.radians(self.ang)))
         B=0 # do not have B data yet: they need to be implemented in lattice base class and feeded by the material initialization also the debye waller factor needs to be included there and not here
-        debye_waller_factor = numpy.exp(-2*B*numpy.sin(numpy.deg2rad(self.ang))**2/self._wl**2)
+        debye_waller_factor = numpy.exp(-2*B*numpy.sin(numpy.radians(self.ang))**2/self._wl**2)
         unitcellvol = self.mat.lattice.UnitCellVolume()
         self.data = self.data * polarization_factor * lorentz_factor / unitcellvol**2
 
@@ -423,7 +423,7 @@ class Powder(Experiment):
         returns the absolute value of momentum transfer
         """
         if deg:
-            lth = numpy.deg2rad(th)
+            lth = numpy.radians(th)
         else:
             lth = th
 
@@ -437,7 +437,7 @@ class Powder(Experiment):
         th = numpy.arcsin(qpos/(2*self.k0))
 
         if deg:
-            th= numpy.rad2deg(th)
+            th= numpy.degrees(th)
 
         return th
     
