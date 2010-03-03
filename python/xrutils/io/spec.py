@@ -14,6 +14,7 @@ import numpy
 import os
 import time
 import tables
+from matplotlib import pylab
 
 #define some uesfull regular expressions
 SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")
@@ -275,6 +276,66 @@ class SPECScan(object):
 
         #reset the file pointer position
         self.fid.seek(oldfid,0)
+
+    def plot(self,*args,**keyargs):
+        """
+        plot(*args,newfig=True,logy=False):
+        Plot scan data to a matplotlib figure. If newfig=True a new 
+        figure instance will be created. If logy=True (default is False) 
+        the y-axis will be plotted with a logarithmic scale.
+        """
+
+        if keyargs.has_key("newfig"):
+            newfig = keyargs["newfig"]
+        else:
+            newfig = True
+
+        if keyargs.has_key("logy"):
+            logy = keyargs["logy"]
+        else:
+            logy = False
+
+        try:
+            xname = args[0]
+            xdata = self.data[xname]
+        except:
+            print "name of the x-axis is invalid!"
+            return Nont
+
+        alist = args[1:]
+        leglist = []
+        
+        if len(alist)%2 != 0:
+            print "wrong number of yname/style arguments!"
+            return None
+    
+        if newfig:
+            pylab.figure()
+            pylab.subplots_adjust(left=0.05,right=0.95)
+
+        for i in range(0,len(alist),2):
+            yname = alist[i]
+            ystyle = alist[i+1]
+            try:
+                ydata = self.data[yname]
+            except:
+                print "no column with name %s exists!" %yname
+                continue
+            if logy:
+                pylab.semilogy(xdata,ydata,ystyle)
+            else:
+                pylab.plot(xdata,ydata,ystyle)
+
+            leglist.append(yname)
+
+        pylab.xlabel("%s" %xname)
+        pylab.legend(leglist)
+        pylab.title("scan %i %s\n%s %s" %(self.nr,self.command,self.date,self.time))
+        #need to adjust axis limits properly
+        lim = pylab.axis()
+        pylab.axis([xdata.min(),xdata.max(),lim[2],lim[3]])
+
+            
         
         
     def Save2HDF5(self,h5file,**keyargs):
