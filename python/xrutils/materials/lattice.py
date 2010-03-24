@@ -223,7 +223,7 @@ class Lattice(object):
         #for constant q
         if isinstance(q0,list):
             q = numpy.array(q0,dtype=numpy.double)
-        elif isinstance(q,numpy.ndarray):
+        elif isinstance(q0,numpy.ndarray):
             q = q0
         else:
             raise TypeError,"q must be a list or numpy array!"
