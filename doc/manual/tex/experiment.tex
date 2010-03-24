@@ -1,0 +1,77 @@
+%%%documentation of the Experimental classes included in xrutils
+
+The {\tt Experiment} class and derived classes provide routines to help performing X-ray diffraction experiments. This includes methods to calculate the diffraction angles needed to align samples and to convert data between angular and reciprocal space.
+
+\section{HXRD experiments}
+
+Methods for high angle x-ray diffraction experiments. Mostly for experiments performed in coplanar scattering geometry. An example will be given for the calculation of the position of Bragg reflections.
+
+\begin{lstlisting}[caption=calculation of angles for Si Bragg reflections]
+import xrutils as xu
+
+Si = xu.materials.Si  # load material from materials submodule
+
+# initialize experimental class with directions from experiment
+exp = xu.HXRD(Si.Q(1,1,-2),Si.Q(1,1,1))
+
+# calculate angles and print them to the screen
+angs = exp.Q2Ang(Si.Q(1,1,1))
+print "Si (111)"
+print "om: %8.3f" %angs[1] 
+print "tt: %8.3f" %angs[2]
+
+angs = exp.Q2Ang(Si.Q(2,2,4))
+print "Si (224)"
+print "om: %8.3f" %angs[1] 
+print "tt: %8.3f" %angs[2]
+\end{lstlisting}
+
+
+\section{GID experiments}
+
+Implementation of this class is missing
+
+\section{Powder diffraction}
+
+The powder diffraction class is able to convert powder scans from angular to reciprocal space and furthermore powder scans of materials can be simulated in a very easy way.
+
+\begin{lstlisting}[caption=conversion between angular and reciprocal space using the powder diffraction class]
+import xrutils as xu
+
+energy = 10000 # eV
+powder = xu.Powder(xu.materials.Si,en=energy) # just give some material
+
+# convert absolute q-space value to theta = 2theta/2
+theta = powder.Q2Ang(2.0) # 2.0 A^{-1} 
+# and back
+qpos = powder.Ang2Q(theta) # qpos = 2.0
+\end{lstlisting}
+
+\begin{lstlisting}[caption=simulation of an powder diffraction scan and two distinct ways of plotting the results]
+import xrutils as xu
+import matplotlib.pyplot as plt
+
+energy = (2*8048 + 8028)/3. # copper k alpha 1,2
+
+# creating Indium powder 
+In_powder = xu.Powder(xu.materials.Indium,en=energy)
+# calculating the reflection strength for the powder
+In_powder.PowderIntensity()
+
+# convoluting the peaks with a gaussian in q-space
+peak_width = 0.01 # in q-space
+resolution = 0.0005 # resolution in q-space
+In_th,In_int = In_powder.Convolute(resolution,peak_width)
+
+plt.figure(); plt.clf()
+ax1 = plt.subplot(111)
+plt.xlabel(r"2Theta (deg)"); plt.ylabel(r"Intensity")
+# plot the convoluted signal
+plt.plot(In_th*2,In_int/In_int.max(),'k-',label="Indium powder convolution")
+# plot each peak in a bar plot
+plt.bar(In_powder.ang*2, In_powder.data/In_powder.data.max(), width=0.3, bottom=0, linewidth=0, color='r',align='center', orientation='vertical',label="Indium powder bar plot")
+
+plt.legend(); ax1.set_xlim(15,100); plt.grid()
+\end{lstlisting}
+
+ 

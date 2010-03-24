@@ -2,3 +2,87 @@
 
 {\tt xrutils} provides a set of classes to describe crystal lattices and 
 materials.
+
+Examples show how to define a new material by definings its lattice and deriving a new material, furthermore materials can be used to calculate the structure factor of a Bragg reflection for an specific energy or the energy dependency of its structure factor for anomalous scattering.
+
+\begin{lstlisting}[caption=defining a new material from scratch. This consists of an lattice with base and the type of atoms with elastic constantsof the material.]
+import xrutils as xu
+
+# defining a ZincBlendeLattice with two types of atoms and lattice constant a
+def ZincBlendeLattice(aa,ab,a):
+    #create lattice base
+    lb = xu.materials.LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0])
+    lb.append(aa,[0.5,0,0.5])
+    lb.append(aa,[0,0.5,0.5])
+    lb.append(ab,[0.25,0.25,0.25])
+    lb.append(ab,[0.75,0.75,0.25])
+    lb.append(ab,[0.75,0.25,0.75])
+    lb.append(ab,[0.25,0.75,0.75])
+    
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+    
+    l = xu.materials.Lattice(a1,a2,a3,base=lb)    
+    return l
+
+# defining InP, no elastic properties are given, 
+# helper functions exist to create the (6,6) elastic tensor for cubic materials 
+InP  = xu.materials.Material("InP",ZincBlendeLattice(xu.elements.In, xu.elements.P,5.8687), numpy.zeros((6,6),dtype=numpy.double))
+# InP is of course already included in the xu.materials module
+\end{lstlisting}
+
+\begin{lstlisting}[caption=calculation of the reflection strength of a Bragg reflection]
+import xrutils as xu
+import numpy
+
+# defining material and experimental setup
+InAs = xu.materials.InAs
+energy= 8048 # eV
+
+# calculate the structure factor for InAs (111) (222) (333)
+hkllist = [[1,1,1],[2,2,2],[3,3,3]]
+for hkl in hkllist:
+    qvec = InAs.Q(hkl)
+    F = InAs.lattice.StructureFactor(energy,qvec)
+    print(" |F| = %8.3f" %numpy.abs(F))
+\end{lstlisting}
+
+\begin{lstlisting}[caption=energy dependency of the structure factor]
+import xrutils as xu
+import numpy
+import matplotlib.pyplot as plt
+
+# defining material and experimental setup
+InAs = xu.materials.InAs
+energy= numpy.linspace(500,20000,5000) # 500 - 20000 eV
+
+F = InAs.lattice.StructureFactorForEnergy(energy,InAs.Q(1,1,1))
+
+plt.figure(); plt.clf()
+plt.plot(energy,F.real,'k-',label='Re(F)')
+plt.plot(energy,F.imag,'r-',label='Imag(F)')
+plt.xlabel("Energy (eV)"); plt.ylabel("F"); plt.legend()
+\end{lstlisting}
+
+It is also possible to calculate the structure factor of atoms which may be needed for input into XRD simulations.
+
+\begin{lstlisting}[caption=components of the structure factor for simulations]
+# f = f0(|Q|) + f1(en) + j * f2(en)
+import xrutils as xu
+import numpy
+
+Fe = xu.materials.elements.Fe # iron atom
+Q = numpy.array([0,0,1.9],dtype=numpy.double)
+en = 10000 # energy in eV
+
+print "Iron (Fe): E: %9.1f eV" % en
+print "f0: %8.4g" % Fe.f0(numpy.linalg.norm(Q))
+print "f1: %8.4g" % Fe.f1(en)
+print "f2: %8.4g" % Fe.f2(en)
+\end{lstlisting}
+
+
