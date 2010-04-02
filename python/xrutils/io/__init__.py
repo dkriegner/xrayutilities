@@ -8,6 +8,8 @@ from radicon import selecthst
 from seifert import SeifertScan
 from seifert import SeifertMultiScan
 
+from spectra import SPECTRAFile
+
 from tascom import dat2hdf5
 from tascom import dats2hdf5
 

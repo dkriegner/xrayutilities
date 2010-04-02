@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+#converts EDF files to matlab files - single files or 
+#entire directories can be converted.
+
+import xrutils as xu
+import numpy
+from optparse import OptionParser
+
+#define command line options
+op = OptionParser()
+
+op.add_option("-d","--input-dir",dest="inputdir",action="store",
+              metavar="INPUT DIRECTORY",default=".",
+              help = "Directory from which to fetch files")
+op.add_option("-t","--template",dest="input_template",action="store")
+op.add_option("-o","--outfile",dest="outfile",action="store",
+              metavar="OUTPUT FILE",default="ccdedf.mat",
+              help="Name of the file where to store data")
+op.add_option("-r","--range",dest="range",action="store",
+              metavar="FILE NUMBER RANGE",
+              help="Enter the range of files to read")
+              
+(opts,args) = op.parse_args()
+print args
+
+
+
+

@@ -241,5 +241,3 @@ class EDFFile(object):
             aname = aname.replace(" ","_")
             ca.attrs.__setattr__(aname,self.header[k])
 
-
-    

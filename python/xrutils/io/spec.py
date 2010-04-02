@@ -126,6 +126,17 @@ class SPECScan(object):
         
         #a numpy record array holding the data - this is set using by the ReadData method.
         self.data = None
+        
+        #check for duplicate values in column names
+        for i in range(len(self.colnames)):
+            name = self.colnames[i]
+            cnt = self.colnames.count(name)
+            if cnt>1:
+                #have multiple entries 
+                cnt = 1
+                for j in range(self.colnames.index(name)+1,len(self.colnames)):
+                    if self.colnames[j]==name: self.colnames[j] = name+"_%i" %cnt
+                    cnt += 1
 
     def SetMCAParams(self,mca_column_format,mca_channels,mca_start,mca_stop):
     	"""
@@ -311,7 +322,7 @@ class SPECScan(object):
     
         if newfig:
             pylab.figure()
-            pylab.subplots_adjust(left=0.05,right=0.95)
+            pylab.subplots_adjust(left=0.08,right=0.95)
 
         for i in range(0,len(alist),2):
             yname = alist[i]

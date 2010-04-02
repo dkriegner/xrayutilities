@@ -144,51 +144,35 @@ class Gridder3D(Gridder2D):
         self.nz = nz
         self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
         self.gnorm = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-
-    def GetXMatrix(self):
-        """
-        GetXMatrix():
-        Return x axis in form of a matrix of shape (nx,ny,nz). The axis value 
-        vary along the first index (nx).
-        """
-        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
-        a = self.GetXAxis()
-
-        return m*a[:,numpy.newaxis,numpy.newaxis]
+        
+        self.zmin = 0
+        self.zmax = 0
+        
+    def SetResolution(self,nx,ny,nz):
+        self.nx = nx
+        self.ny = ny
+        self.nz = nz
+        
+        self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
+        self.gnorm = numpy.zeros((nx,ny,nz),dtype=numpy.double)
     
-    def GetYMatrix(self):
-        """
-        GetYMatrix():
-        Return y axis in form of a matrx of shape (nx,ny,nz) where the 
-        axis values vary along the second index ny.
-        """
-        a = self.GetYAxis()
-        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
-
-        return m*a[numpy.newaxis,:,numpy.newaxis]
     
-    def GetZAxis(self):
-        """
-        GetZAxis():
-        Return the z-axis if the gridded data as a numpy array of shape (nz).
-        """
+    def __get_zaxis(self):        
         dz = (self.zmax-self.zmin)/(self.nz-1)
         az = self.zmin + dz*numpy.arange(0,self.nz)
         return az
 
-    def GetZMatrix(self):
-        """
-        GetZMatrix():
-        Return z axis in form of a matrx of shape (nx,ny,nz) where the 
-        axis values vary along the third index nz.
-        """
+    def __get_zmatrix(self):        
         a = self.GetZAxis()
         m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
 
         return m*a[numpy.newaxis,numpy.newaxis,:]
         
+    zaxis = property(__get_zaxis)
+    zmatrix = property(__get_zmatrix)
+        
 
-    def GridData(self,x,y,z,data):
+    def __call__(self,x,y,z,data):
         """
         GridData(x,y,data):
         Perform gridding on a set of data. After running the gridder 
@@ -235,245 +219,4 @@ class Gridder3D(Gridder2D):
                                    self.gdata,self.gnorm,self.flags)
 
   
-
-def grid2dmap(x,y,data,nx,ny,**keyargs):
-    """
-    grid2dmap(x,y,z,data,nx,ny,nz):
-    grid2dmap grids data stored on a nonregular grid of any dimension onto a
-    2D grid. Using the optional keyword arguments the routine can be used
-    on the same data grid in subsquent runs. This makes sense in the case, that
-    the original dataset is to large to be stored in the main memory as a whole,
-    and therefore must be splitted into several chunks which should be all
-    gridded into one matrix. On deman axes values or axis matrices will be 
-    returned.
-    
-    required input arguments:
-    x ............... matrix with x-values to be gridded
-    y ............... matrix with y-values to be gridded
-    data ............ matrix with data values to be gridded
-    nx .............. number of grid points in x direction
-    ny .............. number of grid points in y direction
-
-    optional keyword arguments:
-    normalize ....... True/False perform normalization of the gridded data
-    dgrid ........... data grid from a previous run
-    ngrid ........... normalization grid from a previous run
-    axmat ........... axis values in a matrix of same shape as the result are returned
-    axval ........... axis values are returned as vectors with the length of the matrix dimension
-                      the axis belongs to are returned
-    threads ......... number of threads to use in case of the threaded version
-    
-    
-    return values: [datagrid,datanorm] or datagrid
-    datagrid ........ (nx,ny,nz) numpy array with the gridded data
-    datanorm ........ (nx,ny,nz) numpy array with the normalizatio matrix
-                       datanorm is only returnd if no normalization is performed (normalize=False).
-    """
-    
-        #evaluate keyword arguments:
-    if keyargs.has_key("normalize"):
-        perform_normalization_flag = keyargs["normalize"];
-    else:
-        perform_normalization_flag = True;
-        
-    if keyargs.has_key("axval"):
-        axval = keyargs["axval"]
-    else:
-        axval = False
-        
-    if keyargs.has_key("axmat"):
-        axmat = keyargs["axmat"]
-    else:
-        axmat = False
-
-    dx = abs((xmax-xmin)/(nx-1))
-    dy = abs((ymax-ymin)/(ny-1))
-
-    if keyargs.has_key("dgrid"):
-        datagrid = keyargs["dgrid"]
-    else:
-        datagrid = numpy.zeros((ny,nx),numpy.float)
-
-    if keyargs.has_key("ngrid"):
-        datanorm = keyargs["ngrid"]
-    else:
-        datanorm = numpy.zeros((ny,nx),numpy.int)
-                
-            
-    outlist = []
-
-    #perform normalization if requested (Default)
-    if perform_normalization_flag:
-        print "perform normalization ..."
-        numpy.putmask(datanorm,datanorm==0.0,1.0);
-        datagrid = datagrid/datanorm.astype(numpy.float);
-        print datagrid.shape
-        outlist.append(datagrid);
-    else:
-        outlist.append(datagrid);
-        outlist.append(datanorm);
-        
-    #build axis values or matrices if requested by the user
-    if axval:
-        xaxis = numpy.arange(xmin,xmax+0.1*dx,dx,dtype=numpy.double);
-        yaxis = numpy.arange(ymin,ymax+0.1*dx,dy,dtype=numpy.double);
-        outlist.append(xaxis);
-        outlist.append(yaxis);
-        
-    if axmat:
-        xaxis = numpy.arange(xmin,xmax+0.1*dx,dx,dtype=numpy.double)
-        yaxis = numpy.arange(ymin,ymax+0.1*dy,dy,dtype=numpy.double)
-        m = numpy.ones(datagrid.shape,numpy.double)
-        print xmin,xmax,xaxis.shape
-        print ymin,ymax,yaxis.shape
-        print m.shape
-        xmat = m*xaxis[numpy.newaxis,:]
-        ymat = m*yaxis[:,numpy.newaxis]
-        outlist.append(xmat)
-        outlist.append(ymat)
-        
-    return outlist;
-    
-
-def grid3dmap(x,y,z,data,nx,ny,nz,**keyargs):
-    """
-    grid3dmap(x,y,z,data,nx,ny,nz):
-    grid3d grids data stored on a nonregular grid of any dimension onto a
-    3D grid. Using the optional keyword arguments the routine can be used
-    on the same data grid in subsquent runs. This makes sense in the case, that
-    the original dataset is to large to be stored in the main memory as a whole,
-    and therefore must be splitted into several chunks which should be all
-    gridded into one matrix.
-    
-    required input arguments:
-    x ............... matrix with x-values to be gridded
-    y ............... matrix with y-values to be gridded
-    z ............... matrix with z-values to be gridded
-    data ............ matrix with data values to be gridded
-    nx .............. number of grid points in x direction
-    ny .............. number of grid points in y direction
-    nz .............. number of grid points in z direction
-
-    optional keyword arguments:
-    normalize ....... True/False perform normalization of the grided data
-    xrange .......... [xmin,xmax] range in x-direction
-    yrange .......... [ymin,ymax] range in y-direction
-    zrange .......... [zmin,zmax] range in z-direction
-    dgrid ........... data grid from a previous run
-    ngrid ........... normalization grid from a previous run
-    
-    return values: [datagrid,datanorm] or datagrid
-    datagrid ........ (nx,ny,nz) numpy array with the gridded data
-    datanorm ........ (nx,ny,nz) numpy array with the normalizatio matrix
-                       datanorm is only returnd if no normalization is performed (normalize=False).
-    """
-    
-        #evaluate keyword arguments:
-    if keyargs.has_key("normalize"):
-        perform_normalization_flag = keyargs["normalize"];
-    else:
-        perform_normalization_flag = True;
-        
-    if keyargs.has_key("axval"):
-        axval = keyargs["axval"];
-    else:
-        axval = False;
-        
-    if keyargs.has_key("axmat"):
-        axmat = keyargs["axmat"];
-    else:
-        axmat = False;
-        
-    if keyargs.has_key("xrange"):
-        xmin = keyargs["xrange"][0];
-        xmax = keyargs["xrange"][1];
-    else:
-        xmin = x.min();
-        xmax = x.max();
-
-    if keyargs.has_key("yrange"):
-        ymin = keyargs["yrange"][0];
-        ymax = keyargs["yrange"][1];
-    else:
-        ymin = y.min();
-        ymax = y.max();
-
-    if keyargs.has_key("zrange"):
-        zmin = keyargs["zrange"][0];
-        zmax = keyargs["zrange"][1];
-    else:
-        zmin = z.min();
-        zmax = z.max();
-
-    dx = abs((xmax-xmin)/(nx-1));
-    dy = abs((ymax-ymin)/(ny-1));
-    dz = abs((zmax-zmin)/(nz-1));
-
-    if keyargs.has_key("dgrid"):
-        datagrid = keyargs["dgrid"];
-    else:
-        datagrid = numpy.zeros((ny,nx,nz),numpy.float);
-
-    if keyargs.has_key("ngrid"):
-        datanorm = keyargs["ngrid"];
-    else:
-        datanorm = numpy.zeros((ny,nx,nz),numpy.int);
-                
-    xindex = numpy.floor((x-xmin)/dx).astype(numpy.int);
-    yindex = numpy.floor((y-ymin)/dy).astype(numpy.int);
-    zindex = numpy.floor((z-zmin)/dz).astype(numpy.int);
-    
-    for i in range(data.size):            
-
-        try:
-            #I use here exception tracking since it is possible from the above calculation that some
-            #points are maybe outside the range of the grid. In this case they are simply ignored.
-            #this is obvioulsy the case if custom ranges are provided by the user.
-            datagrid[yindex.flat[i],\
-                     xindex.flat[i],\
-                     zindex.flat[i]] = datagrid[yindex.flat[i],xindex.flat[i],zindex.flat[i]]+data.flat[i];
-            datanorm[yindex.flat[i],\
-                     xindex.flat[i],\
-                     zindex.flat[i]] = datanorm[yindex.flat[i],xindex.flat[i],zindex.flat[i]] + 1;
-        except:
-            pass
-
-    outlist = [];
-    #perform normalization if requested (Default)
-    if perform_normalization_flag:
-        print "perform normalization ..."
-        numpy.putmask(datanorm,datanorm==0.0,1.0);
-        datagrid = datagrid/datanorm.astype(numpy.float);
-        outlist.append(datagrid);
-    else:
-        outlist.append(datagrid);
-        outlist.append(datanorm);
-
-        
-    #build axis values or matrices if requested by the user
-    if axval:
-        xaxis = numpy.arange(xmin,xmax+0.1*dx,dx,dtype=numpy.double);
-        yaxis = numpy.arange(ymin,ymax+0.1*dx,dy,dtype=numpy.double);
-        zaxis = numpy.arange(zmin,zmax+0.1*dx,dz,dtype=numpy.double);
-        outlist.append(xaxis);
-        outlist.append(yaxis);
-        outlist.append(zaxis);
-        
-    if axmat:
-        xaxis = numpy.arange(xmin,xmax+0.1*dx,dx,dtype=numpy.double);
-        yaxis = numpy.arange(ymin,ymax+0.1*dy,dy,dtype=numpy.double);
-        zaxis = numpy.arange(zmin,zmax+0.1*dx,dz,dtype=numpy.double);
-        m = numpy.ones(datagrid.shape,numpy.double);
-        print xaxis.shape
-        print yaxis.shape
-        print zaxis.shape
-        print m.shape
-        xmat = m*xaxis[:,numpy.newaxis,numpy.newaxis];
-        ymat = m*yaxis[numpy.newaxis,:,numpy.newaxis];
-        zmat = m*zaxis[numpy.newaxis,numpy.newaxis,:];
-        outlist.append(xmat);
-        outlist.append(ymat);
-        outlist.append(zmat);
-        
-    return outlist;
 

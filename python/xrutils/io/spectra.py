@@ -5,11 +5,273 @@ import os
 import re
 import tables
 import os.path
+from numpy import rec
 
 re_wspaces = re.compile(r"\s+")
 re_colname = re.compile(r"^Col")
 
+re_comment_section = re.compile(r"^%c")
+re_parameter_section = re.compile(r"^%p")
+re_data_section = re.compile(r"^%d")
+re_end_section  = re.compile(r"^!")
+re_unit = re.compile(r"\[.+\]")
+re_column = re.compile(r"^Col")
+re_col_name = re.compile(r"\d+\s+.+\s*\[")
+re_col_index = re.compile(r"\d+\s+")
+
+dtype_map = {"FLOAT":"f4"}
+
 _absorber_factors = None
+
+class SPECTRAFileComments(dict):
+    """
+    class SPECTRAFileComments:
+    Class that describes the comments in the header of a SPECTRA file.
+    The different comments are accessible via the comment keys.
+    """
+    def __init__(self):
+        pass
+        
+    def __getattr__(self,name):
+        if self.has_key(name): return self[key]
+        
+class SPECTRAFileParameters(dict):
+    def __init__(self):
+        pass
+        
+    def __getattr__(self,name):
+        if self.has_key(name):
+            return self[name]
+            
+    def __str__(self):
+        ostr = ""
+        n = len(self.keys())
+        lmax_key = 0 
+        lmax_item = 0
+        strlist = []
+        
+        #find the length of the longest key
+        for k in self.keys():
+            if len(k)>lmax_key: lmax_key = len(k)
+            
+            i = self[k]
+            if not isinstance(i,str): 
+                #if the item is not a string it must be converted
+                i = "%f" %i
+                
+            if len(i)>lmax_item: lmax_item = len(i)
+            
+        #define the format string for a single key-value pair
+        kvfmt = "|%%-%is = %%-%is" %(lmax_key,lmax_item)
+        
+        nc = 3
+        nres = len(self.keys())%nc
+        nrow = (len(self.keys())-nres)/nc                
+        
+        cnt = 0
+        ostr += (3*(lmax_key+lmax_item+4)+1)*"-"+"\n"
+        ostr += "|Parameters:" +(3*(lmax_key+lmax_item))*" "+"|\n"
+        ostr += (3*(lmax_key+lmax_item+4)+1)*"-"+"\n"
+        for key in self.keys():
+            value = self[key]            
+            if not isinstance(value,str): value = "%f" %value
+            
+            ostr += kvfmt %(key,value)
+            cnt += 1
+            if cnt==3:
+                ostr += "|\n"
+                cnt = 0
+                
+        if cnt!=0: ostr += "|\n"
+        ostr += (3*(lmax_key+lmax_item+4)+1)*"-"+"\n"
+            
+        return ostr
+  
+  
+class SPECTRAFileDataColumn(object):
+    def __init__(self,index,name,unit,type):
+        self.index = int(index)
+        self.name  = name
+        self.unit  = unit
+        self.type  = type
+        
+    def __str__(self):
+        ostr = "%i %s %s %s" %(self.index,self.name,self.unit,self.type)
+        return ostr
+        
+        
+class SPECTRAFileData(object):
+    def __init__(self):
+        self.collist = []
+        self.data = None
+        
+    def append(self,col):
+        self.collist.append(col)
+        
+    def __getitem__(self,key):
+        try:
+            return self.data[key]
+        except:
+            print "data contains no column named: %s!" %key
+        
+        
+    def __str__(self):
+        ostr = ""
+        
+        #determine the maximum lenght of every column string
+        lmax = 0
+        for c in self.collist:
+            if len(c.__str__())>lmax: lmax = len(c.__str__())
+            
+        lmax += 3
+        
+        #want to print in three columns
+        nc   = 3
+        nres = len(self.collist)%nc
+        nrows = (len(self.collist)-nres)/nc
+    
+        fmtstr = "| %%-%is| %%-%is| %%-%is|\n" %(lmax,lmax,lmax)
+        
+        ostr += (3*lmax+7)*"-"+"\n"
+        ostr += "|Column names:"+(3*lmax-8)*" "+"|\n"
+        ostr += (3*lmax+7)*"-"+"\n"
+        for i in range(nrows):
+            c1 = self.collist[i]
+            c2 = self.collist[i+nrows]
+            c3 = self.collist[i+2*nrows]            
+            ostr +=  fmtstr %(c1.__str__(),c2.__str__(),c3.__str__())
+            
+        ostr += (3*lmax+7)*"-"+"\n"
+        return ostr
+        
+        
+
+class SPECTRAFile(object):
+    """
+    class SPECTRAFile:
+    Represents a SPECTRA data file. The file is read during the 
+    Constructor call.
+    """
+    def __init__(self,filename):
+        self.filename = filename
+        self.comments = SPECTRAFileComments()
+        self.params   = SPECTRAFileParameters()
+        self.data     = SPECTRAFileData()
+        
+        self.Read()
+        
+    def __str__(self):
+        ostr = self.params.__str__()
+        ostr += self.data.__str__()
+        
+        return ostr
+        
+    def Read(self):
+        """
+        Read():
+        Read the data from the file.
+        """
+        try:
+            fid = open(self.filename,"r")
+        except:
+            print "cannot open data file %s for reading!" %(self.filename)
+            return None
+        
+        col_names = ""
+        col_units = []
+        col_types = ""
+        rec_list = []
+
+        while True:
+            lbuffer = fid.readline()
+            if lbuffer=="": break
+            lbuffer = lbuffer.strip()
+            
+            #read the next line if the line starts with a "!"
+            if re_end_section.match(lbuffer): continue
+            
+            #select the which section to read
+            if re_comment_section.match(lbuffer): 
+                read_mode = 1                               
+                continue
+                 
+            if re_parameter_section.match(lbuffer): 
+                read_mode = 2                
+                continue 
+                
+            if re_data_section.match(lbuffer): 
+                read_mode = 3                
+                continue
+                
+            #here we decide how to proceed with the data
+            if read_mode == 1:
+                #read the file comments
+                try:
+                    (key,value) = lbuffer.split("=")
+                except:
+                    print "cannot interpret the comment string: %s" %(lbuffer)
+                    continue 
+                    
+                key = key.strip()
+                value = value.strip()
+                try:
+                    value = float(value)
+                except:
+                    pass
+                self.comments[key] = value
+                
+            elif read_mode == 2:
+                #read scan parameters
+                try:
+                    (key,value) = lbuffer.split("=")
+                except:
+                    print "cannot interpret the parameter string: %s" %(lbuffer)
+                    
+                key = key.strip()
+                value = value.strip()
+                try:
+                    value = float(value)
+                except:
+                    pass
+                    
+                self.params[key] = value                
+                
+            elif read_mode == 3:
+                if re_column.match(lbuffer):
+                    try:
+                        unit = re_unit.findall(lbuffer)[0]
+                    except:
+                        unit = "NONE"
+                        
+                    name = re_col_name.findall(lbuffer)[0][:-1]
+                    index = int(re_col_index.findall(name)[0])
+                    name = re_col_index.sub("",name,count=1)
+                    name = name.strip()                    
+                    type = re_wspaces.split(lbuffer)[-1]
+                    type = type.strip()
+                    
+                    #store columne definition 
+                    self.data.append(SPECTRAFileDataColumn(index,name,unit,type))
+                    
+                    
+                    col_names += "%s," %name                    
+                    col_types  += "%s," %(dtype_map[type])
+                else:
+                    #read data
+                    dlist = re_wspaces.split(lbuffer)
+                    for i in range(len(dlist)):
+                        dlist[i] = float(dlist[i])
+                        
+                    rec_list.append(dlist)
+                    
+        col_names = col_names[:-1]
+        col_types = col_types[:-1]
+        self.data.data = rec.fromrecords(rec_list,formats=col_types,
+                                    names=col_names)            
+        
+                
+                
+        
 
 class Spectra(object):
     def __init__(self,data_dir):
