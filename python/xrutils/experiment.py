@@ -43,17 +43,13 @@ class Experiment(object):
         
         #calculate the energy from the wavelength
         if keyargs.has_key("wl"):
-            self._wl = keyargs["wl"]
+            self._set_wavelength(keyargs["wl"])
         else:
-            self._wl = 1.5406
+            self._set_wavelength(1.5406)
 
         if keyargs.has_key("en"):
-            self._en = keyargs["en"]
-            self._wl = _c_const*_h_const/self._en/_e_const/1.e-10
-        else:
-            self._en = _c_const*_h_const/self._wl/1.e-10/_e_const
+            self._set_energy(keyargs["en"])
 
-        self.k0 = numpy.pi*2./self._wl
         #}}}2
 
 
@@ -74,14 +70,14 @@ class Experiment(object):
     def _set_energy(self,energy):
         #{{{2
         self._en = energy
-        self._wl = _c_const*_h_const/self._en/_e_const
+        self._wl = _c_const*_h_const/self._en/_e_const/1.e-10
         self.k0 = numpy.pi*2./self._wl
         #}}}2
 
     def _set_wavelength(self,wl):
         #{{{2
         self._wl = wl
-        self._en = _c_const*_h_const/self._wl/_e_const
+        self._en = _c_const*_h_const/self._wl/1.e-10/_e_const
         self.k0 = numpy.pi*2./self._wl
         #}}}2
 
