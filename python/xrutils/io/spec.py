@@ -614,6 +614,7 @@ class SPECFile(object):
                 scan_has_mca = False
                 scan_header_offset = self.last_offset               
                 scan_status = "OK"
+                print "processing scan nr. %i ..." %scannr
 
             #if the line contains the date and time information
             elif SPEC_datetime.match(line_buffer) and scan_started:
@@ -670,10 +671,18 @@ class SPECFile(object):
             elif SPEC_scanbroken.findall(line_buffer)!=[] and scan_started:
                 #this is the case when a scan is broken and no data has been
                 #written 
-                s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
-                             date,time,itime,col_names,
-                             scan_header_offset,scan_data_offset,self.fid,
-                             self.init_motor_names,init_motor_values,"ABORTED")
+                try:
+                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
+                                 date,time,itime,col_names,
+                                 scan_header_offset,scan_data_offset,self.fid,
+                                 self.init_motor_names,init_motor_values,"ABORTED")
+                except:
+                    scan_data_offset = self.last_offset
+                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
+                                 date,time,itime,col_names,
+                                 scan_header_offset,scan_data_offset,self.fid,
+                                 self.init_motor_names,init_motor_values,"ABORTED")
+
                 self.scan_list.append(s)
                         
                 #reset control flags

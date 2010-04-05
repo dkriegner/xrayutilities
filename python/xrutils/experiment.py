@@ -193,6 +193,7 @@ class HXRD(Experiment):
 
         return q
 
+
     def Ang2Q(self,om,tth,delta,deg=True,dom=0.,dtth=0.,ddel=0.):
         """
         Ang2Q(om,tth,delta,deg=True,dom=0.,dtth=0.,ddel=0.):
@@ -240,7 +241,6 @@ class HXRD(Experiment):
         Convert a reciprocal space vector Q to scattering angles.
         The keyword argument trans determines wether Q should be transformed 
         to the experimental coordinate frame or not. 
-
         required input arguments:
         Q .................... a list or numpy array of shape (3) with 
                                q-space vector components
