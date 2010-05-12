@@ -268,14 +268,12 @@ class DataBase(object):
         f0_params = self.f0_params.read()
         c = f0_params[0]
         k = q/(4.*numpy.pi)
+        f0 = 0.
 
         for i in range(1,9,2):
             a = f0_params[i]
             b = f0_params[i+1]
-            if i==1:
-                f0 = a*numpy.exp(-b*k**2)
-            else:
-                f0 += a*numpy.exp(-b*k**2)
+            f0 += a*numpy.exp(-b*k**2)
 
         return f0+c
         #}}}

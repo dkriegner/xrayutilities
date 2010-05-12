@@ -16,9 +16,9 @@ def _db_cleanup():
 atexit.register(_db_cleanup)
 
 class Atom(object):
-    def __init__(self,name):
+    def __init__(self,name,num):
         self.name = name
-        
+        self.num = num
         
     def f0(self,q):
         _db.SetMaterial(self.name)
@@ -57,7 +57,9 @@ class Atom(object):
             return _db.GetF2(en)
         
     def __str__(self):
-        return self.name
+        ostr = self.name
+        ostr += " (%2d)" %self.num
+        return ostr 
         
 
 
