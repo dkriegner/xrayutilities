@@ -2,7 +2,7 @@
 
 #import usefull modules
 import tables
-import Numeric as num
+import numpy # replace Numeric; changes not tested
 import re
 
 #compile some usefull regular expressions
@@ -12,27 +12,27 @@ blank_remov = re.compile(r"\s+"); #removeing multiple blanks in a string
 
 #table definition for a V11 header table
 class V11_header_table(tables.IsDescription):
-	FNAME    = tables.StringCol(length=100); #the frame number of the file belonging to this header
+	FNAME    = tables.StringCol(100); #the frame number of the file belonging to this header
 	FORMAT   = tables.IntCol();
 	VERSION  = tables.IntCol();
 	HDRBLKS  = tables.IntCol();
-	TYPE     = tables.StringCol(length=72);
-	SITE     = tables.StringCol(length=72);
-	MODEL    = tables.StringCol(length=72);
-	USER     = tables.StringCol(length=72);
-	SAMPLE   = tables.StringCol(length=72);
-	SETNAME  = tables.StringCol(length=72);
+	TYPE     = tables.StringCol(72);
+	SITE     = tables.StringCol(72);
+	MODEL    = tables.StringCol(72);
+	USER     = tables.StringCol(72);
+	SAMPLE   = tables.StringCol(72);
+	SETNAME  = tables.StringCol(72);
 	RUN      = tables.IntCol();
 	SAMPNUM  = tables.IntCol();
-	TITLE    = tables.StringCol(length=72*8);
+	TITLE    = tables.StringCol(72*8);
 	NCOUNTS  = tables.IntCol(shape=(1,2));
 	NOVERFL  = tables.IntCol(shape=(1,3));
 	MINIMUM  = tables.IntCol();
 	MAXIMUM  = tables.IntCol();
 	NONTIME  = tables.IntCol();
 	NLATE    = tables.IntCol();
-	FILENAM  = tables.StringCol(length=72);
-	CREATED  = tables.StringCol(length=72);
+	FILENAM  = tables.StringCol(72);
+	CREATED  = tables.StringCol(72);
 	CUMULAT  = tables.FloatCol();
 	ELAPSDR  = tables.FloatCol();
 	ELAPSDA  = tables.FloatCol();
@@ -50,10 +50,10 @@ class V11_header_table(tables.IsDescription):
 	NCOLS    = tables.IntCol();
 	WORDORD  = tables.IntCol();
 	LONGORD  = tables.IntCol();
-	TARGET   = tables.StringCol(length=72);
+	TARGET   = tables.StringCol(72);
 	SOURCEK  = tables.FloatCol();
 	SOURCEM  = tables.FloatCol();
-	FILTER   = tables.StringCol(length=72);
+	FILTER   = tables.StringCol(72);
 	CELL     = tables.FloatCol(shape=(2,6));
 	MATRIX   = tables.FloatCol(shape=(2,9));
 	LOWTEMP  = tables.IntCol(shape=(1,3));
@@ -61,33 +61,33 @@ class V11_header_table(tables.IsDescription):
 	CENTER   = tables.FloatCol(shape=(1,4));
 	DISTANC  = tables.FloatCol(shape=(1,2)); #has to be observed
 	TRAILER  = tables.IntCol();
-	COMPRES  = tables.StringCol(length=72);
-	LINEAR   = tables.StringCol(length=72);
+	COMPRES  = tables.StringCol(72);
+	LINEAR   = tables.StringCol(72);
 	PHD      = tables.FloatCol(shape=(1,2));
 	PREAMP   = tables.FloatCol(shape=(1,2)); #has to be observed
-	CORRECT  = tables.StringCol(length=72);
-	WARPFIL  = tables.StringCol(length=72);
+	CORRECT  = tables.StringCol(72);
+	WARPFIL  = tables.StringCol(72);
 	WAVELEN  = tables.FloatCol(shape=(1,4));
 	MAXXY    = tables.FloatCol(shape=(1,2));
 	AXIS     = tables.IntCol();
 	ENDING   = tables.FloatCol(shape=(1,4));
 	DETPAR   = tables.FloatCol(shape=(2,6));
-	LUT      = tables.StringCol(length=72);
+	LUT      = tables.StringCol(72);
 	DISPLIM  = tables.FloatCol(shape=(1,2));
-	PROGRAM  = tables.StringCol(length=72);
+	PROGRAM  = tables.StringCol(72);
 	ROTATE   = tables.IntCol();
-	BITMASK  = tables.StringCol(length=72);
+	BITMASK  = tables.StringCol(72);
 	OCTMASK  = tables.IntCol(shape=(2,8));
 	ESDCELL  = tables.FloatCol(shape=(2,6));
-	DETTYPE  = tables.StringCol(length=72);
+	DETTYPE  = tables.StringCol(72);
 	NEXP     = tables.IntCol(shape=(1,5));
 	CCDPARM  = tables.FloatCol(shape=(1,5));
-	CHEM     = tables.StringCol(length=72);
-	MORPH    = tables.StringCol(length=72);
-	CCOLOR   = tables.StringCol(length=72);
-	CSIZE    = tables.StringCol(length=72);
-	DNSMET   = tables.StringCol(length=72);
-	DARK     = tables.StringCol(length=72);
+	CHEM     = tables.StringCol(72);
+	MORPH    = tables.StringCol(72);
+	CCOLOR   = tables.StringCol(72);
+	CSIZE    = tables.StringCol(72);
+	DNSMET   = tables.StringCol(72);
+	DARK     = tables.StringCol(72);
 	AUTORNG  = tables.FloatCol(shape=(1,5));
 	ZEROADJ  = tables.FloatCol(shape=(1,4));
 	XTRANS   = tables.FloatCol(shape=(1,3));
@@ -100,7 +100,7 @@ def GetIntArray(string):
 	"""
 	GetIntArray(string):
 	extracts a list of integer values from a string and converts
-	it to a integer Numeric array.
+	it to a integer numpy array.
 	input arguments:
 		string .............. the string
 	return value:
@@ -112,14 +112,14 @@ def GetIntArray(string):
 	for i in range(len(strlist)):
 		strlist[i] = int(strlist[i]);
 	
-	ia = num.array(strlist).astype(num.Int);
+	ia = numpy.array(strlist).astype(numpy.int);
 	return ia;
 
 def GetFloatArray(string):
 	"""
 	GetFLoatArray(string):
 	extracts a list of float values from a string and converts
-	it to a float Numeric array.
+	it to a float numpy array.
 	input arguments:
 		string .............. the string
 	return value:
@@ -131,14 +131,14 @@ def GetFloatArray(string):
 	for i in range(len(strlist)):
 		strlist[i] = float(strlist[i]);
 	
-	fa = num.array(strlist).astype(num.Float);
+	fa = numpy.array(strlist).astype(numpy.float);
 	return fa;
 
 def GetFloatMatrix(strlist):
 	"""
 	GetFloatMatrix(strlist)
 	Builds a float matrix out of the values from a string list. 
-	The matrix is represented by a Numeric array of shape (nxm) 
+	The matrix is represented by a numpy array of shape (nxm) 
 	where n is the number of strings in the list and m is the number 
 	of values in the strings (it has to be the same for all strings).
 	input arguments:
@@ -154,7 +154,7 @@ def GetFloatMatrix(strlist):
 
 	n = len(al);
 	m = al[0].shape[0];
-	fm = num.zeros((n,m),num.Float);
+	fm = numpy.zeros((n,m),dtype=numpy.float);
 	for i in range(len(al)):
 		fm[i,:] = al[i][:]
 
@@ -164,7 +164,7 @@ def GetIntMatrix(strlist):
 	"""
 	GetIntMatrix(strlist)
 	Builds a integer matrix out of the values from a string list. 
-	The matrix is represented by a Numeric array of shape (nxm) 
+	The matrix is represented by a numpy array of shape (nxm) 
 	where n is the number of strings in the list and m is the number 
 	of values in the strings (it has to be the same for all strings).
 	input arguments:
@@ -180,7 +180,7 @@ def GetIntMatrix(strlist):
 
 	n = len(al);
 	m = al[0].shape[0];
-	fi = num.zeros((n,m),num.Int);
+	fi = numpy.zeros((n,m),dtype=numpy.int);
 	for i in range(len(al)):
 		fi[i,:] = al[i][:]
 

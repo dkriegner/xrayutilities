@@ -14,7 +14,8 @@ import numpy
 import os
 import time
 import tables
-from matplotlib import pylab
+try: from matplotlib import pylab
+except RuntimeError: print "Warning: spec class plotting functionality not available"
 
 #define some uesfull regular expressions
 SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")
@@ -295,6 +296,11 @@ class SPECScan(object):
         figure instance will be created. If logy=True (default is False) 
         the y-axis will be plotted with a logarithmic scale.
         """
+
+        try: pylab.__version__ 
+        except NameError: 
+            print "error: plot functionality not available"
+            return
 
         if keyargs.has_key("newfig"):
             newfig = keyargs["newfig"]

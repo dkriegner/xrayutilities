@@ -2,14 +2,14 @@
 #detector into a HDF5 format
 import tables
 import bruker_header   #manages to read the big Bruker header  
-import Numeric
+import numpy  # replaced Numeric; changes not tested
 import struct
 import re
 
 #===============================================================================
 #GENERAL NOTES ON THE BRUKER CCD FILE FORMAT:
 #Several version of the Bruker CCDF file format exist. This module supports
-#actually tow versions. The version of the CCD file is determined by two values
+#actually two versions. The version of the CCD file is determined by two values
 #stored in the files header:
 # -) FORMAT  ....... determining the data format
 # -) VERSION ....... determining the version of a certain format
@@ -296,8 +296,8 @@ def ccd2hdf5(h5file,filename,**optargs):
 				ov_counter_2b = ov_counter_2b + 1;
 				
 	#finally we have to store the data in the HDF5 EArray:
-	tmparray = Numeric.array(data_list).astype(Numeric.Int);
-	tmparray = Numeric.reshape(tmparray,(nrows,ncols));
+	tmparray = numpy.array(data_list).astype(numpy.int);
+	tmparray = numpy.reshape(tmparray,(nrows,ncols));
 	h5_earray.append([tmparray]);
 	
 	
@@ -337,9 +337,9 @@ def load_data(hdr,fid):
 	
 	fmt_str = (nof_rows*nof_cols)*'B';
 	raw_data = struct.unpack(fmt_str,data_string);
-	data_array = Numeric.array(raw_data,Numeric.Int);
+	data_array = numpy.array(raw_data,numpy.int);
 	
-	data_array = Numeric.reshape(data_array,(nof_rows,nof_cols));
+	data_array = numpy.reshape(data_array,(nof_rows,nof_cols));
 	    
 	#set the file object to the old offset position in  the file
 	fid.seek(old_fid_pos)
@@ -383,7 +383,7 @@ def load_underflow(hdr,fid):
 		fmt_str = nof_underflows*'H';
 		
 	#convert the underflow data to a numeric array
-	underflow_array = Numeric.array(struct.unpack(fmt_str,data_string),Numeric.Int);
+	underflow_array = numpy.array(struct.unpack(fmt_str,data_string),numpy.int);
 	    
 	#set the file pointer to its original position
 	fid.seek(old_fid_pos)
