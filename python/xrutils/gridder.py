@@ -111,6 +111,11 @@ class Gridder2D(Gridder):
         y = y.reshape(y.size)
         data = data.reshape(data.size)
 
+        # require correct aligned memory for input arrays
+        x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        y = numpy.require(y,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+
         self.xmin = x.min()
         self.xmax = x.max()
         self.ymin = y.min()
@@ -189,6 +194,12 @@ class Gridder3D(Gridder2D):
         y = y.reshape(y.size)
         z = z.reshape(z.size)
         data = data.reshape(data.size)
+        
+        # require correct aligned memory for input arrays
+        x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        y = numpy.require(y,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        z = numpy.require(z,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         
         self.xmin = x.min()
         self.xmax = x.max()
