@@ -17,7 +17,10 @@ Building and installing the C library
 xrutils uses SCons to build and install C code. Installation
 of libxrutils.so requires two steps
 -> compile the library by simply typing 
-   $>scons 
+   $>scons
+   or
+   $>scons debug=1
+   to build with "-g -O0"
 -> install the library and tools with 
    $>scons install --prefix=<path to install directory>
 -> the documentation can be built with

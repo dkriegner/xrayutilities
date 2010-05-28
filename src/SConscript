@@ -1,11 +1,11 @@
 #set the sources
-Import("opt")
+Import("env")
 
 #compile the shared library - default behavior
-sources = ["gridder.c","ang2q.c"]
-objects_opt = opt.SharedObject(sources)
-lib = opt.SharedLibrary("xrutils",objects_opt)
+sources = ["gridder.c","qconversion.c","vecmat3.c","rot_matrix.c","block_average.c"]
+objects_env = env.SharedObject(sources)
+lib = env.SharedLibrary("xrutils",objects_env)
 Default(lib)
 
 #install the library
-opt.Install("$PREFIX/lib",lib)
+env.Install("$PREFIX/lib",lib)

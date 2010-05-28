@@ -1,3 +1,9 @@
+"""
+xrutils is a package for assisting with x-ray diffraction experiments
+
+It helps with planning experiments as well as analyzing the data.
+"""
+
 import math
 import io
 import materials
@@ -12,8 +18,14 @@ except:
 from experiment import Experiment
 from experiment import HXRD
 from experiment import GID
+from experiment import GID_ID10B
 from experiment import GISAXS
 from experiment import Powder
+
+from normalize import blockAverage1D
+from normalize import blockAverage2D
+from normalize import blockAveragePSD
+from normalize import IntensityNormalizer
 
 from gridder import Gridder2D
 from gridder import Gridder3D

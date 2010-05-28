@@ -1,5 +1,5 @@
 \documentclass[a4paper]{book}
-\usepackage{amsmath,graphics,listings,hyperref,pdfpages,placeins}
+\usepackage{amsmath,graphics,listings,hyperref,pdfpages,placeins,float}
 \hypersetup{pdftitle=XRUTILS manual,
 				pdfborder=0 0 0,
 				colorlinks=false}
@@ -16,6 +16,38 @@ breakatwhitespace=true,        % sets if automatic breaks should only happen at 
 title=\lstname,                 % show the filename of files included with \lstinputlisting; also try caption instead of title
 escapeinside={\#*}{*)}          % if you want to add a listings comment #* comment *
 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%   maths packages   %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}
+\usepackage{amssymb,amstext}
+\usepackage{ulem}
+\usepackage{textcomp} %% Mathe/Textsymbole
+\usepackage{stmaryrd}
+\usepackage{units}
+\usepackage[thinspace,mediumqspace,Gray,squaren]{SIunits}
+
+\renewcommand{\vec}[1]{
+	\ensuremath{\boldsymbol{#1}}
+}
+\newcommand{\mat}[1]{\ensuremath{\uuline{#1}}}
+\newcommand{\av}[1]{\ensuremath{\left< #1 \right>}}
+\newcommand{\pprime}{\ensuremath{ {\prime\prime}  }}
+
+
+\newenvironment{nomenclatur}
+{
+\begin{list}{}
+{
+\renewcommand{\makelabel}[1]{\ensuremath{##1} \dotfill} 
+\setlength{\labelwidth}{2.7cm}  
+\setlength{\labelsep}{0.25cm}
+\setlength{\topsep}{0.5ex}
+\setlength{\itemsep}{-1.1ex}  
+\setlength{\leftmargin}{2.95cm} %\labelwidth+\labelsep
+}}
+{\end{list}}
 
 
 \title{{\Huge XRUTILS Users Manual}}
@@ -43,7 +75,7 @@ escapeinside={\#*}{*)}          % if you want to add a listings comment #* comme
 \chapter[The io submodule]{The {\tt io} submodule}
 \input{tex/io.tex}
 
-\chapter[The vis submodule]{The {\tt vis} submodule}
-\input{tex/vis.tex}
+%\chapter[The vis submodule]{The {\tt vis} submodule}
+%\input{tex/vis.tex}
 
 \end{document}

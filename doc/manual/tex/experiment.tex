@@ -1,6 +1,181 @@
 %%%documentation of the Experimental classes included in xrutils
 
-The {\tt Experiment} class and derived classes provide routines to help performing X-ray diffraction experiments. This includes methods to calculate the diffraction angles needed to align samples and to convert data between angular and reciprocal space.
+The {\tt Experiment} class and derived classes provide routines to help performing X-ray diffraction experiments. This includes methods to calculate the diffraction angles needed to align samples and to convert data between angular and reciprocal space. The conversion from angular to reciprocal space is implemented very general. Users should in normal cases only need the initialized routines in the Experiment classes.
+
+\section{Qconversion - general angular to momentum space conversion}
+
+Conversion of angular coordinates to reciprocal space can be tedious if one needs specialized code for several machines. This is an attempt in which it is tried to provide a more general solution to the problem of the conversion. Therefore the code is not only feeded with the angular coordinates but also with a description of the used goniometer geometry. The conversion for scans with an point detector and also routines for PSD (linear) and CCD (area) detectors are implemented.
+
+\section{mathematical background}
+
+ For the routine to work for general goniometer setups a description of the goniometer type is needed. This is done in the following coordinate system:
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=0.13\linewidth]{pics/coordinate_system}
+ \caption{Used right handed coordinate system: x .. up; y .. left; z .. towards the viewer}
+ \label{fig:def_coordinate_system}
+\end{figure}
+
+\subsection*{description of the rotation axis}
+
+In general always look from arrow head of the axis towards the tail, then 
+\begin{itemize}
+ \item clockwise rotation means left-handed (negative),
+ \item and anti-clockwise meand right-handed (positive)
+\end{itemize}
+
+i.\,e.: clockwise/left-handed rotation around the x-axis is decribed by the following rotation matrix:
+
+\begin{align}
+ R = \begin{pmatrix} 1 & 0 & 0 \\ 0 & \cos \alpha & \sin \alpha \\ 0 & -\sin\alpha & \cos \alpha \end{pmatrix}
+\end{align}
+
+The routines need to be supplied with the goniometer geometry. Therefore the goniometer axes are specified by their axis [xyz] and their sense of rotation [+-]. This description needs to be supplied for the sample and detector circles for the case where all axis are at zero position starting with the outermost circle.
+
+For the Seifert XRD system this would mean:
+Sample circles: Omega + Chi + Phi -> ["x+","y+","z+"]
+Detector circles: Theta -> ["x+",]
+
+\subsection{calculation of the momentum transfer}
+
+The calculation the reciprocal space coordinates from angular positions is done as described in J. Appl. Cryst. (1999) {\bf 32} 614. Therefore we introduce the following nomenclatur:
+
+\begin{nomenclatur}
+ \item[\vec k_{i,f}] incidence and exiting wave vector of the x-ray radiation
+ \item[\vec h_c] reciprocal space vector in carthesian coordinate system of the crystal
+ \item[\vec h_u] reciprocal space vector in the coordinate system of the inner most circle of the goniometer
+ \item[\vec h] reciprocal space vector in laboratory coordinate system
+ \item[\vec Q_L] momentum transfer in laboratory coordinate system
+ \item[\mat U] orientation matrix of the crystal
+ \item[\mat S] rotation matrix for the sample goniometer
+ \item[\mat D] rotation matrix for the detector circles
+\end{nomenclatur}
+
+To observe diffraction at position of $\vec h_c$ in reciprocal space the condition
+\begin{align}
+ \vec h = \vec Q_L
+\label{eq:fundamental_law}
+\end{align}
+must be met. Where
+\begin{align}
+ \vec h = \mat R \vec h_u = \mat S \mat U \vec h_c
+\end{align}
+and 
+\begin{align}
+ \vec Q_L = \vec k_f - \vec k_i = \left( \mat D - \mat 1 \right) \vec k_i
+\end{align}
+
+The reciprocal space position $\vec h_c$ can than be calculated from Eq.~\ref{eq:fundamental_law} as
+\begin{align}
+ \vec h_c = \left( \mat S \mat U \right)^{-1} \left(\mat D - \mat 1 \right) \vec k_i
+ \label{eq:momentum_space_conversion}
+\end{align}
+
+The rotation matrices $\mat S$ and $\mat D$ can be deduces from the description of the goniometer by multipliing the rotation matrices from each circle starting with the outer most.
+
+\begin{align}
+ \mat D, \mat S = \text{(outer most)} \cdot \dots \cdot \text{(inner most)}
+\end{align}
+
+Note that all matrices are orthonormal, because they correspond to some basis transformation form one to another orthonormal coordinate system. Only the matrix $\mat B$ which describes the transformation from the Miller indices $\vec h$ to the reciprocal space vector $\vec h_c$ must not be orthonormal (e.\,g. hexagonal crystals).
+
+\begin{align}
+ \vec h_c = \mat B \vec h
+\end{align}
+
+\section{implementation}
+
+The numerical expensive routines are coded in C because they seem to be a performance critical step in the analysis of XRD data. Because of the general form of the code some overhead must be excepted. Some wrapper functions are written in Python because of the ability of the fast coding. 
+
+\subsection*{general things}
+
+\begin{itemize}
+ \item all matrices are stored row-major (C standard) in linear array
+ \item angles are passed as radians
+\end{itemize}
+
+\subsection*{rotation matrices}
+
+The used rotation matrices follow the rotation sense definition given earlier. In the following the rotation matrices for the positive rotation around the coordinate axes are given.
+
+\begin{align}
+\mat {R_x} ( \alpha ) = \begin{pmatrix}
+                       1 & 0 & 0 \\
+		       0 & \cos\alpha & -\sin\alpha \\
+		       0 & \sin\alpha & \cos\alpha 
+                      \end{pmatrix}
+\end{align}
+ 
+\begin{align}
+\mat {R_y} ( \alpha ) = \begin{pmatrix}
+                       \cos\alpha & 0 & \sin\alpha \\
+		       0 & 1 & 0 \\
+		       -\sin\alpha & 0 & \cos\alpha 
+                      \end{pmatrix}
+\end{align}
+
+\begin{align}
+\mat {R_z} ( \alpha ) = \begin{pmatrix}
+		       \cos\alpha & -\sin\alpha & 0 \\
+		       \sin\alpha & \cos\alpha  & 0 \\
+		       0 & 0 & 1
+                      \end{pmatrix}
+\end{align}
+
+For the 
+
+\subsection*{matrix inversion}
+The needed matrix inversion of a $3\times3$ matrix $\mat A$ is done using the adjugate matrix formula
+
+\begin{align}
+ \mat A^{-1} = \frac{\operatorname{adj} \mat A} {\operatorname{det} \mat A} \text{ ,} 
+\end{align}
+which yields the formula
+\begin{align}
+ \mat A^{-1} = \begin{pmatrix} a_{00} & a_{01} & a_{02} \\ 
+                               a_{10} & a_{11} & a_{12} \\
+                               a_{20} & a_{21} & a_{22} \end{pmatrix}
+= \frac{1}{\operatorname{det}\mat A} 
+\begin{pmatrix}
+a_{11} a_{22} - a_{12} a_{21} & a_{02} a_{21} - a_{01} a_{22} & a_{01} a_{12} - a_{02} a_{11} \\
+a_{12} a_{20} - a_{10} a_{22} & a_{00} a_{22} - a_{02} a_{20} & a_{02} a_{10} - a_{00} a_{12} \\
+a_{10} a_{21} - a_{11} a_{20} & a_{01} a_{20} - a_{00} a_{21} & a_{00} a_{11} - a_{01} a_{10} 
+\end{pmatrix}
+\end{align}
+with 
+\begin{align}
+ \operatorname{det} \mat A = a_{00}a_{11}a_{22} + a_{01}a_{12}a_{20} + a_{02}a_{10}a_{21} - a_{02}a_{11}a_{20} - a_{01}a_{10}a_{22} - a_{00}a_{12}a_{21} \text{ .}
+\end{align}
+
+\section{1D and 2D detectors}
+
+The C-code for linear and area detectors performs an exact conversion from real to momentum space by assuming the knowledge of the position and orientation of the detector in real space as well as its pixel distance. If the position and pixel size is not known it can be calculated from the channels per degree ($N$) which are mostly determined while recording measurements.
+
+Therefore a distance of $d=1$ (units are irrelevant here) is assumed and the corresponding pixel size is calclulated via
+
+\begin{align}
+ w_\text{Pixel} = \frac{2d}{N} \tan\unit{0.5}{\degree}
+\end{align}
+
+The channels per degree of the detector are mostly determined symmetric with respect to the center channel. Therefore a factor $2$ and angle \unit{0.5}{\degree} was introduced (see Fig.~\ref{fig:detector_chpdeg}).
+ 
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=0.6\linewidth]{pics/linear_detector_chpdeg}
+ \caption{Illustration of a linear detector and channels per degree. (CCH: \underline{c}enter \underline{ch}annel)}
+ \label{fig:detector_chpdeg}
+\end{figure}
+
+For the conversion to momentum space not only the distance $d$, pixel width $w$ but also the detector direction is needed (Fig.~\ref{fig:detector_chpdeg}). The coordinate system is assumed to be the one defined in Fig.~\ref{fig:def_coordinate_system}.
+
+The conversion is then done similar to Eq.~\ref{eq:momentum_space_conversion}. For the calculation of $\vec k_f$ the direction vector of each detector pixel $\vec{\hat r}_d$ must be used in the conversion routine, which leads to the following formulation:
+
+\begin{align}
+\vec h_c = \left( \mat S \mat U \right)^{-1} \left(|\vec k_i| \mat D \vec{\hat r}_d - \vec k_i  \right)  
+ \label{eq:momentum_space_conversion_detector}
+\end{align}
+
 
 \section{HXRD experiments}
 

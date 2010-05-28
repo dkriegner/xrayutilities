@@ -1,4 +1,4 @@
 #build the user manual with pdflatex
-Import("opt")
+Import("env")
 
-opt.PDF("xrutils.pdf","xrutils.tex")
+env.PDF("xrutils.pdf","xrutils.tex")

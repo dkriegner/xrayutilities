@@ -42,8 +42,11 @@ system. You can build the library simply by typing
 \begin{verbatim}
 >scons
 \end{verbatim}
-in the root directory of the source distribution. After building the library can
-be installed with
+in the root directory of the source distribution. To build using debug flags ({\tt -g -O0}) type
+\begin{verbatim}
+>scons debug=1
+\end{verbatim}
+instead. After building the library can be installed with
 \begin{verbatim}
 >scons install --prefix=<install path>
 \end{verbatim}
