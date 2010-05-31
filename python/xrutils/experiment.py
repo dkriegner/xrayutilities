@@ -1028,7 +1028,7 @@ class HXRD(Experiment):
         return [qx,qy,qz]
         #}}}2
 
-    def Q2Ang(self,Q,trans=True,deg=True,**keyargs):
+    def Q2Ang(self,*Q,**keyargs):
         #{{{2
         """
         Convert a reciprocal space vector Q to scattering angles.
@@ -1037,11 +1037,12 @@ class HXRD(Experiment):
 
         Parameters
         ----------
-        Q:          a list or numpy array of shape (3) with 
-                               q-space vector components
+        Q:          a list, tuple or numpy array of shape (3) with 
+                    q-space vector components
+                    or 3 separate lists with qx,qy,qz
 
         optional keyword arguments:
-        trans:      True/False apply coordinate transformation on Q
+        trans:      True/False apply coordinate transformation on Q (default True)
         deg:        True/Flase (default True) determines if the
                     angles are returned in radians or degrees
         geometry:   determines the scattering geometry:
@@ -1058,13 +1059,25 @@ class HXRD(Experiment):
         twotheta:   scattering angle
         """
 
-        if isinstance(Q,list):
+        # collect the q-space input
+        if len(Q)<3:
+            Q = Q[0]
+            if len(Q)<3:
+                raise IndexError,"need 3 q-space vector componnents"
+        
+        if isinstance(Q,(list,tuple)):
             q = numpy.array(Q,dtype=numpy.double)
         elif isinstance(Q,numpy.ndarray):
             q = Q
         else:
-            raise TypeError("Q vector must be a list or numpy array")
-    
+            raise TypeError("Q vector must be a list, tuple or numpy array")
+        
+        # reshape input to have the same q array for all possible
+        # types of different input
+        if len(q.shape) != 2:
+            q = q.reshape(3,1)
+
+        # parse keyword arguments
         if keyargs.has_key('geometry'):
             if keyargs['geometry'] in ["hi_lo","lo_hi"]:
                 self.geometry = keyargs['geometry']
@@ -1072,37 +1085,58 @@ class HXRD(Experiment):
                 raise ValueError("HXRD: invalid value for the geometry argument given")
         else:
             geom = self.geometry
-
-        if trans:
-            q = self.transform(q)
-
-        qa = math.VecNorm(q)
-        tth = 2.*numpy.arcsin(qa/2./self.k0)
-
-        #calculation of the delta angle
-        delta = numpy.arctan(q[0]/q[1])
-        if numpy.isnan(delta):
-            delta =0 
         
-        om1 = numpy.arcsin(q[1]/qa/numpy.cos(delta))+0.5*tth
-        om2 = numpy.arcsin(q[0]/qa/numpy.sin(delta))+0.5*tth
-        if numpy.isnan(om1):
-            om = om2
-        elif numpy.isnan(om2):
-            om = om1
+        if keyargs.has_key('trans'):
+            trans = keyargs['trans']
+        else: 
+            trans = True
+        
+        if keyargs.has_key('deg'):
+            deg = keyargs['deg']
         else:
-            om = om1
+            deg = True
+        
+        angle = numpy.zeros((3,q.shape[1]))
+        for i in range(q.shape[1]):
+            qvec = q[:,i]
 
-        #have to take now the scattering geometry into account
-        if(geom=="hi_lo" and om<tth/2.):
-            om = tth-om
-        elif(geom=="lo_hi" and om>tth/2.):
-            om = tth-om
+            if trans:
+                qvec = self.transform(qvec)
+
+            qa = math.VecNorm(qvec)
+            tth = 2.*numpy.arcsin(qa/2./self.k0)
+
+            #calculation of the delta angle
+            phi = numpy.arctan(qvec[0]/qvec[1])
+            if numpy.isnan(phi):
+                phi = 0 
+            
+            om1 = numpy.arcsin(qvec[1]/qa/numpy.cos(phi))+0.5*tth
+            om2 = numpy.arcsin(qvec[0]/qa/numpy.sin(phi))+0.5*tth
+            if numpy.isnan(om1):
+                om = om2
+            elif numpy.isnan(om2):
+                om = om1
+            else:
+                om = om1
+
+            #have to take now the scattering geometry into account
+            if(geom=="hi_lo" and om<tth/2.):
+                om = tth-om
+            elif(geom=="lo_hi" and om>tth/2.):
+                om = tth-om
+
+            angle[0,i] = phi
+            angle[1,i] = om
+            angle[2,i] = tth
+
+        if q.shape[1]==1:
+            angle = angle.flatten()
 
         if deg:
-            return [numpy.degrees(delta),numpy.degrees(om),numpy.degrees(tth)]
+            return numpy.degrees(angle)
         else:
-            return [delta,om,tth]
+            return angle
         #}}}2
     #}}}1
 

@@ -86,7 +86,26 @@ class Transform(object):
             print "matrix cannot be inverted - seems to be singular"
             self.imatrix = None
 
-    def __call__(self,*args):
+    def __call__(self,*args,**keyargs):
+        """
+        transforms a vector, matrix or tensor of rank 4 (e.g. elasticity tensor)
+
+        Parameters
+        ----------
+         *args:     object to transform, list or numpy array of shape
+                    (n,) (n,n), (n,n,n,n) where n is the rank of the 
+                    transformation matrix
+         **keyargs: optional keyword arguments:
+          inverse:  flag telling if the inverse transformation should be applied 
+                    (default: False)
+        """
+
+        m = self.matrix
+        # parse keyword arguments
+        if keyargs.has_key("inverse"):
+            if keyargs["inverse"]:
+                m = self.imatrix
+        
         olist = []
         for a in args:
             if isinstance(a,list):
@@ -99,42 +118,40 @@ class Transform(object):
             #matrix product in pure array notation
             if len(p.shape)==1:
                 #argument is a vector
-                #print "transform a vector ..."
-                b = (self.matrix*p[numpy.newaxis,:]).sum(axis=1)
+                print "transform a vector ..."
+                #b = (self.matrix*p[numpy.newaxis,:]).sum(axis=1)
+                b = numpy.dot(m,p)
                 olist.append(b)
             elif len(p.shape)==2 and p.shape[0]==3 and p.shape[1]==3:
                 #argument is a matrix
-                #print "transform a matrix ..."
+                print "transform a matrix ..."
                 b = numpy.zeros(p.shape,dtype=numpy.double)
-                b2 = numpy.zeros(p.shape,dtype=numpy.double)
+                # b_ij = m_ik * m_jl * p_kl
                 for i in range(3):
                     for j in range(3):
-                        b[i,j] = (self.matrix[i,:]*p[:,j]).sum()
+                        #loop over the sums
+                        for k in range(3):
+                            for l in range(3):
+                                b[i,j] += m[i,k] * m[j,l] * p[k,l]
 
-                #perform multiplication with the inverse matrix
-                for i in range(3):
-                    for j in range(3):
-                        b2[i,j] = (b[i,:]*self.imatrix[:,j]).sum()
+                olist.append(b)
 
-                olist.append(b2)
             elif len(p.shape)==4 and p.shape[0]==3 and p.shape[1]==3 and\
                  p.shape[2] == 3 and p.shape[3] == 3:
                 print "transform a tensor"
-                #transformation of a 
+                # transformation of a 
                 cp = numpy.zeros(p.shape,dtype=numpy.double)
+                # cp_ikkl = m_ig * m_jh * m_kr * m_ls * p_ghrs 
                 for i in range(0,3):
                     for j in range(0,3):
                         for k in range(0,3):
                             for l in range(0,3):
-                                
                                 #run over the double sums
                                 for g in range(0,3):
                                     for h in range(0,3):
-                                        for m in range(0,3):
-                                            for n in range(0,3):
-                                                cp[i,j,k,l] += self.matrix[i,g]*self.matrix[j,h]*\
-                                                               p[g,h,m,n]*\
-                                                               self.matrix[k,m]*self.matrix[l,n]
+                                        for r in range(0,3):
+                                            for s in range(0,3):
+                                                cp[i,j,k,l] += m[i,g]*m[j,h]*m[k,r]*m[l,s]*p[g,h,r,s]
 
                 olist.append(cp)
     
