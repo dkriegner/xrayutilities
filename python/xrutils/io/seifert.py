@@ -155,7 +155,7 @@ class SeifertMultiScan(object):
 
         #after reading all the data 
         self.m2_pos = numpy.array(self.m2_pos,dtype=numpy.double)
-        self.sm_pos = numpy.arange(s,e+0.1*d,d,dtype=numpy.double)
+        self.sm_pos = numpy.arange(s,e+0.5*d,d,dtype=numpy.double)
         self.int = numpy.array(self.int,dtype=numpy.double)
         self.int = self.int.reshape((self.n_m2_pos,self.n_sm_pos))
 

@@ -118,13 +118,13 @@ class Transform(object):
             #matrix product in pure array notation
             if len(p.shape)==1:
                 #argument is a vector
-                print "transform a vector ..."
+                #print "transform a vector ..."
                 #b = (self.matrix*p[numpy.newaxis,:]).sum(axis=1)
                 b = numpy.dot(m,p)
                 olist.append(b)
             elif len(p.shape)==2 and p.shape[0]==3 and p.shape[1]==3:
                 #argument is a matrix
-                print "transform a matrix ..."
+                #print "transform a matrix ..."
                 b = numpy.zeros(p.shape,dtype=numpy.double)
                 # b_ij = m_ik * m_jl * p_kl
                 for i in range(3):
@@ -138,7 +138,7 @@ class Transform(object):
 
             elif len(p.shape)==4 and p.shape[0]==3 and p.shape[1]==3 and\
                  p.shape[2] == 3 and p.shape[3] == 3:
-                print "transform a tensor"
+                #print "transform a tensor"
                 # transformation of a 
                 cp = numpy.zeros(p.shape,dtype=numpy.double)
                 # cp_ikkl = m_ig * m_jh * m_kr * m_ls * p_ghrs 
