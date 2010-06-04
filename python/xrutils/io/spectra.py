@@ -18,6 +18,7 @@ re_unit = re.compile(r"\[.+\]")
 re_column = re.compile(r"^Col")
 re_col_name = re.compile(r"\d+\s+.+\s*\[")
 re_col_index = re.compile(r"\d+\s+")
+re_col_type = re.compile(r"\[.+\]")
 
 dtype_map = {"FLOAT":"f4"}
 
@@ -240,15 +241,18 @@ class SPECTRAFile(object):
                 if re_column.match(lbuffer):
                     try:
                         unit = re_unit.findall(lbuffer)[0]
+                        (lval,rval ) = re_unit.split(lbuffer)
+                        type = rval.strip()
+                        l = re_wspaces.split(lval)
+                        index = int(l[1])
+                        name = "".join(l[2:])
                     except:
                         unit = "NONE"
-                        
-                    name = re_col_name.findall(lbuffer)[0][:-1]
-                    index = int(re_col_index.findall(name)[0])
-                    name = re_col_index.sub("",name,count=1)
-                    name = name.strip()                    
-                    type = re_wspaces.split(lbuffer)[-1]
-                    type = type.strip()
+                        l = re_wspaces.split(lbuffer)
+                        index = int(l[1])
+                        type = l[-1]
+                        name = "".join(l[2:-1])
+
                     
                     #store columne definition 
                     self.data.append(SPECTRAFileDataColumn(index,name,unit,type))
