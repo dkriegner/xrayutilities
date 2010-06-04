@@ -6,6 +6,7 @@ import re
 import tables
 import os.path
 from numpy import rec
+import glob
 
 re_wspaces = re.compile(r"\s+")
 re_colname = re.compile(r"^Col")
@@ -152,14 +153,69 @@ class SPECTRAFile(object):
     class SPECTRAFile:
     Represents a SPECTRA data file. The file is read during the 
     Constructor call.
+
+    Required constructor arguments:
+    ------------------------------
+    filename ................ a string with the name of the SPECTRA file
+
+    Optional keyword arguments:
+    --------------------------
+    mcatmp .................. template for the MCA files
+    mcastart,mcastop ........ start and stop index for the MCA files, if 
+                              not given, the class tries to determine the 
+                              start and stop index automatically.
     """
-    def __init__(self,filename):
+    def __init__(self,filename,mcatmp=None,mcastart=None,mcastop=None):
         self.filename = filename
         self.comments = SPECTRAFileComments()
         self.params   = SPECTRAFileParameters()
         self.data     = SPECTRAFileData()
+        self.mca = None
+        self.mca_channels = None
         
         self.Read()
+
+        if mcatmp!=None:
+            self.mca_file_template = mcatmp
+
+            if mcastart!=None and mcastop!=None:
+                self.mca_start_index = mcastart
+                self.mca_stop_index = mcastop
+            else:
+                #try to determine the number of scans automatically
+                spat = self.mca_file_template.replace("%i","*")
+                print spat
+                l = glob.glob(spat)
+                self.mca_start_index = 1
+                self.mca_stop_index = len(l)
+
+            self.ReadMCA()
+
+    def Save2HDF5(self,h5file,group="/"):
+        if isinstance(h5file,str):
+            try:
+                h5 = tables.openFile(h5file,mode="a")
+            except:
+                print "cannot open file %s for writting!" %h5file
+
+        else:
+            h5 = h5file
+
+        h5.close()
+
+
+    def ReadMCA(self):
+        dlist = []
+        for i in range(self.mca_start_index,self.mca_stop_index+1):
+            fname = self.mca_file_template %i
+            data = numpy.loadtxt(fname)
+            
+            if i==0:
+                self.mca_channels = data[:,0]
+
+            dlist.append(data[:,1].tolist())
+
+        self.mca= numpy.array(dlist,dtype=float)
         
     def __str__(self):
         ostr = self.params.__str__()
