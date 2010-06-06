@@ -210,12 +210,17 @@ class SPECTRAFile(object):
         group ............... root group where to store the data
         description ......... string with a description of the scan
         
+        Return value:
+        The method returns None in the case of everything went fine, True
+        otherwise.
+        
         """
         if isinstance(h5file,str):
             try:
                 h5 = tables.openFile(h5file,mode="a")
             except:
                 print "cannot open file %s for writting!" %h5file
+                return True
 
         else:
             h5 = h5file
@@ -225,6 +230,7 @@ class SPECTRAFile(object):
             g = h5.createGroup(group,name,title=description,createparents=True)
         except:
             print "cannot create group %s for writting data!" %name
+            return True
             
         
         #start with saving scan comments
@@ -244,14 +250,40 @@ class SPECTRAFile(object):
         #----------finally we need to save the data -------------------
         
         #first save the data stored in the FIO file
+        tab_desc_dict = {}
+        for t in self.data.data.dtype.descr:
+            cname = t[0]
+            if len(t[1:])==1:
+                ctype = numpy.dtype((t[1]))
+            else:
+                ctype = numpy.dtype((t[1],t[2]))
+                
+            tab_desc_dict[cname] = tables.Col.from_dtype(ctype)  
         
+        #create the table object
+        try:
+            tab = h5file.createTable(g,"data",tab_desc_dict,"scan data") 
+        except:
+            print "cannot create table for storing scan data!"
+            return True
+                        
+        #now write the data to the tables
+        for rec in self.data.data:
+            for cname in rec.dtype.names:
+                tab.row[cname] = rec[cname]					
+            tab.row.append()
         
         
         #if there is MCA data - store this 
-        if self.mca:
+        if self.mca!=None:
             a = tables.Float32Atom()
-            f = tables.Filter(complib="zlib",complevel=9,flechter32=True)
-            c = h5.createCArray(g,mcaname,a,self.mca.shape)
+            f = tables.Filters(complib="zlib",complevel=9,fletcher32=True)
+            try:
+                c = h5.createCArray(g,mcaname,a,self.mca.shape)
+            except:
+                print "cannot create carray %s for MCA data!" %mcaname
+                return True
+                
             c[...] = self.mca[...]
             
             #set MCA specific attributes
@@ -259,6 +291,8 @@ class SPECTRAFile(object):
             h5.setNodeAttr(c,"nchannels",self.mca_channels.shape[0])
 
         h5.close()
+        
+        return None
 
 
     def ReadMCA(self):
