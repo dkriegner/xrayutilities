@@ -152,7 +152,8 @@ class SPECTRAFile(object):
     """
     class SPECTRAFile:
     Represents a SPECTRA data file. The file is read during the 
-    Constructor call.
+    Constructor call. This class should work for data stored at 
+    beamlines P08 and BW2 at HASYLAB.
 
     Required constructor arguments:
     ------------------------------
@@ -191,7 +192,25 @@ class SPECTRAFile(object):
 
             self.ReadMCA()
 
-    def Save2HDF5(self,h5file,group="/"):
+    def Save2HDF5(self,h5file,name,group="/",description="SPECTRA scan",mcaname="MCA"):
+        """
+        Save2HDF5(h5file,group="/",name="",description="SPECTRA scan",
+                  mcaname="MCA"):
+        Saves the scan to an HDF5 file. The scan is saved to a 
+        seperate group of name "name". h5file is either a string 
+        for the file name or a HDF5 file object.
+        If the mca attribute is not None mca data will be stored to an 
+        chunked array of with name mcaname.
+        
+        required input arguments:
+        h5file .............. string or HDF5 file object
+        name ................ name of the group where to store the data
+        
+        optional keyword arguments:
+        group ............... root group where to store the data
+        description ......... string with a description of the scan
+        
+        """
         if isinstance(h5file,str):
             try:
                 h5 = tables.openFile(h5file,mode="a")
@@ -200,6 +219,44 @@ class SPECTRAFile(object):
 
         else:
             h5 = h5file
+        
+        #create the group where to store the data    
+        try:
+            g = h5.createGroup(group,name,title=description,createparents=True)
+        except:
+            print "cannot create group %s for writting data!" %name
+            
+        
+        #start with saving scan comments
+        for k in self.comments.keys():
+            try:
+                h5.setNodeAttr(g,k,self.comments[k])
+            except:
+                print "cannot save file comment %s = %s to group %s!" %(k,self.comments[k],name)
+                
+        #save scan parameters
+        for k in self.params.keys():
+            try:
+                h5.setNodeAttr(g,k,self.params[k])
+            except:
+                print "cannot save file parametes %s to group %s!" %(k,name)
+                
+        #----------finally we need to save the data -------------------
+        
+        #first save the data stored in the FIO file
+        
+        
+        
+        #if there is MCA data - store this 
+        if self.mca:
+            a = tables.Float32Atom()
+            f = tables.Filter(complib="zlib",complevel=9,flechter32=True)
+            c = h5.createCArray(g,mcaname,a,self.mca.shape)
+            c[...] = self.mca[...]
+            
+            #set MCA specific attributes
+            h5.setNodeAttr(c,"channels",self.mca_channels)
+            h5.setNodeAttr(c,"nchannels",self.mca_channels.shape[0])
 
         h5.close()
 
@@ -210,7 +267,7 @@ class SPECTRAFile(object):
             fname = self.mca_file_template %i
             data = numpy.loadtxt(fname)
             
-            if i==0:
+            if i==self.mca_start_index:
                 self.mca_channels = data[:,0]
 
             dlist.append(data[:,1].tolist())
@@ -289,6 +346,8 @@ class SPECTRAFile(object):
                 try:
                     value = float(value)
                 except:
+                    #if the conversion of the parameter to float 
+                    #fails it will be saved as a string
                     pass
                     
                 self.params[key] = value                
@@ -327,10 +386,7 @@ class SPECTRAFile(object):
         col_names = col_names[:-1]
         col_types = col_types[:-1]
         self.data.data = rec.fromrecords(rec_list,formats=col_types,
-                                    names=col_names)            
-        
-                
-                
+                                    names=col_names)    
         
 
 class Spectra(object):
