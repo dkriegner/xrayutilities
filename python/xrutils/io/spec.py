@@ -499,6 +499,7 @@ class SPECFile(object):
             print "error opening SPEC file %s" %(self.full_filename)
             self.fid = None
             self.last_offset = 0
+            return
             
         #initially parse the file
         self.init_motor_names = [] #this list will hold the names of the 
