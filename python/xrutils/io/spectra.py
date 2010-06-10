@@ -21,6 +21,8 @@ re_col_name = re.compile(r"\d+\s+.+\s*\[")
 re_col_index = re.compile(r"\d+\s+")
 re_col_type = re.compile(r"\[.+\]")
 
+re_mca_int_tmp = re.compile(r"%.*i")
+
 dtype_map = {"FLOAT":"f4"}
 
 _absorber_factors = None
@@ -184,7 +186,8 @@ class SPECTRAFile(object):
                 self.mca_stop_index = mcastop
             else:
                 #try to determine the number of scans automatically
-                spat = self.mca_file_template.replace("%i","*")
+                spat = re_mca_int_tmp.sub("*",self.mca_file_template)
+                #spat = self.mca_file_template.replace("%i","*")
                 print spat
                 l = glob.glob(spat)
                 self.mca_start_index = 1
@@ -230,6 +233,7 @@ class SPECTRAFile(object):
             g = h5.createGroup(group,name,title=description,createparents=True)
         except:
             print "cannot create group %s for writting data!" %name
+            h5.close()
             return True
             
         
@@ -262,7 +266,7 @@ class SPECTRAFile(object):
         
         #create the table object
         try:
-            tab = h5file.createTable(g,"data",tab_desc_dict,"scan data") 
+            tab = h5.createTable(g,"data",tab_desc_dict,"scan data") 
         except:
             print "cannot create table for storing scan data!"
             return True
@@ -290,7 +294,8 @@ class SPECTRAFile(object):
             h5.setNodeAttr(c,"channels",self.mca_channels)
             h5.setNodeAttr(c,"nchannels",self.mca_channels.shape[0])
 
-        h5.close()
+        if isinstance(h5file,str):
+            h5.close()
         
         return None
 
@@ -302,9 +307,15 @@ class SPECTRAFile(object):
             data = numpy.loadtxt(fname)
             
             if i==self.mca_start_index:
-                self.mca_channels = data[:,0]
+                if len(data.shape)==2:
+                    self.mca_channels = data[:,0]
+                else:
+                    self.mca_channels = numpy.arange(0,data.shape[0])
 
-            dlist.append(data[:,1].tolist())
+            if len(data.shape)==2:
+                dlist.append(data[:,1].tolist())
+            else:
+                dlist.append(data.tolist())
 
         self.mca= numpy.array(dlist,dtype=float)
         
