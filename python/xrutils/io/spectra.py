@@ -377,7 +377,22 @@ class SPECTRAFile(object):
                     value = float(value)
                 except:
                     pass
-                self.comments[key] = value
+
+                #need to handle the case, that a key may appear several times 
+                #in the list
+                kcnt = 0
+                while True:
+                    try:
+                        self.comments[key] = value
+                        #if adding the key/value pair to the dictionary 
+                        #was successful - leave the loop
+                        break
+                    except:
+                        key += "_%i" %(kcnt+2)
+                    
+                    kcnt += 1
+
+                    
                 
             elif read_mode == 2:
                 #read scan parameters

@@ -798,10 +798,12 @@ class Experiment(object):
         if keyargs.has_key("wl"):
             self._set_wavelength(keyargs["wl"])
         else:
-            self._set_wavelength(1.5406)
+            self._set_wavelength(1.540535)
 
         if keyargs.has_key("en"):
             self._set_energy(keyargs["en"])
+        else:
+            self._set_energy(8048)
 
         #}}}2
 
@@ -1102,6 +1104,8 @@ class HXRD(Experiment):
 
             if trans:
                 qvec = self.transform(qvec)
+
+            print qvec
 
             qa = math.VecNorm(qvec)
             tth = 2.*numpy.arcsin(qa/2./self.k0)
