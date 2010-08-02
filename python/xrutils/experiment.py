@@ -802,8 +802,6 @@ class Experiment(object):
 
         if keyargs.has_key("en"):
             self._set_energy(keyargs["en"])
-        else:
-            self._set_energy(8048)
 
         #}}}2
 
@@ -1082,7 +1080,7 @@ class HXRD(Experiment):
         # parse keyword arguments
         if keyargs.has_key('geometry'):
             if keyargs['geometry'] in ["hi_lo","lo_hi"]:
-                self.geometry = keyargs['geometry']
+                geom = keyargs['geometry']
             else: 
                 raise ValueError("HXRD: invalid value for the geometry argument given")
         else:
