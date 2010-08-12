@@ -258,7 +258,7 @@ InAs = Material("InAs",lattice.ZincBlendeLattice(elements.In,elements.As,6.0583)
                    CubicElasticTensor(8.34e+10,4.54e+10,3.95e+10))
 InP  = Material("InP",lattice.ZincBlendeLattice(elements.In,elements.P,5.8687),
                    CubicElasticTensor(10.11e+10,5.61e+10,4.56e+10))
-InSb  = Material("InSb",lattice.ZincBlendeLattice(elements.In,elements.Sb,6.479),
+InSb  = Material("InSb",lattice.ZincBlendeLattice(elements.In,elements.Sb,6.47937),
                    CubicElasticTensor(6.66e+10,3.65e+10,3.02e+10))
 GaP  = Material("GaP",lattice.ZincBlendeLattice(elements.Ga,elements.P,5.4505),
                    CubicElasticTensor(14.05e+10,6.20e+10,7.03e+10))

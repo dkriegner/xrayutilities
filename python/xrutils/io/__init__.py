@@ -10,8 +10,11 @@ from seifert import SeifertMultiScan
 
 from spectra import SPECTRAFile
 
-from tascom import dat2hdf5
-from tascom import dats2hdf5
+# DK: tascom importer used deprecated and removed scipy code
+#     port to numpy functions should be possible
+#     as long as no port is done the functions are not included
+#from tascom import dat2hdf5
+#from tascom import dats2hdf5
 
 from spec import SPECFile
 from spec import SPECScan
