@@ -22,3 +22,5 @@ from spec import SPECScan
 from edf import EDFFile
 
 from spectra import Spectra
+
+from panalytical_xml import XRDMLFile
