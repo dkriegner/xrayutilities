@@ -1,0 +1,36 @@
+To Do
+-----
+
+17.08.2010
+discussion Eugen, Dominik
+
+* calculation of optical constants and structure factor should be moved to the 
+  material class. 
+* calculation of chi_h should be implemented according to Lugovskaya, Stepanov
+  Sov. Phys. Crystallogr. 36(4) 1991
+* a new (alternative) interface for Q2Ang should be developed which includes
+  the possibilty to consider the refractive shift.
+* a utilities file with some general useful functions should be created in the 
+  toplevel python package, functions such as lam2en, Align2dData, maplog
+  should be implemented
+* a config class should be added which handles general configuration options
+  such as the verbosity level of the package, standard wavelength/energy,
+  standard angular format (degree, radians)
+  In a second step this class should be feeded with values which it reads from
+  a config file (e.g. .xrutils.conf)
+* a example/test folder should be created. two possibilities exist for its
+  exact purpose:
+  * templates of scripts could be hold there for the user
+  * pyunit tests could be implemented to test the core functionality of the
+    xrutils package. 
+  Therefore example files for each io module should be included.
+* natural constants should be handled in a general way or imported from scipy
+  as scipy is anyhow already needed as a dependancy this would not add any 
+  additional dependancies.
+* the manual should be updated to include details about the calculation of  
+  material properties, or suiteable references
+  and furthermore details about the configuration of the QConversion class
+  should be added (Examples with pictures of the Seifert, and Rotating anode)
+* XRDML parser should be added to the io package
+* the use of the transform method of the experimental class should be unified
+* old/not functioning/not uses code should be removed from trunk
