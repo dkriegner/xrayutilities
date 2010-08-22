@@ -29,3 +29,6 @@ from normalize import IntensityNormalizer
 
 from gridder import Gridder2D
 from gridder import Gridder3D
+
+from utilities import maplog
+from utilities import lam2en

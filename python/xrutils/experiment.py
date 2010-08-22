@@ -11,16 +11,14 @@ various classes are provided for
 import numpy
 import math
 import materials
+import utilities
 from numpy.linalg import norm
 import warnings
 import re
 import ctypes
 import libxrayutils
 
-_e_const = 1.60219e-19
-_h_const = 6.62602e-34
-_c_const = 2.997925e8
-_epsilon = 1.e-7
+_epsilon = 1.e-7 # small number used to decide if something can be neglected
 
 # regular expression to check goniometer circle syntax
 circleSyntax = re.compile("[xyz][+-]")
@@ -798,7 +796,9 @@ class Experiment(object):
         if keyargs.has_key("wl"):
             self._set_wavelength(keyargs["wl"])
         else:
-            self._set_wavelength(1.540535)
+            self._set_wavelength(1.54059292) 
+            # value from the International Tables of Crystallography: Vol C, 2nd Ed.
+            # 1.54059292(45) the value in bracket is the uncertainty of the last digits 
 
         if keyargs.has_key("en"):
             self._set_energy(keyargs["en"])
@@ -823,7 +823,7 @@ class Experiment(object):
     def _set_energy(self,energy):
         #{{{2
         self._en = energy
-        self._wl = _c_const*_h_const/self._en/_e_const/1.e-10
+        self._wl = utilities.lam2en(energy)
         self.k0 = numpy.pi*2./self._wl
         self._A2QConversion._wl = self._wl
         #}}}2
@@ -831,7 +831,7 @@ class Experiment(object):
     def _set_wavelength(self,wl):
         #{{{2
         self._wl = wl
-        self._en = _c_const*_h_const/self._wl/1.e-10/_e_const
+        self._en = utilities.lam2en(wl)
         self.k0 = numpy.pi*2./self._wl
         self._A2QConversion._wl = self._wl
         #}}}2

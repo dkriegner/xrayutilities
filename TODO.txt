@@ -4,16 +4,11 @@ To Do
 17.08.2010
 discussion Eugen, Dominik
 
-* calculation of optical constants and structure factor should be moved to the 
-  material class. 
 * calculation of chi_h should be implemented according to Lugovskaya, Stepanov
   Sov. Phys. Crystallogr. 36(4) 1991
 * include Debye-Waller factor into calculation of the structurefactor
 * a new (alternative) interface for Q2Ang should be developed which includes
   the possibilty to consider the refractive shift.
-* a utilities file with some general useful functions should be created in the 
-  toplevel python package, functions such as lam2en, Align2dData, maplog
-  should be implemented
 * a config class should be added which handles general configuration options
   such as the verbosity level of the package, standard wavelength/energy,
   standard angular format (degree, radians)
@@ -34,3 +29,6 @@ discussion Eugen, Dominik
   should be added (Examples with pictures of the Seifert, and Rotating anode)
 * the use of the transform method of the experimental class should be unified
 * old/not functioning/not uses code should be removed from trunk
+* relative imports should be used for all python package internal imports
+  The following link explains why and how http://www.python.org/dev/peps/pep-0328/
+

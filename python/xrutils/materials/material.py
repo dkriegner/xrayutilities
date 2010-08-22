@@ -2,11 +2,13 @@
 
 import lattice
 import elements
-import xrutils.math as math
+from .. import math
 import copy
 import numpy
 import scipy.optimize
 import warnings
+
+from .. import utilities
 
 map_ijkl2ij = {"00":0,"11":1,"22":2,
                "12":3,"20":4,"01":5,
@@ -199,7 +201,7 @@ class Material(object):
         """
 
         r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
-        lam = 12398.419057638 / en # angstrom lam = (h*c)/(e*en(eV)) * 1e10
+        lam = utilities.lam2en(en) 
         delta = 0.
         
         for atpos in self.lattice.base:
@@ -226,7 +228,7 @@ class Material(object):
         """
 
         r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
-        lam = 12398.419057638 / en # angstrom lam = (h*c)/(e*en(eV)) * 1e10
+        lam = utilities.lam2en(en)
         beta = 0.
         
         for atpos in self.lattice.base:
