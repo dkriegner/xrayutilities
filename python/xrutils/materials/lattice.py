@@ -16,6 +16,7 @@ def _db_cleanup():
 atexit.register(_db_cleanup)
 
 class Atom(object):
+    #{{{1
     def __init__(self,name,num):
         self.name = name
         self.num = num
@@ -55,16 +56,35 @@ class Atom(object):
             return d
         else:
             return _db.GetF2(en)
-        
+    
+    def f(self,q,en):
+        #{{{2
+        """
+        function to calculate the atomic structure factor F
+
+        Parameter
+        ---------
+         q:     momentum transfer 
+         en:    energy for which F should be calculated
+
+        Returns
+        -------
+         f (float)
+        """
+        f = self.f0(norm(q))+self.f1(en)+1.j*self.f2(en)
+        return f
+        #}}}2
+
     def __str__(self):
         ostr = self.name
         ostr += " (%2d)" %self.num
         return ostr 
-        
+    #}}}1    
 
 
 
 class LatticeBase(list):
+    #{{{1
     """
     The LatticeBase class implements a container for a set of 
     points that form the base of a crystal lattice. An instance of this class
@@ -109,17 +129,18 @@ class LatticeBase(list):
             ostr += "Base point %i: %s (%f %f %f)\n" %(i,atom.__str__(),p[0],p[1],p[2])
 
         return ostr
-        
-        
+    #}}}1
     
 
 class Lattice(object):
+    #{{{1
     """
     class Lattice:
     This object represents a Bravais lattice. A lattice consists of a 
     base 
     """
     def __init__(self,a1,a2,a3,base=None):
+        #{{{2
         if isinstance(a1,list):
             self.a1 = numpy.array(a1,dtype=numpy.double)
         elif isinstance(a1,numpy.ndarray):
@@ -148,8 +169,10 @@ class Lattice(object):
                 self.base = base
         else:
             self.base = None
+        #}}}2
 
     def ApplyStrain(self,eps):
+        #{{{2
         """
         ApplyStrain(eps):
         Applies a certain strain on a lattice. The result is a change 
@@ -168,7 +191,7 @@ class Lattice(object):
         self.a2 = self.a2 + u2
         u3 = (eps*self.a3[numpy.newaxis,:]).sum(axis=1)
         self.a3 = self.a3 + u3
-
+        #}}}2
 
     def ReciprocalLattice(self):
         V = self.UnitCellVolume()
@@ -180,8 +203,13 @@ class Lattice(object):
         return Lattice(b1,b2,b3)
 
     def UnitCellVolume(self):
+        #{{{2
+        """
+        function to calculate the unit cell volume of a lattice (angstrom^3)
+        """
         V = numpy.dot(self.a3,numpy.cross(self.a1,self.a2))
         return V
+        #}}}2
 
     def GetPoint(self,*args):
         if len(args)<3:
@@ -203,102 +231,7 @@ class Lattice(object):
 
         return ostr
             
-    def StructureFactor(self,en,q):
-        if isinstance(q,list):
-            q = numpy.array(q,dtype=numpy.double)
-        elif isinstance(q,numpy.ndarray):
-            pass
-        else:
-            raise TypeError,"q must be a list or numpy array!"
-           
-        if self.base==None: return 1.
-         
-        s = 0.+0.j
-        for a,p in self.base:
-            r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
-            f = a.f0(norm(q))+a.f1(en)+1.j*a.f2(en)                    
-            s += f*numpy.exp(-1.j*numpy.dot(q,r))
-            
-        return s
-        
-    def StructureFactorForEnergy(self,en,q0):
-        #for constant q
-        if isinstance(q0,list):
-            q = numpy.array(q0,dtype=numpy.double)
-        elif isinstance(q0,numpy.ndarray):
-            q = q0
-        else:
-            raise TypeError,"q must be a list or numpy array!"
-            
-        if isinstance(en,list):
-            en = numpy.array(en,dtype=numpy.double)
-        elif isinstance(en,numpy.ndarray):
-            pass
-        else:
-            raise TypeError,"Energy data must be provided as a list or numpy array!"
-
-        if self.base==None: return 1.
-            
-         # create list of different atoms and buffer the scattering factors
-        atoms = []
-        f = []
-        types = []
-        for at in self.base:
-            try: 
-                idx = atoms.index(at[0])
-                types.append(idx)
-            except ValueError:
-                #add atom type to list and calculate the scattering factor
-                types.append(len(atoms))
-                f.append( at[0].f0(norm(q)) + at[0].f1(en) +1.j*at[0].f2(en) )
-                atoms.append(at[0])
-        
-        s = 0.+0.j                
-        for i in range(len(self.base)):
-            p = self.base[i][1]
-            r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
-            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
-            
-        return s
-        
-    def StructureFactorForQ(self,en0,q):
-        #for constant energy
-        if isinstance(q,list):
-            q = numpy.array(q,dtype=numpy.double)
-        elif isinstance(q,numpy.ndarray):
-            pass
-        else:
-            raise TypeError,"q must be a list or numpy array!"
-            
-        if self.base==None: return numpy.ones(len(q))
-
-        # create list of different atoms and buffer the scattering factors
-        atoms = []
-        f = []
-        types = []
-        for at in self.base:
-            try: 
-                idx = atoms.index(at[0])
-                types.append(idx)
-            except ValueError:
-                #add atom type to list and calculate the scattering factor
-                types.append(len(atoms))
-                f_q = numpy.zeros(len(q))
-                for j in range(len(q)):
-                    f_q[j] = at[0].f0(norm(q[j]))
-                f.append( f_q + at[0].f1(en0) +1.j*at[0].f2(en0) )
-                atoms.append(at[0])
-        
-        s = 0.+0.j                
-        for i in range(len(self.base)):
-            p = self.base[i][1]
-            r = p[0]*self.a1+p[1]*self.a2+p[2]*self.a3
-            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
-            
-        return s
-
-# still a lot of overhead, because normaly we do have 2 different types of atoms in a 8 atom base, but we calculate all 8 times which is obviously not necessary. One would have to reorganize the things in the LatticeBase class, and introduce something like an atom type and than only store the type in the List.        
-    
+    #}}}1
     
 #some idiom functions to simplify lattice creation
 

@@ -1330,14 +1330,14 @@ class Powder(Experiment):
         for h in range(hmin,hmax+1):
             for k in range(kmin,kmax+1):
                 for l in range(lmin,lmax+1):
-                    q = self.mat.rlattice.GetPoint(h,k,l)
+                    q = self.mat.Q(h,k,l)
                     if norm(q)<2*self.k0:
                         qlist.append(q)
                         hkllist.append([h,k,l])
                         qabslist.append(numpy.round(norm(q),self.digits))
         
         qabs = numpy.array(qabslist,dtype=numpy.double)
-        s = self.mat.lattice.StructureFactorForQ(self.energy,qlist)
+        s = self.mat.StructureFactorForQ(qlist,self.energy)
         r = numpy.absolute(s)**2
 
         _tmp_data = numpy.zeros(r.size,dtype=[('q',numpy.double),('r',numpy.double),('hkl',list)])

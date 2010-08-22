@@ -5,7 +5,6 @@ import elements
 import xrutils.math as math
 import copy
 import numpy
-from numpy import linalg
 import scipy.optimize
 import warnings
 
@@ -184,6 +183,121 @@ class Material(object):
         return p
         #}}}2
 
+    def delta(self,en):
+        #{{{2
+        """
+        function to calculate the real deviation of the refractive index from 1 
+        (n=1-delta+i*beta)
+
+        Parameter
+        ---------
+         en:    x-ray energy eV
+        
+        Returns
+        -------
+         delta (float)
+        """
+
+        r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
+        lam = 12398.419057638 / en # angstrom lam = (h*c)/(e*en(eV)) * 1e10
+        delta = 0.
+        
+        for atpos in self.lattice.base:
+            at = atpos[0]
+            delta += numpy.real(at.f(0.,en))
+
+        delta *= r_e/(2*numpy.pi)*lam**2/self.lattice.UnitCellVolume()
+        return delta
+        #}}}2
+
+    def beta(self,en):
+        #{{{2
+        """
+        function to calculate the imaginary deviation of the refractive index from 1 
+        (n=1-delta+i*beta)
+
+        Parameter
+        ---------
+         en:    x-ray energy eV
+        
+        Returns
+        -------
+         beta (float)
+        """
+
+        r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
+        lam = 12398.419057638 / en # angstrom lam = (h*c)/(e*en(eV)) * 1e10
+        beta = 0.
+        
+        for atpos in self.lattice.base:
+            at = atpos[0]
+            beta += numpy.imag(at.f(0.,en))
+
+        beta *= r_e/(2*numpy.pi)*lam**2/self.lattice.UnitCellVolume()
+        return beta
+        #}}}2
+
+    def chih(self,q,en):
+        """
+        calculates the complex polarizability of a material for a certain
+        momentum transfer
+        
+        Parameter
+        ---------
+         q:     momentum transfer in (1/A)
+         en:    xray energy in eV
+
+        Returns
+        -------
+         complex polarizability
+        """
+        pass
+    
+    def chi0(self,en):
+        """ 
+        calculates the complex chi_0 values ofter needed in simulations.
+        They are closely related to delta and beta
+        (n = 1 + chi_r0 /2 + i*chi_i0 /2   vs.  n = 1 - delta + i*beta) 
+        """
+        return (-2*self.delta(en)+2j*self.beta(en))
+
+    def idx_refraction(self,en):
+        #{{{2
+        """
+        function to calculate the complex index of refraction of a material 
+        in the x-ray range
+
+        Parameter
+        ---------
+         en:    energy of the x-rays
+
+        Returns
+        -------
+         n (complex)
+        """
+        n = 1. - self.delta(en) + 1.j*self.beta(en)
+        return n
+        #}}}2
+
+    def dTheta(self,Q,en):
+        #{{{2
+        """
+        function to calculate the refractive peak shift
+
+        Parameter
+        ---------
+         Q:     momentum transfer (1/A)
+         en:    x-ray energy (eV)
+
+        Returns
+        -------
+         deltaTheta: peak shift in degree
+        """
+        lam = 12398.419057638 / en # angstrom lam = (h*c)/(e*en(eV)) * 1e10
+        dth = numpy.degrees(2*self.delta(en)/numpy.sin(2*numpy.arcsin(lam*linalg.norm(Q)/(4*numpy.pi))))
+        return dth
+        #}}}2
+
     def __str__(self):
         #{{{2
         ostr ="Material: %s\n" %self.name
@@ -202,16 +316,157 @@ class Material(object):
         return ostr
         #}}}2
 
+    def StructureFactor(self,q,en):
+        #{{{2
+        """
+        caluclates the structure factor of a material
+        for a certain momentum transfer and energy
+
+        Parameter
+        ---------
+         q:     momentum transfer (both absolute values and vectors as 
+                list or tuple are valid)
+         en:    energy in eV
+
+        Returns
+        -------
+         the complex structure factor 
+        """
+
+        if isinstance(q,(list,tuple)):
+            q = numpy.array(q,dtype=numpy.double)
+        elif isinstance(q,numpy.ndarray):
+            pass
+        else:
+            raise TypeError,"q must be a list or numpy array!"
+           
+        if self.lattice.base==None: return 1.
+         
+        s = 0.+0.j
+        for a,p in self.lattice.base: # a: atom, p: position
+            r = self.lattice.GetPoint(p)
+            f = a.f(q,en) 
+            s += f*numpy.exp(-1.j*numpy.dot(q,r))
+            
+        return s
+        #}}}2
+
+    def StructureFactorForEnergy(self,q0,en):
+        #{{{2
+        """
+        caluclates the structure factor of a material
+        for a certain momentum transfer and a bunch of energies
+
+        Parameter
+        ---------
+         q0:    momentum transfer (both absolute values and vectors as 
+                list or tuple are valid)
+         en:    list, tuple or array of energy values in eV
+
+        Returns
+        -------
+         complex valued structure factor array
+        """
+        if isinstance(q0,(list,tuple)):
+            q = numpy.array(q0,dtype=numpy.double)
+        elif isinstance(q0,numpy.ndarray):
+            q = q0
+        else:
+            raise TypeError,"q must be a list or numpy array!"
+            
+        if isinstance(en,(list,tuple)):
+            en = numpy.array(en,dtype=numpy.double)
+        elif isinstance(en,numpy.ndarray):
+            pass
+        else:
+            raise TypeError,"Energy data must be provided as a list or numpy array!"
+
+        if self.lattice.base==None: return 1.
+            
+         # create list of different atoms and buffer the scattering factors
+        atoms = []
+        f = []
+        types = []
+        for at in self.lattice.base:
+            try: 
+                idx = atoms.index(at[0])
+                types.append(idx)
+            except ValueError:
+                #add atom type to list and calculate the scattering factor
+                types.append(len(atoms))
+                f.append( at.f(q,en) )
+                atoms.append(at[0])
+        
+        s = 0.+0.j                
+        for i in range(len(self.lattice.base)):
+            p = self.lattice.base[i][1]
+            r = self.lattice.GetPoint(p) 
+            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
+            
+        return s
+        #}}}2
+        
+    def StructureFactorForQ(self,q,en0):
+        #{{{2
+        """
+        caluclates the structure factor of a material
+        for a bunch of momentum transfers and a certain energy
+
+        Parameter
+        ---------
+         q:     momentum transfers (list, tuple or array with absolute values are valid)
+         en0:   list, tuple or array of energy values in eV
+
+        Returns
+        -------
+         complex valued structure factor array
+        """
+        if isinstance(q,(list,tuple)):
+            q = numpy.array(q,dtype=numpy.double)
+        elif isinstance(q,numpy.ndarray):
+            pass
+        else:
+            raise TypeError,"q must be a list or numpy array!"
+            
+        if self.lattice.base==None: return numpy.ones(len(q))
+
+        # create list of different atoms and buffer the scattering factors
+        atoms = []
+        f = []
+        types = []
+        for at in self.lattice.base:
+            try: 
+                idx = atoms.index(at[0])
+                types.append(idx)
+            except ValueError:
+                #add atom type to list and calculate the scattering factor
+                types.append(len(atoms))
+                f_q = numpy.zeros(len(q))
+                for j in range(len(q)):
+                    f_q[j] = at[0].f0(numpy.linalg.norm(q[j]))
+                f.append( f_q + at[0].f1(en0) +1.j*at[0].f2(en0) )
+                atoms.append(at[0])
+        
+        s = 0.+0.j                
+        for i in range(len(self.lattice.base)):
+            p = self.lattice.base[i][1]
+            r = self.lattice.GetPoint(p)
+            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
+            
+        return s
+        # still a lot of overhead, because normally we do have 2 different types of atoms in a 8 atom base, but we calculate all 8 times which is obviously not necessary. One would have to reorganize the things in the LatticeBase class, and introduce something like an atom type and than only store the type in the List.
+        #}}}2
+
     def ApplyStrain(self,strain,**keyargs):
         #let strain act on the base vectors
         self.lattice.ApplyStrain(strain)
         #recalculate the reciprocal lattice
         self.rlattice = self.lattice.ReciprocalLattice()
 
-    def GetMissmatch(self,mat):
+    def GetMismatch(self,mat):
         """
-        GetMissmatch(mat):
-        Calculate the mismatch strain between  
+        Calculate the mismatch strain between the material and a second
+        material
         """
         print "not implemented yet"
     #}}}1
@@ -219,9 +474,16 @@ class Material(object):
 
 def CubicElasticTensor(c11,c12,c44):
     """
-    CubicElasticTensor(c11,c12,c44):
-    Assemble the 6x6 matrix of elastic constants for a cubic material.
+    Assemble the 6x6 matrix of elastic constants for a cubic material from the
+    three independent components of a cubic crystal
 
+    Parameter
+    ---------
+     c11,c12,c44:   independent components of the elastic tensor of cubic materials
+
+    Returns
+    -------
+     6x6 materix with elastic constants
     """
     m = numpy.zeros((6,6),dtype=numpy.double)
     m[0,0] = c11; m[1,1] = c11; m[2,2] = c11;
@@ -234,8 +496,17 @@ def CubicElasticTensor(c11,c12,c44):
 
 def HexagonalElasticTensor(c11,c12,c13,c33,c44):
     """
-    HexagonalElasticTensor(c11,c12,c13,c33,c44):
-    Assemble the 6x6 matrix of elastic constants for a hexagonal material.
+    Assemble the 6x6 matrix of elastic constants for a hexagonal material from
+    the five independent components of a hexagonal crystal
+
+    Parameter
+    ---------
+     c11,c12,c13,c33,c44:   independent components of the elastic tensor of 
+                            a hexagonal material
+
+    Returns
+    -------
+     6x6 materix with elastic constants
 
     """
     m = numpy.zeros((6,6),dtype=numpy.double)
@@ -542,19 +813,20 @@ def PseudomorphicMaterial(submat,layermat):
     return pmat
     #}}}1
 
-
-def AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
-    #{{{1
-    """
-    AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
-    Assemble the elastic constants matrix for a cubic system. This function 
-    simply reduces writting work and therefore the risk of typos.
-    """
-
-    m = numpy.array([[c11,c12,c12,0,0,0],[c12,c11,c12,0,0,0],[c12,c12,c11,0,0,0],
-                     [0,0,0,c44,0,0],[0,0,0,0,c44,0],[0,0,0,0,0,c44]],
-                     dtype=numpy.double)
-    return m
-    #}}}1
+# dominik: function seems to be deprecated, use CubicElasticTensor instead
+# function will be kept for some time (17.08.2010)
+#def AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
+#    #{{{1
+#    """
+#    AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
+#    Assemble the elastic constants matrix for a cubic system. This function 
+#    simply reduces writting work and therefore the risk of typos.
+#    """
+#
+#    m = numpy.array([[c11,c12,c12,0,0,0],[c12,c11,c12,0,0,0],[c12,c12,c11,0,0,0],
+#                     [0,0,0,c44,0,0],[0,0,0,0,c44,0],[0,0,0,0,0,c44]],
+#                     dtype=numpy.double)
+#    return m
+#    #}}}1
 
 
