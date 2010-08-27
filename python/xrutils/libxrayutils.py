@@ -8,7 +8,8 @@ the derived functions in the corresponding submodules
 
 import numpy
 import ctypes
-import config
+
+from . import config
 
 _library = ctypes.cdll.LoadLibrary(config.clib_path)
 

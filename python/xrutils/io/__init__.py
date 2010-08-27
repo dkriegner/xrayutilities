@@ -1,14 +1,14 @@
-from radicon import rad2hdf5
-from radicon import hst2hdf5
-from radicon import selecthst
+from .radicon import rad2hdf5
+from .radicon import hst2hdf5
+from .radicon import selecthst
 
 #from spe import spe2hdf5
 #from spe import spes2hdf5
 
-from seifert import SeifertScan
-from seifert import SeifertMultiScan
+from .seifert import SeifertScan
+from .seifert import SeifertMultiScan
 
-from spectra import SPECTRAFile
+from .spectra import SPECTRAFile
 
 # DK: tascom importer used deprecated and removed scipy code
 #     port to numpy functions should be possible
@@ -16,11 +16,11 @@ from spectra import SPECTRAFile
 #from tascom import dat2hdf5
 #from tascom import dats2hdf5
 
-from spec import SPECFile
-from spec import SPECScan
+from .spec import SPECFile
+from .spec import SPECScan
 
-from edf import EDFFile
+from .edf import EDFFile
 
-from spectra import Spectra
+from .spectra import Spectra
 
-from panalytical_xml import XRDMLFile
+from .panalytical_xml import XRDMLFile

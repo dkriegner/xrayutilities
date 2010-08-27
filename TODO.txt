@@ -1,6 +1,12 @@
 To Do
 -----
 
+27.08.2010
+
+DK: add support for a real coplanar diffraction experiment class and a second
+class for non coplanar diffraction which uses chi and phi as additional
+angles
+
 17.08.2010
 discussion Eugen, Dominik
 

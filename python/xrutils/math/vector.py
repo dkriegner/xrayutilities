@@ -100,7 +100,7 @@ def VecAngle(v1,v2,deg=False):
     #{{{1
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
-    print u1,u2
+    # print u1,u2 # need verbosity handling
 
     alpha = numpy.arccos(VecDot(v1,v2)/u1/u2)
     if deg:

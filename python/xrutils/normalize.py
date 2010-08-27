@@ -13,7 +13,8 @@ provide functions for normalizing intensities for
 
 import numpy
 import ctypes
-import libxrayutils
+
+from . import libxrayutils
 
 def blockAverage1D(data,Nav):
     #{{{1

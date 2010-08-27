@@ -1,4 +1,4 @@
-from lattice import Atom
+from .lattice import Atom
 
 Ac = Atom("Ac",89)
 Ag = Atom("Ag",47)

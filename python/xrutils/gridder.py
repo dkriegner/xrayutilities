@@ -1,7 +1,8 @@
 
 import numpy
-import libxrayutils
 import ctypes
+
+from . import libxrayutils
 
 unit_dict = {"kb":1024,"mb":1024**2,"gb":1024**3}
 

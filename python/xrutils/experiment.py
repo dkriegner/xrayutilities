@@ -9,14 +9,16 @@ various classes are provided for
 """
 
 import numpy
-import math
-import materials
-import utilities
 from numpy.linalg import norm
 import warnings
 import re
 import ctypes
-import libxrayutils
+
+# package internal imports
+from . import math
+from . import materials
+from . import utilities
+from . import libxrayutils
 
 _epsilon = 1.e-7 # small number used to decide if something can be neglected
 
@@ -1103,7 +1105,7 @@ class HXRD(Experiment):
             if trans:
                 qvec = self.transform(qvec)
 
-            print qvec
+            #print qvec # need verbosity handling for such output
 
             qa = math.VecNorm(qvec)
             tth = 2.*numpy.arcsin(qa/2./self.k0)

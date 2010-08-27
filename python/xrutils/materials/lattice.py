@@ -2,10 +2,11 @@
 #
 
 import numpy
-import database
 from numpy.linalg import norm
-from . import __path__
 import atexit
+
+from . import __path__
+from . import database
 
 _db = database.DataBase(__path__[0]+"/data/test.db")
 _db.Open()

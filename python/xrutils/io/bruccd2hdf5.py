@@ -1,10 +1,11 @@
 #this module provides routines to insert the data of a Bruker Apex CCD 
 #detector into a HDF5 format
 import tables
-import bruker_header   #manages to read the big Bruker header  
 import numpy  # replaced Numeric; changes not tested
 import struct
 import re
+
+from . import bruker_header   #manages to read the big Bruker header  
 
 #===============================================================================
 #GENERAL NOTES ON THE BRUKER CCD FILE FORMAT:

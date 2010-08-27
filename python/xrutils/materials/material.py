@@ -1,13 +1,13 @@
 #class module implements a certain material
 
-import lattice
-import elements
-from .. import math
 import copy
 import numpy
 import scipy.optimize
 import warnings
 
+from . import lattice
+from . import elements
+from .. import math
 from .. import utilities
 
 map_ijkl2ij = {"00":0,"11":1,"22":2,
@@ -296,7 +296,7 @@ class Material(object):
          deltaTheta: peak shift in degree
         """
         lam = 12398.419057638 / en # angstrom lam = (h*c)/(e*en(eV)) * 1e10
-        dth = numpy.degrees(2*self.delta(en)/numpy.sin(2*numpy.arcsin(lam*linalg.norm(Q)/(4*numpy.pi))))
+        dth = numpy.degrees(2*self.delta(en)/numpy.sin(2*numpy.arcsin(lam*numpy.linalg.norm(Q)/(4*numpy.pi))))
         return dth
         #}}}2
 
@@ -396,7 +396,7 @@ class Material(object):
             except ValueError:
                 #add atom type to list and calculate the scattering factor
                 types.append(len(atoms))
-                f.append( at.f(q,en) )
+                f.append( at[0].f(q,en) )
                 atoms.append(at[0])
         
         s = 0.+0.j                
