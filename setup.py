@@ -9,7 +9,6 @@ setup(name="xrutils",
       maintainer_email="eugen.wintersberger@jku.at",
       package_dir={'':'python'},
       packages=["xrutils","xrutils.math","xrutils.vis",
-                "xrutils.io","xrutils.materials",
-                "xrutils.methods"],
+                "xrutils.io","xrutils.materials"],
       package_data={"xrutils.materials":["data/*.db"]}
       )

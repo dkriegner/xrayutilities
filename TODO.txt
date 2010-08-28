@@ -35,6 +35,4 @@ discussion Eugen, Dominik
   should be added (Examples with pictures of the Seifert, and Rotating anode)
 * the use of the transform method of the experimental class should be unified
 * old/not functioning/not uses code should be removed from trunk
-* relative imports should be used for all python package internal imports
-  The following link explains why and how http://www.python.org/dev/peps/pep-0328/
 

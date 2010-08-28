@@ -765,16 +765,16 @@ class Experiment(object):
                     the en keyword overrulls the wl keyword
         """
         if isinstance(ipdir,list):
-            self.idir = numpy.array(ipdir,dtype=numpy.double)
+            self.idir = math.VecUnit(numpy.array(ipdir,dtype=numpy.double))
         elif isinstance(ipdir,numpy.ndarray):
-            self.idir = ipdir
+            self.idir = math.VecUnit(ipdir)
         else:
             raise TypeError("Inplane direction must be list or numpy array")
         
         if isinstance(ndir,list):
-            self.ndir = numpy.array(ndir,dtype=numpy.double)
+            self.ndir = math.VecUnit(numpy.array(ndir,dtype=numpy.double))
         elif isinstance(ndir,numpy.ndarray):
-            self.ndir = ndir
+            self.ndir = math.VecUnit(ndir)
         else:
             raise TypeError("normal direction must be list or numpy array")
         
@@ -787,8 +787,8 @@ class Experiment(object):
             warnings.warn("Experiment: given inplane direction is not perpendicular to normal direction\n -> Experiment class uses the following direction with the same azimuth:\n %s" %(' '.join(map(str,numpy.round(self.idir,3)))))
 
         #set the coordinate transform for the azimuth used in the experiment
-        v1 = numpy.cross(self.ndir,self.idir)
-        self.transform = math.CoordinateTransform(v1,self.idir,self.ndir)
+        self.scatplane = math.VecUnit(numpy.cross(self.ndir,self.idir))
+        self.transform = math.CoordinateTransform(self.scatplane,self.idir,self.ndir)
        
         # initialize Ang2Q conversion
         self._A2QConversion = QConversion('x+','x+',[0,1,0]) # 1S+1D goniometer  
@@ -809,7 +809,11 @@ class Experiment(object):
 
     def __str__(self):
         #{{{2
-        ostr = "inplane azimuth: (%f %f %f)\n" %(self.idir[0],
+
+        ostr = "scattering plane normal: (%f %f %f)\n" %(self.scatplane[0],
+                                                 self.scatplane[1],
+                                                 self.scatplane[2])
+        ostr += "inplane azimuth: (%f %f %f)\n" %(self.idir[0],
                                                  self.idir[1],
                                                  self.idir[2])
         ostr += "surface normal: (%f %f %f)\n" %(self.ndir[0],
