@@ -1,4 +1,5 @@
 #a module to write OpenDX input files in an object oriented approach
+import os.path
 
 class DXFile(object):
     """
@@ -22,25 +23,22 @@ class DXFile(object):
         #parse the keyword arguments:
         if keyargs.has_key("seq"):
             #file contains a sequence
-            self.seq_flag = 1;
+            self.seq_flag = 1
         else:
-            self.seq_flag = 0;
+            self.seq_flag = 0
 
         if keyargs.has_key("path"):
-            if keyargs["path"][-1]=='/':
-                self.DXFilePath = keyargs["path"]
-            else:
-                self.DXFilePath = keyargs["path"]+"/";
+            self.DXFilePath = keyargs["path"]
         else:
-            self.DXFilePath = "./";
+            self.DXFilePath = "."
 
-        self.DXFileName = filename;
+        self.DXFileName = filename
 
         #try to open the file
         try:
-            self.DXFile_FID = open(self.DXFilePath+self.DXFileName);
+            self.DXFile_FID = open(os.path.join(self.DXFilePath,self.DXFileName))
         except:
-            print "Error opening file: %s" &(self.DXFilePath+self.DXFileName);
+            print "Error opening file: %s" %(os.path.join(self.DXFilePath,self.DXFileName))
 
         
 

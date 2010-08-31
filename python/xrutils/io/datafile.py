@@ -1,4 +1,5 @@
 #an experimental data file
+import os.path
 
 class DataFile(object):
     """
@@ -12,14 +13,11 @@ class DataFile(object):
     """
 
     def __init__(self,path,filename):
-        if path[-1] == "/":
-        	self.path = path;
-        else:
-        	self.path = path + "/";
+        self.path = path
         
-        self.filename = filename;
-        self.fullfilename = self.path + self.filename;
-        self.fid = None;
+        self.filename = filename
+        self.fullfilename = os.path.join(self.path,self.filename)
+        self.fid = None
         
 	def open(self):
 		"""
@@ -27,10 +25,10 @@ class DataFile(object):
 		Open the file in the file object.
 		"""
 		try:
-			self.fid = open(self.fullfilename,"r");
+			self.fid = open(self.fullfilename,"r")
 		except:
-			print "error opening file %s" %(self.fullfilename);
-			self.fid = None;
+			print "error opening file %s" %(self.fullfilename)
+			self.fid = None
 			return None
 			
 		#after opening the file we have to find EOF offset with 
@@ -38,9 +36,9 @@ class DataFile(object):
 			
 	def close(self):
 		try:
-			self.fid.close();
+			self.fid.close()
 		except:
-			self.fid = None;
-			return None;
+			self.fid = None
+			return None
 			
 			

@@ -15,7 +15,7 @@ from matplotlib import pylab as pl
 
 class DataRecord(object):
     def __init__(self):
-        self.coldict = {};
+        self.coldict = {}
 
     def __str__(self):
         #string representation of the record
@@ -25,10 +25,10 @@ class DataRecord(object):
 
 class Dataset(object):
     def __init__(self,setname):
-        self.name = setname;
+        self.name = setname
 
-        self.coldict = {};
-        self.nofrows = 0;
+        self.coldict = {}
+        self.nofrows = 0
 
     
 
@@ -50,42 +50,42 @@ class Dataset(object):
         #===============handling optional arguments======================
         #set a figure object to plot in
         if keyargs.has_key("fig"):
-            self.figure = fig;
+            self.figure = fig
         else:
-            self.figure = pl.figure();
+            self.figure = pl.figure()
 
         #set a unit for the x-axis
         if keyargs.has_key("xunit"):
-            xunit = " "+keyargs["xunit"];
+            xunit = " "+keyargs["xunit"]
         else:
-            xunit = "";
+            xunit = ""
 
         #set a unit for the y-axis
         if keyargs.has_key("yunit"):
-            yunit = " "+keyargs["yunit"];
+            yunit = " "+keyargs["yunit"]
         else:
-            yunit = "";
+            yunit = ""
 
         #set plot options po=""
         if keyargs.has_key("po"):
-            plotopts = keyargs["po"];
+            plotopts = keyargs["po"]
         else:
-            plotopts = "b-";
+            plotopts = "b-"
 
         if keyargs.has_key("po"):
             pass
 
         #build x-axis and y-axis label
-        xaxis_name = xname+xunit;
-        yaxis_name = yname+yunit;
+        xaxis_name = xname+xunit
+        yaxis_name = yname+yunit
 
         #=============handle the number of input arguments in *args=========
         if len(args)==1:
-            xaxis = None;
-            yaxis = self.coldict[args[0]];
+            xaxis = None
+            yaxis = self.coldict[args[0]]
         elif len(args)==2:
-            xaxis = self.coldict[args[0]];
-            yaxis = self.coldict[args[1]];
+            xaxis = self.coldict[args[0]]
+            yaxis = self.coldict[args[1]]
         else:
             print "invalid number of arguments"
             return None
@@ -98,11 +98,11 @@ class Dataset(object):
 
         if keyargs.has_key("ps"):
             if keyargs["ps"] == "logx":
-                self.plot = pl.semilogx(xaxis,yaxis,plotopts);
+                self.plot = pl.semilogx(xaxis,yaxis,plotopts)
             if keyargs["ps"] == "logy":
-                self.plot = pl.semilogy(xaxis,yaxis,plotopts);
+                self.plot = pl.semilogy(xaxis,yaxis,plotopts)
         else:
-            self.plot = figure.plot(xaxis,yaxis,plotopts);
+            self.plot = figure.plot(xaxis,yaxis,plotopts)
         
 
     def plot2d(xnamy,xname,yname):

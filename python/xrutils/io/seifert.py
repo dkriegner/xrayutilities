@@ -2,14 +2,13 @@
 #in fact there exist two posibilities how the data is stored (depending on the 
 #use detector):
 # 1.) as a simple line scan (using the point detector)
-# 2.) as a map useing the PSD
+# 2.) as a map using the PSD
 #
 #In the first case the data ist stored 
 
 import re
 import tables
 import numpy
-
 
 #define some regular expressions
 nscans_re = re.compile(r"^&NumScans=\d+")
@@ -253,7 +252,7 @@ class SeifertScan(object):
         print "starting the parser"
         self.data = []
         while True:
-            lb = self.fid.readline();
+            lb = self.fid.readline()
             if not lb: break
             #remove leading and trailing whitespace and newline characeters
             lb = lb.strip()

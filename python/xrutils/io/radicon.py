@@ -5,18 +5,19 @@ import re
 import tables
 import struct
 import numpy
+import os.path
 
-rdc_start = re.compile(r"^START");
-rdc_end   = re.compile(r"^END");
+rdc_start = re.compile(r"^START")
+rdc_end   = re.compile(r"^END")
 
-rdc_mopo = re.compile(r"^[A-Z]+=.*");
-rdc_param = re.compile(r"^.*:.+");
+rdc_mopo = re.compile(r"^[A-Z]+=.*")
+rdc_param = re.compile(r"^.*:.+")
 
-rdc_colname = re.compile(r"^-+");
-rdc_data_line = re.compile(r"(\s*[0-9\.]\s*)+");
+rdc_colname = re.compile(r"^-+")
+rdc_data_line = re.compile(r"(\s*[0-9\.]\s*)+")
 
-rem_blank = re.compile(r"\s+");  #remove all multiple blanks in a line
-blank_extract = re.compile(r"\S+"); #extract all columns seperated by single blanks
+rem_blank = re.compile(r"\s+")  #remove all multiple blanks in a line
+blank_extract = re.compile(r"\S+") #extract all columns seperated by single blanks
 
 def rad2hdf5(h5,rdcfile,**keyargs):
     """
@@ -35,39 +36,36 @@ def rad2hdf5(h5,rdcfile,**keyargs):
 	"""
 
     if keyargs.has_key("rdcpath"):
-        rdcpath = keyargs["rdcpath"];
+        rdcpath = keyargs["rdcpath"]
     else:
-        rdcpath = "./";
+        rdcpath = "."
 
-    if rdcpath[-1]=="/":
-        rdcfilename = rdcpath+rdcfile;
-    else:
-        rdcfilename = rdcpath+"/"+rdcfile;
+    rdcfilename = os.path.join(rdcpath,rdcfile)
 
     if keyargs.has_key("h5path"):
-        h5path = keyargs["h5path"];
+        h5path = keyargs["h5path"]
     else:
-        h5path = h5.root;
+        h5path = h5.root
 
     try:
-        rdcfid = open(rdcfilename,mode="r");
+        rdcfid = open(rdcfilename,mode="r")
         print "Opended RDC file %s for reading",rdcfilename
     except:
-        print "error opening RDC file %s !" %(rdcfilename);
-        return None;
+        print "error opening RDC file %s !" %(rdcfilename)
+        return None
 
 
-    line_buffer = " ";
+    line_buffer = " "
     while True:
 
         #read a line from the file
-        line_buffer = rdcfid.readline();
+        line_buffer = rdcfid.readline()
         
         if line_buffer=="":
             print "reached end of RDC file"
             break
         
-        line_buffer = line_buffer.strip();        
+        line_buffer = line_buffer.strip()
 
         if rdc_start.match(line_buffer):
             #reaching the start of a new scan - reinit all variables
@@ -82,79 +80,79 @@ def rad2hdf5(h5,rdcfile,**keyargs):
             
 
         if rdc_param.match(line_buffer):
-            data_buffer = re.compile(r":\s+").split(line_buffer);
-            data_buffer[0] = data_buffer[0].replace("/","_");
-            param_name_list.append(data_buffer[0]);
-            param_value_list.append(data_buffer[1]);
+            data_buffer = re.compile(r":\s+").split(line_buffer)
+            data_buffer[0] = data_buffer[0].replace("/","_")
+            param_name_list.append(data_buffer[0])
+            param_value_list.append(data_buffer[1])
             if data_buffer[0]=="Scan":
                 param_name_list.append("scantype")
-                line_buffer = rdcfid.readline();
-                line_buffer = line_buffer.strip();
-                param_value_list.append(line_buffer);
+                line_buffer = rdcfid.readline()
+                line_buffer = line_buffer.strip()
+                param_value_list.append(line_buffer)
 
         if rdc_mopo.match(line_buffer):            
             data_buffer = re.compile(r"=\s+").split(line_buffer)
-            motor_list.append(data_buffer[0]);
-            motor_pos_list.append(data_buffer[1]);
+            motor_list.append(data_buffer[0])
+            motor_pos_list.append(data_buffer[1])
 
         if rdc_colname.match(line_buffer):
-            line_buffer = rdcfid.readline();
-            line_buffer = line_buffer.strip();
-            col_name_list = re.compile(r"\s+").split(line_buffer);
+            line_buffer = rdcfid.readline()
+            line_buffer = line_buffer.strip()
+            col_name_list = re.compile(r"\s+").split(line_buffer)
             #perform an extra read cycle
-            line_buffer = rdcfid.readline();
+            line_buffer = rdcfid.readline()
 
             #after the column names have been read - build the table and
             #add the header attributes
-            tab_name = param_value_list[0]+'_'+param_value_list[1];
+            tab_name = param_value_list[0]+'_'+param_value_list[1]
             tab_title = "Scan %s of type %s on sample %s" %(param_value_list[0],\
                                                             param_value_list[1],\
-                                                            param_value_list[2]);
+                                                            param_value_list[2])
             #build the table dictionary
             for name in col_name_list:
-                tab_dict[name] = tables.FloatCol();
+                tab_dict[name] = tables.FloatCol()
 
             #create the new table object
-            table = h5.createTable(h5path,tab_name,tab_dict,tab_title);
+            table = h5.createTable(h5path,tab_name,tab_dict,tab_title)
 
             #add the attributes (parameters and initial motor positions)
             for i in range(len(param_name_list)):
-                param_name = param_name_list[i];
-                param_value = param_value_list[i];
-                param_name = param_name.replace(" ","_");
-                param_name = param_name.replace(".","");
-                param_name = param_name.replace("-","_");
-                param_name = param_name.replace("(","");
-                param_name = param_name.replace(")","");
-                table.attrs.__setattr__(param_name,param_value);
+                param_name = param_name_list[i]
+                param_value = param_value_list[i]
+                param_name = param_name.replace(" ","_")
+                param_name = param_name.replace(".","")
+                param_name = param_name.replace("-","_")
+                param_name = param_name.replace("(","")
+                param_name = param_name.replace(")","")
+                table.attrs.__setattr__(param_name,param_value)
 
             for i in range(len(motor_list)):
-                table.attrs.__setattr__(motor_list[i],motor_pos_list[i]);
+                table.attrs.__setattr__(motor_list[i],motor_pos_list[i])
 
             #set finally the scan status to aborted (will be corrected if the
             #scan has finished properly
-            table.attrs.scan_status = "ABORTED";
+            table.attrs.scan_status = "ABORTED"
 
         if rdc_data_line.match(line_buffer):
-            data_buffer = re.compile("\s+").split(line_buffer);
+            data_buffer = re.compile("\s+").split(line_buffer)
 
             #store the data in the table
             for i in range(len(data_buffer)):
-                table.row[col_name_list[i]] = float(data_buffer[i]);
+                table.row[col_name_list[i]] = float(data_buffer[i])
 
-            table.row.append();
+            table.row.append()
 
         if rdc_end.match(line_buffer):
-            table.attrs.scan_status = "SUCCEEDED";
-            table.flush();            
+            table.attrs.scan_status = "SUCCEEDED"
+            table.flush()
             print "scan finished"
 
 
 
 
     #flush the last table (for sure)
-    table.flush();
-    rdcfid.close();
+    table.flush()
+    rdcfid.close()
 
 
 
@@ -174,84 +172,81 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
                             is the current working directory)
     """
     if keyargs.has_key("hstpath"):
-        hstpath = keyargs["hstpath"];
+        hstpath = keyargs["hstpath"]
     else:
-        hstpath = "./";
+        hstpath = "."
 
-    if hstpath[-1]=="/":
-        hstfilename = hstpath+hstfile;
-    else:
-        hstfilename = hstpath+"/"+hstfile;
+    hstfilename = os.path.join(hstpath,hstfile)
 
     if keyargs.has_key("h5path"):
-        h5path = keyargs["h5path"];
+        h5path = keyargs["h5path"]
     else:
-        h5path = h5.root;
+        h5path = h5.root
 
     try:
-        hstfid = open(hstfilename,mode="r");
+        hstfid = open(hstfilename,mode="r")
 
     except:
-        print "error opening HST file %s !" %(hstfilename);
+        print "error opening HST file %s !" %(hstfilename)
         return None
 
     filters = tables.Filters(complevel=5,complib="zlib",shuffle=True,fletcher32=True)
 
     #jump the first header entry - it is nof of interest
-    hstfid.seek(12,0);
+    hstfid.seek(12,0)
 
-    nofhists = 0;
+    nofhists = 0
 
     #some format strings used to read the file
-    fmt_hist = 'ii128c128c8HiId'+nofchannels*"i";
-    fmt_hist_size = struct.calcsize(fmt_hist);        
+    fmt_hist = 'ii128c128c8HiId'+nofchannels*"i"
+    fmt_hist_size = struct.calcsize(fmt_hist)
     
     #read the top header and determine the number of histograms
     #and the size of the histograms
-    data_buffer= struct.unpack("i",hstfid.read(struct.calcsize("i")));
-    nofhists = data_buffer[0];
+    data_buffer= struct.unpack("i",hstfid.read(struct.calcsize("i")))
+    nofhists = data_buffer[0]
 
-    print "number of histograms found: ",nofhists;
+    print "number of histograms found: ",nofhists
 
     #now the table and the EArray
-    table_dict = {};
-    table_dict["index"] = tables.IntCol();
-    table_dict["channels"]  = tables.IntCol();
-    table_dict["type"] = tables.IntCol();
-    table_dict["name"] = tables.StringCol(itemsize=128);
-    table_dict["ExpTime"] = tables.FloatCol();
-    table = h5.createTable(h5path,"MCA_info",table_dict,"MCA info table");
+    table_dict = {}
+    table_dict["index"] = tables.IntCol()
+    table_dict["channels"]  = tables.IntCol()
+    table_dict["type"] = tables.IntCol()
+    table_dict["name"] = tables.StringCol(itemsize=128)
+    table_dict["ExpTime"] = tables.FloatCol()
+    table = h5.createTable(h5path,"MCA_info",table_dict,"MCA info table")
 
-    atype = tables.IntAtom();
+    atype = tables.IntAtom()
     array = h5.createEArray(h5path,"MCAarray",atype,(0,nofchannels),
-            "MCA data of file %s" %(hstfilename),filters=filters);
+            "MCA data of file %s" %(hstfilename),filters=filters)
 
     #setup the buffer array for storing a single spectrum
-    data = numpy.zeros((nofchannels),numpy.int);
+    data = numpy.zeros((nofchannels),numpy.int)
 
     #loop over all histograms
     for i in range(nofhists):        
-	#read the header structure
-	data_buffer = struct.unpack(fmt_hist,hstfid.read(fmt_hist_size));
-	table.row["index"] = i;
-        table.row["type"] = data_buffer[1];
-	table.row["name"]  = (("".join(data_buffer[2:(2+128)])).replace(" ","")).strip();
-	table.row["channels"] = data_buffer[0];        
-	table.row["ExpTime"] = data_buffer[268];    
+        #read the header structure
+        data_buffer = struct.unpack(fmt_hist,hstfid.read(fmt_hist_size))
+        table.row["index"] = i
+        table.row["type"] = data_buffer[1]
+        table.row["name"]  = (("".join(data_buffer[2:(2+128)])).replace(" ","")).strip()
+        table.row["channels"] = data_buffer[0]
+        table.row["ExpTime"] = data_buffer[268]
 
-	table.row.append();
+        table.row.append()
 			
         #copy the data to the storage array
         for j in range(nofchannels):
-            data[j] = data_buffer[269+j];
+            data[j] = data_buffer[269+j]
 
 
         #append the array to the EArray
-        array.append([data]);
+        array.append([data])
         
-	table.flush();
+	table.flush()
         
-    hstfid.close();
+    hstfid.close()
 
 def selecthst(et_limit,mca_info,mca_array):
     """

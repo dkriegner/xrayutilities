@@ -4,11 +4,12 @@
 import numpy
 from numpy.linalg import norm
 import atexit
+import os.path
 
 from . import __path__
 from . import database
 
-_db = database.DataBase(__path__[0]+"/data/test.db")
+_db = database.DataBase(os.join.path(__path__[0],"data","test.db"))
 _db.Open()
 
 def _db_cleanup():

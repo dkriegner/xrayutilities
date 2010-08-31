@@ -488,8 +488,8 @@ def CubicElasticTensor(c11,c12,c44):
      6x6 materix with elastic constants
     """
     m = numpy.zeros((6,6),dtype=numpy.double)
-    m[0,0] = c11; m[1,1] = c11; m[2,2] = c11;
-    m[3,3] = c44; m[4,4] = c44; m[5,5] = c44;
+    m[0,0] = c11; m[1,1] = c11; m[2,2] = c11
+    m[3,3] = c44; m[4,4] = c44; m[5,5] = c44
     m[0,1] = m[0,2] = c12
     m[1,0] = m[1,2] = c12
     m[2,0] = m[2,1] = c12

@@ -12,12 +12,15 @@ env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
 
 if "install" in COMMAND_LINE_TARGETS:
     #write the config.py file
-    fid = open("./python/xrutils/config.py","w")
+    conffilename = os.path.join(".","python","xrutils","config.py")
+    fid = open(conffilename,"w")
     pref = GetOption("prefix")
     if os.sys.platform == "darwin":
         libpath = os.path.join(pref,"lib","libxrutils.dylib")
     elif os.sys.platform == "linux2":
         libpath = os.path.join(pref,"lib","libxrutils.so")
+    elif "win" in os.sys.platform:
+        libpath = os.path.join(pref,"lib","xrutils.dll")
     fid.write("clib_path = \"%s\"" %libpath)
     fid.close()
 

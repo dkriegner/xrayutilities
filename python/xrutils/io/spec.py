@@ -40,7 +40,7 @@ SPEC_commentline = re.compile(r"#C")
 
 
 
-DEBUG_FLAG = False;
+DEBUG_FLAG = False
 
 scan_status_flags = ["OK","ABORTED","CORRUPTED"]
 
@@ -453,7 +453,7 @@ class SPECScan(object):
 
         #write attribute data for the scan
         g._v_attrs.ScanNumber = numpy.uint(self.nr)
-        g._v_attrs.Command = self.command;
+        g._v_attrs.Command = self.command
         g._v_attrs.Date = self.date
         g._v_attrs.Time = self.time
         
@@ -471,7 +471,7 @@ class SPECScan(object):
             for k in optattrs.keys():
                 g._v_attrs.__setattr__(k,opattrs[k])
                         
-        h5file.flush();            
+        h5file.flush()            
 
 class SPECFile(object):
     """
@@ -574,7 +574,7 @@ class SPECFile(object):
             scan.fid = self.fid
 
         #reparse the SPEC file
-        print "reparsing file for new scans ...";
+        print "reparsing file for new scans ..."
         # mark last found scan as not saved to force reread
         idx = len(self.scan_list)
         if idx>0:
