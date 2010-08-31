@@ -76,7 +76,7 @@ if not env.GetOption('clean'):
 #env.ParseConfig('pkg-config --cflags --libs cblas')
 
 #add the aliases for install target
-env.Alias("install",["$PREFIX/lib","$PREFIX/bin"])
+env.Alias("install",["$PREFIX/lib"])#,"$PREFIX/bin"])
 
 #add aliases for documentation target
 env.Alias("doc",["doc/manual/xrutils.pdf"])

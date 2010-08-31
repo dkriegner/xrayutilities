@@ -35,4 +35,5 @@ discussion Eugen, Dominik
   should be added (Examples with pictures of the Seifert, and Rotating anode)
 * the use of the transform method of the experimental class should be unified
 * old/not functioning/not uses code should be removed from trunk
-
+* Ang2Q help should be added to the experiment classes, via some emtpy   
+  function which is anyhow overwritten during initialization
