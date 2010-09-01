@@ -8,4 +8,4 @@ lib = env.SharedLibrary("xrutils",objects_env)
 Default(lib)
 
 #install the library
-env.Install("$PREFIX/lib",lib)
+env.Install("$PREFIX/lib",lib[0])

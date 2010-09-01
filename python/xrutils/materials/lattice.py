@@ -9,7 +9,7 @@ import os.path
 from . import __path__
 from . import database
 
-_db = database.DataBase(os.join.path(__path__[0],"data","test.db"))
+_db = database.DataBase(os.path.join(__path__[0],"data","test.db"))
 _db.Open()
 
 def _db_cleanup():

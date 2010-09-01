@@ -21,7 +21,7 @@ if "install" in COMMAND_LINE_TARGETS:
         libpath = os.path.join(pref,"lib","libxrutils.so")
     elif "win" in os.sys.platform:
         libpath = os.path.join(pref,"lib","xrutils.dll")
-    fid.write("clib_path = \"%s\"" %libpath)
+    fid.write("clib_path = r\"%s\"" %libpath)
     fid.close()
 
 ############################
