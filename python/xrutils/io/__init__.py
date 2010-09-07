@@ -24,3 +24,5 @@ from .edf import EDFFile
 from .spectra import Spectra
 
 from .panalytical_xml import XRDMLFile
+
+from .cif import CIFFile

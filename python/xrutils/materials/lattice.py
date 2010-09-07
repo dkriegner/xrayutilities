@@ -603,5 +603,32 @@ def NaumanniteLattice(aa,ab,a,b,c):
     return l
     #}}}1
 
+def CubicFm3mBaF2(aa,ab,a):
+    #{{{1
+    #create lattice base: F m 3 m  
+    # American Mineralogist Database: Frankdicksonite  
+    lb = LatticeBase()
+    lb.append(aa,[0.,0.,0.])
+    lb.append(aa,[0.,0.5,0.5])
+    lb.append(aa,[0.5,0.,0.5])
+    lb.append(aa,[0.5,0.5,0.])
 
+    lb.append(ab,[0.25,0.25,0.25])
+    lb.append(ab,[0.25,0.75,0.75])
+    lb.append(ab,[0.75,0.25,0.75])
+    lb.append(ab,[0.75,0.75,0.25])
+    lb.append(ab,[0.25,0.75,0.25])
+    lb.append(ab,[0.25,0.25,0.75])
+    lb.append(ab,[0.75,0.75,0.75])
+    lb.append(ab,[0.75,0.25,0.25])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
 

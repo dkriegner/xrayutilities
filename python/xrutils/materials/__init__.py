@@ -19,6 +19,7 @@ from .lattice import Hexagonal6HLattice
 from .lattice import QuartzLattice
 from .lattice import TetragonalIndiumLattice
 from .lattice import TrigonalR3mh
+from .lattice import CubicFm3mBaF2
 
 from . import elements
 from .material import Si
@@ -33,6 +34,7 @@ from .material import PbTe
 from .material import CdTe
 from .material import PbSe
 from .material import GaN
+from .material import BaF2
 from .material import V
 from .material import VO2_Rutile
 from .material import VO2_Baddeleyite
