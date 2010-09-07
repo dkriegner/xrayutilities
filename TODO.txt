@@ -1,6 +1,11 @@
 To Do
 -----
 
+3.09.2010
+
+DK: from the refractive index the angle for total reflection for GID can be
+calculated. This should be implemented somewhere.
+
 27.08.2010
 
 DK: add support for a real coplanar diffraction experiment class and a second

@@ -6,31 +6,38 @@ Installing {\tt xrutils} is a three steps process
 \item build and install the {\tt xrutils} C library
 \item install the Python module
 \end{enumerate}
-All steps are described in detail in this chapter.
+All steps are described in detail in this chapter. The package can be installed on Linux, Mac OS X and Microsoft Windows, however it is only tested on Linux/Unix platforms. Due to the lack of an package manager the installation on MS Windows platforms is cumbersome.
 
 \section{Required third party software}
 To keep the coding effort as small as possible {\tt xrutils} depends on a 
 large number of third party libraries and Python modules. 
 
-The following C/C++ libraries are needed 
+The needed dependencies are: 
 \begin{description}
+\item[GCC] Gnu Compiler Collection or an compatible C compiler. On windows you most probably should use MinGW or CygWin.
 \item[VTK] the Visualization Toolkit, a large C++ library for 3D data
-visualization
+visualization (optionally)
 \item[HDF5] a versatile binary data format (library is implemented in C).
 Although the library is not called directly, it is needed by the pytables Python
 module (see below).
+\item[Python] the scripting language in which most of {\tt xrutils} code is written in.
+\item[Latex] a typesetting system used to write the documentation of the package (optionally)
+\item[subversion] a version control system used to keep track on the {\tt xrutils} development and at the moment the only way to obtain the sources for installation.
 \end{description}
 
-Additionally, the following Python modules must be installed in order to make 
+Additionally, the following Python modules are needed in order to make 
 {\tt xrutils} work as intended
 \begin{description}
+\item[Scons] a pythonic autotools/make replacement used for building the C library.
+\item[setuptools] a python package installer used for the installation of the {\tt xrutils} Python package.
 \item[Numpy] a Python module providing numerical array objects
 \item[Scipy] a Python module providing standard numerical routines, which is heavily using numpy arrays
 \item[VTK Python bindings] usually contained in the VTK distribution, however,
-on some system the Python bindings must be installed separately 
-\item[Python-Tables] a powerful Python interface to HDF5
+on some system the Python bindings must be installed separately (optionally)
+\item[Python-Tables] a powerful Python interface to HDF5. On windows you need to install numexpr as PyTables depends on this package.
 \item[Matplotlib] a Python module for high quality 1D and 2D plotting
-\item[pyvtk] reading and writing legacy VTK files
+\item[pyvtk] reading and writing legacy VTK files (optionally)
+\item[IPython] although not a dependency of {\tt xrutils} the IPython shell is perfectly suited for the interactive use of the {\tt xrutils} python package.
 \end{description}
 After installing all required packages you can continue with installing and
 building the C library.
@@ -61,7 +68,7 @@ system where to look for shared libraries. However, on Windows systems, for
 instance, no such facility exists and therefore, relying on such mechanisms
 would make the installation process highly platform dependent. 
 
-The documentation can be build with 
+The documentation can be built with 
 \begin{verbatim}
 >scons doc
 \end{verbatim}
@@ -101,5 +108,6 @@ your {\tt PYTHONPATH} environment variable by
 \begin{verbatim}
 >export PYTHONPATH=$PYTHONPATH:<local install path>/lib/python
 \end{verbatim}
-on a terminal. Or, to make this configuration persistent append this line to
-your local {\tt .bashrc} file in your home directory.
+on a Unix/Linux terminal. Or, to make this configuration persistent append this line to
+your local {\tt .bashrc} file in your home directory. On MS Windows you would like to create a environment variable in the 
+system preferences under system in the advanced tab.
