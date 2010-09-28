@@ -412,7 +412,7 @@ def BaddeleyiteLattice(aa,ab,a,b,c,beta,deg=True):
     return l
     #}}}1
 
-def WurtziteLattice(aa,ab,a,c):
+def WurtziteLattice(aa,ab,a,c,u=3/8.):
     #{{{1
     #create lattice base: data from laue atlas (hexagonal ZnS)
     # P63mc; aa=4e,ab=4e  
@@ -420,8 +420,8 @@ def WurtziteLattice(aa,ab,a,c):
     lb.append(aa,[0.,0.,0.])
     lb.append(aa,[1/3.,2/3.,0.5])
     
-    lb.append(ab,[0.,0,3/8.])
-    lb.append(ab,[1/3.,2/3.,3/8.+0.5])
+    lb.append(ab,[0.,0,u])
+    lb.append(ab,[1/3.,2/3.,u+0.5])
 
     #create lattice vectors
     a1 = numpy.array([a,0.,0.],dtype=numpy.double)
@@ -432,20 +432,20 @@ def WurtziteLattice(aa,ab,a,c):
     return l
     #}}}1
 
-def Hexagonal4HLattice(aa,ab,a,c):
+def Hexagonal4HLattice(aa,ab,a,c,u=3/16.,v1=1/4.,v2=7/16.):
     #{{{1
     #create lattice base: data from laue atlas (hexagonal ZnS) + brainwork by B. Mandl and D. Kriegner
     # ABAC
     lb = LatticeBase()
     lb.append(aa,[0.,0.,0.]) # A
-    lb.append(aa,[1/3.,2/3.,0.25]) # B
-    lb.append(aa,[0.,0.,0.5]) # A
-    lb.append(aa,[2/3.,1/3.,0.75]) # C
+    lb.append(aa,[1/3.,2/3.,v1]) # B
+    lb.append(aa,[2/3.,1/3.,0.5]) # C
+    lb.append(aa,[0.,0.,0.5+v1]) # A
     
-    lb.append(ab,[0.,0.,0.+3/16.]) # A
-    lb.append(ab,[1/3.,2/3.,0.25+3/16.]) # B
-    lb.append(ab,[0.,0.,0.5+3/16.]) # A
-    lb.append(ab,[2/3.,1/3.,0.75+3/16.]) # C
+    lb.append(ab,[0.,0.,u]) # A
+    lb.append(ab,[1/3.,2/3.,v2]) # B
+    lb.append(ab,[2/3.,1/3.,0.5+u]) # C
+    lb.append(ab,[0.,0.,0.5+v2]) # A
 
     #create lattice vectors
     a1 = numpy.array([a,0.,0.],dtype=numpy.double)
