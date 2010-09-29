@@ -8,6 +8,7 @@ import os.path
 
 from . import __path__
 from . import database
+from .. import math
 
 _db = database.DataBase(os.path.join(__path__[0],"data","test.db"))
 _db.Open()
@@ -223,10 +224,12 @@ class Lattice(object):
 
     def __str__(self):
         ostr = ""
-        ostr += "a1 = (%f %f %f)\n" %(self.a1[0],self.a1[1],self.a1[2])
-        ostr += "a2 = (%f %f %f)\n" %(self.a2[0],self.a2[1],self.a2[2])
-        ostr += "a3 = (%f %f %f)\n" %(self.a3[0],self.a3[1],self.a3[2])
-        
+        ostr += "a1 = (%f %f %f), %f\n" %(self.a1[0],self.a1[1],self.a1[2],math.VecNorm(self.a1))
+        ostr += "a2 = (%f %f %f), %f\n" %(self.a2[0],self.a2[1],self.a2[2],math.VecNorm(self.a2))
+        ostr += "a3 = (%f %f %f), %f\n" %(self.a3[0],self.a3[1],self.a3[2],math.VecNorm(self.a3))
+        ostr += "alpha = %f, beta = %f, gamma = %f\n" %(math.VecAngle(self.a2,self.a3,deg=True), \
+                math.VecAngle(self.a1,self.a3,deg=True),math.VecAngle(self.a1,self.a2,deg=True))
+
         if self.base:
             ostr += "Lattice base:\n"
             ostr += self.base.__str__()

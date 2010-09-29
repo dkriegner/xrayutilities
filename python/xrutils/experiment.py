@@ -1037,7 +1037,7 @@ class HXRD(Experiment):
     def Q2Ang(self,*Q,**keyargs):
         #{{{2
         """
-        Convert a reciprocal space vector Q to scattering angles.
+        Convert a reciprocal space vector Q to COPLANAR scattering angles.
         The keyword argument trans determines whether Q should be transformed 
         to the experimental coordinate frame or not. 
 
@@ -1114,13 +1114,15 @@ class HXRD(Experiment):
             qa = math.VecNorm(qvec)
             tth = 2.*numpy.arcsin(qa/2./self.k0)
 
-            #calculation of the delta angle
+            #calculation of the sample azimuth phi
             phi = numpy.arctan(qvec[0]/qvec[1])
             if numpy.isnan(phi):
                 phi = 0 
             
-            om1 = numpy.arcsin(qvec[1]/qa/numpy.cos(phi))+0.5*tth
-            om2 = numpy.arcsin(qvec[0]/qa/numpy.sin(phi))+0.5*tth
+            #om1 = numpy.arcsin(qvec[1]/qa/numpy.cos(phi))+0.5*tth # what do this formulas calculate?
+            #om2 = numpy.arcsin(qvec[0]/qa/numpy.sin(phi))+0.5*tth
+            om1 = tth/2. - numpy.arccos(qvec[2]/qa)
+            om2 = tth/2. + numpy.arccos(qvec[2]/qa)
             if numpy.isnan(om1):
                 om = om2
             elif numpy.isnan(om2):
@@ -1148,6 +1150,127 @@ class HXRD(Experiment):
         #}}}2
     #}}}1
 
+class NonCOP(Experiment):
+    #{{{1
+    """
+    class describing high angle x-ray diffraction experiments
+    the class helps with calculating the angles of Bragg reflections
+    as well as helps with analyzing measured data for NON-COPLANAR measurements,
+    where the tilt is used to align asymmetric peaks, like in the case of a polefigure
+    measurement.
+
+    the class describes a four circle (omega,twotheta) goniometer to 
+    help with x-ray diffraction experiments. Linear and area detectors can be treated as
+    described in "help self.Ang2Q"
+    """
+    def __init__(self,idir,ndir,**keyargs):
+        #{{{2
+        """
+        initialization routine for the NonCOP Experiment class
+        
+        Parameters
+        ----------
+        same as for the Experiment base class
+
+        """
+        Experiment.__init__(self,idir,ndir,**keyargs)
+        
+        # initialize Ang2Q conversion
+        self._A2QConversion = QConversion(['x+','y+','z-'],'x+',[0,1,0],wl=self._wl) # 3S+1D goniometer (as in the MRD)
+        self.Ang2Q = self._A2QConversion
+
+        #}}}2
+
+    def Q2Ang(self,*Q,**keyargs):
+        #{{{2
+        """
+        Convert a reciprocal space vector Q to NON-COPLANAR scattering angles.
+        The keyword argument trans determines whether Q should be transformed 
+        to the experimental coordinate frame or not. 
+
+        Parameters
+        ----------
+        Q:          a list, tuple or numpy array of shape (3) with 
+                    q-space vector components
+                    or 3 separate lists with qx,qy,qz
+
+        optional keyword arguments:
+        trans:      True/False apply coordinate transformation on Q (default True)
+        deg:        True/Flase (default True) determines if the
+                    angles are returned in radians or degree
+
+        Returns
+        -------
+        a numpy array of shape (4) with four scattering angles which are
+        [chi,phi,omega,twotheta]
+        chi:        sample tilt
+        phi:        sample azimuth
+        omega:      sample rocking angle
+        twotheta:   scattering angle (detector)
+        """
+
+        # collect the q-space input
+        if len(Q)<3:
+            Q = Q[0]
+            if len(Q)<3:
+                raise IndexError,"need 3 q-space vector componnents"
+        
+        if isinstance(Q,(list,tuple)):
+            q = numpy.array(Q,dtype=numpy.double)
+        elif isinstance(Q,numpy.ndarray):
+            q = Q
+        else:
+            raise TypeError("Q vector must be a list, tuple or numpy array")
+        
+        # reshape input to have the same q array for all possible
+        # types of different input
+        if len(q.shape) != 2:
+            q = q.reshape(3,1)
+
+        if keyargs.has_key('trans'):
+            trans = keyargs['trans']
+        else: 
+            trans = True
+        
+        if keyargs.has_key('deg'):
+            deg = keyargs['deg']
+        else:
+            deg = True
+        
+        angle = numpy.zeros((4,q.shape[1]))
+        for i in range(q.shape[1]):
+            qvec = q[:,i]
+
+            if trans:
+                qvec = self.transform(qvec)
+
+            #print qvec # need verbosity handling for such output
+
+            qa = math.VecNorm(qvec)
+            tth = 2.*numpy.arcsin(qa/2./self.k0)
+            om = tth/2.
+
+            #calculation of the sample azimuth
+            phi = numpy.arctan(qvec[0]/qvec[1]) - numpy.pi/2. # the sign depends on the phi movement direction
+            if numpy.isnan(phi):
+                phi = 0 
+            
+            chi = numpy.arccos(qvec[2]/qa)
+
+            angle[0,i] = chi
+            angle[1,i] = phi
+            angle[2,i] = om
+            angle[3,i] = tth
+
+        if q.shape[1]==1:
+            angle = angle.flatten()
+
+        if deg:
+            return numpy.degrees(angle)
+        else:
+            return angle
+        #}}}2
+    #}}}1
 
 class GID(Experiment):
     #{{{1
