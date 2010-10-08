@@ -1,16 +1,15 @@
 To Do
 -----
 
+29.09.2010
+
+DK: the experiment classes should calculate the correct azimuth, so far the
+sign can be wrong, this needs improvement
+
 3.09.2010
 
 DK: from the refractive index the angle for total reflection for GID can be
 calculated. This should be implemented somewhere.
-
-27.08.2010
-
-DK: add support for a real coplanar diffraction experiment class and a second
-class for non coplanar diffraction which uses chi and phi as additional
-angles
 
 17.08.2010
 discussion Eugen, Dominik

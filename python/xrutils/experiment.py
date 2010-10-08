@@ -781,7 +781,7 @@ class Experiment(object):
         #test the given direction to be not parallel and warn if not perpendicular
         if(norm(numpy.cross(self.idir,self.ndir))<_epsilon):
             raise ValueError("given inplane direction is parallel to normal direction, they must be linear independent!")
-        if(numpy.dot(self.idir,self.ndir)> _epsilon):
+        if(numpy.abs(numpy.dot(self.idir,self.ndir))> _epsilon):
             self.idir = numpy.cross(numpy.cross(self.ndir,self.idir),self.ndir)
             self.idir = self.idir/norm(self.idir)
             warnings.warn("Experiment: given inplane direction is not perpendicular to normal direction\n -> Experiment class uses the following direction with the same azimuth:\n %s" %(' '.join(map(str,numpy.round(self.idir,3)))))
@@ -994,6 +994,33 @@ class HXRD(Experiment):
         return q
         #}}}2
 
+    def Ang2Q(self,om,tt,**kwargs):
+        """
+        angular to momentum space conversion for a point detector. Also see
+        help HXRD.Ang2Q for procedures which treat line and area detectors
+
+        Parameters
+        ----------
+        om,tt:      sample and detector angles as numpy array, lists or Scalars
+                    must be given. all arguments must have the same shape or 
+                    length
+
+        **kwargs:   optional keyword arguments
+            delta:  giving delta angles to correct the given ones for misalignment
+                    delta must be an numpy array or list of length 2.
+                    used angles are than om,tt - delta
+            wl:     x-ray wavelength in angstroem (default: self._wl)
+            deg:    flag to tell if angles are passed as degree (default: True)
+
+        Returns
+        -------
+        reciprocal space positions as numpy.ndarray with shape ( * , 3 )
+        where * corresponds to the number of points given in the input
+
+        """
+        # dummy function to have some documentation string available
+        pass
+
     def _Ang2Q(self,om,tth,delta,deg=True,dom=0.,dtth=0.,ddel=0.):
         #{{{2
         """
@@ -1115,7 +1142,7 @@ class HXRD(Experiment):
             tth = 2.*numpy.arcsin(qa/2./self.k0)
 
             #calculation of the sample azimuth phi
-            phi = numpy.arctan(qvec[0]/qvec[1])
+            phi = numpy.arctan2(qvec[0],qvec[1])
             if numpy.isnan(phi):
                 phi = 0 
             
@@ -1251,7 +1278,7 @@ class NonCOP(Experiment):
             om = tth/2.
 
             #calculation of the sample azimuth
-            phi = numpy.arctan(qvec[0]/qvec[1]) - numpy.pi/2. # the sign depends on the phi movement direction
+            phi = numpy.arctan2(qvec[0],qvec[1]) - numpy.pi/2. # the sign depends on the phi movement direction
             if numpy.isnan(phi):
                 phi = 0 
             

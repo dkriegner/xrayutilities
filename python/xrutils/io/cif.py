@@ -126,6 +126,7 @@ class CIFFile(object):
             x = a[1][0]
             y = a[1][1]
             z = a[1][2]
+            el = re.sub(r"([1-9])",r"",a[0])
             for symop in self.symops:
                 exec("pos = numpy.array("+ symop+ ")")
                 # check that position is within unit cell
@@ -137,7 +138,7 @@ class CIFFile(object):
                         unique = False
                 if unique:
                     unique_pos.append(pos)
-            exec("element = materials.elements."+a[0])
+            exec("element = materials.elements."+el)
             self.unique_positions.append((element, unique_pos))
         #}}}
 
