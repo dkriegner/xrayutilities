@@ -9,6 +9,7 @@ provide functions for normalizing intensities for
  * count time
  * absorber (user-defined function)
  * monitor
+ * flatfield correction
 """
 
 import numpy
@@ -160,6 +161,8 @@ class IntensityNormalizer(object):
             av_mon: average monitor value (default: data[mon].mean())
             absfun: absorber correction function to be used as in
                     absorber_corrected_intensity = data[det]*absfun(data)
+            flatfield: flatfield of the detector; shape must be the same as
+                       data[det], and is only applied for MCA detectors
 
         Examples
         --------
@@ -188,6 +191,11 @@ class IntensityNormalizer(object):
             self._setabsfun(keyargs['absfun'])
         else:
             self._absfun = None
+
+        if keyargs.has_key('flatfield'):
+            self._setflatfield(keyargs['flatfield'])
+        else:
+            self._flatfield = None
         #}}}2
 
     def _getdet(self):
@@ -310,11 +318,37 @@ class IntensityNormalizer(object):
             raise TypeError("absfun must be of type function or None")
         #}}}2
 
+    def _getflatfield(self):
+        #{{{2
+        """
+        flatfield property handler
+        returns the current set flatfield of the detector
+        or None if not set
+        """
+        return self._flatfield
+        #}}}2
+
+    def _setflatfield(self,flatf):
+        #{{{2
+        """
+        flatfield property handler
+        sets the flatfield of the detector
+        """
+        if isinstance(flatf,(list,tuple,numpy.ndarray)):
+            self._flatfield = numpy.array(flatf,dtype=numpy.float)
+            self._flatfieldav = numpy.mean(self._flatfield[self_flatfield.nonzero()])
+        elif isinstance(flatf,type(None)):
+            self._flatfield = None
+        else: 
+            raise TypeError("flatfield must be of type list,tuple,numpy.ndarray or None")
+        #}}}2
+
     det = property(_getdet,_setdet)
     time = property(_gettime,_settime)
     mon = property(_getmon,_setmon)
     avmon = property(_getavmon,_setavmon)
     absfun = property(_getabsfun,_setabsfun)
+    flatfield = property(_getflatfield,_setflatfield)
 
     def __call__(self,data):
         #{{{2
@@ -323,11 +357,11 @@ class IntensityNormalizer(object):
 
         Parameter
         ---------
-        data: data object from xrutils.io classes (numpy.recarray)
+         data: data object from xrutils.io classes (numpy.recarray)
 
         Returns
         -------
-        corrint: corrected intensity as numpy.array of the same shape as data[det]
+         corrint: corrected intensity as numpy.ndarray of the same shape as data[det]
         """
         corrint = numpy.zeros(data[self._det].shape,dtype=numpy.float)
         
@@ -365,6 +399,10 @@ class IntensityNormalizer(object):
             corrint = data[self._det]*c
         elif len(data[self._det].shape) == 2:
             corrint = data[self._det]*c[:,numpy.newaxis]
+            if self._flatfield:
+                if self._flatfield.shape != data[self._det].shape:
+                    raise ValueError("data[det] must have the same shape as flatfield")
+                corrint = corrint/self._flatfield*self._flatfieldav
         else:
             raise TypeError("data[det] must be an array of dimension one or two")
 
