@@ -443,12 +443,12 @@ def Hexagonal4HLattice(aa,ab,a,c,u=3/16.,v1=1/4.,v2=7/16.):
     lb.append(aa,[0.,0.,0.]) # A
     lb.append(aa,[1/3.,2/3.,v1]) # B
     lb.append(aa,[2/3.,1/3.,0.5]) # C
-    lb.append(aa,[0.,0.,0.5+v1]) # A
+    lb.append(aa,[1/3.,2/3.,0.5+v1]) # B
     
     lb.append(ab,[0.,0.,u]) # A
     lb.append(ab,[1/3.,2/3.,v2]) # B
     lb.append(ab,[2/3.,1/3.,0.5+u]) # C
-    lb.append(ab,[0.,0.,0.5+v2]) # A
+    lb.append(ab,[1/3.,2/3.,0.5+v2]) # B
 
     #create lattice vectors
     a1 = numpy.array([a,0.,0.],dtype=numpy.double)
