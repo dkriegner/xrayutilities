@@ -336,7 +336,8 @@ class IntensityNormalizer(object):
         """
         if isinstance(flatf,(list,tuple,numpy.ndarray)):
             self._flatfield = numpy.array(flatf,dtype=numpy.float)
-            self._flatfieldav = numpy.mean(self._flatfield[self_flatfield.nonzero()])
+            self._flatfieldav = numpy.mean(self._flatfield[self._flatfield.nonzero()])
+            self._flatfield[self.flatfield<1.e-5] = 1.0
         elif isinstance(flatf,type(None)):
             self._flatfield = None
         else: 
@@ -399,10 +400,10 @@ class IntensityNormalizer(object):
             corrint = data[self._det]*c
         elif len(data[self._det].shape) == 2:
             corrint = data[self._det]*c[:,numpy.newaxis]
-            if self._flatfield:
-                if self._flatfield.shape != data[self._det].shape:
-                    raise ValueError("data[det] must have the same shape as flatfield")
-                corrint = corrint/self._flatfield*self._flatfieldav
+            if self._flatfield!=None:
+                if self._flatfield.shape[0] != data[self._det].shape[1]:
+                    raise ValueError("data[det] second dimension must have the same length as flatfield")
+                corrint = corrint/self._flatfield[numpy.newaxis,:]*self._flatfieldav
         else:
             raise TypeError("data[det] must be an array of dimension one or two")
 

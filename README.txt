@@ -12,8 +12,17 @@ Installing xrutils is a two step process
 1.) build and install the C-library libxrutils.so
 2.) install the python module
 
+Obtaining the source code
+-------------------------
+
+So far this is only possible using the svn repository on brewster, ask Eugen
+for information how to access the source code. 
+No tarball releases were done so far.
+
 Building and installing the C library
 -------------------------------------
+
+Open a terminal and navigate to the source folder of xrutils (trunk).
 xrutils uses SCons to build and install C code. Installation
 of libxrutils.so requires two steps
 -> compile the library by simply typing 
@@ -64,3 +73,22 @@ ways how to do this:
    import sys
    sys.path.append("path to the xrutils package")
    import xrutils
+
+UPDATE
+======
+
+if you already installed xrutils you can update it by navigating into its
+source folder (trunk) and obtain the new sources by
+
+ $> svn update
+
+if only python files were updated you only need to perform the installation
+of the python package using
+ 
+ $> python setup.py install --home=<install path>
+
+if any c-code changed during the update you also need to rebuild the c-library
+  
+ $>scons
+ $>scons install --prefix=<path to install directory>
+

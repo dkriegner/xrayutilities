@@ -788,7 +788,7 @@ class Experiment(object):
 
         #set the coordinate transform for the azimuth used in the experiment
         self.scatplane = math.VecUnit(numpy.cross(self.ndir,self.idir))
-        self.transform = math.CoordinateTransform(self.scatplane,self.idir,self.ndir)
+        self._transform = math.CoordinateTransform(self.scatplane,self.idir,self.ndir)
        
         # initialize Ang2Q conversion
         self._A2QConversion = QConversion('x+','x+',[0,1,0]) # 1S+1D goniometer  
@@ -861,7 +861,7 @@ class Experiment(object):
             raise TypeError("Inplane direction must be list or numpy array")
 
         v1 = numpy.cross(self.ndir,self.idir)
-        self.transform = math.CoordinateTransform(v1,self.idir,self.ndir)
+        self._transform = math.CoordinateTransform(v1,self.idir,self.ndir)
         #}}}2
 
     def _get_inplane_direction(self):
@@ -877,7 +877,7 @@ class Experiment(object):
             raise TypeError("Surface normal must be list or numpy array")
 
         v1 = numpy.cross(self.ndir,self.idir)
-        self.transform = math.CoordinateTransform(v1,self.idir,self.ndir)
+        self._transform = math.CoordinateTransform(v1,self.idir,self.ndir)
         #}}}2
 
     def _get_normal_direction(self):
@@ -887,7 +887,7 @@ class Experiment(object):
         pass
 
     def Transform(self,v):
-        return self.transform(v)
+        return self._transform(v)
 
 # funcionality is moved to xrutils.vis
 # this comment can be removed in future versions
@@ -1134,7 +1134,7 @@ class HXRD(Experiment):
             qvec = q[:,i]
 
             if trans:
-                qvec = self.transform(qvec)
+                qvec = self.Transform(qvec)
 
             #print qvec # need verbosity handling for such output
 
@@ -1269,7 +1269,7 @@ class NonCOP(Experiment):
             qvec = q[:,i]
 
             if trans:
-                qvec = self.transform(qvec)
+                qvec = self.Transform(qvec)
 
             #print qvec # need verbosity handling for such output
 
@@ -1366,7 +1366,7 @@ class GID(Experiment):
             raise TypeError("Q vector must be a list or numpy array")
 
         if trans:
-            q = self.transform(q)
+            q = self.Transform(q)
         
         # check if reflection is inplane
         if numpy.abs(q[2]) >= 0.001:
