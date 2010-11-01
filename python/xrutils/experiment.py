@@ -995,6 +995,7 @@ class HXRD(Experiment):
         #}}}2
 
     def Ang2Q(self,om,tt,**kwargs):
+        #{{{2
         """
         angular to momentum space conversion for a point detector. Also see
         help HXRD.Ang2Q for procedures which treat line and area detectors
@@ -1019,13 +1020,18 @@ class HXRD(Experiment):
 
         """
         # dummy function to have some documentation string available
+        # the real function is generated dynamically in the __init__ routine 
         pass
+        #}}}2
 
+    # next function is deprecated will be removed soon
     def _Ang2Q(self,om,tth,delta,deg=True,dom=0.,dtth=0.,ddel=0.):
         #{{{2
         """
-        deprecated conversion of angular into Q-space positions. see Ang2Q 
+        DEPRECATED conversion of angular into Q-space positions. see Ang2Q 
         QConversion object for more versatile Ang2Q routines
+
+        function will be removed soon
 
         Parameters
         ----------
@@ -1062,7 +1068,7 @@ class HXRD(Experiment):
         #}}}2
 
     def Q2Ang(self,*Q,**keyargs):
-        #{{{2
+            #{{{2
         """
         Convert a reciprocal space vector Q to COPLANAR scattering angles.
         The keyword argument trans determines whether Q should be transformed 
@@ -1082,6 +1088,16 @@ class HXRD(Experiment):
                     "hi_lo" high incidence-low exit
                     "lo_hi" low incidence - high exit
                     default: self.geometry
+        refrac:     boolean to determine if refraction is taken into account
+                    default: False
+                    if True then also a material must be given
+        mat:        Material object; needed to obtain its optical properties for
+                    refraction correction, otherwise not used
+        fi,fd:      if refraction correction is applied one can optionally specify
+                    the facet through which the beam enters (fi) and exits (fd)
+                    fi, fd must be the surface normal vectors (not transformed & 
+                    not necessarily normalized). If omitted the normal direction 
+                    of the experiment is used.
 
         Returns
         -------
@@ -1129,6 +1145,40 @@ class HXRD(Experiment):
         else:
             deg = True
         
+        if keyargs.has_key('mat'): # material for optical properties
+            mat = keyargs['mat']
+        else:
+            mat = None
+
+        if keyargs.has_key('refrac'):
+            refrac = keyargs['refrac']
+            if refrac: # check if material is available
+                if mat==None: raise AttributeError("HXRD.Q2Ang: keyword argument 'mat' must be set when 'refrac' is set to True!")
+        else:
+            refrac = False
+
+        if keyargs.has_key('fi'): # incidence facet
+            fi = keyargs['fi']
+        else:
+            fi = self.ndir
+        fi = self.Transform(fi)
+
+        if keyargs.has_key('fd'): # exit facet
+            fd = keyargs['fd']
+        else:
+            fd = self.ndir
+        fd = self.Transform(fd)
+
+        # set parameters for the calculation
+        z = self.Transform(self.ndir) # z
+        y = self.Transform(self.idir) # y 
+        x = self.Transform(self.scatplane) # x        
+        if refrac: 
+            n = numpy.real(mat.idx_refraction(self.energy)) # index of refraction
+            k = self.k0*n
+        else: k = self.k0
+
+        # start calculation for each given Q-point
         angle = numpy.zeros((3,q.shape[1]))
         for i in range(q.shape[1]):
             qvec = q[:,i]
@@ -1139,29 +1189,43 @@ class HXRD(Experiment):
             #print qvec # need verbosity handling for such output
 
             qa = math.VecNorm(qvec)
-            tth = 2.*numpy.arcsin(qa/2./self.k0)
+            tth = 2.*numpy.arcsin(qa/2./k)
 
             #calculation of the sample azimuth phi
             phi = numpy.arctan2(qvec[0],qvec[1])
             if numpy.isnan(phi):
                 phi = 0 
             
-            #om1 = numpy.arcsin(qvec[1]/qa/numpy.cos(phi))+0.5*tth # what do this formulas calculate?
-            #om2 = numpy.arcsin(qvec[0]/qa/numpy.sin(phi))+0.5*tth
-            om1 = tth/2. - numpy.arccos(qvec[2]/qa)
-            om2 = tth/2. + numpy.arccos(qvec[2]/qa)
-            if numpy.isnan(om1):
-                om = om2
-            elif numpy.isnan(om2):
-                om = om1
-            else:
-                om = om1
+            if geom == 'hi_lo':
+                om = tth/2. + math.VecAngle(z,qvec) # +: high incidence geometry
+            else: 
+                om = tth/2. - math.VecAngle(z,qvec) # -: low incidence geometry
+        
+            # refraction correction at incidence and exit facet
+            if refrac:
+                beta = tth - om
 
-            #have to take now the scattering geometry into account
-            if(geom=="hi_lo" and om<tth/2.):
-                om = tth-om
-            elif(geom=="lo_hi" and om>tth/2.):
-                om = tth-om
+                ki = k * numpy.array([0.,numpy.cos(om),-numpy.sin(om)],dtype=numpy.double)
+                kd = k * numpy.array([0.,numpy.cos(beta),numpy.sin(beta)],dtype=numpy.double)
+
+                # refraction at incidence facet
+                cosbi = numpy.abs(numpy.dot(fi,ki)/norm(ki))
+                cosb0 = numpy.sqrt(1-n**2*(1-cosbi**2))
+
+                ki0 = self.k0 * ( n*ki/norm(ki) - numpy.sign(numpy.dot(fi,ki)) * (n*cosbi-cosb0)*fi )
+
+                # refraction at exit facet
+                cosbd = numpy.abs(numpy.dot(fd,kd)/norm(kd))
+                cosb0 = numpy.sqrt(1-n**2*(1-cosbd**2))
+
+                kd0 = self.k0 * ( n*kd/norm(kd) - numpy.sign(numpy.dot(fd,kd)) * (n*cosbd-cosb0)*fd )
+
+                # observed goniometer angles
+
+                om = math.VecAngle(y,ki0)
+                tth = math.VecAngle(ki0,kd0)
+                #psi_i = numpy.arcsin(ki0[0]/k0)
+                #psi_d = numpy.arcsin(kd0[0]/k0)
 
             angle[0,i] = phi
             angle[1,i] = om
@@ -1203,9 +1267,39 @@ class NonCOP(Experiment):
         Experiment.__init__(self,idir,ndir,**keyargs)
         
         # initialize Ang2Q conversion
-        self._A2QConversion = QConversion(['x+','y+','z-'],'x+',[0,1,0],wl=self._wl) # 3S+1D goniometer (as in the MRD)
+        self._A2QConversion = QConversion(['x+','y+','z-'],'x+',[0,1,0],wl=self._wl) # 3S+1D goniometer (as in the MRD, omega,chi,phi,theta)
         self.Ang2Q = self._A2QConversion
 
+        #}}}2
+
+    def Ang2Q(self,om,chi,phi,tt,**kwargs):
+        #{{{2
+        """
+        angular to momentum space conversion for a point detector. Also see
+        help NonCOP.Ang2Q for procedures which treat line and area detectors
+
+        Parameters
+        ----------
+        om,chi,phi,tt: sample and detector angles as numpy array, lists or Scalars
+                       must be given. all arguments must have the same shape or 
+                       length
+
+        **kwargs:   optional keyword arguments
+            delta:  giving delta angles to correct the given ones for misalignment
+                    delta must be an numpy array or list of length 4.
+                    used angles are than om,chi,phi,tt - delta
+            wl:     x-ray wavelength in angstroem (default: self._wl)
+            deg:    flag to tell if angles are passed as degree (default: True)
+
+        Returns
+        -------
+        reciprocal space positions as numpy.ndarray with shape ( * , 3 )
+        where * corresponds to the number of points given in the input
+
+        """
+        # dummy function to have some documentation string available
+        # the real function is generated dynamically in the __init__ routine
+        pass
         #}}}2
 
     def Q2Ang(self,*Q,**keyargs):
@@ -1229,10 +1323,10 @@ class NonCOP(Experiment):
         Returns
         -------
         a numpy array of shape (4) with four scattering angles which are
-        [chi,phi,omega,twotheta]
+        [omega,chi,phi,twotheta]
+        omega:      sample rocking angle
         chi:        sample tilt
         phi:        sample azimuth
-        omega:      sample rocking angle
         twotheta:   scattering angle (detector)
         """
 
@@ -1284,9 +1378,9 @@ class NonCOP(Experiment):
             
             chi = numpy.arccos(qvec[2]/qa)
 
-            angle[0,i] = chi
-            angle[1,i] = phi
-            angle[2,i] = om
+            angle[0,i] = om
+            angle[1,i] = chi
+            angle[2,i] = phi
             angle[3,i] = tth
 
         if q.shape[1]==1:

@@ -1,6 +1,11 @@
 To Do
 -----
 
+1.11.2010
+
+DK: definition of a custom Python error which is raised upon a wrong call of a
+function InputError
+
 29.09.2010
 
 DK: the experiment classes should calculate the correct azimuth, so far the
@@ -23,7 +28,7 @@ discussion Eugen, Dominik
   such as the verbosity level of the package, standard wavelength/energy,
   standard angular format (degree, radians)
   In a second step this class should be feeded with values which it reads from
-  a config file (e.g. .xrutils.conf)
+  a config file (e.g. ~/.xrutils.conf)
 * a example/test folder should be created. two possibilities exist for its
   exact purpose:
   * templates of scripts could be hold there for the user
@@ -39,5 +44,3 @@ discussion Eugen, Dominik
   should be added (Examples with pictures of the Seifert, and Rotating anode)
 * the use of the transform method of the experimental class should be unified
 * old/not functioning/not uses code should be removed from trunk
-* Ang2Q help should be added to the experiment classes, via some emtpy   
-  function which is anyhow overwritten during initialization
