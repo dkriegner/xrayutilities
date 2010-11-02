@@ -16,6 +16,7 @@ import numpy
 import ctypes
 
 from . import libxrayutils
+from .exception import InputError
 
 def blockAverage1D(data,Nav):
     #{{{1
@@ -36,7 +37,7 @@ def blockAverage1D(data,Nav):
     """
 
     if not isinstance(data,(numpy.ndarray,list)):
-        raise TypeError("first argument has wrong data type")
+        raise TypeError("first argument data must be of type list or numpy.ndarray")
 
     data = numpy.array(data,dtype=numpy.double)
     data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
@@ -69,7 +70,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
     """
 
     if not isinstance(data2d,(numpy.ndarray)):
-        raise TypeError("first argument has wrong data type")
+        raise TypeError("first argument data2d must be of type numpy.ndarray")
 
     # kwargs
     if kwargs.has_key('roi'):
@@ -114,7 +115,7 @@ def blockAveragePSD(psddata,Nav,**kwargs):
     """
     
     if not isinstance(psddata,(numpy.ndarray)):
-        raise TypeError("first argument has wrong data type")
+        raise TypeError("first argument psddata must be of type numpy.ndarray")
 
     # kwargs
     if kwargs.has_key('roi'):
@@ -217,7 +218,7 @@ class IntensityNormalizer(object):
             self._det = det
         else:
             self._det = None
-            raise TypeError("det must be of type str")
+            raise TypeError("argument det must be of type str")
         #}}}2
 
     def _gettime(self):
@@ -243,7 +244,7 @@ class IntensityNormalizer(object):
         elif isinstance(time,type(None)):
             self._time = None
         else:
-            raise TypeError("time must be of type str, float or None")
+            raise TypeError("argument time must be of type str, float or None")
         #}}}2
 
     def _getmon(self):
@@ -266,7 +267,7 @@ class IntensityNormalizer(object):
         elif isinstance(mon,type(None)):
             self._mon = None
         else: 
-            raise TypeError("mon must be of type str")
+            raise TypeError("argument mon must be of type str")
         #}}}2
 
     def _getavmon(self):
@@ -290,7 +291,7 @@ class IntensityNormalizer(object):
         elif isinstance(avmon,type(None)):
             self._avmon = None
         else: 
-            raise TypeError("avmon must be of type float or None")
+            raise TypeError("argument avmon must be of type float or None")
         #}}}2
 
     def _getabsfun(self):
@@ -311,11 +312,11 @@ class IntensityNormalizer(object):
         if callable(absfun):
             self._absfun = absfun
             if self._absfun.func_code.co_argcount != 1:
-                raise TypeError("absfun must be a function with one argument (data object)")
+                raise TypeError("argument absfun must be a function with one argument (data object)")
         elif isinstance(absfun,type(None)):
             self._absfun = None
         else:
-            raise TypeError("absfun must be of type function or None")
+            raise TypeError("argument absfun must be of type function or None")
         #}}}2
 
     def _getflatfield(self):
@@ -341,7 +342,7 @@ class IntensityNormalizer(object):
         elif isinstance(flatf,type(None)):
             self._flatfield = None
         else: 
-            raise TypeError("flatfield must be of type list,tuple,numpy.ndarray or None")
+            raise TypeError("argument flatfield must be of type list,tuple,numpy.ndarray or None")
         #}}}2
 
     det = property(_getdet,_setdet)
@@ -402,10 +403,10 @@ class IntensityNormalizer(object):
             corrint = data[self._det]*c[:,numpy.newaxis]
             if self._flatfield!=None:
                 if self._flatfield.shape[0] != data[self._det].shape[1]:
-                    raise ValueError("data[det] second dimension must have the same length as flatfield")
+                    raise InputError("data[det] second dimension must have the same length as flatfield")
                 corrint = corrint/self._flatfield[numpy.newaxis,:]*self._flatfieldav
         else:
-            raise TypeError("data[det] must be an array of dimension one or two")
+            raise InputError("data[det] must be an array of dimension one or two")
 
         return corrint
         #}}}2

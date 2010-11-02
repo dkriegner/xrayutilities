@@ -113,7 +113,7 @@ class Transform(object):
             elif isinstance(a,numpy.ndarray):
                 p = a
             else:
-                raise TypeError,"Argument must be a list or numpy array!"
+                    raise TypeError("Argument must be a list or numpy array!")
 
             #matrix product in pure array notation
             if len(p.shape)==1:
@@ -190,21 +190,21 @@ def CoordinateTransform(v1,v2,v3):
     elif isinstance(v1,numpy.ndarray):
         e1 = v1
     else:
-        raise TypeError,"vector must be a list or numpy array"
+        raise TypeError("vector must be a list or numpy array")
     
     if isinstance(v2,list):
         e2 = numpy.array(v2,dtype=numpy.double)
     elif isinstance(v2,numpy.ndarray):
         e2 = v2
     else:
-        raise TypeError,"vector must be a list or numpy array"
+        raise TypeError("vector must be a list or numpy array")
     
     if isinstance(v3,list):
         e3 = numpy.array(v3,dtype=numpy.double)
     elif isinstance(v3,numpy.ndarray):
         e3 = v3
     else:
-        raise TypeError,"vector must be a list or numpy array"
+        raise TypeError("vector must be a list or numpy array")
 
     #normalize base vectors
     e1 = e1/numpy.linalg.norm(e1)

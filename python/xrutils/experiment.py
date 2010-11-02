@@ -19,6 +19,7 @@ from . import math
 from . import materials
 from . import utilities
 from . import libxrayutils
+from .exception import InputError
 
 _epsilon = 1.e-7 # small number used to decide if something can be neglected
 
@@ -69,7 +70,7 @@ class QConversion(object):
                 self.r_i = numpy.array([0,1,0],dtype=numpy.double,order='C')
                 self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         else:
-            raise TypeError("QConversion: invalid type of primary beam direction r_i")
+            raise TypeError("QConversion: invalid type of primary beam direction r_i, must be tuple, list or numpy.ndarray")
 
         # kwargs
         if kwargs.has_key('wl'):
@@ -100,11 +101,11 @@ class QConversion(object):
                 sAxis = list(sampleAxis)
             for circ in sAxis:
                 if not isinstance(circ,str) or len(circ)!=2:
-                    raise ValueError("QConversion: incorrect sample circle syntax")
+                    raise InputError("QConversion: incorrect sample circle type or syntax (%s)" %repr(circ))
                 if not circleSyntax.search(circ):
-                    raise ValueError("QConversion: incorrect sample circle syntax (%s)" %circ)
+                    raise InputError("QConversion: incorrect sample circle syntax (%s)" %circ)
         else: 
-            raise TypeError("Qconversion error: invalid type for sampleAxis")
+            raise TypeError("Qconversion error: invalid type for sampleAxis, must be str, list, or tuple")
         self._sampleAxis = sAxis
         self._sampleAxis_str = ''
         for circ in self._sampleAxis:
@@ -141,11 +142,11 @@ class QConversion(object):
                 dAxis = list(detectorAxis)
             for circ in dAxis:
                 if not isinstance(circ,str) or len(circ)!=2:
-                    raise ValueError("QConversion: incorrect detector circle syntax")
+                    raise InputError("QConversion: incorrect detector circle type or syntax (%s)" %repr(circ))
                 if not circleSyntax.search(circ):
-                    raise ValueError("QConversion: incorrect detector circle syntax (%s)" %circ)
+                    raise InputError("QConversion: incorrect detector circle syntax (%s)" %circ)
         else: 
-            raise TypeError("Qconversion error: invalid type for detectorAxis")
+            raise TypeError("Qconversion error: invalid type for detectorAxis, must be str, list or tuple")
         self._detectorAxis = dAxis
         self._detectorAxis_str = ''
         for circ in self._detectorAxis:
@@ -250,14 +251,14 @@ class QConversion(object):
         if kwargs.has_key('delta'):
             delta = numpy.array(kwargs['delta'],dtype=numpy.double)
             if delta.size != Ncirc:
-                raise ValueError("QConversion: keyword argument delta does not have an appropriate shape")
+                raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
         else:
             delta = numpy.zeros(Ncirc)
         
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array 
         if len(args) != Ncirc:
-            raise Exception("QConversion: wrong amount (%d) of arguments given, \
+            raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
         
         try: Npoints = len(args[0])
@@ -267,7 +268,7 @@ class QConversion(object):
         for i in range(Ns):
             arg = args[i]
             if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the sample coordinates")
+                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
             elif isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
@@ -279,7 +280,7 @@ class QConversion(object):
         for i in range(Ns,Ncirc):
             arg = args[i]
             if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the detector coordinates")
+                raise TypeError("QConversion: invalid type for one of the detector coordinates, must be scalar, list or array")
             elif isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
@@ -343,9 +344,9 @@ class QConversion(object):
         
         # detectorDir
         if not isinstance(detectorDir,str) or len(detectorDir)!=2:
-            raise ValueError("QConversion: incorrect detector direction syntax")
+            raise InputError("QConversion: incorrect detector direction type or syntax (%s)" %repr(detectorDir))
         if not circleSyntax.search(detectorDir):
-            raise ValueError("QConversion: incorrect detector direction syntax (%s)" %detectorDir)
+            raise InputError("QConversion: incorrect detector direction syntax (%s)" %detectorDir)
         self._linear_detdir = detectorDir
         
         self._linear_Nch = int(Nchannel)
@@ -359,7 +360,7 @@ class QConversion(object):
             self._linear_pixwidth = 2*self._linear_distance/numpy.abs(float(chpdeg))*numpy.tan(numpy.radians(0.5))
         else:
             # not all needed values were given 
-            raise Exception("QConversion: not all mandatory arguments were given -> read API doc")
+            raise InputError("QConversion: not all mandatory arguments were given -> read API doc, need distance and pixelwidth or chpdeg")
 
 
         # kwargs
@@ -442,14 +443,14 @@ class QConversion(object):
         if kwargs.has_key('delta'):
             delta = numpy.array(kwargs['delta'],dtype=numpy.double)
             if delta.size != Ncirc:
-                raise ValueError("QConversion: keyword argument delta does not have an appropriate shape")
+                raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
         else:
             delta = numpy.zeros(Ncirc)
         
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array 
         if len(args) != Ncirc:
-            raise Exception("QConversion: wrong amount (%d) of arguments given, \
+            raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
         
         try: Npoints = len(args[0])
@@ -459,7 +460,7 @@ class QConversion(object):
         for i in range(Ns):
             arg = args[i]
             if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the sample coordinates")
+                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
             elif isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
@@ -471,7 +472,7 @@ class QConversion(object):
         for i in range(Ns,Ncirc):
             arg = args[i]
             if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the detector coordinates")
+                raise TypeError("QConversion: invalid type for one of the detector coordinates, must be scalar, list or array")
             elif isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
@@ -548,14 +549,14 @@ class QConversion(object):
      
         # detectorDir
         if not isinstance(detectorDir1,str) or len(detectorDir1)!=2:
-            raise ValueError("QConversion: incorrect detector direction1 syntax")
+            raise InputError("QConversion: incorrect detector direction1 type or syntax (%s)" %repr(detectorDir1))
         if not circleSyntax.search(detectorDir1):
-            raise ValueError("QConversion: incorrect detector direction1 syntax (%s)" %detectorDir1)
+            raise InputError("QConversion: incorrect detector direction1 syntax (%s)" %detectorDir1)
         self._area_detdir1 = detectorDir1
         if not isinstance(detectorDir2,str) or len(detectorDir2)!=2:
-            raise ValueError("QConversion: incorrect detector direction2 syntax")
+            raise InputError("QConversion: incorrect detector direction2 type or syntax (%s)" %repr(detectorDir2))
         if not circleSyntax.search(detectorDir2):
-            raise ValueError("QConversion: incorrect detector direction2 syntax (%s)" %detectorDir2)
+            raise InputError("QConversion: incorrect detector direction2 syntax (%s)" %detectorDir2)
         self._area_detdir2 = detectorDir2
         
         # other nonw keyword arguments 
@@ -575,7 +576,7 @@ class QConversion(object):
             self._area_pwidth2 = 2*self._area_distance/numpy.abs(float(chpdeg2))*numpy.tan(numpy.radians(0.5))
         else:
             # not all needed values were given 
-            raise Exception("Qconversion errror: not all mandatory arguments were given -> read API doc")
+            raise InputError("Qconversion errror: not all mandatory arguments were given -> read API doc")
         
         # kwargs
         if kwargs.has_key('roi'):
@@ -659,14 +660,14 @@ class QConversion(object):
         if kwargs.has_key('delta'):
             delta = numpy.array(kwargs['delta'],dtype=numpy.double)
             if delta.size != Ncirc:
-                raise ValueError("QConversion: keyword argument delta does not have an appropriate shape")
+                raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
         else:
             delta = numpy.zeros(Ncirc)
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array 
         if len(args) != Ncirc:
-            raise Exception("QConversion: wrong amount (%d) of arguments given, \
+            raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
         
         try: Npoints = len(args[0])
@@ -676,7 +677,7 @@ class QConversion(object):
         for i in range(Ns):
             arg = args[i]
             if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the sample coordinates")
+                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
             elif isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
@@ -688,7 +689,7 @@ class QConversion(object):
         for i in range(Ns,Ncirc):
             arg = args[i]
             if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the detector coordinates")
+                raise TypeError("QConversion: invalid type for one of the detector coordinates, must be scalar, list or array")
             elif isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
@@ -780,7 +781,7 @@ class Experiment(object):
         
         #test the given direction to be not parallel and warn if not perpendicular
         if(norm(numpy.cross(self.idir,self.ndir))<_epsilon):
-            raise ValueError("given inplane direction is parallel to normal direction, they must be linear independent!")
+            raise InputError("given inplane direction is parallel to normal direction, they must be linear independent!")
         if(numpy.abs(numpy.dot(self.idir,self.ndir))> _epsilon):
             self.idir = numpy.cross(numpy.cross(self.ndir,self.idir),self.ndir)
             self.idir = self.idir/norm(self.idir)
@@ -956,7 +957,7 @@ class HXRD(Experiment):
             if keyargs['geometry'] in ["hi_lo","lo_hi"]:
                 self.geometry = keyargs['geometry']
             else: 
-                raise ValueError("HXRD: invalid value for the geometry argument given")
+                raise InputError("HXRD: invalid value for the geometry argument given")
         else:
             self.geometry = "hi_lo"
 
@@ -1112,7 +1113,7 @@ class HXRD(Experiment):
         if len(Q)<3:
             Q = Q[0]
             if len(Q)<3:
-                raise IndexError,"need 3 q-space vector componnents"
+                raise InputError("need 3 q-space vector components")
         
         if isinstance(Q,(list,tuple)):
             q = numpy.array(Q,dtype=numpy.double)
@@ -1131,7 +1132,7 @@ class HXRD(Experiment):
             if keyargs['geometry'] in ["hi_lo","lo_hi"]:
                 geom = keyargs['geometry']
             else: 
-                raise ValueError("HXRD: invalid value for the geometry argument given")
+                raise InputError("HXRD: invalid value for the geometry argument given")
         else:
             geom = self.geometry
         
@@ -1153,7 +1154,7 @@ class HXRD(Experiment):
         if keyargs.has_key('refrac'):
             refrac = keyargs['refrac']
             if refrac: # check if material is available
-                if mat==None: raise AttributeError("HXRD.Q2Ang: keyword argument 'mat' must be set when 'refrac' is set to True!")
+                if mat==None: raise InputError("keyword argument 'mat' must be set when 'refrac' is set to True!")
         else:
             refrac = False
 
@@ -1334,7 +1335,7 @@ class NonCOP(Experiment):
         if len(Q)<3:
             Q = Q[0]
             if len(Q)<3:
-                raise IndexError,"need 3 q-space vector componnents"
+                raise InputError("need 3 q-space vector components")
         
         if isinstance(Q,(list,tuple)):
             q = numpy.array(Q,dtype=numpy.double)
@@ -1465,7 +1466,7 @@ class GID(Experiment):
         # check if reflection is inplane
         if numpy.abs(q[2]) >= 0.001:
             print("Q: " + q.__str__())
-            raise Exception("Reflection not reachable in GID geometry")
+            raise InputError("Reflection not reachable in GID geometry")
 
         # calculate angle to inplane reference direction
         aref = numpy.arctan2(q[0],q[1])
@@ -1552,7 +1553,7 @@ class Powder(Experiment):
         if isinstance(mat,materials.Material):
             self.mat = mat
         else:
-            raise TypeError("mat must be an instance of class Material")
+            raise TypeError("mat must be an instance of class xrutils.materials.Material")
 
         self.digits = 5 # number of significant digits, needed to identify equal floats
 

@@ -9,6 +9,7 @@ import os.path
 from . import __path__
 from . import database
 from .. import math
+from ..exception import InputError
 
 _db = database.DataBase(os.path.join(__path__[0],"data","test.db"))
 _db.Open()
@@ -98,14 +99,14 @@ class LatticeBase(list):
 
     def append(self,atom,pos):
         if not isinstance(atom,Atom):           
-            raise TypeError,"atom must be an instance of class Atom"
+            raise TypeError("atom must be an instance of class xrutils.materials.Atom")
             
         if isinstance(pos,list):
             pos = numpy.array(pos,dtype=numpy.double)
         elif isinstance(pos,numpy.ndarray):
             pos = pos
         else:
-            raise TypeError,"Atom position must be array or list!"
+            raise TypeError("Atom position must be array or list!")
 
         list.append(self,(atom,pos))
 
@@ -113,14 +114,14 @@ class LatticeBase(list):
     def __setitem__(self,key,data):
         (atom,pos) = data
         if not isinstance(atom,Atom):
-            raise TypeError,"atom must be an instance of class Atom!"
+            raise TypeError("atom must be an instance of class xrutils.materials.Atom!")
             
         if isinstance(pos,list):
             p = numpy.array(pos,dtype=numpy.double)
         elif isinstance(pos,numpy.ndarray):
             p = pos
         else:
-            raise TypeError,"point must be a list or numpy array of shape (3)"
+            raise TypeError("point must be a list or numpy array of shape (3)")
 
         list.__setitem__(self,key,(atom,p))
 
@@ -149,25 +150,25 @@ class Lattice(object):
         elif isinstance(a1,numpy.ndarray):
             self.a1 = a1
         else:
-            raise TypeError,"a1 must be a list or a numpy array"
+            raise TypeError("a1 must be a list or a numpy array")
 
         if isinstance(a2,list):
             self.a2 = numpy.array(a2,dtype=numpy.double)
         elif isinstance(a1,numpy.ndarray):
             self.a2 = a2
         else:
-            raise TypeError,"a2 must be a list or a numpy array"
+            raise TypeError("a2 must be a list or a numpy array")
         
         if isinstance(a3,list):
             self.a3 = numpy.array(a3,dtype=numpy.double)
         elif isinstance(a3,numpy.ndarray):
             self.a3 = a3
         else:
-            raise TypeError,"a3 must be a list or a numpy array"
+            raise TypeError("a3 must be a list or a numpy array")
             
         if base!=None:
             if not isinstance(base,LatticeBase):
-                raise TypeError,"lattice base must be an instance of class LatticeBase"
+                raise TypeError("lattice base must be an instance of class xrutils.materials.LatticeBase")
             else:
                 self.base = base
         else:
@@ -218,7 +219,7 @@ class Lattice(object):
         if len(args)<3:
             args = args[0]
             if len(args)<3:
-                raise IndexError,"need 3 indices for the lattice point"
+                raise InputError("need 3 indices for the lattice point")
 
         return args[0]*self.a1+args[1]*self.a2+args[2]*self.a3
 

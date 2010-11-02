@@ -119,7 +119,7 @@ class DataBase(object):
         elif isinstance(parameters,numpy.ndarray):
             p = parameters.astype(numpy.float32)
         else:
-            raise TypeError,"f0 fit parameters must be a list or a numpy array!"
+            raise TypeError("f0 fit parameters must be a list or a numpy array!")
 
         try:
             self.h5file.removeNode(self.h5group,"f0")
@@ -148,14 +148,14 @@ class DataBase(object):
         elif isinstance(en,numpy.ndarray):
             end = en.astype(numpy.float32)
         else:
-            raise TypeError,"energy values must be a list or a numpy array!"
+            raise TypeError("energy values must be a list or a numpy array!")
 
         if isinstance(f1,list):
             f1d = numpy.array(f1,dtype=numpy.float32)
         elif isinstance(f1,numpy.ndarray):
             f1d = f1.astype(numpy.float32)
         else:
-            raise TypeError,"f1 values must be a list or a numpy array!"
+            raise TypeError("f1 values must be a list or a numpy array!")
 
         a = tables.Float32Atom()
         
@@ -193,14 +193,14 @@ class DataBase(object):
         elif isinstance(en,numpy.ndarray):
             end = en.astype(numpy.float32)
         else:
-            raise TypeError,"energy values must be a list or a numpy array!"
+            raise TypeError("energy values must be a list or a numpy array!")
 
         if isinstance(f2,list):
             f2d = numpy.array(f2,dtype=numpy.float32)
         elif isinstance(f2,numpy.ndarray):
             f2d = f2.astype(numpy.float32)
         else:
-            raise TypeError,"f2 values must be a list or a numpy array!"
+            raise TypeError("f2 values must be a list or a numpy array!")
 
         a = tables.Float32Atom()
         

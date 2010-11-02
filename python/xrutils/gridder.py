@@ -32,7 +32,7 @@ class Gridder(object):
 
     def KeepData(self,bool):
         if not bool==True or bool == False:
-            raise TypeError,"Keep Data flag must be a boolan value (True/False)!"
+            raise TypeError("Keep Data flag must be a boolan value (True/False)!")
 
         self.keep_data = bool
 

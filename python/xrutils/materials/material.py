@@ -9,6 +9,7 @@ from . import lattice
 from . import elements
 from .. import math
 from .. import utilities
+from ..exception import InputError
 
 map_ijkl2ij = {"00":0,"11":1,"22":2,
                "12":3,"20":4,"01":5,
@@ -97,7 +98,7 @@ class Material(object):
         elif isinstance(cij,numpy.ndarray):
             self.cij = cij
         else:
-            raise TypeError,"Elastic constants must be a list or numpy array!"
+            raise TypeError("Elastic constants must be a list or numpy array!")
 
         self.name = name
         self.lattice = lat
@@ -110,13 +111,13 @@ class Material(object):
         if name.startswith("c"):
             index = name[1:]
             if len(index)>2:
-                raise AttributeError,"Cij indices must be between 1 and 6"
+                raise AttributeError("Cij indices must be between 1 and 6")
 
             i=int(index[0])
             j=int(index[1])
 
             if i>6 or i<1 or j>6 or j<1:
-                raise AttributeError,"Cij indices must be between 1 and 6"
+                raise AttributeError("Cij indices must be between 1 and 6")
 
             if self.transform:
                 cij = self.transform(self.cij)
@@ -177,7 +178,7 @@ class Material(object):
         if len(hkl)<3:
             hkl = hkl[0]
             if len(hkl)<3:
-                raise IndexError,"need 3 indices for the lattice point"
+                raise InputError("need 3 indices for the lattice point")
 
         p = self.rlattice.GetPoint(hkl[0],hkl[1],hkl[2])
         if self.transform: p = self.transform(p)
@@ -340,7 +341,7 @@ class Material(object):
         elif isinstance(q,numpy.ndarray):
             pass
         else:
-            raise TypeError,"q must be a list or numpy array!"
+            raise TypeError("q must be a list or numpy array!")
            
         if self.lattice.base==None: return 1.
          
@@ -374,14 +375,14 @@ class Material(object):
         elif isinstance(q0,numpy.ndarray):
             q = q0
         else:
-            raise TypeError,"q must be a list or numpy array!"
+            raise TypeError("q must be a list or numpy array!")
             
         if isinstance(en,(list,tuple)):
             en = numpy.array(en,dtype=numpy.double)
         elif isinstance(en,numpy.ndarray):
             pass
         else:
-            raise TypeError,"Energy data must be provided as a list or numpy array!"
+            raise TypeError("Energy data must be provided as a list or numpy array!")
 
         if self.lattice.base==None: return 1.
             
@@ -428,7 +429,7 @@ class Material(object):
         elif isinstance(q,numpy.ndarray):
             pass
         else:
-            raise TypeError,"q must be a list or numpy array!"
+            raise TypeError("q must be a list or numpy array!")
             
         if self.lattice.base==None: return numpy.ones(len(q))
 
@@ -617,10 +618,10 @@ class AlloyAB(Material):
         if isinstance(hkl,(list,tuple,numpy.ndarray)):
             hkl = numpy.array(hkl,dtype=numpy.double)
         else:
-            raise TypeError,"First argument (hkl) must be of type list, tuple or numpy.ndarray"
+            raise TypeError("First argument (hkl) must be of type list, tuple or numpy.ndarray")
         #if not isinstance(exp,xrutils.Experiment):
-        #    raise TypeError,"Third argument (exp) must be an instance of xrutils.Experiment"
-        transform =exp.transform
+        #    raise TypeError("Third argument (exp) must be an instance of xrutils.Experiment")
+        transform =exp.Transform
         ndir =exp.ndir/numpy.linalg.norm(exp.ndir)
 
         if isinstance(sub,Material):
@@ -628,7 +629,7 @@ class AlloyAB(Material):
         elif isinstance(sub,float):
             asub = sub
         else:
-            raise TypeError,"Second argument (sub) must be of type float or an instance of xrutils.materials.Material"
+            raise TypeError("Second argument (sub) must be of type float or an instance of xrutils.materials.Material")
 
         # test if inplane direction of hkl is the same as the one for the experiment otherwise warn the user
         hklinplane = numpy.cross(numpy.cross(exp.ndir,hkl),exp.ndir)
@@ -697,24 +698,23 @@ class AlloyAB(Material):
         if isinstance(q_inp,numpy.ScalarType) and numpy.isfinite(q_inp):
             q_inp = float(q_inp)
         else:
-            raise TypeError,"First argument (q_inp) must be a scalar!"
+            raise TypeError("First argument (q_inp) must be a scalar!")
         if isinstance(q_perp,numpy.ScalarType) and numpy.isfinite(q_perp):
             q_perp = float(q_perp)
         else:
-            raise TypeError,"Second argument (q_perp) must be a scalar!"
+            raise TypeError("Second argument (q_perp) must be a scalar!")
         if isinstance(hkl,(list,tuple,numpy.ndarray)):
             hkl = numpy.array(hkl,dtype=numpy.double)
         else:
-            raise TypeError,"Third argument (hkl) must be of type list, tuple or numpy.ndarray"
+            raise TypeError("Third argument (hkl) must be of type list, tuple or numpy.ndarray")
         if isinstance(sur,(list,tuple,numpy.ndarray)):
             sur = numpy.array(sur,dtype=numpy.double)
         else:
-            raise TypeError,"Fourth argument (sur) must be of type list, tuple or numpy.ndarray"
+            raise TypeError("Fourth argument (sur) must be of type list, tuple or numpy.ndarray")
                   
         # check if reflection is asymmetric
         if numpy.linalg.norm(numpy.cross(self.rlattice.GetPoint(hkl),self.rlattice.GetPoint(sur))) < 1.e-8:
-            # raise costom error
-            raise ReflectionError,"Miller indices of a symmetric reflection were given where an asymmetric reflection is needed"
+            raise InputError("Miller indices of a symmetric reflection were given where an asymmetric reflection is needed")
 
         # calculate lattice constants from reciprocal space positions
         n = self.rlattice.GetPoint(sur)/numpy.linalg.norm(self.rlattice.GetPoint(sur))

@@ -1,16 +1,6 @@
 To Do
 -----
 
-1.11.2010
-
-DK: definition of a custom Python error which is raised upon a wrong call of a
-function InputError
-
-29.09.2010
-
-DK: the experiment classes should calculate the correct azimuth, so far the
-sign can be wrong, this needs improvement
-
 3.09.2010
 
 DK: from the refractive index the angle for total reflection for GID can be
@@ -42,5 +32,4 @@ discussion Eugen, Dominik
   material properties, or suiteable references
   and furthermore details about the configuration of the QConversion class
   should be added (Examples with pictures of the Seifert, and Rotating anode)
-* the use of the transform method of the experimental class should be unified
 * old/not functioning/not uses code should be removed from trunk
