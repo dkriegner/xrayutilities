@@ -56,8 +56,8 @@ except NoOptionError:
     print("Config option clib_path not found indicating that you did not proper install xrutils!\n Look at the README.txt file for installation instructions")
 
 if VERBOSITY >= DEBUG:
-    print("xrutils configuration files: %s" %repr(cfiles))
+    print("XU.config: xrutils configuration files: %s" %repr(cfiles))
     print("xrutils configuration:")
     for (name, value) in xrutilsParser.items("xrutils"):
         print("%s: %s" %(name,value))
-
+    print ("---")

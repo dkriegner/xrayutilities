@@ -67,7 +67,7 @@ class QConversion(object):
             self.r_i = numpy.array(r_i,dtype=numpy.double)
             self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
             if self.r_i.size != 3:
-                print "QConversion: warning invalid primary beam direction given -> using [0,1,0]"
+                print "XU.QConversion: warning invalid primary beam direction given -> using [0,1,0]"
                 self.r_i = numpy.array([0,1,0],dtype=numpy.double,order='C')
                 self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         else:
@@ -889,14 +889,6 @@ class Experiment(object):
     def Transform(self,v):
         return self._transform(v)
 
-# funcionality is moved to xrutils.vis
-# this comment can be removed in future versions
-#    def AlignIntensity(self,data):
-#        pass
-#
-#    def Align2DMatrix(self,data):
-#        return numpy.flipud(numpy.rot90(data))
-
     def TiltAngle(self,q,deg=True):
         #{{{2
         """
@@ -963,7 +955,10 @@ class HXRD(Experiment):
         # initialize Ang2Q conversion
         self._A2QConversion = QConversion('x+','x+',[0,1,0],wl=self._wl) # 1S+1D goniometer 
         self.Ang2Q = self._A2QConversion
-
+        
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.HXRD.__init__: \nEnergy: %s \nGeometry: %s \n%s---" %(self._en,self.geometry,str(self.Ang2Q)))
+            
         #}}}2
 
     def TiltCorr(self,q,ang,deg=False):
@@ -1022,49 +1017,6 @@ class HXRD(Experiment):
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine 
         pass
-        #}}}2
-
-    # next function is deprecated will be removed soon
-    def _Ang2Q(self,om,tth,delta,deg=True,dom=0.,dtth=0.,ddel=0.):
-        #{{{2
-        """
-        DEPRECATED conversion of angular into Q-space positions. see Ang2Q 
-        QConversion object for more versatile Ang2Q routines
-
-        function will be removed soon
-
-        Parameters
-        ----------
-        om:     omega angle
-        tth:    2theta scattering angle
-        delta:  off-plane angle (apart the scattering plane)
-
-        optional keyword arguments:
-        dom:    omega offset
-        dtth:   tth offset
-        ddel:   delta offset
-        deg:    True/Flase (default is True) determines whether 
-                or not input angles are given in degree or radiants
-
-        Returns
-        -------
-        [qx,qy,qz]: array of q-space values
-        """
-        
-        if deg:
-            ltth = numpy.radians(tth-dtth)
-            lom  = numpy.radians(om-dom)
-            ldel = numpy.radians(delta-ddel)
-        else:
-            ltth = tth - dtth
-            lom  = om - dom
-            ldel = delta-ddel
-
-        qx=2.0*self.k0*numpy.sin(ltth*0.5)*numpy.sin(lom-0.5*ltth)*numpy.sin(ldel)
-        qy=2.0*self.k0*numpy.sin(ltth*0.5)*numpy.sin(lom-0.5*ltth)*numpy.cos(ldel)
-        qz=2.0*self.k0*numpy.sin(0.5*ltth)*numpy.cos(lom-0.5*ltth)      
-
-        return [qx,qy,qz]
         #}}}2
 
     def Q2Ang(self,*Q,**keyargs):
@@ -1186,7 +1138,8 @@ class HXRD(Experiment):
             if trans:
                 qvec = self.Transform(qvec)
 
-            #print qvec # need verbosity handling for such output
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.HXRD.Q2Ang: qvec= %s" %repr(qvec)) 
 
             qa = math.VecNorm(qvec)
             tth = 2.*numpy.arcsin(qa/2./k)
@@ -1203,6 +1156,9 @@ class HXRD(Experiment):
         
             # refraction correction at incidence and exit facet
             if refrac:
+                if config.VERBOSITY >= config.DEBUG:
+                    print("XU.HXRD.Q2Ang: consider refraction correction")
+
                 beta = tth - om
 
                 ki = k * numpy.array([0.,numpy.cos(om),-numpy.sin(om)],dtype=numpy.double)
@@ -1233,6 +1189,8 @@ class HXRD(Experiment):
 
         if q.shape[1]==1:
             angle = angle.flatten()
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.HXRD.Q2Ang: [phi,om,tth] = %s" %repr(angle))
 
         if deg:
             return numpy.degrees(angle)
@@ -1365,7 +1323,8 @@ class NonCOP(Experiment):
             if trans:
                 qvec = self.Transform(qvec)
 
-            #print qvec # need verbosity handling for such output
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.HXRD.Q2Ang: qvec= %s" %repr(qvec)) 
 
             qa = math.VecNorm(qvec)
             tth = 2.*numpy.arcsin(qa/2./self.k0)
@@ -1385,6 +1344,8 @@ class NonCOP(Experiment):
 
         if q.shape[1]==1:
             angle = angle.flatten()
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.HXRD.Q2Ang: [phi,om,tth] = %s" %repr(angle))
 
         if deg:
             return numpy.degrees(angle)
@@ -1462,14 +1423,15 @@ class GID(Experiment):
         if trans:
             q = self.Transform(q)
         
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.GID.Q2Ang: q = %s" %repr(q)) 
+        
         # check if reflection is inplane
         if numpy.abs(q[2]) >= 0.001:
-            print("Q: " + q.__str__())
-            raise InputError("Reflection not reachable in GID geometry")
+            raise InputError("Reflection not reachable in GID geometry (Q: %s)" %str(q))
 
         # calculate angle to inplane reference direction
         aref = numpy.arctan2(q[0],q[1])
-        # print("Directions differs by: %5.2f deg" %numpy.degrees(aref))
         
         # calculate scattering angle
         qa = math.VecNorm(q)
@@ -1480,6 +1442,9 @@ class GID(Experiment):
             ang = [numpy.degrees(om),numpy.degrees(tth)]
         else:
             ang = [om,tth]
+
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.GID.Q2Ang: [om,tth] = %s \n difference to inplane reference = %5.2f" %(str(ang),aref) ) 
 
         return ang
         #}}}2
