@@ -11,7 +11,7 @@ import ctypes
 
 from . import config
 
-_library = ctypes.cdll.LoadLibrary(config.clib_path)
+_library = ctypes.cdll.LoadLibrary(config.CLIB_PATH)
 
 # c library gridder functions #{{{1
 ######################################

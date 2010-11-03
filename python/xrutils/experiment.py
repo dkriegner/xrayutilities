@@ -19,6 +19,7 @@ from . import math
 from . import materials
 from . import utilities
 from . import libxrayutils
+from . import config
 from .exception import InputError
 
 _epsilon = 1.e-7 # small number used to decide if something can be neglected
@@ -799,9 +800,7 @@ class Experiment(object):
         if keyargs.has_key("wl"):
             self._set_wavelength(keyargs["wl"])
         else:
-            self._set_wavelength(1.54059292) 
-            # value from the International Tables of Crystallography: Vol C, 2nd Ed.
-            # 1.54059292(45) the value in bracket is the uncertainty of the last digits 
+            self._set_wavelength(config.WAVELENGTH) 
 
         if keyargs.has_key("en"):
             self._set_energy(keyargs["en"])

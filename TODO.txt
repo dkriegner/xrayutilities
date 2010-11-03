@@ -12,8 +12,6 @@ discussion Eugen, Dominik
 * calculation of chi_h should be implemented according to Lugovskaya, Stepanov
   Sov. Phys. Crystallogr. 36(4) 1991
 * include Debye-Waller factor into calculation of the structurefactor
-* a new (alternative) interface for Q2Ang should be developed which includes
-  the possibilty to consider the refractive shift.
 * a config class should be added which handles general configuration options
   such as the verbosity level of the package, standard wavelength/energy,
   standard angular format (degree, radians)

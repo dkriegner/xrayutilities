@@ -4,6 +4,9 @@ xrutils is a package for assisting with x-ray diffraction experiments
 It helps with planning experiments as well as analyzing the data.
 """
 
+# load configuration 
+from . import config
+
 from . import math
 from . import io
 from . import materials

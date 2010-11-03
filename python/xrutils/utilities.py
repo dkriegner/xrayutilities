@@ -4,36 +4,11 @@ which do not fit into one of the other files
 """
 
 import numpy
-import scipy.constants
 
-def lam2en(inp):
-    #{{{
-    """
-    converts the input energy in eV to a wavelength in Angstrom
-    or the input wavelength in Angstrom to an energy in eV
+from . import config
+from .utilities_noconf import *
 
-    Parameter
-    ---------
-     inp : either an energy in eV or an wavelength in Angstrom
-
-    Returns
-    -------
-     float, energy in eV or wavlength in Angstrom
-
-    Examples
-    --------
-     >>> lambda = lam2en(8048)
-     >>> energy = lam2en(1.5406)
-    """
-    #  E(eV) = h*c/(e * lambda(A)) *1e10    
-    #  lambda(A) = h*c/(e * E(eV)) *1e10
-    out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
-
-    return out
-    #}}}
-
-
-def maplog(inte,dynlow = 6,dynhigh =0):
+def maplog(inte,dynlow = "config",dynhigh = "config"):
     #{{{
     """
     clips values smaller and larger as the given bounds and returns the log10
@@ -57,6 +32,11 @@ def maplog(inte,dynlow = 6,dynhigh =0):
      >>> lint = maplog(int,5,2)
     """
     
+    if dynlow == "config":
+        dynlow = config.DYNLOW
+    if dynhigh == "config":
+        dynhigh = config.DYNHIGH
+
     ma = inte.max()*10**(-dynhigh) # upper bound
     mi = inte.max()*10**(-dynlow)  # lower bound
  

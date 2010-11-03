@@ -11,5 +11,7 @@ setup(name="xrutils",
       package_dir={'':'python'},
       packages=["xrutils","xrutils.math","xrutils.vis",
                 "xrutils.io","xrutils.materials"],
-      package_data={"xrutils.materials":[os.path.join("data","*.db")]}
+      package_data={
+          "xrutils":["*.conf"],
+          "xrutils.materials":[os.path.join("data","*.db")]}
       )

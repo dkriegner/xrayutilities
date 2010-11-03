@@ -9,6 +9,7 @@ from . import lattice
 from . import elements
 from .. import math
 from .. import utilities
+from .. import config
 from ..exception import InputError
 
 map_ijkl2ij = {"00":0,"11":1,"22":2,
@@ -186,7 +187,7 @@ class Material(object):
         return p
         #}}}2
 
-    def delta(self,en):
+    def delta(self,en="config"):
         #{{{2
         """
         function to calculate the real deviation of the refractive index from 1 
@@ -194,7 +195,8 @@ class Material(object):
 
         Parameter
         ---------
-         en:    x-ray energy eV
+         en:    x-ray energy eV, 
+                if omitted the value from the xrutils configuration is used 
         
         Returns
         -------
@@ -202,6 +204,10 @@ class Material(object):
         """
 
         r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
+        
+        if en=="config":
+            en = config.ENERGY
+
         lam = utilities.lam2en(en) 
         delta = 0.
         
@@ -213,7 +219,7 @@ class Material(object):
         return delta
         #}}}2
 
-    def beta(self,en):
+    def beta(self,en="config"):
         #{{{2
         """
         function to calculate the imaginary deviation of the refractive index from 1 
@@ -221,7 +227,8 @@ class Material(object):
 
         Parameter
         ---------
-         en:    x-ray energy eV
+         en:    x-ray energy eV,
+                if omitted the value from the xrutils configuration is used 
         
         Returns
         -------
@@ -229,6 +236,9 @@ class Material(object):
         """
 
         r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
+        if en=="config":
+            en = config.ENERGY
+
         lam = utilities.lam2en(en)
         beta = 0.
         
@@ -240,7 +250,7 @@ class Material(object):
         return beta
         #}}}2
 
-    def chih(self,q,en):
+    def chih(self,q,en="config"):
         """
         calculates the complex polarizability of a material for a certain
         momentum transfer
@@ -248,15 +258,16 @@ class Material(object):
         Parameter
         ---------
          q:     momentum transfer in (1/A)
-         en:    xray energy in eV
+         en:    xray energy in eV,
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
          complex polarizability
         """
-        pass
+        raise NotImplementedError("This needs to be implemented!")
     
-    def chi0(self,en):
+    def chi0(self,en="config"):
         """ 
         calculates the complex chi_0 values ofter needed in simulations.
         They are closely related to delta and beta
@@ -264,7 +275,7 @@ class Material(object):
         """
         return (-2*self.delta(en)+2j*self.beta(en))
 
-    def idx_refraction(self,en):
+    def idx_refraction(self,en="config"):
         #{{{2
         """
         function to calculate the complex index of refraction of a material 
@@ -272,7 +283,8 @@ class Material(object):
 
         Parameter
         ---------
-         en:    energy of the x-rays
+         en:    energy of the x-rays,
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
@@ -282,7 +294,7 @@ class Material(object):
         return n
         #}}}2
 
-    def dTheta(self,Q,en):
+    def dTheta(self,Q,en="config"):
         #{{{2
         """
         function to calculate the refractive peak shift
@@ -290,13 +302,17 @@ class Material(object):
         Parameter
         ---------
          Q:     momentum transfer (1/A)
-         en:    x-ray energy (eV)
+         en:    x-ray energy (eV),
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
          deltaTheta: peak shift in degree
         """
-        lam = 12398.419057638 / en # angstrom lam = (h*c)/(e*en(eV)) * 1e10
+        
+        if en=="config":
+            en = config.ENERGY
+        lam = utilities.lam2en(en)
         dth = numpy.degrees(2*self.delta(en)/numpy.sin(2*numpy.arcsin(lam*numpy.linalg.norm(Q)/(4*numpy.pi))))
         return dth
         #}}}2
@@ -319,7 +335,7 @@ class Material(object):
         return ostr
         #}}}2
 
-    def StructureFactor(self,q,en):
+    def StructureFactor(self,q,en="config"):
         #{{{2
         """
         caluclates the structure factor of a material
@@ -329,7 +345,8 @@ class Material(object):
         ---------
          q:     momentum transfer (both absolute values and vectors as 
                 list or tuple are valid)
-         en:    energy in eV
+         en:    energy in eV,
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
@@ -342,7 +359,10 @@ class Material(object):
             pass
         else:
             raise TypeError("q must be a list or numpy array!")
-           
+          
+        if en=="config":
+            en = config.ENERGY
+
         if self.lattice.base==None: return 1.
          
         s = 0.+0.j
@@ -409,7 +429,7 @@ class Material(object):
         return s
         #}}}2
         
-    def StructureFactorForQ(self,q,en0):
+    def StructureFactorForQ(self,q,en0="config"):
         #{{{2
         """
         caluclates the structure factor of a material
@@ -418,7 +438,8 @@ class Material(object):
         Parameter
         ---------
          q:     momentum transfers (list, tuple or array with absolute values are valid)
-         en0:   list, tuple or array of energy values in eV
+         en0:   energy value in eV,
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
@@ -430,7 +451,10 @@ class Material(object):
             pass
         else:
             raise TypeError("q must be a list or numpy array!")
-            
+        
+        if en0=="config":
+            en0 = config.ENERGY
+
         if self.lattice.base==None: return numpy.ones(len(q))
 
         # create list of different atoms and buffer the scattering factors

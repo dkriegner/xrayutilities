@@ -9,6 +9,7 @@ import os.path
 from . import __path__
 from . import database
 from .. import math
+from .. import config
 from ..exception import InputError
 
 _db = database.DataBase(os.path.join(__path__[0],"data","test.db"))
@@ -37,7 +38,10 @@ class Atom(object):
         else:
             return _db.GetF0(q)
                 
-    def f1(self,en):
+    def f1(self,en="config"):
+        if en=="config":
+            en = config.ENERGY
+
         _db.SetMaterial(self.name)
         
         if isinstance(en,numpy.ndarray) or isinstance(en,list):
@@ -49,7 +53,10 @@ class Atom(object):
         else:
             return _db.GetF1(en)
         
-    def f2(self,en):
+    def f2(self,en="config"):
+        if en=="config":
+            en = config.ENERGY
+
         _db.SetMaterial(self.name)
         
         if isinstance(en,numpy.ndarray) or isinstance(en,list):
@@ -61,7 +68,7 @@ class Atom(object):
         else:
             return _db.GetF2(en)
     
-    def f(self,q,en):
+    def f(self,q,en="config"):
         #{{{2
         """
         function to calculate the atomic structure factor F
@@ -69,12 +76,15 @@ class Atom(object):
         Parameter
         ---------
          q:     momentum transfer 
-         en:    energy for which F should be calculated
+         en:    energy for which F should be calculated,
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
          f (float)
         """
+        if en=="config":
+            en = config.ENERGY
         f = self.f0(norm(q))+self.f1(en)+1.j*self.f2(en)
         return f
         #}}}2

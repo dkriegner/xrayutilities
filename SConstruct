@@ -11,8 +11,9 @@ env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
                   #LIBS=["m","pthread"])
 
 if "install" in COMMAND_LINE_TARGETS:
-    #write the config.py file
-    conffilename = os.path.join(".","python","xrutils","config.py")
+    #write the clib_path.conf file
+    print("create clib_path.conf file")
+    conffilename = os.path.join(".","python","xrutils","clib_path.conf")
     fid = open(conffilename,"w")
     pref = GetOption("prefix")
     if os.sys.platform == "darwin":
@@ -21,7 +22,8 @@ if "install" in COMMAND_LINE_TARGETS:
         libpath = os.path.join(pref,"lib","libxrutils.so")
     elif "win" in os.sys.platform:
         libpath = os.path.join(pref,"lib","xrutils.dll")
-    fid.write("clib_path = r\"%s\"" %libpath)
+    fid.write("[xrutils]\n")
+    fid.write("clib_path = %s\n" %libpath)
     fid.close()
 
 ############################
