@@ -13,6 +13,7 @@
 /*define flags for the gridder functions*/
 #define NO_DATA_INIT 1
 #define NO_NORMALIZATION 4
+#define VERBOSE 16
 
 /*parameters thread workers*/
 typedef struct{

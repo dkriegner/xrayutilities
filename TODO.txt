@@ -1,6 +1,12 @@
 To Do
 -----
 
+3.11.2010
+
+DK: the new config should be used by the whole python package were necessary. 
+maybe much more config options should be added, this needs discussion.
+One idea would be the nthreads (number of threads used by the gridder) variable...
+
 3.09.2010
 
 DK: from the refractive index the angle for total reflection for GID can be
@@ -12,11 +18,6 @@ discussion Eugen, Dominik
 * calculation of chi_h should be implemented according to Lugovskaya, Stepanov
   Sov. Phys. Crystallogr. 36(4) 1991
 * include Debye-Waller factor into calculation of the structurefactor
-* a config class should be added which handles general configuration options
-  such as the verbosity level of the package, standard wavelength/energy,
-  standard angular format (degree, radians)
-  In a second step this class should be feeded with values which it reads from
-  a config file (e.g. ~/.xrutils.conf)
 * a example/test folder should be created. two possibilities exist for its
   exact purpose:
   * templates of scripts could be hold there for the user

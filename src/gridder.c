@@ -28,13 +28,15 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     if(norm==NULL){
         gnorm = malloc(sizeof(double)*(nx*ny));
         if(gnorm==NULL){
-            fprintf(stderr,"Cannot allocate memory for normalization buffer!\n");
+            fprintf(stderr,"XU.Gridder2D(c): Cannot allocate memory for normalization buffer!\n");
             return(-1);
         }
         /*initialize memory for norm*/
         for(i=0;i<nx*ny;i++) gnorm[i] = 0.;
     }else{
-        fprintf(stdout,"use user provided buffer for normalization data\n");
+        if(flags&VERBOSE) {
+            fprintf(stdout,"XU.Gridder2D(c): use user provided buffer for normalization data\n");
+        }
         gnorm = norm;
     }
 
@@ -55,7 +57,9 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
 
     /*perform normalization*/
     if(!(flags&NO_NORMALIZATION)){
-        fprintf(stdout,"perform normalization ...\n");
+        if(flags&VERBOSE) {
+            fprintf(stdout,"XU.Gridder2D(c): perform normalization ...\n");
+        }
         for(i=0;i<nx*ny;i++){
             if(gnorm[i]>1.e-16){
                 odata[i] = odata[i]/gnorm[i];
@@ -102,7 +106,7 @@ int gridder2d_th(unsigned int nth,
     if(norm==NULL){
         gnorm = malloc(sizeof(double)*(nx*ny));
         if(gnorm==NULL){
-            fprintf(stderr,"Cannot allocate memory for normalization buffer!\n");
+            fprintf(stderr,"XU.Gridder2D(th_c): Cannot allocate memory for normalization buffer!\n");
             return(-1);
         }
         /*initialize memory for norm*/
@@ -118,14 +122,14 @@ int gridder2d_th(unsigned int nth,
     /*allocate memory*/
     threads = malloc(sizeof(pthread_t)*nth);
     if(threads == NULL){
-        fprintf(stderr,"Cannot allocate thread array!\n");
+        fprintf(stderr,"XU.Gridder2D(th_c): Cannot allocate thread array!\n");
         if(norm==NULL) free(gnorm);
         return(-1);
     }
 
     thargs = malloc(sizeof(_ThGridderArgs)*nth);
     if(thargs == NULL){
-        fprintf(stderr,"Cannot allocate thread argument array!\n");
+        fprintf(stderr,"XU.Gridder2D(th_c): Cannot allocate thread argument array!\n");
         if(norm==NULL) free(gnorm);
         free(threads);
         return(-1);
@@ -163,7 +167,7 @@ int gridder2d_th(unsigned int nth,
         rc = pthread_create(&threads[i],&thattr,gridder2d_th_worker,
                 (void *)&thargs[i]);
         if(rc){
-            fprintf(stderr,"Error creating thread %i!\n",i);
+            fprintf(stderr,"XU.Gridder2D(th_c): Error creating thread %i!\n",i);
             free(threads);
             free(thargs);
             if (norm == NULL) free(gnorm);
@@ -188,7 +192,9 @@ int gridder2d_th(unsigned int nth,
 
     /*perform normalization if requested*/
     if(!(flags&NO_NORMALIZATION)){
-        fprintf(stdout,"perform normalization ...\n");
+        if(flags&VERBOSE) {
+            fprintf(stdout,"XU.Gridder2D(th_c): perform normalization ...\n");
+        }
         for(i=0;i<nx*ny;i++){
             if(gnorm[i]>1.e-16){
                 odata[i] = odata[i]/gnorm[i];
@@ -309,7 +315,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     if(norm==NULL){
         gnorm = malloc(sizeof(double)*(nx*ny*nz));
         if(gnorm==NULL){
-            fprintf(stderr,"Cannot allocate memory for normalization buffer!\n");
+            fprintf(stderr,"XU.Gridder3D(c): Cannot allocate memory for normalization buffer!\n");
             return(-1);
         }
         /*initialize memory for norm*/
@@ -391,7 +397,7 @@ int gridder3d_th(unsigned int nth,
     if(norm==NULL){
         gnorm = malloc(sizeof(double)*(nx*ny*nz));
         if(gnorm==NULL){
-            fprintf(stderr,"Cannot allocate memory for normalization buffer!\n");
+            fprintf(stderr,"XU.Gridder3D(th_c): Cannot allocate memory for normalization buffer!\n");
             return(-1);
         }
         /*initialize memory for norm*/
@@ -407,14 +413,14 @@ int gridder3d_th(unsigned int nth,
     /*allocate memory*/
     threads = malloc(sizeof(pthread_t)*(nth-1));
     if(threads == NULL){
-        fprintf(stderr,"Cannot allocate thread array!\n");
+        fprintf(stderr,"XU.Gridder3D(th_c): Cannot allocate thread array!\n");
         if(norm==NULL) free(gnorm);
         return(-1);
     }
 
     thargs = malloc(sizeof(_ThGridderArgs)*(nth-1));
     if(thargs == NULL){
-        fprintf(stderr,"Cannot allocate thread argument array!\n");
+        fprintf(stderr,"XU.Gridder3D(th_c): Cannot allocate thread argument array!\n");
         if(norm==NULL) free(gnorm);
         free(threads);
         return(-1);
@@ -457,7 +463,7 @@ int gridder3d_th(unsigned int nth,
         rc = pthread_create(&threads[i],&thattr,gridder2d_th_worker,
                 (void *)&thargs[i]);
         if(rc){
-            fprintf(stderr,"Error creating thread %i!\n",i);
+            fprintf(stderr,"XU.Gridder3D(th_c): Error creating thread %i!\n",i);
             free(threads);
             free(thargs);
             if (norm == NULL) free(gnorm);

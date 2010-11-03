@@ -3,15 +3,34 @@ import numpy
 import ctypes
 
 from . import libxrayutils
+from . import exception
+from . import config
 
 unit_dict = {"kb":1024,"mb":1024**2,"gb":1024**3}
 
 class Gridder(object):
-    def __init__(self):
-        self.nthreads = 0
+    def __init__(self,**keyargs):
+        """
+        Basis class for gridders in xrutils
+
+        Parameters:
+        -----------
+
+         **keyargs (optional):
+            nthreads:   number of threads used in the gridding procedure
+                        default: 0 -> sequential code is used
+        """
+        
+        if keyargs.has_key('nthreads'):
+            self.nthreads = keyargs['nthreads']
+        else:
+            self.nthreads = 0
+        
         self.csize = 0
         self.cunit = 1024**2
         self.flags = 0 
+        if config.VERBOSITY >= config.INFO_ALL:
+            self.flags = self.flags|16 # set verbosity flag
 
     def SetThreads(self,n):
         self.nthreads = n
@@ -23,23 +42,21 @@ class Gridder(object):
         if u in unit_dict.keys():
             self.cunit = unit_dict[u]    
         else:
-            print "Chunk size unit must be one of"
-            print "kb, mb or gb"
-            return None
-
+            raise InputError("Chunk size unit must be one of: kb, mb or gb")
+            
     def Normalize(self,bool):
         self.flags = self.flags^4
 
     def KeepData(self,bool):
-        if not bool==True or bool == False:
+        if not bool==True or bool==False:
             raise TypeError("Keep Data flag must be a boolan value (True/False)!")
 
         self.keep_data = bool
 
 
 class Gridder2D(Gridder):
-    def __init__(self,nx,ny):
-        Gridder.__init__(self)
+    def __init__(self,nx,ny,**keyargs):
+        Gridder.__init__(self,**keyargs)
 
         self.nx = nx
         self.ny = ny
@@ -124,7 +141,8 @@ class Gridder2D(Gridder):
 
         if self.nthreads != 0:
             #use threaded code
-            print "using threaded code ..."
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.Gridder2D: using threaded code ...i (flags: %d)" %self.flags)
             libxrayutils._gridder2d_th(ctypes.c_uint(self.nthreads),x,y,data,ctypes.c_uint(x.size),
                                       ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
                                       ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
@@ -132,8 +150,8 @@ class Gridder2D(Gridder):
                                       self.gdata,self.gnorm,self.flags)
         else:
             #use sequential code - good for small data
-            print "using sequential code ..."
-            print self.flags
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.Gridder2D: using sequential code ... (flags: %s)" %self.flags)
             libxrayutils._gridder2d(x,y,data,ctypes.c_uint(x.size),
                                    ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
                                    ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
@@ -141,11 +159,11 @@ class Gridder2D(Gridder):
                                    self.gdata,self.gnorm,ctypes.c_int(self.flags))
 
     def GridDataChunked(self,xobj,yobj,zobj):
-        pass
+        raise NotImplementedError("XU.Gridder2D: feature not yet implemented!")
 
 class Gridder3D(Gridder2D):
-    def __init__(self,nx,ny,nz):
-        Gridder2D.__init__(self,nx,ny)
+    def __init__(self,nx,ny,nz,**keyargs):
+        Gridder2D.__init__(self,nx,ny,**keyargs)
 
         self.nz = nz
         self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
@@ -211,8 +229,8 @@ class Gridder3D(Gridder2D):
 
         if self.nthreads != 0:
             #use threaded code
-            print "using threaded code ..."
-            print self.flags
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.Gridder3D: using threaded code ... (flags: %d)" %self.flags)
             libxrayutils._gridder3d_th(ctypes.c_uint(self.nthreads),x,y,z,data,ctypes.c_uint(x.size),
                                       ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
                                       ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
@@ -221,8 +239,8 @@ class Gridder3D(Gridder2D):
                                       self.gdata,self.gnorm,self.flags)
         else:
             #use sequential code - good for small data
-            print "using sequential code ..."
-            print self.flags
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.Gridder3D: using sequential code ... (flags: %d)" %self.flags)
             libxrayutils._gridder3d(x,y,z,data,ctypes.c_uint(x.size),
                                    ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
                                    ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
@@ -231,4 +249,3 @@ class Gridder3D(Gridder2D):
                                    self.gdata,self.gnorm,self.flags)
 
   
-

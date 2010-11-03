@@ -54,11 +54,11 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     //printf("general conversion ang2q\n");    
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        printf("sample axes determination failed\n");
+        printf("XU.Qconversion(c): sample axes determination failed\n");
         return 1; 
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        printf("detector axes determination failed\n");
+        printf("XU.Qconversion(c): detector axes determination failed\n");
         return 1; 
     }
     
@@ -138,17 +138,17 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     //printf("general conversion ang2q (linear detector)\n");    
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        printf("sample axes determination failed\n");
+        printf("XU.Qconversion(c): sample axes determination failed\n");
         return 1; 
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        printf("detector axes determination failed\n");
+        printf("XU.Qconversion(c): detector axes determination failed\n");
         return 1; 
     }
 
     // determine detector pixel vector
     if(determine_detector_pixel(rpixel, dir, dpixel) != 0) {
-        printf("detector direction determination failed\n");
+        printf("XU.Qconversion(c): detector direction determination failed\n");
         return 1;
     };
     for(int k=0; k<3; ++k)
@@ -241,21 +241,21 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     //printf("general conversion ang2q (area detector)\n");    
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        printf("sample axes determination failed\n");
+        printf("XU.Qconversion(c): sample axes determination failed\n");
         return 1; 
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        printf("detector axes determination failed\n");
+        printf("XU.Qconversion(c): detector axes determination failed\n");
         return 1; 
     }
 
     // determine detector pixel vector
     if(determine_detector_pixel(rpixel1, dir1, dpixel1) != 0) {
-        printf("detector direction determination failed\n");
+        printf("XU.Qconversion(c): detector direction determination failed\n");
         return 1;
     };
     if(determine_detector_pixel(rpixel2, dir2, dpixel2) != 0) {
-        printf("detector direction determination failed\n");
+        printf("XU.Qconversion(c): detector direction determination failed\n");
         return 1;
     };
     for(int k=0; k<3; ++k)
@@ -341,7 +341,7 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel) {
                     rpixel[0] = -dpixel;
                 break;
                 default:
-                    printf("detector determination: no valid direction sign given\n");
+                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
                     return 1;
             }
         break;
@@ -354,7 +354,7 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel) {
                     rpixel[1] = -dpixel;
                 break;
                 default:
-                    printf("detector determination: no valid direction sign given\n");
+                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
                     return 1;
             }
         break;
@@ -367,12 +367,12 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel) {
                     rpixel[2] = -dpixel;
                 break;
                 default:
-                    printf("detector determination: no valid direction sign given\n");
+                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
                     return 1;
             }
         break;
         default:
-            printf("detector determination: no valid detector direction given\n");
+            printf("XU.Qconversion(c): detector determination: no valid detector direction given\n");
             return 2;
     }
     return 0;
@@ -394,7 +394,7 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                         fp_circles[i] = &rotation_xm;
                     break;
                     default:
-                        printf("axis determination: no valid rotation sense found\n");
+                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
                         return 1;
                 }
             break;
@@ -407,7 +407,7 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                         fp_circles[i] = &rotation_ym;
                     break;
                     default:
-                        printf("axis determination: no valid rotation sense found\n");
+                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
                         return 1;
                 }
             break;
@@ -420,12 +420,12 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                         fp_circles[i] = &rotation_zm;
                     break;
                     default:
-                        printf("axis determination: no valid rotation sense found\n");
+                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
                         return 1;
                 }
             break;
             default:
-                printf("axis determination: no valid axis direction found!\n");
+                printf("XU.Qconversion(c): axis determination: no valid axis direction found!\n");
                 return 2;
         }
     }
