@@ -1,5 +1,8 @@
 import numpy
 
+from .. import config
+
+
 map_ijkl2ij = {"00":0,"11":1,"22":2,
                "12":3,"20":4,"01":5,
                "21":6,"02":7,"10":8}
@@ -83,7 +86,8 @@ class Transform(object):
         try:
             self.imatrix = numpy.linalg.inv(matrix)
         except:
-            print "matrix cannot be inverted - seems to be singular"
+            if (config.VERBOSITY >= config.INFO_LOW):
+                print("XU.math.Transform.__init__: matrix cannot be inverted - seems to be singular")
             self.imatrix = None
 
     def __call__(self,*args,**keyargs):
@@ -118,13 +122,15 @@ class Transform(object):
             #matrix product in pure array notation
             if len(p.shape)==1:
                 #argument is a vector
-                #print "transform a vector ..."
+                if (config.VERBOSITY >= config.DEBUG):
+                    print("XU.math.Transform: transform a vector ...")
                 #b = (self.matrix*p[numpy.newaxis,:]).sum(axis=1)
                 b = numpy.dot(m,p)
                 olist.append(b)
             elif len(p.shape)==2 and p.shape[0]==3 and p.shape[1]==3:
                 #argument is a matrix
-                #print "transform a matrix ..."
+                if (config.VERBOSITY >= config.DEBUG):
+                    print("XU.math.Transform: transform a matrix ...")
                 b = numpy.zeros(p.shape,dtype=numpy.double)
                 # b_ij = m_ik * m_jl * p_kl
                 for i in range(3):
@@ -138,7 +144,8 @@ class Transform(object):
 
             elif len(p.shape)==4 and p.shape[0]==3 and p.shape[1]==3 and\
                  p.shape[2] == 3 and p.shape[3] == 3:
-                #print "transform a tensor"
+                if (config.VERBOSITY >= config.DEBUG):
+                    print("XU.math.Transform: transform a tensor of rank 4")
                 # transformation of a 
                 cp = numpy.zeros(p.shape,dtype=numpy.double)
                 # cp_ikkl = m_ig * m_jh * m_kr * m_ls * p_ghrs 

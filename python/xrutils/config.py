@@ -2,7 +2,9 @@
 module to parse xrutils user-specific config file
 the parsed values are provide as global constants for the use
 in other parts of xrutils. The config file with the default constants
-is 
+is found in the python installation path of xrutils. It is however not 
+recommended to change things there, instead the user-specific config file
+~/.xrutils.conf or the local xrutils.conf file should be used.
 """
 
 import os.path

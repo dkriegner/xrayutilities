@@ -2,6 +2,8 @@
 
 import numpy
 
+from .. import config
+
 def VecNorm(v):
     """
     VecNorm(v):
@@ -100,7 +102,8 @@ def VecAngle(v1,v2,deg=False):
     #{{{1
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
-    # print u1,u2 # need verbosity handling
+    if(config.VERBOSITY >= config.DEBUG):
+        print("XU.math.VecAngle: norm of the vectors: %8.5g %8.5g" %(u1,u2)) 
 
     alpha = numpy.arccos(VecDot(v1,v2)/u1/u2)
     if deg:
