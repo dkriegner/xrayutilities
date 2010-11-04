@@ -335,7 +335,8 @@ def BCCLattice(aa,a):
 def RockSaltLattice(aa,ab,a):
     #{{{1
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
-    print("Warning: NaCl lattice is not using a cubic lattice structure") 
+    if config.VERBOSITY >= config.INFO_LOW:
+        print("XU.materials.RockSaltLattice: Warning; NaCl lattice is not using a cubic lattice structure") 
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
     lb.append(ab,[0.5,0.5,0.5])

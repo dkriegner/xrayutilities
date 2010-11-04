@@ -28,14 +28,14 @@ class DataBase(object):
         """
         #{{{
         if self.h5file!=None:
-            print "databse already opened - close first to create new database"
+            print("database already opened - close first to create new database")
             return None
 
         #tryp to open the database file
         try:
             self.h5file = tables.openFile(self.fname,mode="w")
         except:
-            print "cannot create database file %s!" %(self.fname)
+            print("cannot create database file %s!" %(self.fname))
             return None
 
         #set attributes to the root group with database name and 
@@ -52,13 +52,13 @@ class DataBase(object):
         """
         #{{{
         if self.h5file!=None:
-            print "database already opened - close first to open new database!"
+            print("database already opened - close first to open new database!")
             return None
 
         try:
             self.h5file = tables.openFile(self.fname,mode="a")
         except:
-            print "cannot open database file %s!" %(self.fname)
+            print("cannot open database file %s!" %(self.fname))
             return None
         #}}}
 
@@ -69,7 +69,7 @@ class DataBase(object):
         """
         #{{{
         if self.h5file == None:
-            print "no database file opened!"
+            print("no database file opened!")
             return None
 
         self.h5file.close()
@@ -88,14 +88,14 @@ class DataBase(object):
         """
         #{{{
         if self.h5file == None:
-            print "no database file opened!"
+            print("no database file opened!")
             return None
 
         try:
             g = self.getNode("/",name)
             #if this operation succeeds the material node already exists and 
             #a warning message is printed
-            print "material node already exists"
+            print("material node already exists")
             return None
         except:
             pass
@@ -237,7 +237,7 @@ class DataBase(object):
         try:
             self.h5group = self.h5file.getNode("/",name)
         except:
-            print "material does not exist!"
+            print("material does not exist!")
 
         try:
             self.f0_params = self.h5group.f0
@@ -246,7 +246,7 @@ class DataBase(object):
             self.f2_en     = self.h5group.en_f2
             self.f2        = self.h5group.f2
         except:
-            print "optical constants are missing!"
+            print("optical constants are missing!")
             #self.f0_params = None
             #self.f1_en     = None
             #self.f1        = None
@@ -429,7 +429,7 @@ def add_f0_from_intertab(db,itabfile):
     try:
         itf = open(itabfile,"r")
     except:
-        print "cannot open f0 database file"
+        print("cannot open f0 database file")
         return None
 
     #some regular expressions
@@ -449,7 +449,7 @@ def add_f0_from_intertab(db,itabfile):
             #check if this is not some funny isotope
             
             if invalidelem.findall(ename)==[]:
-                print "set element ",ename
+                print("set element %s" %ename)
                 db.SetMaterial(ename)
                 #make one dummy read
                 itf.readline()
@@ -486,7 +486,7 @@ def add_f1f2_from_henkedb(db,henkefile):
     try:
         hf = open(henkefile,"r")
     except:
-        print "cannot open f0 database file"
+        print("cannot open f0 database file")
         return None
 
     #some regular expressions
@@ -507,7 +507,7 @@ def add_f1f2_from_henkedb(db,henkefile):
             #check if this is not some funny isotope
             
             if invalidelem.findall(ename)==[]:
-                print "set element ",ename
+                print("set element %s"%ename)
                 db.SetMaterial(ename)
                 #make one dummy read
                 for i in range(5): hf.readline()

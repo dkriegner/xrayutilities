@@ -495,7 +495,7 @@ class Material(object):
         Calculate the mismatch strain between the material and a second
         material
         """
-        print "not implemented yet"
+        raise NotImplementedError("XU.material.GetMismatch: not implemented yet")
     #}}}1
 
 
@@ -715,8 +715,9 @@ class AlloyAB(Material):
         content : the content of B in the alloy determined from the input variables
 
         """
-
-        print "Warning (AlloyAB.ContentB): the function only works for cubic materials and needs further testing, \n handle results with care!"
+        
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.materials.AlloyAB.ContentB: Warning: the function only works for cubic materials and needs further testing, \n handle results with care!")
 
         # check input parameters
         if isinstance(q_inp,numpy.ScalarType) and numpy.isfinite(q_inp):
@@ -769,7 +770,8 @@ class AlloyAB(Material):
         # the following two lines are not generally true! only cubic materials
         abulk_inp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),inp2) * numpy.linalg.norm(numpy.cross(n,hkl)))
         abulk_perp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),n) * numpy.inner(n,hkl))
-        print abulk_inp(0.), abulk_perp(0.)
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.materials.AlloyAB.ContentB: abulk_inp/perp: %8.5g %8.5g" %(abulk_inp(0.), abulk_perp(0.)))
 
         frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
 
@@ -792,9 +794,9 @@ class SiGe(AlloyAB):
     def _setxb(self,x):
         #{{{2
         a = self.matA.lattice.a1[0]
-        print "jump to base class"
+        if config.VERBOSITY >= config.DEBUG: print("XU.materials.SiGe._setxb: jump to base class")
         AlloyAB._setxb(self,x)
-        print "back from base class"
+        if config.VERBOSITY >= config.DEBUG: print("back from base class")
         #the lattice parameters need to be done in a different way
         a = a+0.2*x+0.027*x**2
         self.lattice = lattice.CubicLattice(a)
