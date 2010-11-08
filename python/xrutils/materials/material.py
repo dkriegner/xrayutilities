@@ -572,6 +572,8 @@ GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186)
                    HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9)) 
 BaF2 = Material("BaF2",lattice.CubicFm3mBaF2(elements.Ba,elements.F,6.2001),
                    CubicElasticTensor(0.,0.,0.))
+Al = Material("Al",lattice.FCCLattice(elements.Al,4.04958),
+                   numpy.zeros((6,6),dtype=numpy.double))
 V = Material("V",lattice.BCCLattice(elements.V,3.024),
                    numpy.zeros((6,6),dtype=numpy.double))
 Ag2Se = Material("Ag2Se",lattice.NaumanniteLattice(elements.Ag,elements.Se,4.333,7.062,7.764),
