@@ -1,4 +1,4 @@
-#module handling crystall lattice structures
+#module handling crystal lattice structures
 #
 
 import numpy
@@ -12,7 +12,7 @@ from .. import math
 from .. import config
 from ..exception import InputError
 
-_db = database.DataBase(os.path.join(__path__[0],"data","test.db"))
+_db = database.DataBase(os.path.join(__path__[0],"data","elements.db"))
 _db.Open()
 
 def _db_cleanup():

@@ -45,7 +45,7 @@ class DataBase(object):
         #}}}
         
 
-    def Open(self):
+    def Open(self,mode="r"):
         """
         Open():
         Open an existing database file.
@@ -56,7 +56,7 @@ class DataBase(object):
             return None
 
         try:
-            self.h5file = tables.openFile(self.fname,mode="a")
+            self.h5file = tables.openFile(self.fname,mode=mode)
         except:
             print("cannot open database file %s!" %(self.fname))
             return None
