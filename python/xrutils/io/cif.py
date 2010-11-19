@@ -1,6 +1,8 @@
 import re
 import numpy
+
 from .. import materials
+from .. import config
 
 re_loop = re.compile(r"^loop_")
 re_symop = re.compile(r"^_space_group_symop_operation_xyz")
@@ -36,8 +38,7 @@ class CIFFile(object):
         try:
             self.fid = open(self.filename,"r")
         except:
-            print "error: cannot open CIF file %s" %(self.filename)
-            return 
+            raise IOError("cannot open CIF file %s" %self.filename)
 
         self.Parse()
 
@@ -72,7 +73,8 @@ class CIFFile(object):
         atom_loop = False
 
         for line in self.fid.readlines():
-            #print line
+            if config.VERBOSITY >= config.DEBUG:
+                print(line)
             if re_loop.match(line): # start of loop
                 loop_start = True
                 symop_loop = False
@@ -174,7 +176,7 @@ class CIFFile(object):
     def __str__(self):
         #{{{
         """
-        prints the positions and names of the atoms 
+        returns a string with positions and names of the atoms 
         """
         ostr = ""
         ostr += "unit cell structure\n"

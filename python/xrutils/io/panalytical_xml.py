@@ -77,7 +77,7 @@ class XRDMLMeasurement(object):
                     data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
                     is_scalar = 1
 
-                #print data_list
+                #print(data_list)
                 #have to append the data to the data dictionary
                 if not self.ddict.has_key(aname):
                     self.ddict[aname] = []

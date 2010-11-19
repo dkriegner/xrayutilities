@@ -14,8 +14,16 @@ import numpy
 import os
 import time
 import tables
-try: from matplotlib import pylab
-except RuntimeError: print "Warning: spec class plotting functionality not available"
+
+# relative imports from xrutils 
+from .. import config
+from ..exception import InputError
+
+try: 
+    from matplotlib import pylab
+except RuntimeError: 
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU.io.spec: warning; spec class plotting functionality not available")
 
 #define some uesfull regular expressions
 SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")
@@ -37,10 +45,6 @@ SPEC_headerline = re.compile(r"^#")
 SPEC_scanbroken = re.compile(r"#C[a-zA-Z0-9: .]*Scan aborted")
 SPEC_scanresumed = re.compile(r"#C[a-zA-Z0-9: .]*Scan resumed")
 SPEC_commentline = re.compile(r"#C")
-
-
-
-DEBUG_FLAG = False
 
 scan_status_flags = ["OK","ABORTED","CORRUPTED"]
 
@@ -110,7 +114,8 @@ class SPECScan(object):
             self.scan_status = scan_status
         else:
             self.scan_status = "CORRUPTED"
-            print "unknown scan status flag - set to CORRUPTED"
+            if config.VERBOSITY >= config.INFO_ALL: 
+                print("XU.io.spec.SPECScan: unknown scan status flag - set to CORRUPTED")
         
         #setup the initial motor positions dictionary - set the motor names
         self.init_motor_pos = {}    #dictionary holding the initial motor positions        
@@ -165,12 +170,10 @@ class SPECScan(object):
             #some additional values have to be read
             self.mca_nof_lines = self.mca_nof_lines + 1
             
-        if DEBUG_FLAG:
-            print "number of channels: ",self.mca_channels
-            print "number of columns: ",self.mca_column_format
-            print "number of lines to read for MCA: ",self.mca_nof_lines            
-
-        
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.io.SPECScan.SetMCAParams: number of channels: %d" %self.mca_channels)
+            print("XU.io.SPECScan.SetMCAParams: number of columns: %d" %self.mca_column_format)
+            print("XU.io.SPECScan.SetMCAParams: number of lines to read for MCA: %d" %self.mca_nof_lines)          
 
     def __str__(self):
         #build a proper string to print the scan information        
@@ -200,12 +203,14 @@ class SPECScan(object):
         """
 
         if self.scan_status == "ABORTED":
-            print "scan has been aborted - no data available!"
+            if config.VERBOSITY >= config.INFO_LOW:
+                print("XU.io.SPECScan.ReadData: scan has been aborted - no data available!")
             self.data = None
             return None
 
         if not self.has_mca:
-            print "scan contains no MCA data"
+            if config.VERBOSITY >= config.INFO_ALL: 
+                print("XU.io.SPECScan.ReadData: scan contains no MCA data")
         
         #save the actual position of the file pointer
         oldfid = self.fid.tell()
@@ -218,8 +223,8 @@ class SPECScan(object):
         else:
         	type_desc = {"names":self.colnames,"formats":len(self.colnames)*[numpy.float32]}
         	
-        if DEBUG_FLAG: 
-            print type_desc            
+        if config.VERBOSITY >= config.DEBUG: 
+            print("xu.io.SPECScan.ReadData: type descriptor: %s" %(repr(type_desc)))
 
         record_list = [] #from this list the record array while be built
         
@@ -237,12 +242,14 @@ class SPECScan(object):
                 if not scan_aborted_flag:
                     scan_aborted_flag = True
                     self.scan_status = "ABORTED"
-                    print "Scan aborted"
+                    if config.VERBOSITY >= config.INFO_ALL:
+                        print("XU.io.SPECScan.ReadData: Scan aborted")
                     continue
                 elif SPEC_scanresumed.match(line_buffer):
                     self.scan_status = "OK"
                     scan_aborted_flag = False
-                    print "Scan resumed"
+                    if config.VERBOSITY >= config.INFO_ALL:
+                        print("XU.io.SPECScan.ReadData: Scan resumed")
                     continue
                 elif SPEC_commentline.match(line_buffer):
                     continue
@@ -254,9 +261,9 @@ class SPECScan(object):
             if mca_counter == 0:
                 #the line is a scalar data line                
                 line_list = SPEC_num_value.findall(line_buffer)
-                if DEBUG_FLAG: 
-                    print line_buffer
-                    print "read scalar values",line_list
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECScan.ReadData: %s" %line_buffer)
+                    print("XU.io.SPECScan.ReadData: read scalar values %s" %repr(line_list))
                 #convert strings to numbers                
                 for i in range(len(line_list)):
                     line_list[i] = float(line_list[i])
@@ -283,7 +290,8 @@ class SPECScan(object):
                     mca_counter = 0
                     
         #convert the lists in the data dictionary to numpy arrays
-        print "%s: %d %d %d" %(self.name,len(record_list),len(record_list[0]),len(type_desc["names"]))
+        if config.VERBOSITY >= config.INFO_ALL: 
+            print("XU.io.SPECScan.ReadData: %s: %d %d %d" %(self.name,len(record_list),len(record_list[0]),len(type_desc["names"])) )
         self.data = numpy.rec.fromrecords(record_list,dtype=type_desc)
 
         #reset the file pointer position
@@ -299,7 +307,7 @@ class SPECScan(object):
 
         try: pylab.__version__ 
         except NameError: 
-            print "error: plot functionality not available"
+            print("XU.io.SPECScan.plot: ERROR: plot functionality not available")
             return
 
         if keyargs.has_key("newfig"):
@@ -316,15 +324,13 @@ class SPECScan(object):
             xname = args[0]
             xdata = self.data[xname]
         except:
-            print "name of the x-axis is invalid!"
-            return Nont
+            raise InputError("name of the x-axis is invalid!")
 
         alist = args[1:]
         leglist = []
         
         if len(alist)%2 != 0:
-            print "wrong number of yname/style arguments!"
-            return None
+            raise InputError("wrong number of yname/style arguments!")
     
         if newfig:
             pylab.figure()
@@ -336,7 +342,7 @@ class SPECScan(object):
             try:
                 ydata = self.data[yname]
             except:
-                print "no column with name %s exists!" %yname
+                raise InputError("no column with name %s exists!" %yname)
                 continue
             if logy:
                 pylab.semilogy(xdata,ydata,ystyle)
@@ -378,7 +384,7 @@ class SPECScan(object):
         
         #check if data object has been already written
         if self.data == None:
-            print "No data has been read so far - call ReadData method of the scan"
+            raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read so far - call ReadData method of the scan")
             return None
 		
         #parse keyword arguments:
@@ -496,10 +502,9 @@ class SPECFile(object):
             self.fid = open(self.full_filename,"r")            
             self.last_offset = self.fid.tell()
         except:
-            print "error opening SPEC file %s" %(self.full_filename)
             self.fid = None
             self.last_offset = 0
-            return
+            raise IOError("error opening SPEC file %s" %(self.full_filename))
             
         #initially parse the file
         self.init_motor_names = [] #this list will hold the names of the 
@@ -569,16 +574,18 @@ class SPECFile(object):
         try:
             self.fid = open(self.full_filename,"r")
         except:
-            print "error opening SPEC file %s" %(self.full_filename)
             self.fid = None
+            raise IOError("error opening SPEC file %s" %(self.full_filename))
 
         #before reparsing the SPEC file update the fids in all scan objects
-        print "update FID for actual scans ..."
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.io.SPECFile.Update: update FID for actual scans ...")
         for scan in self.scan_list:
             scan.fid = self.fid
 
         #reparse the SPEC file
-        print "reparsing file for new scans ..."
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.io.SPECFile.Update: reparsing file for new scans ...")
         # mark last found scan as not saved to force reread
         idx = len(self.scan_list)
         if idx>0:
@@ -617,7 +624,8 @@ class SPECFile(object):
 
             #if the line marks the beginning of a new scan
             elif SPEC_scan.match(line_buffer) and not scan_started: 
-                if DEBUG_FLAG: print "found scan"               
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECFile.Parse: found scan")               
                 line_list = SPEC_multi_blank.split(line_buffer)
                 scannr = int(line_list[1])
                 scancmd = "".join(" "+x+" " for x in line_list[2:])
@@ -626,11 +634,13 @@ class SPECFile(object):
                 scan_has_mca = False
                 scan_header_offset = self.last_offset               
                 scan_status = "OK"
-                print "processing scan nr. %i ..." %scannr
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.io.SPECFile.Parse: processing scan nr. %i ..." %scannr)
 
             #if the line contains the date and time information
             elif SPEC_datetime.match(line_buffer) and scan_started:
-                if DEBUG_FLAG: print "found date and time"
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECFile.Parse: found date and time")
                 #fetch the time from the line data
                 time = SPEC_time_format.findall(line_buffer)[0]
                 line_buffer = SPEC_time_format.sub("",line_buffer)
@@ -639,11 +649,12 @@ class SPECFile(object):
 
             #if the line contains the integration time
             elif SPEC_exptime.match(line_buffer) and scan_started:
-                if DEBUG_FLAG: print "found exposure time"
+                if config.VERBOSITY >= config.DEBUG: print("XU.io.SPECFile.Parse: found exposure time")
                 itime = float(SPEC_num_value.findall(line_buffer)[0])                                     
             #read the initial motor positions
             elif SPEC_initmopopos.match(line_buffer) and scan_started:
-                if DEBUG_FLAG: print "found initial motor positions"
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECFile.Parse: found initial motor positions")
                 line_buffer = SPEC_initmopopos.sub("",line_buffer)
                 line_buffer = line_buffer.strip()
                 line_list = SPEC_multi_blank.split(line_buffer)
@@ -652,14 +663,16 @@ class SPECFile(object):
 
             #if the line contains the number of colunmns
             elif SPEC_nofcols.match(line_buffer) and scan_started:
-                if DEBUG_FLAG: print "found number of columns"
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECFile.Parse: found number of columns")
                 line_buffer = SPEC_nofcols.sub("",line_buffer)
                 line_buffer = line_buffer.strip()
                 nofcols = int(line_buffer)
 
             #if the line contains the column names
             elif SPEC_colnames.match(line_buffer) and scan_started:
-                if DEBUG_FLAG: print "found column names"
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECFile.Parse: found column names")
                 line_buffer = SPEC_colnames.sub("",line_buffer)
                 line_buffer = line_buffer.strip()                
                 col_names = SPEC_multi_blank.split(line_buffer)  
@@ -764,7 +777,7 @@ class SPECLog(object):
         try:
             self.fid = open(self.full_filename,"r")
         except:
-            print "cannot open log file %s" %(self.full_filename)
+            raise IOError("cannot open log file %s" %(self.full_filename))
             
         self.prompt = prompt
         self.prompt_re = re.compile(r"^"+self.prompt)

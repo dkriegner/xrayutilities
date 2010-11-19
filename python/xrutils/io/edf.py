@@ -7,6 +7,8 @@ import tables
 import os
 import os.path
 
+from .. import config
+
 edf_kv_split=re.compile(r"\s*=\s*") #key value sepeartor for header data
 edf_eokv = re.compile(r";") #end of line for a header
 #regular expressions for several ASCII representations of numbers
@@ -53,9 +55,8 @@ class EDFFile(object):
         try:
             self.fid = open(self.full_filename,"r")
         except:
-            print "cannot open file %s" %(self.full_filename)
+            raise IOError("cannot open file %s" %(self.full_filename))
         
-
         #evaluate keyword arguments
         if keyargs.has_key("nxkey"):
             self.nxkey = keyargs["nxkey"]
@@ -110,7 +111,7 @@ class EDFFile(object):
                     try:
                         [key,value] = edf_kv_split.split(line_buffer,1)
                     except:
-                        print line_buffer
+                        print("XU.io.EDFFile.ReadData: line_buffer: %s" %line_buffer)
                     
                     key = key.strip()
                     value = value.strip()
@@ -176,7 +177,7 @@ class EDFFile(object):
             
         self.data = self.data.reshape(dimy,dimx)
         if byte_order != "LowByteFirst":
-            print "check byte order - not low byte first"
+            print("XU.io.EDFFile.ReadData: check byte order - not low byte first")
 
         #close the binary file descriptor
         binfid.close()
@@ -218,7 +219,8 @@ class EDFFile(object):
         ca_name = os.path.splitext(ca_name)[0]
         if edf_name_start_num.match(ca_name):
             ca_name = "ccd_"+ca_name
-        print ca_name
+        if config.VERBOSITY >= config.INFO_ALL: 
+            print(ca_name)
         ca_name = ca_name.replace(" ","_")
         
         #create the array description

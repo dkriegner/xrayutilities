@@ -10,6 +10,8 @@ import re
 import tables
 import numpy
 
+from .. import config
+
 #define some regular expressions
 nscans_re = re.compile(r"^&NumScans=\d+")
 scan_data_re    = re.compile(r"^\#Values\d+")
@@ -249,7 +251,8 @@ class SeifertScan(object):
             self.parse()
 
     def parse(self):
-        print "starting the parser"
+        if config.VERBOSITY >= config.INFO_ALL: 
+            print("XU.io.SeifertScan.parse: starting the parser")
         self.data = []
         while True:
             lb = self.fid.readline()
@@ -328,7 +331,8 @@ class SeifertScan(object):
 
         a = tables.FloatAtom()
         s = [self.data.shape[0]]
-        print s
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.io.SeifertScan.dump2h5: shape of data %d" %s)
 
         for i in range(self.data.shape[1]):
             title = "SEIFERT data from %s" %self.Filename

@@ -332,6 +332,24 @@ def BCCLattice(aa,a):
     return l
     #}}}1
 
+def BCTLattice(aa,a,c):
+    #{{{1
+    # body centered tetragonal lattice
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0.5])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,c]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
 def RockSaltLattice(aa,ab,a):
     #{{{1
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html

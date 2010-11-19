@@ -73,10 +73,10 @@ def read_tascom_dat(fileobject,**keyargs):
             fid = open(fileobject)
             filename = fileobject
         except:
-            print "error opening file %s" %(filename)
+            print("XU.io.tascom.read_tascom_dat: error opening file %s" %(filename))
             return None
     else:
-        print "fileobject must be either be a file descriptor or a filename"
+        print("XU.io.tascom.read_tascom_dat: fileobject must be either be a file descriptor or a filename")
         return None
 
     #evaluate optinal keyword arguments
@@ -242,7 +242,7 @@ def read_dat(fid,h5file,h5group,tabname,comment):
         data_string = fid.readline()    
         
         if not data_line.match(data_string):
-            print "finished with reading data"
+            print("XU.io.tascom.read_dat: finished with reading data")
             break
             
         data_string = data_string.strip()       
@@ -260,7 +260,7 @@ def read_dat(fid,h5file,h5group,tabname,comment):
                 elif int_type.match(data_list[i]): 
                     tab_dict[column_names[i]]=tables.Col("Int")
                 else:
-                    print 'unsupported data type'
+                    print("XU.io.tascom.read_dat: unsupported data type")
                 
             #create the table object in the HDF5 file
             tab = h5file.createTable(h5group,tabname,tab_dict,comment)          
@@ -326,7 +326,7 @@ def dat2hdf5(filename,h5file,h5group,**optargs):
     try:
         fid = open(os.path.join(path,filename),mode="r")
     except:
-        print "error opening file %s" %(filename)
+        print("XU.io.tascom.dat2hdf5: error opening file %s" %(filename))
         
     h5tab = read_dat(fid,h5file,h5group,tabname,comment)
 
@@ -387,7 +387,7 @@ def det2hdf5(filename,h5file,**keyargs):
     try:
         data = rio.read_array(filename,"r")
     except:
-        print "error reading file "+filename + " !"
+        print("XU.io.tascom.det2hdf5: error reading file %s !" %filename)
         return None
 
     

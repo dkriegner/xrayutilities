@@ -27,9 +27,8 @@ class DataFile(object):
 		try:
 			self.fid = open(self.fullfilename,"r")
 		except:
-			print "error opening file %s" %(self.fullfilename)
 			self.fid = None
-			return None
+			raise IOError("error opening file %s" %self.fullfilename)
 			
 		#after opening the file we have to find EOF offset with 
 		#respect to the beginning of the file

@@ -8,6 +8,8 @@ import os.path
 from numpy import rec
 import glob
 
+from .. import config
+
 re_wspaces = re.compile(r"\s+")
 re_colname = re.compile(r"^Col")
 
@@ -116,7 +118,7 @@ class SPECTRAFileData(object):
         try:
             return self.data[key]
         except:
-            print "data contains no column named: %s!" %key
+            print("XU.io.specta.SPECTRAFileData: data contains no column named: %s!" %key)
         
         
     def __str__(self):
@@ -188,7 +190,8 @@ class SPECTRAFile(object):
                 #try to determine the number of scans automatically
                 spat = re_mca_int_tmp.sub("*",self.mca_file_template)
                 #spat = self.mca_file_template.replace("%i","*")
-                print spat
+                if config.VERBOSITY >= config.INFO_ALL: 
+                    print(spat)
                 l = glob.glob(spat)
                 self.mca_start_index = 1
                 self.mca_stop_index = len(l)
@@ -222,7 +225,7 @@ class SPECTRAFile(object):
             try:
                 h5 = tables.openFile(h5file,mode="a")
             except:
-                print "cannot open file %s for writting!" %h5file
+                print("XU.io.spectra.Save2HDF5: cannot open file %s for writting!" %h5file)
                 return True
 
         else:
@@ -232,7 +235,7 @@ class SPECTRAFile(object):
         try:
             g = h5.createGroup(group,name,title=description,createparents=True)
         except:
-            print "cannot create group %s for writting data!" %name
+            print("XU.io.spectra.Save2HDF5: cannot create group %s for writting data!" %name)
             h5.close()
             return True
             
@@ -242,14 +245,14 @@ class SPECTRAFile(object):
             try:
                 h5.setNodeAttr(g,k,self.comments[k])
             except:
-                print "cannot save file comment %s = %s to group %s!" %(k,self.comments[k],name)
+                print("XU.io.spectra.Save2HDF5: cannot save file comment %s = %s to group %s!" %(k,self.comments[k],name))
                 
         #save scan parameters
         for k in self.params.keys():
             try:
                 h5.setNodeAttr(g,k,self.params[k])
             except:
-                print "cannot save file parametes %s to group %s!" %(k,name)
+                print("XU.io.spectra.Save2HDF5: cannot save file parametes %s to group %s!" %(k,name))
                 
         #----------finally we need to save the data -------------------
         
@@ -268,7 +271,7 @@ class SPECTRAFile(object):
         try:
             tab = h5.createTable(g,"data",tab_desc_dict,"scan data") 
         except:
-            print "cannot create table for storing scan data!"
+            print("XU.io.spectra.Save2HDF5: cannot create table for storing scan data!")
             return True
                         
         #now write the data to the tables
@@ -285,7 +288,7 @@ class SPECTRAFile(object):
             try:
                 c = h5.createCArray(g,mcaname,a,self.mca.shape)
             except:
-                print "cannot create carray %s for MCA data!" %mcaname
+                print("XU.io.spectra.Save2HDF5: cannot create carray %s for MCA data!" %mcaname)
                 return True
                 
             c[...] = self.mca[...]
@@ -333,7 +336,7 @@ class SPECTRAFile(object):
         try:
             fid = open(self.filename,"r")
         except:
-            print "cannot open data file %s for reading!" %(self.filename)
+            print("XU.io.SPECTRAFile.Read: cannot open data file %s for reading!" %(self.filename))
             return None
         
         col_names = ""
@@ -368,7 +371,7 @@ class SPECTRAFile(object):
                 try:
                     (key,value) = lbuffer.split("=")
                 except:
-                    print "cannot interpret the comment string: %s" %(lbuffer)
+                    print("XU.io.SPECTRAFile.Read: cannot interpret the comment string: %s" %(lbuffer))
                     continue 
                     
                 key = key.strip()
@@ -399,7 +402,7 @@ class SPECTRAFile(object):
                 try:
                     (key,value) = lbuffer.split("=")
                 except:
-                    print "cannot interpret the parameter string: %s" %(lbuffer)
+                    print("XU.io.SPECTRAFile.Read: cannot interpret the parameter string: %s" %(lbuffer))
                     
                 key = key.strip()
                 value = value.strip()
@@ -501,7 +504,7 @@ class Spectra(object):
         try:
             tab = self.h5_file.createTable(h5g,name,tab_desc,desc)
         except:
-            print "Error creating table object %s!"
+            print("XU.io.spectra.Spectra: Error creating table object %s!")
             return None
 
         #fill in data values
@@ -551,7 +554,7 @@ class Spectra(object):
 
         fullfname = os.path.join(dir,fname)
         if not os.path.exists(fullfname):
-            print "data file does not exist!"
+            print("XU.io.spectra.Spectra.spectra2hdf5: data file does not exist!")
             return None
 
         #read data file
@@ -563,7 +566,7 @@ class Spectra(object):
         try:
             sg = self.h5_file.createGroup(self.h5_group,sg_name,sg_desc)
         except:
-            print "cannot create scan group!"
+            print("XU.io.spectra.Spectra.spectra2hdf5: cannot create scan group!")
             return None
 
         self.recarray2hdf5(sg,data,"data","SPECTRA tabular data")
@@ -695,7 +698,7 @@ def read_mca(fname):
     try:
         fid = open(fname)
     except:
-        print "cannot open file %s!" %fname
+        print("XU.io.spectra.read_mca: cannot open file %s!" %fname)
         return None
 
     dlist = []
@@ -728,7 +731,7 @@ def read_mcas(ftemp,cntstart,cntstop):
 
     for i in fnums:
         fname = ftemp %i
-        print "processing file %s ..." %fname
+        print("XU.io.spectra.read_mcas: processing file %s ..." %fname)
         mcalist.append(read_mca(fname))
 
     return numpy.array(mcalist,dtype=numpy.double)
@@ -751,7 +754,7 @@ def read_data(fname):
     try:
         fid = open(fname,"r")
     except:
-        print "cannot open file %s!" %fname
+        print("XU.io.spectra.read_data: cannot open file %s!" %fname)
         return None
 
     hdr_dict = {}
@@ -763,7 +766,7 @@ def read_data(fname):
 
     fname = os.path.basename(fname)
     fname,ext = os.path.splitext(fname)
-    print fname
+    print(fname)
 
     while True:
         lbuffer = fid.readline()

@@ -209,14 +209,14 @@ def read_header(fid,h5table,name):
 			itemvalue.append(fid.read(72))
 	
 			if itemname[hdrblk_counter]=="FILTER2:":
-				#print "reached end of header"
+				#print("reached end of header")
 				#perform some dummy read
 				fid.read(80)
 				break
 
 			hdrblk_counter = hdrblk_counter + 1
 		except:
-			print "error reading header data from file"
+			print("error reading header data from file")
 			return
 
 	#set the variables of the header class

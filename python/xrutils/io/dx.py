@@ -38,7 +38,7 @@ class DXFile(object):
         try:
             self.DXFile_FID = open(os.path.join(self.DXFilePath,self.DXFileName))
         except:
-            print "Error opening file: %s" %(os.path.join(self.DXFilePath,self.DXFileName))
+            raise IOError("error opening file: %s" %os.path.join(self.DXFilePath,self.DXFileName))
 
         
 

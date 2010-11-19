@@ -139,10 +139,10 @@ def ccds2hdf5(h5file,pattern,sn_list,fn_list,**optargs):
 	#start to import the data:
 	for f in filename_list:
 		try:
-			print "Importing %s ...." %(f)
+			print("Importing %s ...." %(f))
 			ccd2hdf5(h5file,f,path=path,group=h5group)
 		except:	
-			print "error importing file: "+f
+			raise IOError("error importing file: %s" %f)
 		
 	
 	
@@ -179,7 +179,7 @@ def ccd2hdf5(h5file,filename,**optargs):
 	try:
 		fid = open(os.path.join(path,filename),mode="r")
 	except:
-		print "error opening CCD file %s" %(os.path.join(path,filename))
+		print("error opening CCD file %s" %(os.path.join(path,filename)))
 
 	#have to determine the format used in the file and the version of the header
 	fid.read(8) #dummy read
@@ -189,14 +189,14 @@ def ccd2hdf5(h5file,filename,**optargs):
 	fid.seek(0) #reset file pointer to the starting position
 
 	if version != 11:
-		print "unsupported header version - not implemented now"
+		print("unsupported header version - not implemented now")
 		return
 
 	#check if in the selected HDF5 group allready exists an header table
 	try:
 		htab = h5group.BRUKER_CCD_V11_HEADERS
 	except:
-		print "build a new header table for this group"
+		print("build a new header table for this group")
 		#initiate a HDF5 table for the header information:
 		htab_name ="BRUKER_CCD_V11_HEADERS" 
 		htab_title = "Table holding the header information of Bruker ANEX II V11 headers"
@@ -332,7 +332,7 @@ def load_data(hdr,fid):
 	try:
 		data_string = fid.read(nof_rows*nof_cols*nof_pixbytes)
 	except:
-		print 'error reading raw data from the file'
+		print("error reading raw data from the file")
 		return 0
 	
 	fmt_str = (nof_rows*nof_cols)*'B'
@@ -358,11 +358,11 @@ def load_underflow(hdr,fid):
 		nof_underflows = hdr.noverfl[2] #if this works the file is version 11 
 		nof_underflows = hdr.noverfl[0] #now we have to read the real underflow value
 	except:
-		print 'file is not verions 11 so no underflow data is stored'
+		print("file is not verions 11 so no underflow data is stored")
 		return 0
 	
 	if nof_underflows<0:
-		if be_verbose: print 'no baseline subtraction done - no underflow data'
+		if be_verbose: print("no baseline subtraction done - no underflow data")
 		return 0
 		    
 	#if we reached this point we can load the underflow data
@@ -406,17 +406,17 @@ def load_overflow(hdr,fid):
 	if v11_flag:
 		nof_1b_overflows = hdr.noverfl[1]
 		nof_2b_overflows = hdr.noverfl[2]
-		if be_verbose: print 'v11: number of 1 byte overflows: %i' %(nof_1b_overflows)
-		if be_verbose: print 'v11: number of 2 byte overflows: %i' %(nof_2b_overflows)
+		if be_verbose: print("v11: number of 1 byte overflows: %i" %(nof_1b_overflows))
+		if be_verbose: print("v11: number of 2 byte overflows: %i" %(nof_2b_overflows))
 	else:
 		nof_overflows = hdr.noverfl[0]
-		if be_verbose: print 'number of overflows: %i' %(nof_overflows)
+		if be_verbose: print("number of overflows: %i" %(nof_overflows))
 	
 	#set the file object to the starting position of the overflow data
 	fid_pos_old = fid.tell()
 	    
 	if v11_flag:
-		if be_verbose: print 'calculate overflow position for v11 data'
+		if be_verbose: print("calculate overflow position for v11 data")
 		fid_pos = 512*hdr.hdrblks+hdr.nrows*hdr.ncols*hdr.npixelb[0]
 		
 	if hdr.noverfl[0]>=0:
@@ -426,7 +426,7 @@ def load_overflow(hdr,fid):
 	    
 	fid.seek(fid_pos)
 	#read the 1 byte overflow table
-	if be_verbose: print 'reading 1Byte overflow'
+	if be_verbose: print("reading 1Byte overflow")
 	for i in range(nof_1b_overflows):
 		data_string = fid.read(2)
 		b1_overflow_tab.append(struct.unpack('H',data_string)[0])
@@ -438,7 +438,7 @@ def load_overflow(hdr,fid):
 
 	
 	#read the two byte overflow table
-	if be_verbose: print 'reading 2Byte overflow'
+	if be_verbose: print("reading 2Byte overflow")
 	for i in range(nof_2b_overflows):        
 		data_string = fid.read(4)
 		b2_overflow_tab.append(struct.unpack('L',data_string)[0])
@@ -475,28 +475,28 @@ def load(filename,h5file,h5group):
 	#print some information of the file:
 	if be_verbose:
 		if hdr.format==86:
-		    print "file format 86: frame compression format (old)"
+		    print("file format 86: frame compression format (old)")
 		elif hdr.format==100:
-		    print "file format 100: image compression format (new)"
+		    print("file format 100: image compression format (new)")
 		    
 		if hdr.version == 11:
-		    print "header version (11): fixed format/free line"
+		    print("header version (11): fixed format/free line")
 		elif hdr.version==101:
-		    print "header version (101): free format header"
+		    print("header version (101): free format header")
 	
 	
-	if be_verbose: print "load raw image data"
+	if be_verbose: print("load raw image data")
 	raw_data = load_data(hdr,fid)
 	
-	if be_verbose: print "load underflow data"
+	if be_verbose: print("load underflow data")
 	underflow_data = load_underflow(hdr,fid)
 	
-	if be_verbose: print "load overflow data"
+	if be_verbose: print("load overflow data")
 	[b1_overflow_tab,b2_overflow_tab] = load_overflow(hdr,fid)
 
 	#loop now over the raw data and replace all values with 255 by the 
 	#values in the 2byte overflow table
-	if be_verbose: print "do image decompression"
+	if be_verbose: print("do image decompression")
 	ov_1b_counter = 0
 	ov_2b_counter = 0
 	for i in range(raw_data.shape[0]):

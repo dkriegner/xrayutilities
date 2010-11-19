@@ -7,6 +7,8 @@ import struct
 import numpy
 import os.path
 
+from .. import config
+
 rdc_start = re.compile(r"^START")
 rdc_end   = re.compile(r"^END")
 
@@ -49,12 +51,11 @@ def rad2hdf5(h5,rdcfile,**keyargs):
 
     try:
         rdcfid = open(rdcfilename,mode="r")
-        print "Opended RDC file %s for reading",rdcfilename
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.io.rad2hdf5: successfully opened RDC file %s for reading" %rdcfilename)
     except:
-        print "error opening RDC file %s !" %(rdcfilename)
-        return None
-
-
+        raise IOError("error opening RDC file %s !" %rdcfilename)
+        
     line_buffer = " "
     while True:
 
@@ -62,7 +63,8 @@ def rad2hdf5(h5,rdcfile,**keyargs):
         line_buffer = rdcfid.readline()
         
         if line_buffer=="":
-            print "reached end of RDC file"
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.io.rad2hdf5: reached end of RDC file")
             break
         
         line_buffer = line_buffer.strip()
@@ -145,7 +147,8 @@ def rad2hdf5(h5,rdcfile,**keyargs):
         if rdc_end.match(line_buffer):
             table.attrs.scan_status = "SUCCEEDED"
             table.flush()
-            print "scan finished"
+            if config.VERBOSITY >= config.INFO_ALL: 
+                print("XU.io.rad2hdf5: scan finished")
 
 
 
@@ -187,8 +190,7 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
         hstfid = open(hstfilename,mode="r")
 
     except:
-        print "error opening HST file %s !" %(hstfilename)
-        return None
+        raise IOError("XU.io.hst2hdf5: error opening HST file %s !" %hstfilename)
 
     filters = tables.Filters(complevel=5,complib="zlib",shuffle=True,fletcher32=True)
 
@@ -206,7 +208,8 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
     data_buffer= struct.unpack("i",hstfid.read(struct.calcsize("i")))
     nofhists = data_buffer[0]
 
-    print "number of histograms found: ",nofhists
+    if config.VERBOSITY >= config.INFO_ALL: 
+        print("XU.io.hst2hdf5: number of histograms found: %d" %nofhists)
 
     #now the table and the EArray
     table_dict = {}
@@ -271,7 +274,8 @@ def selecthst(et_limit,mca_info,mca_array):
     for i in range(et.shape[0]):
         if et[i]>et_limit: sel[i] = 1
 
-    print "found %i valid arrays" %(sel.sum())
+    if config.VERBOSITY >= config.DEBUG:
+        print("XU.io.selecthst: found %i valid arrays" %sel.sum())
 
     #load the data
     mca = mca_array.read()
@@ -285,6 +289,4 @@ def selecthst(et_limit,mca_info,mca_array):
             cnt += 1
 
     return data
-
-
 

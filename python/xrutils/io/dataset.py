@@ -13,6 +13,8 @@
 
 from matplotlib import pylab as pl
 
+from .. import config 
+
 class DataRecord(object):
     def __init__(self):
         self.coldict = {}
@@ -87,7 +89,8 @@ class Dataset(object):
             xaxis = self.coldict[args[0]]
             yaxis = self.coldict[args[1]]
         else:
-            print "invalid number of arguments"
+            if config.VERBOSITY >= config.INFO_LOW:
+                print("XU.io.Dataset: invalid number of arguments")
             return None
 
 
