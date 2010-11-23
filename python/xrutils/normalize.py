@@ -164,6 +164,8 @@ class IntensityNormalizer(object):
                     absorber_corrected_intensity = data[det]*absfun(data)
             flatfield: flatfield of the detector; shape must be the same as
                        data[det], and is only applied for MCA detectors
+            darkfield: darkfield of the detector; shape must be the same as
+                       data[det], and is only applied for MCA detectors
 
         Examples
         --------
@@ -197,6 +199,12 @@ class IntensityNormalizer(object):
             self._setflatfield(keyargs['flatfield'])
         else:
             self._flatfield = None
+        
+        if keyargs.has_key('darkfield'):
+            self._setdarkfield(keyargs['darkfield'])
+        else:
+            self._darkfield = None
+        
         #}}}2
 
     def _getdet(self):
@@ -345,12 +353,38 @@ class IntensityNormalizer(object):
             raise TypeError("argument flatfield must be of type list,tuple,numpy.ndarray or None")
         #}}}2
 
+    def _getdarkfield(self):
+        #{{{2
+        """
+        flatfield property handler
+        returns the current set darkfield of the detector
+        or None if not set
+        """
+        return self._darkfield
+        #}}}2
+
+    def _setdarkfield(self,darkf):
+        #{{{2
+        """
+        flatfield property handler
+        sets the darkfield of the detector
+        """
+        if isinstance(darkf,(list,tuple,numpy.ndarray)):
+            self._darkfield = numpy.array(darkf,dtype=numpy.float)
+            self._darkfieldav = numpy.mean(self._darkfield)
+        elif isinstance(darkf,type(None)):
+            self._darkfield = None
+        else: 
+            raise TypeError("argument flatfield must be of type list,tuple,numpy.ndarray or None")
+        #}}}2
+
     det = property(_getdet,_setdet)
     time = property(_gettime,_settime)
     mon = property(_getmon,_setmon)
     avmon = property(_getavmon,_setavmon)
     absfun = property(_getabsfun,_setabsfun)
     flatfield = property(_getflatfield,_setflatfield)
+    darkfield = property(_getdarkfield,_setdarkfield)
 
     def __call__(self,data):
         #{{{2
@@ -400,11 +434,27 @@ class IntensityNormalizer(object):
         if len(data[self._det].shape) == 1:
             corrint = data[self._det]*c
         elif len(data[self._det].shape) == 2:
-            corrint = data[self._det]*c[:,numpy.newaxis]
+            if self._darkfield!=None:
+                if self._darkfield.shape[0] != data[self._det].shape[1]:
+                    raise InputError("data[det] second dimension must have the same length as darkfield")
+
+                if isinstance(time,numpy.ndarray):
+                    corrint = data[self._det] - self._darkfield[numpy.newaxis,:]*time[:,numpy.newaxis] #darkfield correction
+                elif isinstance(time,float):
+                    corrint = data[self._det] - self._darkfield[numpy.newaxis,:]*time #darkfield correction
+                else:
+                    print("XU.normalize.IntensityNormalizer: check initialization and your input")
+                    return None
+                corrint[corrint<0.] = 0.
+                    
+            else : corrint = data[self._det]
+                
+            corrint = corrint*c[:,numpy.newaxis]
+
             if self._flatfield!=None:
                 if self._flatfield.shape[0] != data[self._det].shape[1]:
                     raise InputError("data[det] second dimension must have the same length as flatfield")
-                corrint = corrint/self._flatfield[numpy.newaxis,:]*self._flatfieldav
+                corrint = corrint/self._flatfield[numpy.newaxis,:]*self._flatfieldav #flatfield correction
         else:
             raise InputError("data[det] must be an array of dimension one or two")
 

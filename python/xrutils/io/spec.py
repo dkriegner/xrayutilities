@@ -290,7 +290,7 @@ class SPECScan(object):
                     mca_counter = 0
                     
         #convert the lists in the data dictionary to numpy arrays
-        if config.VERBOSITY >= config.INFO_ALL: 
+        if config.VERBOSITY >= config.INFO_LOW: 
             print("XU.io.SPECScan.ReadData: %s: %d %d %d" %(self.name,len(record_list),len(record_list[0]),len(type_desc["names"])) )
         self.data = numpy.rec.fromrecords(record_list,dtype=type_desc)
 
