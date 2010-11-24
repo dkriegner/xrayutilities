@@ -694,12 +694,104 @@ class AlloyAB(Material):
         
         return qy,qz
 
-    def ContentB(self,q_inp,q_perp,hkl,sur):
+    def ContentBsym(self,q_perp,hkl,inpr,asub,relax):
         #{{{2
         """
         function that determines the content of B 
         in the alloy from the reciprocal space position 
-        of an assymetric peak and also sets the content 
+        of a symetric peak. As an additional input the substrates
+        lattice parameter and the degree of relaxation must be given
+
+        Parameter
+        ---------
+        q_perp : perpendicular peak position of the reflection 
+                 hkl of the alloy in reciprocal space
+        hkl : Miller indices of the measured symmetric reflection (also defines the 
+              surface normal
+        inpr : Miller indices of a Bragg peak defining the inplane reference direction
+        asub:   substrate lattice constant
+        relax:  degree of relaxation (needed to obtain the content from 
+                symmetric reciprocal space position)
+
+        Returns
+        -------
+        content : the content of B in the alloy determined from the input variables
+
+        """
+
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.materials.AlloyAB.ContentB: Warning: the function only works for cubic materials and needs further testing, \n handle results with care!")
+
+        # check input parameters
+        if isinstance(q_perp,numpy.ScalarType) and numpy.isfinite(q_perp):
+            q_perp = float(q_perp)
+        else:
+            raise TypeError("First argument (q_perp) must be a scalar!")
+        if isinstance(hkl,(list,tuple,numpy.ndarray)):
+            hkl = numpy.array(hkl,dtype=numpy.double)
+        else:
+            raise TypeError("Second argument (hkl) must be of type list, tuple or numpy.ndarray")
+        if isinstance(inpr,(list,tuple,numpy.ndarray)):
+            inpr = numpy.array(inpr,dtype=numpy.double)
+        else:
+            raise TypeError("Third argument (inpr) must be of type list, tuple or numpy.ndarray")
+        if isinstance(asub,numpy.ScalarType) and numpy.isfinite(asub):
+            asub = float(asub)
+        else:
+            raise TypeError("Fourth argument (asub) must be a scalar!")
+        if isinstance(relax,numpy.ScalarType) and numpy.isfinite(relax):
+            relax = float(relax)
+        else:
+            raise TypeError("Fifth argument (relax) must be a scalar!")
+                  
+        # calculate lattice constants from reciprocal space positions
+        n = self.rlattice.GetPoint(hkl)/numpy.linalg.norm(self.rlattice.GetPoint(hkl))
+        q_hkl = self.rlattice.GetPoint(hkl)
+        # the following line is not generally true! only cubic materials
+        aperp = 2*numpy.pi/q_perp * numpy.abs(numpy.dot(n,hkl))
+
+        # transform the elastic tensors to a coordinate frame attached to the surface normal
+        inp1 = numpy.cross(n,inpr)/numpy.linalg.norm(numpy.cross(n,inpr))
+        inp2 = numpy.cross(n,inp1)
+        trans = math.CoordinateTransform(inp1,inp2,n)
+
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.materials.AlloyAB.ContentB: inp1/inp2: ",inp1,inp2)
+        cijA = Cijkl2Cij(trans(self.matA.cijkl))
+        cijB = Cijkl2Cij(trans(self.matB.cijkl))
+
+        # define lambda functions for all things in the equation to solve
+        a1 = lambda x: (self.matB.lattice.a1-self.matA.lattice.a1)*x+self.matA.lattice.a1
+        a2 = lambda x: (self.matB.lattice.a2-self.matA.lattice.a2)*x+self.matA.lattice.a2
+        a3 = lambda x: (self.matB.lattice.a3-self.matA.lattice.a3)*x+self.matA.lattice.a3
+        V = lambda x: numpy.dot(a3(x),numpy.cross(a1(x),a2(x)))
+        b1 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a2(x),a3(x))
+        b2 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a3(x),a1(x))
+        b3 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a1(x),a2(x))
+        qhklx = lambda x: hkl[0]*b1(x)+hkl[1]*b2(x)+hkl[2]*b3(x)
+        
+        # the following line is not generally true! only cubic materials
+        abulk_perp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),n) * numpy.inner(n,hkl))
+        ainp = lambda x: asub + relax * (abulk_perp(x) - asub) # can we use abulk_perp here? for cubic materials this should work?!
+
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.materials.AlloyAB.ContentB: abulk_perp: %8.5g" %(abulk_perp(0.)))
+
+        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
+
+        equation = lambda x: (aperp-abulk_perp(x)) + (ainp(x) - abulk_perp(x))*frac(x)
+
+        x = scipy.optimize.brentq(equation,-0.1,1.1)
+
+        return x
+        #}}}2
+
+    def ContentBasym(self,q_inp,q_perp,hkl,sur):
+        #{{{2
+        """
+        function that determines the content of B 
+        in the alloy from the reciprocal space position 
+        of an asymmetric peak and also sets the content 
         in the current material
 
         Parameter
@@ -708,13 +800,15 @@ class AlloyAB(Material):
                 the alloy in reciprocal space
         q_perp : perpendicular peak position of the reflection 
                  hkl of the alloy in reciprocal space
-        hkl : Miller indices of the measured assymetric reflection
+        hkl : Miller indices of the measured asymmetric reflection
         sur : Miller indices of the surface (determines the perpendicular
               direction)
 
         Returns
         -------
-        content : the content of B in the alloy determined from the input variables
+        content,[a_inplane,a_perp,abulk(x)] : the content of B in the alloy determined 
+                from the input variables and the lattice constants calculated 
+                from the reciprocal space positions
 
         """
         
@@ -783,7 +877,8 @@ class AlloyAB(Material):
 
         #self._setxb(x)
 
-        return x
+        return x,[ainp,aperp,abulk_perp(x)]
+
         #}}}2
     #}}}1
 
@@ -844,21 +939,4 @@ def PseudomorphicMaterial(submat,layermat):
 
     return pmat
     #}}}1
-
-# dominik: function seems to be deprecated, use CubicElasticTensor instead
-# function will be kept for some time (17.08.2010)
-#def AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
-#    #{{{1
-#    """
-#    AssembleCubicElasticConstants(c11,c12,c13,c23,c44,c55,c66):
-#    Assemble the elastic constants matrix for a cubic system. This function 
-#    simply reduces writting work and therefore the risk of typos.
-#    """
-#
-#    m = numpy.array([[c11,c12,c12,0,0,0],[c12,c11,c12,0,0,0],[c12,c12,c11,0,0,0],
-#                     [0,0,0,c44,0,0],[0,0,0,0,c44,0],[0,0,0,0,0,c44]],
-#                     dtype=numpy.double)
-#    return m
-#    #}}}1
-
 
