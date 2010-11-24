@@ -40,6 +40,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
+    double local_ri[3]; // copy of primary beam direction
     int i,j; // needed indices
 
     #ifdef __OPENMP__
@@ -63,8 +64,9 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     }
     
     // give ri correct length
-    normalize(ri);
-    vecmul(ri,M_2PI/lambda);
+    veccopy(local_ri,ri);
+    normalize(local_ri);
+    vecmul(local_ri,M_2PI/lambda);
 
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
@@ -91,7 +93,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
         matmul(ms,md);
         // ms contains now the rotation matrix to determine the momentum transfer
         // calculate the momentum transfer
-        matvec(ms, ri, &qpos[3*i]); 
+        matvec(ms, local_ri, &qpos[3*i]); 
     }
 
     return 0;

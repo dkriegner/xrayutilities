@@ -74,10 +74,10 @@ class QConversion(object):
             raise TypeError("QConversion: invalid type of primary beam direction r_i, must be tuple, list or numpy.ndarray")
 
         # kwargs
-        if kwargs.has_key('wl'):
-            self._wl = numpy.double(kwargs['wl'])
+        if kwargs.has_key("wl"):
+            self._wl = numpy.double(kwargs["wl"])
         else:
-            self._wl = numpy.double(1.5406)
+            self._wl = numpy.double(config.WAVELENGTH) 
 
         self._linear_init = False
         self._area_init = False
@@ -308,7 +308,7 @@ class QConversion(object):
         
         sAxis=ctypes.c_char_p(self._sampleAxis_str)
         dAxis=ctypes.c_char_p(self._detectorAxis_str)
-
+        
         libxrayutils.cang2q_point(sAngles, dAngles, qpos, self.r_i,len(self.sampleAxis),
                      len(self.detectorAxis),Npoints,sAxis,dAxis,wl)
 
