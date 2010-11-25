@@ -45,7 +45,7 @@ SPEC_headerline = re.compile(r"^#")
 SPEC_scanbroken = re.compile(r"#C[a-zA-Z0-9: .]*Scan aborted")
 SPEC_scanresumed = re.compile(r"#C[a-zA-Z0-9: .]*Scan resumed")
 SPEC_commentline = re.compile(r"#C")
-
+SPEC_newheader = re.compile(r"^#E")
 scan_status_flags = ["OK","ABORTED","CORRUPTED"]
 
 class SPECMCA(object):
@@ -509,9 +509,6 @@ class SPECFile(object):
         #initially parse the file
         self.init_motor_names = [] #this list will hold the names of the 
                                    #motors saved in initial motor positions
-        self.file_header_finished = False # the file header should only be parsed once
-                                          # more than one file header can be present when
-                                          # the file is reopened in spec.
 
         self.Parse()
         
@@ -617,7 +614,10 @@ class SPECFile(object):
             line_buffer = line_buffer.strip()
             
             #fill the list with the initial motor names
-            if SPEC_initmoponames.match(line_buffer) and not scan_started and not self.file_header_finished:
+            if SPEC_newheader.match(line_buffer):
+                self.init_motor_names = []
+            
+            elif SPEC_initmoponames.match(line_buffer):
                 line_buffer = SPEC_initmoponames.sub("",line_buffer)
                 line_buffer = line_buffer.strip()
                 self.init_motor_names = self.init_motor_names + SPEC_multi_blank.split(line_buffer)                
@@ -629,7 +629,6 @@ class SPECFile(object):
                 line_list = SPEC_multi_blank.split(line_buffer)
                 scannr = int(line_list[1])
                 scancmd = "".join(" "+x+" " for x in line_list[2:])
-                self.file_header_finished = True # File header must be parsed complete when a scan starts
                 scan_started = True
                 scan_has_mca = False
                 scan_header_offset = self.last_offset               
