@@ -941,11 +941,13 @@ class HXRD(Experiment):
             geometry:   determines the scattering geometry:
                         "hi_lo" (default) high incidence-low exit
                         "lo_hi" low incidence - high exit
+                        "real" general geometry - q-coordinates determine
+                               high or low incidence
         """
         Experiment.__init__(self,idir,ndir,**keyargs)
         
         if keyargs.has_key('geometry'):
-            if keyargs['geometry'] in ["hi_lo","lo_hi"]:
+            if keyargs['geometry'] in ["hi_lo","lo_hi","real"]:
                 self.geometry = keyargs['geometry']
             else: 
                 raise InputError("HXRD: invalid value for the geometry argument given")
@@ -1039,6 +1041,7 @@ class HXRD(Experiment):
         geometry:   determines the scattering geometry:
                     "hi_lo" high incidence-low exit
                     "lo_hi" low incidence - high exit
+                    "real" general geometry - angles determined by q-coordinates
                     default: self.geometry
         refrac:     boolean to determine if refraction is taken into account
                     default: False
@@ -1080,7 +1083,7 @@ class HXRD(Experiment):
 
         # parse keyword arguments
         if keyargs.has_key('geometry'):
-            if keyargs['geometry'] in ["hi_lo","lo_hi"]:
+            if keyargs['geometry'] in ["hi_lo","lo_hi","real"]:
                 geom = keyargs['geometry']
             else: 
                 raise InputError("HXRD: invalid value for the geometry argument given")
@@ -1151,8 +1154,10 @@ class HXRD(Experiment):
             
             if geom == 'hi_lo':
                 om = tth/2. + math.VecAngle(z,qvec) # +: high incidence geometry
-            else: 
+            elif geom == 'lo_hi': 
                 om = tth/2. - math.VecAngle(z,qvec) # -: low incidence geometry
+            else:
+                om = tth/2 - numpy.sign(math.VecAngle(y,qvec)-numpy.pi/2.) * math.VecAngle(z,qvec)
         
             # refraction correction at incidence and exit facet
             if refrac:
