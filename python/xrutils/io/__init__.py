@@ -18,12 +18,14 @@ from .spectra import SPECTRAFile
 
 from .spec import SPECFile
 from .spec import SPECScan
+from .spec import geth5_map
 
 from .edf import EDFFile
 
 from .spectra import Spectra
 
 from .panalytical_xml import XRDMLFile
+from .panalytical_xml import getxrdml_map
 
 from .cif import CIFFile
 

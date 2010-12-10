@@ -811,3 +811,70 @@ class SPECLog(object):
             
         return ostr
 
+
+
+GETMAP_twomotorscan = re.compile(r"^\s*a2scan\s")
+GETMAP_singlemotorscan = re.compile(r"^\s*ascan\s")
+
+def geth5_map(h5f,scans,omname,ttname,**kwargs):
+    """
+    function to obtain the omega and twotheta as well as intensity values
+    for a reciprocal space map saved in an HDF5 file, which was created 
+    from a spec file by the Save2HDF5 method.
+
+    Parameters
+    ----------
+     h5f:     file object of a HDF5 file opened using pytables
+     scans:   number of the scans of the reciprocal space map (int,tuple or list)
+     omname:  name of the omega motor (or its equivalent)
+     ttname:  name of the two theta motor (or its equivalent)
+
+     **kwargs (optional):
+        samplename: string with the hdf5-group containing the scan data
+                    if ommited the first child node of h5f.root will be used
+
+    Returns
+    -------
+     om,th,MAP: angular positions of the center channel of the position
+                sensitive detector (numpy.ndarray 1D) together with all the 
+                data values as stored in the data file (includes the 
+                intensities e.g. MAP['MCA']).
+    """
+
+    if kwargs.has_key("samplename"):
+        h5g = h5f.getNode(h5f.root,kwargs["samplename"])
+    else:
+        h5g = h5f.listNodes(h5f.root)[0]
+
+    if isinstance(scans,(list,tuple)):
+        scanlist = scans
+    else: 
+        scanlist = list([scans])
+    
+    om = numpy.zeros(0)
+    tt = numpy.zeros(0)
+    MAP = numpy.zeros(0)
+
+    for nr in scanlist:
+        h5scan = h5f.getNode(h5g,"scan_%d" %nr)
+        command = h5f.getNodeAttr(h5scan,'Command')
+        sdata = h5scan.data.read()
+        if MAP.dtype == numpy.float64:  MAP.dtype = sdata.dtype
+        # append scan data to MAP, where all data are stored
+        MAP = numpy.append(MAP,sdata)
+        #check type of scan 
+        if GETMAP_twomotorscan.match(command): # assume omname and ttname two motor scan
+            omscan = sdata[omname]
+            ttscan = sdata[ttname]
+        elif GETMAP_singlemotorscan.match(command): # assume omname single motor scan
+            omscan = sdata[omname]
+            ttscan = numpy.ones(omscan.shape) * h5f.getNodeAttr(h5scan,"INIT_MOPO_%s" %ttname)
+        else:
+            print("xu.io.geth5_map: error unknown scan command")
+            break
+
+        om = numpy.concatenate((om,omscan))
+        tt = numpy.concatenate((tt,ttscan))
+
+    return om,tt,MAP
+

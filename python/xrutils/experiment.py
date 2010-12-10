@@ -1022,7 +1022,7 @@ class HXRD(Experiment):
         #}}}2
 
     def Q2Ang(self,*Q,**keyargs):
-            #{{{2
+        #{{{2
         """
         Convert a reciprocal space vector Q to COPLANAR scattering angles.
         The keyword argument trans determines whether Q should be transformed 
@@ -1048,6 +1048,9 @@ class HXRD(Experiment):
                     if True then also a material must be given
         mat:        Material object; needed to obtain its optical properties for
                     refraction correction, otherwise not used
+        full_output:boolean to determine if additional output is given to determine
+                    scattering angles more acurately in case refraction is set to True
+                    default: False
         fi,fd:      if refraction correction is applied one can optionally specify
                     the facet through which the beam enters (fi) and exits (fd)
                     fi, fd must be the surface normal vectors (not transformed & 
@@ -1061,6 +1064,11 @@ class HXRD(Experiment):
         phi:        sample azimuth
         omega:      incidence angle with respect to surface
         twotheta:   scattering angle
+        if full_output:
+            a numpy array of shape (5) with five angles which are
+          [phi,omega,twotheta,psi_i,psi_d]
+         psi_i: offset of the incidence beam from the scattering plane due to refraction
+         pdi_d: offset ot the diffracted beam from the scattering plane due to refraction
         """
 
         # collect the q-space input
@@ -1112,6 +1120,11 @@ class HXRD(Experiment):
         else:
             refrac = False
 
+        if keyargs.has_key('full_output'):
+            foutp = keyargs['full_output']
+        else:
+            foutp = False
+        
         if keyargs.has_key('fi'): # incidence facet
             fi = keyargs['fi']
         else:
@@ -1134,7 +1147,10 @@ class HXRD(Experiment):
         else: k = self.k0
 
         # start calculation for each given Q-point
-        angle = numpy.zeros((3,q.shape[1]))
+        if foutp:
+            angle = numpy.zeros((5,q.shape[1]))
+        else:
+            angle= numpy.zeros((3,q.shape[1]))
         for i in range(q.shape[1]):
             qvec = q[:,i]
 
@@ -1160,6 +1176,8 @@ class HXRD(Experiment):
                 om = tth/2 - numpy.sign(math.VecAngle(y,qvec)-numpy.pi/2.) * math.VecAngle(z,qvec)
         
             # refraction correction at incidence and exit facet
+            psi_i = 0.
+            psi_d = 0. # needed if refrac is false and full_output is True
             if refrac:
                 if config.VERBOSITY >= config.DEBUG:
                     print("XU.HXRD.Q2Ang: consider refraction correction")
@@ -1185,17 +1203,20 @@ class HXRD(Experiment):
 
                 om = math.VecAngle(y,ki0)
                 tth = math.VecAngle(ki0,kd0)
-                #psi_i = numpy.arcsin(ki0[0]/k0)
-                #psi_d = numpy.arcsin(kd0[0]/k0)
+                psi_i = numpy.arcsin(ki0[0]/self.k0)
+                psi_d = numpy.arcsin(kd0[0]/self.k0)
 
             angle[0,i] = phi
             angle[1,i] = om
             angle[2,i] = tth
+            if foutp:
+                angle[3,i] = psi_i
+                angle[4,i] = psi_d
 
         if q.shape[1]==1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: [phi,om,tth] = %s" %repr(angle))
+                print("XU.HXRD.Q2Ang: phi,om,tth,[psi_i,psi_d] = %s" %repr(angle))
 
         if deg:
             return numpy.degrees(angle)

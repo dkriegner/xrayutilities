@@ -7,6 +7,7 @@ want to keep the number of dependancies as small as possible
 
 from xml.dom import minidom
 import numpy
+import os
 
 class XRDMLMeasurement(object):
     """
@@ -147,3 +148,54 @@ class XRDMLFile(object):
             ostr += s.__str__()
 
         return ostr
+
+
+def getOmPixcel(omraw,ttraw):
+    """ 
+    function to reshape the Omega values into a form needed for 
+    further treatment with xrutils
+    """
+    return (omraw[:,numpy.newaxis]*numpy.ones(ttraw.shape)).flatten()
+
+def getxrdml_map(filetemplate,scannrs=None,path="."):
+    """
+    parses multiple XRDML file and concatenates the results
+    for parsing the xrutils.io.XRDMLFile class is used
+
+    Parameter
+    ---------
+     filetemplate: template string for the file names, can contain
+                   a %d which is replaced by the scan number
+     scannrs:      int or list of scan numbers 
+     path:         common path to the filenames
+    
+    Returns
+    -------
+     om,tt,psd: as flattened numpy arrays
+
+    Example
+    -------
+     >>> om,tt,psd = xrutils.io.getxrdml_map("samplename_%d.xrdml",[1,2],path="./data")
+    """
+    # read raw data and convert to reciprocal space
+    om = numpy.zeros(0)
+    tt = numpy.zeros(0)
+    psd = numpy.zeros(0)
+    # create scan names
+    if scannrs==None:
+        files = [filetemplate]
+    else:
+        files = list()
+        for nr in scannrs:
+            files.append(filetemplate %nr)
+
+    # parse files
+    for f in files: 
+        d = XRDMLFile(os.path.join(path,f))
+        s = d.scan
+        om = numpy.concatenate((om,getOmPixcel(s['Omega'],s['2Theta'])))
+        tt = numpy.concatenate((tt,s['2Theta'].flatten()))
+        psd = numpy.concatenate((psd,s['detector'].flatten()))
+
+    return om,tt,psd 
+
