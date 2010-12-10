@@ -33,7 +33,7 @@ class CIFFile(object):
          filename:  filename of the CIF file
         """
         self.filename = filename
-        self.digits = 5 # number of digits used to check if position is unique
+        self.digits = 3 # number of digits used to check if position is unique
 
         try:
             self.fid = open(self.filename,"r")

@@ -57,6 +57,7 @@ class QConversion(object):
         r_i:            vector giving the direction of the primary beam (length is irrelevant)
         **kwargs:       optional keyword arguments
             wl:        wavelength of the x-rays in Angstroem
+            en:        energy of the x-rays in electronvolt
         """
 
         self._set_sampleAxis(sampleAxis)
@@ -79,9 +80,30 @@ class QConversion(object):
         else:
             self._wl = numpy.double(config.WAVELENGTH) 
 
+        if kwargs.has_key("en"):
+            self._set_energy(kwargs["en"])
+
         self._linear_init = False
         self._area_init = False
         #}}}2
+
+    def _set_energy(self,energy):
+        #{{{2
+        self._en = energy
+        self._wl = utilities.lam2en(energy)
+        #}}}2
+
+    def _set_wavelength(self,wl):
+        #{{{2
+        self._wl = wl
+        self._en = utilities.lam2en(wl)
+        #}}}2
+
+    def _get_energy(self):
+        return self._en
+
+    def _get_wavelength(self):
+        return self._wl
 
     def _set_sampleAxis(self,sampleAxis):
         #{{{2
@@ -166,6 +188,8 @@ class QConversion(object):
         return self._detectorAxis
         #}}}2
 
+    energy = property(_get_energy,_set_energy)
+    wavelength = property(_get_wavelength,_set_wavelength)
     sampleAxis = property(_get_sampleAxis,_set_sampleAxis)
     detectorAxis = property(_get_detectorAxis,_set_detectorAxis)
 
@@ -831,7 +855,7 @@ class Experiment(object):
         self._en = energy
         self._wl = utilities.lam2en(energy)
         self.k0 = numpy.pi*2./self._wl
-        self._A2QConversion._wl = self._wl
+        self._A2QConversion.wavelength = self._wl
         #}}}2
 
     def _set_wavelength(self,wl):
@@ -839,7 +863,7 @@ class Experiment(object):
         self._wl = wl
         self._en = utilities.lam2en(wl)
         self.k0 = numpy.pi*2./self._wl
-        self._A2QConversion._wl = self._wl
+        self._A2QConversion.wavelength = self._wl
         #}}}2
 
     def _get_energy(self):
@@ -914,7 +938,6 @@ class Experiment(object):
         return math.VecAngle(self.ndir,qt,deg)
         #}}}2
     #}}}1
-
 
 class HXRD(Experiment):
     #{{{1
@@ -1476,7 +1499,6 @@ class GID(Experiment):
         #}}}2
     #}}}1
 
-
 class GID_ID10B(GID):
     #{{{1
     """
@@ -1517,7 +1539,6 @@ class GID_ID10B(GID):
         pass
 
     #}}}1
-
 
 class GISAXS(Experiment):
     pass
