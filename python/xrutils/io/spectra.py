@@ -413,7 +413,20 @@ class SPECTRAFile(object):
                     #fails it will be saved as a string
                     pass
                     
-                self.params[key] = value                
+                #need to handle the case, that a key may appear several times 
+                #in the list
+                kcnt = 0
+                while True:
+                    try:
+                        self.params[key] = value
+                        #if adding the key/value pair to the dictionary 
+                        #was successful - leave the loop
+                        break
+                    except:
+                        key += "_%i" %(kcnt+2)
+                    
+                    kcnt += 1
+                    
                 
             elif read_mode == 3:
                 if re_column.match(lbuffer):
@@ -436,6 +449,9 @@ class SPECTRAFile(object):
                     self.data.append(SPECTRAFileDataColumn(index,name,unit,type))
                     
                     
+                    if name in col_names.split(","):
+                        name += "%s_1" %name
+                        
                     col_names += "%s," %name                    
                     col_types  += "%s," %(dtype_map[type])
                 else:

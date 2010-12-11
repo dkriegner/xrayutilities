@@ -233,7 +233,15 @@ class SPECScan(object):
 
         while True:
             line_buffer = self.fid.readline()
-            line_buffer = line_buffer.strip()            
+            line_buffer = line_buffer.strip()     
+            
+            #Bugfix for ESRF/BM20 data 
+            #the problem is that they store messages from automatic absorbers
+            #in the SPEC file - need to handle this
+            t = re.compile(r"^#C .* filter factor.*")
+            if t.match(line_buffer): continue
+            #these lines should do the job
+            
             if line_buffer=="": break #EOF
             #check if scan is broken
             if SPEC_scanbroken.findall(line_buffer) != [] or scan_aborted_flag:
@@ -493,7 +501,9 @@ class SPECFile(object):
         if keyargs.has_key("path"):
             self.full_filename = os.path.join(keyargs["path"],filename)     
         else:
-            self.full_filename = filename           
+            self.full_filename = filename   
+        
+        self.filename = os.path.basename(self.full_filename)        
             
         #list holding scan objects
         self.scan_list = []
