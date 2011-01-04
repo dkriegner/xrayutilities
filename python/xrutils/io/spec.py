@@ -204,13 +204,13 @@ class SPECScan(object):
 
         if self.scan_status == "ABORTED":
             if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.io.SPECScan.ReadData: scan has been aborted - no data available!")
+                print("XU.io.SPECScan.ReadData: %s has been aborted - no data available!" %self.name)
             self.data = None
             return None
 
         if not self.has_mca:
             if config.VERBOSITY >= config.INFO_ALL: 
-                print("XU.io.SPECScan.ReadData: scan contains no MCA data")
+                print("XU.io.SPECScan.ReadData: scan %d contains no MCA data" %self.nr)
         
         #save the actual position of the file pointer
         oldfid = self.fid.tell()
@@ -251,13 +251,13 @@ class SPECScan(object):
                     scan_aborted_flag = True
                     self.scan_status = "ABORTED"
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print("XU.io.SPECScan.ReadData: Scan aborted")
+                        print("XU.io.SPECScan.ReadData: %s aborted" %self.name)
                     continue
                 elif SPEC_scanresumed.match(line_buffer):
                     self.scan_status = "OK"
                     scan_aborted_flag = False
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print("XU.io.SPECScan.ReadData: Scan resumed")
+                        print("XU.io.SPECScan.ReadData: %s resumed" %self.name)
                     continue
                 elif SPEC_commentline.match(line_buffer):
                     continue
@@ -704,7 +704,8 @@ class SPECFile(object):
 
             elif SPEC_scanbroken.findall(line_buffer)!=[] and scan_started:
                 #this is the case when a scan is broken and no data has been
-                #written 
+                #written, but nevertheless a comment is in the file that tells
+                #us that the scan was aborted
                 try:
                     s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
                                  date,time,itime,col_names,
@@ -752,6 +753,45 @@ class SPECFile(object):
                 scan_has_mca = False
                 #reset initial motor positions flag
                 init_motor_values = []
+
+            elif SPEC_scan.match(line_buffer) and scan_started:
+                #this should only be the case when there are two consecutive file
+                #headers in the data file without any data or abort notice of the 
+                #first scan 
+                # first store current scan as aborted than start new scan parsing
+                
+                try:
+                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
+                                 date,time,itime,col_names,
+                                 scan_header_offset,scan_data_offset,self.fid,
+                                 self.init_motor_names,init_motor_values,"ABORTED")
+                except:
+                    scan_data_offset = self.last_offset
+                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
+                                 date,time,itime,col_names,
+                                 scan_header_offset,scan_data_offset,self.fid,
+                                 self.init_motor_names,init_motor_values,"ABORTED")
+
+                self.scan_list.append(s)
+                        
+                #reset control flags
+                scan_started = False
+                scan_has_mca = False
+                #reset initial motor positions flag
+                init_motor_values = []
+
+                # start parsing of new scan
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECFile.Parse: found scan (after aborted scan)")               
+                line_list = SPEC_multi_blank.split(line_buffer)
+                scannr = int(line_list[1])
+                scancmd = "".join(" "+x+" " for x in line_list[2:])
+                scan_started = True
+                scan_has_mca = False
+                scan_header_offset = self.last_offset               
+                scan_status = "OK"
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.io.SPECFile.Parse: processing scan nr. %i ..." %scannr)
             
             #store the position of the file pointer
             self.last_offset = self.fid.tell()            
