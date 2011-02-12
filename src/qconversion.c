@@ -17,6 +17,7 @@
 int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n);
 int determine_detector_pixel(double *rpixel,char *dir, double dpixel);
 int print_matrix(double *m);
+int print_vector(double *m);
 
 /* #######################################
  *  conversion functions
@@ -267,7 +268,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
 
     // calculate some index shortcuts  
     idxh1 = (roi[1]-roi[0])*(roi[3]-roi[2]);
-    idxh2 = roi[1]-roi[0];
+    idxh2 = roi[3]-roi[2];
 
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
@@ -303,7 +304,10 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
                 diffvec(rtemp,r_i); 
                 vecmul(rtemp,f);
                 // determine momentum transfer
-                matvec(ms, rtemp, &qpos[3*(i*idxh1+idxh2*(j2-roi[2])+(j1-roi[0]))]);
+                matvec(ms, rtemp, &qpos[3*(i*idxh1+idxh2*(j1-roi[0])+(j2-roi[2]))]);
+                //print_matrix(ms);
+                //print_vector(rtemp);
+                //print_vector(&qpos[3*(i*idxh1+idxh2*(j1-roi[0])+(j2-roi[2]))]);
             }
         }
     }
@@ -320,6 +324,11 @@ int print_matrix(double *m) {
         printf("%8.3f %8.3f %8.3f\n",m[i],m[i+1],m[i+2]);
     }
     printf("\n");
+    return 0;
+}
+
+int print_vector(double *m) {
+    printf("%8.3f %8.3f %8.3f\n",m[0],m[1],m[2]);
     return 0;
 }
 

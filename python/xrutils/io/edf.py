@@ -85,6 +85,9 @@ class EDFFile(object):
         offset = 0
         byte_order = ""
 
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.io.EDFFile.ReadData: file: %s" %self.filename)
+
         while True:
             line_buffer = self.fid.readline()
            
@@ -213,7 +216,7 @@ class EDFFile(object):
             compflag = keyargs["comp"]
         else:
             compflag = True
-            
+        
         #create the array name
         ca_name = os.path.split(self.filename)[-1]
         ca_name = os.path.splitext(ca_name)[0]
@@ -230,9 +233,17 @@ class EDFFile(object):
         a = tables.Atom.from_dtype(self.data.dtype)
         f = tables.Filters(complevel=7,complib="zlib",fletcher32=True)
         if compflag:
-            ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc,filters=f)
+            try:
+                ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc,filters=f)
+            except:
+                h5.removeNode(g,ca_name,recursive=True)
+                ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc,filters=f)
         else:
-            ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc,filters=f)
+            try:
+                ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc)
+            except:
+                h5.removeNode(g,ca_name,recursive=True)
+                ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc)
             
         #write the data
         ca[...] = self.data[...]

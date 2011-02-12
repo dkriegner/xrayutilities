@@ -93,7 +93,7 @@ INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) {
     i[4] = (m[0]*m[8] - m[2]*m[6]);
     i[5] = (m[2]*m[3] - m[0]*m[5]);
     i[6] = (h3 - h4);
-    i[7] = (m[4]*m[6] - m[0]*m[7]);
+    i[7] = (m[1]*m[6] - m[0]*m[7]);
     i[8] = (m[0]*m[4] - m[1]*m[3]);
 
     for(int j=0; j<9; ++j)

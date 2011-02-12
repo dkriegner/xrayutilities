@@ -673,9 +673,9 @@ class QConversion(object):
             deg = True
         
         if kwargs.has_key('roi'):
-            roi = kwargs['roi']
+            oroi = kwargs['roi']
         else:
-            roi = self._area_roi
+            oroi = self._area_roi
 
         if kwargs.has_key('Nav'):
             nav = kwargs['Nav']
@@ -740,12 +740,17 @@ class QConversion(object):
         # initialize ccd geometry to for C subroutine (include Nav and roi possibility)
         cch1 = self._area_cch1/float(nav[0])
         cch2 = self._area_cch2/float(nav[1])
-        pwidth1 = self._area_pwidth1*nav[0]
-        pwidth2 = self._area_pwidth2*nav[1]
-        roi = numpy.array(roi)
-        roi[:2] = numpy.ceil(roi[:2]/float(nav[0]))
-        roi[2:] = numpy.ceil(roi[2:]/float(nav[1]))
+        pwidth1 = self._area_pwidth1*nav[0]/self._area_distance
+        pwidth2 = self._area_pwidth2*nav[1]/self._area_distance
+        roi = numpy.array(oroi)
+        roi[0] = numpy.floor(oroi[0]/float(nav[0]))
+        roi[1] = numpy.ceil((oroi[1]-oroi[0])/float(nav[0])) + roi[0]
+        roi[2] = numpy.floor(oroi[2]/float(nav[1]))
+        roi[3] = numpy.ceil((oroi[3]-oroi[2])/float(nav[1])) + roi[2]
         roi = roi.astype(numpy.int32)
+        if config.VERBOSITY >= config.DEBUG:
+            print("QConversion.area: roi, number of points per frame: %s, %d" %(str(roi),(roi[1]-roi[0])*(roi[3]-roi[2])))
+            print("QConversion.area: cch1,cch2: %5.2f %5.2f" %(cch1,cch2)) 
 
         # initialize return value (qposition) array
         qpos = numpy.empty(Npoints*(roi[1]-roi[0])*(roi[3]-roi[2])*3,
@@ -786,6 +791,7 @@ class Experiment(object):
                     direction at zero angles)
         ndir:       surface normal 
         keyargs:    optional keyword arguments
+            qconv:  QConversion object to use for the Ang2Q conversion
             wl:     wavelength of the x-rays in Angstroem (default: 1.5406A)
             en:     energy of the x-rays in eV (default: 8048eV == 1.5406A )
                     the en keyword overrulls the wl keyword
@@ -815,11 +821,14 @@ class Experiment(object):
         #set the coordinate transform for the azimuth used in the experiment
         self.scatplane = math.VecUnit(numpy.cross(self.ndir,self.idir))
         self._transform = math.CoordinateTransform(self.scatplane,self.idir,self.ndir)
-       
+        
         # initialize Ang2Q conversion
-        self._A2QConversion = QConversion('x+','x+',[0,1,0]) # 1S+1D goniometer  
+        if keyargs.has_key("qconv"):
+            self._A2QConversion = keyargs["qconv"]
+        else:
+            self._A2QConversion = QConversion('x+','x+',[0,1,0]) # 1S+1D goniometer  
         self.Ang2Q = self._A2QConversion
-
+       
         #calculate the energy from the wavelength
         if keyargs.has_key("wl"):
             self._set_wavelength(keyargs["wl"])
@@ -978,8 +987,9 @@ class HXRD(Experiment):
             self.geometry = "hi_lo"
 
         # initialize Ang2Q conversion
-        self._A2QConversion = QConversion('x+','x+',[0,1,0],wl=self._wl) # 1S+1D goniometer 
-        self.Ang2Q = self._A2QConversion
+        if not keyargs.has_key("qconv"):
+            self._A2QConversion = QConversion('x+','x+',[0,1,0],wl=self._wl) # 1S+1D goniometer 
+            self.Ang2Q = self._A2QConversion
         
         if config.VERBOSITY >= config.DEBUG:
             print("XU.HXRD.__init__: \nEnergy: %s \nGeometry: %s \n%s---" %(self._en,self.geometry,str(self.Ang2Q)))

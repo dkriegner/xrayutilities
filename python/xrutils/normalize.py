@@ -17,6 +17,7 @@ import ctypes
 
 from . import libxrayutils
 from .exception import InputError
+from . import config
 
 def blockAverage1D(data,Nav):
     #{{{1
@@ -77,7 +78,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
         roi = kwargs['roi']
     else:
         roi = [0,data2d.shape[0],0,data2d.shape[1]]
-        
+    
     data = numpy.array(data2d[roi[0]:roi[1],roi[2]:roi[3]],dtype=numpy.double)
     (N,M) = data.shape
     data = data.flatten()
@@ -86,6 +87,11 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
     block_av = block_av.flatten()
     block_av = numpy.require(block_av,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
+    if config.VERBOSITY >= config.DEBUG:
+        print("xu.normalize.blockAverage2D: roi: %s" %(str(roi)))
+        print("xu.normalize.blockAverage2D: Nav1,2: %d,%d" %(Nav1,Nav2))
+        print("xu.normalize.blockAverage2D: number of points: (%d,%d) %d" %(numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2)),block_av.size))
+    
     libxrayutils.cblockav_ccd(block_av,data,Nav1,Nav2,N,M)    
 
     block_av.shape = (numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2)))
