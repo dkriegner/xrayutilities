@@ -77,7 +77,7 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
      *    Nch1,2:       number of channels of the CCD frame
      */
 
-    int i,j,k,l; //loop indices
+    int i=0,j=0,k=0,l=0; //loop indices
     double buf;
     int Nout1,Nout2;
 

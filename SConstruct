@@ -5,10 +5,21 @@ AddOption("--prefix",dest="prefix",type="string",
           action="store",nargs=1)
 
 env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
-                  CCFLAGS=["-fPIC","-Wall","-std=c99"])
+                  CCFLAGS=["-fPIC","-Wall","-std=c99"],
+                  tools = ["default", "disttar"], toolpath = os.path.join('.','tools'))
                   
                   #CCFLAGS=["-fPIC","-Wall","-pthread"],
                   #LIBS=["m","pthread"])
+
+# package xrutils into a tarball for distribution
+#print("Creating tarball for redistribution of xrutils...")
+env['DISTTAR_FORMAT']='gz'
+env.Append(
+    DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'], 
+    DISTTAR_EXCLUDEDIRS=['.svn','.sconf_temp', 'dist', 'build'],
+    DISTTAR_EXCLUDERES=[r'clib_path.conf'])
+
+env.DistTar(os.path.join("dist","xrutils"), [env.Dir(".")]) 
 
 if "install" in COMMAND_LINE_TARGETS:
     #write the clib_path.conf file

@@ -92,3 +92,12 @@ if any c-code changed during the update you also need to rebuild the c-library
  $>scons
  $>scons install --prefix=<path to install directory>
 
+PACKAGING
+=========
+
+create a tarball for redistribution of xrutils without the use of SVN
+
+ $>scons dist
+
+creates a tarball in the directory dist, which contains everything needed for
+the installation of xrutils
