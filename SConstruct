@@ -6,7 +6,7 @@ AddOption("--prefix",dest="prefix",type="string",
 
 env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
-                  tools = ["default", "disttar"], toolpath = os.path.join('.','tools'))
+                  tools = ["default", "disttar"], toolpath=[os.path.join(".","tools")])
                   
                   #CCFLAGS=["-fPIC","-Wall","-pthread"],
                   #LIBS=["m","pthread"])
