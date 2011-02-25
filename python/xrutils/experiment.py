@@ -461,9 +461,9 @@ class QConversion(object):
             nav = 1
 
         if kwargs.has_key('roi'):
-            roi = kwargs['roi']
+            oroi = kwargs['roi']
         else:
-            roi = self._linear_roi
+            oroi = self._linear_roi
 
         if kwargs.has_key('delta'):
             delta = numpy.array(kwargs['delta'],dtype=numpy.double)
@@ -523,7 +523,11 @@ class QConversion(object):
         # initialize psd geometry to for C subprogram (include Nav and roi possibility)
         cch = self._linear_cch/float(nav)
         pwidth = self._linear_pixwidth*nav
-        roi = numpy.ceil(numpy.array(roi)/float(nav)).astype(numpy.int32)
+        #roi = numpy.ceil(numpy.array(roi)/float(nav)).astype(numpy.int32)
+        roi = numpy.array(oroi)
+        roi[0] = numpy.floor(oroi[0]/float(nav))
+        roi[1] = numpy.ceil((oroi[1]-oroi[0])/float(nav)) + roi[0]
+        roi = roi.astype(numpy.int32)
 
         # initialize return value (qposition) array
         shape = Npoints*(roi[1]-roi[0])*3
