@@ -1555,7 +1555,41 @@ class GID_ID10B(GID):
     #}}}1
 
 class GISAXS(Experiment):
-    pass
+    #{{{1
+    """
+    class describing grazing incidence x-ray diffraction experiments
+    the class helps with calculating the angles of Bragg reflections
+    as well as it helps with analyzing measured data
+
+    the class describes a four circle (alpha_i,omega,twotheta,beta) 
+    goniometer to help with GID experiments at the ROTATING ANODE. 
+    3D data can be treated with the use of linear and area detectors.
+    see help self.Ang2Q
+    """
+    def __init__(self,idir,ndir,**keyargs):
+        #{{{2
+        """
+        initialization routine for the GISAXS Experiment class
+
+        idir defines the inplane reference direction (idir points into the PB
+        direction at zero angles)
+        
+        Parameters
+        ----------
+        same as for the Experiment base class
+
+        """
+        Experiment.__init__(self,idir,ndir,**keyargs)
+        
+        # initialize Ang2Q conversion
+        self._A2QConversion = QConversion(['x+'],['x+','z-'],[0,1,0],wl=self._wl) # 1S+2D goniometer 
+        self.Ang2Q = self._A2QConversion
+
+        #}}}2
+
+    def Q2Ang(self,Q,trans=True,deg=True,**kwargs):
+        pass
+    #}}}1
 
 class Powder(Experiment):
     #{{{1
