@@ -1581,9 +1581,10 @@ class GISAXS(Experiment):
         """
         Experiment.__init__(self,idir,ndir,**keyargs)
         
-        # initialize Ang2Q conversion
-        self._A2QConversion = QConversion(['x+'],['x+','z-'],[0,1,0],wl=self._wl) # 1S+2D goniometer 
-        self.Ang2Q = self._A2QConversion
+        if not keyargs.has_key("qconv"):
+            # initialize Ang2Q conversion
+            self._A2QConversion = QConversion(['x+'],['x+','z-'],[0,1,0],wl=self._wl) # 1S+2D goniometer 
+            self.Ang2Q = self._A2QConversion
 
         #}}}2
 

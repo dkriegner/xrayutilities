@@ -141,12 +141,20 @@ class SPECTRAFileData(object):
         ostr += (3*lmax+7)*"-"+"\n"
         ostr += "|Column names:"+(3*lmax-8)*" "+"|\n"
         ostr += (3*lmax+7)*"-"+"\n"
+        # full output rows
         for i in range(nrows):
-            c1 = self.collist[i]
-            c2 = self.collist[i+nrows]
-            c3 = self.collist[i+2*nrows]            
+            c1 = self.collist[i*nc+0]
+            c2 = self.collist[i*nc+1]
+            c3 = self.collist[i*nc+2]            
             ostr +=  fmtstr %(c1.__str__(),c2.__str__(),c3.__str__())
-            
+        
+        # residual output row
+        c = ['','','']
+        for j in range(nres):
+            c[j] = self.collist[-nres+j]
+         
+        ostr +=  fmtstr %(c[0].__str__(),c[1].__str__(),c[2].__str__())
+
         ostr += (3*lmax+7)*"-"+"\n"
         return ostr
         
@@ -178,7 +186,7 @@ class SPECTRAFile(object):
         self.mca = None
         self.mca_channels = None
         
-        self.Read()
+        self.Read() # reads the .fio data file
 
         if mcatmp!=None:
             self.mca_file_template = mcatmp
@@ -187,14 +195,14 @@ class SPECTRAFile(object):
                 self.mca_start_index = mcastart
                 self.mca_stop_index = mcastop
             else:
-                #try to determine the number of scans automatically
-                spat = re_mca_int_tmp.sub("*",self.mca_file_template)
+                #try to determine the number of MCA spectra automatically
+                #spat = re_mca_int_tmp.sub("*",self.mca_file_template)
                 #spat = self.mca_file_template.replace("%i","*")
-                if config.VERBOSITY >= config.INFO_ALL: 
-                    print(spat)
-                l = glob.glob(spat)
+                #if config.VERBOSITY >= config.INFO_ALL: 
+                #    print(spat)
+                #l = glob.glob(spat)
                 self.mca_start_index = 1
-                self.mca_stop_index = len(l)
+                self.mca_stop_index = self.data.data.size # len(l)
 
             self.ReadMCA()
 
@@ -376,6 +384,9 @@ class SPECTRAFile(object):
                     
                 key = key.strip()
                 value = value.strip()
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECTRAFile.Read: comment: k,v: %s, %s"%(key,value))
+
                 try:
                     value = float(value)
                 except:
@@ -406,6 +417,9 @@ class SPECTRAFile(object):
                     
                 key = key.strip()
                 value = value.strip()
+                if config.VERBOSITY >= config.DEBUG: 
+                    print("XU.io.SPECTRAFile.Read: parameter: k,v: %s, %s"%(key,value))
+
                 try:
                     value = float(value)
                 except:
@@ -445,7 +459,7 @@ class SPECTRAFile(object):
                         name = "".join(l[2:-1])
 
                     
-                    #store columne definition 
+                    #store column definition 
                     self.data.append(SPECTRAFileDataColumn(index,name,unit,type))
                     
                     
@@ -454,6 +468,7 @@ class SPECTRAFile(object):
                         
                     col_names += "%s," %name                    
                     col_types  += "%s," %(dtype_map[type])
+                    
                 else:
                     #read data
                     dlist = re_wspaces.split(lbuffer)
@@ -464,6 +479,8 @@ class SPECTRAFile(object):
                     
         col_names = col_names[:-1]
         col_types = col_types[:-1]
+        if config.VERBOSITY >= config.DEBUG: 
+                        print("XU.io.SPECTRAFile.Read: data columns: name,type: %s, %s"%(col_names,col_types))
         self.data.data = rec.fromrecords(rec_list,formats=col_types,
                                     names=col_names)    
         
