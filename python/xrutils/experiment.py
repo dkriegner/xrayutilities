@@ -378,8 +378,8 @@ class QConversion(object):
         self._linear_cch = float(cch)
         
         if distance!=None and pixelwidth!=None:
-            self._linear_distance = float(distance)
-            self._linear_pixwidth = float(pixelwidth)
+            self._linear_distance = 1.0
+            self._linear_pixwidth = float(pixelwidth)/float(distance)
         elif chpdeg!=None:
             self._linear_distance = 1.0
             self._linear_pixwidth = 2*self._linear_distance/numpy.abs(float(chpdeg))*numpy.tan(numpy.radians(0.5))
