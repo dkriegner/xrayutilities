@@ -11,13 +11,13 @@ from . import math
 from . import io
 from . import materials
 
-#the vis module is meanwhile deactivated - needs to 
-#be rewritten.
-try:
-    from . import vis
-except:
-    print "Visualization module cannot be imported!"
-    print "an will therefore not be available!"
+##the vis module is meanwhile deactivated - needs to 
+##be rewritten.
+#try:
+#    from . import vis
+#except:
+#    print "Visualization module cannot be imported!"
+#    print "an will therefore not be available!"
 
 from .experiment import Experiment
 from .experiment import HXRD
