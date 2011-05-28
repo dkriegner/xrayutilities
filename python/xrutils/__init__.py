@@ -10,6 +10,7 @@ from . import config
 from . import math
 from . import io
 from . import materials
+from . import analysis
 
 ##the vis module is meanwhile deactivated - needs to 
 ##be rewritten.
