@@ -9,6 +9,7 @@ from .seifert import SeifertScan
 from .seifert import SeifertMultiScan
 
 from .spectra import SPECTRAFile
+from .spectra import geth5_spectra_map
 
 # DK: tascom importer used deprecated and removed scipy code
 #     port to numpy functions should be possible

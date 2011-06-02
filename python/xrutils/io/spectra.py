@@ -7,6 +7,7 @@ import tables
 import os.path
 from numpy import rec
 import glob
+import matplotlib
 
 from .. import config
 
@@ -18,10 +19,14 @@ re_parameter_section = re.compile(r"^%p")
 re_data_section = re.compile(r"^%d")
 re_end_section  = re.compile(r"^!")
 re_unit = re.compile(r"\[.+\]")
+re_obracket = re.compile(r"\[")
+re_cbracket = re.compile(r"\]")
+re_underscore = re.compile(r"_")
 re_column = re.compile(r"^Col")
 re_col_name = re.compile(r"\d+\s+.+\s*\[")
 re_col_index = re.compile(r"\d+\s+")
 re_col_type = re.compile(r"\[.+\]")
+re_num = re.compile(r"[0-9]")
 
 re_mca_int_tmp = re.compile(r"%.*i")
 
@@ -287,7 +292,8 @@ class SPECTRAFile(object):
             for cname in rec.dtype.names:
                 tab.row[cname] = rec[cname]					
             tab.row.append()
-        
+       
+        tab.flush()
         
         #if there is MCA data - store this 
         if self.mca!=None:
@@ -304,6 +310,8 @@ class SPECTRAFile(object):
             #set MCA specific attributes
             h5.setNodeAttr(c,"channels",self.mca_channels)
             h5.setNodeAttr(c,"nchannels",self.mca_channels.shape[0])
+
+        h5.flush()
 
         if isinstance(h5file,str):
             h5.close()
@@ -383,6 +391,10 @@ class SPECTRAFile(object):
                     continue 
                     
                 key = key.strip()
+                key = key.replace(' ','') # remove whitespaces to be conform with natural naming
+                # remove possible number at first position
+                if re_num.findall(key[0]) != []:
+                    key = "_" + key
                 value = value.strip()
                 if config.VERBOSITY >= config.DEBUG: 
                     print("XU.io.SPECTRAFile.Read: comment: k,v: %s, %s"%(key,value))
@@ -416,6 +428,10 @@ class SPECTRAFile(object):
                     print("XU.io.SPECTRAFile.Read: cannot interpret the parameter string: %s" %(lbuffer))
                     
                 key = key.strip()
+                key = key.replace(' ','') # remove whitespaces to be conform with natural naming
+                # remove possible number at first position
+                if re_num.findall(key[0]) != []:
+                    key = "_" + key
                 value = value.strip()
                 if config.VERBOSITY >= config.DEBUG: 
                     print("XU.io.SPECTRAFile.Read: parameter: k,v: %s, %s"%(key,value))
@@ -446,28 +462,31 @@ class SPECTRAFile(object):
                 if re_column.match(lbuffer):
                     try:
                         unit = re_unit.findall(lbuffer)[0]
-                        (lval,rval ) = re_unit.split(lbuffer)
-                        type = rval.strip()
+                    except IndexError: 
+                        unit = "NONE"
+                    
+                    try: 
+                        lval = re_obracket.split(lbuffer)[0]
+                        rval = re_cbracket.split(lbuffer)[-1]
+                        dtype = rval.strip()
                         l = re_wspaces.split(lval)
                         index = int(l[1])
                         name = "".join(l[2:])
-                    except:
-                        unit = "NONE"
+                    except IndexError:
                         l = re_wspaces.split(lbuffer)
                         index = int(l[1])
-                        type = l[-1]
+                        dtype = l[-1]
                         name = "".join(l[2:-1])
-
                     
                     #store column definition 
-                    self.data.append(SPECTRAFileDataColumn(index,name,unit,type))
+                    self.data.append(SPECTRAFileDataColumn(index,name,unit,dtype))
                     
                     
                     if name in col_names.split(","):
                         name += "%s_1" %name
                         
                     col_names += "%s," %name                    
-                    col_types  += "%s," %(dtype_map[type])
+                    col_types  += "%s," %(dtype_map[dtype])
                     
                 else:
                     #read data
@@ -846,4 +865,110 @@ def read_data(fname):
     data = numpy.rec.fromrecords(data,names=col_names)
 
     return (data,hdr_dict)
+
+
+def geth5_spectra_map(h5file,scans,*args,**kwargs):
+    """
+    function to obtain the omega and twotheta as well as intensity values
+    for a reciprocal space map saved in an HDF5 file, which was created 
+    from a spectra file by the Save2HDF5 method.
+
+    further more it is possible to obtain even more positions from
+    the data file if more than two string arguments with its names are given
+
+    Parameters
+    ----------
+     h5f:     file object of a HDF5 file opened using pytables
+     scans:   number of the scans of the reciprocal space map (int,tuple or list)
+     *args:   names of the motors (strings)
+        omname:  name of the omega motor (or its equivalent)
+        ttname:  name of the two theta motor (or its equivalent)
+
+     **kwargs (optional):
+        mca:        name of the mca data (if available) otherwise None (default: "MCA")      
+        samplename: string with the hdf5-group containing the scan data
+                    if ommited the first child node of h5f.root will be used
+                    to determine the sample name
+
+    Returns
+    -------
+     [ang1,ang2,...],MAP: 
+                angular positions of the center channel of the position
+                sensitive detector (numpy.ndarray 1D) together with all the 
+                data values as stored in the data file (includes the 
+                intensities e.g. MAP['MCA']).
+    """
+
+    if isinstance(h5file,str):
+        try:
+            h5 = tables.openFile(h5file,mode="r")
+        except:
+            print("XU.io.spectra.geth5_spectra_map: cannot open file %s for reading!" %h5file)
+            return True
+
+    else:
+        h5 = h5file
+    
+    if kwargs.has_key("mca"):
+        mca = kwargs["mca"]
+    else:
+        mca = "MCA"
+        
+    if kwargs.has_key("samplename"):
+        basename = kwargs["samplename"]
+    else:
+        nodename = h5.listNodes(h5.root)[0]._v_name
+        basenlist = re_underscore.split(nodename)
+        basename = "_".join(basenlist[:-1])
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.io.spectra.geth5_spectra_map: using \'%s\' as basename" %(basename))
+
+    if isinstance(scans,(list,tuple)):
+        scanlist = scans
+    else: 
+        scanlist = list([scans])
+    
+    angles = dict.fromkeys(args)
+    for key in angles.keys():
+        angles[key] = numpy.zeros(0)
+    buf=numpy.zeros(0)
+    MAP = numpy.zeros(0)
+
+    for nr in scanlist:
+        h5scan = h5.getNode(h5.root,basename+"_%05d" %nr)
+        sdata = h5scan.data.read()
+        if mca:
+            mcanode = h5.getNode(h5.root,basename+"_%05d/%s" %(nr,mca))
+            mcadata = mcanode.read()
+
+        # append scan data to MAP, where all data are stored
+        sdtmp = matplotlib.mlab.rec_append_fields(sdata,[mca,],[mcadata,],dtypes=[(numpy.double,mcadata.shape[1])])
+        if MAP.dtype == numpy.float64:  MAP.dtype = sdtmp.dtype
+        MAP = numpy.append(MAP, sdtmp)
+
+        #check type of scan
+        notscanmotors = []
+        for i in range(len(args)):
+            motname = args[i]
+            try:
+                buf = sdata[motname]
+                scanshape = buf.shape
+                angles[motname] = numpy.concatenate((angles[motname],buf))
+            except:
+                notscanmotors.append(i)
+        for i in notscanmotors:
+            motname = args[i]
+            buf = numpy.ones(scanshape) * h5.getNodeAttr(h5scan,"%s" %motname)
+            angles[motname] =numpy.concatenate((angles[motname],buf))
+    
+    retval = []
+    for motname in args:
+        #create return values in correct order
+        retval.append(angles[motname])
+    
+    if isinstance(h5file,str):
+        h5.close()
+
+    return retval,MAP
+
 
