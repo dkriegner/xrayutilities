@@ -9,13 +9,14 @@ import scipy
 import scipy.stats
 import scipy.optimize as optimize
 
+from .. import config
+
 try: 
     from matplotlib import pyplot as plt
 except RuntimeError: 
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.analysis.sample_align: warning; plotting functionality not available")
 
-from .. import config
 
 #################################################
 ## channel per degree calculation 
