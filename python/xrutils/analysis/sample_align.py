@@ -8,7 +8,12 @@ import numpy
 import scipy
 import scipy.stats
 import scipy.optimize as optimize
-import matplotlib.pyplot as plt
+
+try: 
+    from matplotlib import pyplot as plt
+except RuntimeError: 
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU.analysis.sample_align: warning; plotting functionality not available")
 
 from .. import config
 
@@ -39,7 +44,12 @@ def psd_chdeg(angles,channels,plot=True):
         print ("XU.analysis.psd_chdeg: %8.4f %8.4f %6.4f %6.4f %6.4f" %(a_s,b_s,r,tt,stderr))
     centerch = scipy.polyval(numpy.array([a_s,b_s]),0.0)
     chdeg = a_s
-    
+
+    try: plt.__name__ 
+        except NameError: 
+            print("XU.analyis.psd_chdeg: Warning: plot functionality not available")
+            plot = False
+
     if plot:
         ymin = min(min(channels),centerch)
         ymax = max(max(channels),centerch)
@@ -94,6 +104,11 @@ def psd_refl_align(primarybeam,angles,channels,plot=True):
     (a_s,b_s,r,tt,stderr)=scipy.stats.linregress(channels,angles)
 
     zeropos = scipy.polyval(numpy.array([a_s,b_s]),primarybeam)
+    
+    try: plt.__name__ 
+        except NameError: 
+            print("XU.analyis.psd_chdeg: Warning: plot functionality not available")
+            plot = False
     
     if plot:
         xmin = min(min(channels),primarybeam)
@@ -176,6 +191,11 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
     if config.VERBOSITY >= config.INFO_ALL:
         print("xu.analysis.misfit_calc: leastsq optimization return value: %d" %success)
 
+    try: plt.__name__ 
+        except NameError: 
+            print("XU.analyis.psd_chdeg: Warning: plot functionality not available")
+            plot = False
+    
     if plot:
         plt.figure()
         plt.plot(a,om,'kx',mew=2,ms=8)
