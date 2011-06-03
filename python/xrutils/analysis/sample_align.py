@@ -46,7 +46,7 @@ def psd_chdeg(angles,channels,plot=True):
     chdeg = a_s
 
     try: plt.__name__ 
-        except NameError: 
+    except NameError: 
             print("XU.analyis.psd_chdeg: Warning: plot functionality not available")
             plot = False
 
@@ -106,7 +106,7 @@ def psd_refl_align(primarybeam,angles,channels,plot=True):
     zeropos = scipy.polyval(numpy.array([a_s,b_s]),primarybeam)
     
     try: plt.__name__ 
-        except NameError: 
+    except NameError: 
             print("XU.analyis.psd_chdeg: Warning: plot functionality not available")
             plot = False
     
@@ -192,7 +192,7 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
         print("xu.analysis.misfit_calc: leastsq optimization return value: %d" %success)
 
     try: plt.__name__ 
-        except NameError: 
+    except NameError: 
             print("XU.analyis.psd_chdeg: Warning: plot functionality not available")
             plot = False
     
