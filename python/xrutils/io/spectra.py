@@ -7,7 +7,11 @@ import tables
 import os.path
 from numpy import rec
 import glob
-import matplotlib
+try: 
+    import matplotlib
+except RuntimeError: 
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU.io.specitra: warning; spectra class hdf5 import functionality not available")
 
 from .. import config
 
@@ -899,6 +903,11 @@ def geth5_spectra_map(h5file,scans,*args,**kwargs):
                 intensities e.g. MAP['MCA']).
     """
 
+    try: matplotlib.__version__ 
+    except NameError: 
+        print("XU.io.spectra.geth5_spectra_map: ERROR: matplotlib functionality not available")
+        return
+    
     if isinstance(h5file,str):
         try:
             h5 = tables.openFile(h5file,mode="r")
