@@ -35,6 +35,7 @@ from .material import PbTe
 from .material import CdTe
 from .material import CdSe_ZB
 from .material import CdSe
+from .material import HgSe
 from .material import PbSe
 from .material import GaN
 from .material import BaF2
