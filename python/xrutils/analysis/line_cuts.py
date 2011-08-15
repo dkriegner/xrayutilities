@@ -259,7 +259,7 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
     # determine omega scan intensities by look up in the gridded RSM
     for i in range(OMS.size):
         ix,iz = getindex(qxS[i],qzS[i],qx,qz)
-        if (ix>=0 and ix<qx.size and iz>=0 and iz <= qz.size):
+        if (ix>=0 and ix<qx.size and iz>=0 and iz < qz.size):
             intOM1d[i] = intensity[ix,iz]
 
     intOM = intOM1d.reshape((npoints,nint))
@@ -457,7 +457,7 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
     # determine radial scan intensities by look up in the gridded RSM
     for i in range(OMS.size):
         ix,iz = getindex(qxS[i],qzS[i],qx,qz)
-        if (ix>=0 and ix<qx.size and iz>=0 and iz <= qz.size):
+        if (ix>=0 and ix<qx.size and iz>=0 and iz < qz.size):
             intrad1d[i] = intensity[ix,iz]
 
     intRAD = intrad1d.reshape((npoints,nint))
@@ -657,7 +657,7 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
     # determine radial scan intensities by look up in the gridded RSM
     for i in range(OMS.size):
         ix,iz = getindex(qxS[i],qzS[i],qx,qz)
-        if (ix>=0 and ix<qx.size and iz>=0 and iz <= qz.size):
+        if (ix>=0 and ix<qx.size and iz>=0 and iz < qz.size):
             inttt1d[i] = intensity[ix,iz]
 
     intTT = inttt1d.reshape((npoints,nint))
