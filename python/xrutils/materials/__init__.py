@@ -50,6 +50,7 @@ from .material import Antimony
 from .material import AlloyAB
 from .material import PseudomorphicMaterial
 from .material import Material
+from .material import CubicElasticTensor
 from .database import DataBase
 from .database import init_material_db
 from .database import add_f0_from_intertab
