@@ -925,6 +925,8 @@ def geth5_map(h5f,scans,*args,**kwargs):
                 angles[motname] =numpy.concatenate((angles[motname],buf))
             except:
                 notscanmotors.append(i)
+        if len(notscanmotors) == len(MAP):
+            scanshape = MAP.shape
         for i in notscanmotors:
             motname = args[i]
             buf = numpy.ones(scanshape) * h5f.getNodeAttr(h5scan,"INIT_MOPO_%s" %motname)
