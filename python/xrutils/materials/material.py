@@ -271,7 +271,7 @@ class Material(object):
         """ 
         calculates the complex chi_0 values ofter needed in simulations.
         They are closely related to delta and beta
-        (n = 1 + chi_r0 /2 + i*chi_i0 /2   vs.  n = 1 - delta + i*beta) 
+        (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta) 
         """
         return (-2*self.delta(en)+2j*self.beta(en))
 
