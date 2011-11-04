@@ -157,7 +157,7 @@ def getOmPixcel(omraw,ttraw):
     """
     return (omraw[:,numpy.newaxis]*numpy.ones(ttraw.shape)).flatten()
 
-def getxrdml_map(filetemplate,scannrs=None,path="."):
+def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
     """
     parses multiple XRDML file and concatenates the results
     for parsing the xrutils.io.XRDMLFile class is used
@@ -168,6 +168,7 @@ def getxrdml_map(filetemplate,scannrs=None,path="."):
                    a %d which is replaced by the scan number
      scannrs:      int or list of scan numbers 
      path:         common path to the filenames
+     roi:          region of interest for the PIXCel detector
     
     Returns
     -------
@@ -193,9 +194,11 @@ def getxrdml_map(filetemplate,scannrs=None,path="."):
     for f in files: 
         d = XRDMLFile(os.path.join(path,f))
         s = d.scan
-        om = numpy.concatenate((om,getOmPixcel(s['Omega'],s['2Theta'])))
-        tt = numpy.concatenate((tt,s['2Theta'].flatten()))
-        psd = numpy.concatenate((psd,s['detector'].flatten()))
+        if roi==None:
+            roi=[0,s['detector'].shape[1]]
+        om = numpy.concatenate((om,getOmPixcel(s['Omega'],s['2Theta'][:,roi[0]:roi[1]])))
+        tt = numpy.concatenate((tt,s['2Theta'][:,roi[0]:roi[1]].flatten()))
+        psd = numpy.concatenate((psd,s['detector'][:,roi[0]:roi[1]].flatten()))
 
     return om,tt,psd 
 
