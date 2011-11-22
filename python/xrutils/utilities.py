@@ -8,7 +8,7 @@ import numpy
 from . import config
 from .utilities_noconf import *
 
-def maplog(inte,dynlow = "config",dynhigh = "config"):
+def maplog(inte,dynlow = "config",dynhigh = "config",**keyargs):
     #{{{
     """
     clips values smaller and larger as the given bounds and returns the log10
@@ -21,6 +21,10 @@ def maplog(inte,dynlow = "config",dynhigh = "config"):
      inte : numpy.array, values to be cut in range
      dynlow : 10^(-dynlow) will be the minimum cut off
      dynhigh : 10^(-dynhigh) will be the maximum cut off
+
+    optional keyword arguments (NOT IMPLEMENTED):
+     abslow: 10^(abslow) will be taken as lower boundary
+     abshigh: 10^(abshigh) will be taken as higher boundary
                                
     Returns
     -------

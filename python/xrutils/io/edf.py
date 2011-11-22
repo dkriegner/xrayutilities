@@ -6,6 +6,7 @@ import struct
 import tables
 import os
 import os.path
+import glob
 
 from .. import config
 
@@ -23,7 +24,7 @@ edf_name_start_num=re.compile(r"^\d")
 DataTypeDict = {"SignedByte":"b",
                 "SignedShort":"h",
                 "SignedInteger":"i",
-                "SignedLong":"l",
+                "SignedLong":"i",
                 "FloatValue":"f",
                 "DoubleValue":"d",
                 "UnsignedByte":"B",
@@ -31,6 +32,7 @@ DataTypeDict = {"SignedByte":"b",
                 "UnsignedInt":"I",
                 "UnsignedLong":"L"}
 
+# SignedLong is only 4byte, on my 64bit machine using SignedLong:"l" caused troubles
 
 class EDFFile(object):
     def __init__(self,fname,**keyargs):
@@ -152,6 +154,9 @@ class EDFFile(object):
         binfid.seek(offset,0)
         #read the data
         bindata = binfid.read(struct.calcsize(tot_nofp*fmt_str))
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.io.EDFFile: read binary data: nofp: %d len: %d"%(tot_nofp,len(bindata)))
+            print("XU.io.EDFFile: format: %s"%fmt_str)
         num_data = struct.unpack(tot_nofp*fmt_str,bindata)
         
         #find the proper datatype
@@ -220,6 +225,7 @@ class EDFFile(object):
         #create the array name
         ca_name = os.path.split(self.filename)[-1]
         ca_name = os.path.splitext(ca_name)[0]
+        ca_name = ca_name.replace("-","_")
         if edf_name_start_num.match(ca_name):
             ca_name = "ccd_"+ca_name
         if config.VERBOSITY >= config.INFO_ALL: 
@@ -253,4 +259,79 @@ class EDFFile(object):
             aname = k.replace(".","_")
             aname = aname.replace(" ","_")
             ca.attrs.__setattr__(aname,self.header[k])
+
+class EDFDirectory(object):
+    def __init__(self,datapath,**keyargs):
+        """
+        
+        required arguments:
+        datapath ............. directory of the EDF file
+        
+        optional keyword arguments:
+        ext .................. extension of the ccd files in the datapath (default: "edf")
+        
+        further keyword arguments are passed to EDFFile
+        """
+     
+
+        self.datapath = os.path.normpath(datapath)
+        if keyargs.has_key("ext"):
+            self.extension = keyargs["ext"]
+        else:
+            self.extension = "edf"
+            
+        #create list of files to read
+        self.files = glob.glob( os.path.join(self.datapath, '*.%s' %(self.extension)))
+
+        if len(self.files) == 0:
+            print("XU.io.EDFDirectory: no files found in %s" %(self.datapath))
+            return
+        
+        if config.VERBOSITY >= config.INFO_ALL: 
+            print("XU.io.EDFDirectory: %d files found in %s" %(len(self.files),self.datapath))
+            
+        self.init_keyargs = keyargs
+            
+            
+    def Save2HDF5(self,h5,**keyargs):
+        """
+        Save2HDF5(h5,**keyargs):
+        Saves the data stored in the EDF files in the specified directory 
+        in a HDF5 file as a HDF5 arrays in a subgroup.
+        By default the data is stored in a group given by the foldername - this 
+        can be changed by passing the name of a target group or a path to the 
+        target group via the "group" keyword argument.
+        
+        required arguments.
+        h5 ................... a HDF5 file object
+        
+        optional keyword arguments:
+        group ................ group where to store the data (default: pathname)
+        comp ................. activate compression - true by default
+        """
+
+        if keyargs.has_key("group"):
+            if isinstance(keyargs["group"],str):
+                g = h5.getNode(keyargs["group"])
+            else:
+                g = keyargs["group"]
+        else:
+            # create common subgroup
+            defaultg = os.path.split(self.datapath)[1]
+            try: 
+                g = h5.getNode(h5.root,defaultg)
+            except:
+                g = h5.createGroup(h5.root,defaultg)
+            
+        if keyargs.has_key("comp"):
+            compflag = keyargs["comp"]
+        else:
+            compflag = True
+        
+        for infile in self.files:
+            # read EDFFile and save to hdf5
+            filename = os.path.split(infile)[1]
+            e = EDFFile(filename,path=self.datapath,**self.init_keyargs)
+            e.ReadData()
+            e.Save2HDF5(h5,group=g)
 

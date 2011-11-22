@@ -128,6 +128,9 @@ class Gridder2D(Gridder):
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         data = data.reshape(data.size)
+        
+        if x.size != y.size or y.size!=z.size or z.size!=data.size:
+            raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,z,data) is not equal!")
 
         # require correct aligned memory for input arrays
         x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
@@ -214,6 +217,9 @@ class Gridder3D(Gridder2D):
         z = z.reshape(z.size)
         data = data.reshape(data.size)
         
+        if x.size != y.size or y.size!=z.size or z.size!=data.size:
+            raise exception.InputError("XU.Gridder3D: size of given datasets (x,y,z,data) is not equal!")
+
         # require correct aligned memory for input arrays
         x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         y = numpy.require(y,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
@@ -241,6 +247,8 @@ class Gridder3D(Gridder2D):
             #use sequential code - good for small data
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Gridder3D: using sequential code ... (flags: %d)" %self.flags)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.Gridder3D: shapes x,y,z,data (%d,%d,%d,%d)" %(x.size,y.size,z.size,data.size))
             libxrayutils._gridder3d(x,y,z,data,ctypes.c_uint(x.size),
                                    ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
                                    ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
