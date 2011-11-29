@@ -129,8 +129,8 @@ class Gridder2D(Gridder):
         y = y.reshape(y.size)
         data = data.reshape(data.size)
         
-        if x.size != y.size or y.size!=z.size or z.size!=data.size:
-            raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,z,data) is not equal!")
+        if x.size != y.size or y.size!=data.size:
+            raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,data) is not equal!")
 
         # require correct aligned memory for input arrays
         x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
