@@ -605,7 +605,7 @@ class QConversion(object):
             self._area_pwidth2 = 2*self._area_distance/numpy.abs(float(chpdeg2))*numpy.tan(numpy.radians(0.5))
         else:
             # not all needed values were given 
-            raise InputError("Qconversion errror: not all mandatory arguments were given -> read API doc")
+            raise InputError("Qconversion error: not all mandatory arguments were given -> read API doc")
         
         # kwargs
         if kwargs.has_key('roi'):

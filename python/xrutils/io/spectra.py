@@ -242,7 +242,7 @@ class SPECTRAFile(object):
             try:
                 h5 = tables.openFile(h5file,mode="a")
             except:
-                print("XU.io.spectra.Save2HDF5: cannot open file %s for writting!" %h5file)
+                print("XU.io.spectra.Save2HDF5: cannot open file %s for writing!" %h5file)
                 return True
 
         else:
@@ -252,7 +252,7 @@ class SPECTRAFile(object):
         try:
             g = h5.createGroup(group,name,title=description,createparents=True)
         except:
-            print("XU.io.spectra.Save2HDF5: cannot create group %s for writting data!" %name)
+            print("XU.io.spectra.Save2HDF5: cannot create group %s for writing data!" %name)
             h5.close()
             return True
             
