@@ -30,9 +30,10 @@ DataTypeDict = {"SignedByte":"b",
                 "UnsignedByte":"B",
                 "UnsignedShort":"H",
                 "UnsignedInt":"I",
-                "UnsignedLong":"L"}
+                "UnsignedLong":"I"}
 
 # SignedLong is only 4byte, on my 64bit machine using SignedLong:"l" caused troubles
+# UnsignedLong is only 4byte, on my 64bit machine using UnsignedLong:"L" caused troubles
 
 class EDFFile(object):
     def __init__(self,fname,**keyargs):
@@ -148,7 +149,7 @@ class EDFFile(object):
         dimx = int(self.header[self.nxkey])
         dimy = int(self.header[self.nykey])
 
-        #calculate the total number of pixles in the data block                                         
+        #calculate the total number of pixeles in the data block                                         
         tot_nofp = dimx*dimy 
         #move to the data section - jump over the header
         binfid.seek(offset,0)
@@ -157,7 +158,12 @@ class EDFFile(object):
         if config.VERBOSITY >= config.DEBUG:
             print("XU.io.EDFFile: read binary data: nofp: %d len: %d"%(tot_nofp,len(bindata)))
             print("XU.io.EDFFile: format: %s"%fmt_str)
-        num_data = struct.unpack(tot_nofp*fmt_str,bindata)
+        
+        try:
+            num_data = struct.unpack(tot_nofp*fmt_str,bindata)
+        except:
+            print("XU.io.EDFFile: number of entries in the file is not what was to be expected")
+            
         
         #find the proper datatype
         if self.header[self.dtkey]=="SignedByte":

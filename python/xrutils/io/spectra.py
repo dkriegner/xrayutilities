@@ -275,29 +275,30 @@ class SPECTRAFile(object):
         
         #first save the data stored in the FIO file
         tab_desc_dict = {}
-        for t in self.data.data.dtype.descr:
-            cname = t[0]
-            if len(t[1:])==1:
-                ctype = numpy.dtype((t[1]))
-            else:
-                ctype = numpy.dtype((t[1],t[2]))
-                
-            tab_desc_dict[cname] = tables.Col.from_dtype(ctype)  
-        
-        #create the table object
-        try:
-            tab = h5.createTable(g,"data",tab_desc_dict,"scan data") 
-        except:
-            print("XU.io.spectra.Save2HDF5: cannot create table for storing scan data!")
-            return True
-                        
-        #now write the data to the tables
-        for rec in self.data.data:
-            for cname in rec.dtype.names:
-                tab.row[cname] = rec[cname]					
-            tab.row.append()
-       
-        tab.flush()
+        if self.data.data != None:
+            for t in self.data.data.dtype.descr:
+                cname = t[0]
+                if len(t[1:])==1:
+                    ctype = numpy.dtype((t[1]))
+                else:
+                    ctype = numpy.dtype((t[1],t[2]))
+                    
+                tab_desc_dict[cname] = tables.Col.from_dtype(ctype)  
+            
+            #create the table object
+            try:
+                tab = h5.createTable(g,"data",tab_desc_dict,"scan data") 
+            except:
+                print("XU.io.spectra.Save2HDF5: cannot create table for storing scan data!")
+                return True
+                            
+            #now write the data to the tables
+            for rec in self.data.data:
+                for cname in rec.dtype.names:
+                    tab.row[cname] = rec[cname]					
+                tab.row.append()
+           
+            tab.flush()
         
         #if there is MCA data - store this 
         if self.mca!=None:
@@ -504,7 +505,10 @@ class SPECTRAFile(object):
         col_types = col_types[:-1]
         if config.VERBOSITY >= config.DEBUG: 
                         print("XU.io.SPECTRAFile.Read: data columns: name,type: %s, %s"%(col_names,col_types))
-        self.data.data = rec.fromrecords(rec_list,formats=col_types,
+        if len(rec_list) == 0:
+            print("XU.io.SPECTRAFile.Read: no data available %s"%(self.filename))
+        else:
+            self.data.data = rec.fromrecords(rec_list,formats=col_types,
                                     names=col_names)    
         
 

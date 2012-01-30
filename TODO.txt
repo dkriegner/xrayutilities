@@ -1,6 +1,11 @@
 To Do
 -----
 
+30.1.2012
+
+DK: add license note to every source file, check license of database file
+conversion to GIT
+
 3.11.2010
 
 DK: the new config should be used by the whole python package were necessary. 
