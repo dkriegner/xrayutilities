@@ -187,6 +187,8 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
         files = [filetemplate]
     else:
         files = list()
+        if not isinstance(scannrs,list):
+            scannrs = [scannrs]
         for nr in scannrs:
             files.append(filetemplate %nr)
 
