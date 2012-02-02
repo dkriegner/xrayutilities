@@ -1,4 +1,5 @@
 import os
+import datetime
 
 AddOption("--prefix",dest="prefix",type="string",
           default="/usr/local",metavar="INSTPREFIX",
@@ -19,7 +20,7 @@ env.Append(
     DISTTAR_EXCLUDEDIRS=['.svn','.sconf_temp', 'dist', 'build'],
     DISTTAR_EXCLUDERES=[r'clib_path.conf'])
 
-env.DistTar(os.path.join("dist","xrutils"), [env.Dir(".")]) 
+env.DistTar(os.path.join("dist","xrutils_"+datetime.date.today().isoformat()), [env.Dir(".")]) 
 
 if "install" in COMMAND_LINE_TARGETS:
     #write the clib_path.conf file
