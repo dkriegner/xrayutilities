@@ -23,9 +23,11 @@ Installing xrutils is a two step process
 Obtaining the source code
 -------------------------
 
-So far this is only possible using the svn repository on brewster, ask Eugen
-for information how to access the source code. 
-No tarball releases were done so far.
+The sources are hosted on sourceforge in git repository.
+Use:
+ $> git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
+to clone the git repository. If you would like to have commit rights 
+contact one of the administrators.
 
 Building and installing the C library
 -------------------------------------
@@ -54,11 +56,11 @@ Tow possible installation procedures for the Python module are supported
 2.) user local installation
 
 In the first case a simple
->python setup.py install
+ $> python setup.py install
 will install the python module in the standard directory where Python looks for 
 third party modules.
 For user local installation use
->python setup.py install --home=<install path>
+ $> python setup.py install --home=<install path>
 In this case the module is installed under <install path>/lib/python. 
 
 If you have installed the Python package in a directory unknown to your 
