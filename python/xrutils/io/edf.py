@@ -49,7 +49,7 @@ DataTypeDict = {"SignedByte":"b",
                 "UnsignedByte":"B",
                 "UnsignedShort":"H",
                 "UnsignedInt":"I",
-                "UnsignedLong":"I"}
+                "UnsignedLong":"L"}
 
 # SignedLong is only 4byte, on my 64bit machine using SignedLong:"l" caused troubles
 # UnsignedLong is only 4byte, on my 64bit machine using UnsignedLong:"L" caused troubles
@@ -66,6 +66,7 @@ class EDFFile(object):
         nykey ................ name of the header key that holds the number of points in y-direction
         dtkey ................ name of the header key that holds the datatype for the binary data
         path ................. path to the EDF file
+        header ............... has header (default true)
         """
         
         self.filename = fname
@@ -94,6 +95,11 @@ class EDFFile(object):
             self.dtkey = keyargs["dtkey"]
         else:
             self.dtkey = "DataType"
+
+        if keyargs.has_key("header"):
+            self.headerflag = keyargs["header"]
+        else:
+            self.headerflag = True
             
         #create attributes for holding data
         self.header = {}
@@ -110,7 +116,7 @@ class EDFFile(object):
         if config.VERBOSITY >= config.INFO_LOW:
             print("XU.io.EDFFile.ReadData: file: %s" %self.filename)
 
-        while True:
+        while self.headerflag:
             line_buffer = self.fid.readline()
            
             #remove leading and trailing whitespace symbols
@@ -161,14 +167,25 @@ class EDFFile(object):
 
         #to read the data we have to open the file in binary mode
         binfid = open(self.full_filename,"rb")
-        byte_order = self.header["ByteOrder"]
-        #evaluate some header entries
-        fmt_str = DataTypeDict[self.header[self.dtkey]]
-        #hdr_size = int(self.header["EDF_HeaderSize"])
-        dimx = int(self.header[self.nxkey])
-        dimy = int(self.header[self.nykey])
 
-        #calculate the total number of pixeles in the data block                                         
+        if (not self.headerflag): #for fast scan at ID01
+            byte_order = 'LowByteFirst'
+            #evaluate some header entries
+            fmt_str = DataTypeDict['UnsignedShort']
+            #hdr_size = int(self.header["EDF_HeaderSize"])
+            dimx = 516
+            dimy = 516
+            dtype = 'UnsignedShort'
+        else:
+            byte_order = self.header["ByteOrder"]
+            #evaluate some header entries
+            fmt_str = DataTypeDict[self.header[self.dtkey]]
+            #hdr_size = int(self.header["EDF_HeaderSize"])
+            dimx = int(self.header[self.nxkey])
+            dimy = int(self.header[self.nykey])
+            dtype = self.header[self.dtkey]
+
+        #calculate the total number of pixles in the data block                                         
         tot_nofp = dimx*dimy 
         #move to the data section - jump over the header
         binfid.seek(offset,0)
@@ -185,31 +202,31 @@ class EDFFile(object):
             
         
         #find the proper datatype
-        if self.header[self.dtkey]=="SignedByte":
+        if dtype=="SignedByte":
             self.data = numpy.array(num_data,dtype=numpy.int8)
-        elif self.header[self.dtkey]=="SignedShort":
+        elif dtype=="SignedShort":
             self.data = numpy.array(num_data,dtype=numpy.int16)
-        elif self.header[self.dtkey]=="SignedInteger":
+        elif dtype=="SignedInteger":
             self.data = numpy.array(num_data,dtype=numpy.int32)
-        elif self.header[self.dtkey]=="SignedLong":
+        elif dtype=="SignedLong":
             self.data = numpy.array(num_data,dtype=numpy.int64)
-        elif self.header[self.dtkey]=="FloatValue":
+        elif dtype=="FloatValue":
             self.data = numpy.array(num_data,dtype=numpy.float)
-        elif self.header[self.dtkey]=="DoubleValue":
+        elif dtype=="DoubleValue":
             self.data = numpy.array(num_data,dtype=numpy.double)
-        elif self.header[self.dtkey]=="UnsignedByte":
+        elif dtype=="UnsignedByte":
             self.data = numpy.array(num_data,dtype=numpy.uint8)
-        elif self.header[self.dtkey]=="UnsignedShort":
+        elif dtype=="UnsignedShort":
             self.data = numpy.array(num_data,dtype=numpy.uint16)
-        elif self.header[self.dtkey]=="UnsignedInt":
+        elif dtype=="UnsignedInt":
             self.data = numpy.array(num_data,dtype=numpy.uint32)
-        elif self.header[self.dtkey]=="UnsignedLong":
+        elif dtype=="UnsignedLong":
             self.data = numpy.array(num_data,dtype=numpy.uint64)
         else:
             self.data = numpy.array(num_data,dtype=dtype.double)
             
         self.data = self.data.reshape(dimy,dimx)
-        if byte_order != "LowByteFirst":
+        if byte_order != "LowByteFirst": #self.data = self.data.byteswap()
             print("XU.io.EDFFile.ReadData: check byte order - not low byte first")
 
         #close the binary file descriptor
