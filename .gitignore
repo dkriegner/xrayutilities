@@ -1,0 +1,9 @@
+
+# temporary scons files
+config.log
+.sconf_temp/
+.sconsign.dblite
+
+# build files and tarball directory
+dist/
+build/
