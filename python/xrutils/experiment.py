@@ -65,17 +65,18 @@ class QConversion(object):
         #{{{2
         """
         initialize Qconversion object. 
-        This means the sample and detector cicles are set and if detector geometries for 
-        linear or area detector are given they are also initialized
+        This means the rotation axis of the sample and detector circles
+        need to be given: starting with the outer most circle.
 
         Parameters
         ----------
         sampleAxis:     list or tuple of sample circles, e.g. ['x+','z+']
         detectorAxis:   list or tuple of detector circles
-        r_i:            vector giving the direction of the primary beam (length is irrelevant)
+        r_i:            vector giving the direction of the primary beam
+                        (length is irrelevant)
         **kwargs:       optional keyword arguments
-            wl:        wavelength of the x-rays in Angstroem
-            en:        energy of the x-rays in electronvolt
+            wl:         wavelength of the x-rays in Angstroem
+            en:         energy of the x-rays in electronvolt
         """
 
         self._set_sampleAxis(sampleAxis)
@@ -254,21 +255,25 @@ class QConversion(object):
 
         Parameters
         ----------
-        *args:          sample and detector angles as numpy array, lists or Scalars
-                        in total len(self.sampleAxis)+len(detectorAxis) must be given
+        *args:          sample and detector angles as numpy array, lists
+                        or Scalars
+                        in total len(self.sampleAxis)+len(detectorAxis)
+                        must be given
                         always starting with the outer most circle
                         all arguments must have the same shape or length
-            sAngles:    sample circle angles, number of arguments must correspond to 
-                        len(self.sampleAxis)
-            dAngles:    detector circle angles, number of arguments must correspond to
-                        len(self.detectorAxis)
+            sAngles:    sample circle angles, number of arguments must
+                        correspond to len(self.sampleAxis)
+            dAngles:    detector circle angles, number of arguments must
+                        correspond to len(self.detectorAxis)
 
         **kwargs:       optional keyword arguments
-            delta:      giving delta angles to correct the given ones for misalignment
-                        delta must be an numpy array or list of len(*args)
+            delta:      giving delta angles to correct the given ones for
+                        misalignment delta must be an numpy array or list
+                        of len(*args)
                         used angles are than *args - delta
             wl:         x-ray wavelength in angstroem (default: self._wl)
-            deg:        flag to tell if angles are passed as degree (default: True)
+            deg:        flag to tell if angles are passed as degree
+                        (default: True)
 
         Returns
         -------
