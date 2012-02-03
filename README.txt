@@ -7,6 +7,7 @@ python ..... holds an installable python module
 src ........ source directory for the C-library used by the python module
 tools ...... sources and binaries for tools (executable programs)
 
+
 INSTALLATION
 ============
 Installing xrutils is a two step process
@@ -76,6 +77,7 @@ ways how to do this:
    sys.path.append("path to the xrutils package")
    import xrutils
 
+
 UPDATE
 ======
 
@@ -91,8 +93,24 @@ of the python package using
 
 if any c-code changed during the update you also need to rebuild the c-library
   
- $>scons
- $>scons install --prefix=<path to install directory>
+ $> scons
+ $> scons install --prefix=<path to install directory>
+
+
+DOCUMENTATION
+=============
+
+Documention for xrutils is found in the doc folder. The manual (pdf) can be 
+built using scons
+
+ $> scons doc
+ 
+The API-documentation can be browsed by 
+
+ $> pydoc -p PORT
+ 
+in any web-browser, after the installation is finished.
+
 
 PACKAGING
 =========

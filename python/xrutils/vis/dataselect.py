@@ -1,28 +1,47 @@
-#this module contains functions to select data from 
-#arrays with axes.
+# This file is part of xrutils.
 #
-#General remarks abouth selecting data:
-#  the selection functions usually take three arguments:
-# 
+# xrutils is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
+# (at your option) any later version.
 #
-# General functions
-#   Profile1D_3D
-#   IntProfile1D_3D
-#   Profile1D_2D
-#   IntProfile1D_2D
-#   Plane
-#   InPlane
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# Special functions
-#   YProfile1D_3D - select a profile along y-direction from a 3D 
-#                   dataset
-#   ZProfile1D_3D - select a profile along z-direction from a 3D
-#                   dataset
-#   XProfile1D_3D - select a profile along x-direction from a 3D
-#                   dataset
-#   XYPlane - select the XY Plane from a 3D dataset 
-#   YZPlane - select the YZ plane from a 3D dataset
-#   XZPlane - select the XZ plane from a 3D dataset
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
+
+"""
+this module contains functions to select data from 
+arrays with axes.
+
+General remarks abouth selecting data:
+  the selection functions usually take three arguments:
+ 
+
+ General functions
+   Profile1D_3D
+   IntProfile1D_3D
+   Profile1D_2D
+   IntProfile1D_2D
+   Plane
+   InPlane
+
+ Special functions
+   YProfile1D_3D - select a profile along y-direction from a 3D 
+                   dataset
+   ZProfile1D_3D - select a profile along z-direction from a 3D
+                   dataset
+   XProfile1D_3D - select a profile along x-direction from a 3D
+                   dataset
+   XYPlane - select the XY Plane from a 3D dataset 
+   YZPlane - select the YZ plane from a 3D dataset
+   XZPlane - select the XZ plane from a 3D dataset
+"""
 
 import numpy
 

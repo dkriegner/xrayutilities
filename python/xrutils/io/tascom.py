@@ -1,44 +1,60 @@
-#convert tascom ASCII data to HDF5
+# This file is part of xrutils.
+#
+# xrutils is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
+# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@aol.at>
+
+"""
+Abstraction of the Tascom data format to HDF5
+=============================================
+Tascom stores its data in an ASCII format. There are two major cases when TASCOM
+is writting data: line data with the suffix *.dat and data from an MCA with suffix
+*.det. In both cases the data file consits of a header and a data block. 
+Depending on what has been measured this module provides the user some controll over
+how the measurements are imported (this is especially important for PSD data where 
+TASCOM stores a single file for every single measurement with the MCA, this causes
+usually the production of a huge amount of files). 
+Both file types are stored in a different way:
+ -> dat files are stored as tables where the header information is appended as 
+    HDF5 attributes
+ -> det files are stored as arrays where the header information is appended as 
+    HDF5 attributes
+Tascom is useing a template approach to generate a filename with
+temp+number.dat/det
+The pure filename without path and suffix is used as name for the HDF5 storage 
+object.
+
+To make the module more user-friendly not only import functions are provided 
+but also functions to import a bulk of files into a HDF5 group. This is implemented 
+in the following functions:
+ dat2hdf5 ............ imports a single dat file
+ det2hdf5 ............ imports a single det file
+ dats2hdf5 ........... imports several dat files 
+ dets2hdf5 ........... imports several det files
+
+design note 20.11.2006:
+The concept of commands as described above has been successfully implemented
+for various dataformats. However, in many cases it has turned out not to be
+that handy since everytime a file should be visualized it has to be transfered
+first to a HDF5 file. 
+"""
+
 import tables
 import re
 import os
 from scipy.io import read_array
-
-#**********************************************************************************
-#Abstraction of the Tascom data format to HDF5
-#=============================================
-# Tascom stores its data in an ASCII format. There are two major cases when TASCOM
-#is writting data: line data with the suffix *.dat and data from an MCA with suffix
-# *.det. In both cases the data file consits of a header and a data block. 
-#Depending on what has been measured this module provides the user some controll over
-#how the measurements are imported (this is especially important for PSD data where 
-#TASCOM stores a single file for every single measurement with the MCA, this causes
-#usually the production of a huge amount of files). 
-#Both file types are stored in a different way:
-# -> dat files are stored as tables where the header information is appended as 
-#    HDF5 attributes
-# -> det files are stored as arrays where the header information is appended as 
-#    HDF5 attributes
-#Tascom is useing a template approach to generate a filename with
-# temp+number.dat/det
-#The pure filename without path and suffix is used as name for the HDF5 storage 
-#object.
-#
-#To make the module more user-friendly not only import functions are provided 
-#but also functions to import a bulk of files into a HDF5 group. This is implemented 
-#in the following functions:
-# dat2hdf5 ............ imports a single dat file
-# det2hdf5 ............ imports a single det file
-# dats2hdf5 ........... imports several dat files 
-# dets2hdf5 ........... imports several det files
-#
-#design note 20.11.2006:
-# The concept of commands as described above has been successfully implemented
-#for various dataformats. However, in many cases it has turned out not to be
-#that handy since everytime a file should be visualized it has to be transfered
-#first to a HDF5 file. 
-#**********************************************************************************
-
 
 filedate = re.compile(r"^#fdt")
 file_extract = re.compile(r"\S+")
