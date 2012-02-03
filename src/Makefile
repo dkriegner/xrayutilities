@@ -9,12 +9,11 @@ CC = gcc
 all: $(lib)
 
 $(lib):	$(libobj)
-	$(CC) -shared -o $(lib) $(libobj) $(LDFLAGS)
+    $(CC) -shared -o $(lib) $(libobj) $(LDFLAGS)
 
 $(libobj):%.o:%.c
-	$(CC) $(CFLAGS) -o $@ -c $< 
+    $(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm *.o
-	rm $(lib)
-
+    rm *.o
+    rm $(lib)

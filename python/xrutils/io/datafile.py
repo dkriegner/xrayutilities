@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -32,11 +32,11 @@ class DataFile(object):
 
     def __init__(self,path,filename):
         self.path = path
-        
+
         self.filename = filename
         self.fullfilename = os.path.join(self.path,self.filename)
         self.fid = None
-        
+
     def open(self):
         """
         open():
@@ -47,15 +47,13 @@ class DataFile(object):
         except:
             self.fid = None
             raise IOError("error opening file %s" %self.fullfilename)
-            
-        #after opening the file we have to find EOF offset with 
+
+        #after opening the file we have to find EOF offset with
         #respect to the beginning of the file
-            
+
     def close(self):
         try:
             self.fid.close()
         except:
             self.fid = None
             return None
-            
-            

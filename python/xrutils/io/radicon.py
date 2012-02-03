@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -45,7 +45,7 @@ def rad2hdf5(h5,rdcfile,**keyargs):
     """
     rad2hdf5(h5,rdcfile,**keyargs):
     Converts a RDC file to an HDF5 file.
-    
+
     Required input arguments:
     h5 .................. HDF5 object where to store the data
     rdcfile ............. name of the RDC file
@@ -54,7 +54,7 @@ def rad2hdf5(h5,rdcfile,**keyargs):
     h5path .............. Path in the HDF5 file where to store the data
     rdcpath ............. path where the RDC file is located (default
                           is the current working directory)
-                
+
     """
 
     if keyargs.has_key("rdcpath"):
@@ -75,18 +75,18 @@ def rad2hdf5(h5,rdcfile,**keyargs):
             print("XU.io.rad2hdf5: successfully opened RDC file %s for reading" %rdcfilename)
     except:
         raise IOError("error opening RDC file %s !" %rdcfilename)
-        
+
     line_buffer = " "
     while True:
 
         #read a line from the file
         line_buffer = rdcfid.readline()
-        
+
         if line_buffer=="":
             if config.VERBOSITY >= config.DEBUG:
                 print("XU.io.rad2hdf5: reached end of RDC file")
             break
-        
+
         line_buffer = line_buffer.strip()
 
         if rdc_start.match(line_buffer):
@@ -98,8 +98,8 @@ def rad2hdf5(h5,rdcfile,**keyargs):
             param_value_list = []; #parameter values
 
             col_name_list = [];    #list with column names
-            tab_dict = {};         #dictionary for the table            
-            
+            tab_dict = {};         #dictionary for the table
+
 
         if rdc_param.match(line_buffer):
             data_buffer = re.compile(r":\s+").split(line_buffer)
@@ -112,7 +112,7 @@ def rad2hdf5(h5,rdcfile,**keyargs):
                 line_buffer = line_buffer.strip()
                 param_value_list.append(line_buffer)
 
-        if rdc_mopo.match(line_buffer):            
+        if rdc_mopo.match(line_buffer):
             data_buffer = re.compile(r"=\s+").split(line_buffer)
             motor_list.append(data_buffer[0])
             motor_pos_list.append(data_buffer[1])
@@ -167,7 +167,7 @@ def rad2hdf5(h5,rdcfile,**keyargs):
         if rdc_end.match(line_buffer):
             table.attrs.scan_status = "SUCCEEDED"
             table.flush()
-            if config.VERBOSITY >= config.INFO_ALL: 
+            if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.io.rad2hdf5: scan finished")
 
 
@@ -222,13 +222,13 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
     #some format strings used to read the file
     fmt_hist = 'ii128c128c8HiId'+nofchannels*"i"
     fmt_hist_size = struct.calcsize(fmt_hist)
-    
+
     #read the top header and determine the number of histograms
     #and the size of the histograms
     data_buffer= struct.unpack("i",hstfid.read(struct.calcsize("i")))
     nofhists = data_buffer[0]
 
-    if config.VERBOSITY >= config.INFO_ALL: 
+    if config.VERBOSITY >= config.INFO_ALL:
         print("XU.io.hst2hdf5: number of histograms found: %d" %nofhists)
 
     #now the table and the EArray
@@ -248,7 +248,7 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
     data = numpy.zeros((nofchannels),numpy.int)
 
     #loop over all histograms
-    for i in range(nofhists):        
+    for i in range(nofhists):
         #read the header structure
         data_buffer = struct.unpack(fmt_hist,hstfid.read(fmt_hist_size))
         table.row["index"] = i
@@ -258,7 +258,7 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
         table.row["ExpTime"] = data_buffer[268]
 
         table.row.append()
-            
+
         #copy the data to the storage array
         for j in range(nofchannels):
             data[j] = data_buffer[269+j]
@@ -266,16 +266,16 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
 
         #append the array to the EArray
         array.append([data])
-        
+
     table.flush()
-        
+
     hstfid.close()
 
 def selecthst(et_limit,mca_info,mca_array):
     """
     selecthst(et_limit,mca_info,mca_array):
     Select historgrams form the complete set of recorded MCA data
-    and stores it into a new numpy array. The selection is done due to a 
+    and stores it into a new numpy array. The selection is done due to a
     exposure time limit. Spectra below this limit are ignored.
 
     required input arguments:
@@ -287,7 +287,7 @@ def selecthst(et_limit,mca_info,mca_array):
     a numpy array with the selected mca spectra of shape (hstnr,channels).
     """
 
-    #read the exposure time 
+    #read the exposure time
     et = mca_info.cols.ExpTime[:]
     sel = numpy.zeros(et.shape,dtype=numpy.int)
 
@@ -309,4 +309,3 @@ def selecthst(et_limit,mca_info,mca_array):
             cnt += 1
 
     return data
-

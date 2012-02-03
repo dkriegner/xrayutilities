@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -40,7 +40,7 @@ LOG_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+") #denotes a numeric value
 class RA_Alignment(object):
     #{{{1
     """
-    class to parse the data file created by the alignment routine 
+    class to parse the data file created by the alignment routine
     (tpalign) at the rotating anode spec installation
 
     this routine does an iterative alignment procedure and saves the
@@ -58,12 +58,12 @@ class RA_Alignment(object):
 
         Parameters
         ----------
-         filename:  filename of the alignment log file 
+         filename:  filename of the alignment log file
         """
-        
+
         self.filename = filename
         try:
-            self.fid = open(self.filename,'r') 
+            self.fid = open(self.filename,'r')
         except:
             self.fid = None
             raise IOError("error opening alignment log file %s" %self.filename)
@@ -84,7 +84,7 @@ class RA_Alignment(object):
         parser to read the alignment log and obtain the aligned values
         at every iteration.
         """
-        
+
         currentpeakname = None
         currentmotname = None
         opencommenttag = False
@@ -93,23 +93,23 @@ class RA_Alignment(object):
 
         if self.fid == None:
             raise Exception("RA_Alignment: file was not opened by initialization!")
-        
+
         for line in self.fid.readlines():
             # for loop to read every line in the file
-            
+
             # check for new tag in the current line
             if LOG_tagline.match(line):
                 opencommenttag = False
-                
+
                 if LOG_comment.match(line):
                     # comment line or block starts
                     opencommenttag = True
                     continue
-                
+
                 elif LOG_datetime.match(line):
-                    # data is so far ignored 
+                    # data is so far ignored
                     continue
-                
+
                 elif LOG_peakname.match(line):
                     # line with peak name found
                     pname = LOG_peakname.sub("",line)
@@ -120,7 +120,7 @@ class RA_Alignment(object):
                         self.peaks.append(pname)
                     currentpeakname = pname # set current peak name
                     iteration +=1 # increment iteration counter
-                
+
                 elif LOG_motorname.match(line):
                     # line with motorname is found
                     motname = LOG_motorname.sub("",line)
@@ -144,7 +144,7 @@ class RA_Alignment(object):
             elif opencommenttag:
                 # ignore line because it is part of a comment block
                 continue
-            
+
             elif dataline:
                 # dataline with motorposition and intensity is found
                 line_list = LOG_num_value.findall(line)
@@ -162,7 +162,7 @@ class RA_Alignment(object):
 
     def __str__(self):
         #{{{2
-        """ 
+        """
         returns a string describing the content of the alignment file
         """
         ostr = ""
@@ -200,12 +200,12 @@ class RA_Alignment(object):
         #{{{2
         """
         function to plot the alignment history for a given peak
-        
+
         Parameters
         ----------
          pname:  peakname for which the alignment should be plotted
         """
-        
+
         try: plt.__version__
         except NameError:
             print("RA_Alignment.plot: error: plot functionality not available")
@@ -222,7 +222,7 @@ class RA_Alignment(object):
                 axnames.append(k)
 
         fig,ax = plt.subplots(nrows=len(axnames),sharex=True)
-        
+
         for an,axis in zip(axnames,ax):
             d = self.get(an)
             plt.sca(axis)
@@ -237,4 +237,3 @@ class RA_Alignment(object):
         plt.suptitle(pname)
         #}}}2
 #}}}1
-

@@ -1,19 +1,19 @@
 /*
  * This file is part of xrayutilities.
- * 
- * xrayutilities is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2 of the License, or 
+ *
+ * xrayutilities is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 */
 
@@ -34,8 +34,8 @@
  *   det1d_get_axis(Detector1D *det,double cvalue,double *axis,ROI1D *roi)
  * DESCRIPTION
  *   Calculate the axis values along a detector. A detector might be parallel
- *   to some motor axis. Starting from a center value the "virtual" motor 
- *   positions can be calculated for every channel of the detector can be 
+ *   to some motor axis. Starting from a center value the "virtual" motor
+ *   positions can be calculated for every channel of the detector can be
  *   calculated.
  * ARGUMENTS
  *   Detector1D *det ................ detector structure
@@ -44,7 +44,7 @@
  *   double *axis ................... data buffer holding the axis values
  *   ROI1D *roi ..................... optional region of interest
  * RETURN VALUE
- *   An integer value is returned which is either 
+ *   An integer value is returned which is either
  *   0 in the case that everything worked well or -1.
  * EXAMPLE
  *
@@ -77,9 +77,9 @@ int det2d_get_axis(Detector2D *det,double cxvalue,double cyvalue,double *xaxis,
  * NAME
  *   det1d_create_axis - creates a data buffer to hold axis data
  * DESCRIPTION
- *   This function allocates memory to hold the axis values along 
+ *   This function allocates memory to hold the axis values along
  *   a detector direction. All information about the detector is provided by
- *   a Detector1D data structure. In addition a ROI structure can be passed 
+ *   a Detector1D data structure. In addition a ROI structure can be passed
  *   in which case only as much data is allocated to hold the ROI selection
  *   from the axis data.
  *
@@ -130,7 +130,7 @@ int det1d_create_axis(Detector1D *det,double *axis,ROI1D *roi){
     if (axis==NULL){
         printf("error allocating memory for detector axis buffer!\n");
         return(-1);
-    }    
+    }
 
     return(0);
 }
@@ -139,9 +139,9 @@ int det1d_create_axis(Detector1D *det,double *axis,ROI1D *roi){
  * NAME
  *   det2d_create_axis - creates a data buffer to hold axis data
  * DESCRIPTION
- *   This function allocates memory to hold the axis values along 
+ *   This function allocates memory to hold the axis values along
  *   a detector direction. All information about the detector is provided by
- *   a Detector1D data structure. In addition a ROI structure can be passed 
+ *   a Detector1D data structure. In addition a ROI structure can be passed
  *   in which case only as much data is allocated to hold the ROI selection
  *   from the axis data.
  *
@@ -224,12 +224,12 @@ int det2d_create_axis(Detector2D *det,double *xaxis,double *yaxis,ROI2D *roi){
  *   det1d_create_dbuffer(Detector1D *det,double *dbuffer,ROI1D *roi)
  * DESCRIPTION
  *   Allocates memory to hold data for a given one dimensional detector setup.
- *   Optionally a region of interest (ROI) can be set. The allocated size 
+ *   Optionally a region of interest (ROI) can be set. The allocated size
  *   depends on the ROI.
  * ARGUMENTS
  *   Detector1D *det ................. a pointer to the detector structure
  *   double *dbuffer ................. pointer to the allocated memory
- *   ROI1D *roi ...................... data structure with the region of 
+ *   ROI1D *roi ...................... data structure with the region of
  *                                     interest.
  * RETURN VALUE
  *   The function returns an interger value being either
@@ -284,12 +284,12 @@ int det1d_create_dbuffer(Detector1D *det,double *dbuffer,ROI1D *roi){
  *   det2d_create_dbuffer(Detector2D *det,double *dbuffer,ROI2D *roi)
  * DESCRIPTION
  *   Allocates memory to hold data for a given tow dimensional detector setup.
- *   Optionally a region of interest (ROI) can be set. The allocated size 
+ *   Optionally a region of interest (ROI) can be set. The allocated size
  *   depends on the ROI.
  * ARGUMENTS
  *   Detector2D *det ................. a pointer to the detector structure
  *   double *dbuffer ................. pointer to the allocated memory
- *   ROI2D *roi ...................... data structure with the region of 
+ *   ROI2D *roi ...................... data structure with the region of
  *                                     interest.
  * RETURN VALUE
  *   The function returns an interger value being either
@@ -353,9 +353,9 @@ int det2d_create_dbuffer(Detector2D *det,double *dbuffer,ROI2D *roi){
  * SYNOPSIS
  *   det1d_integrate(Detector1D *det,double *data,ROI1D *roi)
  * DESCRIPTION
- *   Integrate the entire spectrum of a 1D detector and returns the 
- *   result. Optionally the integration can be performed over a 
- *   region of interest if the corresponding ROI structure is passed 
+ *   Integrate the entire spectrum of a 1D detector and returns the
+ *   result. Optionally the integration can be performed over a
+ *   region of interest if the corresponding ROI structure is passed
  *   to the function.
  * ARGUMENTS
  *   Detector1D *det ............... detector data structure
@@ -380,7 +380,7 @@ int det2d_create_dbuffer(Detector2D *det,double *dbuffer,ROI2D *roi){
 double det1d_integrate(Detector1D *det,double *data,ROI1D *roi){
     unsigned int i,istart,istop;
     double s;
-    
+
     if (roi == NULL){
         istart = 0;
         istop = det->nc;
@@ -388,10 +388,10 @@ double det1d_integrate(Detector1D *det,double *data,ROI1D *roi){
         istart = roi->cstart;
         istop = roi->cstop+1;
     }
-    
+
     s = 0.0;
     for (i=istart;i<istop;i++) s += data[i];
-    
+
     return(s);
 }
 
@@ -401,9 +401,9 @@ double det1d_integrate(Detector1D *det,double *data,ROI1D *roi){
  * SYNOPSIS
  *   det2d_integrate(Detector2D *det,double *data,ROI2D *roi)
  * DESCRIPTION
- *   Integrate the entire spectrum of a 2D detector and returns the 
- *   result. Optionally the integration can be performed over a 
- *   region of interest if the corresponding ROI structure is passed 
+ *   Integrate the entire spectrum of a 2D detector and returns the
+ *   result. Optionally the integration can be performed over a
+ *   region of interest if the corresponding ROI structure is passed
  *   to the function.
  * ARGUMENTS
  *   Detector2D *det ............... detector data structure
@@ -430,9 +430,9 @@ double det2d_integrate(Detector2D *det,double *data,ROI2D *roi){
     unsigned int j,jstart,jstop;
     unsigned int ioffset;
     double s;
-    
+
     if (roi == NULL){
-        istart = 0; 
+        istart = 0;
         istop = det->detx.nc;
         jstart = 0;
         jstop = det->dety.nc;
@@ -442,7 +442,7 @@ double det2d_integrate(Detector2D *det,double *data,ROI2D *roi){
         jstart = roi->roiy.cstart;
         jstop  = roi->roiy.cstop + 1;
     }
-    
+
     s = 0.0;
     for(i=istart;i<istop;i++){
         ioffset = i*det->detx.nc;
@@ -450,7 +450,7 @@ double det2d_integrate(Detector2D *det,double *data,ROI2D *roi){
             s += data[j+ioffset];
         }
     }
-    
+
     return(s);
 }
 

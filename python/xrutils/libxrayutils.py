@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -17,11 +17,11 @@
 # Copyright (C) 2009-2010 Dominik Kriegner <dominik.kriegner@aol.at>
 
 """
-this module uses the ctypes package to provide access to the 
+this module uses the ctypes package to provide access to the
 functions implemented in the libxrayutils C library.
 
 the functions provided by this module are low level. Users should use
-the derived functions in the corresponding submodules 
+the derived functions in the corresponding submodules
 """
 
 import numpy
@@ -98,7 +98,7 @@ _gridder3d_th = _library.gridder3d
 #     point conversion function
 ######################################
 cang2q_point = _library.ang2q_conversion #{{{2
-# c declaration: int conversion(double *sampleAngles, double *detectorAngles, double *qpos, int Ns, int Nd, int Npoints,char *sampleAxis, char *detectorAxis, double lambda) 
+# c declaration: int conversion(double *sampleAngles, double *detectorAngles, double *qpos, int Ns, int Nd, int Npoints,char *sampleAxis, char *detectorAxis, double lambda)
 #define argument types
 cang2q_point.restype = ctypes.c_int
 cang2q_point.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
@@ -116,7 +116,7 @@ cang2q_point.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="al
 # linear detector conversion function
 ######################################
 cang2q_linear = _library.ang2q_conversion_linear #{{{2
-# c declaration: int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch, double dpixel, int *roi, char *dir, double lambda) 
+# c declaration: int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch, double dpixel, int *roi, char *dir, double lambda)
 #define argument types
 cang2q_linear.restype = ctypes.c_int
 cang2q_linear.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
@@ -135,10 +135,10 @@ cang2q_linear.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="a
                    ctypes.c_double ] #}}}2
 
 #######################################
-# area detector conversion function 
+# area detector conversion function
 #######################################
 cang2q_area = _library.ang2q_conversion_area #{{{2
-# c declaration: int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double lambda) 
+# c declaration: int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double lambda)
 #define argument types
 cang2q_area.restype = ctypes.c_int
 cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
@@ -162,7 +162,7 @@ cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="ali
 
 # c library functions for block averaging #{{{1
 #######################################
-#         1D block average 
+#         1D block average
 #######################################
 cblockav_1d = _library.block_average1d #{{{2
 # c declaration: int block_average1d(double *block_av, double *input, int Nav, int N)
@@ -199,5 +199,3 @@ cblockav_ccd.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="al
                    ctypes.c_int] #}}}2
 
 #}}}1
-
-

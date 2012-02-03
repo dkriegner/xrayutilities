@@ -1,28 +1,28 @@
 /*
  * This file is part of xrayutilities.
- * 
- * xrayutilities is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2 of the License, or 
+ *
+ * xrayutilities is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 */
 
 /*
 ** ang2q.c
-** 
+**
 ** Made by (Eugen Wintersberger)
 ** Login   <eugen@ramses.lan>
-** 
+**
 ** Started on  Tue Aug 21 21:02:27 2007 Eugen Wintersberger
 ** Last update Sun May 12 01:17:25 2002 Speed Blue
 */
@@ -198,7 +198,7 @@ int a2q_xrd3d(double *om,double *th2,double *del,
               double dom,double dth2,double ddelta)
 /*{{{1*/
 {
-    
+
     double k02;
     unsigned int i;
     double omega;
@@ -260,4 +260,3 @@ int a2q_gisaxs_th(double *th2,double *qx,double *qy,double *qz,unsigned int n,
     printf("not implemented yet\n");
     return(0);
 }
-

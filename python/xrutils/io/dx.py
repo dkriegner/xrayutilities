@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -33,7 +33,7 @@ class DXFile(object):
         seq .................... yes or no, this flag determines
                                  wether a file contains a sequence or not.
     path ................... path where to store the file.
-        
+
     """
 
     def __init__(self,filename,**keyargs):
@@ -58,7 +58,7 @@ class DXFile(object):
         except:
             raise IOError("error opening file: %s" %os.path.join(self.DXFilePath,self.DXFileName))
 
-        
+
 
     def __str__(self):
         pass
@@ -76,4 +76,3 @@ class DXConnections(object):
 class DXData(object):
     def __init__(self,**keyargs):
         pass
-    

@@ -1,8 +1,8 @@
 % This file is part of xrayutilities.
 %
-% xrayutilities is free software; you can redistribute it and/or modify 
-% it under the terms of the GNU General Public License as published by 
-% the Free Software Foundation; either version 2 of the License, or 
+% xrayutilities is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
 % (at your option) any later version.
 %
 % This program is distributed in the hope that it will be useful,
@@ -19,16 +19,16 @@
 %%%documentation of the io submodule
 
 The {\tt io} submodule provides classes for reading x-ray diffraction data in
-various formats. 
+various formats.
 
 \section{Reading SPEC files}
 
-Working with spec files in xrutils can be done in two distinct ways. 
+Working with spec files in xrutils can be done in two distinct ways.
 \begin{enumerate}
  \item parsing the spec file for scan headers; and parsing the data only when needed
- \item parsing the spec file for scan headers; parsing all data and dump them to an HDF5 file; reading the data from the HDF5 file. 
+ \item parsing the spec file for scan headers; parsing all data and dump them to an HDF5 file; reading the data from the HDF5 file.
 \end{enumerate}
-Both methods have their pros and cons. For example when you parse the spec-files over a network connection you need to re-read the data again over the network if using method 1) whereas you can dump them to a local file with method 2). But you will parse data of the complete file while dumping it to the HDF5 file. 
+Both methods have their pros and cons. For example when you parse the spec-files over a network connection you need to re-read the data again over the network if using method 1) whereas you can dump them to a local file with method 2). But you will parse data of the complete file while dumping it to the HDF5 file.
 
 Both methods work incremental, so they do not start at the beginning of the file when you reparse it, but start from the last position they were reading.
 
@@ -68,7 +68,7 @@ s.Update() # reparse for new scans in open SPECFile instance
 # reread data method (1)
 scan10 = s[9] # Returns a SPECScan class
 scan10.ReadData()
-scan10data = scan10.data 
+scan10data = scan10.data
 
 # reread data method (2)
 s.Save2HDF5(h5) # save content of SPEC file to HDF5 file
@@ -81,7 +81,7 @@ scan10data = h5.root.sample_name.scan_10.data.read()
 EDF files are mostly used to store CCD frames at ESRF. This format is therefore used in combination with SPEC files. In an example the EDFFile class is used to parse the data from EDF files and store them to an HDF5 file. HDF5 if perfectly suited because it can handle large amount of data and compression.
 
 \begin{lstlisting}[caption=script to parse and plot a reciprocal space map recorded with Seifert's XRD control software]
-import tables 
+import tables
 import xrutils as xu
 import numpy
 
@@ -119,7 +119,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 exp111 = xu.HXRD([1,1,-2],[1,1,1])
-# 
+#
 data = xu.io.SeifertMultiScan('seifertmultiscan.nja','T','O')
 
 om  = data.m2_pos[:,numpy.newaxis]*numpy.ones(data.int.shape)

@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -17,7 +17,7 @@
 
 #!/usr/bin/env python
 
-#converts EDF files to matlab files - single files or 
+#converts EDF files to matlab files - single files or
 #entire directories can be converted.
 
 import xrutils as xu
@@ -37,10 +37,6 @@ op.add_option("-o","--outfile",dest="outfile",action="store",
 op.add_option("-r","--range",dest="range",action="store",
               metavar="FILE NUMBER RANGE",
               help="Enter the range of files to read")
-              
+
 (opts,args) = op.parse_args()
 print args
-
-
-
-

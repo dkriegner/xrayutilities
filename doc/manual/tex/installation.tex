@@ -1,8 +1,8 @@
 % This file is part of xrayutilities.
 %
-% xrayutilities is free software; you can redistribute it and/or modify 
-% it under the terms of the GNU General Public License as published by 
-% the Free Software Foundation; either version 2 of the License, or 
+% xrayutilities is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
 % (at your option) any later version.
 %
 % This program is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@ Installing {\tt xrutils} is a three steps process
 All steps are described in detail in this chapter. The package can be installed on Linux, Mac OS X and Microsoft Windows, however it is only tested on Linux/Unix platforms. Due to the lack of an package manager the installation on MS Windows platforms is cumbersome.
 
 \section{Required third party software}
-To keep the coding effort as small as possible {\tt xrutils} depends on a 
-large number of third party libraries and Python modules. 
+To keep the coding effort as small as possible {\tt xrutils} depends on a
+large number of third party libraries and Python modules.
 
-The needed dependencies are: 
+The needed dependencies are:
 \begin{description}
 \item[GCC] Gnu Compiler Collection or an compatible C compiler. On windows you most probably should use MinGW or CygWin.
 \item[VTK] the Visualization Toolkit, a large C++ library for 3D data
@@ -43,7 +43,7 @@ module (see below).
 \item[subversion] a version control system used to keep track on the {\tt xrutils} development and at the moment the only way to obtain the sources for installation.
 \end{description}
 
-Additionally, the following Python modules are needed in order to make 
+Additionally, the following Python modules are needed in order to make
 {\tt xrutils} work as intended
 \begin{description}
 \item[Scons] a pythonic autotools/make replacement used for building the C library.
@@ -63,7 +63,7 @@ building the C library.
 \section{Building and installing the C library}
 
 {\tt xrutils} user the SCons build system to compile the C components of the
-system. You can build the library simply by typing 
+system. You can build the library simply by typing
 \begin{verbatim}
 >scons
 \end{verbatim}
@@ -84,9 +84,9 @@ uses this path to find the library. In principal this step could have been
 omitted on Linux systems where environment variables can be used to tell the
 system where to look for shared libraries. However, on Windows systems, for
 instance, no such facility exists and therefore, relying on such mechanisms
-would make the installation process highly platform dependent. 
+would make the installation process highly platform dependent.
 
-The documentation can be built with 
+The documentation can be built with
 \begin{verbatim}
 >scons doc
 \end{verbatim}
@@ -98,7 +98,7 @@ Python module.
 \section{Installing the Python package}
 
 Installation of the Python module is done via the {\tt distutils} package
-shipped with every Python distribution. Actually, two installation modes are 
+shipped with every Python distribution. Actually, two installation modes are
 supported
 \begin{itemize}
  \item system wide installation in the system wide Python installation
@@ -122,10 +122,10 @@ If you want to install
 In this case the {\tt xrutils} package is installed under {\tt <local install
 path>/lib/python}. Finally you need to make your Python installation aware of
 were to look for the module. For this case append the installation directory to
-your {\tt PYTHONPATH} environment variable by 
+your {\tt PYTHONPATH} environment variable by
 \begin{verbatim}
 >export PYTHONPATH=$PYTHONPATH:<local install path>/lib/python
 \end{verbatim}
 on a Unix/Linux terminal. Or, to make this configuration persistent append this line to
-your local {\tt .bashrc} file in your home directory. On MS Windows you would like to create a environment variable in the 
+your local {\tt .bashrc} file in your home directory. On MS Windows you would like to create a environment variable in the
 system preferences under system in the advanced tab.

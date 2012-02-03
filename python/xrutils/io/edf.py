@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -57,10 +57,10 @@ DataTypeDict = {"SignedByte":"b",
 class EDFFile(object):
     def __init__(self,fname,**keyargs):
         """
-        
+
         required arguments:
         fname ................ name of the EDF file
-        
+
         optional keyword arguments:
         nxkey ................ name of the header key that holds the number of points in x-direction
         nykey ................ name of the header key that holds the number of points in y-direction
@@ -68,18 +68,18 @@ class EDFFile(object):
         path ................. path to the EDF file
         header ............... has header (default true)
         """
-        
+
         self.filename = fname
         if keyargs.has_key("path"):
             self.full_filename = os.path.join(keyargs["path"],fname)
         else:
             self.full_filename = fname
-            
+
         try:
             self.fid = open(self.full_filename,"r")
         except:
             raise IOError("cannot open file %s" %(self.full_filename))
-        
+
         #evaluate keyword arguments
         if keyargs.has_key("nxkey"):
             self.nxkey = keyargs["nxkey"]
@@ -100,12 +100,12 @@ class EDFFile(object):
             self.headerflag = keyargs["header"]
         else:
             self.headerflag = True
-            
+
         #create attributes for holding data
         self.header = {}
         self.data = None
-    
-        
+
+
     def ReadData(self):
         line_buffer = " "
         hdr_flag = False
@@ -118,51 +118,51 @@ class EDFFile(object):
 
         while self.headerflag:
             line_buffer = self.fid.readline()
-           
+
             #remove leading and trailing whitespace symbols
-            line_buffer = line_buffer.strip() 
+            line_buffer = line_buffer.strip()
 
             if line_buffer == "{" and not hdr_flag: #start with header
-                hdr_flag = True                
+                hdr_flag = True
                 continue
-            
-            if hdr_flag:                 
+
+            if hdr_flag:
                 #stop reading when the end of the header is reached
-                if line_buffer == "}": 
-                    #place offset reading here - here we get the 
+                if line_buffer == "}":
+                    #place offset reading here - here we get the
                     #real starting position of the binary data!!!!
                     offset = self.fid.tell()
-                    break  
-                
-                #continue if the line has no content
-                if line_buffer == "": continue                
+                    break
 
-                #split key and value of the header entry      
-                if not ml_value_flag:              
+                #continue if the line has no content
+                if line_buffer == "": continue
+
+                #split key and value of the header entry
+                if not ml_value_flag:
                     try:
                         [key,value] = edf_kv_split.split(line_buffer,1)
                     except:
                         print("XU.io.EDFFile.ReadData: line_buffer: %s" %line_buffer)
-                    
+
                     key = key.strip()
                     value = value.strip()
-                    
+
                     #if the value extends over multiple lines set the multiline value flag
-                    if value[-1]!=";": 
+                    if value[-1]!=";":
                         ml_value_flag = True
                     else:
-                        value = value[:-1]                         
-                        value = value.strip()
-                        self.header[key] = value                        
-                else:
-                    value = value + line_buffer
-                    if value[-1]==";": 
-                        ml_value_flag = False
-                        
                         value = value[:-1]
                         value = value.strip()
                         self.header[key] = value
-                
+                else:
+                    value = value + line_buffer
+                    if value[-1]==";":
+                        ml_value_flag = False
+
+                        value = value[:-1]
+                        value = value.strip()
+                        self.header[key] = value
+
         #----------------start to read the data section----------------------
 
         #to read the data we have to open the file in binary mode
@@ -185,8 +185,8 @@ class EDFFile(object):
             dimy = int(self.header[self.nykey])
             dtype = self.header[self.dtkey]
 
-        #calculate the total number of pixles in the data block                                         
-        tot_nofp = dimx*dimy 
+        #calculate the total number of pixles in the data block
+        tot_nofp = dimx*dimy
         #move to the data section - jump over the header
         binfid.seek(offset,0)
         #read the data
@@ -194,13 +194,13 @@ class EDFFile(object):
         if config.VERBOSITY >= config.DEBUG:
             print("XU.io.EDFFile: read binary data: nofp: %d len: %d"%(tot_nofp,len(bindata)))
             print("XU.io.EDFFile: format: %s"%fmt_str)
-        
+
         try:
             num_data = struct.unpack(tot_nofp*fmt_str,bindata)
         except:
             print("XU.io.EDFFile: number of entries in the file is not what was to be expected")
-            
-        
+
+
         #find the proper datatype
         if dtype=="SignedByte":
             self.data = numpy.array(num_data,dtype=numpy.int8)
@@ -224,28 +224,28 @@ class EDFFile(object):
             self.data = numpy.array(num_data,dtype=numpy.uint64)
         else:
             self.data = numpy.array(num_data,dtype=dtype.double)
-            
+
         self.data = self.data.reshape(dimy,dimx)
         if byte_order != "LowByteFirst": #self.data = self.data.byteswap()
             print("XU.io.EDFFile.ReadData: check byte order - not low byte first")
 
         #close the binary file descriptor
         binfid.close()
-        
+
         #return with file pointer to 0
         self.fid.seek(0)
-        
+
     def Save2HDF5(self,h5,**keyargs):
         """
         Save2HDF5(h5,**keyargs):
         Saves the data stored in the EDF file in a HDF5 file as a HDF5 array.
-        By default the data is stored in the root group of the HDF5 file - this 
-        can be changed by passing the name of a target group or a path to the 
+        By default the data is stored in the root group of the HDF5 file - this
+        can be changed by passing the name of a target group or a path to the
         target group via the "group" keyword argument.
-        
+
         required arguments.
         h5 ................... a HDF5 file object
-        
+
         optional keyword arguments:
         group ................ group where to store the data
         comp ................. activate compression - true by default
@@ -258,25 +258,25 @@ class EDFFile(object):
                 g = keyargs["group"]
         else:
             g = "/"
-            
+
         if keyargs.has_key("comp"):
             compflag = keyargs["comp"]
         else:
             compflag = True
-        
+
         #create the array name
         ca_name = os.path.split(self.filename)[-1]
         ca_name = os.path.splitext(ca_name)[0]
         ca_name = ca_name.replace("-","_")
         if edf_name_start_num.match(ca_name):
             ca_name = "ccd_"+ca_name
-        if config.VERBOSITY >= config.INFO_ALL: 
+        if config.VERBOSITY >= config.INFO_ALL:
             print(ca_name)
         ca_name = ca_name.replace(" ","_")
-        
+
         #create the array description
         ca_desc = "EDF CCD data from file %s " %(self.filename)
-            
+
         #create the Atom for the array
         a = tables.Atom.from_dtype(self.data.dtype)
         f = tables.Filters(complevel=7,complib="zlib",fletcher32=True)
@@ -292,10 +292,10 @@ class EDFFile(object):
             except:
                 h5.removeNode(g,ca_name,recursive=True)
                 ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc)
-            
+
         #write the data
         ca[...] = self.data[...]
-        
+
         #finally we have to append the attributes
         for k in self.header.keys():
             aname = k.replace(".","_")
@@ -305,48 +305,48 @@ class EDFFile(object):
 class EDFDirectory(object):
     def __init__(self,datapath,**keyargs):
         """
-        
+
         required arguments:
         datapath ............. directory of the EDF file
-        
+
         optional keyword arguments:
         ext .................. extension of the ccd files in the datapath (default: "edf")
-        
+
         further keyword arguments are passed to EDFFile
         """
-     
+
 
         self.datapath = os.path.normpath(datapath)
         if keyargs.has_key("ext"):
             self.extension = keyargs["ext"]
         else:
             self.extension = "edf"
-            
+
         #create list of files to read
         self.files = glob.glob( os.path.join(self.datapath, '*.%s' %(self.extension)))
 
         if len(self.files) == 0:
             print("XU.io.EDFDirectory: no files found in %s" %(self.datapath))
             return
-        
-        if config.VERBOSITY >= config.INFO_ALL: 
+
+        if config.VERBOSITY >= config.INFO_ALL:
             print("XU.io.EDFDirectory: %d files found in %s" %(len(self.files),self.datapath))
-            
+
         self.init_keyargs = keyargs
-            
-            
+
+
     def Save2HDF5(self,h5,**keyargs):
         """
         Save2HDF5(h5,**keyargs):
-        Saves the data stored in the EDF files in the specified directory 
+        Saves the data stored in the EDF files in the specified directory
         in a HDF5 file as a HDF5 arrays in a subgroup.
-        By default the data is stored in a group given by the foldername - this 
-        can be changed by passing the name of a target group or a path to the 
+        By default the data is stored in a group given by the foldername - this
+        can be changed by passing the name of a target group or a path to the
         target group via the "group" keyword argument.
-        
+
         required arguments.
         h5 ................... a HDF5 file object
-        
+
         optional keyword arguments:
         group ................ group where to store the data (default: pathname)
         comp ................. activate compression - true by default
@@ -360,20 +360,19 @@ class EDFDirectory(object):
         else:
             # create common subgroup
             defaultg = os.path.split(self.datapath)[1]
-            try: 
+            try:
                 g = h5.getNode(h5.root,defaultg)
             except:
                 g = h5.createGroup(h5.root,defaultg)
-            
+
         if keyargs.has_key("comp"):
             compflag = keyargs["comp"]
         else:
             compflag = True
-        
+
         for infile in self.files:
             # read EDFFile and save to hdf5
             filename = os.path.split(infile)[1]
             e = EDFFile(filename,path=self.datapath,**self.init_keyargs)
             e.ReadData()
             e.Save2HDF5(h5,group=g)
-

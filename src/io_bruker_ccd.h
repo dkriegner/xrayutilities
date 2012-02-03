@@ -1,19 +1,19 @@
 /*
  * This file is part of xrayutilities.
- * 
- * xrayutilities is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2 of the License, or 
+ *
+ * xrayutilities is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 */
 
@@ -25,14 +25,14 @@
 #define HEADER_BLK_SIZE 512
 #define NOF_HEADER_LINES 94
 
-/* 
- Bruker stores the header entries in list of key - value pairs 
+/*
+ Bruker stores the header entries in list of key - value pairs
  where the first 8 bytes are the key and the second 72 hold the value
  of the entry. This datatype describes a single entry.
 */
 typedef struct structBruker_CCD_Header_Entry{
   char key[KEY_LINE_LENGTH];
-  char value[BASE_LINE_LENGTH]; 
+  char value[BASE_LINE_LENGTH];
 }Bruker_CCD_Header_Entry;
 
 /*data structure describing the entire Bruker header*/
@@ -41,8 +41,8 @@ typedef struct structBruker_CCD_Header{
 }Bruker_CCD_Header;
 
 /*
- The data is stored in frames. We need a datatype that 
- describes a single frame. Overflow and underflow 
+ The data is stored in frames. We need a datatype that
+ describes a single frame. Overflow and underflow
  correction act on this data structure.
 */
 
@@ -70,16 +70,16 @@ int del_frame(Bruker_CCD_Frame *);
 Bruker_CCD_Frame *get_ROI(Bruker_CCD_Frame *,Bruker_CCD_ROI *);
 Bruker_CCD_Frame *merge_frames(int,Bruker_CCD_Frame *);
 Bruker_CCD_Frame *read_frame(char *);
-Bruker_CCD_Frame *read_frames(char *,int,int,int,int); 
+Bruker_CCD_Frame *read_frames(char *,int,int,int,int);
 Bruker_CCD_Header *read_frame_header(FILE *);
 
 
 
 /*
- The key value pairs are stored in the header are not really usefull, 
- therefore, the information is converted to usefull datatypes 
+ The key value pairs are stored in the header are not really usefull,
+ therefore, the information is converted to usefull datatypes
  and finally stored in a table.
- 
+
 */
 /*
 typedef struct structBruker_CCD_Header{

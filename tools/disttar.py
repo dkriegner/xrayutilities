@@ -64,7 +64,7 @@ def disttar_emitter(target,source,env):
 
 def disttar_string(target, source, env):
     """This is what gets printed on the console. We'll strip out the list
-        or source files, since it tends to get very long. If you want to see the 
+        or source files, since it tends to get very long. If you want to see the
         contents, the easiest way is to uncomment the line 'Adding to TAR file'
         below. """
     return 'DistTar(%s,...)' % target[0]
@@ -145,4 +145,3 @@ def exists(env):
                 return True
 
 # vim:set ts=4 sw=4 noexpandtab:
-

@@ -8,7 +8,7 @@ conversion to GIT
 
 3.11.2010
 
-DK: the new config should be used by the whole python package were necessary. 
+DK: the new config should be used by the whole python package were necessary.
 maybe much more config options should be added, this needs discussion.
 One idea would be the nthreads (number of threads used by the gridder) variable...
 
@@ -27,12 +27,12 @@ discussion Eugen, Dominik
   exact purpose:
   * templates of scripts could be hold there for the user
   * pyunit tests could be implemented to test the core functionality of the
-    xrutils package. 
+    xrutils package.
   Therefore example files for each io module should be included.
 * natural constants should be handled in a general way or imported from scipy
-  as scipy is anyhow already needed as a dependancy this would not add any 
+  as scipy is anyhow already needed as a dependancy this would not add any
   additional dependancies.
-* the manual should be updated to include details about the calculation of  
+* the manual should be updated to include details about the calculation of
   material properties, or suiteable references
   and furthermore details about the configuration of the QConversion class
   should be added (Examples with pictures of the Seifert, and Rotating anode)

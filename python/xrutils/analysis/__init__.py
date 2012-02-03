@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -16,11 +16,11 @@
 # Copyright (C) 2011 Dominik Kriegner <dominik.kriegner@aol.at>
 
 """
-xrutils.analysis is a package for assisting with the analysis of 
+xrutils.analysis is a package for assisting with the analysis of
 x-ray diffraction data, mainly reciprocal space maps
 
-Routines for obtaining line cuts from gridded reciprocal space maps are 
-offered, with the ability to integrate the intensity perpendicular to the 
+Routines for obtaining line cuts from gridded reciprocal space maps are
+offered, with the ability to integrate the intensity perpendicular to the
 line cut direction.
 """
 
