@@ -225,7 +225,7 @@ int a2q_xrd3d(double *om,double *th2,double *del,
     return(0);
 }
 /*}}}1*/
-				
+
 int a2q_gid(double *th2,double *qa,double *qr,unsigned int n,double ai,
             double *af,unsigned int naf,double lambda){
     printf("not implemented yet!\n");

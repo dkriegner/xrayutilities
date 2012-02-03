@@ -315,7 +315,7 @@ class SPECTRAFile(object):
             #now write the data to the tables
             for rec in self.data.data:
                 for cname in rec.dtype.names:
-                    tab.row[cname] = rec[cname]					
+                    tab.row[cname] = rec[cname]                 
                 tab.row.append()
            
             tab.flush()

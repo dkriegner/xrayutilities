@@ -161,19 +161,19 @@ class SPECScan(object):
                     cnt += 1
 
     def SetMCAParams(self,mca_column_format,mca_channels,mca_start,mca_stop):
-    	"""
-    	SetMCAParams(mca_column_format,mca_channels):
-    	Set the parameters used to save the MCA data to the file. This method 
-    	calculates the number of lines used to store the MCA data from the 
-    	number of columns and the 
-    	
-    	required input aguments:
-    	mca_column_format ....................... number of columns used to save the data
-    	mca_channels ............................ number of MCA channels stored
-    	mca_start ............................... first channel that is stored
-    	mca_stop ................................ last channel that is stored
-    	
-    	"""
+        """
+        SetMCAParams(mca_column_format,mca_channels):
+        Set the parameters used to save the MCA data to the file. This method 
+        calculates the number of lines used to store the MCA data from the 
+        number of columns and the 
+        
+        required input aguments:
+        mca_column_format ....................... number of columns used to save the data
+        mca_channels ............................ number of MCA channels stored
+        mca_start ............................... first channel that is stored
+        mca_stop ................................ last channel that is stored
+        
+        """
         self.has_mca = True
         self.mca_column_format = mca_column_format
         self.mca_channels = mca_channels
@@ -234,11 +234,11 @@ class SPECScan(object):
         
         #create dictionary to hold the data
         if self.has_mca:
-        	type_desc = {"names":self.colnames+["MCA"],"formats":len(self.colnames)*[numpy.float32]+\
-            	         [(numpy.uint32,self.mca_channels)]}
+            type_desc = {"names":self.colnames+["MCA"],"formats":len(self.colnames)*[numpy.float32]+\
+                         [(numpy.uint32,self.mca_channels)]}
         else:
-        	type_desc = {"names":self.colnames,"formats":len(self.colnames)*[numpy.float32]}
-        	
+            type_desc = {"names":self.colnames,"formats":len(self.colnames)*[numpy.float32]}
+            
         if config.VERBOSITY >= config.DEBUG: 
             print("xu.io.SPECScan.ReadData: type descriptor: %s" %(repr(type_desc)))
 
@@ -294,9 +294,9 @@ class SPECScan(object):
 
                 #increment the MCA counter if MCA data is stored
                 if self.has_mca:
-                	mca_counter = mca_counter + 1
-                	#create a temporary list for the mca data
-                	mca_tmp_list = []
+                    mca_counter = mca_counter + 1
+                    #create a temporary list for the mca data
+                    mca_tmp_list = []
                 else:
                     record_list.append(line_list)
             else:
@@ -410,7 +410,7 @@ class SPECScan(object):
         if self.data == None:
             raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read so far - call ReadData method of the scan")
             return None
-		
+        
         #parse keyword arguments:
         if keyargs.has_key("group"):
             if isinstance(keyargs["group"],str):
@@ -424,13 +424,13 @@ class SPECScan(object):
             compflag = keyargs["comp"]
         else:
             compflag = True
-				
+                
         if keyargs.has_key("title"):
             group_title = keyargs["title"]
         else:
             group_title = self.name
         group_title  = group_title.replace(".","_")
-		
+        
         if keyargs.has_key("desc"):
             group_desc = keyargs["desc"]
         else:
@@ -448,8 +448,8 @@ class SPECScan(object):
             else:
                 ctype = numpy.dtype((d[1],d[2]))
             tab_desc_dict[cname] = tables.Col.from_dtype(ctype)  
-				
-				        			
+                
+                                    
         #create the table object and fill it
         f = tables.Filters(complevel=7,complib="zlib",fletcher32=True)
         copy_count = 0
@@ -475,11 +475,11 @@ class SPECScan(object):
             
         for rec in self.data:
             for cname in rec.dtype.names:
-                tab.row[cname] = rec[cname]					
+                tab.row[cname] = rec[cname]                 
             tab.row.append()
-			
+            
         #finally after the table has been written to the table - commit the table to the file
-        tab.flush()		        
+        tab.flush()             
 
         #write attribute data for the scan
         g._v_attrs.ScanNumber = numpy.uint(self.nr)
@@ -538,20 +538,20 @@ class SPECFile(object):
 
         self.Parse()
         
-    def __getitem__(self,index):    	
-    	return self.scan_list[index]
+    def __getitem__(self,index):        
+        return self.scan_list[index]
 
     def __len__(self):
         return scan_list.__len__()
-    	
+        
     def __str__(self):        
-		ostr = ""
-		for i in range(len(self.scan_list)):
-			ostr = ostr + "%5i" %(i)
-			ostr = ostr + self.scan_list[i].__str__()
-			
-		return ostr
-		
+        ostr = ""
+        for i in range(len(self.scan_list)):
+            ostr = ostr + "%5i" %(i)
+            ostr = ostr + self.scan_list[i].__str__()
+            
+        return ostr
+        
     def Save2HDF5(self,h5,**keyargs):
         """
         Save2HDF5(h5):

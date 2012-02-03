@@ -32,8 +32,8 @@ Bruker_CCD_Frame *create_frame(int nofxchan,int nofychan)
   frame->data = malloc(sizeof(int)*nofxchan*nofychan);
   if(frame->data == NULL)
     {
-	  printf("create_frame: Error allocating frame memory!\n");
-	  return(NULL);	
+      printf("create_frame: Error allocating frame memory!\n");
+      return(NULL); 
     }
   
   return(frame);
@@ -56,7 +56,7 @@ Bruker_CCD_Frame *create_frame_fill(int nofxchan,int nofychan,int fill_value)
     }
   
   return(frame);
-	
+    
 }
 
 /*destroy a frame structure*/
@@ -78,7 +78,7 @@ Bruker_CCD_Frame *get_ROI(Bruker_CCD_Frame *frame,Bruker_CCD_ROI *roi)
   if(new_frame->data==NULL)
     {
       printf("get_ROI: error allocating frame memory!\n");
-      return(NULL);	
+      return(NULL); 
     }
   
   return(new_frame);
@@ -86,21 +86,21 @@ Bruker_CCD_Frame *get_ROI(Bruker_CCD_Frame *frame,Bruker_CCD_ROI *roi)
 
 /***************************************************************************
 Bruker_CCD_Frame *merge_frames(int nframes,Bruker_CCD_Frame *frames):
-	Merging several frames into one single frame. 
-	
-	input arguments:
-	nframes(int) ............... number of frames to merge
-	frames ..................... pointer to a list of frames which will 
-	                             be merged.
-	                             
-	return value:
-	A single Bruker CCD frame. 
+    Merging several frames into one single frame. 
+    
+    input arguments:
+    nframes(int) ............... number of frames to merge
+    frames ..................... pointer to a list of frames which will 
+                                 be merged.
+                                 
+    return value:
+    A single Bruker CCD frame. 
 ****************************************************************************/
 Bruker_CCD_Frame *merge_frames(int nframes,Bruker_CCD_Frame *frames)
 {
   int totnofp = 0; /*total number of points*/
   int nofcols = 0; /*number of columns*/
-  int i,j;         /*index counter for looping over the data*/	
+  int i,j;         /*index counter for looping over the data*/  
   Bruker_CCD_Frame *new_frame;
   
   /*calculate the total number of points per frame*/
@@ -114,9 +114,9 @@ Bruker_CCD_Frame *merge_frames(int nframes,Bruker_CCD_Frame *frames)
     {      
       /*summ over all frames*/
       for(j=0;j<totnofp;j++)
-	{
-	  new_frame->data[j] = new_frame->data[j]+(frames+j)->data[j];
-	}
+    {
+      new_frame->data[j] = new_frame->data[j]+(frames+j)->data[j];
+    }
     }
   
   return(new_frame);
@@ -127,7 +127,7 @@ Bruker_CCD_Frame *read_frame(char *full_file_name)
 {
   FILE *fp; /*file pointer*/
   Bruker_CCD_Frame *data_frame; /*frame holding the data*/
-  Bruker_CCD_Header *header;	
+  Bruker_CCD_Header *header;    
   int nofxchans;
   int nofychans;
   int nof_underflow;      /*number of pixel underflows*/
@@ -184,13 +184,13 @@ Bruker_CCD_Frame *read_frame(char *full_file_name)
   /*read the data from the file*/
   for(i=0;i<nofxchans*nofychans-100;i++)
     {
-      fread(&data_buffer,1,1,fp);	
+      fread(&data_buffer,1,1,fp);   
       data_frame->data[i] = (int)(data_buffer); 
 
       if(i>nofxchans*nofychans-40)
-	{
-	  printf("value: %i\n",(int)(data_buffer));
-	}
+    {
+      printf("value: %i\n",(int)(data_buffer));
+    }
     }
 #ifdef DEBUG
   printf("read data from file\n");

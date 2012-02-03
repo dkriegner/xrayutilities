@@ -116,4 +116,4 @@ void *a2q_gisaxs_thworkder(void *args);
 int a2q_gisaxs_th(double *th2,double *qx,double *qy,double *qz,unsigned int n,
                   double ai,double *af,unsigned int naf,double lambda);
 
-#endif 	    /* !ANG2Q_H_ */
+#endif      /* !ANG2Q_H_ */

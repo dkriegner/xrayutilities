@@ -68,9 +68,9 @@ int block_average_PSD(double *intensity, double *psd, int Nav, int Nch, int Nspe
     int Nout = (int) ceil(Nch/(float)Nav);
 
     #ifdef __OPENMP__
-	//set openmp thread numbers dynamically
-	omp_set_dynamic(1);
-	#endif
+    //set openmp thread numbers dynamically
+    omp_set_dynamic(1);
+    #endif
 
     #pragma omp parallel for default(shared) private(i) schedule(static)
     for(i=0; i<Nspec; ++i) {
@@ -101,9 +101,9 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
     int Nout1,Nout2;
 
     #ifdef __OPENMP__
-	//set openmp thread numbers dynamically
-	omp_set_dynamic(1);
-	#endif
+    //set openmp thread numbers dynamically
+    omp_set_dynamic(1);
+    #endif
 
     Nout1 = ceil(Nch1/(float)Nav1);
     Nout2 = ceil(Nch2/(float)Nav2);
@@ -121,7 +121,7 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
         }
     }
 
-	return 1;
+    return 1;
 }
 
 

@@ -54,8 +54,8 @@ def rad2hdf5(h5,rdcfile,**keyargs):
     h5path .............. Path in the HDF5 file where to store the data
     rdcpath ............. path where the RDC file is located (default
                           is the current working directory)
-			    
-	"""
+                
+    """
 
     if keyargs.has_key("rdcpath"):
         rdcpath = keyargs["rdcpath"]
@@ -258,7 +258,7 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
         table.row["ExpTime"] = data_buffer[268]
 
         table.row.append()
-			
+            
         #copy the data to the storage array
         for j in range(nofchannels):
             data[j] = data_buffer[269+j]
@@ -267,7 +267,7 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
         #append the array to the EArray
         array.append([data])
         
-	table.flush()
+    table.flush()
         
     hstfid.close()
 

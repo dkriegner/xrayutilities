@@ -37,25 +37,25 @@ class DataFile(object):
         self.fullfilename = os.path.join(self.path,self.filename)
         self.fid = None
         
-	def open(self):
-		"""
-		open():
-		Open the file in the file object.
-		"""
-		try:
-			self.fid = open(self.fullfilename,"r")
-		except:
-			self.fid = None
-			raise IOError("error opening file %s" %self.fullfilename)
-			
-		#after opening the file we have to find EOF offset with 
-		#respect to the beginning of the file
-			
-	def close(self):
-		try:
-			self.fid.close()
-		except:
-			self.fid = None
-			return None
-			
-			
+    def open(self):
+        """
+        open():
+        Open the file in the file object.
+        """
+        try:
+            self.fid = open(self.fullfilename,"r")
+        except:
+            self.fid = None
+            raise IOError("error opening file %s" %self.fullfilename)
+            
+        #after opening the file we have to find EOF offset with 
+        #respect to the beginning of the file
+            
+    def close(self):
+        try:
+            self.fid.close()
+        except:
+            self.fid = None
+            return None
+            
+            

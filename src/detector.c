@@ -69,8 +69,8 @@ int det1d_get_axis(Detector1D *det,double cvalue,double *axis,ROI1D *roi){
 }
 
 int det2d_get_axis(Detector2D *det,double cxvalue,double cyvalue,double *xaxis,
-				   double *yaxis,ROI2D *roi){
-	printf("not implemented yet!\n");
+                   double *yaxis,ROI2D *roi){
+    printf("not implemented yet!\n");
 }
 
 /****f* Detector/det1d_create_axis
@@ -378,21 +378,21 @@ int det2d_create_dbuffer(Detector2D *det,double *dbuffer,ROI2D *roi){
  *   Eugen Wintersberger
  ****/
 double det1d_integrate(Detector1D *det,double *data,ROI1D *roi){
-	unsigned int i,istart,istop;
-	double s;
-	
-	if (roi == NULL){
-		istart = 0;
-		istop = det->nc;
-	}else{
-		istart = roi->cstart;
-		istop = roi->cstop+1;
-	}
-	
-	s = 0.0;
-	for (i=istart;i<istop;i++) s += data[i];
-	
-	return(s);
+    unsigned int i,istart,istop;
+    double s;
+    
+    if (roi == NULL){
+        istart = 0;
+        istop = det->nc;
+    }else{
+        istart = roi->cstart;
+        istop = roi->cstop+1;
+    }
+    
+    s = 0.0;
+    for (i=istart;i<istop;i++) s += data[i];
+    
+    return(s);
 }
 
 /****f* Detector/det2d_integrate
@@ -426,39 +426,39 @@ double det1d_integrate(Detector1D *det,double *data,ROI1D *roi){
  *   Eugen Wintersberger
  ****/
 double det2d_integrate(Detector2D *det,double *data,ROI2D *roi){
-	unsigned int i,istart,istop;
-	unsigned int j,jstart,jstop;
-	unsigned int ioffset;
-	double s;
-	
-	if (roi == NULL){
-		istart = 0; 
-		istop = det->detx.nc;
-		jstart = 0;
-		jstop = det->dety.nc;
-	}else{
-		istart = roi->roix.cstart;
-		istop  = roi->roix.cstop + 1;
-		jstart = roi->roiy.cstart;
-		jstop  = roi->roiy.cstop + 1;
-	}
-	
-	s = 0.0;
-	for(i=istart;i<istop;i++){
-		ioffset = i*det->detx.nc;
-		for(j=jstart;j<jstop;j++){
-			s += data[j+ioffset];
-		}
-	}
-	
-	return(s);
+    unsigned int i,istart,istop;
+    unsigned int j,jstart,jstop;
+    unsigned int ioffset;
+    double s;
+    
+    if (roi == NULL){
+        istart = 0; 
+        istop = det->detx.nc;
+        jstart = 0;
+        jstop = det->dety.nc;
+    }else{
+        istart = roi->roix.cstart;
+        istop  = roi->roix.cstop + 1;
+        jstart = roi->roiy.cstart;
+        jstop  = roi->roiy.cstop + 1;
+    }
+    
+    s = 0.0;
+    for(i=istart;i<istop;i++){
+        ioffset = i*det->detx.nc;
+        for(j=jstart;j<jstop;j++){
+            s += data[j+ioffset];
+        }
+    }
+    
+    return(s);
 }
 
 /*functions to plot detectors*/
 int det1d_plot(Detector1D *det,double *data,ROI1D *roi,int logflag){
-	printf("not implemented yet!\n");
+    printf("not implemented yet!\n");
 }
 
 int det2d_plot(Detector2D *det,double *data,ROI2D *roi,int logflag){
-	printf("not implemented yet!\n");
+    printf("not implemented yet!\n");
 }

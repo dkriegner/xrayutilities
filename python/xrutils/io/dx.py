@@ -32,7 +32,7 @@ class DXFile(object):
     Optional keyword arguments:
         seq .................... yes or no, this flag determines
                                  wether a file contains a sequence or not.
-	path ................... path where to store the file.
+    path ................... path where to store the file.
         
     """
 
