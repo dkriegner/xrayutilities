@@ -1,4 +1,9 @@
 
+xrutils - a package with useful scripts for X-ray diffraction physicists
+========================================================================
+
+ Copyright (C) 2009-2012 Eugen Wintersberger <eugen.wintersberger@desy.de>
+ Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
 
 Directories:
 doc ........ directory for documentation
