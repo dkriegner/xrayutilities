@@ -1,8 +1,10 @@
+
+
 Directories:
 doc ........ directory for documentation
-matlab ..... directory with matlab scripts and mex extensions
+examples ... directory with example scripts and configurations
 python ..... holds an installable python module 
-src ........ source directory for the C-library
+src ........ source directory for the C-library used by the python module
 tools ...... sources and binaries for tools (executable programs)
 
 INSTALLATION
