@@ -1,8 +1,8 @@
 % This file is part of xrayutilities.
 %
-% xrayutilities is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 2 of the License, or
+% xrayutilities is free software; you can redistribute it and/or modify 
+% it under the terms of the GNU General Public License as published by 
+% the Free Software Foundation; either version 2 of the License, or 
 % (at your option) any later version.
 %
 % This program is distributed in the hope that it will be useful,
@@ -18,7 +18,7 @@
 
 %%%documentation of the materials submodule
 
-{\tt xrutils} provides a set of classes to describe crystal lattices and
+{\tt xrutils} provides a set of classes to describe crystal lattices and 
 materials.
 
 Examples show how to define a new material by definings its lattice and deriving a new material, furthermore materials can be used to calculate the structure factor of a Bragg reflection for an specific energy or the energy dependency of its structure factor for anomalous scattering.
@@ -38,17 +38,17 @@ def ZincBlendeLattice(aa,ab,a):
     lb.append(ab,[0.75,0.75,0.25])
     lb.append(ab,[0.75,0.25,0.75])
     lb.append(ab,[0.25,0.75,0.75])
-
+    
     #create lattice vectors
     a1 = [a,0,0]
     a2 = [0,a,0]
     a3 = [0,0,a]
-
-    l = xu.materials.Lattice(a1,a2,a3,base=lb)
+    
+    l = xu.materials.Lattice(a1,a2,a3,base=lb)    
     return l
 
-# defining InP, no elastic properties are given,
-# helper functions exist to create the (6,6) elastic tensor for cubic materials
+# defining InP, no elastic properties are given, 
+# helper functions exist to create the (6,6) elastic tensor for cubic materials 
 InP  = xu.materials.Material("InP",ZincBlendeLattice(xu.elements.In, xu.elements.P,5.8687), numpy.zeros((6,6),dtype=numpy.double))
 # InP is of course already included in the xu.materials module
 \end{lstlisting}
@@ -102,3 +102,5 @@ print "f0: %8.4g" % Fe.f0(numpy.linalg.norm(Q))
 print "f1: %8.4g" % Fe.f1(en)
 print "f2: %8.4g" % Fe.f2(en)
 \end{lstlisting}
+
+

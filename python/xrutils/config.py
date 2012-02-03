@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -19,22 +19,22 @@
 module to parse xrutils user-specific config file
 the parsed values are provide as global constants for the use
 in other parts of xrutils. The config file with the default constants
-is found in the python installation path of xrutils. It is however not
+is found in the python installation path of xrutils. It is however not 
 recommended to change things there, instead the user-specific config file
 ~/.xrutils.conf or the local xrutils.conf file should be used.
 """
 
 import os.path
-import numpy
+import numpy 
 import ConfigParser
 
 from . import __path__
 from . import utilities_noconf
 
 # so far parsed config variables are
-#
+# 
 # wavelength
-# energy
+# energy 
 # verbosity
 # dynlow
 # dynhigh
@@ -42,11 +42,11 @@ from . import utilities_noconf
 
 xrutilsParser = ConfigParser.ConfigParser()
 
-#read global default values for configuration variables
+#read global default values for configuration variables 
 with open(os.path.join(__path__[0],"xrutils_default.conf")) as gconffile:
     xrutilsParser.readfp(gconffile)
 
-# read user configuration and local configuration if available
+# read user configuration and local configuration if available 
 cfiles = xrutilsParser.read([os.path.join(__path__[0],"clib_path.conf"), \
               os.path.expanduser(os.path.join("~",".xrutils.conf")), \
               "xrutils.conf"])
@@ -59,7 +59,7 @@ DEBUG = xrutilsParser.getint("xrutils","debug")
 VERBOSITY = xrutilsParser.getint("xrutils","verbosity")
 WAVELENGTH = xrutilsParser.getfloat("xrutils","wavelength")
 ENERGY = xrutilsParser.getfloat("xrutils","energy")
-if numpy.isnan(ENERGY):
+if numpy.isnan(ENERGY): 
     ENERGY = utilities_noconf.lam2en(WAVELENGTH)
 else: # energy was given and wavelength is calculated from given energy
     WAVELENGTH = utilities_noconf.lam2en(ENERGY)

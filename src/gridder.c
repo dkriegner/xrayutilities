@@ -1,19 +1,19 @@
 /*
  * This file is part of xrayutilities.
- *
- * xrayutilities is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * 
+ * xrayutilities is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or 
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
  * Copyright (C) 2009-2010 Dominik Kriegner <dominik.kriegner@aol.at>
 */
@@ -121,7 +121,7 @@ int gridder2d_th(unsigned int nth,
 
     dx = fabs(xmax-xmin)/(double)(nx-1);
     dy = fabs(ymax-ymin)/(double)(ny-1);
-
+    
     /*check if normalization array is passed*/
     if(norm==NULL){
         gnorm = malloc(sizeof(double)*(nx*ny));
@@ -199,7 +199,7 @@ int gridder2d_th(unsigned int nth,
     /*run here the local code for this threads*/
     gridder2d_th_worker((void *)&thargs[0]);
 
-    /*once the local code is inished all other threads are joined to
+    /*once the local code is inished all other threads are joined to 
      *until they are finished*/
     for(i=1;i<nth;i++){
         rc = pthread_join(threads[i],&status);
@@ -256,7 +256,7 @@ void *gridder2d_th_worker(void *arg)
         start = tharg.npres + tharg.thid*tharg.npth;
         stop  = start + tharg.npth;
     }
-
+    
     /*allocate memory of the offset buffer*/
     offset_buffer = malloc(sizeof(unsigned int)*tharg.npth);
     data_index_buffer = malloc(sizeof(unsigned int)*tharg.npth);
@@ -280,7 +280,7 @@ void *gridder2d_th_worker(void *arg)
         offset = offset_buffer[i];
         index  = data_index_buffer[i];
         tharg.odata[offset] += tharg.data[index];
-        tharg.norm[offset] += 1.;
+        tharg.norm[offset] += 1.; 
     }
     pthread_mutex_unlock(&gridder_mutex);
 
@@ -289,7 +289,7 @@ void *gridder2d_th_worker(void *arg)
     free(data_index_buffer);
 
     if(tharg.thid==0){
-        /*if the calling thread is the zero thread return 0 to avoid
+        /*if the calling thread is the zero thread return 0 to avoid 
          *the entire program is exiting
          */
         return(0);
@@ -302,7 +302,7 @@ void *gridder2d_th_worker(void *arg)
 
 int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
               unsigned int nx,unsigned int ny,unsigned int nz,
-              double xmin, double xmax, double ymin, double ymax,
+              double xmin, double xmax, double ymin, double ymax, 
               double zmin, double zmax,
               double *odata,double *norm,int flags)
 /*{{{1*/
@@ -377,7 +377,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
 int gridder3d_th(unsigned int nth,
                  double *x,double *y,double *z,double *data,unsigned int n,
                  unsigned int nx,unsigned int ny,unsigned int nz,
-                 double xmin, double xmax, double ymin, double ymax,
+                 double xmin, double xmax, double ymin, double ymax, 
                  double zmin, double zmax,
                  double *odata,double *norm,int flags)
 /*{{{1*/
@@ -407,7 +407,7 @@ int gridder3d_th(unsigned int nth,
     dx = (xmax-xmin)/(double)(nx-1);
     dy = (ymax-ymin)/(double)(ny-1);
     dz = (zmax-zmin)/(double)(nz-1);
-
+    
     /*initialize data if requested*/
     if(!(flags&NO_DATA_INIT)){
         for(i=0;i<nx*ny*nz;i++) odata[i] = 0.;
@@ -493,7 +493,7 @@ int gridder3d_th(unsigned int nth,
     }
 
     /*run here the local code for this threads*/
-    start = 0;
+    start = 0; 
     stop  = thargs[0].npres + thargs[0].npth;
     for(i=start;i<stop;i++){
         x_index = rint((thargs[0].x[i]-thargs[0].xmin)/thargs[0].dx);
@@ -503,13 +503,13 @@ int gridder3d_th(unsigned int nth,
         offset = x_index*thargs[0].ny*thargs[0].nz+
                  y_index*thargs[0].nz + z_index;
 
-        pthread_mutex_lock(&gridder_mutex);
+        pthread_mutex_lock(&gridder_mutex); 
         thargs[0].odata[offset] += thargs[0].data[i];
         thargs[0].norm[offset] += 1.;
         pthread_mutex_unlock(&gridder_mutex);
     }
 
-    /*once the local code is inished all other threads are joined to
+    /*once the local code is inished all other threads are joined to 
      *until they are finished*/
     for(i=1;i<nth;i++){
         rc = pthread_join(threads[i],&status);
@@ -605,8 +605,8 @@ void *gridder3d_th_worker(void *arg)
 }
 /*}}}1*/
 
-/* folling functions shouldn't be needed anymore
- * -> replaced by numpy code */
+/* folling functions shouldn't be needed anymore 
+ * -> replaced by numpy code */ 
 double get_min(double *a,unsigned int n)
 /*{{{1*/
 {
@@ -639,3 +639,4 @@ double get_max(double *a,unsigned int n)
     return(m);
 }
 /*}}}1*/
+

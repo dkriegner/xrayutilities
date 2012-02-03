@@ -1,8 +1,8 @@
 % This file is part of xrayutilities.
 %
-% xrayutilities is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 2 of the License, or
+% xrayutilities is free software; you can redistribute it and/or modify 
+% it under the terms of the GNU General Public License as published by 
+% the Free Software Foundation; either version 2 of the License, or 
 % (at your option) any later version.
 %
 % This program is distributed in the hope that it will be useful,
@@ -28,7 +28,7 @@ First the flowchart of how angular coordinates of Bragg reflections are calculat
  \caption{Flow diagram showing how to calculate angular positions of Bragg reflection using {\tt xrutils}.}
  \label{fig:xrutils_usage_planning}
 \end{figure}
-
+   
 \begin{figure}[H]
  \centering
  \includegraphics[width=0.8\linewidth]{pics/xrutils_usage}
@@ -81,7 +81,7 @@ h5file = "./data/"+sample+".h5"
 try: h5.isopen
 except NameError:
     h5 = tables.openFile(h5file,mode='a')
-else:
+else: 
     if not h5.isopen:
         h5 = tables.openFile(h5file,mode='a')
 s.Save2HDF5(h5)
@@ -98,7 +98,7 @@ for i in [17,]:
     exec ("scan = h5.root.%s.scan_%d.data.read()" %(sample,i))
     if MAP.dtype == numpy.float64:  MAP.dtype = scan.dtype
     MAP = numpy.append(MAP,scan)
-
+                
 # normalize intensity and apply region of interests
 PSDRAW = RA_normalizer_psd(MAP)
 PSD = xu.blockAveragePSD(PSDRAW, 1, roi=roi)
@@ -124,7 +124,7 @@ plt.xlabel(r'$Q_y$ ($\AA$)'); plt.ylabel(r'$Q_z$ ($\AA$)')
 #plt.subplots_adjust(bottom=0.12, top=0.92)
 plt.colorbar(cf,ticks=numpy.arange(INT.min(),INT.max()+.1,
              round((INT.max()-INT.min())/10,1)),format="%.1f")
-plt.figtext(0.76,0.93,r"$\log($Int$)$ (cps)")
+plt.figtext(0.76,0.93,r"$\log($Int$)$ (cps)") 
 plt.savefig(sample+"_111rsm.png",dpi=200)
 
 #close HDF5-datafile

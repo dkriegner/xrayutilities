@@ -7,33 +7,33 @@
 #C  DABAX can be found at:
 #C  http://www.esrf.fr/computing/expg/subgroups/theory/DABAX/dabax.html
 #UD Elastic Photon-Atom Scattering, anomalous scattering factors.
-#UD
+#UD 
 #UD This file contains the Sasaki tabulation of the anomalous
 #UD scattering factors based on the Cromer and Liberman method.
-#UD Original data can be downloaded from:
+#UD Original data can be downloaded from: 
 #UD ftp://pfweis.kek.jp/pub/Sasaki-table/
-#UD Any reports or publications of these data will acknowledge
+#UD Any reports or publications of these data will acknowledge 
 #UD its use by the citation:
 #UD   Anomalous scattering factors
 #UD        S.Sasaki (1989) Numerical Tables of Anomalous Scattering Factors
 #UD        Calculated by the Cromer and Liberman Method,
 #UD        KEK Report, 88-14, 1-136
-#UD Questions about these data should be addressed to Dr.Satoshi Sasaki,
+#UD Questions about these data should be addressed to Dr.Satoshi Sasaki, 
 #UD Tokyo Institute of Technology.  Email: sasaki@nc.titech.ac.jp
-#UD
+#UD  
 #UD The data in this file has been sorted and packed using the scripts provided
-#UD by Bruce Ravel (ravel@u.washington.edu). These scripts and the full
-#UD distribution of the Sasaki tables can be downloaded from:
+#UD by Bruce Ravel (ravel@u.washington.edu). These scripts and the full 
+#UD distribution of the Sasaki tables can be downloaded from: 
 #UD http://krazy.phys.washington.edu/%7Ebruce/sasaki/
-#UD
-#UD
+#UD 
+#UD 
 #UD The Sasaki data is available for elements with Z=4-83 and Z=92.
 #UD They are valid in the energy range 4-124 keV and they have
 #UD a fine step size close to the edges. This feature makes this
 #UD data set interesting for those willing to analyse data of
 #UD Diffraction Anomalous Fine Structure (DAFS) or other related techniques.
 #UD Columns in this file are 1:PhotonEnergy[eV], 2:f1 and 3:f2
-#UD
+#UD 
 #S  4 Be
 #UF1ADD 4.00000
 #N 3
@@ -319,7 +319,7 @@
 103320  -0.0010  0.0000
 112713  -0.0010  0.0000
 123984  -0.0010  0.0000
-#S  5 B
+#S  5 B 
 #UF1ADD 5.00000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -604,7 +604,7 @@
 103320  -0.0019  0.0000
 112713  -0.0019  0.0000
 123984  -0.0019  0.0000
-#S  6 C
+#S  6 C 
 #UF1ADD 6.00000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -889,7 +889,7 @@
 103320  -0.0028  0.0000
 112713  -0.0028  0.0000
 123984  -0.0029  0.0000
-#S  7 N
+#S  7 N 
 #UF1ADD 7.00000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -1174,7 +1174,7 @@
 103320  -0.0047  0.0001
 112713  -0.0047  0.0000
 123984  -0.0048  0.0000
-#S  8 O
+#S  8 O 
 #UF1ADD 8.00000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -1459,7 +1459,7 @@
 103320  -0.0064  0.0001
 112713  -0.0065  0.0001
 123984  -0.0066  0.0001
-#S  9 F
+#S  9 F 
 #UF1ADD 9.00000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -4009,7 +4009,7 @@
 103320  -0.0212  0.0015
 112713  -0.0219  0.0012
 123984  -0.0226  0.0010
-#S  15 P
+#S  15 P 
 #UF1ADD 15.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -4574,7 +4574,7 @@
 103320  -0.0238  0.0021
 112713  -0.0247  0.0017
 123984  -0.0255  0.0014
-#S  16 S
+#S  16 S 
 #UF1ADD 16.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -6269,7 +6269,7 @@
 103320  -0.0345  0.0048
 112713  -0.0363  0.0040
 123984  -0.0380  0.0032
-#S  19 K
+#S  19 K 
 #UF1ADD 19.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -8524,7 +8524,7 @@
 103320  -0.0496  0.0120
 112713  -0.0531  0.0100
 123984  -0.0564  0.0081
-#S  23 V
+#S  23 V 
 #UF1ADD 23.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -17521,7 +17521,7 @@
 103320  -0.1377  0.1270
 112713  -0.1545  0.1070
 123984  -0.1711  0.0887
-#S  39 Y
+#S  39 Y 
 #UF1ADD 39.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -30414,7 +30414,7 @@
 103320  -0.2930  0.4493
 112713  -0.3201  0.3821
 123984  -0.3491  0.3199
-#S  53 I
+#S  53 I 
 #UF1ADD 53.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -59686,7 +59686,7 @@
 103320  -1.1425  1.6222
 112713  -1.0775  1.4008
 123984  -1.0418  1.1918
-#S  74 W
+#S  74 W 
 #UF1ADD 74.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2
@@ -72238,7 +72238,7 @@
 103320  100.5535  2.5365
 112713  -3.2231  2.2075
 123984  -6.6841  1.8933
-#S  92 U
+#S  92 U 
 #UF1ADD 92.0000
 #N 3
 #L PhotonEnergy[eV]  f1  f2

@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -60,14 +60,14 @@ class XFigure(object):
         pass
 
 
-
+    
 
 def xfigure(*args,**keyargs):
     f = figure(*args,**keyargs)
     xf = XFigure(f)
 
 
-    return xf
+    return xf 
 
 class MeasureDistance(object):
     def __init__(self,figure):
@@ -165,7 +165,7 @@ class PointSelect(object):
 
         self.mid = self.figure.canvas.mpl_connect("button_press_event",self.__button_press_event__)
         self.mid2 = self.figure.canvas.mpl_connect("motion_notify_event",self.__move_event_handler__)
-
+    
     def __move_event_handler__(self,event):
         if event.inaxes:
             #print cursor position to the canvas
@@ -201,7 +201,7 @@ class DataPicker(object):
         optional keyword arguments:
         x ..................... array of shape m or nxm with x-axis data
         y ..................... array fo shape n or nxm with y-axis data
-        pstyle ................ style how to plot the data, can take the
+        pstyle ................ style how to plot the data, can take the 
                                 following value:
                                 image -> using imshow x and y must be of shape n
                                          and m respectively
@@ -230,9 +230,9 @@ class DataPicker(object):
                                                        self.__key_event_handler__)
 
         #the positions on the canvas
-        b = self.figure.subplotpars.bottom
+        b = self.figure.subplotpars.bottom 
         self.figure.subplots_adjust(bottom=b+0.025)
-
+        
         #plot the data
         self.data = array
         self.ncont = 50   #set the default number of contours
@@ -252,7 +252,7 @@ class DataPicker(object):
             self.plot_style = "pcolor"
 
         self.plotdata()
-
+        
         #the list where the annotations are stored that show selected points
         self.anot_sel_list = []
         self.text_fmt = "%e %e"
@@ -262,7 +262,7 @@ class DataPicker(object):
 
 
     def plotdata(self):
-        #clear the axis from all content
+        #clear the axis from all content 
         self.axis.clear()
         if self.plot_style == "pcolor":
             self.plot = self.axis.pcolor(self.x_data,self.y_data,self.data)
@@ -273,7 +273,7 @@ class DataPicker(object):
 
         self.figure.colorbar(self.plot)
         self.canvas.draw()
-
+        
 
     def __getitem__(self,index):
         return self.plist[index]
@@ -354,8 +354,12 @@ class DataPicker(object):
             self.cursor = None
 
         self.canvas.draw()
-
+            
 
     def grid(self):
         self.axis.grid()
         self.canvas.draw()
+
+        
+
+

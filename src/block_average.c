@@ -1,19 +1,19 @@
 /*
  * This file is part of xrayutilities.
- *
- * xrayutilities is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * 
+ * xrayutilities is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or 
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
 */
 
@@ -29,13 +29,13 @@ int block_average1d(double *block_av, double *input, int Nav, int N) {
      *
      *    Parameters
      *    ----------
-     *    block_av:     block averaged output array
+     *    block_av:     block averaged output array 
      *                  size = ceil(N/Nav) (out)
      *    input:        input array of double (in)
      *    Nav:          number of double to average
      *    N:            total number of input values
      */
-
+    
     int i,j; //loop indices
     double buf;
 
@@ -45,7 +45,7 @@ int block_average1d(double *block_av, double *input, int Nav, int N) {
         for(j=0; j<Nav && (i+j)<N; ++j) {
             buf += input[i+j];
         }
-        block_av[i/Nav] = buf/(float)j; //save average to output array
+        block_av[i/Nav] = buf/(float)j; //save average to output array       
     }
 
     return 1;
@@ -56,9 +56,9 @@ int block_average_PSD(double *intensity, double *psd, int Nav, int Nch, int Nspe
      *
      *    Parameters
      *    ----------
-     *    intensity:    block averaged output array
+     *    intensity:    block averaged output array 
      *                  size = (Nspec , ceil(Nch/Nav)) (out)
-     *    psd:          input array of PSD values
+     *    psd:          input array of PSD values  
      *                  size = (Nspec, Nch) (in)
      *    Nav:          number of channels to average
      *    Nch:          number of channels per spectrum
@@ -76,7 +76,7 @@ int block_average_PSD(double *intensity, double *psd, int Nav, int Nch, int Nspe
     for(i=0; i<Nspec; ++i) {
         block_average1d(&intensity[i*Nout], &psd[i*Nch], Nav, Nch);
     }
-
+    
     return 1;
 
 }
@@ -86,9 +86,9 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
      *
      *    Parameters
      *    ----------
-     *    block_av:     block averaged output array
+     *    block_av:     block averaged output array 
      *                  size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1)) (out)
-     *    ccd:          input array/CCD frame
+     *    ccd:          input array/CCD frame  
      *                  size = (Nch2, Nch1) (in)
      *                  Nch1 is the fast variing index
      *    Nav1,2:       number of channels to average in each dimension
@@ -123,3 +123,6 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
 
     return 1;
 }
+
+
+

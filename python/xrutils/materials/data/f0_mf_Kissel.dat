@@ -1,35 +1,35 @@
 #F f0_mf_Kissel.dat
 #D Mon Sep 30 15:16:21 2002
-#UF0TYPE TABLE_NOR ; TABLE OR TABLE_NOR OR PARAMETRIZATION?
+#UF0TYPE TABLE_NOR ; TABLE OR TABLE_NOR OR PARAMETRIZATION? 
 #UT Elastic Photon-Atom Scattering, modified relativistic form factors.
 #UIDL xf0
-#C  This file has been created using f0_mf_Kissel.pro
+#C  This file has been created using f0_mf_Kissel.pro 
 #C  This file belongs to the DABAX library. More information on
 #C  DABAX can be found at:
 #C  http://www.esrf.fr/computing/scientific/dabax
 #UD Elastic Photon-Atom Scattering, modified relativistic form factors.
-#UD
+#UD 
 #UD  This data set contains data from the RTAB database:
 #UD  L. Kissel, Radiation physics and chemistry 59 (2000) 185-200
-#UD  available at:
+#UD  available at: 
 #UD  http://www-phys.llnl.gov/Research/scattering/RTAB.html
-#UD  An interactive WWW interface is in
+#UD  An interactive WWW interface is in 
 #UD  http://www-phys.llnl.gov/Research/scattering/asf.html
-#UD
+#UD 
 #UD The original data has been obtained from
 #UD   ftp://www-phys.llnl.gov/pub/rayleigh/mftab/
-#UD or
+#UD or 
 #UD   ftp://www-phys.llnl.gov/pub/rayleigh/RTAB/data_MF/
-#UD
-#UD The original data also contains the subshell atomic form
-#UD factors, which have not been included here.
-#UD
+#UD 
+#UD The original data also contains the subshell atomic form 
+#UD factors, which have not been included here. 
+#UD 
 #UD These data are computed for neutral atoms, only, entirely
 #UD within a local relativistic self-consistent potential
 #UD with the Slater local-exchange coefficient and Latter tail.
 #UD For a detailed discussion of the underlying validity of the
 #UD information contained in these directories see:
-#UD
+#UD 
 #UD  Validity of Form-Factor, Modified-Form-Factor and
 #UD  Anomalous-Scattering-Factor Approximations in Elastic Scattering
 #UD  Calculations, by Lynn Kissel, B. Zhou, S. C. Roy, S. K. Sen Gupta and
@@ -50,7 +50,7 @@
 #UD  Physics, edited by Bernd Crasemann (Plenum Publishing: New York,
 #UD  1985).
 #UD
-#UD  The following two arrays are stored:
+#UD  The following two arrays are stored: 
 #UD     Column 1: X(1/A) = sin(theta/2)/lambda
 #UD     Column 2: f0 = form factor per electron
 #UD
@@ -58,74 +58,74 @@
 #C
 #C The original README fime from Kissel follows here:
 #UO Elastic Photon-Atom Scattering
-#UO
+#UO 
 #UO Information date:  May 23, 1996 - lk
-#UO
+#UO 
 #UO This directory tree is accessible via anonymous ftp as:
-#UO
+#UO 
 #UO   ftp://www-phys.llnl.gov/rayleigh
-#UO
+#UO 
 #UO It contains tables of data which support elastic photon scattering
 #UO calculations.  For an interactive interface to this information, see
 #UO the URL:
-#UO
+#UO 
 #UO   http://www-phys.llnl.gov/V_Div/scattering/elastic.html
-#UO
+#UO 
 #UO These data are computed for neutral atoms, only, entirely within a
 #UO local relativistic self-consistent potential with the Slater
 #UO local-exchange coefficient and Latter tail.
-#UO
+#UO 
 #UO The data contained within this directory tree are:
-#UO
+#UO 
 #UO   ./asftab -- anomalous scattering factors
 #UO   ./rftab  -- relativistic form factors (total atom, shell and subshell)
 #UO   ./mftab  -- modified relativistic form factors (total atom, shell and
 #UO               subshell)
 #UO   ./procs  -- scripts used to create the data files stored in the other
 #UO               directories
-#UO
+#UO 
 #UO Data for fixed atomic number, Z, is stored in separate files.  For example,
 #UO the anomalous scattering factors for neutral lead (Pb, Z=82) are stored in
-#UO
+#UO 
 #UO   ./asftab/82_Pb_asf
-#UO
+#UO 
 #UO whereas the relativistic form factors are stored in
-#UO
+#UO 
 #UO   ./rftab/82_Pb_rf
-#UO
+#UO 
 #UO and the modified relativistic form factors are stored in
-#UO
+#UO 
 #UO   ./mftab/82_Pb_mf
-#UO
+#UO 
 #UO If you have comments about this information, please contact:
-#UO
+#UO 
 #UO   Lynn Kissel, lkissel@llnl.gov
-#UO
+#UO 
 #UO For a detailed discussion of the underlying validity of the information
 #UO contained in these directories see, for example:
-#UO
+#UO 
 #UO   "Validity of Form-Factor, Modified-Form-Factor and
 #UO   Anomalous-Scattering-Factor Approximations in Elastic Scattering
 #UO   Calculations," by Lynn Kissel, B. Zhou, S. C. Roy, S. K. Sen Gupta and
 #UO   R. H. Pratt, Acta Crystallographica Vol. A51, 271-288 (1995).
-#UO
+#UO 
 #UO   "New Relativistic S-Matrix Results for Scattering - Beyond the Usual
 #UO   Anomalous Factors/Beyond Impulse Approximation," by R. H. Pratt, Lynn
 #UO   Kissel and P. M. Bergstrom, Jr., in <b>Resonant Anomalous X-Ray
 #UO   Scattering</b>, edited by G. Materlik, C. J. Sparks and K. Fischer
 #UO   (North-Holland: Amsterdam, 1994).
-#UO
+#UO 
 #UO   "Elastic Scattering of Gamma-Rays and X-Rays by Atoms," by
 #UO   P. P. Kane, Lynn Kissel, R. H. Pratt and S. C. Roy, Physics Reports
 #UO   Vol. 140, 75-159 (1986).
-#UO
+#UO 
 #UO   "Rayleigh Scattering - Elastic Photon Scattering by Bound
 #UO   Electrons," by Lynn Kissel and R. H. Pratt, in <b>Atomic Inner-Shell
 #UO   Physics</b>, edited by Bernd Crasemann (Plenum Publishing: New York,
 #UO   1985).
-#UO
-#UO
-#UO
+#UO 
+#UO 
+#UO 
 #S  01  H
 #N 2
 #L X(1/A)  f0/electron
@@ -142,11 +142,11 @@
 #UO    FORM: # ELECTRONS=   1.00
 #UO    FORM: RSCF POTENTIAL/WAVEFUNCTION FILE= /od0/ray_data_1a/scf/sh0c_K.hex
 #UO    FORM: ELECTRON ORBITALS INCLUDED:
-#UO   TOTAL
+#UO   TOTAL          
 #UO    FORM: ATOMIC NUMBER, # ELECTRONS=  1.00000E+00  1.00000E+00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /od0/ray_data_1a/scf/sh0c_K.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      TOTAL
+#UO      TOTAL          
 #UO   REMARK END = mfh0c_K|MODULE=TOTAL
 #UO         X (1/A)    MF/ELECTRON
   0.0000000E+00  9.9997324E-01
@@ -816,7 +816,7 @@
 #UO    FORM: # ELECTRONS=   2.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/she0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
+#UO      1S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfhe0sl|MODULE=TOTAL
@@ -1490,8 +1490,8 @@
 #UO    FORM: # ELECTRONS=   3.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sli0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
+#UO      1S1/2          
+#UO      2S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfli0sl|MODULE=TOTAL
@@ -2187,8 +2187,8 @@
 #UO    FORM: # ELECTRONS=   4.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sbe0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
+#UO      1S1/2          
+#UO      2S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfbe0sl|MODULE=TOTAL
@@ -2889,10 +2889,10 @@
 #UO    FORM: # ELECTRONS=   5.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sb0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfb0sl|MODULE=TOTAL
@@ -3593,10 +3593,10 @@
 #UO    FORM: # ELECTRONS=   6.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sc0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfc0sl|MODULE=TOTAL
@@ -4307,10 +4307,10 @@
 #UO    FORM: # ELECTRONS=   7.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sn0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfn0sl|MODULE=TOTAL
@@ -5017,10 +5017,10 @@
 #UO    FORM: # ELECTRONS=   8.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/so0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfo0sl|MODULE=TOTAL
@@ -5736,10 +5736,10 @@
 #UO    FORM: # ELECTRONS=   9.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sf0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mff0sl|MODULE=TOTAL
@@ -6455,10 +6455,10 @@
 #UO    FORM: # ELECTRONS=  10.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sne0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfne0sl|MODULE=TOTAL
@@ -7184,11 +7184,11 @@
 #UO    FORM: # ELECTRONS=  11.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sna0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfna0sl|MODULE=TOTAL
@@ -7910,11 +7910,11 @@
 #UO    FORM: # ELECTRONS=  12.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/smg0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfmg0sl|MODULE=TOTAL
@@ -8657,13 +8657,13 @@
 #UO    FORM: # ELECTRONS=  13.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sal0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfal0sl|MODULE=TOTAL
@@ -9408,13 +9408,13 @@
 #UO    FORM: # ELECTRONS=  14.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ssi0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfsi0sl|MODULE=TOTAL
@@ -10161,13 +10161,13 @@
 #UO    FORM: # ELECTRONS=  15.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sp0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfp0sl|MODULE=TOTAL
@@ -10916,13 +10916,13 @@
 #UO    FORM: # ELECTRONS=  16.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ss0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfs0sl|MODULE=TOTAL
@@ -11679,13 +11679,13 @@
 #UO    FORM: # ELECTRONS=  17.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/scl0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfcl0sl|MODULE=TOTAL
@@ -12441,13 +12441,13 @@
 #UO    FORM: # ELECTRONS=  18.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sar0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfar0sl|MODULE=TOTAL
@@ -13209,14 +13209,14 @@
 #UO    FORM: # ELECTRONS=  19.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sk0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfk0sl|MODULE=TOTAL
@@ -13970,14 +13970,14 @@
 #UO    FORM: # ELECTRONS=  20.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sca0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfca0sl|MODULE=TOTAL
@@ -14741,16 +14741,16 @@
 #UO    FORM: # ELECTRONS=  21.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ssc0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfsc0sl|MODULE=TOTAL
@@ -15514,16 +15514,16 @@
 #UO    FORM: # ELECTRONS=  22.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sti0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfti0sl|MODULE=TOTAL
@@ -16296,16 +16296,16 @@
 #UO    FORM: # ELECTRONS=  23.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sv0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfv0sl|MODULE=TOTAL
@@ -17081,16 +17081,16 @@
 #UO    FORM: # ELECTRONS=  24.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/scr0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfcr0sl|MODULE=TOTAL
@@ -17868,16 +17868,16 @@
 #UO    FORM: # ELECTRONS=  25.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/smn0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfmn0sl|MODULE=TOTAL
@@ -18654,16 +18654,16 @@
 #UO    FORM: # ELECTRONS=  26.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sfe0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mffe0sl|MODULE=TOTAL
@@ -19442,16 +19442,16 @@
 #UO    FORM: # ELECTRONS=  27.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sco0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfco0sl|MODULE=TOTAL
@@ -20235,16 +20235,16 @@
 #UO    FORM: # ELECTRONS=  28.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sni0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfni0sl|MODULE=TOTAL
@@ -21036,16 +21036,16 @@
 #UO    FORM: # ELECTRONS=  29.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/scu0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfcu0sl|MODULE=TOTAL
@@ -21832,16 +21832,16 @@
 #UO    FORM: # ELECTRONS=  30.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/szn0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfzn0sl|MODULE=TOTAL
@@ -22630,18 +22630,18 @@
 #UO    FORM: # ELECTRONS=  31.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sga0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfga0sl|MODULE=TOTAL
@@ -23426,18 +23426,18 @@
 #UO    FORM: # ELECTRONS=  32.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sge0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfge0sl|MODULE=TOTAL
@@ -24225,18 +24225,18 @@
 #UO    FORM: # ELECTRONS=  33.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sas0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfas0sl|MODULE=TOTAL
@@ -25019,18 +25019,18 @@
 #UO    FORM: # ELECTRONS=  34.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sse0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfse0sl|MODULE=TOTAL
@@ -25813,18 +25813,18 @@
 #UO    FORM: # ELECTRONS=  35.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sbr0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfbr0sl|MODULE=TOTAL
@@ -26606,18 +26606,18 @@
 #UO    FORM: # ELECTRONS=  36.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/skr0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfkr0sl|MODULE=TOTAL
@@ -27403,19 +27403,19 @@
 #UO    FORM: # ELECTRONS=  37.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/srb0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfrb0sl|MODULE=TOTAL
@@ -28206,19 +28206,19 @@
 #UO    FORM: # ELECTRONS=  38.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ssr0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfsr0sl|MODULE=TOTAL
@@ -29008,21 +29008,21 @@
 #UO    FORM: # ELECTRONS=  39.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sy0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfy0sl|MODULE=TOTAL
@@ -29802,21 +29802,21 @@
 #UO    FORM: # ELECTRONS=  40.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/szr0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfzr0sl|MODULE=TOTAL
@@ -30600,21 +30600,21 @@
 #UO    FORM: # ELECTRONS=  41.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/snb0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfnb0sl|MODULE=TOTAL
@@ -31402,21 +31402,21 @@
 #UO    FORM: # ELECTRONS=  42.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/smo0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfmo0sl|MODULE=TOTAL
@@ -32215,21 +32215,21 @@
 #UO    FORM: # ELECTRONS=  43.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/stc0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mftc0sl|MODULE=TOTAL
@@ -33030,21 +33030,21 @@
 #UO    FORM: # ELECTRONS=  44.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sru0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfru0sl|MODULE=TOTAL
@@ -33844,21 +33844,21 @@
 #UO    FORM: # ELECTRONS=  45.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/srh0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfrh0sl|MODULE=TOTAL
@@ -34653,20 +34653,20 @@
 #UO    FORM: # ELECTRONS=  46.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spd0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpd0sl|MODULE=TOTAL
@@ -35469,21 +35469,21 @@
 #UO    FORM: # ELECTRONS=  47.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sag0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfag0sl|MODULE=TOTAL
@@ -36286,21 +36286,21 @@
 #UO    FORM: # ELECTRONS=  48.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/scd0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfcd0sl|MODULE=TOTAL
@@ -37103,23 +37103,23 @@
 #UO    FORM: # ELECTRONS=  49.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sin0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfin0sl|MODULE=TOTAL
@@ -37920,23 +37920,23 @@
 #UO    FORM: # ELECTRONS=  50.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ssn0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfsn0sl|MODULE=TOTAL
@@ -38732,23 +38732,23 @@
 #UO    FORM: # ELECTRONS=  51.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ssb0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfsb0sl|MODULE=TOTAL
@@ -39539,23 +39539,23 @@
 #UO    FORM: # ELECTRONS=  52.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ste0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfte0sl|MODULE=TOTAL
@@ -40349,23 +40349,23 @@
 #UO    FORM: # ELECTRONS=  53.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/si0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfi0sl|MODULE=TOTAL
@@ -41156,23 +41156,23 @@
 #UO    FORM: # ELECTRONS=  54.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sxe0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfxe0sl|MODULE=TOTAL
@@ -41972,24 +41972,24 @@
 #UO    FORM: # ELECTRONS=  55.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/scs0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfcs0sl|MODULE=TOTAL
@@ -42787,24 +42787,24 @@
 #UO    FORM: # ELECTRONS=  56.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sba0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfba0sl|MODULE=TOTAL
@@ -43591,26 +43591,26 @@
 #UO    FORM: # ELECTRONS=  57.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sla0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfla0sl|MODULE=TOTAL
@@ -44400,26 +44400,26 @@
 #UO    FORM: # ELECTRONS=  58.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sce0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfce0sl|MODULE=TOTAL
@@ -45210,26 +45210,26 @@
 #UO    FORM: # ELECTRONS=  59.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spr0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpr0sl|MODULE=TOTAL
@@ -46023,26 +46023,26 @@
 #UO    FORM: # ELECTRONS=  60.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/snd0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfnd0sl|MODULE=TOTAL
@@ -46832,26 +46832,26 @@
 #UO    FORM: # ELECTRONS=  61.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spm0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpm0sl|MODULE=TOTAL
@@ -47644,26 +47644,26 @@
 #UO    FORM: # ELECTRONS=  62.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ssm0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfsm0sl|MODULE=TOTAL
@@ -48457,26 +48457,26 @@
 #UO    FORM: # ELECTRONS=  63.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/seu0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfeu0sl|MODULE=TOTAL
@@ -49274,28 +49274,28 @@
 #UO    FORM: # ELECTRONS=  64.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sgd0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfgd0sl|MODULE=TOTAL
@@ -50088,26 +50088,26 @@
 #UO    FORM: # ELECTRONS=  65.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/stb0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mftb0sl|MODULE=TOTAL
@@ -50899,26 +50899,26 @@
 #UO    FORM: # ELECTRONS=  66.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sdy0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfdy0sl|MODULE=TOTAL
@@ -51706,26 +51706,26 @@
 #UO    FORM: # ELECTRONS=  67.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sho0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfho0sl|MODULE=TOTAL
@@ -52516,26 +52516,26 @@
 #UO    FORM: # ELECTRONS=  68.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ser0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfer0sl|MODULE=TOTAL
@@ -53330,26 +53330,26 @@
 #UO    FORM: # ELECTRONS=  69.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/stm0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mftm0sl|MODULE=TOTAL
@@ -54140,26 +54140,26 @@
 #UO    FORM: # ELECTRONS=  70.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/syb0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfyb0sl|MODULE=TOTAL
@@ -54957,28 +54957,28 @@
 #UO    FORM: # ELECTRONS=  71.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/slu0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mflu0sl|MODULE=TOTAL
@@ -55767,28 +55767,28 @@
 #UO    FORM: # ELECTRONS=  72.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/shf0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfhf0sl|MODULE=TOTAL
@@ -56572,28 +56572,28 @@
 #UO    FORM: # ELECTRONS=  73.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sta0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfta0sl|MODULE=TOTAL
@@ -57377,28 +57377,28 @@
 #UO    FORM: # ELECTRONS=  74.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sw0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfw0sl|MODULE=TOTAL
@@ -58182,28 +58182,28 @@
 #UO    FORM: # ELECTRONS=  75.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sre0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfre0sl|MODULE=TOTAL
@@ -58978,28 +58978,28 @@
 #UO    FORM: # ELECTRONS=  76.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sos0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfos0sl|MODULE=TOTAL
@@ -59776,28 +59776,28 @@
 #UO    FORM: # ELECTRONS=  77.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sir0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfir0sl|MODULE=TOTAL
@@ -60570,28 +60570,28 @@
 #UO    FORM: # ELECTRONS=  78.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spt0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpt0sl|MODULE=TOTAL
@@ -61360,28 +61360,28 @@
 #UO    FORM: # ELECTRONS=  79.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sau0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfau0sl|MODULE=TOTAL
@@ -62146,28 +62146,28 @@
 #UO    FORM: # ELECTRONS=  80.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/shg0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfhg0sl|MODULE=TOTAL
@@ -62932,30 +62932,30 @@
 #UO    FORM: # ELECTRONS=  81.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/stl0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mftl0sl|MODULE=TOTAL
@@ -63720,30 +63720,30 @@
 #UO    FORM: # ELECTRONS=  82.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spb0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpb0sl|MODULE=TOTAL
@@ -64506,30 +64506,30 @@
 #UO    FORM: # ELECTRONS=  83.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sbi0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfbi0sl|MODULE=TOTAL
@@ -65287,30 +65287,30 @@
 #UO    FORM: # ELECTRONS=  84.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spo0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpo0sl|MODULE=TOTAL
@@ -66062,30 +66062,30 @@
 #UO    FORM: # ELECTRONS=  85.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sat0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfat0sl|MODULE=TOTAL
@@ -66840,30 +66840,30 @@
 #UO    FORM: # ELECTRONS=  86.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/srn0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfrn0sl|MODULE=TOTAL
@@ -67616,31 +67616,31 @@
 #UO    FORM: # ELECTRONS=  87.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sfr0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mffr0sl|MODULE=TOTAL
@@ -68390,31 +68390,31 @@
 #UO    FORM: # ELECTRONS=  88.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sra0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfra0sl|MODULE=TOTAL
@@ -69157,33 +69157,33 @@
 #UO    FORM: # ELECTRONS=  89.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sac0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      6D3/2
-#UO      6D5/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      6D3/2          
+#UO      6D5/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfac0sl|MODULE=TOTAL
@@ -69931,33 +69931,33 @@
 #UO    FORM: # ELECTRONS=  90.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sth0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      6D3/2
-#UO      6D5/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      6D3/2          
+#UO      6D5/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfth0sl|MODULE=TOTAL
@@ -70707,35 +70707,35 @@
 #UO    FORM: # ELECTRONS=  91.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spa0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      6D3/2
-#UO      6D5/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      6D3/2          
+#UO      6D5/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpa0sl|MODULE=TOTAL
@@ -71487,35 +71487,35 @@
 #UO    FORM: # ELECTRONS=  92.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/su0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      6D3/2
-#UO      6D5/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      6D3/2          
+#UO      6D5/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfu0sl|MODULE=TOTAL
@@ -72275,35 +72275,35 @@
 #UO    FORM: # ELECTRONS=  93.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/snp0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      6D3/2
-#UO      6D5/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      6D3/2          
+#UO      6D5/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfnp0sl|MODULE=TOTAL
@@ -73062,33 +73062,33 @@
 #UO    FORM: # ELECTRONS=  94.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/spu0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfpu0sl|MODULE=TOTAL
@@ -73851,33 +73851,33 @@
 #UO    FORM: # ELECTRONS=  95.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sam0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfam0sl|MODULE=TOTAL
@@ -74636,35 +74636,35 @@
 #UO    FORM: # ELECTRONS=  96.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/scm0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      6D3/2
-#UO      6D5/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      6D3/2          
+#UO      6D5/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfcm0sl|MODULE=TOTAL
@@ -75428,33 +75428,33 @@
 #UO    FORM: # ELECTRONS=  97.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/sbk0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfbk0sl|MODULE=TOTAL
@@ -76209,33 +76209,33 @@
 #UO    FORM: # ELECTRONS=  98.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/scf0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfcf0sl|MODULE=TOTAL
@@ -76983,33 +76983,33 @@
 #UO    FORM: # ELECTRONS=  99.00
 #UO    FORM: POTENTIAL/WAVEFUNCTION FILE= /d0/ufo/sd0g/ray/data/scf/ses0sl.hex
 #UO    FORM: ORBITALS INCLUDED=
-#UO      1S1/2
-#UO      2S1/2
-#UO      2P1/2
-#UO      2P3/2
-#UO      3S1/2
-#UO      3P1/2
-#UO      3P3/2
-#UO      3D3/2
-#UO      3D5/2
-#UO      4S1/2
-#UO      4P1/2
-#UO      4P3/2
-#UO      4D3/2
-#UO      4D5/2
-#UO      4F5/2
-#UO      4F7/2
-#UO      5S1/2
-#UO      5P1/2
-#UO      5P3/2
-#UO      5D3/2
-#UO      5D5/2
-#UO      5F5/2
-#UO      5F7/2
-#UO      6S1/2
-#UO      6P1/2
-#UO      6P3/2
-#UO      7S1/2
+#UO      1S1/2          
+#UO      2S1/2          
+#UO      2P1/2          
+#UO      2P3/2          
+#UO      3S1/2          
+#UO      3P1/2          
+#UO      3P3/2          
+#UO      3D3/2          
+#UO      3D5/2          
+#UO      4S1/2          
+#UO      4P1/2          
+#UO      4P3/2          
+#UO      4D3/2          
+#UO      4D5/2          
+#UO      4F5/2          
+#UO      4F7/2          
+#UO      5S1/2          
+#UO      5P1/2          
+#UO      5P3/2          
+#UO      5D3/2          
+#UO      5D5/2          
+#UO      5F5/2          
+#UO      5F7/2          
+#UO      6S1/2          
+#UO      6P1/2          
+#UO      6P3/2          
+#UO      7S1/2          
 #UO    FORM: TABLE GEN; ABSTOL, RELTOL=   1.00E-10  1.00E-04
 #UO    FORM: TABLE GEN; ITYPE, IORD=     1    1
 #UO   REMARK END = mfes0sl|MODULE=TOTAL

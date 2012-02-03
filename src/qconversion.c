@@ -1,26 +1,26 @@
 /*
  * This file is part of xrayutilities.
- *
- * xrayutilities is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * 
+ * xrayutilities is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or 
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
 */
 
 /* ######################################
  *   conversion of angular coordinates
  *   to reciprocal space
- *   using general algorithms to work
+ *   using general algorithms to work 
  *   for different types of geometries
  *   and detectors
  * ######################################*/
@@ -42,7 +42,7 @@ int print_vector(double *m);
  *  conversion functions
  * #######################################*/
 
-int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double lambda)
+int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double lambda) 
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a setup with point detector
     *
@@ -55,7 +55,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     *   Nd ............ number of detector circles (in)
     *   Npoints ....... number of goniometer positions (in)
     *   sampleAxis .... string with sample axis directions (in)
-    *   detectorAxis .. string with detector axis directions (in)
+    *   detectorAxis .. string with detector axis directions (in) 
     *   lambda ........ wavelength of the used x-rays (Angstreom) (in)
     *   */
 {
@@ -67,22 +67,22 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     //set openmp thread numbers dynamically
     omp_set_dynamic(1);
     #endif
-
+    
     // arrays with function pointers to rotation matrix functions
     fp_rot sampleRotation[Ns];
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q\n");
+    //printf("general conversion ang2q\n");    
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
         printf("XU.Qconversion(c): sample axes determination failed\n");
-        return 1;
+        return 1; 
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
         printf("XU.Qconversion(c): detector axes determination failed\n");
-        return 1;
+        return 1; 
     }
-
+    
     // give ri correct length
     veccopy(local_ri,ri);
     normalize(local_ri);
@@ -91,7 +91,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
             private(i,j,mtemp,mtemp2,ms,md) \
-            schedule(static)
+            schedule(static) 
     for(i=0; i<Npoints; ++i) {
         // determine sample rotations
         ident(mtemp);
@@ -113,13 +113,13 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
         matmul(ms,md);
         // ms contains now the rotation matrix to determine the momentum transfer
         // calculate the momentum transfer
-        matvec(ms, local_ri, &qpos[3*i]);
+        matvec(ms, local_ri, &qpos[3*i]); 
     }
 
     return 0;
 }
 
-int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis,  double cch, double dpixel, int *roi, char *dir, double lambda)
+int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis,  double cch, double dpixel, int *roi, char *dir, double lambda) 
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a linear detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -133,7 +133,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     *   Nd .............. number of detector circles (in)
     *   Npoints ......... number of goniometer positions (in)
     *   sampleAxis ...... string with sample axis directions (in)
-    *   detectorAxis .... string with detector axis directions (in)
+    *   detectorAxis .... string with detector axis directions (in) 
     *   cch ............. center channel of the detector (in)
     *   dpixel .......... width of one pixel, same unit as distance rcch (in)
     *   roi ............. region of interest of the detector (in)
@@ -157,15 +157,15 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     fp_rot sampleRotation[Ns];
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q (linear detector)\n");
+    //printf("general conversion ang2q (linear detector)\n");    
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
         printf("XU.Qconversion(c): sample axes determination failed\n");
-        return 1;
+        return 1; 
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
         printf("XU.Qconversion(c): detector axes determination failed\n");
-        return 1;
+        return 1; 
     }
 
     // determine detector pixel vector
@@ -182,7 +182,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
             private(i,j,k,mtemp,mtemp2,ms,md,rd,rtemp) \
-            schedule(static)
+            schedule(static) 
     for(i=0; i<Npoints; ++i) {
         // determine sample rotations
         ident(mtemp);
@@ -203,23 +203,23 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
         // md contains the detector rotation matrix
         // calculate the momentum transfer for each detector pixel
         for (j=roi[0]; j<roi[1]; ++j) {
-            for (k=0; k<3; ++k)
+            for (k=0; k<3; ++k) 
                 rd[k] = j*rpixel[k] - rcchp[k];
             sumvec(rd,rcch);
             normalize(rd);
             // rd contains detector pixel direction, r_i contains primary beam direction
             matvec(md,rd,rtemp);
-            diffvec(rtemp,r_i);
+            diffvec(rtemp,r_i); 
             vecmul(rtemp,f);
             // determine momentum transfer
-            matvec(ms, rtemp, &qpos[3*(i*Nch+j-roi[0])]);
+            matvec(ms, rtemp, &qpos[3*(i*Nch+j-roi[0])]); 
         }
     }
 
     return 0;
 }
 
-int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double lambda)
+int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double lambda) 
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -233,7 +233,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     *   Nd .............. number of detector circles (in)
     *   Npoints ......... number of goniometer positions (in)
     *   sampleAxis ...... string with sample axis directions (in)
-    *   detectorAxis .... string with detector axis directions (in)
+    *   detectorAxis .... string with detector axis directions (in) 
     *   cch1 ............ center channel of the detector (in)
     *   cch2 ............ center channel of the detector (in)
     *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch (in)
@@ -249,26 +249,26 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     double r_i[3],rtemp[3]; //center channel direction
     double f = M_2PI/lambda;
     int i,j,j1,j2,k; // loop indices
-    int idxh1,idxh2; // temporary index helper
-
+    int idxh1,idxh2; // temporary index helper 
+   
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
     omp_set_dynamic(1);
     #endif
-
+   
     // arrays with function pointers to rotation matrix functions
     fp_rot sampleRotation[Ns];
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q (area detector)\n");
+    //printf("general conversion ang2q (area detector)\n");    
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
         printf("XU.Qconversion(c): sample axes determination failed\n");
-        return 1;
+        return 1; 
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
         printf("XU.Qconversion(c): detector axes determination failed\n");
-        return 1;
+        return 1; 
     }
 
     // determine detector pixel vector
@@ -285,14 +285,14 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     veccopy(r_i,rcch);
     normalize(r_i);
 
-    // calculate some index shortcuts
+    // calculate some index shortcuts  
     idxh1 = (roi[1]-roi[0])*(roi[3]-roi[2]);
     idxh2 = roi[3]-roi[2];
 
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
             private(i,j,j1,j2,k,mtemp,mtemp2,ms,md,rd,rtemp) \
-            schedule(static)
+            schedule(static) 
     for(i=0; i<Npoints; ++i) {
         // determine sample rotations
         ident(mtemp);
@@ -314,13 +314,13 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
         // calculate the momentum transfer for each detector pixel
         for (j1=roi[0]; j1<roi[1]; ++j1) {
             for (j2=roi[2]; j2<roi[3]; ++j2) {
-                for (k=0; k<3; ++k)
+                for (k=0; k<3; ++k) 
                     rd[k] = j1*rpixel1[k] + j2*rpixel2[k] - rcchp[k];
                 sumvec(rd,rcch);
                 normalize(rd);
                 // rd contains detector pixel direction, r_i contains primary beam direction
                 matvec(md,rd,rtemp);
-                diffvec(rtemp,r_i);
+                diffvec(rtemp,r_i); 
                 vecmul(rtemp,f);
                 // determine momentum transfer
                 matvec(ms, rtemp, &qpos[3*(i*idxh1+idxh2*(j1-roi[0])+(j2-roi[2]))]);
@@ -353,7 +353,7 @@ int print_vector(double *m) {
 
 int determine_detector_pixel(double *rpixel,char *dir, double dpixel) {
     /* determine the direction of linear direction or one of the directions
-     * of an area detector.
+     * of an area detector. 
      * the function returns the vector containing the distance from one to
      * the next pixel
      * */
@@ -412,7 +412,7 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
     /* feed the function pointer array with the correct
      * rotation matrix generating functions
      * */
-
+    
     for(int i=0; i<n; ++i) {
         switch(tolower(stringAxis[2*i])) {
             case 'x':

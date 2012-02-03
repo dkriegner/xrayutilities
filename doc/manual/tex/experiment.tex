@@ -1,8 +1,8 @@
 % This file is part of xrayutilities.
 %
-% xrayutilities is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 2 of the License, or
+% xrayutilities is free software; you can redistribute it and/or modify 
+% it under the terms of the GNU General Public License as published by 
+% the Free Software Foundation; either version 2 of the License, or 
 % (at your option) any later version.
 %
 % This program is distributed in the hope that it will be useful,
@@ -36,7 +36,7 @@ Conversion of angular coordinates to reciprocal space can be tedious if one need
 
 \subsection*{description of the rotation axis}
 
-In general always look from arrow head of the axis towards the tail, then
+In general always look from arrow head of the axis towards the tail, then 
 \begin{itemize}
  \item clockwise rotation means left-handed (negative),
  \item and anti-clockwise meand right-handed (positive)
@@ -78,7 +78,7 @@ must be met. Where
 \begin{align}
  \vec h = \mat R \vec h_u = \mat S \mat U \vec h_c
 \end{align}
-and
+and 
 \begin{align}
  \vec Q_L = \vec k_f - \vec k_i = \left( \mat D - \mat 1 \right) \vec k_i
 \end{align}
@@ -103,7 +103,7 @@ Note that all matrices are orthonormal, because they correspond to some basis tr
 
 \section{implementation}
 
-The numerical expensive routines are coded in C because they seem to be a performance critical step in the analysis of XRD data. Because of the general form of the code some overhead must be excepted. Some wrapper functions are written in Python because of the ability of the fast coding.
+The numerical expensive routines are coded in C because they seem to be a performance critical step in the analysis of XRD data. Because of the general form of the code some overhead must be excepted. Some wrapper functions are written in Python because of the ability of the fast coding. 
 
 \subsection*{general things}
 
@@ -119,48 +119,48 @@ The used rotation matrices follow the rotation sense definition given earlier. I
 \begin{align}
 \mat {R_x} ( \alpha ) = \begin{pmatrix}
                        1 & 0 & 0 \\
-               0 & \cos\alpha & -\sin\alpha \\
-               0 & \sin\alpha & \cos\alpha
+		       0 & \cos\alpha & -\sin\alpha \\
+		       0 & \sin\alpha & \cos\alpha 
                       \end{pmatrix}
 \end{align}
-
+ 
 \begin{align}
 \mat {R_y} ( \alpha ) = \begin{pmatrix}
                        \cos\alpha & 0 & \sin\alpha \\
-               0 & 1 & 0 \\
-               -\sin\alpha & 0 & \cos\alpha
+		       0 & 1 & 0 \\
+		       -\sin\alpha & 0 & \cos\alpha 
                       \end{pmatrix}
 \end{align}
 
 \begin{align}
 \mat {R_z} ( \alpha ) = \begin{pmatrix}
-               \cos\alpha & -\sin\alpha & 0 \\
-               \sin\alpha & \cos\alpha  & 0 \\
-               0 & 0 & 1
+		       \cos\alpha & -\sin\alpha & 0 \\
+		       \sin\alpha & \cos\alpha  & 0 \\
+		       0 & 0 & 1
                       \end{pmatrix}
 \end{align}
 
-For the
+For the 
 
 \subsection*{matrix inversion}
 The needed matrix inversion of a $3\times3$ matrix $\mat A$ is done using the adjugate matrix formula
 
 \begin{align}
- \mat A^{-1} = \frac{\operatorname{adj} \mat A} {\operatorname{det} \mat A} \text{ ,}
+ \mat A^{-1} = \frac{\operatorname{adj} \mat A} {\operatorname{det} \mat A} \text{ ,} 
 \end{align}
 which yields the formula
 \begin{align}
- \mat A^{-1} = \begin{pmatrix} a_{00} & a_{01} & a_{02} \\
+ \mat A^{-1} = \begin{pmatrix} a_{00} & a_{01} & a_{02} \\ 
                                a_{10} & a_{11} & a_{12} \\
                                a_{20} & a_{21} & a_{22} \end{pmatrix}
-= \frac{1}{\operatorname{det}\mat A}
+= \frac{1}{\operatorname{det}\mat A} 
 \begin{pmatrix}
 a_{11} a_{22} - a_{12} a_{21} & a_{02} a_{21} - a_{01} a_{22} & a_{01} a_{12} - a_{02} a_{11} \\
 a_{12} a_{20} - a_{10} a_{22} & a_{00} a_{22} - a_{02} a_{20} & a_{02} a_{10} - a_{00} a_{12} \\
-a_{10} a_{21} - a_{11} a_{20} & a_{01} a_{20} - a_{00} a_{21} & a_{00} a_{11} - a_{01} a_{10}
+a_{10} a_{21} - a_{11} a_{20} & a_{01} a_{20} - a_{00} a_{21} & a_{00} a_{11} - a_{01} a_{10} 
 \end{pmatrix}
 \end{align}
-with
+with 
 \begin{align}
  \operatorname{det} \mat A = a_{00}a_{11}a_{22} + a_{01}a_{12}a_{20} + a_{02}a_{10}a_{21} - a_{02}a_{11}a_{20} - a_{01}a_{10}a_{22} - a_{00}a_{12}a_{21} \text{ .}
 \end{align}
@@ -176,7 +176,7 @@ Therefore a distance of $d=1$ (units are irrelevant here) is assumed and the cor
 \end{align}
 
 The channels per degree of the detector are mostly determined symmetric with respect to the center channel. Therefore a factor $2$ and angle \unit{0.5}{\degree} was introduced (see Fig.~\ref{fig:detector_chpdeg}).
-
+ 
 \begin{figure}[H]
  \centering
  \includegraphics[width=0.6\linewidth]{pics/linear_detector_chpdeg}
@@ -189,7 +189,7 @@ For the conversion to momentum space not only the distance $d$, pixel width $w$ 
 The conversion is then done similar to Eq.~\ref{eq:momentum_space_conversion}. For the calculation of $\vec k_f$ the direction vector of each detector pixel $\vec{\hat r}_d$ must be used in the conversion routine, which leads to the following formulation:
 
 \begin{align}
-\vec h_c = \left( \mat S \mat U \right)^{-1} \left(|\vec k_i| \mat D \vec{\hat r}_d - \vec k_i  \right)
+\vec h_c = \left( \mat S \mat U \right)^{-1} \left(|\vec k_i| \mat D \vec{\hat r}_d - \vec k_i  \right)  
  \label{eq:momentum_space_conversion_detector}
 \end{align}
 
@@ -209,12 +209,12 @@ exp = xu.HXRD(Si.Q(1,1,-2),Si.Q(1,1,1))
 # calculate angles and print them to the screen
 angs = exp.Q2Ang(Si.Q(1,1,1))
 print "Si (111)"
-print "om: %8.3f" %angs[1]
+print "om: %8.3f" %angs[1] 
 print "tt: %8.3f" %angs[2]
 
 angs = exp.Q2Ang(Si.Q(2,2,4))
 print "Si (224)"
-print "om: %8.3f" %angs[1]
+print "om: %8.3f" %angs[1] 
 print "tt: %8.3f" %angs[2]
 \end{lstlisting}
 
@@ -234,7 +234,7 @@ energy = 10000 # eV
 powder = xu.Powder(xu.materials.Si,en=energy) # just give some material
 
 # convert absolute q-space value to theta = 2theta/2
-theta = powder.Q2Ang(2.0) # 2.0 A^{-1}
+theta = powder.Q2Ang(2.0) # 2.0 A^{-1} 
 # and back
 qpos = powder.Ang2Q(theta) # qpos = 2.0
 \end{lstlisting}
@@ -245,7 +245,7 @@ import matplotlib.pyplot as plt
 
 energy = (2*8048 + 8028)/3. # copper k alpha 1,2
 
-# creating Indium powder
+# creating Indium powder 
 In_powder = xu.Powder(xu.materials.Indium,en=energy)
 # calculating the reflection strength for the powder
 In_powder.PowderIntensity()
@@ -265,3 +265,5 @@ plt.bar(In_powder.ang*2, In_powder.data/In_powder.data.max(), width=0.3, bottom=
 
 plt.legend(); ax1.set_xlim(15,100); plt.grid()
 \end{lstlisting}
+
+ 

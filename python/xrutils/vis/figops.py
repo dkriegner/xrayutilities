@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -45,7 +45,7 @@ class CollectPoints(FigOps,list):
 
 class MeassureTilt(FigOps):
     """
-    Measure the tilt of an epilayer from the non-zero qx component
+    Measure the tilt of an epilayer from the non-zero qx component 
     of a symmetric map.
     """
     def __init__(self,fig,axis):

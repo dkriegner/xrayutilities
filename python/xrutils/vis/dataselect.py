@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -16,12 +16,12 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
 """
-this module contains functions to select data from
+this module contains functions to select data from 
 arrays with axes.
 
 General remarks abouth selecting data:
   the selection functions usually take three arguments:
-
+ 
 
  General functions
    Profile1D_3D
@@ -32,13 +32,13 @@ General remarks abouth selecting data:
    InPlane
 
  Special functions
-   YProfile1D_3D - select a profile along y-direction from a 3D
+   YProfile1D_3D - select a profile along y-direction from a 3D 
                    dataset
    ZProfile1D_3D - select a profile along z-direction from a 3D
                    dataset
    XProfile1D_3D - select a profile along x-direction from a 3D
                    dataset
-   XYPlane - select the XY Plane from a 3D dataset
+   XYPlane - select the XY Plane from a 3D dataset 
    YZPlane - select the YZ plane from a 3D dataset
    XZPlane - select the XZ plane from a 3D dataset
 """
@@ -78,15 +78,15 @@ def RSM1DInterpOn2D(data,qx,qz,qxi,qzi,data_aligned=True):
         x = qxi[i]
         z = qzi[i]
 
-        #if the point is outside the domain continue with
-        #loop
+        #if the point is outside the domain continue with 
+        #loop 
         if x < qx.min() or x>qx.max(): continue
         if z < qz.min() or z>qz.max(): continue
-
+    
         x_index = 0
         z_index = 0
         for j in range(nxd-1):
-            if x >= qx[j] and x<qx[j+1]:
+            if x >= qx[j] and x<qx[j+1]: 
                 x_index = j
                 break
 
@@ -122,20 +122,20 @@ def RSM1DInterpOn2D(data,qx,qz,qxi,qzi,data_aligned=True):
         odata[i] = w0*d0+w1*d1+w2*d2+w3*d3
 
     return odata
+            
 
 
-
-
-
+    
+    
     #}}}
 
 def AlignInt(data,frac=0.5,ind=1):
     #{{{
     """
     AlignInt(data):
-    This function sets the minimum of a data array to a fraction of the
+    This function sets the minimum of a data array to a fraction of the 
     second smallest value.
-    The idea behind this function is to avoid plotting problems if
+    The idea behind this function is to avoid plotting problems if 
     many data points are 0, which causes problems in the case of log10 plots.
 
     required input arguments:
@@ -143,7 +143,7 @@ def AlignInt(data,frac=0.5,ind=1):
 
     optional keyword arguments:
     ind .................. which of the smallest values to choose for alignment
-    frac ................. the fraction
+    frac ................. the fraction 
     """
 
     l = (data.reshape(data.size)).tolist()
@@ -178,9 +178,9 @@ def Align2DData(data):
     #{{{
     """
     Align2DData(data):
-    Aligns data for plotting. Due to the storage scheme for data used
+    Aligns data for plotting. Due to the storage scheme for data used 
     in this xrutils 2D data cannot be plotted in the way users are used to.
-    This function performs flip and rotation operations on the data matrix
+    This function performs flip and rotation operations on the data matrix 
     to align them for plotting.
 
     required input arguments:
@@ -196,9 +196,9 @@ def GetAxisBounds(axis,x):
     #{{{
     """
     GetAxisBounds(axis,x):
-    Return the upper and lower axis node value surounding an
-    arbitrary value x. The axis is assumed to be stored in
-    asccending order. If x is outside the axis bounds the
+    Return the upper and lower axis node value surounding an 
+    arbitrary value x. The axis is assumed to be stored in 
+    asccending order. If x is outside the axis bounds the 
     function returns None.
 
     input arguments:
@@ -212,7 +212,7 @@ def GetAxisBounds(axis,x):
     lb_index ........ index of the lower bound
     ub_index ........ index of the upper bound
     """
-
+    
     #return None if x is outside the axis bounds
     if x<axis.min() or x>axis.max():
         return None
@@ -237,7 +237,7 @@ def Profile1D_3D(data,dim,axis,pos):
     dim ................. [ximd,ydim] the tow dimensions perpendicular
                           to the profile
     axis ................ [x,y] axes along the perpendicular directions
-    pos ................. [px,py] positions along the perpendicular
+    pos ................. [px,py] positions along the perpendicular 
                           directions
 
     return value:
@@ -277,8 +277,8 @@ def Profile1D_2D(data,dim,axis,pos):
     #{{{1
     """
     Prof2D(data,dim,axis,pos):
-    Extracts a 1D profile from a 2D dataset. dim is the dimension
-    along which the profile should be taken. axis and pos are the
+    Extracts a 1D profile from a 2D dataset. dim is the dimension 
+    along which the profile should be taken. axis and pos are the 
     axis perpendicular to the profile direction and the position on this
     axis where the profile should be taken respectively.
 
@@ -287,7 +287,7 @@ def Profile1D_2D(data,dim,axis,pos):
     dim ............... dimension parallel to the profile direction
     axis .............. axis perpendicular to the profile direction
     pos ............... position at axis where the profile should be taken
-
+    
     return value:
     1D data array with the profile data
     """
@@ -315,7 +315,7 @@ def IntProfile1D_3D(data,dim,axis,pos1,pos2):
     """
     IntProfile1D_3D(data,dim,axis,pos1,pos2):
     Select an 1D integral profile along dimension dim. axis holds a list with
-    the two axes perpendicular to the profile direction. pos1 is a list with the
+    the two axes perpendicular to the profile direction. pos1 is a list with the 
     two lower integration bounds and pos2 a list with the upper bounds.
 
     required input arguments:
@@ -323,9 +323,9 @@ def IntProfile1D_3D(data,dim,axis,pos1,pos2):
     dim ................. [ximd,ydim] the tow dimensions perpendicular
                           to the profile
     axis ................ [x,y] axes along the perpendicular directions
-    pos1 ................ [px,py] positions along the perpendicular
+    pos1 ................ [px,py] positions along the perpendicular 
                           directions - lower integration bound
-    pos2 ................ [px,py] positions along the perpendicular
+    pos2 ................ [px,py] positions along the perpendicular 
                           directions - upper integration bound
 
     return value:
@@ -392,17 +392,17 @@ def YProfile1D_3D(data,x,z,*pos,**keyargs):
     #{{{1
     """
     YProfile1D_3D(data,x,z,*pos,sum=false):
-    Select a profile along y-direction (dim=1) from a 3D dataset.
-    Several profiles can be extracted at the same time by providing
+    Select a profile along y-direction (dim=1) from a 3D dataset. 
+    Several profiles can be extracted at the same time by providing 
     several points in *pos. If the keyword argument sum is set to true
-    the number of positions must be even and always two positions are
+    the number of positions must be even and always two positions are 
     taken as upper and lower integration bound respecively.
 
     mandatory input arguments:
     data ............... a 3D numpy array with the data
     x .................. numpy array with x-axis values
     z .................. numpy array with z-axis values
-    *pos ............... list of points
+    *pos ............... list of points 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -414,7 +414,7 @@ def YProfile1D_3D(data,x,z,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration
@@ -442,17 +442,17 @@ def ZProfile1D_3D(data,x,y,*pos,**keyargs):
     #{{{1
     """
     ZProfile1D_3D(data,x,y,*pos,sum=false):
-    Select a profile along z-direction (dim=2) from a 3D dataset.
-    Several profiles can be extracted at the same time by providing
+    Select a profile along z-direction (dim=2) from a 3D dataset. 
+    Several profiles can be extracted at the same time by providing 
     several points in *pos. If the keyword argument sum is set to true
-    the number of positions must be even and always two positions are
+    the number of positions must be even and always two positions are 
     taken as upper and lower integration bound respecively.
 
     mandatory input arguments:
     data ............... a 3D numpy array with the data
     x .................. numpy array with x-axis values
     y .................. numpy array with y-axis values
-    *pos ............... list of points
+    *pos ............... list of points 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -464,7 +464,7 @@ def ZProfile1D_3D(data,x,y,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration
@@ -492,17 +492,17 @@ def XProfile1D_3D(data,y,z,*pos,**keyargs):
     #{{{1
     """
     XProfile1D_3D(data,y,z,*pos,sum=false):
-    Select a profile along x-direction (dim=0) from a 3D dataset.
-    Several profiles can be extracted at the same time by providing
+    Select a profile along x-direction (dim=0) from a 3D dataset. 
+    Several profiles can be extracted at the same time by providing 
     several points in *pos. If the keyword argument sum is set to true
-    the number of positions must be even and always two positions are
+    the number of positions must be even and always two positions are 
     taken as upper and lower integration bound respecively.
 
     mandatory input arguments:
     data ............... a 3D numpy array with the data
     y .................. numpy array with y-axis values
     z .................. numpy array with z-axis values
-    *pos ............... list of points
+    *pos ............... list of points 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -514,7 +514,7 @@ def XProfile1D_3D(data,y,z,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration
@@ -542,16 +542,16 @@ def XProfile1D_2D(data,y,*pos,**keyargs):
     #{{{1
     """
     XProfile1D_2D(data,y,*pos,sum=false):
-    Select a profile along x-direction (dim=0) from a 2D dataset.
-    Several profiles can be extracted at the same time by providing
+    Select a profile along x-direction (dim=0) from a 2D dataset. 
+    Several profiles can be extracted at the same time by providing 
     several points in *pos. If the keyword argument sum is set to true
-    the number of positions must be even and always two positions are
+    the number of positions must be even and always two positions are 
     taken as upper and lower integration bound respecively.
 
     mandatory input arguments:
     data ............... a 2D numpy array with the data
     y .................. numpy array with y-axis values
-    *pos ............... list of points
+    *pos ............... list of points 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -563,7 +563,7 @@ def XProfile1D_2D(data,y,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration
@@ -591,16 +591,16 @@ def YProfile1D_2D(data,x,*pos,**keyargs):
     #{{{1
     """
     YProfile1D_2D(data,x,*pos,sum=false):
-    Select a profile along y-direction (dim=1) from a 2D dataset.
-    Several profiles can be extracted at the same time by providing
+    Select a profile along y-direction (dim=1) from a 2D dataset. 
+    Several profiles can be extracted at the same time by providing 
     several points in *pos. If the keyword argument sum is set to true
-    the number of positions must be even and always two positions are
+    the number of positions must be even and always two positions are 
     taken as upper and lower integration bound respecively.
 
     mandatory input arguments:
     data ............... a 2D numpy array with the data
     y .................. numpy array with y-axis values
-    *pos ............... list of points
+    *pos ............... list of points 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -612,7 +612,7 @@ def YProfile1D_2D(data,x,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration
@@ -640,10 +640,10 @@ def Plane(data,dim,axis,pos):
     #{{{1
     """
     Plane(data,dim,axis,pos):
-    Select a certain plane from a 3D data block perpendicular to a
-    certain dimension "dim" at a given position "pos" on an axis
+    Select a certain plane from a 3D data block perpendicular to a 
+    certain dimension "dim" at a given position "pos" on an axis 
     "axis". In most cases pos will not reside on a axis node but rather
-    somewhere in between. Therefore, linear interpolation will be used
+    somewhere in between. Therefore, linear interpolation will be used 
     between the tow surounding data arrays to obtain the data plane.
 
     required input arugments:
@@ -653,7 +653,7 @@ def Plane(data,dim,axis,pos):
     pas ............. position along the perpendicular axis
 
     return value:
-    a 2D data array
+    a 2D data array 
     """
 
     [lb,ub,lb_index,ub_index] = GetAxisBounds(axis,pos)
@@ -679,9 +679,9 @@ def Plane(data,dim,axis,pos):
 
 def IntPlane(data,dim,axis,pos1,pos2):
     #{{{1
-    """
+    """ 
     DataSum(data,dim,axis,pos1,pos2):
-    Summ the data array along a certain dimension dim between
+    Summ the data array along a certain dimension dim between 
     position pos1 and pos2 along axis.
 
     required input argumens:
@@ -716,16 +716,16 @@ def XYPlane(data,z,*pos,**keyargs):
     #{{{1
     """
     XYPlane(data,z,*pos,sum=false):
-    Select data on the x-y plane at position pos. Multiple planes can
+    Select data on the x-y plane at position pos. Multiple planes can 
     be extracted by passing several z-positions to the function.
-    If the keyword argument sum is set to true the number of positions
-    must be even and always two positions are taken as upper and lower
+    If the keyword argument sum is set to true the number of positions 
+    must be even and always two positions are taken as upper and lower 
     integration bound respecively.
 
     mandatory input arguments:
     data ............... a 3D numpy array with the data
     z .................. numpy array with z-axis values
-    *pos ............... list of points along the z-axis
+    *pos ............... list of points along the z-axis 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -737,7 +737,7 @@ def XYPlane(data,z,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration
@@ -765,16 +765,16 @@ def YZPlane(data,x,*pos,**keyargs):
     #{{{1
     """
     YZPlane(data,x,*pos,sum=false):
-    Select data on the y-z plane at x position pos. Multiple planes can
+    Select data on the y-z plane at x position pos. Multiple planes can 
     be extracted by passing several z-positions to the function.
-    If the keyword argument sum is set to true the number of positions
-    must be even and always two positions are taken as upper and lower
+    If the keyword argument sum is set to true the number of positions 
+    must be even and always two positions are taken as upper and lower 
     integration bound respecively.
 
     mandatory input arguments:
     data ............... a 3D numpy array with the data
     x .................. numpy array with x-axis values
-    *pos ............... list of points along the x-axis
+    *pos ............... list of points along the x-axis 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -786,7 +786,7 @@ def YZPlane(data,x,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration
@@ -814,16 +814,16 @@ def XZPlane(data,y,*pos,**keyargs):
     #{{{1
     """
     XZPlane(data,y,*pos,sum=false):
-    Select data on the x-z plane at y position pos. Multiple planes can
+    Select data on the x-z plane at y position pos. Multiple planes can 
     be extracted by passing several y-positions to the function.
-    If the keyword argument sum is set to true the number of positions
-    must be even and always two positions are taken as upper and lower
+    If the keyword argument sum is set to true the number of positions 
+    must be even and always two positions are taken as upper and lower 
     integration bound respecively.
 
     mandatory input arguments:
     data ............... a 3D numpy array with the data
     y .................. numpy array with y-axis values
-    *pos ............... list of points along the y-axis
+    *pos ............... list of points along the y-axis 
 
     optional keyword arguments:
     sum ................ true/flase select integration
@@ -835,7 +835,7 @@ def XZPlane(data,y,*pos,**keyargs):
     if keyargs.has_key("sum"):
         sum = keyargs["sum"]
     else:
-        sum = flase
+        sum = flase 
 
     if sum:
         #perform integration

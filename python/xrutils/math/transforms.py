@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -29,7 +29,7 @@ map_ij2ijkl = {"0":[0,0],"1":[1,1],"2":[2,2],
         "6":[2,1],"7":[0,2],"8":[1,0]}
 
 def index_map_ijkl2ij(i,j):
-    return map_ijkl2ij["%i%i" %(i,j)]
+    return map_ijkl2ij["%i%i" %(i,j)] 
 
 def index_map_ij2ijkl(ij):
     return map_ij2ijkl["%i" %ij]
@@ -39,7 +39,7 @@ def Cij2Cijkl(cij):
     #{{{1
     """
     Cij2Cijkl(cij):
-    Converts the elastic constants matrix (tensor of rank 2) to
+    Converts the elastic constants matrix (tensor of rank 2) to 
     the full rank 4 cijkl tensor.
 
     required input arguments:
@@ -73,7 +73,7 @@ def Cijkl2Cij(cijkl):
     #{{{1
     """
     Cijkl2Cij(cijkl):
-    Converts the full rank 4 tensor of the elastic constants to
+    Converts the full rank 4 tensor of the elastic constants to 
     the (6,6) matrix of elastic constants.
 
     required input arguments:
@@ -82,7 +82,7 @@ def Cijkl2Cij(cijkl):
     return value:
     cij ................ (6,6) cij matrix as a numpy array
     """
-
+    
     #build the temporary 9x9 matrix
     m = numpy.zeros((9,9),dtype=numpy.double)
 
@@ -115,10 +115,10 @@ class Transform(object):
         Parameters
         ----------
          *args:     object to transform, list or numpy array of shape
-                    (n,) (n,n), (n,n,n,n) where n is the rank of the
+                    (n,) (n,n), (n,n,n,n) where n is the rank of the 
                     transformation matrix
          **keyargs: optional keyword arguments:
-          inverse:  flag telling if the inverse transformation should be applied
+          inverse:  flag telling if the inverse transformation should be applied 
                     (default: False)
         """
 
@@ -127,7 +127,7 @@ class Transform(object):
         if keyargs.has_key("inverse"):
             if keyargs["inverse"]:
                 m = self.imatrix
-
+        
         olist = []
         for a in args:
             if isinstance(a,list):
@@ -164,9 +164,9 @@ class Transform(object):
                  p.shape[2] == 3 and p.shape[3] == 3:
                 if (config.VERBOSITY >= config.DEBUG):
                     print("XU.math.Transform: transform a tensor of rank 4")
-                # transformation of a
+                # transformation of a 
                 cp = numpy.zeros(p.shape,dtype=numpy.double)
-                # cp_ikkl = m_ig * m_jh * m_kr * m_ls * p_ghrs
+                # cp_ikkl = m_ig * m_jh * m_kr * m_ls * p_ghrs 
                 for i in range(0,3):
                     for j in range(0,3):
                         for k in range(0,3):
@@ -179,7 +179,7 @@ class Transform(object):
                                                 cp[i,j,k,l] += m[i,g]*m[j,h]*m[k,r]*m[l,s]*p[g,h,r,s]
 
                 olist.append(cp)
-
+    
         if len(args) == 1:
             return olist[0]
         else:
@@ -197,13 +197,13 @@ class Transform(object):
 def CoordinateTransform(v1,v2,v3):
     """
     CoordinateTransform(v1,v2,v3):
-    Create a Transformation object which transforms a point into a new
+    Create a Transformation object which transforms a point into a new 
     coordinate frame. The new frame is determined by the three vectors
     v1, v2 and v3.
 
     required input arguments:
     v1 ............. list or numpy array with new base vector 1
-    v2 ............. list or numpy array with new base vector 2
+    v2 ............. list or numpy array with new base vector 2 
     v2 ............. list or numpy array with new base vector 3
 
     return value:
@@ -216,14 +216,14 @@ def CoordinateTransform(v1,v2,v3):
         e1 = v1
     else:
         raise TypeError("vector must be a list or numpy array")
-
+    
     if isinstance(v2,list):
         e2 = numpy.array(v2,dtype=numpy.double)
     elif isinstance(v2,numpy.ndarray):
         e2 = v2
     else:
         raise TypeError("vector must be a list or numpy array")
-
+    
     if isinstance(v3,list):
         e3 = numpy.array(v3,dtype=numpy.double)
     elif isinstance(v3,numpy.ndarray):
@@ -238,14 +238,14 @@ def CoordinateTransform(v1,v2,v3):
 
     #assemble the transformation matrix
     m = numpy.array([e1,e2,e3])
-
+    
     return Transform(m)
 
 def XRotation(alpha,deg=True):
     """
     XRotation(alpha,deg=True):
-    Returns a transform that represents a rotation about the x-axis
-    by an angle alpha. If deg=True the angle is assumed to be in
+    Returns a transform that represents a rotation about the x-axis 
+    by an angle alpha. If deg=True the angle is assumed to be in 
     degree, otherwise the function expects radiants.
     """
 
@@ -262,8 +262,8 @@ def XRotation(alpha,deg=True):
 def YRotation(alpha,deg=True):
     """
     YRotation(alpha,deg=True):
-    Returns a transform that represents a rotation about the y-axis
-    by an angle alpha. If deg=True the angle is assumed to be in
+    Returns a transform that represents a rotation about the y-axis 
+    by an angle alpha. If deg=True the angle is assumed to be in 
     degree, otherwise the function expects radiants.
     """
 
@@ -280,8 +280,8 @@ def YRotation(alpha,deg=True):
 def ZRotation(alpha,deg=True):
     """
     ZRotation(alpha,deg=True):
-    Returns a transform that represents a rotation about the z-axis
-    by an angle alpha. If deg=True the angle is assumed to be in
+    Returns a transform that represents a rotation about the z-axis 
+    by an angle alpha. If deg=True the angle is assumed to be in 
     degree, otherwise the function expects radiants.
     """
 
@@ -294,3 +294,5 @@ def ZRotation(alpha,deg=True):
 
     m = numpy.array([[cosa,-sina,0],[sina,cosa,0],[0,0,1]],dtype=numpy.double)
     return Transform(m)
+
+

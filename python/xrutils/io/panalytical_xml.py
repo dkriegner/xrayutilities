@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -18,7 +18,7 @@
 """
 Panalytical XML (www.XRDML.com) data file parser
 
-based on the native python xml.dom.minidom module.
+based on the native python xml.dom.minidom module. 
 want to keep the number of dependancies as small as possible
 """
 
@@ -40,15 +40,15 @@ class XRDMLMeasurement(object):
 
         self.ddict = {}
         is_scalar = 0
-
+        
         #loop over all scan entries - scan points
         for s in slist:
             points = s.getElementsByTagName("dataPoints")[0]
-
+            
             # add count time to output data
             countTime = points.getElementsByTagName("commonCountingTime")[0].childNodes[0].nodeValue
-            if not self.ddict.has_key("countTime"):
-                self.ddict["countTime"] = []
+            if not self.ddict.has_key("countTime"): 
+                self.ddict["countTime"] = [] 
             self.ddict["countTime"].append(float(countTime))
 
             #check for intensities first to get number of points in scan
@@ -57,8 +57,8 @@ class XRDMLMeasurement(object):
             # count time normalization; output is counts/sec
             data_list = (numpy.fromstring(data.nodeValue,sep=" ")/float(countTime)).tolist()
             nofpoints = len(data_list)
-            if not self.ddict.has_key("detector"):
-                self.ddict["detector"] = []
+            if not self.ddict.has_key("detector"): 
+                self.ddict["detector"] = [] 
             self.ddict["detector"].append(data_list)
             # if present read beamAttenuationFactors
             # they are already corrected in the data file, but may be interesting
@@ -67,10 +67,10 @@ class XRDMLMeasurement(object):
                 data = attfact[0].childNodes[0]
                 data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
                 nofpoints = len(data_list)
-                if not self.ddict.has_key("beamAttenuationFactors"):
-                    self.ddict["beamAttenuationFactors"] = []
+                if not self.ddict.has_key("beamAttenuationFactors"): 
+                    self.ddict["beamAttenuationFactors"] = [] 
                 self.ddict["beamAttenuationFactors"].append(data_list)
-
+            
             #read the axes position
             pos = points.getElementsByTagName("positions")
             for p in pos:
@@ -105,7 +105,7 @@ class XRDMLMeasurement(object):
                 else:
                     self.ddict[aname].append(data_list[0])
                     is_scalar = 0
-
+                        
         #finally all scan data needs to be converted to numpy arrays
         for k in self.ddict.keys():
             self.ddict[k] = numpy.array(self.ddict[k])
@@ -147,7 +147,7 @@ class XRDMLFile(object):
         self.filename = fname
         d = minidom.parse(fname)
         root = d.childNodes[0]
-
+            
         slist = root.getElementsByTagName("xrdMeasurement")
 
         #determine the number of scans in the file
@@ -158,7 +158,7 @@ class XRDMLFile(object):
 
         if self.nscans == 1:
             self.scan = self.scans[0]
-
+    
     def __str__(self):
         ostr = "XRDML File: %s\n" %self.filename
         for s in self.scans:
@@ -168,8 +168,8 @@ class XRDMLFile(object):
 
 
 def getOmPixcel(omraw,ttraw):
-    """
-    function to reshape the Omega values into a form needed for
+    """ 
+    function to reshape the Omega values into a form needed for 
     further treatment with xrutils
     """
     return (omraw[:,numpy.newaxis]*numpy.ones(ttraw.shape)).flatten()
@@ -183,10 +183,10 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
     ---------
      filetemplate: template string for the file names, can contain
                    a %d which is replaced by the scan number
-     scannrs:      int or list of scan numbers
+     scannrs:      int or list of scan numbers 
      path:         common path to the filenames
      roi:          region of interest for the PIXCel detector
-
+    
     Returns
     -------
      om,tt,psd: as flattened numpy arrays
@@ -210,7 +210,7 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
             files.append(filetemplate %nr)
 
     # parse files
-    for f in files:
+    for f in files: 
         d = XRDMLFile(os.path.join(path,f))
         s = d.scan
         if roi==None:
@@ -219,4 +219,5 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
         tt = numpy.concatenate((tt,s['2Theta'][:,roi[0]:roi[1]].flatten()))
         psd = numpy.concatenate((psd,s['detector'][:,roi[0]:roi[1]].flatten()))
 
-    return om,tt,psd
+    return om,tt,psd 
+

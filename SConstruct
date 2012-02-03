@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -26,7 +26,7 @@ AddOption("--prefix",dest="prefix",type="string",
 env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
                   tools = ["default", "disttar"], toolpath=[os.path.join(".","tools")])
-
+                  
                   #CCFLAGS=["-fPIC","-Wall","-pthread"],
                   #LIBS=["m","pthread"])
 
@@ -34,11 +34,11 @@ env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
 #print("Creating tarball for redistribution of xrutils...")
 env['DISTTAR_FORMAT']='gz'
 env.Append(
-    DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'],
+    DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'], 
     DISTTAR_EXCLUDEDIRS=['.svn','.sconf_temp', 'dist', 'build'],
     DISTTAR_EXCLUDERES=[r'clib_path.conf'])
 
-env.DistTar(os.path.join("dist","xrutils_"+datetime.date.today().isoformat()), [env.Dir(".")])
+env.DistTar(os.path.join("dist","xrutils_"+datetime.date.today().isoformat()), [env.Dir(".")]) 
 
 if "install" in COMMAND_LINE_TARGETS:
     #write the clib_path.conf file
@@ -79,11 +79,11 @@ if not env.GetOption('clean'):
     if not conf.CheckCC():
         print('Your compiler and/or environment is not correctly configured.')
         Exit(1)
-
+    
     #if not conf.CheckPKGConfig('0.20.0'):
     #    print 'pkg-config >= 0.20.0 not found.'
     #    Exit(1)
-
+ 
     #if not conf.CheckPKG('cblas'):
     #    print 'cblas not found.'
     #    Exit(1)
@@ -91,7 +91,7 @@ if not env.GetOption('clean'):
     if not conf.CheckHeader(['stdlib.h','stdio.h','math.h','time.h']):
         print 'Error: did not find one of the needed headers!'
         Exit(1)
-
+   
     if not conf.CheckLibWithHeader('gomp','omp.h','c'):
         print 'Warning: did not find openmp + header files -> using serial code'
     else:

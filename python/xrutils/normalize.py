@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -16,13 +16,13 @@
 # Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
 
 """
-module to provide functions that perform block averaging
+module to provide functions that perform block averaging 
 of intensity arrays to reduce the amount of data (mainly
-for PSD and CCD measurements
+for PSD and CCD measurements 
 
 and
 
-provide functions for normalizing intensities for
+provide functions for normalizing intensities for 
  * count time
  * absorber (user-defined function)
  * monitor
@@ -41,8 +41,8 @@ def blockAverage1D(data,Nav):
     """
     perform block average for 1D array/list of Scalar values
     all data are used. at the end of the array a smaller cell
-    may be used by the averaging algorithm
-
+    may be used by the averaging algorithm    
+    
     Parameter
     ---------
     data:   data which should be contracted (length N)
@@ -50,7 +50,7 @@ def blockAverage1D(data,Nav):
 
     Returns
     -------
-    block averaged numpy array of data type numpy.double
+    block averaged numpy array of data type numpy.double 
     (length ceil(N/Nav))
     """
 
@@ -62,7 +62,7 @@ def blockAverage1D(data,Nav):
     block_av = numpy.empty(numpy.ceil(data.size/float(Nav)),dtype=numpy.double,order='C')
     block_av = numpy.require(block_av,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-    libxrayutils.cblockav_1d(block_av,data,Nav,data.size)
+    libxrayutils.cblockav_1d(block_av,data,Nav,data.size)    
 
     return block_av
     #}}}1
@@ -84,7 +84,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
     Returns
     -------
     block averaged numpy array with type numpy.double with shape
-    ( ceil(N/Nav1), ceil(M/Nav2) )
+    ( ceil(N/Nav1), ceil(M/Nav2) )    
     """
 
     if not isinstance(data2d,(numpy.ndarray)):
@@ -95,7 +95,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
         roi = kwargs['roi']
     else:
         roi = [0,data2d.shape[0],0,data2d.shape[1]]
-
+    
     data = numpy.array(data2d[roi[0]:roi[1],roi[2]:roi[3]],dtype=numpy.double)
     (N,M) = data.shape
     data = data.flatten()
@@ -108,12 +108,12 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
         print("xu.normalize.blockAverage2D: roi: %s" %(str(roi)))
         print("xu.normalize.blockAverage2D: Nav1,2: %d,%d" %(Nav1,Nav2))
         print("xu.normalize.blockAverage2D: number of points: (%d,%d) %d" %(numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2)),block_av.size))
-
-    libxrayutils.cblockav_ccd(block_av,data,Nav1,Nav2,N,M)
+    
+    libxrayutils.cblockav_ccd(block_av,data,Nav1,Nav2,N,M)    
 
     block_av.shape = (numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2)))
     return block_av
-
+    
     #}}}1
 
 def blockAveragePSD(psddata,Nav,**kwargs):
@@ -129,14 +129,14 @@ def blockAveragePSD(psddata,Nav,**kwargs):
     Nav:         number of channels which should be averaged
     **kwargs:    optional keyword argument
         roi:     region of interest for the 2D array. e.g. [20,980]
-                 Nchannels = 980-20
+                 Nchannels = 980-20 
 
     Returns
     -------
     block averaged psd spectra as numpy array with type numpy.double
-    of shape ( Nspectra , ceil(Nchannels/Nav) )
+    of shape ( Nspectra , ceil(Nchannels/Nav) )  
     """
-
+    
     if not isinstance(psddata,(numpy.ndarray)):
         raise TypeError("first argument psddata must be of type numpy.ndarray")
 
@@ -153,7 +153,7 @@ def blockAveragePSD(psddata,Nav,**kwargs):
     block_av = numpy.empty((Nspectra*numpy.ceil(Nchannels/float(Nav))),dtype=numpy.double,order='C')
     block_av = numpy.require(block_av,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-    libxrayutils.cblockav_psd(block_av,data,Nav,Nchannels,Nspectra)
+    libxrayutils.cblockav_psd(block_av,data,Nav,Nchannels,Nspectra)    
 
     block_av.shape = (Nspectra,numpy.ceil(Nchannels/float(Nav)))
     return block_av
@@ -165,10 +165,10 @@ def blockAveragePSD(psddata,Nav,**kwargs):
 class IntensityNormalizer(object):
     #{{{1
     """
-    generic class for correction of intensity (point detector,or MCA)
+    generic class for correction of intensity (point detector,or MCA) 
     for count time and absorber factors
     the class must be supplied with a absorber correction function
-    and works with data structures provided by xrutils.io classes or the
+    and works with data structures provided by xrutils.io classes or the 
     corresponding objects from hdf5 files read by pytables
     """
     def __init__(self,det,**keyargs):
@@ -179,7 +179,7 @@ class IntensityNormalizer(object):
         Parameter
         ---------
         det : detector field name of the data structure
-        **keyargs:
+        **keyargs: 
             mon : monitor field name
             time: count time field name or count time as float
             av_mon: average monitor value (default: data[mon].mean())
@@ -222,12 +222,12 @@ class IntensityNormalizer(object):
             self._setflatfield(keyargs['flatfield'])
         else:
             self._flatfield = None
-
+        
         if keyargs.has_key('darkfield'):
             self._setdarkfield(keyargs['darkfield'])
         else:
             self._darkfield = None
-
+        
         #}}}2
 
     def _getdet(self):
@@ -297,7 +297,7 @@ class IntensityNormalizer(object):
             self._mon = mon
         elif isinstance(mon,type(None)):
             self._mon = None
-        else:
+        else: 
             raise TypeError("argument mon must be of type str")
         #}}}2
 
@@ -321,7 +321,7 @@ class IntensityNormalizer(object):
             self._avmon = float(avmon)
         elif isinstance(avmon,type(None)):
             self._avmon = None
-        else:
+        else: 
             raise TypeError("argument avmon must be of type float or None")
         #}}}2
 
@@ -372,7 +372,7 @@ class IntensityNormalizer(object):
             self._flatfield[self.flatfield<1.e-5] = 1.0
         elif isinstance(flatf,type(None)):
             self._flatfield = None
-        else:
+        else: 
             raise TypeError("argument flatfield must be of type list,tuple,numpy.ndarray or None")
         #}}}2
 
@@ -397,7 +397,7 @@ class IntensityNormalizer(object):
             self._darkfieldav = numpy.mean(self._darkfield)
         elif isinstance(darkf,type(None)):
             self._darkfield = None
-        else:
+        else: 
             raise TypeError("argument flatfield must be of type list,tuple,numpy.ndarray or None")
         #}}}2
 
@@ -423,7 +423,7 @@ class IntensityNormalizer(object):
          corrint: corrected intensity as numpy.ndarray of the same shape as data[det]
         """
         corrint = numpy.zeros(data[self._det].shape,dtype=numpy.float)
-
+        
         # set needed variables
         # monitor intensity
         if self._mon:
@@ -447,13 +447,13 @@ class IntensityNormalizer(object):
             abscorr = self._absfun(data)
         else:
             abscorr = 1.
-
+        
         c = abscorr*avmon/(mon*time)
         # correct the correction factor if it was evaluated to an incorrect value
         c[numpy.isnan(c)] = 1.0
         c[numpy.isinf(c)] = 1.0
         c[c==0] = 1.0
-
+        
         if len(data[self._det].shape) == 1:
             corrint = data[self._det]*c
         elif len(data[self._det].shape) == 2:
@@ -469,9 +469,9 @@ class IntensityNormalizer(object):
                     print("XU.normalize.IntensityNormalizer: check initialization and your input")
                     return None
                 corrint[corrint<0.] = 0.
-
+                    
             else : corrint = data[self._det]
-
+                
             corrint = corrint*c[:,numpy.newaxis]
 
             if self._flatfield!=None:
@@ -484,3 +484,6 @@ class IntensityNormalizer(object):
         return corrint
         #}}}2
     #}}}1
+
+
+

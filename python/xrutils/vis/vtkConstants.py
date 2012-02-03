@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -42,7 +42,7 @@ VTK_FLOAT           =10
 VTK_DOUBLE          =11
 VTK_ID_TYPE         =12
 
-# These types are not currently supported by GetDataType, but are
+# These types are not currently supported by GetDataType, but are 
 # for completeness.
 VTK_STRING          =13
 VTK_OPAQUE          =14
@@ -216,6 +216,8 @@ __vtkTypeNameDict = {VTK_VOID:"void",
                      VTK_UNSIGNED_CHAR:"unsigned char",
                      VTK_SIGNED_CHAR:"signed char",
                      VTK_BIT:"bit"}
-
+                   
 def vtkImageScalarTypeNameMacro(type):
   return __vtkTypeNameDict[type]
+
+

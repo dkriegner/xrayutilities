@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -22,7 +22,7 @@ xrutils is a package for assisting with x-ray diffraction experiments
 It helps with planning experiments as well as analyzing the data.
 """
 
-# load configuration
+# load configuration 
 from . import config
 
 from . import math
@@ -30,7 +30,7 @@ from . import io
 from . import materials
 from . import analysis
 
-##the vis module is meanwhile deactivated - needs to
+##the vis module is meanwhile deactivated - needs to 
 ##be rewritten.
 #try:
 #    from . import vis

@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -78,7 +78,7 @@ def VecDot(v1,v2):
     v2 .............. vector as numpy array or list
 
     return value:
-    float value
+    float value 
     """
     #{{{1
     if isinstance(v1,list):
@@ -87,7 +87,7 @@ def VecDot(v1,v2):
         v1tmp = v1.astype(numpy.double)
     else:
         raise TypeError("Vector must be a list or numpy array")
-
+    
     if isinstance(v2,list):
         v2tmp = numpy.array(v2,dtype=numpy.double)
     elif isinstance(v2,numpy.ndarray):
@@ -123,7 +123,7 @@ def VecAngle(v1,v2,deg=False):
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
     if(config.VERBOSITY >= config.DEBUG):
-        print("XU.math.VecAngle: norm of the vectors: %8.5g %8.5g" %(u1,u2))
+        print("XU.math.VecAngle: norm of the vectors: %8.5g %8.5g" %(u1,u2)) 
 
     alpha = numpy.arccos(VecDot(v1,v2)/u1/u2)
     if deg:
@@ -131,3 +131,4 @@ def VecAngle(v1,v2,deg=False):
 
     return alpha
     #}}}1
+

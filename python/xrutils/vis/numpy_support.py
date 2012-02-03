@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -21,10 +21,10 @@ This module adds support to easily import and export NumPy
 loosely based on TVTK (https://svn.enthought.com/enthought/wiki/TVTK).
 
 This code depends on an addition to the VTK data arrays made by Berk
-Geveci to make it support Python's buffer protocol (on Feb. 15, 2008).
+Geveci to make it support Python's buffer protocol (on Feb. 15, 2008). 
 
 The main functionality of this module is provided by the two functions:
-    numpy_to_vtk,
+    numpy_to_vtk, 
     vtk_to_numpy.
 
 
@@ -181,7 +181,7 @@ def numpy_to_vtk(num_array, deep=0):
     if deep:
         copy = result_array.NewInstance()
         # NewInstance sets the refcount to 3 and this causes a severe
-        # memory leak.
+        # memory leak.        
         copy.SetReferenceCount(2)
         copy.DeepCopy(result_array)
         result_array = copy
@@ -193,7 +193,7 @@ def vtk_to_numpy(vtk_array):
 
     Given a subclass of vtkDataArray, this function returns an
     appropriate numpy array containing the same data -- it actually
-    points to the same data.
+    points to the same data.  
 
     WARNING: This does not work for bit arrays.
 
@@ -220,3 +220,4 @@ def vtk_to_numpy(vtk_array):
         shape = (shape[0], )
     result.shape = shape
     return result
+

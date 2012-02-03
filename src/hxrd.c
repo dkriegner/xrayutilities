@@ -1,28 +1,28 @@
 /*
  * This file is part of xrayutilities.
- *
- * xrayutilities is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * 
+ * xrayutilities is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or 
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 */
 
 /*
 ** hxrd.c
-**
+** 
 ** Made by (Eugen Wintersberger)
 ** Login   <eugen@ramses.lan>
-**
+** 
 ** Started on  Tue Aug 21 19:58:48 2007 Eugen Wintersberger
 ** Last update Sun May 12 01:17:25 2002 Speed Blue
 */
@@ -53,11 +53,11 @@ int hxrd_ang2q(double *omega,double *tth,double lambda,int n,double *qx,double *
   default:
     angcorr = DEG2RAD;
   }
-
+  
   for(i=0;i<n;i++){
     p = 2.0*k*sin(angcorr*tth[i]/2.0);
     qx[i] = p*sin(angcorr*(omega[i]-tth[i]/2.0));
-    qz[i] = p*cos(angcorr*(omega[i]-tth[i]/2.0));
+    qz[i] = p*cos(angcorr*(omega[i]-tth[i]/2.0));     
   }
 }
 
@@ -94,6 +94,13 @@ int gid_ang2q(double *ai,double *af,double *tth,int n,double lambda,double *qx,d
     qx[i] = k*(cos(ai_loc)-cos(af_loc)*cos(tth_loc));
     qy[i] = k*cos(af_loc)*sin(tth_loc);
     qz[i] = k*(sin(ai_loc)+sin(af_loc));
-
+    
   }
 }
+
+
+
+
+
+
+

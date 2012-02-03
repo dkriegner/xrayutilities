@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -26,8 +26,8 @@ import numpy # replace Numeric; changes not tested
 import re
 
 #compile some usefull regular expressions
-blank_split = re.compile(r"\S+") #used for splitting a list of numbers seperated by single blanks
-                                  #in a string
+blank_split = re.compile(r"\S+") #used for splitting a list of numbers seperated by single blanks 
+                                  #in a string 
 blank_remov = re.compile(r"\s+") #removeing multiple blanks in a string
 
 #table definition for a V11 header table
@@ -128,10 +128,10 @@ def GetIntArray(string):
     """
     string  = blank_remov.sub(' ',string.strip())
     strlist = blank_split.findall(string)
-
+    
     for i in range(len(strlist)):
         strlist[i] = int(strlist[i])
-
+    
     ia = numpy.array(strlist).astype(numpy.int)
     return ia
 
@@ -147,19 +147,19 @@ def GetFloatArray(string):
     """
     string  = blank_remov.sub(' ',string.strip())
     strlist = blank_split.findall(string)
-
+    
     for i in range(len(strlist)):
         strlist[i] = float(strlist[i])
-
+    
     fa = numpy.array(strlist).astype(numpy.float)
     return fa
 
 def GetFloatMatrix(strlist):
     """
     GetFloatMatrix(strlist)
-    Builds a float matrix out of the values from a string list.
-    The matrix is represented by a numpy array of shape (nxm)
-    where n is the number of strings in the list and m is the number
+    Builds a float matrix out of the values from a string list. 
+    The matrix is represented by a numpy array of shape (nxm) 
+    where n is the number of strings in the list and m is the number 
     of values in the strings (it has to be the same for all strings).
     input arguments:
         strlist .................. list with strings
@@ -183,9 +183,9 @@ def GetFloatMatrix(strlist):
 def GetIntMatrix(strlist):
     """
     GetIntMatrix(strlist)
-    Builds a integer matrix out of the values from a string list.
-    The matrix is represented by a numpy array of shape (nxm)
-    where n is the number of strings in the list and m is the number
+    Builds a integer matrix out of the values from a string list. 
+    The matrix is represented by a numpy array of shape (nxm) 
+    where n is the number of strings in the list and m is the number 
     of values in the strings (it has to be the same for all strings).
     input arguments:
         strlist .................. list with strings
@@ -209,11 +209,11 @@ def GetIntMatrix(strlist):
 def read_header(fid,h5table,name):
     """
     read_header(fid,h5table)
-    Read the header information of a frame from the CCD file and store it
-    to a HDF5 table.
+    Read the header information of a frame from the CCD file and store it 
+    to a HDF5 table. 
     Input arguments:
         fid .................. Python file object to the CCD file
-        h5table .............. HDF5 table for the data.
+        h5table .............. HDF5 table for the data. 
         name ................. name of the array the header record belongs to
     """
 
@@ -223,11 +223,11 @@ def read_header(fid,h5table,name):
     itemvalue = []
 
     while True:
-        try:
-            #read all the data in two tables (as strings)
+        try:    
+            #read all the data in two tables (as strings)            
             itemname.append(fid.read(8))
             itemvalue.append(fid.read(72))
-
+    
             if itemname[hdrblk_counter]=="FILTER2:":
                 #print("reached end of header")
                 #perform some dummy read
@@ -331,3 +331,5 @@ def read_header(fid,h5table,name):
     #finish the data
     h5table.row.append()
     h5table.flush()
+    
+       

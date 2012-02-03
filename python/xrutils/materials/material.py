@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# xrayutilities is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -42,7 +42,7 @@ map_ij2ijkl = {"0":[0,0],"1":[1,1],"2":[2,2],
 _epsilon = 1e-7 # small number (should be saved somewhere more global but is needed)
 
 def index_map_ijkl2ij(i,j):
-    return map_ijkl2ij["%i%i" %(i,j)]
+    return map_ijkl2ij["%i%i" %(i,j)] 
 
 def index_map_ij2ijkl(ij):
     return map_ij2ijkl["%i" %ij]
@@ -52,7 +52,7 @@ def Cij2Cijkl(cij):
     #{{{1
     """
     Cij2Cijkl(cij):
-    Converts the elastic constants matrix (tensor of rank 2) to
+    Converts the elastic constants matrix (tensor of rank 2) to 
     the full rank 4 cijkl tensor.
 
     required input arguments:
@@ -86,7 +86,7 @@ def Cijkl2Cij(cijkl):
     #{{{1
     """
     Cijkl2Cij(cijkl):
-    Converts the full rank 4 tensor of the elastic constants to
+    Converts the full rank 4 tensor of the elastic constants to 
     the (6,6) matrix of elastic constants.
 
     required input arguments:
@@ -95,7 +95,7 @@ def Cijkl2Cij(cijkl):
     return value:
     cij ................ (6,6) cij matrix as a numpy array
     """
-
+    
     #build the temporary 9x9 matrix
     m = numpy.zeros((9,9),dtype=numpy.double)
 
@@ -146,7 +146,7 @@ class Material(object):
                 cij = self.cij
 
             return cij[i-1,j-1]
-
+    
     def _getmu(self):
         return self.cij[3,3]
 
@@ -158,19 +158,19 @@ class Material(object):
 
     def _geta1(self):
         return self.lattice.a1
-
+    
     def _geta2(self):
         return self.lattice.a2
-
+    
     def _geta3(self):
         return self.lattice.a3
-
+    
     def _getb1(self):
         return self.rlattice.a1
-
+    
     def _getb2(self):
         return self.rlattice.a2
-
+    
     def _getb3(self):
         return self.rlattice.a3
 
@@ -210,27 +210,27 @@ class Material(object):
     def delta(self,en="config"):
         #{{{2
         """
-        function to calculate the real deviation of the refractive index from 1
+        function to calculate the real deviation of the refractive index from 1 
         (n=1-delta+i*beta)
 
         Parameter
         ---------
-         en:    x-ray energy eV,
-                if omitted the value from the xrutils configuration is used
-
+         en:    x-ray energy eV, 
+                if omitted the value from the xrutils configuration is used 
+        
         Returns
         -------
          delta (float)
         """
 
         r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
-
+        
         if en=="config":
             en = config.ENERGY
 
-        lam = utilities.lam2en(en)
+        lam = utilities.lam2en(en) 
         delta = 0.
-
+        
         for atpos in self.lattice.base:
             at = atpos[0]
             delta += numpy.real(at.f(0.,en))
@@ -242,14 +242,14 @@ class Material(object):
     def beta(self,en="config"):
         #{{{2
         """
-        function to calculate the imaginary deviation of the refractive index from 1
+        function to calculate the imaginary deviation of the refractive index from 1 
         (n=1-delta+i*beta)
 
         Parameter
         ---------
          en:    x-ray energy eV,
-                if omitted the value from the xrutils configuration is used
-
+                if omitted the value from the xrutils configuration is used 
+        
         Returns
         -------
          beta (float)
@@ -261,7 +261,7 @@ class Material(object):
 
         lam = utilities.lam2en(en)
         beta = 0.
-
+        
         for atpos in self.lattice.base:
             at = atpos[0]
             beta += numpy.imag(at.f(0.,en))
@@ -274,37 +274,37 @@ class Material(object):
         """
         calculates the complex polarizability of a material for a certain
         momentum transfer
-
+        
         Parameter
         ---------
          q:     momentum transfer in (1/A)
          en:    xray energy in eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
          complex polarizability
         """
         raise NotImplementedError("This needs to be implemented!")
-
+    
     def chi0(self,en="config"):
-        """
+        """ 
         calculates the complex chi_0 values ofter needed in simulations.
         They are closely related to delta and beta
-        (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
+        (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta) 
         """
         return (-2*self.delta(en)+2j*self.beta(en))
 
     def idx_refraction(self,en="config"):
         #{{{2
         """
-        function to calculate the complex index of refraction of a material
+        function to calculate the complex index of refraction of a material 
         in the x-ray range
 
         Parameter
         ---------
          en:    energy of the x-rays,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
@@ -323,13 +323,13 @@ class Material(object):
         ---------
          Q:     momentum transfer (1/A)
          en:    x-ray energy (eV),
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
          deltaTheta: peak shift in degree
         """
-
+        
         if en=="config":
             en = config.ENERGY
         lam = utilities.lam2en(en)
@@ -363,14 +363,14 @@ class Material(object):
 
         Parameter
         ---------
-         q:     momentum transfer (both absolute values and vectors as
+         q:     momentum transfer (both absolute values and vectors as 
                 list or tuple are valid)
          en:    energy in eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
-         the complex structure factor
+         the complex structure factor 
         """
 
         if isinstance(q,(list,tuple)):
@@ -379,18 +379,18 @@ class Material(object):
             pass
         else:
             raise TypeError("q must be a list or numpy array!")
-
+          
         if en=="config":
             en = config.ENERGY
 
         if self.lattice.base==None: return 1.
-
+         
         s = 0.+0.j
         for a,p in self.lattice.base: # a: atom, p: position
             r = self.lattice.GetPoint(p)
-            f = a.f(q,en)
+            f = a.f(q,en) 
             s += f*numpy.exp(-1.j*numpy.dot(q,r))
-
+            
         return s
         #}}}2
 
@@ -402,7 +402,7 @@ class Material(object):
 
         Parameter
         ---------
-         q0:    momentum transfer (both absolute values and vectors as
+         q0:    momentum transfer (both absolute values and vectors as 
                 list or tuple are valid)
          en:    list, tuple or array of energy values in eV
 
@@ -416,7 +416,7 @@ class Material(object):
             q = q0
         else:
             raise TypeError("q must be a list or numpy array!")
-
+            
         if isinstance(en,(list,tuple)):
             en = numpy.array(en,dtype=numpy.double)
         elif isinstance(en,numpy.ndarray):
@@ -425,13 +425,13 @@ class Material(object):
             raise TypeError("Energy data must be provided as a list or numpy array!")
 
         if self.lattice.base==None: return 1.
-
+            
          # create list of different atoms and buffer the scattering factors
         atoms = []
         f = []
         types = []
         for at in self.lattice.base:
-            try:
+            try: 
                 idx = atoms.index(at[0])
                 types.append(idx)
             except ValueError:
@@ -439,16 +439,16 @@ class Material(object):
                 types.append(len(atoms))
                 f.append( at[0].f(q,en) )
                 atoms.append(at[0])
-
-        s = 0.+0.j
+        
+        s = 0.+0.j                
         for i in range(len(self.lattice.base)):
             p = self.lattice.base[i][1]
-            r = self.lattice.GetPoint(p)
+            r = self.lattice.GetPoint(p) 
             s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
-
+            
         return s
         #}}}2
-
+        
     def StructureFactorForQ(self,q,en0="config"):
         #{{{2
         """
@@ -459,7 +459,7 @@ class Material(object):
         ---------
          q:     momentum transfers (list, tuple or array with absolute values are valid)
          en0:   energy value in eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrutils configuration is used 
 
         Returns
         -------
@@ -471,7 +471,7 @@ class Material(object):
             pass
         else:
             raise TypeError("q must be a list or numpy array!")
-
+        
         if en0=="config":
             en0 = config.ENERGY
 
@@ -482,7 +482,7 @@ class Material(object):
         f = []
         types = []
         for at in self.lattice.base:
-            try:
+            try: 
                 idx = atoms.index(at[0])
                 types.append(idx)
             except ValueError:
@@ -493,13 +493,13 @@ class Material(object):
                     f_q[j] = at[0].f0(numpy.linalg.norm(q[j]))
                 f.append( f_q + at[0].f1(en0) +1.j*at[0].f2(en0) )
                 atoms.append(at[0])
-
-        s = 0.+0.j
+        
+        s = 0.+0.j                
         for i in range(len(self.lattice.base)):
             p = self.lattice.base[i][1]
             r = self.lattice.GetPoint(p)
             s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
-
+            
         return s
         # still a lot of overhead, because normally we do have 2 different types of atoms in a 8 atom base, but we calculate all 8 times which is obviously not necessary. One would have to reorganize the things in the LatticeBase class, and introduce something like an atom type and than only store the type in the List.
         #}}}2
@@ -548,7 +548,7 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
 
     Parameter
     ---------
-     c11,c12,c13,c33,c44:   independent components of the elastic tensor of
+     c11,c12,c13,c33,c44:   independent components of the elastic tensor of 
                             a hexagonal material
 
     Returns
@@ -557,16 +557,16 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
 
     """
     m = numpy.zeros((6,6),dtype=numpy.double)
-    m[0,0] = m[1,1] = c11
+    m[0,0] = m[1,1] = c11 
     m[2,2] = c33
-    m[3,3] = m[4,4] = c44
+    m[3,3] = m[4,4] = c44 
     m[5,5] = 0.5*(c11-c12)
     m[0,1] = m[1,0] = c12
     m[0,2] = m[1,2] = m[2,0] = m[2,1] = c12
 
     return m
 
-#calculate some predefined materials
+#calculate some predefined materials 
 # PLEASE use N/m^2 as unit for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa)
 Si = Material("Si",lattice.DiamondLattice(elements.Si,5.43104),
                    CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9))
@@ -585,17 +585,17 @@ GaAs = Material("GaAs",lattice.ZincBlendeLattice(elements.Ga,elements.As,5.65325
 CdTe = Material("CdTe",lattice.ZincBlendeLattice(elements.Cd,elements.Te,6.482),
                    CubicElasticTensor(53.5,36.7,19.9)) # ? Unit of elastic constants
 CdSe = Material("CdSe",lattice.WurtziteLattice(elements.Cd,elements.Se,4.300,7.011),
-                   HexagonalElasticTensor(7.490e10,4.609e10,3.926e10,8.451e10,1.315e10))
+                   HexagonalElasticTensor(7.490e10,4.609e10,3.926e10,8.451e10,1.315e10)) 
 CdSe_ZB = Material("CdSe ZB",lattice.ZincBlendeLattice(elements.Cd,elements.Se,6.052),
-                   CubicElasticTensor(0,0,0))
+                   CubicElasticTensor(0,0,0)) 
 HgSe = Material("HgSe",lattice.ZincBlendeLattice(elements.Hg,elements.Se,6.085),
-                   CubicElasticTensor(6.1e10,4.4e10,2.2e10))
+                   CubicElasticTensor(6.1e10,4.4e10,2.2e10)) 
 PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.464),
                    CubicElasticTensor(93.6,7.7,13.4))
 PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
 GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186),
-                   HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9))
+                   HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9)) 
 BaF2 = Material("BaF2",lattice.CubicFm3mBaF2(elements.Ba,elements.F,6.2001),
                    CubicElasticTensor(0.,0.,0.))
 Al = Material("Al",lattice.FCCLattice(elements.Al,4.04958),
@@ -645,14 +645,14 @@ class AlloyAB(Material):
         #set elastic constants
         self.cij = (self.matB.cij-self.matA.cij)*x+self.matA.cij
         self.cijkl = (self.matB.cijkl-self.matA.cijkl)*x+self.matA.cijkl
-
+        
         #}}}2
 
     x = property(_getxb,_setxb)
 
     def RelaxationTriangle(self,hkl,sub,exp):
         """
-        function which returns the relaxation trianlge for a
+        function which returns the relaxation trianlge for a 
         Alloy of given composition. Reciprocal space coordinates are
         calculated using the user-supplied experimental class
 
@@ -708,35 +708,35 @@ class AlloyAB(Material):
         cijA = Cijkl2Cij(transform(self.matA.cijkl))
         cijB = Cijkl2Cij(transform(self.matB.cijkl))
         abulk = lambda x: numpy.linalg.norm(a1(x))
-        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2]))
+        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
         aperp = lambda x: abulk(self.x)*( 1 + frac(x)*(1 - asub/abulk(self.x)) )
-
+        
         qp_i = 2*numpy.pi/asub * numpy.linalg.norm(numpy.cross(ndir,hkl))
         qp_p = 2*numpy.pi/aperp(self.x) * numpy.abs(numpy.dot(ndir,hkl))
 
         #assembly return values
         qy= numpy.array([qr_i,qp_i,qs_i,qr_i],dtype=numpy.double)
         qz= numpy.array([qr_p,qp_p,qs_p,qr_p],dtype=numpy.double)
-
+        
         return qy,qz
 
     def ContentBsym(self,q_perp,hkl,inpr,asub,relax):
         #{{{2
         """
-        function that determines the content of B
-        in the alloy from the reciprocal space position
+        function that determines the content of B 
+        in the alloy from the reciprocal space position 
         of a symetric peak. As an additional input the substrates
         lattice parameter and the degree of relaxation must be given
 
         Parameter
         ---------
-        q_perp : perpendicular peak position of the reflection
+        q_perp : perpendicular peak position of the reflection 
                  hkl of the alloy in reciprocal space
-        hkl : Miller indices of the measured symmetric reflection (also defines the
+        hkl : Miller indices of the measured symmetric reflection (also defines the 
               surface normal
         inpr : Miller indices of a Bragg peak defining the inplane reference direction
         asub:   substrate lattice constant
-        relax:  degree of relaxation (needed to obtain the content from
+        relax:  degree of relaxation (needed to obtain the content from 
                 symmetric reciprocal space position)
 
         Returns
@@ -769,7 +769,7 @@ class AlloyAB(Material):
             relax = float(relax)
         else:
             raise TypeError("Fifth argument (relax) must be a scalar!")
-
+                  
         # calculate lattice constants from reciprocal space positions
         n = self.rlattice.GetPoint(hkl)/numpy.linalg.norm(self.rlattice.GetPoint(hkl))
         q_hkl = self.rlattice.GetPoint(hkl)
@@ -795,7 +795,7 @@ class AlloyAB(Material):
         b2 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a3(x),a1(x))
         b3 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a1(x),a2(x))
         qhklx = lambda x: hkl[0]*b1(x)+hkl[1]*b2(x)+hkl[2]*b3(x)
-
+        
         # the following line is not generally true! only cubic materials
         abulk_perp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),n) * numpy.inner(n,hkl))
         ainp = lambda x: asub + relax * (abulk_perp(x) - asub) # can we use abulk_perp here? for cubic materials this should work?!
@@ -803,7 +803,7 @@ class AlloyAB(Material):
         if config.VERBOSITY >= config.DEBUG:
             print("XU.materials.AlloyAB.ContentB: abulk_perp: %8.5g" %(abulk_perp(0.)))
 
-        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2]))
+        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
 
         equation = lambda x: (aperp-abulk_perp(x)) + (ainp(x) - abulk_perp(x))*frac(x)
 
@@ -815,16 +815,16 @@ class AlloyAB(Material):
     def ContentBasym(self,q_inp,q_perp,hkl,sur):
         #{{{2
         """
-        function that determines the content of B
-        in the alloy from the reciprocal space position
-        of an asymmetric peak and also sets the content
+        function that determines the content of B 
+        in the alloy from the reciprocal space position 
+        of an asymmetric peak and also sets the content 
         in the current material
 
         Parameter
         ---------
-        q_inp : inplane peak position of reflection hkl of
+        q_inp : inplane peak position of reflection hkl of 
                 the alloy in reciprocal space
-        q_perp : perpendicular peak position of the reflection
+        q_perp : perpendicular peak position of the reflection 
                  hkl of the alloy in reciprocal space
         hkl : Miller indices of the measured asymmetric reflection
         sur : Miller indices of the surface (determines the perpendicular
@@ -832,12 +832,12 @@ class AlloyAB(Material):
 
         Returns
         -------
-        content,[a_inplane,a_perp,abulk(x)] : the content of B in the alloy determined
-                from the input variables and the lattice constants calculated
+        content,[a_inplane,a_perp,abulk(x)] : the content of B in the alloy determined 
+                from the input variables and the lattice constants calculated 
                 from the reciprocal space positions
 
         """
-
+        
         if config.VERBOSITY >= config.INFO_LOW:
             print("XU.materials.AlloyAB.ContentB: Warning: the function only works for cubic materials and needs further testing, \n handle results with care!")
 
@@ -858,7 +858,7 @@ class AlloyAB(Material):
             sur = numpy.array(sur,dtype=numpy.double)
         else:
             raise TypeError("Fourth argument (sur) must be of type list, tuple or numpy.ndarray")
-
+                  
         # check if reflection is asymmetric
         if numpy.linalg.norm(numpy.cross(self.rlattice.GetPoint(hkl),self.rlattice.GetPoint(sur))) < 1.e-8:
             raise InputError("Miller indices of a symmetric reflection were given where an asymmetric reflection is needed")
@@ -888,14 +888,14 @@ class AlloyAB(Material):
         b3 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a1(x),a2(x))
         qsurx = lambda x: sur[0]*b1(x)+sur[1]*b2(x)+sur[2]*b3(x)
         qhklx = lambda x: hkl[0]*b1(x)+hkl[1]*b2(x)+hkl[2]*b3(x)
-
+        
         # the following two lines are not generally true! only cubic materials
         abulk_inp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),inp2) * numpy.linalg.norm(numpy.cross(n,hkl)))
         abulk_perp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),n) * numpy.inner(n,hkl))
         if config.VERBOSITY >= config.DEBUG:
             print("XU.materials.AlloyAB.ContentB: abulk_inp/perp: %8.5g %8.5g" %(abulk_inp(0.), abulk_perp(0.)))
 
-        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2]))
+        frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
 
         equation = lambda x: (aperp-abulk_perp(x)) + (ainp - abulk_inp(x))*frac(x)
 
@@ -925,7 +925,7 @@ class SiGe(AlloyAB):
         self.lattice = lattice.CubicLattice(a)
         self.rlattice = self.lattice.ReciprocalLattice()
         #}}}2
-
+   
     x = property(AlloyAB._getxb,_setxb)
     #}}}1
 
@@ -942,7 +942,7 @@ def PseudomorphicMaterial(submat,layermat):
     layermat .................. bulk material of the layer
 
     return value:
-    An instance of Material holding the new pseudomorphically strained
+    An instance of Material holding the new pseudomorphically strained 
     material.
     """
 
@@ -951,7 +951,7 @@ def PseudomorphicMaterial(submat,layermat):
 
     #calculate the normal lattice parameter
 
-    abulk = layermat.lattice.a1[0]
+    abulk = layermat.lattice.a1[0] 
     ap    = a1[0]
     c11 = layermat.cij[0,0]
     c12 = layermat.cij[0,1]
@@ -965,3 +965,4 @@ def PseudomorphicMaterial(submat,layermat):
 
     return pmat
     #}}}1
+
