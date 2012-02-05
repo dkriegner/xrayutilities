@@ -23,14 +23,16 @@ setup(name="xrutils",
       version="0.5",
       author="Eugen Wintersberger",
       description="package for x-ray diffraction data evaluation",
-      author_email="eugen.wintersberger@jku.at",
-      maintainer="Eugen Wintersberger",
-      maintainer_email="eugen.wintersberger@jku.at",
+      author_email="eugen.wintersberger@desy.de",
+      maintainer="Dominik Kriegner",
+      maintainer_email="dominik.kriegner@aol.at",
       package_dir={'':'python'},
       packages=["xrutils","xrutils.math","xrutils.vis",
                 "xrutils.io","xrutils.materials",
                 "xrutils.analysis"],
       package_data={
           "xrutils":["*.conf"],
-          "xrutils.materials":[os.path.join("data","*.db")]}
+          "xrutils.materials":[os.path.join("data","*.db")]},
+      requires=['numpy','scipy','tables'],
+      license="GPLv2"
       )
