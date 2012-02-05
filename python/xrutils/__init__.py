@@ -30,14 +30,6 @@ from . import io
 from . import materials
 from . import analysis
 
-##the vis module is meanwhile deactivated - needs to 
-##be rewritten.
-#try:
-#    from . import vis
-#except:
-#    print "Visualization module cannot be imported!"
-#    print "an will therefore not be available!"
-
 from .experiment import Experiment
 from .experiment import HXRD
 from .experiment import NonCOP
