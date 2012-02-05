@@ -226,14 +226,15 @@ class SPECTRAFile(object):
             else:
                 #try to determine the number of MCA spectra automatically
                 #spat = re_mca_int_tmp.sub("*",self.mca_file_template)
-                #spat = self.mca_file_template.replace("%i","*")
-                #if config.VERBOSITY >= config.INFO_ALL: 
-                #    print(spat)
-                #l = glob.glob(spat)
+                spat = self.mca_file_template.replace("%i","*")
+                l = glob.glob(spat)
                 self.mca_start_index = 1
-                self.mca_stop_index = self.data.data.size # len(l)
-
-            self.ReadMCA()
+                self.mca_stop_index = 0
+                if len(l)!=0:                
+                    self.mca_stop_index = self.data.data.size # len(l)
+            
+            if self.mca_stop_index!=0:
+                self.ReadMCA()
 
     def Save2HDF5(self,h5file,name,group="/",description="SPECTRA scan",mcaname="MCA"):
         """
@@ -315,7 +316,7 @@ class SPECTRAFile(object):
             #now write the data to the tables
             for rec in self.data.data:
                 for cname in rec.dtype.names:
-                    tab.row[cname] = rec[cname]                 
+                    tab.row[cname] = rec[cname]
                 tab.row.append()
            
             tab.flush()
@@ -525,12 +526,11 @@ class SPECTRAFile(object):
         col_types = col_types[:-1]
         if config.VERBOSITY >= config.DEBUG: 
                         print("XU.io.SPECTRAFile.Read: data columns: name,type: %s, %s"%(col_names,col_types))
-        if len(rec_list) == 0:
-            print("XU.io.SPECTRAFile.Read: no data available %s"%(self.filename))
-        else:
+        if len(rec_list)!=0:
             self.data.data = rec.fromrecords(rec_list,formats=col_types,
                                     names=col_names)    
-        
+        else:
+            self.data.data = None
 
 class Spectra(object):
     def __init__(self,data_dir):
