@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
 
 """
 module helping with planning and analyzing experiments
@@ -1189,13 +1189,13 @@ class HXRD(Experiment):
             fi = keyargs['fi']
         else:
             fi = self.ndir
-        fi = self.Transform(fi)
+        fi = math.VecUnit(self.Transform(fi))
 
         if keyargs.has_key('fd'): # exit facet
             fd = keyargs['fd']
         else:
             fd = self.ndir
-        fd = self.Transform(fd)
+        fd = math.VecUnit(self.Transform(fd))
 
         # set parameters for the calculation
         z = self.Transform(self.ndir) # z
@@ -1240,7 +1240,7 @@ class HXRD(Experiment):
             psi_d = 0. # needed if refrac is false and full_output is True
             if refrac:
                 if config.VERBOSITY >= config.DEBUG:
-                    print("XU.HXRD.Q2Ang: consider refraction correction")
+                    print("XU.HXRD.Q2Ang: considering refraction correction")
 
                 beta = tth - om
 
