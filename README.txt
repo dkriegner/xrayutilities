@@ -1,6 +1,6 @@
 
-xrutils - a package with useful scripts for X-ray diffraction physicists
-========================================================================
+xrayutilities - a package with useful scripts for X-ray diffraction
+===================================================================
 
  Copyright (C) 2009-2012 Eugen Wintersberger <eugen.wintersberger@desy.de>
  Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
@@ -15,13 +15,23 @@ tools ...... sources and binaries for tools (executable programs)
 
 INSTALLATION
 ============
-Installing xrutils is a two step process
+Installing xrayutilities is a two step process
 1.) installing required third party software
-1.) build and install the C-library libxrutils.so
-2.) install the python module
+    requirements are:
+     scons (pythonic build system)
+     C-compiler
+     HDF5
+     pytables
+     scipy
+     numpy
+     matplotlib (optionally)
+    refer to your operating system documentation to find out how to install
+    those packages.
+2.) build and install the C-library libxrutils.so, as well as the 
+    python package (xrutils)
 
 Obtaining the source code
--------------------------
+=========================
 
 The sources are hosted on sourceforge in git repository.
 Use:
@@ -29,43 +39,38 @@ Use:
 to clone the git repository. If you would like to have commit rights 
 contact one of the administrators.
 
-Building and installing the C library
--------------------------------------
+Building and installing the C library and python package
+========================================================
 
-Open a terminal and navigate to the source folder of xrutils (trunk).
-xrutils uses SCons to build and install C code. Installation
-of libxrutils.so requires two steps
+Open a terminal and navigate to the source folder of xrayutilities.
+xrayutilities use SCons to build and install C code. Installation
+of libxrutils.so and the python package requires two steps
 -> compile the library by simply typing 
-   $>scons
+    $>scons
    or
-   $>scons debug=1
+    $>scons debug=1
    to build with "-g -O0"
--> install the library and tools with 
-   $>scons install --prefix=<path to install directory>
+-> install the library and python package, either system wide 
+    $>scons install
+   , which means in /usr/local/lib/ on Unix systems.
+   or locally in the user directory
+    $>scons install --prefix=<path to install directory>
 -> the documentation can be built with
-   $>scons doc
+    $>scons doc
 
 The --prefix option sets the root directory for the installation.
 Tools are installed under <prefix>/bin the library under
 <prefix>/lib. 
 
-Installing the Python module
-----------------------------
-Tow possible installation procedures for the Python module are supported
-1.) system wide installtion in the systems Python installation
-2.) user local installation
+The python package configuration
+================================
 
-In the first case a simple
- $> python setup.py install
-will install the python module in the standard directory where Python looks for 
-third party modules.
-For user local installation use
- $> python setup.py install --home=<install path>
+The following steps should only be necessary for user local installation to
+ensure the python module is found by the python interpreter:
 In this case the module is installed under <install path>/lib/python. 
 
 If you have installed the Python package in a directory unknown to your 
-local Python distribution (usually the case for user local installation) 
-you have to tell Python where to look for the Package. There are several 
+local Python distribution, you have to tell Python where to look for the Package. There are several 
 ways how to do this:
 
 -) add the directory where the package is installed to your 
@@ -88,33 +93,28 @@ ways how to do this:
 UPDATE
 ======
 
-if you already installed xrutils you can update it by navigating into its
-source folder (trunk) and obtain the new sources by
+if you already installed xrayutilities you can update it by navigating into
+its source folder (trunk) and obtain the new sources by
 
- $> svn update
+  $> git pull
 
-if only python files were updated you only need to perform the installation
-of the python package using
- 
- $> python setup.py install --home=<install path>
+if any code changed during the update you need to reinstall the libary and
+python package:
 
-if any c-code changed during the update you also need to rebuild the c-library
-  
- $> scons
- $> scons install --prefix=<path to install directory>
+  $> scons install --prefix=<path to install directory>
 
 
 DOCUMENTATION
 =============
 
-Documention for xrutils is found in the doc folder. The manual (pdf) can be 
-built using scons
+Documention for xrayutilities is found in the doc folder. The manual (pdf)
+can be built using scons
 
- $> scons doc
+  $> scons doc
  
 The API-documentation can be browsed by 
 
- $> pydoc -p PORT
+  $> pydoc -p PORT
  
 in any web-browser, after the installation is finished.
 
@@ -122,9 +122,9 @@ in any web-browser, after the installation is finished.
 PACKAGING
 =========
 
-create a tarball for redistribution of xrutils without the use of SVN
+create a tarball for redistribution of xrayutilities without the use of SVN
 
- $>scons dist
+  $>scons dist
 
 creates a tarball in the directory dist, which contains everything needed for
-the installation of xrutils
+the installation of xrayutilities
