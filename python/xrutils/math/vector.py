@@ -14,10 +14,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2010,2012 Dominik Kriegner <dominik.kriegner@aol.at>
 
 """
-module with vector operations
+module with vector operations,
+mostly numpy functionality is used for the vector operation itself, 
+however custom error checking is done to ensure vectors of length 3.
 """
 
 import numpy
@@ -43,7 +45,10 @@ def VecNorm(v):
     else:
         raise TypeError("Vector must be a list or numpy array")
 
-    return numpy.sqrt((vtmp**2).sum())
+    if vtmp.size != 3:
+        raise ValueError("Vector must be of size 3, but has size %d!"%vtmp.size)
+
+    return numpy.linalg.norm(vtmp)
     #}}}1
 
 def VecUnit(v):
@@ -95,7 +100,10 @@ def VecDot(v1,v2):
     else:
         raise TypeError("Vector must be a list or numpy array")
 
-    return (v1tmp*v2tmp).sum()
+    if v1tmp.size != 3 or v2tmp.size != 3:
+        raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)" %(v1tmp.size,v2tmp.size))
+
+    return numpy.dot(v1tmp,v2tmp)
     #}}}1
 
 
@@ -127,7 +135,7 @@ def VecAngle(v1,v2,deg=False):
 
     alpha = numpy.arccos(VecDot(v1,v2)/u1/u2)
     if deg:
-        alpha = 180.*alpha/numpy.pi
+        alpha = numpy.degrees(alpha)
 
     return alpha
     #}}}1

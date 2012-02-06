@@ -363,8 +363,8 @@ class Material(object):
 
         Parameter
         ---------
-         q:     momentum transfer (both absolute values and vectors as 
-                list or tuple are valid)
+         q:     vectorial momentum transfer (vectors as list,tuple 
+                or numpy array are valid)
          en:    energy in eV,
                 if omitted the value from the xrutils configuration is used 
 
@@ -389,7 +389,7 @@ class Material(object):
         for a,p in self.lattice.base: # a: atom, p: position
             r = self.lattice.GetPoint(p)
             f = a.f(q,en) 
-            s += f*numpy.exp(-1.j*numpy.dot(q,r))
+            s += f*numpy.exp(-1.j*math.VecDot(q,r))
             
         return s
         #}}}2
@@ -402,8 +402,8 @@ class Material(object):
 
         Parameter
         ---------
-         q0:    momentum transfer (both absolute values and vectors as 
-                list or tuple are valid)
+         q0:    vectorial momentum transfer (vectors as list,tuple 
+                or numpy array are valid)
          en:    list, tuple or array of energy values in eV
 
         Returns
@@ -416,7 +416,8 @@ class Material(object):
             q = q0
         else:
             raise TypeError("q must be a list or numpy array!")
-            
+        qnorm = math.VecNorm(q)
+
         if isinstance(en,(list,tuple)):
             en = numpy.array(en,dtype=numpy.double)
         elif isinstance(en,numpy.ndarray):
@@ -424,7 +425,7 @@ class Material(object):
         else:
             raise TypeError("Energy data must be provided as a list or numpy array!")
 
-        if self.lattice.base==None: return 1.
+        if self.lattice.base==None: return numpy.ones(len(en))
             
          # create list of different atoms and buffer the scattering factors
         atoms = []
@@ -437,14 +438,14 @@ class Material(object):
             except ValueError:
                 #add atom type to list and calculate the scattering factor
                 types.append(len(atoms))
-                f.append( at[0].f(q,en) )
+                f.append( at[0].f(qnorm,en) )
                 atoms.append(at[0])
         
         s = 0.+0.j                
         for i in range(len(self.lattice.base)):
             p = self.lattice.base[i][1]
-            r = self.lattice.GetPoint(p) 
-            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
+            r = self.lattice.GetPoint(p)
+            s += f[types[i]]*numpy.exp(-1.j*math.VecDot(q,r))
             
         return s
         #}}}2
@@ -457,7 +458,10 @@ class Material(object):
 
         Parameter
         ---------
-         q:     momentum transfers (list, tuple or array with absolute values are valid)
+         q:     vectorial momentum transfers; 
+                list of vectores (list, tuple or array) of length 3
+                e.g.: (Si.Q(0,0,4),Si.Q(0,0,4.1),...) or
+                 numpy.array([Si.Q(0,0,4),Si.Q(0,0,4.1)])
          en0:   energy value in eV,
                 if omitted the value from the xrutils configuration is used 
 
@@ -471,7 +475,9 @@ class Material(object):
             pass
         else:
             raise TypeError("q must be a list or numpy array!")
-        
+        if len(q.shape) != 2:
+            raise ValueError("q does not have the correct shape (shape = %s)" %str(q.shape))
+
         if en0=="config":
             en0 = config.ENERGY
 
