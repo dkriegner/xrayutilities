@@ -21,7 +21,7 @@ import datetime
 import subprocess
 
 AddOption("--prefix",dest="prefix",type="string",
-          default="usr/local",metavar="INSTALL_ROOT",
+          default="usr",metavar="INSTALL_ROOT",
           action="store",nargs=1)
 
 vars = Variables()
