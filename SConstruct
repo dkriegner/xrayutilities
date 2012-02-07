@@ -21,7 +21,7 @@ import datetime
 import subprocess
 
 AddOption("--prefix",dest="prefix",type="string",
-          default="/usr/local",metavar="INSTPREFIX",
+          default="/usr/local",metavar="DESTDIR",
           action="store",nargs=1)
 
 env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
