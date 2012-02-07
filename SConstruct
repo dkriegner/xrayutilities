@@ -21,10 +21,13 @@ import datetime
 import subprocess
 
 AddOption("--prefix",dest="prefix",type="string",
-          default="/usr/local",metavar="DESTDIR",
+          default="/usr/local",metavar="INSTALL_ROOT",
           action="store",nargs=1)
 
+AddOption("DESTDIR", 'Destination root directory', '')
+
 env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
+                  DESTDIR=GetOption("DESTDIR")
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
                   tools = ["default", "disttar"], toolpath=[os.path.join(".","tools")])
                   
@@ -46,7 +49,7 @@ if "install" in COMMAND_LINE_TARGETS:
     print("create clib_path.conf file")
     conffilename = os.path.join(".","python","xrutils","clib_path.conf")
     fid = open(conffilename,"w")
-    pref = GetOption("prefix")
+    pref = env['DESTDIR'] + env['PREFIX']
     if os.sys.platform == "darwin":
         libpath = os.path.join(pref,"lib","libxrutils.dylib")
     elif os.sys.platform == "linux2":
@@ -57,7 +60,7 @@ if "install" in COMMAND_LINE_TARGETS:
     fid.write("clib_path = %s\n" %libpath)
     fid.close()
     #run python installer
-    python_installer = subprocess.Popen("python setup.py install --home="+env.GetOption("prefix"),shell=True)
+    python_installer = subprocess.Popen("python setup.py install --home="+pref,shell=True)
     python_installer.wait()
 
 ############################
