@@ -27,7 +27,7 @@ AddOption("--prefix",dest="prefix",type="string",
 AddOption("DESTDIR", 'Destination root directory', '')
 
 env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
-                  DESTDIR=GetOption("DESTDIR")
+                  DESTDIR=GetOption("DESTDIR"),
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
                   tools = ["default", "disttar"], toolpath=[os.path.join(".","tools")])
                   
