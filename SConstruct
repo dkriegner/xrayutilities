@@ -135,7 +135,3 @@ Export("env")
 
 #add subdirectories
 SConscript(["src/SConscript","doc/manual/SConscript"])
-
-print env['DESTDIR']
-print env['PREFIX']
-print os.path.join(env['DESTDIR'],env['PREFIX'])
