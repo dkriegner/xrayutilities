@@ -21,15 +21,18 @@ import datetime
 import subprocess
 
 AddOption("--prefix",dest="prefix",type="string",
-          default="/usr/local",metavar="INSTALL_ROOT",
+          default="usr/local",metavar="INSTALL_ROOT",
           action="store",nargs=1)
 
-AddOption("DESTDIR", 'Destination root directory', '')
+vars = Variables()
+vars.Add(PathVariable("DESTDIR",'Destination variable (prepended to prefix)',None,PathVariable.PathAccept))
 
-env = Environment(PREFIX=GetOption("prefix"),ENV=os.environ,
-                  DESTDIR=GetOption("DESTDIR"),
+env = Environment(PREFIX=GetOption("prefix"),
+                  ENV=os.environ,
+                  variables=vars,
+                  DESTDIR='${DESTDIR}',
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
-                  tools = ["default", "disttar"], toolpath=[os.path.join(".","tools")])
+                  tools=["default", "disttar"], toolpath=[os.path.join(".","tools")])
                   
                   #CCFLAGS=["-fPIC","-Wall","-pthread"],
                   #LIBS=["m","pthread"])
@@ -49,18 +52,17 @@ if "install" in COMMAND_LINE_TARGETS:
     print("create clib_path.conf file")
     conffilename = os.path.join(".","python","xrutils","clib_path.conf")
     fid = open(conffilename,"w")
-    pref = env['DESTDIR'] + env['PREFIX']
     if os.sys.platform == "darwin":
-        libpath = os.path.join(pref,"lib","libxrutils.dylib")
+        libpath = os.path.join(env['DESTDIR'], env['PREFIX'],"lib","libxrutils.dylib")
     elif os.sys.platform == "linux2":
-        libpath = os.path.join(pref,"lib","libxrutils.so")
+        libpath = os.path.join(env['DESTDIR'], env['PREFIX'],"lib","libxrutils.so")
     elif "win" in os.sys.platform:
-        libpath = os.path.join(pref,"lib","xrutils.dll")
+        libpath = os.path.join(env['DESTDIR'], env['PREFIX'],"lib","xrutils.dll")
     fid.write("[xrutils]\n")
     fid.write("clib_path = %s\n" %libpath)
     fid.close()
     #run python installer
-    python_installer = subprocess.Popen("python setup.py install --home="+pref,shell=True)
+    python_installer = subprocess.Popen("python setup.py install --home="+os.path.join(env['DESTDIR'],env['PREFIX']),shell=True)
     python_installer.wait()
 
 ############################
@@ -118,10 +120,10 @@ if not env.GetOption('clean'):
 #env.ParseConfig('pkg-config --cflags --libs cblas')
 
 #add the aliases for install target
-env.Alias("install",["$PREFIX/lib"])#,"$PREFIX/bin"])
+env.Alias("install",[os.path.join(env['DESTDIR'], env['PREFIX'],"lib")])
 
 #add aliases for documentation target
-env.Alias("doc",["doc/manual/xrutils.pdf"])
+env.Alias("doc",[os.path.join("doc","manual","xrutils.pdf")])
 
 debug = ARGUMENTS.get('debug', 0)
 if int(debug):
@@ -133,3 +135,7 @@ Export("env")
 
 #add subdirectories
 SConscript(["src/SConscript","doc/manual/SConscript"])
+
+print env['DESTDIR']
+print env['PREFIX']
+print os.path.join(env['DESTDIR'],env['PREFIX'])

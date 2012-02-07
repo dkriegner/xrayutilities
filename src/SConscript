@@ -1,3 +1,5 @@
+import os
+
 #set the sources
 Import("env")
 
@@ -8,4 +10,4 @@ lib = env.SharedLibrary("xrutils",objects_env)
 Default(lib)
 
 #install the library
-env.Install("$PREFIX/lib",lib[0])
+env.Install(os.path.join(env['DESTDIR'],env['PREFIX'],"lib"),lib[0])
