@@ -53,11 +53,11 @@ if "install" in COMMAND_LINE_TARGETS:
     conffilename = os.path.join(".","python","xrutils","clib_path.conf")
     fid = open(conffilename,"w")
     if os.sys.platform == "darwin":
-        libpath = os.path.join(env['DESTDIR'], env['PREFIX'],"lib","libxrutils.dylib")
+        libpath = os.path.join(env['PREFIX'],"lib","libxrutils.dylib")
     elif os.sys.platform == "linux2":
-        libpath = os.path.join(env['DESTDIR'], env['PREFIX'],"lib","libxrutils.so")
+        libpath = os.path.join(env['PREFIX'],"lib","libxrutils.so")
     elif "win" in os.sys.platform:
-        libpath = os.path.join(env['DESTDIR'], env['PREFIX'],"lib","xrutils.dll")
+        libpath = os.path.join(env['PREFIX'],"lib","xrutils.dll")
     fid.write("[xrutils]\n")
     fid.write("clib_path = %s\n" %libpath)
     fid.close()
