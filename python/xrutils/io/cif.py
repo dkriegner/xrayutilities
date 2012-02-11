@@ -146,6 +146,7 @@ class CIFFile(object):
             y = a[1][1]
             z = a[1][2]
             el = re.sub(r"([1-9])",r"",a[0])
+            el = re.sub(r"\(\w*\)",r"",el)
             for symop in self.symops:
                 exec("pos = numpy.array("+ symop+ ")")
                 # check that position is within unit cell
