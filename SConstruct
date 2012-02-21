@@ -67,7 +67,7 @@ if "install" in COMMAND_LINE_TARGETS:
     fid.write("clib_path = %s\n" %libpath)
     fid.close()
     #run python installer
-    python_installer = subprocess.Popen("python setup.py install --home="+env['DESTDIRPREFIX']),shell=True)
+    python_installer = subprocess.Popen("python setup.py install --home="+env['DESTDIRPREFIX'],shell=True)
     python_installer.wait()
 
 ############################
