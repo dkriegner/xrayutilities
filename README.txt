@@ -52,7 +52,7 @@ of libxrutils.so and the python package requires two steps
    to build with "-g -O0"
 -> install the library and python package, either system wide 
     $>scons install
-   , which means in /usr/local/lib/ on Unix systems.
+   , which means in /usr/lib/ on Unix systems.
    or locally in the user directory
     $>scons install --prefix=<path to install directory>
 -> the documentation can be built with
@@ -61,6 +61,13 @@ of libxrutils.so and the python package requires two steps
 The --prefix option sets the root directory for the installation.
 Tools are installed under <prefix>/bin the library under
 <prefix>/lib. 
+If you use a package manager the SConstruct file includes support for DESTDIR.
+To use this feature call
+
+    $>scons DESTDIR=/destdir_path install 
+
+instead of the command given above. This can be used in combination with the
+prefix flag. 
 
 The python package configuration
 ================================
@@ -94,7 +101,7 @@ UPDATE
 ======
 
 if you already installed xrayutilities you can update it by navigating into
-its source folder (trunk) and obtain the new sources by
+its source folder and obtain the new sources by
 
   $> git pull
 
