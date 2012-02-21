@@ -1,0 +1,69 @@
+# This file is part of xrayutilities.
+#
+# xrayutilies is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published by 
+# the Free Software Foundation; either version 2 of the License, or 
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
+# Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+
+# try to build the c-stuff which used ctypes using distutils. this does
+# not really work since distutils is only made to build python extension
+# packages. everything else is not support by default
+
+import distutils.ccompiler
+from distutils.core import setup,Extension
+import os.path
+from glob import glob
+
+compile_args = ['--std=c99','-Wall']
+define_macros = []
+additional_lib = ['m']
+
+compiler=distutils.ccompiler.new_compiler()
+if compiler.has_function('omp_set_dynamic',libraries=('gomp',)):
+    compile_args.append('-fopenmp')
+    define_macros.append(('__OPENMP__',None))
+    additional_lib.append('gomp')
+    print("found openmp")
+
+if compiler.has_function('pthread_attr_init',libraries=('pthread',)):
+    additional_lib.append('pthread')
+    print("found pthreads")
+else:
+    print("could not find pthreads ... aborting!")
+    SystemExit()
+
+
+module = Extension('libxrutils',
+                    extra_compile_args = compile_args,
+                    define_macros=define_macros,
+                    libraries = additional_lib,
+                    sources = glob('src/*.c'))
+
+setup(name="xrutils",
+      version="0.5",
+      author="Eugen Wintersberger",
+      description="package for x-ray diffraction data evaluation",
+      author_email="eugen.wintersberger@desy.de",
+      maintainer="Dominik Kriegner",
+      maintainer_email="dominik.kriegner@aol.at",
+      ext_modules=[module],
+      package_dir={'':'python'},
+      packages=["xrutils","xrutils.math","xrutils.io","xrutils.materials",
+                "xrutils.analysis"],
+      package_data={
+          "xrutils":["*.conf"],
+          "xrutils.materials":[os.path.join("data","*.db")]},
+      requires=['numpy','scipy','tables'],
+      license="GPLv2"
+      )
