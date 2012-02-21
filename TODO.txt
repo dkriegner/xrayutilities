@@ -1,6 +1,10 @@
 To Do
 -----
 
+9.2.2012
+
+make the use of pthreads optional
+
 7.2.2012
 
 try using distutils to build the c-library, this would make packaging much

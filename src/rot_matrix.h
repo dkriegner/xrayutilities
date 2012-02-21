@@ -21,7 +21,7 @@
 #define _rot_matrix_h_
 
 #include <math.h>
-#define M_PI 3.14159265358979323846264338327
+#define M_PI 3.14159265358979323846
 #define M_2PI (2*M_PI)
 #define INLINE  
 

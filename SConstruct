@@ -21,7 +21,7 @@ import datetime
 import subprocess
 
 AddOption("--prefix",dest="prefix",type="string",
-          default="usr",metavar="INSTALL_ROOT",
+          default="/usr",metavar="INSTALL_ROOT",
           action="store",nargs=1)
 
 vars = Variables()
@@ -47,6 +47,11 @@ env.Append(
 
 env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat()), [env.Dir(".")]) 
 
+# create correct destdir install prefix
+if env['DESTDIR'] != "":
+    # works only on linux/darwin systems?
+    env['DESTDIRPREFIX'] = os.path.join(env['DESTDIR'],env['PREFIX'][1:])
+
 if "install" in COMMAND_LINE_TARGETS:
     #write the clib_path.conf file
     print("create clib_path.conf file")
@@ -62,7 +67,7 @@ if "install" in COMMAND_LINE_TARGETS:
     fid.write("clib_path = %s\n" %libpath)
     fid.close()
     #run python installer
-    python_installer = subprocess.Popen("python setup.py install --home="+os.path.join(env['DESTDIR'],env['PREFIX']),shell=True)
+    python_installer = subprocess.Popen("python setup.py install --home="+env['DESTDIRPREFIX']),shell=True)
     python_installer.wait()
 
 ############################
@@ -120,7 +125,7 @@ if not env.GetOption('clean'):
 #env.ParseConfig('pkg-config --cflags --libs cblas')
 
 #add the aliases for install target
-env.Alias("install",[os.path.join(env['DESTDIR'], env['PREFIX'],"lib")])
+env.Alias("install",[os.path.join(env['DESTDIRPREFIX'],"lib")])
 
 #add aliases for documentation target
 env.Alias("doc",[os.path.join("doc","manual","xrutils.pdf")])
