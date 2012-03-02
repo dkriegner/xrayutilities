@@ -27,7 +27,7 @@ Installing xrayutilities is a two step process
      matplotlib (optionally)
     refer to your operating system documentation to find out how to install
     those packages.
-2.) build and install the C-library libxrutils.so, as well as the 
+2.) build and install the C-library libxrutils.so/xrutils.dll, as well as the 
     python package (xrutils)
 
 Obtaining the source code
@@ -74,7 +74,9 @@ The python package configuration
 
 The following steps should only be necessary for user local installation to
 ensure the python module is found by the python interpreter:
-In this case the module is installed under <install path>/lib/python. 
+In this case the module is installed under 
+<prefix>/lib[64]/python?.?/site-packages on Unix systems and
+<prefix>/Lib/site-packages on Windows systems. 
 
 If you have installed the Python package in a directory unknown to your 
 local Python distribution, you have to tell Python where to look for the Package. There are several 
