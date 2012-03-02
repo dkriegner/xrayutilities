@@ -21,7 +21,7 @@ import datetime
 import subprocess
 
 AddOption("--prefix",dest="prefix",type="string",
-          default="/usr",metavar="INSTALL_ROOT",
+          default=os.sys.prefix,metavar="INSTALL_ROOT",
           action="store",nargs=1)
 
 vars = Variables()
@@ -32,29 +32,29 @@ env = Environment(PREFIX=GetOption("prefix"),
                   variables=vars,
                   DESTDIR='${DESTDIR}',
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
-                  tools=["default", "disttar"], toolpath=[os.path.join(".","tools")])
+                  tools=["default", "disttar"], toolpath=[os.path.join(".","tools")],
+                  LIBS=["m"])
                   
-                  #CCFLAGS=["-fPIC","-Wall","-pthread"],
-                  #LIBS=["m","pthread"])
+if "win" in os.sys.platform:
+    Tool('mingw')(env)
 
 # package xrayutilities into a tarball for distribution
 #print("Creating tarball for redistribution of xrayutilities...")
 env['DISTTAR_FORMAT']='gz'
 env.Append(
     DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'], 
-    DISTTAR_EXCLUDEDIRS=['.svn','.sconf_temp', 'dist', 'build'],
-    DISTTAR_EXCLUDERES=[r'clib_path.conf'])
+    DISTTAR_EXCLUDEDIRS=['.git','.sconf_temp', 'dist', 'build'],
+    DISTTAR_EXCLUDERES=[r'clib_path.conf','.gitignore'])
 
 env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat()), [env.Dir(".")]) 
 
 # create correct destdir install prefix
 if env['DESTDIR'] != "":
-    # works only on linux/darwin systems?
+    # is only needed/used on linux/darwin systems
     env['DESTDIRPREFIX'] = os.path.join(env['DESTDIR'],env['PREFIX'][1:])
 
 if "install" in COMMAND_LINE_TARGETS:
     #write the clib_path.conf file
-    print("create clib_path.conf file")
     conffilename = os.path.join(".","python","xrutils","clib_path.conf")
     fid = open(conffilename,"w")
     if os.sys.platform == "darwin":
@@ -62,12 +62,16 @@ if "install" in COMMAND_LINE_TARGETS:
     elif os.sys.platform == "linux2":
         libpath = os.path.join(env['PREFIX'],"lib","libxrutils.so")
     elif "win" in os.sys.platform:
-        libpath = os.path.join(env['PREFIX'],"lib","xrutils.dll")
+        libpath = os.path.join(env['PREFIX'],"Lib","xrutils.dll")
     fid.write("[xrutils]\n")
     fid.write("clib_path = %s\n" %libpath)
     fid.close()
+    print("create clib_path.conf file (libfile: %s)"%(libpath))
     #run python installer
-    python_installer = subprocess.Popen("python setup.py install --home="+env['DESTDIRPREFIX'],shell=True)
+    if "win" in os.sys.platform:
+        python_installer = subprocess.Popen("python setup.py install --prefix="+env['PREFIX'],shell=True)
+    else:
+        python_installer = subprocess.Popen("python setup.py install --prefix="+env['DESTDIRPREFIX'],shell=True)
     python_installer.wait()
 
 ############################
@@ -114,18 +118,22 @@ if not env.GetOption('clean'):
     if not conf.CheckLibWithHeader('pthread','pthread.h','c'):
         print 'Error: did not find pthread + header files!'
     else:
-        env.Append(CCFLAGS=['-pthread'],LIBS=['pthread'])
+        env.Append(LIBS=['pthread'])
 
     if not conf.CheckLib(['m']):
-        print 'Error: did not find one of the needed libraries!'
-        Exit(1)
+        print 'Warning: did not find one of the needed libraries!'
+        if "win" not in os.sys.platform:
+            Exit(1)
 
     conf.Finish()
 
 #env.ParseConfig('pkg-config --cflags --libs cblas')
 
 #add the aliases for install target
-env.Alias("install",[os.path.join(env['DESTDIRPREFIX'],"lib")])
+if os.sys.platform in ["darwin","linux2"]:
+    env.Alias("install",[os.path.join(env['DESTDIRPREFIX'],"lib")])
+elif "win" in os.sys.platform:
+    env.Alias("install",[os.path.join(env['PREFIX'],"Lib")])
 
 #add aliases for documentation target
 env.Alias("doc",[os.path.join("doc","manual","xrutils.pdf")])

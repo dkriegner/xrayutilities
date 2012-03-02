@@ -14,4 +14,7 @@ lib = env.SharedLibrary("xrutils",objects_env)
 Default(lib)
 
 #install the library
-Alias("install",env.Install(os.path.join(env['DESTDIRPREFIX'],"lib"),lib[0]))
+if os.sys.platform in ["darwin","linux2"]:
+    Alias("install",env.Install(os.path.join(env['DESTDIRPREFIX'],"lib"),lib[0]))
+elif "win" in os.sys.platform:
+    Alias("install",env.Install(os.path.join(env['PREFIX'],"Lib"),lib[0]))

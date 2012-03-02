@@ -1,4 +1,7 @@
 #build the user manual with pdflatex
 Import("env")
 
-env.PDF("xrutils.pdf","xrutils.tex")
+try:
+    env.PDF("xrutils.pdf","xrutils.tex")
+except:
+    print("Warning: Documentation can not be built (pdflatex not found)")
