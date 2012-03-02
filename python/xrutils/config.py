@@ -26,7 +26,10 @@ recommended to change things there, instead the user-specific config file
 
 import os.path
 import numpy 
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 from . import __path__
 from . import utilities_noconf
@@ -40,7 +43,7 @@ from . import utilities_noconf
 # dynhigh
 # clib_path NotImplemented yet
 
-xrutilsParser = ConfigParser.ConfigParser()
+xrutilsParser = configparser.ConfigParser()
 
 #read global default values for configuration variables 
 with open(os.path.join(__path__[0],"xrutils_default.conf")) as gconffile:
