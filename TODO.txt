@@ -1,14 +1,14 @@
 To Do
 -----
 
+2.3.2012
+
+libdir should be obtained from some system command?
+remove unneeded/unused tools
+
 9.2.2012
 
 make the use of pthreads optional
-
-7.2.2012
-
-try using distutils to build the c-library, this would make packaging much
-easier
 
 3.11.2010
 
