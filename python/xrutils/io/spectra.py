@@ -68,14 +68,14 @@ class SPECTRAFileComments(dict):
         pass
         
     def __getattr__(self,name):
-        if self.has_key(name): return self[key]
+        if name in self: return self[key]
         
 class SPECTRAFileParameters(dict):
     def __init__(self):
         pass
         
     def __getattr__(self,name):
-        if self.has_key(name):
+        if name in self:
             return self[name]
             
     def __str__(self):
@@ -616,12 +616,12 @@ class Spectra(object):
         mcadir = os.path.join(dir,name)
 
         #evaluate keyword arguments
-        if keyargs.has_key("name"):
+        if "name" in keyargs:
             sg_name = keyargs["name"]
         else:
             sg_name = name
 
-        if keyargs.has_key("desc"):
+        if "desc" in keyargs:
             sg_desc = keyargs["desc"]
         else:
             sg_desc = "SPECTRA data"
@@ -693,7 +693,7 @@ class Spectra(object):
 
         mcan = numpy.zeros(data.shape,dtype=numpy.double)
 
-        if keyargs.has_key("ff"):
+        if "ff" in keyargs:
             ff = keyargs["ff"]
         else:
             ff = _absorber_factors
@@ -737,7 +737,7 @@ def read_mca_dir(dirname,filetemp,**keyargs):
 
     flist = get_spectra_files(dirname)
 
-    if keyargs.has_key("sort"):
+    if "sort" in keyargs:
         sort_flag = keyargs["sort"]
     else:
         sort_flag = True
@@ -942,12 +942,12 @@ def geth5_spectra_map(h5file,scans,*args,**kwargs):
     else:
         h5 = h5file
     
-    if kwargs.has_key("mca"):
+    if "mca" in kwargs:
         mca = kwargs["mca"]
     else:
         mca = "MCA"
         
-    if kwargs.has_key("samplename"):
+    if "samplename" in kwargs:
         basename = kwargs["samplename"]
     else:
         nodename = h5.listNodes(h5.root)[0]._v_name

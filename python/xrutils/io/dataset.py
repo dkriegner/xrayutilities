@@ -70,30 +70,30 @@ class Dataset(object):
 
         #===============handling optional arguments======================
         #set a figure object to plot in
-        if keyargs.has_key("fig"):
+        if "fig" in keyargs:
             self.figure = fig
         else:
             self.figure = pl.figure()
 
         #set a unit for the x-axis
-        if keyargs.has_key("xunit"):
+        if "xunit" in keyargs:
             xunit = " "+keyargs["xunit"]
         else:
             xunit = ""
 
         #set a unit for the y-axis
-        if keyargs.has_key("yunit"):
+        if "yunit" in keyargs:
             yunit = " "+keyargs["yunit"]
         else:
             yunit = ""
 
         #set plot options po=""
-        if keyargs.has_key("po"):
+        if "po" in keyargs:
             plotopts = keyargs["po"]
         else:
             plotopts = "b-"
 
-        if keyargs.has_key("po"):
+        if "po" in keyargs:
             pass
 
         #build x-axis and y-axis label
@@ -118,7 +118,7 @@ class Dataset(object):
             pass
 
 
-        if keyargs.has_key("ps"):
+        if "ps" in keyargs:
             if keyargs["ps"] == "logx":
                 self.plot = pl.semilogx(xaxis,yaxis,plotopts)
             if keyargs["ps"] == "logy":

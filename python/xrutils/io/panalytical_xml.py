@@ -47,7 +47,7 @@ class XRDMLMeasurement(object):
             
             # add count time to output data
             countTime = points.getElementsByTagName("commonCountingTime")[0].childNodes[0].nodeValue
-            if not self.ddict.has_key("countTime"): 
+            if "countTime" not in self.ddict: 
                 self.ddict["countTime"] = [] 
             self.ddict["countTime"].append(float(countTime))
 
@@ -57,7 +57,7 @@ class XRDMLMeasurement(object):
             # count time normalization; output is counts/sec
             data_list = (numpy.fromstring(data.nodeValue,sep=" ")/float(countTime)).tolist()
             nofpoints = len(data_list)
-            if not self.ddict.has_key("detector"): 
+            if "detector" not in self.ddict: 
                 self.ddict["detector"] = [] 
             self.ddict["detector"].append(data_list)
             # if present read beamAttenuationFactors
@@ -67,7 +67,7 @@ class XRDMLMeasurement(object):
                 data = attfact[0].childNodes[0]
                 data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
                 nofpoints = len(data_list)
-                if not self.ddict.has_key("beamAttenuationFactors"): 
+                if "beamAttenuationFactors" not in self.ddict: 
                     self.ddict["beamAttenuationFactors"] = [] 
                 self.ddict["beamAttenuationFactors"].append(data_list)
             
@@ -97,7 +97,7 @@ class XRDMLMeasurement(object):
 
                 #print(data_list)
                 #have to append the data to the data dictionary
-                if not self.ddict.has_key(aname):
+                if aname not in self.ddict:
                     self.ddict[aname] = []
 
                 if not is_scalar:

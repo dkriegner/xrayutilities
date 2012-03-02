@@ -82,19 +82,19 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
     if intensity.shape != (qx.size,qz.size):
         raise ValueError("shape of given intensity does not match to (qx.size,qz.size)")
     
-    if kwargs.has_key('qmin'):
+    if 'qmin' in kwargs:
         qxmin = max(qx.min(),kwargs['qmin']) 
     else: qxmin = qx.min()
  
-    if kwargs.has_key('qmax'):
+    if 'qmax' in kwargs:
         qxmax = min(qx.max(),kwargs['qmax']) 
     else: qxmax = qx.max()
     
-    if kwargs.has_key('qrange'):
+    if 'qrange' in kwargs:
         qrange = kwargs['qrange']
     else: qrange = 0.
 
-    if kwargs.has_key('bounds'):
+    if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False
      
@@ -144,7 +144,7 @@ def get_qz_scan(qx,qz,intensity,qxpos,**kwargs):
     >>> qzcut,qzcut_int = get_qz_scan(qx,qz,inten,1.5,qrange=0.03)
     """
     
-    if kwargs.has_key('bounds'):
+    if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False
     
@@ -186,7 +186,7 @@ def get_omega_scan_q(qx,qz,intensity,qxcenter,qzcenter,omrange,npoints,**kwargs)
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
@@ -229,17 +229,17 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
-    if kwargs.has_key('relative'):
+    if 'relative' in kwargs:
         relative = kwargs['relative']
     else: relative = True
     
-    if kwargs.has_key('qrange'):
+    if 'qrange' in kwargs:
         qrange = kwargs['qrange']
     else: 
         qrange = 0.
@@ -248,7 +248,7 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
     dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[1]
     dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1]
     
-    if kwargs.has_key('Nint'):
+    if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
         nint = numpy.ceil(max(qrange/(qx[1]-qx[0]),qrange/(qz[1]-qz[0]) ))
@@ -256,7 +256,7 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_omega_scan: using %d subscans for integration" % (nint))
 
-    if kwargs.has_key('bounds'):
+    if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False
     
@@ -314,13 +314,13 @@ def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
     -------
     >>> qxb,qzb = get_omega_scan_bounds_ang(1.0,4.0,2.4,240,qrange=0.1)
     """
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
         exp = experiment.HXRD([1,0,0],[0,0,1])
     
-    if kwargs.has_key('qrange'):
+    if 'qrange' in kwargs:
         qrange = kwargs['qrange']
     else: 
         qrange = 0.
@@ -385,7 +385,7 @@ def get_radial_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
     >>> omc,ttc,cut_int = get_radial_scan_q(qx,qz,intensity,0.0,5.0,1.0,100,omrange=0.01)
     """
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
@@ -428,17 +428,17 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
     >>> omc,ttc,cut_int = get_radial_scan_ang(qx,qz,intensity,32.0,64.0,30.0,800,omrange=0.2)
     """
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
-    if kwargs.has_key('relative'):
+    if 'relative' in kwargs:
         relative = kwargs['relative']
     else: relative = True
     
-    if kwargs.has_key('omrange'):
+    if 'omrange' in kwargs:
         omrange = kwargs['omrange']
     else: 
         omrange = 0.
@@ -446,7 +446,7 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
     dom_p = omrange/2.
     qrange = numpy.abs(exp.Ang2Q(omcenter-dom_m,ttcenter)[1] - exp.Ang2Q(omcenter+dom_p,ttcenter)[1])
     
-    if kwargs.has_key('Nint'):
+    if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
         nint = numpy.ceil(qrange/(qx[1]-qx[0]))
@@ -454,7 +454,7 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_radial_scan: using %d subscans for integration" % (nint))
 
-    if kwargs.has_key('bounds'):
+    if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False   
     
@@ -514,13 +514,13 @@ def get_radial_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
     >>>
     """
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
         exp = experiment.HXRD([1,0,0],[0,0,1])
     
-    if kwargs.has_key('omrange'):
+    if 'omrange' in kwargs:
         omrange = kwargs['omrange']
     else: 
         omrange = 0.
@@ -584,7 +584,7 @@ def get_ttheta_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
     >>> ttc,cut_int = get_ttheta_scan_q(qx,qz,intensity,0.0,4.0,4.4,440)
     """
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
@@ -627,17 +627,17 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
     >>> ttc,cut_int = get_ttheta_scan_ang(qx,qz,intensity,32.0,64.0,4.0,400)
     """
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
-    if kwargs.has_key('relative'):
+    if 'relative' in kwargs:
         relative = kwargs['relative']
     else: relative = True
     
-    if kwargs.has_key('omrange'):
+    if 'omrange' in kwargs:
         omrange = kwargs['omrange']
     else: 
         omrange = 0.
@@ -646,7 +646,7 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
     
     qrange = numpy.abs(exp.Ang2Q(omcenter-dom_m,ttcenter)[1] - exp.Ang2Q(omcenter+dom_p,ttcenter)[1])
     
-    if kwargs.has_key('Nint'):
+    if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
         nint = numpy.ceil(qrange/(qx[1]-qx[0]))
@@ -654,7 +654,7 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_radial_scan: using %d subscans for integration" % (nint))
 
-    if kwargs.has_key('bounds'):
+    if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False   
     
@@ -715,13 +715,13 @@ def get_ttheta_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
     >>>
     """   
     
-    if kwargs.has_key('lam'):
+    if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
     else: 
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
-    if kwargs.has_key('omrange'):
+    if 'omrange' in kwargs:
         omrange = kwargs['omrange']
     else: 
         omrange = 0.

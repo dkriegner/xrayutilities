@@ -96,7 +96,7 @@ def read_tascom_dat(fileobject,**keyargs):
         return None
 
     #evaluate optinal keyword arguments
-    if keyargs.has_key("dartmp"):
+    if "dartmp" in keyargs:
         dar_template = keyargs["dartmp"]
     else:
         dar_tmplate = None
@@ -127,7 +127,7 @@ def read_tascom_dat(fileobject,**keyargs):
         coldict[namelist[i]] = data[:,i]
 
     #we have now the dat file data but we have to handle also MCA data automatically
-    if coldict.has_key("SEAR") and dar_template != None:
+    if "SEAR" in coldict and dar_template != None:
         #read MCA data from the files
         filenos = coldict["SEAR"]
         dar_tmp_len = len(dar_template)
@@ -150,7 +150,7 @@ def read_tascom_dat(fileobject,**keyargs):
             #finally we have to read the data
             dardata = read_array(filetemp)
 
-            if not coldict.has_key("MCA"):
+            if "MCA" not in coldict:
                 coldict["MCA"] = Numeric.array(filenos.shape[0],dardata.shape[1])
 
             coldict["MCA"][i,:] = dardata[:]
@@ -326,12 +326,12 @@ def dat2hdf5(filename,h5file,h5group,**optargs):
        comment ................... add a custom comment to the data set
     """
     
-    if optargs.has_key("path"):
+    if "path" in optargs:
         path = optargs["path"]
     else: 
         path = "."
         
-    if optargs.has_key("comment"):
+    if "comment" in optargs:
         comment = optargs["comment"]
     else:
         comment = os.path.join(path,filename)
@@ -366,7 +366,7 @@ def dats2hdf5(filepattern,h5file,h5group,scanrange,**optargs):
         filename_list.append(filepattern + "%04i" %(i))
 
     for name in filename_list:
-        if optargs.has_key("path"):
+        if "path" in optargs:
             dat2hdf5(name,h5file,h5group,path=optargs["path"])
         else:
             dat2hdf5(name,h5file,h5group)
@@ -388,12 +388,12 @@ def det2hdf5(filename,h5file,**keyargs):
 
 
     #handle keyword arguments
-    if keyargs.has_key("group"):
+    if "group" in keyargs:
         h5group = keyargs["group"]
     else:
         h5group = h5file.root
 
-    if keyargs.has_key("path"):
+    if "path" in keyargs:
         path = keyargs["path"]
         fullname = os.path.join(path,filename)
     else:

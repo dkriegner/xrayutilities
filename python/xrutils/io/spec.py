@@ -334,12 +334,12 @@ class SPECScan(object):
             print("XU.io.SPECScan.plot: ERROR: plot functionality not available")
             return
 
-        if keyargs.has_key("newfig"):
+        if "newfig" in keyargs:
             newfig = keyargs["newfig"]
         else:
             newfig = True
 
-        if keyargs.has_key("logy"):
+        if "logy" in keyargs:
             logy = keyargs["logy"]
         else:
             logy = False
@@ -412,7 +412,7 @@ class SPECScan(object):
             return None
         
         #parse keyword arguments:
-        if keyargs.has_key("group"):
+        if "group" in keyargs:
             if isinstance(keyargs["group"],str):
                 rootgroup = h5file.getNode(keyargs["group"])
             else:
@@ -420,18 +420,18 @@ class SPECScan(object):
         else:
             rootgroup = "/"
             
-        if keyargs.has_key("comp"):
+        if "comp" in keyargs:
             compflag = keyargs["comp"]
         else:
             compflag = True
                 
-        if keyargs.has_key("title"):
+        if "title" in keyargs:
             group_title = keyargs["title"]
         else:
             group_title = self.name
         group_title  = group_title.replace(".","_")
         
-        if keyargs.has_key("desc"):
+        if "desc" in keyargs:
             group_desc = keyargs["desc"]
         else:
             group_desc = self.command        
@@ -496,7 +496,7 @@ class SPECScan(object):
         g._v_attrs.mca_stop_channel = numpy.uint(self.mca_stop_channel)
         g._v_attrs.mca_nof_channels = numpy.uint(self.mca_channels)
             
-        if keyargs.has_key("optattrs"):
+        if "optattrs" in keyargs:
             optattrs = keyargs["optattrs"]
             for k in optattrs.keys():
                 g._v_attrs.__setattr__(k,opattrs[k])
@@ -514,7 +514,7 @@ class SPECFile(object):
     def __init__(self,filename,**keyargs):
         self.filename = filename
         
-        if keyargs.has_key("path"):
+        if "path" in keyargs:
             self.full_filename = os.path.join(keyargs["path"],filename)     
         else:
             self.full_filename = filename   
@@ -573,7 +573,7 @@ class SPECFile(object):
         except:
             g = h5.getNode("/"+os.path.splitext(self.filename)[0])
             
-        if keyargs.has_key("comp"):
+        if "comp" in keyargs:
             compflag = keyargs["comp"]
         else:
             compflag = True
@@ -834,7 +834,7 @@ class SPECCmdLine(object):
 class SPECLog(object):
     def __init__(self,filename,prompt,**keyargs):
         self.filename = filename
-        if keyargs.has_key("path"):
+        if "path" in keyargs:
             self.full_filename = os.path.join(keyargs["path"],self.filename)
         else:
             self.full_filename = self.filename
@@ -908,7 +908,7 @@ def geth5_map(h5f,scans,*args,**kwargs):
                 intensities e.g. MAP['MCA']).
     """
 
-    if kwargs.has_key("samplename"):
+    if "samplename" in kwargs:
         h5g = h5f.getNode(h5f.root,kwargs["samplename"])
     else:
         h5g = h5f.listNodes(h5f.root)[0]

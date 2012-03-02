@@ -139,12 +139,12 @@ def ccds2hdf5(h5file,pattern,sn_list,fn_list,**optargs):
     """
     
     #check for optional arguments:
-    if optargs.has_key("path"):
+    if "path" in optargs:
         path = optargs["path"]
     else:
         path = file_path
         
-    if optargs.has_key("group"):
+    if "group" in optargs:
         h5group = optargs["group"]
     else:
         h5group = h5file.root
@@ -184,12 +184,12 @@ def ccd2hdf5(h5file,filename,**optargs):
     filter.fletcher32 = 1
     
     #setting the path to the file
-    if optargs.has_key("path"):
+    if "path" in optargs:
         path = optargs["path"]
     else:
         path = file_path
         
-    if optargs.has_key("group"):
+    if "group" in optargs:
         h5group = optargs["group"]
     else:
         h5group = h5file.root

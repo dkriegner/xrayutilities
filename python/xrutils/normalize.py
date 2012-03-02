@@ -91,7 +91,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
         raise TypeError("first argument data2d must be of type numpy.ndarray")
 
     # kwargs
-    if kwargs.has_key('roi'):
+    if 'roi' in kwargs:
         roi = kwargs['roi']
     else:
         roi = [0,data2d.shape[0],0,data2d.shape[1]]
@@ -141,7 +141,7 @@ def blockAveragePSD(psddata,Nav,**kwargs):
         raise TypeError("first argument psddata must be of type numpy.ndarray")
 
     # kwargs
-    if kwargs.has_key('roi'):
+    if 'roi' in kwargs:
         roi = kwargs['roi']
     else:
         roi = [0,psddata.shape[1]]
@@ -198,32 +198,32 @@ class IntensityNormalizer(object):
         #check input arguments
         self._setdet(det)
 
-        if keyargs.has_key('mon'):
+        if 'mon' in keyargs:
             self._setmon(keyargs['mon'])
         else:
             self._mon = None
 
-        if keyargs.has_key('time'):
+        if 'time' in keyargs:
             self._settime(keyargs['time'])
         else:
             self._time = None
 
-        if keyargs.has_key('av_mon'):
+        if 'av_mon' in keyargs:
             self._setavmon(keyargs['av_mon'])
         else:
             self._avmon = None
 
-        if keyargs.has_key('absfun'):
+        if 'absfun' in keyargs:
             self._setabsfun(keyargs['absfun'])
         else:
             self._absfun = None
 
-        if keyargs.has_key('flatfield'):
+        if 'flatfield' in keyargs:
             self._setflatfield(keyargs['flatfield'])
         else:
             self._flatfield = None
         
-        if keyargs.has_key('darkfield'):
+        if 'darkfield' in keyargs:
             self._setdarkfield(keyargs['darkfield'])
         else:
             self._darkfield = None
@@ -340,9 +340,9 @@ class IntensityNormalizer(object):
         absfun property handler
         sets the costum correction function
         """
-        if callable(absfun):
+        if hasattr(absfun, '__call__'):
             self._absfun = absfun
-            if self._absfun.func_code.co_argcount != 1:
+            if self._absfun.__code__.co_argcount != 1:
                 raise TypeError("argument absfun must be a function with one argument (data object)")
         elif isinstance(absfun,type(None)):
             self._absfun = None

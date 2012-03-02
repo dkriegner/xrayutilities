@@ -216,7 +216,7 @@ class SeifertMultiScan(object):
         except:
             m2name = self.sec_motor_name
 
-        if keyargs.has_key("group"):
+        if "group" in keyargs:
             g = keyargs["group"]
         else:
             g = h5.root
@@ -344,7 +344,7 @@ class SeifertScan(object):
             motor_names.append("Int")
 
         #evaluate optional keyword arguments:
-        if keyargs.has_key("group"):
+        if "group" in keyargs:
             g = keyargs["group"]
         else:
             g = h5.root

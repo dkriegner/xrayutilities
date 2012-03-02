@@ -39,13 +39,13 @@ class DXFile(object):
     def __init__(self,filename,**keyargs):
 
         #parse the keyword arguments:
-        if keyargs.has_key("seq"):
+        if "seq" in keyargs:
             #file contains a sequence
             self.seq_flag = 1
         else:
             self.seq_flag = 0
 
-        if keyargs.has_key("path"):
+        if "path" in keyargs:
             self.DXFilePath = keyargs["path"]
         else:
             self.DXFilePath = "."

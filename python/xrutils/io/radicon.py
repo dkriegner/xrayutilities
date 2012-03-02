@@ -57,14 +57,14 @@ def rad2hdf5(h5,rdcfile,**keyargs):
                 
     """
 
-    if keyargs.has_key("rdcpath"):
+    if "rdcpath" in keyargs:
         rdcpath = keyargs["rdcpath"]
     else:
         rdcpath = "."
 
     rdcfilename = os.path.join(rdcpath,rdcfile)
 
-    if keyargs.has_key("h5path"):
+    if "h5path" in keyargs:
         h5path = keyargs["h5path"]
     else:
         h5path = h5.root
@@ -194,14 +194,14 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
       hstpath ............. path where the HST file is located (default
                             is the current working directory)
     """
-    if keyargs.has_key("hstpath"):
+    if "hstpath" in keyargs:
         hstpath = keyargs["hstpath"]
     else:
         hstpath = "."
 
     hstfilename = os.path.join(hstpath,hstfile)
 
-    if keyargs.has_key("h5path"):
+    if "h5path" in keyargs:
         h5path = keyargs["h5path"]
     else:
         h5path = h5.root

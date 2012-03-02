@@ -124,7 +124,7 @@ class Transform(object):
 
         m = self.matrix
         # parse keyword arguments
-        if keyargs.has_key("inverse"):
+        if "inverse" in keyargs:
             if keyargs["inverse"]:
                 m = self.imatrix
         

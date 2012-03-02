@@ -39,7 +39,7 @@ class Gridder(object):
                         default: 0 -> sequential code is used
         """
         
-        if keyargs.has_key('nthreads'):
+        if 'nthreads' in keyargs:
             self.nthreads = keyargs['nthreads']
         else:
             self.nthreads = 0

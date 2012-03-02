@@ -70,7 +70,7 @@ class EDFFile(object):
         """
         
         self.filename = fname
-        if keyargs.has_key("path"):
+        if "path" in keyargs:
             self.full_filename = os.path.join(keyargs["path"],fname)
         else:
             self.full_filename = fname
@@ -81,22 +81,22 @@ class EDFFile(object):
             raise IOError("cannot open file %s" %(self.full_filename))
         
         #evaluate keyword arguments
-        if keyargs.has_key("nxkey"):
+        if "nxkey" in keyargs:
             self.nxkey = keyargs["nxkey"]
         else:
             self.nxkey = "Dim_1"
 
-        if keyargs.has_key("nykey"):
+        if "nykey" in keyargs:
             self.nykey = keyargs["nykey"]
         else:
             self.nykey = "Dim_2"
 
-        if keyargs.has_key("dtkey"):
+        if "dtkey" in keyargs:
             self.dtkey = keyargs["dtkey"]
         else:
             self.dtkey = "DataType"
 
-        if keyargs.has_key("header"):
+        if "header" in keyargs:
             self.headerflag = keyargs["header"]
         else:
             self.headerflag = True
@@ -251,7 +251,7 @@ class EDFFile(object):
         comp ................. activate compression - true by default
         """
 
-        if keyargs.has_key("group"):
+        if "group" in keyargs:
             if isinstance(keyargs["group"],str):
                 g = h5.getNode(keyargs["group"])
             else:
@@ -259,7 +259,7 @@ class EDFFile(object):
         else:
             g = "/"
             
-        if keyargs.has_key("comp"):
+        if "comp" in keyargs:
             compflag = keyargs["comp"]
         else:
             compflag = True
@@ -317,7 +317,7 @@ class EDFDirectory(object):
      
 
         self.datapath = os.path.normpath(datapath)
-        if keyargs.has_key("ext"):
+        if "ext" in keyargs:
             self.extension = keyargs["ext"]
         else:
             self.extension = "edf"
@@ -352,7 +352,7 @@ class EDFDirectory(object):
         comp ................. activate compression - true by default
         """
 
-        if keyargs.has_key("group"):
+        if "group" in keyargs:
             if isinstance(keyargs["group"],str):
                 g = h5.getNode(keyargs["group"])
             else:
@@ -365,7 +365,7 @@ class EDFDirectory(object):
             except:
                 g = h5.createGroup(h5.root,defaultg)
             
-        if keyargs.has_key("comp"):
+        if "comp" in keyargs:
             compflag = keyargs["comp"]
         else:
             compflag = True

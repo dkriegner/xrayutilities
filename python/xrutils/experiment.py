@@ -94,12 +94,12 @@ class QConversion(object):
             raise TypeError("QConversion: invalid type of primary beam direction r_i, must be tuple, list or numpy.ndarray")
 
         # kwargs
-        if kwargs.has_key("wl"):
+        if "wl" in kwargs:
             self._wl = numpy.double(kwargs["wl"])
         else:
             self._wl = numpy.double(config.WAVELENGTH) 
 
-        if kwargs.has_key("en"):
+        if "en" in kwargs:
             self._set_energy(kwargs["en"])
 
         self._linear_init = False
@@ -286,17 +286,17 @@ class QConversion(object):
         Ncirc = Ns + Nd
 
         # kwargs
-        if kwargs.has_key('wl'):
+        if 'wl' in kwargs:
             wl = numpy.double(kwargs['wl'])
         else:
             wl = self._wl
 
-        if kwargs.has_key('deg'):
+        if 'deg' in kwargs:
             deg = kwargs['deg']
         else:
             deg = True
 
-        if kwargs.has_key('delta'):
+        if 'delta' in kwargs:
             delta = numpy.array(kwargs['delta'],dtype=numpy.double)
             if delta.size != Ncirc:
                 raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
@@ -412,11 +412,11 @@ class QConversion(object):
 
 
         # kwargs
-        if kwargs.has_key('roi'):
+        if 'roi' in kwargs:
             self._linear_roi = kwargs['roi']
         else:
             self._linear_roi = [0,self._linear_Nch]
-        if kwargs.has_key('Nav'):
+        if 'Nav' in kwargs:
             self._linear_nav = kwargs['Nav']
         else:
             self._linear_nav = 1
@@ -468,27 +468,27 @@ class QConversion(object):
         Ncirc = Ns + Nd
 
         # kwargs
-        if kwargs.has_key('wl'):
+        if 'wl' in kwargs:
             wl = numpy.double(kwargs['wl'])
         else:
             wl = self._wl
 
-        if kwargs.has_key('deg'):
+        if 'deg' in kwargs:
             deg = kwargs['deg']
         else:
             deg = True
 
-        if kwargs.has_key('Nav'):
+        if 'Nav' in kwargs:
             nav = kwargs['Nav']
         else:
             nav = 1
 
-        if kwargs.has_key('roi'):
+        if 'roi' in kwargs:
             oroi = kwargs['roi']
         else:
             oroi = self._linear_roi
 
-        if kwargs.has_key('delta'):
+        if 'delta' in kwargs:
             delta = numpy.array(kwargs['delta'],dtype=numpy.double)
             if delta.size != Ncirc:
                 raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
@@ -631,11 +631,11 @@ class QConversion(object):
             raise InputError("Qconversion error: not all mandatory arguments were given -> read API doc")
         
         # kwargs
-        if kwargs.has_key('roi'):
+        if 'roi' in kwargs:
             self._area_roi = kwargs['roi']
         else:
             self._area_roi = [0,self._area_Nch1-1,0,self._area_Nch2-1]
-        if kwargs.has_key('Nav'):
+        if 'Nav' in kwargs:
             self._area_nav = kwargs['Nav']
         else:
             self._area_nav = [1,1]
@@ -689,27 +689,27 @@ class QConversion(object):
         Ncirc = Ns + Nd
 
         # kwargs
-        if kwargs.has_key('wl'):
+        if 'wl' in kwargs:
             wl = numpy.double(kwargs['wl'])
         else:
             wl = self._wl
 
-        if kwargs.has_key('deg'):
+        if 'deg' in kwargs:
             deg = kwargs['deg']
         else:
             deg = True
         
-        if kwargs.has_key('roi'):
+        if 'roi' in kwargs:
             oroi = kwargs['roi']
         else:
             oroi = self._area_roi
 
-        if kwargs.has_key('Nav'):
+        if 'Nav' in kwargs:
             nav = kwargs['Nav']
         else:
             nav = self._area_nav
        
-        if kwargs.has_key('delta'):
+        if 'delta' in kwargs:
             delta = numpy.array(kwargs['delta'],dtype=numpy.double)
             if delta.size != Ncirc:
                 raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
@@ -850,19 +850,19 @@ class Experiment(object):
         self._transform = math.CoordinateTransform(self.scatplane,self.idir,self.ndir)
         
         # initialize Ang2Q conversion
-        if keyargs.has_key("qconv"):
+        if "qconv" in keyargs:
             self._A2QConversion = keyargs["qconv"]
         else:
             self._A2QConversion = QConversion('x+','x+',[0,1,0]) # 1S+1D goniometer  
         self.Ang2Q = self._A2QConversion
        
         #calculate the energy from the wavelength
-        if keyargs.has_key("wl"):
+        if "wl" in keyargs:
             self._set_wavelength(keyargs["wl"])
         else:
             self._set_wavelength(config.WAVELENGTH) 
 
-        if keyargs.has_key("en"):
+        if "en" in keyargs:
             self._set_energy(keyargs["en"])
 
         #}}}2
@@ -1005,7 +1005,7 @@ class HXRD(Experiment):
         """
         Experiment.__init__(self,idir,ndir,**keyargs)
         
-        if keyargs.has_key('geometry'):
+        if 'geometry' in keyargs:
             if keyargs['geometry'] in ["hi_lo","lo_hi","real"]:
                 self.geometry = keyargs['geometry']
             else: 
@@ -1014,7 +1014,7 @@ class HXRD(Experiment):
             self.geometry = "hi_lo"
 
         # initialize Ang2Q conversion
-        if not keyargs.has_key("qconv"):
+        if "qconv" not in keyargs:
             self._A2QConversion = QConversion('x+','x+',[0,1,0],wl=self._wl) # 1S+1D goniometer 
             self.Ang2Q = self._A2QConversion
         
@@ -1150,7 +1150,7 @@ class HXRD(Experiment):
             q = q.reshape(3,1)
 
         # parse keyword arguments
-        if keyargs.has_key('geometry'):
+        if 'geometry' in keyargs:
             if keyargs['geometry'] in ["hi_lo","lo_hi","real"]:
                 geom = keyargs['geometry']
             else: 
@@ -1158,40 +1158,40 @@ class HXRD(Experiment):
         else:
             geom = self.geometry
         
-        if keyargs.has_key('trans'):
+        if 'trans' in keyargs:
             trans = keyargs['trans']
         else: 
             trans = True
         
-        if keyargs.has_key('deg'):
+        if 'deg' in keyargs:
             deg = keyargs['deg']
         else:
             deg = True
         
-        if keyargs.has_key('mat'): # material for optical properties
+        if 'mat' in keyargs: # material for optical properties
             mat = keyargs['mat']
         else:
             mat = None
 
-        if keyargs.has_key('refrac'):
+        if 'refrac' in keyargs:
             refrac = keyargs['refrac']
             if refrac: # check if material is available
                 if mat==None: raise InputError("keyword argument 'mat' must be set when 'refrac' is set to True!")
         else:
             refrac = False
 
-        if keyargs.has_key('full_output'):
+        if 'full_output' in keyargs:
             foutp = keyargs['full_output']
         else:
             foutp = False
         
-        if keyargs.has_key('fi'): # incidence facet
+        if 'fi' in keyargs: # incidence facet
             fi = keyargs['fi']
         else:
             fi = self.ndir
         fi = math.VecUnit(self.Transform(fi))
 
-        if keyargs.has_key('fd'): # exit facet
+        if 'fd' in keyargs: # exit facet
             fd = keyargs['fd']
         else:
             fd = self.ndir
@@ -1392,12 +1392,12 @@ class NonCOP(Experiment):
         if len(q.shape) != 2:
             q = q.reshape(3,1)
 
-        if keyargs.has_key('trans'):
+        if 'trans' in keyargs:
             trans = keyargs['trans']
         else: 
             trans = True
         
-        if keyargs.has_key('deg'):
+        if 'deg' in keyargs:
             deg = keyargs['deg']
         else:
             deg = True
@@ -1604,7 +1604,7 @@ class GISAXS(Experiment):
         """
         Experiment.__init__(self,idir,ndir,**keyargs)
         
-        if not keyargs.has_key("qconv"):
+        if "qconv" not in keyargs:
             # initialize Ang2Q conversion
             self._A2QConversion = QConversion(['x+'],['x+','z-'],[0,1,0],wl=self._wl) # 1S+2D goniometer 
             self.Ang2Q = self._A2QConversion
