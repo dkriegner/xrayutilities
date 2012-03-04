@@ -3,7 +3,6 @@ To Do
 
 2.3.2012
 
-libdir should be obtained from some system command?
 remove unneeded/unused tools
 
 9.2.2012
@@ -33,11 +32,3 @@ discussion Eugen, Dominik
   * pyunit tests could be implemented to test the core functionality of the
     xrutils package. 
   Therefore example files for each io module should be included.
-* natural constants should be handled in a general way or imported from scipy
-  as scipy is anyhow already needed as a dependancy this would not add any 
-  additional dependancies.
-* the manual should be updated to include details about the calculation of  
-  material properties, or suiteable references
-  and furthermore details about the configuration of the QConversion class
-  should be added (Examples with pictures of the Seifert, and Rotating anode)
-* old/not functioning/not uses code should be removed from trunk

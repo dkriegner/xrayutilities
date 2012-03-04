@@ -18,11 +18,10 @@
 
 %%%installation notes
 
-Installing {\tt xrutils} is a three steps process
+Installing {\tt xrutils} is a two steps process
 \begin{enumerate}
 \item install required C libraries and Python modules
-\item build and install the {\tt xrutils} C library
-\item install the Python module
+\item build and install the {\tt xrutils} C library and Python module
 \end{enumerate}
 All steps are described in detail in this chapter. The package can be installed on Linux, Mac OS X and Microsoft Windows, however it is only tested on Linux/Unix platforms. Due to the lack of an package manager the installation on MS Windows platforms is cumbersome (see notes below). Please inform one of the authors in case the installation fails!
 
@@ -38,7 +37,7 @@ Although the library is not called directly, it is needed by the pytables Python
 module (see below).
 \item[Python] the scripting language in which most of {\tt xrutils} code is written in.
 \item[Latex] a typesetting system used to write the documentation of the package (optionally)
-\item[git] a version control system used to keep track on the {\tt xrayutilities} development and at the moment the only way to obtain the sources for installation.
+\item[git] a version control system used to keep track on the {\tt xrayutilities} development. (only needed for development)
 \end{description}
 
 Additionally, the following Python modules are needed in order to make 
@@ -105,8 +104,12 @@ Since there is no packages manager on Windows the packages need to be installed 
 use the pyhton(x,y) python distribution, which includes already most of the needed dependencies for installing
 xrayutilities.
 
+When using python(x,y) you only have to install scons in addition, all other dependencies are available as plugins to python(x,y) 
+and are installed by default anyhow. The setup of the environment variables is also done by the python(x,y) installation.
+One can proceed with the installation of xrutils directly!
+
 In case you want to do it the hard way install all of the following (versions in brackets indicate the tested set of 
-versions by the author (2.2.2012)):
+versions by the author (2.3.2012)):
 
 \begin{itemize}
 \item MinGW (0.4$\alpha$)
