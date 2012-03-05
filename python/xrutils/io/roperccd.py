@@ -57,9 +57,9 @@ class RoperCCD(object):
         # read flatfield
         if flatfield:
             if isinstance(flatfield,str):
-                if os.path.splitext(flatfield) == '.npy':
+                if os.path.splitext(flatfield)[1] == '.npy':
                     self.flatfield = numpy.load(flatfield)
-                elif os.path.splitext(flatfield) == '.xz' or os.path.splitext(flatfield) == '.bin':
+                elif os.path.splitext(flatfield)[1] == '.xz' or os.path.splitext(flatfield)[1] == '.bin':
                     self.filename = self.readImage(flatfield) # read without flatc and darkc
                 else:
                     raise InputError("Error: unknown filename for flatfield correction!")
@@ -71,9 +71,9 @@ class RoperCCD(object):
         # read darkfield
         if darkfield:
             if isinstance(darkfield,str):
-                if os.path.splitext(darkfield) == '.npy':
+                if os.path.splitext(darkfield)[1] == '.npy':
                     self.darkfield = numpy.load(darkfield)
-                elif os.path.splitext(darkfield) == '.xz' or os.path.splitext(darkfield) == '.bin':
+                elif os.path.splitext(darkfield)[1] == '.xz' or os.path.splitext(darkfield)[1] == '.bin':
                     self.filename = self.readImage(darkfield) # read without flatc and darkc
                 else:
                     raise InputError("Error: unknown filename for darkfield correction!")
