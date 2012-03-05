@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
 
 from .radicon import rad2hdf5
 from .radicon import hst2hdf5
@@ -34,6 +34,8 @@ from .spectra import geth5_spectra_map
 #     as long as no port is done the functions are not included
 #from tascom import dat2hdf5
 #from tascom import dats2hdf5
+
+from .roperccd import RoperCCD
 
 from .spec import SPECFile
 from .spec import SPECScan
