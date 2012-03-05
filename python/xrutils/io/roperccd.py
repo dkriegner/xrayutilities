@@ -32,7 +32,7 @@ class RoperCCD(object):
     The routine was tested only for files with 4096x4096 pixel images 
     created at Hasylab Hamburg which save an 16bit integer per point. 
     """
-    def __init__(self,flatfield=None,darkfield=None,nop1=4096,nop2=4096)
+    def __init__(self,flatfield=None,darkfield=None,nop1=4096,nop2=4096):
         """
         initialize the RoperCCD reader, which includes setting the dimension of
         the images as well as defining the data used for flat- and darkfield
