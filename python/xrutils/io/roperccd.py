@@ -92,7 +92,7 @@ class RoperCCD(object):
                 print("XU.io.RoperCCD: darkfield correction enabled") 
                 
 
-    def readImage(filename):
+    def readImage(self,filename):
         """
         read RoperScientic image file 
         and correct for dark- and flatfield in case the necessary data are 
