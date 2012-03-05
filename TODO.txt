@@ -1,10 +1,6 @@
 To Do
 -----
 
-5.3.2012
-
-check the usability of --install-sandbox as DESTDIR support
-
 9.2.2012
 
 make the use of pthreads optional

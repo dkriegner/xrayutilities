@@ -22,36 +22,46 @@ import subprocess
 
 AddOption("--prefix",dest="prefix",type="string",
           default=os.sys.prefix,metavar="INSTALL_ROOT",
-          action="store",nargs=1)
-
-vars = Variables()
-vars.Add(PathVariable("DESTDIR",'Destination variable (prepended to prefix)',None,PathVariable.PathAccept))
+          action="store",nargs=1,help='installation prefix under which all files will be installed.')
 
 env = Environment(PREFIX=GetOption("prefix"),
                   ENV=os.environ,
-                  variables=vars,
                   DESTDIR='${DESTDIR}',
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
                   tools=["default", "disttar"], toolpath=[os.path.join(".","tools")],
                   LIBS=["m"])
-                  
+
+vars = Variables()
+vars.Add(PathVariable("DESTDIR",'Destination variable (prepended to prefix)',None,PathVariable.PathAccept))
+vars.Update(env)
+
 if "win" in os.sys.platform:
     Tool('mingw')(env)
-
-# package xrayutilities into a tarball for distribution
-#print("Creating tarball for redistribution of xrayutilities...")
-env['DISTTAR_FORMAT']='gz'
-env.Append(
-    DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'], 
-    DISTTAR_EXCLUDEDIRS=['.git','.sconf_temp', 'dist', 'build'],
-    DISTTAR_EXCLUDERES=[r'clib_path.conf','.gitignore'])
-
-env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat()), [env.Dir(".")]) 
 
 # create correct destdir install prefix
 if env['DESTDIR'] != "":
     # is only needed/used on linux/darwin systems
     env['DESTDIRPREFIX'] = os.path.join(env['DESTDIR'],env['PREFIX'][1:])
+
+#add the aliases for install target
+if os.sys.platform in ["darwin","linux2"]:
+    env.Alias("install",[os.path.join(env['DESTDIRPREFIX'],"lib")])
+elif "win" in os.sys.platform:
+    env.Alias("install",[os.path.join(env['PREFIX'],"Lib")])
+
+#add aliases for documentation target
+env.Alias("doc",[os.path.join("doc","manual","xrutils.pdf")])
+
+debug = ARGUMENTS.get('debug', 0)
+if int(debug):
+    env.Append(CCFLAGS=["-g","-O0"])
+else:
+    env.Append(CCFLAGS=["-O2"])
+
+############################
+#   installation related
+#  installs python package
+############################
 
 if "install" in COMMAND_LINE_TARGETS:
     #write the clib_path.conf file
@@ -71,7 +81,7 @@ if "install" in COMMAND_LINE_TARGETS:
     if "win" in os.sys.platform:
         python_installer = subprocess.Popen("python setup.py install --prefix="+env['PREFIX'],shell=True)
     else:
-        python_installer = subprocess.Popen("python setup.py install --prefix="+env['DESTDIRPREFIX'],shell=True)
+        python_installer = subprocess.Popen("python setup.py install --root=%s --prefix=%s" %(env['DESTDIR'],env['PREFIX']),shell=True)
     python_installer.wait()
 
 ############################
@@ -91,21 +101,13 @@ def CheckPKG(context, name):
     return ret
 
 # check for headers, libraries and packages
-if not env.GetOption('clean'):
+if not env.GetOption('clean') or not env.GetOption('help'):
 
     conf = Configure(env,custom_tests = { 'CheckPKGConfig' : CheckPKGConfig, 'CheckPKG' : CheckPKG })
     if not conf.CheckCC():
         print('Your compiler and/or environment is not correctly configured.')
         Exit(1)
     
-    #if not conf.CheckPKGConfig('0.20.0'):
-    #    print 'pkg-config >= 0.20.0 not found.'
-    #    Exit(1)
- 
-    #if not conf.CheckPKG('cblas'):
-    #    print 'cblas not found.'
-    #    Exit(1)
-
     if not conf.CheckHeader(['stdlib.h','stdio.h','math.h','time.h']):
         print 'Error: did not find one of the needed headers!'
         Exit(1)
@@ -127,22 +129,24 @@ if not env.GetOption('clean'):
 
     conf.Finish()
 
-#env.ParseConfig('pkg-config --cflags --libs cblas')
+############################
+# tarball creation/packaging 
+############################
 
-#add the aliases for install target
-if os.sys.platform in ["darwin","linux2"]:
-    env.Alias("install",[os.path.join(env['DESTDIRPREFIX'],"lib")])
-elif "win" in os.sys.platform:
-    env.Alias("install",[os.path.join(env['PREFIX'],"Lib")])
+# package xrayutilities into a tarball for distribution
+#print("Creating tarball for redistribution of xrayutilities...")
+env['DISTTAR_FORMAT']='gz'
+env.Append(
+    DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'], 
+    DISTTAR_EXCLUDEDIRS=['.git','.sconf_temp', 'dist', 'build'],
+    DISTTAR_EXCLUDERES=[r'clib_path.conf','.gitignore'])
 
-#add aliases for documentation target
-env.Alias("doc",[os.path.join("doc","manual","xrutils.pdf")])
+env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat()), [env.Dir(".")]) 
 
-debug = ARGUMENTS.get('debug', 0)
-if int(debug):
-    env.Append(CCFLAGS=["-g","-O0"])
-else:
-    env.Append(CCFLAGS=["-O2"])
+
+############################
+#  include sub-directories
+############################
 
 Export("env")
 
