@@ -26,7 +26,7 @@ AddOption("--prefix",dest="prefix",type="string",
 
 env = Environment(PREFIX=GetOption("prefix"),
                   ENV=os.environ,
-                  DESTDIR='${DESTDIR}',
+                  DESTDIR=os.path.expandvars('${DESTDIR}'),
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
                   tools=["default", "disttar"], toolpath=[os.path.join(".","tools")],
                   LIBS=["m"])
@@ -39,8 +39,10 @@ if "win" in os.sys.platform:
     Tool('mingw')(env)
 
 # create correct destdir install prefix
-if env['DESTDIR'] != "":
-    # is only needed/used on linux/darwin systems
+# is only needed/used on linux/darwin systems
+if env['DESTDIR'] == "" or env['DESTDIR'] == "${DESTDIR}":
+    env['DESTDIRPREFIX'] = env['PREFIX']
+else:
     env['DESTDIRPREFIX'] = os.path.join(env['DESTDIR'],env['PREFIX'][1:])
 
 #add the aliases for install target
@@ -78,8 +80,8 @@ if "install" in COMMAND_LINE_TARGETS:
     fid.close()
     print("create clib_path.conf file (libfile: %s)"%(libpath))
     #run python installer
-    if "win" in os.sys.platform:
-        python_installer = subprocess.Popen("python setup.py install --prefix="+env['PREFIX'],shell=True)
+    if "win" in os.sys.platform or env['DESTDIR'] == "" or env['DESTDIR'] == "${DESTDIR}":
+        python_installer = subprocess.Popen("python setup.py install --prefix=%s"%(env['PREFIX']),shell=True)
     else:
         python_installer = subprocess.Popen("python setup.py install --root=%s --prefix=%s" %(env['DESTDIR'],env['PREFIX']),shell=True)
     python_installer.wait()
