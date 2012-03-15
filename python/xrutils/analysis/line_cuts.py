@@ -110,14 +110,14 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_q[x,z]_scan: %d points used for integration" %(izmax-izmin+1))
         if bounds:
-            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1),qxbounds
+            return qx[:],intensity[:,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1),qxbounds
         else:
-            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1)
+            return qx[:],intensity[:,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1)
     else:
         if bounds:
-            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin],qxbounds
+            return qx[:],intensity[:,izmin],qxbounds
         else:
-            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin]
+            return qx[:],intensity[:,izmin]
         
 def get_qz_scan(qx,qz,intensity,qxpos,**kwargs):
     """
