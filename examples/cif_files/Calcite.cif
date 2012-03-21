@@ -1,0 +1,72 @@
+data_global
+_chemical_name_mineral 'Calcite'
+loop_
+_publ_author_name
+'Graf D L'
+_journal_name_full 'American Mineralogist'
+_journal_volume 46 
+_journal_year 1961
+_journal_page_first 1283
+_journal_page_last 1316
+_publ_section_title
+;
+ Crystallographic tables for the rhombohedral carbonates
+;
+_database_code_amcsd 0000098
+_chemical_formula_sum 'Ca C O3'
+_cell_length_a 4.9900
+_cell_length_b 4.9900
+_cell_length_c 17.0615
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 120
+_cell_volume 367.916
+_exptl_crystal_density_diffrn      2.710
+_symmetry_space_group_name_H-M 'R -3 c'
+loop_
+_space_group_symop_operation_xyz
+  'x,y,z'
+  '2/3+x,1/3+y,1/3+z'
+  '1/3+x,2/3+y,2/3+z'
+  'x,x-y,1/2+z'
+  '2/3+x,1/3+x-y,5/6+z'
+  '1/3+x,2/3+x-y,1/6+z'
+  'y,x,1/2-z'
+  '2/3+y,1/3+x,5/6-z'
+  '1/3+y,2/3+x,1/6-z'
+  '-x+y,y,1/2+z'
+  '2/3-x+y,1/3+y,5/6+z'
+  '1/3-x+y,2/3+y,1/6+z'
+  '-x,-x+y,1/2-z'
+  '2/3-x,1/3-x+y,5/6-z'
+  '1/3-x,2/3-x+y,1/6-z'
+  '-y,-x,1/2+z'
+  '2/3-y,1/3-x,5/6+z'
+  '1/3-y,2/3-x,1/6+z'
+  'x-y,-y,1/2-z'
+  '2/3+x-y,1/3-y,5/6-z'
+  '1/3+x-y,2/3-y,1/6-z'
+  'y,-x+y,-z'
+  '2/3+y,1/3-x+y,1/3-z'
+  '1/3+y,2/3-x+y,2/3-z'
+  '-x+y,-x,z'
+  '2/3-x+y,1/3-x,1/3+z'
+  '1/3-x+y,2/3-x,2/3+z'
+  '-x,-y,-z'
+  '2/3-x,1/3-y,1/3-z'
+  '1/3-x,2/3-y,2/3-z'
+  '-y,x-y,z'
+  '2/3-y,1/3+x-y,1/3+z'
+  '1/3-y,2/3+x-y,2/3+z'
+  'x-y,x,-z'
+  '2/3+x-y,1/3+x,1/3-z'
+  '1/3+x-y,2/3+x,2/3-z'
+loop_
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+Ca   0.00000   0.00000   0.00000
+C   0.00000   0.00000   0.25000
+O   0.25780   0.00000   0.25000
+

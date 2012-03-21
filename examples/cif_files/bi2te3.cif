@@ -1,0 +1,88 @@
+data_global
+_chemical_name_mineral 'Tellurobismuthite'
+loop_
+_publ_author_name
+'Feutelais Y'
+'Legendre B'
+'Rodier N'
+'Agafonov V'
+_journal_name_full 'Materials Research Bulletin'
+_journal_volume 28 
+_journal_year 1993
+_journal_page_first 591
+_journal_page_last 596
+_publ_section_title
+;
+ A study of the phases in the bismuth - tellurium system
+;
+_database_code_amcsd 0014367
+_chemical_compound_source 'Synthetic'
+_chemical_formula_sum 'Bi2 Te3'
+_cell_length_a 4.395
+_cell_length_b 4.395
+_cell_length_c 30.440
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 120
+_cell_volume 509.205
+_exptl_crystal_density_diffrn      7.834
+_symmetry_space_group_name_H-M 'R -3 m'
+loop_
+_space_group_symop_operation_xyz
+  'x,y,z'
+  '2/3+x,1/3+y,1/3+z'
+  '1/3+x,2/3+y,2/3+z'
+  'x,x-y,z'
+  '2/3+x,1/3+x-y,1/3+z'
+  '1/3+x,2/3+x-y,2/3+z'
+  'y,x,-z'
+  '2/3+y,1/3+x,1/3-z'
+  '1/3+y,2/3+x,2/3-z'
+  '-x+y,y,z'
+  '2/3-x+y,1/3+y,1/3+z'
+  '1/3-x+y,2/3+y,2/3+z'
+  '-x,-x+y,-z'
+  '2/3-x,1/3-x+y,1/3-z'
+  '1/3-x,2/3-x+y,2/3-z'
+  '-y,-x,z'
+  '2/3-y,1/3-x,1/3+z'
+  '1/3-y,2/3-x,2/3+z'
+  'x-y,-y,-z'
+  '2/3+x-y,1/3-y,1/3-z'
+  '1/3+x-y,2/3-y,2/3-z'
+  'y,-x+y,-z'
+  '2/3+y,1/3-x+y,1/3-z'
+  '1/3+y,2/3-x+y,2/3-z'
+  '-x+y,-x,z'
+  '2/3-x+y,1/3-x,1/3+z'
+  '1/3-x+y,2/3-x,2/3+z'
+  '-x,-y,-z'
+  '2/3-x,1/3-y,1/3-z'
+  '1/3-x,2/3-y,2/3-z'
+  '-y,x-y,z'
+  '2/3-y,1/3+x-y,1/3+z'
+  '1/3-y,2/3+x-y,2/3+z'
+  'x-y,x,-z'
+  '2/3+x-y,1/3+x,1/3-z'
+  '1/3+x-y,2/3+x,2/3-z'
+loop_
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_U_iso_or_equiv
+Bi   0.00000   0.00000   0.40046   0.02330
+Te1   0.00000   0.00000   0.00000   0.01748
+Te2   0.00000   0.00000   0.79030   0.01912
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_U_11
+_atom_site_aniso_U_22
+_atom_site_aniso_U_33
+_atom_site_aniso_U_12
+_atom_site_aniso_U_13
+_atom_site_aniso_U_23
+Bi 0.02260 0.02260 0.02441 0.01130 0.00000 0.00000
+Te1 0.01916 0.01916 0.01408 0.00961 0.00000 0.00000
+Te2 0.02092 0.02092 0.01549 0.01050 0.00000 0.00000
+
