@@ -621,7 +621,7 @@ Indium = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461
 Antimony = Material("Sb",lattice.TrigonalR3mh(elements.Sb,4.307,11.273),
                    numpy.zeros((6,6),dtype=numpy.double))
 
-class AlloyAB(Material):
+class Alloy(Material):
     #{{{1
     def __init__(self,matA,matB,x):
         #{{{2
@@ -692,7 +692,7 @@ class AlloyAB(Material):
         # test if inplane direction of hkl is the same as the one for the experiment otherwise warn the user
         hklinplane = numpy.cross(numpy.cross(exp.ndir,hkl),exp.ndir)
         if (numpy.linalg.norm(numpy.cross(hklinplane,exp.idir)) > _epsilon):
-            warnings.warn("AlloyAB: given hkl differs from the geometry of the Experiment instance in the azimuthal direction")
+            warnings.warn("Alloy: given hkl differs from the geometry of the Experiment instance in the azimuthal direction")
 
         # calculate relaxed points for matA and matB as general as possible:
         a1 = lambda x: (self.matB.lattice.a1-self.matA.lattice.a1)*x+self.matA.lattice.a1
@@ -725,6 +725,15 @@ class AlloyAB(Material):
         qz= numpy.array([qr_p,qp_p,qs_p,qr_p],dtype=numpy.double)
         
         return qy,qz
+    #}}}1
+
+class CubicAlloy(Alloy):
+    #{{{1
+
+#    def __init__(self,matA,matB,x):
+#        #{{{2
+#            #check if material is really cubic!!
+#        #}}}2
 
     def ContentBsym(self,q_perp,hkl,inpr,asub,relax):
         #{{{2
@@ -750,9 +759,6 @@ class AlloyAB(Material):
         content : the content of B in the alloy determined from the input variables
 
         """
-
-        if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.materials.AlloyAB.ContentB: Warning: the function only works for cubic materials and needs further testing, \n handle results with care!")
 
         # check input parameters
         if isinstance(q_perp,numpy.ScalarType) and numpy.isfinite(q_perp):
@@ -788,7 +794,7 @@ class AlloyAB(Material):
         trans = math.CoordinateTransform(inp1,inp2,n)
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.materials.AlloyAB.ContentB: inp1/inp2: ",inp1,inp2)
+            print("XU.materials.Alloy.ContentB: inp1/inp2: ",inp1,inp2)
         cijA = Cijkl2Cij(trans(self.matA.cijkl))
         cijB = Cijkl2Cij(trans(self.matB.cijkl))
 
@@ -807,7 +813,7 @@ class AlloyAB(Material):
         ainp = lambda x: asub + relax * (abulk_perp(x) - asub) # can we use abulk_perp here? for cubic materials this should work?!
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.materials.AlloyAB.ContentB: abulk_perp: %8.5g" %(abulk_perp(0.)))
+            print("XU.materials.Alloy.ContentB: abulk_perp: %8.5g" %(abulk_perp(0.)))
 
         frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
 
@@ -843,9 +849,6 @@ class AlloyAB(Material):
                 from the reciprocal space positions
 
         """
-        
-        if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.materials.AlloyAB.ContentB: Warning: the function only works for cubic materials and needs further testing, \n handle results with care!")
 
         # check input parameters
         if isinstance(q_inp,numpy.ScalarType) and numpy.isfinite(q_inp):
@@ -899,7 +902,7 @@ class AlloyAB(Material):
         abulk_inp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),inp2) * numpy.linalg.norm(numpy.cross(n,hkl)))
         abulk_perp = lambda x: numpy.abs(2*numpy.pi/numpy.inner(qhklx(x),n) * numpy.inner(n,hkl))
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.materials.AlloyAB.ContentB: abulk_inp/perp: %8.5g %8.5g" %(abulk_inp(0.), abulk_perp(0.)))
+            print("XU.materials.Alloy.ContentB: abulk_inp/perp: %8.5g %8.5g" %(abulk_inp(0.), abulk_perp(0.)))
 
         frac = lambda x: ((cijB[0,2]+cijB[1,2]+cijB[2,0]+cijB[2,1] - (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))*x  + (cijA[0,2]+cijA[1,2]+cijA[2,0]+cijA[2,1]))/(2*((cijB[2,2]-cijA[2,2])*x + cijA[2,2])) 
 
@@ -909,22 +912,25 @@ class AlloyAB(Material):
 
         #self._setxb(x)
 
-        return x,[ainp,aperp,abulk_perp(x)]
+        eps_inplane = (a_inplane-abulk_perp(x))/abulk_perp(x)
+        eps_perp = (a_perp-abulk_perp(x))/abulk_perp(x)
+
+        return x,[ainp,aperp,abulk_perp(x), eps_inplane, eps_perp]
 
         #}}}2
     #}}}1
 
 
-class SiGe(AlloyAB):
+class SiGe(CubicAlloy):
     #{{{1
     def __init__(self,x):
-        AlloyAB.__init__(self,Si,Ge,x)
+        CubicAlloy.__init__(self,Si,Ge,x)
 
     def _setxb(self,x):
         #{{{2
         a = self.matA.lattice.a1[0]
         if config.VERBOSITY >= config.DEBUG: print("XU.materials.SiGe._setxb: jump to base class")
-        AlloyAB._setxb(self,x)
+        CubicAlloy._setxb(self,x)
         if config.VERBOSITY >= config.DEBUG: print("back from base class")
         #the lattice parameters need to be done in a different way
         a = a+0.2*x+0.027*x**2
@@ -932,7 +938,7 @@ class SiGe(AlloyAB):
         self.rlattice = self.lattice.ReciprocalLattice()
         #}}}2
    
-    x = property(AlloyAB._getxb,_setxb)
+    x = property(CubicAlloy._getxb,_setxb)
     #}}}1
 
 def PseudomorphicMaterial(submat,layermat):

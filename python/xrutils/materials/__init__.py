@@ -65,7 +65,8 @@ from .material import Ag2Se
 from .material import Quartz
 from .material import Indium
 from .material import Antimony
-from .material import AlloyAB
+from .material import Alloy
+from .material import CubicAlloy
 from .material import PseudomorphicMaterial
 from .material import Material
 from .material import CubicElasticTensor
