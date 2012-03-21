@@ -947,6 +947,20 @@ class Experiment(object):
         pass
 
     def Transform(self,v):
+        """
+        transforms a vector, matrix or tensor of rank 4 (e.g. elasticity tensor)
+        to the coordinate frame of the Experiment class.
+         
+        Parameters
+        ----------
+         v:     object to transform, list or numpy array of shape
+                    (n,) (n,n), (n,n,n,n) where n is the rank of the 
+                    transformation matrix
+        
+        Returns
+        -------
+         transformed object of the same shape as v
+        """
         return self._transform(v)
 
     def TiltAngle(self,q,deg=True):

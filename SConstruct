@@ -19,6 +19,7 @@
 import os
 import datetime
 import subprocess
+import platform
 
 AddOption("--prefix",dest="prefix",type="string",
           default=os.sys.prefix,metavar="INSTALL_ROOT",
@@ -80,7 +81,9 @@ if "install" in COMMAND_LINE_TARGETS:
     fid.close()
     print("create clib_path.conf file (libfile: %s)"%(libpath))
     #run python installer
-    if "win" in os.sys.platform or env['DESTDIR'] == "" or env['DESTDIR'] == "${DESTDIR}":
+    if platform.linux_distribution(full_distribution_name=0)[0] in ["Ubuntu","debian"]:
+        python_installer = subprocess.Popen("python setup.py install --prefix=%s --install-layout=deb" %(env['DESTDIR'],env['PREFIX']),shell=True)
+    elif "win" in os.sys.platform or env['DESTDIR'] == "" or env['DESTDIR'] == "${DESTDIR}":
         python_installer = subprocess.Popen("python setup.py install --prefix=%s"%(env['PREFIX']),shell=True)
     else:
         python_installer = subprocess.Popen("python setup.py install --root=%s --prefix=%s" %(env['DESTDIR'],env['PREFIX']),shell=True)
