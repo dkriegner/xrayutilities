@@ -14,7 +14,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
 class module implements a certain material
@@ -912,14 +913,13 @@ class CubicAlloy(Alloy):
 
         #self._setxb(x)
 
-        eps_inplane = (a_inplane-abulk_perp(x))/abulk_perp(x)
-        eps_perp = (a_perp-abulk_perp(x))/abulk_perp(x)
+        eps_inplane = (ainp-abulk_perp(x))/abulk_perp(x)
+        eps_perp = (aperp-abulk_perp(x))/abulk_perp(x)
 
         return x,[ainp,aperp,abulk_perp(x), eps_inplane, eps_perp]
 
         #}}}2
     #}}}1
-
 
 class SiGe(CubicAlloy):
     #{{{1
