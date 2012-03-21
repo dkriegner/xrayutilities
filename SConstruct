@@ -82,7 +82,7 @@ if "install" in COMMAND_LINE_TARGETS:
     print("create clib_path.conf file (libfile: %s)"%(libpath))
     #run python installer
     if platform.linux_distribution(full_distribution_name=0)[0] in ["Ubuntu","debian"]:
-        python_installer = subprocess.Popen("python setup.py install --prefix=%s --install-layout=deb" %(env['DESTDIR'],env['PREFIX']),shell=True)
+        python_installer = subprocess.Popen("python setup.py install --prefix=%s --install-layout=deb" %(env['PREFIX']),shell=True)
     elif "win" in os.sys.platform or env['DESTDIR'] == "" or env['DESTDIR'] == "${DESTDIR}":
         python_installer = subprocess.Popen("python setup.py install --prefix=%s"%(env['PREFIX']),shell=True)
     else:
