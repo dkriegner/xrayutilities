@@ -40,8 +40,6 @@ from . import libxrayutils
 from . import config
 from .exception import InputError
 
-_epsilon = 1.e-7 # small number used to decide if something can be neglected
-
 # regular expression to check goniometer circle syntax
 circleSyntax = re.compile("[xyz][+-]")
 
@@ -838,9 +836,9 @@ class Experiment(object):
             raise TypeError("normal direction must be list or numpy array")
         
         #test the given direction to be not parallel and warn if not perpendicular
-        if(norm(numpy.cross(self.idir,self.ndir))<_epsilon):
+        if(norm(numpy.cross(self.idir,self.ndir))<config.EPSILON):
             raise InputError("given inplane direction is parallel to normal direction, they must be linear independent!")
-        if(numpy.abs(numpy.dot(self.idir,self.ndir))> _epsilon):
+        if(numpy.abs(numpy.dot(self.idir,self.ndir))>config.EPSILON):
             self.idir = numpy.cross(numpy.cross(self.ndir,self.idir),self.ndir)
             self.idir = self.idir/norm(self.idir)
             warnings.warn("Experiment: given inplane direction is not perpendicular to normal direction\n -> Experiment class uses the following direction with the same azimuth:\n %s" %(' '.join(map(str,numpy.round(self.idir,3)))))

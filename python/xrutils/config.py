@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2010,2012 Dominik Kriegner <dominik.kriegner@aol.at>
 
 """
 module to parse xrutils user-specific config file
@@ -41,7 +41,8 @@ from . import utilities_noconf
 # verbosity
 # dynlow
 # dynhigh
-# clib_path NotImplemented yet
+# epsilon
+# clib_path
 
 xrutilsParser = configparser.ConfigParser()
 
@@ -70,7 +71,8 @@ else: # energy was given and wavelength is calculated from given energy
 DYNLOW = xrutilsParser.getfloat("xrutils","dynlow")
 DYNHIGH = xrutilsParser.getfloat("xrutils","dynhigh")
 
-
+# small number needed for error checks
+EPSILON = xrutilsParser.getfloat("xrutils","epsilon")
 
 try:
     CLIB_PATH = xrutilsParser.get("xrutils","clib_path")
