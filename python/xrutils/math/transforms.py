@@ -18,6 +18,7 @@
 
 import numpy
 
+from . import vector
 from .. import config
 
 
@@ -194,52 +195,105 @@ class Transform(object):
 
         return ostr
 
-def CoordinateTransform(v1,v2,v3):
+class CoordinateTransform(Transform):
     """
     CoordinateTransform(v1,v2,v3):
     Create a Transformation object which transforms a point into a new 
     coordinate frame. The new frame is determined by the three vectors
-    v1, v2 and v3.
-
-    required input arguments:
-    v1 ............. list or numpy array with new base vector 1
-    v2 ............. list or numpy array with new base vector 2 
-    v2 ............. list or numpy array with new base vector 3
-
-    return value:
-    An instance of a Transform class
+    v1, v2 and v3, which need to be orthogonal!
     """
+    def __init__(self,v1,v2,v3):
+        """
+        initialization routine for Coordinate transformation
 
-    if isinstance(v1,list):
-        e1 = numpy.array(v1,dtype=numpy.double)
-    elif isinstance(v1,numpy.ndarray):
-        e1 = v1
-    else:
-        raise TypeError("vector must be a list or numpy array")
-    
-    if isinstance(v2,list):
-        e2 = numpy.array(v2,dtype=numpy.double)
-    elif isinstance(v2,numpy.ndarray):
-        e2 = v2
-    else:
-        raise TypeError("vector must be a list or numpy array")
-    
-    if isinstance(v3,list):
-        e3 = numpy.array(v3,dtype=numpy.double)
-    elif isinstance(v3,numpy.ndarray):
-        e3 = v3
-    else:
-        raise TypeError("vector must be a list or numpy array")
+        Parameters
+        ----------
+         v1:     list or numpy array with new base vector 1
+         v2:     list or numpy array with new base vector 2 
+         v2:     list or numpy array with new base vector 3
 
-    #normalize base vectors
-    e1 = e1/numpy.linalg.norm(e1)
-    e2 = e2/numpy.linalg.norm(e2)
-    e3 = e3/numpy.linalg.norm(e3)
+        Returns
+        -------
+         An instance of a Transform class
+        """
 
-    #assemble the transformation matrix
-    m = numpy.array([e1,e2,e3])
-    
-    return Transform(m)
+        if isinstance(v1,list):
+            e1 = numpy.array(v1,dtype=numpy.double)
+        elif isinstance(v1,numpy.ndarray):
+            e1 = v1
+        else:
+            raise TypeError("vector must be a list or numpy array")
+        
+        if isinstance(v2,list):
+            e2 = numpy.array(v2,dtype=numpy.double)
+        elif isinstance(v2,numpy.ndarray):
+            e2 = v2
+        else:
+            raise TypeError("vector must be a list or numpy array")
+        
+        if isinstance(v3,list):
+            e3 = numpy.array(v3,dtype=numpy.double)
+        elif isinstance(v3,numpy.ndarray):
+            e3 = v3
+        else:
+            raise TypeError("vector must be a list or numpy array")
+
+        #normalize base vectors
+        e1 = e1/numpy.linalg.norm(e1)
+        e2 = e2/numpy.linalg.norm(e2)
+        e3 = e3/numpy.linalg.norm(e3)
+
+        # check that the vectors are orthogonal
+        t1 = numpy.abs(numpy.dot(e1,e2))
+        t2 = numpy.abs(numpy.dot(e1,e3))
+        t3 = numpy.abs(numpy.dot(e2,e3))
+        if t1 > config.EPSILON or t2 > config.EPSILON or t3 > config.EPSILON:
+            raise ValueError("given basis vectors need to be orthogonal!")
+
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.math.CoordinateTransform: new basis set: \n x: (%5.2f %5.2f %5.2f) \n y: (%5.2f %5.2f %5.2f) \n z: (%5.2f %5.2f %5.2f)" %(e1[0],e1[1],e1[2],e2[0],e2[1],e2[2],e3[0],e3[1],e3[2]))
+
+        #assemble the transformation matrix
+        m = numpy.array([e1,e2,e3])
+        
+        Transform.__init__(self,m)
+
+class AxisToZ(CoordinateTransform):
+    """
+    Creates a coordinate transformation to move a certain axis to the z-axis.
+    The rotation is done along the great circle. 
+    The x-axis of the new coordinate frame is created to be normal to the new and original
+    z-axis. The new y-axis is create in order to obtain a right handed coordinate system.
+    """
+    def __init__(self,newzaxis):
+        """
+        initialize the CoordinateTransformation to move a certain axis to the z-axis
+        
+        Parameters
+        ----------
+         newzaxis:  list or numpy array with new z-axis
+        """
+
+        if isinstance(newzaxis,list):
+            newz = numpy.array(newzaxis,dtype=numpy.double)
+        elif isinstance(v1,numpy.ndarray):
+            newz = newzaxis
+        else:
+            raise TypeError("vector must be a list or numpy array")
+        
+        if vector.VecAngle([0,0,1],newz) < config.EPSILON:
+            newx = [1,0,0]
+            newy = [0,1,0]
+            newz = [0,0,1]
+        elif vector.VecAngle([0,0,1],-newz) < config.EPSILON:
+            newx = [-1,0,0]
+            newy = [0,1,0]
+            newz = [0,0,-1]
+        else:
+            newx = numpy.cross(newz,[0,0,1])
+            newy = numpy.cross(newz,newx)
+
+        CoordinateTransform.__init__(self,newx,newy,newz)
 
 def XRotation(alpha,deg=True):
     """
