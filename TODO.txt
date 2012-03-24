@@ -1,6 +1,10 @@
 To Do
 -----
 
+24.3.2012
+
+install examples and documentation
+
 9.2.2012
 
 make the use of pthreads optional
