@@ -276,7 +276,7 @@ class AxisToZ(CoordinateTransform):
 
         if isinstance(newzaxis,list):
             newz = numpy.array(newzaxis,dtype=numpy.double)
-        elif isinstance(v1,numpy.ndarray):
+        elif isinstance(newzaxis,numpy.ndarray):
             newz = newzaxis
         else:
             raise TypeError("vector must be a list or numpy array")
