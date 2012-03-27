@@ -41,3 +41,9 @@ from .line_cuts import get_radial_scan_ang
 
 from .line_cuts import get_ttheta_scan_q
 from .line_cuts import get_ttheta_scan_ang
+
+# functions from line_cuts3d.py
+from .line_cuts3d import get_qx_scan3d
+from .line_cuts3d import get_qy_scan3d
+from .line_cuts3d import get_qz_scan3d
+
