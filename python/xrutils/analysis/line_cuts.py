@@ -44,8 +44,8 @@ def getindex(x,y,xgrid,ygrid):
 
     #check if index is in range of the given grid
     # to speed things up this is assumed to be the case
-    #if(ix<0 or ix>xgrid.size): print "Warning: point (",x,",",y,") out of range in first coordinate!"
-    #if(iy<0 or iy>ygrid.size): print "Warning: point (",x,",",y,") out of range in second coordinate!"
+    #if(ix<0 or ix>xgrid.size): print("Warning: point (%8.4f, %8.4f) out of range in first coordinate!" %(x,y) )
+    #if(iy<0 or iy>ygrid.size): print("Warning: point (%8.4f, %8.4f) out of range in second coordinate!" %(x,y) )
 
     return ix,iy
 
@@ -101,6 +101,8 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
     # find line corresponding to qzpos 
     ixmin,izmin = getindex(qxmin,qzpos-qrange/2.,qx,qz)
     ixmax,izmax = getindex(qxmax,qzpos+qrange/2.,qx,qz)
+    if ('qmin' not in kwargs) and ('qmax' not in kwargs):
+        ixmin = 0; ixmax = qx.size
     
     # scan bounds for plotting if requested
     qxbounds = (numpy.array((qxmin,qxmax,qxmax,qxmin,qxmin)), \
@@ -110,14 +112,14 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_q[x,z]_scan: %d points used for integration" %(izmax-izmin+1))
         if bounds:
-            return qx[:],intensity[:,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1),qxbounds
+            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1),qxbounds
         else:
-            return qx[:],intensity[:,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1)
+            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin:izmax+1].sum(axis=1)/(izmax-izmin+1)
     else:
         if bounds:
-            return qx[:],intensity[:,izmin],qxbounds
+            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin],qxbounds
         else:
-            return qx[:],intensity[:,izmin]
+            return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin]
         
 def get_qz_scan(qx,qz,intensity,qxpos,**kwargs):
     """

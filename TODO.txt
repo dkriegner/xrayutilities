@@ -1,6 +1,11 @@
 To Do
 -----
 
+27.3.2012
+
+implement alternative call of line_cut function with Gridder2D object instead
+of data... basically overload the function if this is possible in python?
+
 24.3.2012
 
 install examples and documentation
