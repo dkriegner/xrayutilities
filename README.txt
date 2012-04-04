@@ -26,7 +26,8 @@ Installing xrayutilities is a two step process
      numpy
      matplotlib (optionally)
     refer to your operating system documentation to find out how to install
-    those packages.
+    those packages. On Microsoft Windows refer to the Documentation for the 
+    easiest way of the installation (python(x,y) + scons).
 2.) build and install the C-library libxrutils.so/xrutils.dll, as well as the 
     python package (xrutils)
 
