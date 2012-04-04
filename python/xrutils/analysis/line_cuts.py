@@ -451,7 +451,7 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
-        nint = numpy.ceil(qrange/(qx[1]-qx[0]))
+        nint = numpy.ceil(qrange/numpy.abs(qx[1]-qx[0]))
         if nint == 0: nint = 1
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_radial_scan: using %d subscans for integration" % (nint))
