@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
 
 import numpy
 import ctypes
@@ -71,6 +71,70 @@ class Gridder(object):
 
         self.keep_data = bool
 
+
+class Gridder1D(Gridder):
+    def __init__(self,nx,**keyargs):
+        Gridder.__init__(self,**keyargs)
+
+        self.nx = nx
+        self.xmin = 0
+        self.xmax = 0
+
+        self.gdata = numpy.zeros(nx,dtype=numpy.double)
+        self.gnorm = numpy.zeros(nx,dtype=numpy.double)
+
+    def __get_xaxis(self):
+        dx = (self.xmax-self.xmin)/(self.nx-1)
+        ax = self.xmin+dx*numpy.arange(0,self.nx)
+        return ax
+
+    def __get_data(self):
+        return self.gdata.copy()
+
+    xaxis = property(__get_xaxis)
+    data = property(__get_data)
+
+    def Clear(self):
+        self.gdata[...] = 0
+        self.gnorm[...] = 0
+
+
+    def __call__(self,*args):
+        """
+        GridData(x,data):
+        Perform gridding on a set of data. 
+
+        required input argument:
+        x ............... numpy array of arbitrary shape with x positions
+        data ............ numpy array of arbitrary shape with data values
+        """
+
+        x = args[0]
+        data = args[1]
+        x = x.reshape(x.size)
+        data = data.reshape(data.size)
+
+        if x.size!=data.size:
+            raise exception.InputError("XU.Gridder1D: size of given datasets (x,data) is not equal!")
+
+        # require correct aligned memory for input arrays
+        x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+
+        self.xmin = x.min()
+        self.xmax = x.max()
+        
+        dx = (self.xmax-self.xmin)/(self.nx-1)
+        ix = ((x-self.xmin)/dx).astype(numpy.int) # create index array 
+
+        for i in range(self.nx):
+            dcell = data[ix==i]
+            if(self.flags == self.flags|4):
+                self.gdata[i] = numpy.average(dcell)
+            else:
+                self.gdata[i] = dcell.sum()
+            self.gnorm[i] = dcell.size
+        
 
 class Gridder2D(Gridder):
     def __init__(self,nx,ny,**keyargs):
@@ -179,8 +243,6 @@ class Gridder2D(Gridder):
                                    ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
                                    self.gdata,self.gnorm,ctypes.c_int(self.flags))
 
-    def GridDataChunked(self,xobj,yobj,zobj):
-        raise NotImplementedError("XU.Gridder2D: feature not yet implemented!")
 
 class Gridder3D(Gridder2D):
     def __init__(self,nx,ny,nz,**keyargs):
