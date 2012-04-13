@@ -107,18 +107,29 @@ if you already installed xrayutilities you can update it by navigating into
 its source folder and obtain the new sources by
 
   $> git pull
-
+ 
+or download the new tarball from sourceforge (http://sf.net/projects/xrayutilities)
 if any code changed during the update you need to reinstall the libary and
-python package:
+python package.
+To determine the path in which xrayutilities where installed previously use:
+
+  $> python -c "import xrutils as xu; print xu.__file__"
+  /usr/local/lib64/python2.7/site-packages/xrutils/__init__.pyc
+
+if the output is e.g.: "/usr/local/lib64/python2.7/site-packages/xrutils/__init__.py"
+you previously installed xrayutilities in "/usr/local", which should be used
+again as install path. Use:
 
   $> scons install --prefix=<path to install directory>
+
+to install the updated package.
 
 
 DOCUMENTATION
 =============
 
-Documention for xrayutilities is found in the doc folder. The manual (pdf)
-can be built using scons
+Documention for xrayutilities is found in the doc folder. The manual can be
+rebuilt by LaTeX (pdflatex) using scons
 
   $> scons doc
  
