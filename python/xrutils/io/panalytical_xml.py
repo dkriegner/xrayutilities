@@ -26,6 +26,8 @@ from xml.dom import minidom
 import numpy
 import os
 
+from .. import config
+
 class XRDMLMeasurement(object):
     """
     class to handle scans in a XRDML datafile
@@ -43,68 +45,73 @@ class XRDMLMeasurement(object):
         
         #loop over all scan entries - scan points
         for s in slist:
-            points = s.getElementsByTagName("dataPoints")[0]
-            
-            # add count time to output data
-            countTime = points.getElementsByTagName("commonCountingTime")[0].childNodes[0].nodeValue
-            if "countTime" not in self.ddict: 
-                self.ddict["countTime"] = [] 
-            self.ddict["countTime"].append(float(countTime))
+            # check if scan is complete
+            scanstatus = s.getAttribute("status")
+            if scanstatus == "Aborted" and len(slist)>1:
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.io.XRDMLFile: subscan has been aborted (part of the data unavailable)!")
+            else:
+                points = s.getElementsByTagName("dataPoints")[0]
+                
+                # add count time to output data
+                countTime = points.getElementsByTagName("commonCountingTime")[0].childNodes[0].nodeValue
+                if "countTime" not in self.ddict: 
+                    self.ddict["countTime"] = [] 
+                self.ddict["countTime"].append(float(countTime))
 
-            #check for intensities first to get number of points in scan
-            det = points.getElementsByTagName("intensities")[0]
-            data = det.childNodes[0]
-            # count time normalization; output is counts/sec
-            data_list = (numpy.fromstring(data.nodeValue,sep=" ")/float(countTime)).tolist()
-            nofpoints = len(data_list)
-            if "detector" not in self.ddict: 
-                self.ddict["detector"] = [] 
-            self.ddict["detector"].append(data_list)
-            # if present read beamAttenuationFactors
-            # they are already corrected in the data file, but may be interesting
-            attfact = points.getElementsByTagName("beamAttenuationFactors")
-            if len(attfact)!=0:
-                data = attfact[0].childNodes[0]
-                data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
+                #check for intensities first to get number of points in scan
+                det = points.getElementsByTagName("intensities")[0]
+                data = det.childNodes[0]
+                # count time normalization; output is counts/sec
+                data_list = (numpy.fromstring(data.nodeValue,sep=" ")/float(countTime)).tolist()
                 nofpoints = len(data_list)
-                if "beamAttenuationFactors" not in self.ddict: 
-                    self.ddict["beamAttenuationFactors"] = [] 
-                self.ddict["beamAttenuationFactors"].append(data_list)
-            
-            #read the axes position
-            pos = points.getElementsByTagName("positions")
-            for p in pos:
-                #read axis name and unit
-                aname = p.getAttribute("axis")
-                aunit = p.getAttribute("unit")
-
-                #read axis data
-                l = p.getElementsByTagName("listPositions")
-                s = p.getElementsByTagName("startPosition")
-                e = p.getElementsByTagName("endPosition")
-                if len(l)!=0: # listPositions
-                    l = l[0]
-                    data = l.childNodes[0]
+                if "detector" not in self.ddict: 
+                    self.ddict["detector"] = [] 
+                self.ddict["detector"].append(data_list)
+                # if present read beamAttenuationFactors
+                # they are already corrected in the data file, but may be interesting
+                attfact = points.getElementsByTagName("beamAttenuationFactors")
+                if len(attfact)!=0:
+                    data = attfact[0].childNodes[0]
                     data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
-                elif len(s)!=0: # start endPosition
-                    data_list = numpy.linspace(float(s[0].childNodes[0].nodeValue),float(e[0].childNodes[0].nodeValue),nofpoints).tolist()
-                else: # commonPosition
-                    l = p.getElementsByTagName("commonPosition")
-                    l = l[0]
-                    data = l.childNodes[0]
-                    data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
-                    is_scalar = 1
+                    nofpoints = len(data_list)
+                    if "beamAttenuationFactors" not in self.ddict: 
+                        self.ddict["beamAttenuationFactors"] = [] 
+                    self.ddict["beamAttenuationFactors"].append(data_list)
+                
+                #read the axes position
+                pos = points.getElementsByTagName("positions")
+                for p in pos:
+                    #read axis name and unit
+                    aname = p.getAttribute("axis")
+                    aunit = p.getAttribute("unit")
 
-                #print(data_list)
-                #have to append the data to the data dictionary
-                if aname not in self.ddict:
-                    self.ddict[aname] = []
+                    #read axis data
+                    l = p.getElementsByTagName("listPositions")
+                    s = p.getElementsByTagName("startPosition")
+                    e = p.getElementsByTagName("endPosition")
+                    if len(l)!=0: # listPositions
+                        l = l[0]
+                        data = l.childNodes[0]
+                        data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
+                    elif len(s)!=0: # start endPosition
+                        data_list = numpy.linspace(float(s[0].childNodes[0].nodeValue),float(e[0].childNodes[0].nodeValue),nofpoints).tolist()
+                    else: # commonPosition
+                        l = p.getElementsByTagName("commonPosition")
+                        l = l[0]
+                        data = l.childNodes[0]
+                        data_list = numpy.fromstring(data.nodeValue,sep=" ").tolist()
+                        is_scalar = 1
 
-                if not is_scalar:
-                    self.ddict[aname].append(data_list)
-                else:
-                    self.ddict[aname].append(data_list[0])
-                    is_scalar = 0
+                    #print(data_list)
+                    #have to append the data to the data dictionary in case the scan is complete!
+                    if aname not in self.ddict:
+                        self.ddict[aname] = []
+                    if not is_scalar:
+                        self.ddict[aname].append(data_list)
+                    else:
+                        self.ddict[aname].append(data_list[0])
+                        is_scalar = 0
                         
         #finally all scan data needs to be converted to numpy arrays
         for k in self.ddict.keys():
