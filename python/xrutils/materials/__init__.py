@@ -59,6 +59,7 @@ from .material import GaN
 from .material import BaF2
 from .material import V
 from .material import Al
+from .material import Au
 from .material import VO2_Rutile
 from .material import VO2_Baddeleyite
 from .material import Ag2Se
