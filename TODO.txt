@@ -1,6 +1,10 @@
 To Do
 -----
 
+7.5.2012
+
+remove vim-code folding marks from all the code
+
 27.3.2012
 
 implement alternative call of line_cut function with Gridder2D object instead
