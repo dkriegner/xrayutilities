@@ -617,11 +617,15 @@ VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.
                    numpy.zeros((6,6),dtype=numpy.double))
 VO2_Baddeleyite = Material("VO_2",lattice.BaddeleyiteLattice(elements.V,elements.O,5.75,5.42,5.38,122.6),
                    numpy.zeros((6,6),dtype=numpy.double))
-Quartz = Material("SiO_2",lattice.QuartzLattice(elements.Si,elements.O,4.916,4.916,5.4054),
+SiO2 = Material("SiO_2",lattice.QuartzLattice(elements.Si,elements.O,4.916,4.916,5.4054),
                    numpy.zeros((6,6),dtype=numpy.double))
-Indium = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461),
+In = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461),
                    numpy.zeros((6,6),dtype=numpy.double))
-Antimony = Material("Sb",lattice.TrigonalR3mh(elements.Sb,4.307,11.273),
+Sb = Material("Sb",lattice.TrigonalR3mh(elements.Sb,4.307,11.273),
+                   numpy.zeros((6,6),dtype=numpy.double))
+Sn = Material("Sn",lattice.TetragonalTinLattice(elements.Sn,5.8197,3.17488),
+                   numpy.zeros((6,6),dtype=numpy.double))
+SnAlpha = Material("Sn-alpha",lattice.DiamondLattice(elements.Sn,6.4912),
                    numpy.zeros((6,6),dtype=numpy.double))
 
 class Alloy(Material):

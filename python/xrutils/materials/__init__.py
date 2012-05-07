@@ -37,6 +37,7 @@ from .lattice import Hexagonal4HLattice
 from .lattice import Hexagonal6HLattice
 from .lattice import QuartzLattice
 from .lattice import TetragonalIndiumLattice
+from .lattice import TetragonalTinLattice
 from .lattice import TrigonalR3mh
 from .lattice import CubicFm3mBaF2
 
@@ -63,9 +64,11 @@ from .material import Au
 from .material import VO2_Rutile
 from .material import VO2_Baddeleyite
 from .material import Ag2Se
-from .material import Quartz
-from .material import Indium
-from .material import Antimony
+from .material import SiO2
+from .material import In
+from .material import Sb
+from .material import Sn
+from .material import SnAlpha
 from .material import Alloy
 from .material import CubicAlloy
 from .material import PseudomorphicMaterial

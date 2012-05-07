@@ -624,6 +624,26 @@ def TetragonalIndiumLattice(aa,a,c):
     return l
     #}}}1
 
+def TetragonalTinLattice(aa,a,c):
+    #{{{1
+    #create lattice base: I4_1/amd (141) site symmetry (4a) 
+    # data from: Wykhoff (see american mineralogist database) 
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0.5])
+    lb.append(aa,[0.0,0.5,0.25])
+    lb.append(aa,[0.5,0.0,0.75])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,c]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
+
 def NaumanniteLattice(aa,ab,a,b,c):
     #{{{1
     #create lattice base: P 21 21 21 
