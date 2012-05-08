@@ -1652,9 +1652,9 @@ class Powder(Experiment):
 
         self.digits = 5 # number of significant digits, needed to identify equal floats
 
-    def PowderIntensity(self):
+    def PowderIntensity(self,tt_cutoff=180):
         """
-        Calculates the powder intensity and positions up to an angle of 180 deg
+        Calculates the powder intensity and positions up to an angle of tt_cutoff (deg)
         and stores the result in:
             data .... array with intensities
             ang ..... angular position of intensities
@@ -1662,22 +1662,26 @@ class Powder(Experiment):
         """
         
         # calculate maximal Bragg indices
-        hmax = int(numpy.ceil(norm(self.mat.lattice.a1)*self.k0/numpy.pi))
+        hmax = int(numpy.ceil(norm(self.mat.lattice.a1)*self.k0/numpy.pi*numpy.sin(numpy.radians(tt_cutoff/2.))))
         hmin = -hmax
-        kmax = int(numpy.ceil(norm(self.mat.lattice.a2)*self.k0/numpy.pi))
+        kmax = int(numpy.ceil(norm(self.mat.lattice.a2)*self.k0/numpy.pi*numpy.sin(numpy.radians(tt_cutoff/2.))))
         kmin = -kmax
-        lmax = int(numpy.ceil(norm(self.mat.lattice.a3)*self.k0/numpy.pi))
+        lmax = int(numpy.ceil(norm(self.mat.lattice.a3)*self.k0/numpy.pi*numpy.sin(numpy.radians(tt_cutoff/2.))))
         lmin = -lmax
-        
+
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.Powder.PowderIntensity: tt_cutoff; (hmax,kmax,lmax): %6.2f (%d,%d,%d)" %(tt_cutoff,hmax,kmax,lmax))
+
         qlist = []
         qabslist = []
         hkllist = []
+        qmax = numpy.sqrt(2)*self.k0*numpy.sqrt(1-numpy.cos(numpy.radians(tt_cutoff)))
         # calculate structure factor for each reflex
         for h in range(hmin,hmax+1):
             for k in range(kmin,kmax+1):
                 for l in range(lmin,lmax+1):
                     q = self.mat.Q(h,k,l)
-                    if norm(q)<2*self.k0:
+                    if norm(q)<qmax:
                         qlist.append(q)
                         hkllist.append([h,k,l])
                         qabslist.append(numpy.round(norm(q),self.digits))
