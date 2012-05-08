@@ -148,7 +148,7 @@ class DataBase(object):
             pass
     
         a = tables.Float32Atom()
-        c = self.h5file.createCArray(self.h5group,"f0",a,[9],title="f0 fit parameters")
+        c = self.h5file.createCArray(self.h5group,"f0",a,[len(p)],title="f0 fit parameters")
 
         c[...] = p
         self.h5file.flush()
@@ -279,7 +279,7 @@ class DataBase(object):
         """
         GetF0(q):
         Obtain the f0 scattering factor component for a particular 
-        mementum transfer q.
+        momentum transfer q.
 
         required input argument:
         q ......... single float value or numpy array
@@ -291,7 +291,7 @@ class DataBase(object):
         k = q/(4.*numpy.pi)
         f0 = 0.
 
-        for i in range(1,9,2):
+        for i in range(1,len(f0_params)-1,2):
             a = f0_params[i]
             b = f0_params[i+1]
             f0 += a*numpy.exp(-b*k**2)
@@ -493,12 +493,71 @@ def add_f0_from_intertab(db,itabfile):
 
     itf.close()
 
+def add_f0_from_xop(db,xopfile):
+    """
+    add_f0_from_xop(db,xopfile):
+    Read f0 data from f0_xop.dat and add
+    it to the database.
+    """
+
+    #parse the xop file
+    try:
+        xop = open(xopfile,"r")
+    except:
+        print("cannot open f0 database file")
+        return None
+
+    #some regular expressions
+    elementstr = re.compile(r"^#S")
+    multiblank = re.compile(r"\s+")
+    invalidelem = re.compile(r"[^A-Za-z]")
     
+    while True:
+        lb = xop.readline()
+        if lb == "": break
+        lb = lb.strip()
+
+        if elementstr.match(lb):
+            #found new element
+            lb = multiblank.split(lb)
+            ename = lb[2]
+            #check if this is not some funny isotope
+            
+            if invalidelem.findall(ename)==[]:
+                print("set element %s" %ename)
+                db.SetMaterial(ename)
+                #make nine dummy reads
+                xop.readline()
+                xop.readline()
+                xop.readline()
+                xop.readline()
+                xop.readline()
+                xop.readline()
+                xop.readline()
+                xop.readline()
+                xop.readline()
+                #read fit parameters
+                lb = xop.readline()
+                lb = lb.strip()
+                lb = multiblank.split(lb)
+                a1 = float(lb[0])
+                a2 = float(lb[1])
+                a3 = float(lb[2])
+                a4 = float(lb[3])
+                a5 = float(lb[4])
+                c  = float(lb[5])
+                b1 = float(lb[6])
+                b2 = float(lb[7])
+                b3 = float(lb[8])
+                b4 = float(lb[9])
+                b5 = float(lb[10])
+                db.SetF0([c,a1,b1,a2,b2,a3,b3,a4,b4,a5,b5])
+
+    xop.close()
 
 
 def add_f1f2_from_henkedb(db,henkefile):
     """
-    add_f1f2_from_henkedb(db,henkefile):
     Read f1 and f2 data from Henke database and add
     it to the database.
     """
@@ -507,7 +566,7 @@ def add_f1f2_from_henkedb(db,henkefile):
     try:
         hf = open(henkefile,"r")
     except:
-        print("cannot open f0 database file")
+        print("cannot open f1f2 database file")
         return None
 
     #some regular expressions
@@ -553,3 +612,65 @@ def add_f1f2_from_henkedb(db,henkefile):
                         break
 
     hf.close()
+
+
+def add_f1f2_from_kissel(db,kisselfile):
+    """
+    Read f1 and f2 data from Henke database and add
+    it to the database.
+    """
+
+    #parse the f1f2 file
+    try:
+        kf = open(kisselfile,"r")
+    except:
+        print("cannot open f1f2 database file")
+        return None
+
+    #some regular expressions
+    elementstr = re.compile(r"^#S")
+    multiblank = re.compile(r"\s+")
+    invalidelem = re.compile(r"[^A-Za-z]")
+    
+    while True:
+        lb = kf.readline()
+        if lb == "": break
+        lb = lb.strip()
+
+        if elementstr.match(lb):
+            #found new element
+            lb = multiblank.split(lb)
+            enum = lb[1]
+            ename = lb[2]
+            #check if this is not some funny isotope
+            
+            if invalidelem.findall(ename)==[]:
+                print("set element %s"%ename)
+                db.SetMaterial(ename)
+                #make 28 dummy reads
+                for i in range(28): kf.readline()
+                
+                #read data
+                en_list = []
+                f1_list = []
+                f2_list = []
+                while True:
+                    lb = kf.readline()
+                    lb = lb.strip()
+                    lb = multiblank.split(lb)
+                    try:
+                        en = float(lb[0])*1000 # convert energy
+                        f1 = float(lb[4])-float(enum) #to account for wrong f1 definition in Henke db
+                        f2 = float(lb[5])
+                        en_list.append(en)
+                        f1_list.append(f1)
+                        f2_list.append(f2)
+                        if en==10000000.:
+                            db.SetF1(en_list,f1_list)
+                            db.SetF2(en_list,f2_list)
+                            break
+                    except: 
+                        print(lb)
+                        break
+
+    kf.close()
