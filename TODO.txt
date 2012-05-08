@@ -3,7 +3,9 @@ To Do
 
 7.5.2012
 
-remove vim-code folding marks from all the code
+* remove vim-code folding marks from all the code
+* check if energy is in range of tabulated data for optical constant
+  calculation
 
 27.3.2012
 
