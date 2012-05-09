@@ -201,8 +201,8 @@ class Material(object):
 
     def delta(self,en="config"):
         """
-        function to calculate the real deviation of the refractive index from 1
-        (n=1-delta+i*beta)
+        function to calculate the real part of the deviation of the 
+        refractive index from 1 (n=1-delta+i*beta)
 
         Parameter
         ---------
@@ -231,8 +231,8 @@ class Material(object):
 
     def beta(self,en="config"):
         """
-        function to calculate the imaginary deviation of the refractive index from 1
-        (n=1-delta+i*beta)
+        function to calculate the imaginary part of the deviation 
+        of the refractive index from 1 (n=1-delta+i*beta)
 
         Parameter
         ---------
@@ -812,10 +812,11 @@ class CubicAlloy(Alloy):
 
         Returns
         -------
-        content,[a_inplane,a_perp,abulk(x)] : the content of B in the alloy determined
-                from the input variables and the lattice constants calculated
-                from the reciprocal space positions
-
+        content,[a_inplane,a_perp,a_bulk_perp(x), eps_inplane, eps_perp] : 
+                the content of B in the alloy determined from the input 
+                variables and the lattice constants calculated from the 
+                reciprocal space positions as well as the strain (eps) of 
+                the layer
         """
 
         # check input parameters
