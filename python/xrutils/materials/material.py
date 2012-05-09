@@ -50,7 +50,6 @@ def index_map_ij2ijkl(ij):
 
 
 def Cij2Cijkl(cij):
-    #{{{1
     """
     Cij2Cijkl(cij):
     Converts the elastic constants matrix (tensor of rank 2) to 
@@ -81,10 +80,8 @@ def Cij2Cijkl(cij):
                     mj = index_map_ijkl2ij(k,l)
                     cijkl[i,j,k,l] = m[mi,mj]
     return cijkl
-    #}}}1
 
 def Cijkl2Cij(cijkl):
-    #{{{1
     """
     Cijkl2Cij(cijkl):
     Converts the full rank 4 tensor of the elastic constants to 
@@ -109,12 +106,9 @@ def Cijkl2Cij(cijkl):
     cij = m[0:6,0:6]
 
     return cij
-    #}}}1
 
 class Material(object):
-    #{{{1
     def __init__(self,name,lat,cij):
-        #{{{2
         if isinstance(cij,list):
             self.cij = numpy.array(cij,dtype=numpy.double)
         elif isinstance(cij,numpy.ndarray):
@@ -127,7 +121,6 @@ class Material(object):
         self.rlattice = lat.ReciprocalLattice()
         self.cijkl = Cij2Cijkl(self.cij)
         self.transform = None
-        #}}}2
 
     def __getattr__(self,name):
         if name.startswith("c"):
@@ -187,7 +180,6 @@ class Material(object):
 
 
     def Q(self,*hkl):
-        #{{{2
         """
         Q(hkl):
         Return the Q-space position for a certain material.
@@ -206,10 +198,8 @@ class Material(object):
         if self.transform: p = self.transform(p)
 
         return p
-        #}}}2
 
     def delta(self,en="config"):
-        #{{{2
         """
         function to calculate the real deviation of the refractive index from 1 
         (n=1-delta+i*beta)
@@ -238,10 +228,8 @@ class Material(object):
 
         delta *= r_e/(2*numpy.pi)*lam**2/self.lattice.UnitCellVolume()
         return delta
-        #}}}2
 
     def beta(self,en="config"):
-        #{{{2
         """
         function to calculate the imaginary deviation of the refractive index from 1 
         (n=1-delta+i*beta)
@@ -269,7 +257,6 @@ class Material(object):
 
         beta *= r_e/(2*numpy.pi)*lam**2/self.lattice.UnitCellVolume()
         return beta
-        #}}}2
 
     def chih(self,q,en="config"):
         """
@@ -297,7 +284,6 @@ class Material(object):
         return (-2*self.delta(en)+2j*self.beta(en))
 
     def idx_refraction(self,en="config"):
-        #{{{2
         """
         function to calculate the complex index of refraction of a material 
         in the x-ray range
@@ -313,10 +299,8 @@ class Material(object):
         """
         n = 1. - self.delta(en) + 1.j*self.beta(en)
         return n
-        #}}}2
 
     def dTheta(self,Q,en="config"):
-        #{{{2
         """
         function to calculate the refractive peak shift
 
@@ -336,10 +320,8 @@ class Material(object):
         lam = utilities.lam2en(en)
         dth = numpy.degrees(2*self.delta(en)/numpy.sin(2*numpy.arcsin(lam*numpy.linalg.norm(Q)/(4*numpy.pi))))
         return dth
-        #}}}2
 
     def __str__(self):
-        #{{{2
         ostr ="Material: %s\n" %self.name
         ostr += "Elastic constants:\n"
         ostr += "c11 = %e\n" %self.c11
@@ -354,10 +336,8 @@ class Material(object):
         ostr += self.rlattice.__str__()
 
         return ostr
-        #}}}2
 
     def StructureFactor(self,q,en="config"):
-        #{{{2
         """
         caluclates the structure factor of a material
         for a certain momentum transfer and energy
@@ -393,10 +373,8 @@ class Material(object):
             s += f*numpy.exp(-1.j*math.VecDot(q,r))
             
         return s
-        #}}}2
 
     def StructureFactorForEnergy(self,q0,en):
-        #{{{2
         """
         caluclates the structure factor of a material
         for a certain momentum transfer and a bunch of energies
@@ -449,10 +427,8 @@ class Material(object):
             s += f[types[i]]*numpy.exp(-1.j*math.VecDot(q,r))
             
         return s
-        #}}}2
         
     def StructureFactorForQ(self,q,en0="config"):
-        #{{{2
         """
         caluclates the structure factor of a material
         for a bunch of momentum transfers and a certain energy
@@ -509,7 +485,6 @@ class Material(object):
             
         return s
         # still a lot of overhead, because normally we do have 2 different types of atoms in a 8 atom base, but we calculate all 8 times which is obviously not necessary. One would have to reorganize the things in the LatticeBase class, and introduce something like an atom type and than only store the type in the List.
-        #}}}2
 
     def ApplyStrain(self,strain,**keyargs):
         #let strain act on the base vectors
@@ -523,7 +498,6 @@ class Material(object):
         material
         """
         raise NotImplementedError("XU.material.GetMismatch: not implemented yet")
-    #}}}1
 
 
 def CubicElasticTensor(c11,c12,c44):
@@ -629,21 +603,17 @@ SnAlpha = Material("Sn-alpha",lattice.DiamondLattice(elements.Sn,6.4912),
                    numpy.zeros((6,6),dtype=numpy.double))
 
 class Alloy(Material):
-    #{{{1
     def __init__(self,matA,matB,x):
-        #{{{2
         Material.__init__(self,"None",copy.copy(matA.lattice),matA.cij)
         self.matA = matA
         self.matB = matB
         self.xb = 0
         self._setxb(x)
-        #}}}2
 
     def _getxb(self):
         return self.xb
 
     def _setxb(self,x):
-        #{{{2
         self.xb = x
         self.name = "%s(%2.2f)%s(%2.2f)" %(self.matA.name,1.-x,self.matB.name,x)
         #modify the lattice
@@ -658,8 +628,6 @@ class Alloy(Material):
         #set elastic constants
         self.cij = (self.matB.cij-self.matA.cij)*x+self.matA.cij
         self.cijkl = (self.matB.cijkl-self.matA.cijkl)*x+self.matA.cijkl
-        
-        #}}}2
 
     x = property(_getxb,_setxb)
 
@@ -732,18 +700,13 @@ class Alloy(Material):
         qz= numpy.array([qr_p,qp_p,qs_p,qr_p],dtype=numpy.double)
         
         return qy,qz
-    #}}}1
 
 class CubicAlloy(Alloy):
-    #{{{1
 
 #    def __init__(self,matA,matB,x):
-#        #{{{2
 #            #check if material is really cubic!!
-#        #}}}2
 
     def ContentBsym(self,q_perp,hkl,inpr,asub,relax):
-        #{{{2
         """
         function that determines the content of B 
         in the alloy from the reciprocal space position 
@@ -829,10 +792,8 @@ class CubicAlloy(Alloy):
         x = scipy.optimize.brentq(equation,-0.1,1.1)
 
         return x
-        #}}}2
 
     def ContentBasym(self,q_inp,q_perp,hkl,sur):
-        #{{{2
         """
         function that determines the content of B 
         in the alloy from the reciprocal space position 
@@ -924,16 +885,11 @@ class CubicAlloy(Alloy):
 
         return x,[ainp,aperp,abulk_perp(x), eps_inplane, eps_perp]
 
-        #}}}2
-    #}}}1
-
 class SiGe(CubicAlloy):
-    #{{{1
     def __init__(self,x):
         CubicAlloy.__init__(self,Si,Ge,x)
 
     def _setxb(self,x):
-        #{{{2
         a = self.matA.lattice.a1[0]
         if config.VERBOSITY >= config.DEBUG: print("XU.materials.SiGe._setxb: jump to base class")
         CubicAlloy._setxb(self,x)
@@ -942,13 +898,10 @@ class SiGe(CubicAlloy):
         a = a+0.2*x+0.027*x**2
         self.lattice = lattice.CubicLattice(a)
         self.rlattice = self.lattice.ReciprocalLattice()
-        #}}}2
    
     x = property(CubicAlloy._getxb,_setxb)
-    #}}}1
 
 def PseudomorphicMaterial(submat,layermat):
-    #{{{1
     """
     PseudomprohicMaterial(submat,layermat):
     This function returns a material whos lattice is pseudomorphic on a
@@ -982,5 +935,4 @@ def PseudomorphicMaterial(submat,layermat):
     pmat = Material("layermat.name",pmlatt,layermat.cij)
 
     return pmat
-    #}}}1
 

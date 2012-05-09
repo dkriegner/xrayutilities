@@ -41,7 +41,6 @@ class CIFFile(object):
     CIF file
     """
     def __init__(self,filename):
-        #{{{
         """
         initialization of the CIFFile class
 
@@ -60,19 +59,15 @@ class CIFFile(object):
         self.Parse()
 
         self.SymStruct()
-        #}}}
 
     def __del__(self):
-        #{{{
         """
         class destructor which closes open files
         """
         if not self.fid == None:
             self.fid.close()
-        #}}}
 
     def Parse(self):
-        #{{{
         """
         function to parse a CIF file. The function reads the 
         space group symmetry operations and the basic atom positions
@@ -129,10 +124,8 @@ class CIFFile(object):
                 alabel = asplit[0]
                 apos = (float(asplit[1]),float(asplit[2]),float(asplit[3]))
                 self.atoms.append((alabel,apos))                
-        #}}}
 
     def SymStruct(self):
-        #{{{
         """
         function to obtain the list of different atom positions 
         in the unit cell for the different types of atoms. The data
@@ -160,10 +153,8 @@ class CIFFile(object):
                     unique_pos.append(pos)
             exec("element = materials.elements."+el)
             self.unique_positions.append((element, unique_pos))
-        #}}}
 
     def Lattice(self):
-        #{{{
         """
         returns a lattice object with the structure from the CIF file
         """
@@ -189,10 +180,8 @@ class CIFFile(object):
         l = materials.Lattice(a1,a2,a3,base=lb)
 
         return l
-        #}}}
 
     def __str__(self):
-        #{{{
         """
         returns a string with positions and names of the atoms 
         """
@@ -206,4 +195,3 @@ class CIFFile(object):
             for pos in atom[1]:
                 ostr += str(numpy.round(pos,self.digits)) + "\n"
         return ostr
-        #}}}

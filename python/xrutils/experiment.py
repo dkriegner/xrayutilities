@@ -44,7 +44,6 @@ from .exception import InputError
 circleSyntax = re.compile("[xyz][+-]")
 
 class QConversion(object):
-#{{{1
     """
     Class for the conversion of angular coordinates to momentum
     space for arbitrary goniometer geometries
@@ -60,7 +59,6 @@ class QConversion(object):
     or init_area() routines were called
     """
     def __init__(self,sampleAxis,detectorAxis,r_i,**kwargs):
-        #{{{2
         """
         initialize Qconversion object. 
         This means the rotation axis of the sample and detector circles
@@ -102,19 +100,14 @@ class QConversion(object):
 
         self._linear_init = False
         self._area_init = False
-        #}}}2
 
     def _set_energy(self,energy):
-        #{{{2
         self._en = energy
         self._wl = utilities.lam2en(energy)
-        #}}}2
 
     def _set_wavelength(self,wl):
-        #{{{2
         self._wl = wl
         self._en = utilities.lam2en(wl)
-        #}}}2
 
     def _get_energy(self):
         return self._en
@@ -123,7 +116,6 @@ class QConversion(object):
         return self._wl
 
     def _set_sampleAxis(self,sampleAxis):
-        #{{{2
         """
         property handler for _sampleAxis
 
@@ -150,10 +142,8 @@ class QConversion(object):
         self._sampleAxis_str = ''
         for circ in self._sampleAxis:
             self._sampleAxis_str += circ
-        #}}}2
 
     def _get_sampleAxis(self):
-        #{{{2
         """
         property handler for _sampleAxis
 
@@ -162,10 +152,8 @@ class QConversion(object):
         list of sample axis following the syntax /[xyz][+-]/
         """
         return self._sampleAxis
-        #}}}2
 
     def _set_detectorAxis(self,detectorAxis):
-        #{{{2
         """
         property handler for _detectorAxis_
 
@@ -191,10 +179,8 @@ class QConversion(object):
         self._detectorAxis_str = ''
         for circ in self._detectorAxis:
             self._detectorAxis_str += circ
-        #}}}2
 
     def _get_detectorAxis(self):
-        #{{{2
         """
         property handler for _detectorAxis
 
@@ -203,7 +189,6 @@ class QConversion(object):
         list of detector axis following the syntax /[xyz][+-]/
         """
         return self._detectorAxis
-        #}}}2
 
     energy = property(_get_energy,_set_energy)
     wavelength = property(_get_wavelength,_set_wavelength)
@@ -211,7 +196,6 @@ class QConversion(object):
     detectorAxis = property(_get_detectorAxis,_set_detectorAxis)
 
     def __str__(self):
-        #{{{2
         pstr =  'QConversion geometry \n'
         pstr += '---------------------------\n'
         pstr += 'sample geometry(%d): ' %len(self._sampleAxis) + self._sampleAxis_str + '\n'
@@ -235,18 +219,14 @@ class QConversion(object):
             pstr += 'corresponds to channel per degree: (%8.2f,%8.2f)\n' %(chpdeg1,chpdeg2)
        
         return pstr
-        #}}}2
 
     def __call__(self,*args,**kwargs):
-        #{{{2
         """
         wrapper function for point(...)
         """
         return self.point(*args,**kwargs)
-        #}}}2
 
     def point(self,*args,**kwargs):
-        #{{{2
         """
         angular to momentum space conversion for a point detector
         located in direction of self.r_i when detector angles are zero
@@ -361,10 +341,8 @@ class QConversion(object):
         qpos.shape = (Npoints,3)
 
         return qpos[:,0],qpos[:,1],qpos[:,2]
-        #}}}2
 
     def init_linear(self,detectorDir,cch,Nchannel,distance=None,pixelwidth=None,chpdeg=None,**kwargs):
-        #{{{2
         """
         initialization routine for linear detectors
         detector direction as well as distance and pixel size or
@@ -420,11 +398,8 @@ class QConversion(object):
             self._linear_nav = 1
         
         self._linear_init = True
-
-        #}}}2
                
     def linear(self,*args,**kwargs):
-        #{{{2
         """
         angular to momentum space conversion for a linear detector
         the cch of the detector must be in direction of self.r_i when 
@@ -566,11 +541,9 @@ class QConversion(object):
         qpos.shape = (Npoints*(roi[1]-roi[0]),3)
 
         return qpos[:,0],qpos[:,1],qpos[:,2]
-        #}}}2
 
     def init_area(self,detectorDir1,detectorDir2,cch1,cch2,Nch1,Nch2,distance=None,
                   pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,**kwargs):
-        #{{{2
         """
         initialization routine for area detectors
         detector direction as well as distance and pixel size or
@@ -639,10 +612,8 @@ class QConversion(object):
             self._area_nav = [1,1]
         
         self._area_init = True
-        #}}}2
         
     def area(self,*args,**kwargs):
-        #{{{2
         """
         angular to momentum space conversion for a area detector
         the center pixel defined by the init_area routine must be 
@@ -793,18 +764,14 @@ class QConversion(object):
         qpos.shape = (Npoints*(roi[1]-roi[0])*(roi[3]-roi[2]),3)
 
         return qpos[:,0],qpos[:,1],qpos[:,2]
-        #}}}2
 
-#}}}1
 
 class Experiment(object):
-    #{{{1
     """
     base class for describing experiments
     users should use the derived classes: HXRD, GID, Powder
     """
     def __init__(self,ipdir,ndir,**keyargs):
-        #{{{2
         """
         initialization of an Experiment class needs the sample orientation
         given by the samples surface normal and an second not colinear direction
@@ -863,10 +830,7 @@ class Experiment(object):
         if "en" in keyargs:
             self._set_energy(keyargs["en"])
 
-        #}}}2
-
     def __str__(self):
-        #{{{2
 
         ostr = "scattering plane normal: (%f %f %f)\n" %(self.scatplane[0],
                                                  self.scatplane[1],
@@ -882,23 +846,18 @@ class Experiment(object):
         ostr += self._A2QConversion.__str__()
 
         return ostr
-        #}}}2
 
     def _set_energy(self,energy):
-        #{{{2
         self._en = energy
         self._wl = utilities.lam2en(energy)
         self.k0 = numpy.pi*2./self._wl
         self._A2QConversion.wavelength = self._wl
-        #}}}2
 
     def _set_wavelength(self,wl):
-        #{{{2
         self._wl = wl
         self._en = utilities.lam2en(wl)
         self.k0 = numpy.pi*2./self._wl
         self._A2QConversion.wavelength = self._wl
-        #}}}2
 
     def _get_energy(self):
         return self._en
@@ -910,7 +869,6 @@ class Experiment(object):
     wavelength = property(_get_wavelength,_set_wavelength)
 
     def _set_inplane_direction(self,dir):
-        #{{{2
         if isinstance(dir,list):
             self.idir = numpy.array(dir,dtype=numpy.double)
         elif isinstance(dir,numpy.ndarray):
@@ -920,13 +878,11 @@ class Experiment(object):
 
         v1 = numpy.cross(self.ndir,self.idir)
         self._transform = math.CoordinateTransform(v1,self.idir,self.ndir)
-        #}}}2
 
     def _get_inplane_direction(self):
         return self.idir
 
     def _set_normal_direction(self,dir):
-        #{{{2
         if isinstance(dir,list):
             self.ndir = numpy.array(dir,dtype=numpy.double)
         elif isinstance(dir,numpy.ndarray):
@@ -936,7 +892,6 @@ class Experiment(object):
 
         v1 = numpy.cross(self.ndir,self.idir)
         self._transform = math.CoordinateTransform(v1,self.idir,self.ndir)
-        #}}}2
 
     def _get_normal_direction(self):
         return self.ndir
@@ -962,7 +917,6 @@ class Experiment(object):
         return self._transform(v)
 
     def TiltAngle(self,q,deg=True):
-        #{{{2
         """
         TiltAngle(q,deg=True):
         Return the angle between a q-space position and the surface normal.
@@ -984,11 +938,8 @@ class Experiment(object):
             raise TypeError("q-space position must be list or numpy array")
 
         return math.VecAngle(self.ndir,qt,deg)
-        #}}}2
-    #}}}1
 
 class HXRD(Experiment):
-    #{{{1
     """
     class describing high angle x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -1000,7 +951,6 @@ class HXRD(Experiment):
     see help self.Ang2Q
     """
     def __init__(self,idir,ndir,**keyargs):
-        #{{{2
         """
         initialization routine for the HXRD Experiment class
         
@@ -1032,11 +982,8 @@ class HXRD(Experiment):
         
         if config.VERBOSITY >= config.DEBUG:
             print("XU.HXRD.__init__: \nEnergy: %s \nGeometry: %s \n%s---" %(self._en,self.geometry,str(self.Ang2Q)))
-            
-        #}}}2
 
     def TiltCorr(self,q,ang,deg=False):
-        #{{{2
         """
         Correct a q-space position by a certain tilt angle.
 
@@ -1061,10 +1008,8 @@ class HXRD(Experiment):
         q = self._Ang2Q(om-a,tth,delta)
 
         return q
-        #}}}2
 
     def Ang2Q(self,om,tt,**kwargs):
-        #{{{2
         """
         angular to momentum space conversion for a point detector. Also see
         help HXRD.Ang2Q for procedures which treat line and area detectors
@@ -1091,10 +1036,8 @@ class HXRD(Experiment):
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine 
         pass
-        #}}}2
 
     def Q2Ang(self,*Q,**keyargs):
-        #{{{2
         """
         Convert a reciprocal space vector Q to COPLANAR scattering angles.
         The keyword argument trans determines whether Q should be transformed 
@@ -1294,11 +1237,8 @@ class HXRD(Experiment):
             return numpy.degrees(angle)
         else:
             return angle
-        #}}}2
-    #}}}1
 
 class NonCOP(Experiment):
-    #{{{1
     """
     class describing high angle x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -1311,7 +1251,6 @@ class NonCOP(Experiment):
     described in "help self.Ang2Q"
     """
     def __init__(self,idir,ndir,**keyargs):
-        #{{{2
         """
         initialization routine for the NonCOP Experiment class
         
@@ -1326,10 +1265,7 @@ class NonCOP(Experiment):
         self._A2QConversion = QConversion(['x+','y+','z-'],'x+',[0,1,0],wl=self._wl) # 3S+1D goniometer (as in the MRD, omega,chi,phi,theta)
         self.Ang2Q = self._A2QConversion
 
-        #}}}2
-
     def Ang2Q(self,om,chi,phi,tt,**kwargs):
-        #{{{2
         """
         angular to momentum space conversion for a point detector. Also see
         help NonCOP.Ang2Q for procedures which treat line and area detectors
@@ -1356,10 +1292,8 @@ class NonCOP(Experiment):
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
         pass
-        #}}}2
 
     def Q2Ang(self,*Q,**keyargs):
-        #{{{2
         """
         Convert a reciprocal space vector Q to NON-COPLANAR scattering angles.
         The keyword argument trans determines whether Q should be transformed 
@@ -1449,11 +1383,8 @@ class NonCOP(Experiment):
             return numpy.degrees(angle)
         else:
             return angle
-        #}}}2
-    #}}}1
 
 class GID(Experiment):
-    #{{{1
     """
     class describing grazing incidence x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -1465,7 +1396,6 @@ class GID(Experiment):
     see help self.Ang2Q
     """
     def __init__(self,idir,ndir,**keyargs):
-        #{{{2
         """
         initialization routine for the GID Experiment class
 
@@ -1483,10 +1413,7 @@ class GID(Experiment):
         self._A2QConversion = QConversion(['z-','x+'],['x+','z-'],[0,1,0],wl=self._wl) # 2S+2D goniometer 
         self.Ang2Q = self._A2QConversion
 
-        #}}}2
-
     def Q2Ang(self,Q,trans=True,deg=True,**kwargs):
-        #{{{2
         """
         calculate the GID angles needed in the experiment
         the inplane reference direction defines the direction were
@@ -1545,11 +1472,8 @@ class GID(Experiment):
             print("XU.GID.Q2Ang: [om,tth] = %s \n difference to inplane reference = %5.2f" %(str(ang),aref) ) 
 
         return ang
-        #}}}2
-    #}}}1
 
 class GID_ID10B(GID):
-    #{{{1
     """
     class describing grazing incidence x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -1561,7 +1485,6 @@ class GID_ID10B(GID):
     see help self.Ang2Q
     """
     def __init__(self,idir,ndir,**keyargs):
-        #{{{2
         """
         initialization routine for the GID Experiment class
 
@@ -1579,18 +1502,13 @@ class GID_ID10B(GID):
         self._A2QConversion = QConversion(['x+','z-'],['x+','z-'],[0,1,0],wl=self._wl) # 2S+2D goniometer 
         self.Ang2Q = self._A2QConversion
 
-        #}}}2
-
     def Q2Ang(self,Q,trans=True,deg=True,**kwargs):
         """
         calculate the GID angles needed in the experiment
         """
         pass
 
-    #}}}1
-
 class GISAXS(Experiment):
-    #{{{1
     """
     class describing grazing incidence x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -1602,7 +1520,6 @@ class GISAXS(Experiment):
     see help self.Ang2Q
     """
     def __init__(self,idir,ndir,**keyargs):
-        #{{{2
         """
         initialization routine for the GISAXS Experiment class
 
@@ -1621,14 +1538,10 @@ class GISAXS(Experiment):
             self._A2QConversion = QConversion(['x+'],['x+','z-'],[0,1,0],wl=self._wl) # 1S+2D goniometer 
             self.Ang2Q = self._A2QConversion
 
-        #}}}2
-
     def Q2Ang(self,Q,trans=True,deg=True,**kwargs):
         pass
-    #}}}1
 
 class Powder(Experiment):
-    #{{{1
     """
     Experimental class for powder diffraction
     This class is able to simulate a powder spectrum for the given material
@@ -1790,7 +1703,4 @@ class Powder(Experiment):
                 ostr += "%15s   %8.4f   %8.3f   %10.2f  %10.2f\n" % (self.hkl[i].__str__(), 2*self.ang[i],self.qpos[i],self.data[i], self.data[i]/max*100.)
 
         return ostr
-    #}}}1        
-
-    
 

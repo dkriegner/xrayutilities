@@ -37,7 +37,6 @@ from .exception import InputError
 from . import config
 
 def blockAverage1D(data,Nav):
-    #{{{1
     """
     perform block average for 1D array/list of Scalar values
     all data are used. at the end of the array a smaller cell
@@ -65,10 +64,8 @@ def blockAverage1D(data,Nav):
     libxrayutils.cblockav_1d(block_av,data,Nav,data.size)    
 
     return block_av
-    #}}}1
 
 def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
-    #{{{1
     """
     perform a block average for 2D array of Scalar values
     all data are used therefore the margin cells may differ in size
@@ -113,11 +110,8 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
 
     block_av.shape = (numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2)))
     return block_av
-    
-    #}}}1
 
 def blockAveragePSD(psddata,Nav,**kwargs):
-    #{{{1
     """
     perform a block average for serveral PSD spectra
     all data are used therefore the last cell used for
@@ -157,13 +151,11 @@ def blockAveragePSD(psddata,Nav,**kwargs):
 
     block_av.shape = (Nspectra,numpy.ceil(Nchannels/float(Nav)))
     return block_av
-    #}}}1
 
 ######################################
 ##    Intensity correction class    ##
 ######################################
 class IntensityNormalizer(object):
-    #{{{1
     """
     generic class for correction of intensity (point detector,or MCA) 
     for count time and absorber factors
@@ -172,7 +164,6 @@ class IntensityNormalizer(object):
     corresponding objects from hdf5 files read by pytables
     """
     def __init__(self,det,**keyargs):
-        #{{{2
         """
         initialization of the corrector class
 
@@ -227,20 +218,15 @@ class IntensityNormalizer(object):
             self._setdarkfield(keyargs['darkfield'])
         else:
             self._darkfield = None
-        
-        #}}}2
 
     def _getdet(self):
-        #{{{2
         """
         det property handler
         returns the detector field name
         """
         return self._det
-        #}}}2
 
     def _setdet(self,det):
-        #{{{2
         """
         det  property handler
         sets the detector field name
@@ -250,20 +236,16 @@ class IntensityNormalizer(object):
         else:
             self._det = None
             raise TypeError("argument det must be of type str")
-        #}}}2
 
     def _gettime(self):
-        #{{{2
         """
         time property handler
         returns the count time or the field name of the count time
         or None if time is not set
         """
         return self._time
-        #}}}2
 
     def _settime(self,time):
-        #{{{2
         """
         time property handler
         sets the count time field or value
@@ -276,19 +258,15 @@ class IntensityNormalizer(object):
             self._time = None
         else:
             raise TypeError("argument time must be of type str, float or None")
-        #}}}2
 
     def _getmon(self):
-        #{{{2
         """
         mon property handler
         returns the monitor field name or None if not set
         """
         return self._mon
-        #}}}2
 
     def _setmon(self,mon):
-        #{{{2
         """
         mon property handler
         sets the monitor field name
@@ -299,20 +277,16 @@ class IntensityNormalizer(object):
             self._mon = None
         else: 
             raise TypeError("argument mon must be of type str")
-        #}}}2
 
     def _getavmon(self):
-        #{{{2
         """
         av_mon property handler
         returns the value of the average monitor or None
         if average is calculated from the monitor field
         """
         return self._avmon
-        #}}}2
 
     def _setavmon(self,avmon):
-        #{{{2
         """
         avmon property handler
         sets the average monitor field name
@@ -323,19 +297,15 @@ class IntensityNormalizer(object):
             self._avmon = None
         else: 
             raise TypeError("argument avmon must be of type float or None")
-        #}}}2
 
     def _getabsfun(self):
-        #{{{2
         """
         absfun property handler
         returns the costum correction function or None
         """
         return self._absfun
-        #}}}2
 
     def _setabsfun(self,absfun):
-        #{{{2
         """
         absfun property handler
         sets the costum correction function
@@ -348,20 +318,16 @@ class IntensityNormalizer(object):
             self._absfun = None
         else:
             raise TypeError("argument absfun must be of type function or None")
-        #}}}2
 
     def _getflatfield(self):
-        #{{{2
         """
         flatfield property handler
         returns the current set flatfield of the detector
         or None if not set
         """
         return self._flatfield
-        #}}}2
 
     def _setflatfield(self,flatf):
-        #{{{2
         """
         flatfield property handler
         sets the flatfield of the detector
@@ -374,20 +340,16 @@ class IntensityNormalizer(object):
             self._flatfield = None
         else: 
             raise TypeError("argument flatfield must be of type list,tuple,numpy.ndarray or None")
-        #}}}2
 
     def _getdarkfield(self):
-        #{{{2
         """
         flatfield property handler
         returns the current set darkfield of the detector
         or None if not set
         """
         return self._darkfield
-        #}}}2
 
     def _setdarkfield(self,darkf):
-        #{{{2
         """
         flatfield property handler
         sets the darkfield of the detector
@@ -399,7 +361,6 @@ class IntensityNormalizer(object):
             self._darkfield = None
         else: 
             raise TypeError("argument flatfield must be of type list,tuple,numpy.ndarray or None")
-        #}}}2
 
     det = property(_getdet,_setdet)
     time = property(_gettime,_settime)
@@ -410,7 +371,6 @@ class IntensityNormalizer(object):
     darkfield = property(_getdarkfield,_setdarkfield)
 
     def __call__(self,data):
-        #{{{2
         """
         apply the correction method which was initialized to the measured data
 
@@ -482,8 +442,6 @@ class IntensityNormalizer(object):
             raise InputError("data[det] must be an array of dimension one or two")
 
         return corrint
-        #}}}2
-    #}}}1
 
 
 

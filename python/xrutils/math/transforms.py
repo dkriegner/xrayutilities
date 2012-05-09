@@ -37,7 +37,6 @@ def index_map_ij2ijkl(ij):
 
 
 def Cij2Cijkl(cij):
-    #{{{1
     """
     Cij2Cijkl(cij):
     Converts the elastic constants matrix (tensor of rank 2) to 
@@ -68,10 +67,8 @@ def Cij2Cijkl(cij):
                     mj = index_map_ijkl2ij(k,l)
                     cijkl[i,j,k,l] = m[mi,mj]
     return cijkl
-    #}}}1
 
 def Cijkl2Cij(cijkl):
-    #{{{1
     """
     Cijkl2Cij(cijkl):
     Converts the full rank 4 tensor of the elastic constants to 
@@ -96,7 +93,6 @@ def Cijkl2Cij(cijkl):
     cij = m[0:6,0:6]
 
     return cij
-    #}}}1
 
 
 class Transform(object):

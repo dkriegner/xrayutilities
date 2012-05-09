@@ -38,7 +38,6 @@ LOG_tagline = re.compile(r"^#")
 LOG_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+") #denotes a numeric value
 
 class RA_Alignment(object):
-    #{{{1
     """
     class to parse the data file created by the alignment routine 
     (tpalign) at the rotating anode spec installation
@@ -51,7 +50,6 @@ class RA_Alignment(object):
     """
 
     def __init__(self,filename):
-        #{{{2
         """
         initialization function to initialize the objects variables and
         opens the file
@@ -76,10 +74,7 @@ class RA_Alignment(object):
 
         self.Parse()
 
-        #}}}2
-
     def Parse(self):
-        #{{{2
         """
         parser to read the alignment log and obtain the aligned values
         at every iteration.
@@ -158,10 +153,8 @@ class RA_Alignment(object):
         self.data = []
         for i,k in enumerate(self.keys()):
             self.data.append(numpy.array((self.motorpos[i],self.intensities[i],self.iterations[i])))
-        #}}}2
 
     def __str__(self):
-        #{{{2
         """ 
         returns a string describing the content of the alignment file
         """
@@ -169,7 +162,6 @@ class RA_Alignment(object):
         ostr += "Peaknames: " + repr(self.peaks) + "\n"
         ostr += "aligned values: " + repr(self.alignnames)
         return ostr
-        #}}}2
 
     def __del__(self):
         try: fid.close()
@@ -185,7 +177,6 @@ class RA_Alignment(object):
         return self.__getitem__(key)
 
     def __getitem__(self,key):
-        #{{{2
         """
         returns the values to the corresponding key
         """
@@ -194,10 +185,8 @@ class RA_Alignment(object):
             return self.data[i]
         else:
             raise KeyError("RA_Alignment: unknown key given!")
-        #}}}2
 
     def plot(self,pname):
-        #{{{2
         """
         function to plot the alignment history for a given peak
         
@@ -235,6 +224,4 @@ class RA_Alignment(object):
 
         plt.xlabel("Peak iteration number")
         plt.suptitle(pname)
-        #}}}2
-#}}}1
 

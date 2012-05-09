@@ -37,7 +37,6 @@ def VecNorm(v):
     return value:
     float holding the vector norm
     """
-    #{{{1
     if isinstance(v,list):
         vtmp = numpy.array(v,dtype=numpy.double)
     elif isinstance(v,numpy.ndarray):
@@ -49,7 +48,6 @@ def VecNorm(v):
         raise ValueError("Vector must be of size 3, but has size %d!"%vtmp.size)
 
     return numpy.linalg.norm(vtmp)
-    #}}}1
 
 def VecUnit(v):
     """
@@ -62,7 +60,6 @@ def VecUnit(v):
     return value:
     numpy array with the unit vector
     """
-    #{{{1
     if isinstance(v,list):
         vtmp = numpy.array(v,dtype=numpy.double)
     elif isinstance(v,numpy.ndarray):
@@ -71,7 +68,6 @@ def VecUnit(v):
         raise TypeError("Vector must be a list or numpy arra")
 
     return vtmp/VecNorm(vtmp)
-    #}}}1
 
 def VecDot(v1,v2):
     """
@@ -85,7 +81,6 @@ def VecDot(v1,v2):
     return value:
     float value 
     """
-    #{{{1
     if isinstance(v1,list):
         v1tmp = numpy.array(v1,dtype=numpy.double)
     elif isinstance(v1,numpy.ndarray):
@@ -104,7 +99,6 @@ def VecDot(v1,v2):
         raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)" %(v1tmp.size,v2tmp.size))
 
     return numpy.dot(v1tmp,v2tmp)
-    #}}}1
 
 
 def VecAngle(v1,v2,deg=False):
@@ -127,7 +121,6 @@ def VecAngle(v1,v2,deg=False):
     return value:
     float value with the angle inclined by the two vectors
     """
-    #{{{1
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
     if(config.VERBOSITY >= config.DEBUG):
@@ -138,5 +131,4 @@ def VecAngle(v1,v2,deg=False):
         alpha = numpy.degrees(alpha)
 
     return alpha
-    #}}}1
 

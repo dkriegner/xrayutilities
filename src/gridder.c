@@ -31,7 +31,6 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
               unsigned int nx,unsigned int ny,
               double xmin,double xmax,double ymin,double ymax,
               double *odata,double *norm,int flags)
-/*{{{1*/
 {
     double dx;
     double dy;
@@ -94,7 +93,6 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
 
     return(0);
 }
-/*}}}1*/
 
 
 int gridder2d_th(unsigned int nth,
@@ -102,7 +100,6 @@ int gridder2d_th(unsigned int nth,
                  unsigned int nx,unsigned int ny,
                  double xmin,double xmax,double ymin,double ymax,
                  double *odata,double *norm,int flags)
-/*{{{1*/
 {
     pthread_t *threads;
     pthread_attr_t thattr;
@@ -229,10 +226,8 @@ int gridder2d_th(unsigned int nth,
 
     return(0);
 }
-/*}}}1*/
 
 void *gridder2d_th_worker(void *arg)
-/*{{{1*/
 {
     unsigned int i;
     unsigned int x_index,y_index;
@@ -298,14 +293,12 @@ void *gridder2d_th_worker(void *arg)
         pthread_exit(NULL);
     }
 }
-/*}}}1*/
 
 int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
               unsigned int nx,unsigned int ny,unsigned int nz,
               double xmin, double xmax, double ymin, double ymax, 
               double zmin, double zmax,
               double *odata,double *norm,int flags)
-/*{{{1*/
 {
     double dx,dy,dz;
     double *gnorm;
@@ -371,7 +364,6 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
 
     return(0);
 }
-/*}}}1*/
 
 
 int gridder3d_th(unsigned int nth,
@@ -380,7 +372,6 @@ int gridder3d_th(unsigned int nth,
                  double xmin, double xmax, double ymin, double ymax, 
                  double zmin, double zmax,
                  double *odata,double *norm,int flags)
-/*{{{1*/
 {
     pthread_t *threads;
     pthread_attr_t thattr;
@@ -535,10 +526,8 @@ int gridder3d_th(unsigned int nth,
 
     return(0);
 }
-/*}}}1*/
 
 void *gridder3d_th_worker(void *arg)
-/*{{{1*/
 {
     unsigned int i;
     unsigned int x_index,y_index,z_index;
@@ -603,12 +592,10 @@ void *gridder3d_th_worker(void *arg)
         pthread_exit(NULL);
     }
 }
-/*}}}1*/
 
 /* folling functions shouldn't be needed anymore 
  * -> replaced by numpy code */ 
 double get_min(double *a,unsigned int n)
-/*{{{1*/
 {
     double m;
     unsigned int i;
@@ -621,10 +608,8 @@ double get_min(double *a,unsigned int n)
     }
     return(m);
 }
-/*}}}1*/
 
 double get_max(double *a,unsigned int n)
-/*{{{1*/
 {
     double m;
     unsigned int i;
@@ -638,5 +623,4 @@ double get_max(double *a,unsigned int n)
 
     return(m);
 }
-/*}}}1*/
 

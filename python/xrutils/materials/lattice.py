@@ -40,7 +40,6 @@ def _db_cleanup():
 atexit.register(_db_cleanup)
 
 class Atom(object):
-    #{{{1
     def __init__(self,name,num):
         self.name = name
         self.num = num
@@ -88,7 +87,6 @@ class Atom(object):
             return _db.GetF2(en)
     
     def f(self,q,en="config"):
-        #{{{2
         """
         function to calculate the atomic structure factor F
 
@@ -106,18 +104,14 @@ class Atom(object):
             en = config.ENERGY
         f = self.f0(norm(q))+self.f1(en)+1.j*self.f2(en)
         return f
-        #}}}2
 
     def __str__(self):
         ostr = self.name
         ostr += " (%2d)" %self.num
         return ostr 
-    #}}}1    
-
 
 
 class LatticeBase(list):
-    #{{{1
     """
     The LatticeBase class implements a container for a set of 
     points that form the base of a crystal lattice. An instance of this class
@@ -162,18 +156,15 @@ class LatticeBase(list):
             ostr += "Base point %i: %s (%f %f %f)\n" %(i,atom.__str__(),p[0],p[1],p[2])
 
         return ostr
-    #}}}1
     
 
 class Lattice(object):
-    #{{{1
     """
     class Lattice:
     This object represents a Bravais lattice. A lattice consists of a 
     base 
     """
     def __init__(self,a1,a2,a3,base=None):
-        #{{{2
         if isinstance(a1,list):
             self.a1 = numpy.array(a1,dtype=numpy.double)
         elif isinstance(a1,numpy.ndarray):
@@ -202,10 +193,8 @@ class Lattice(object):
                 self.base = base
         else:
             self.base = None
-        #}}}2
 
     def ApplyStrain(self,eps):
-        #{{{2
         """
         ApplyStrain(eps):
         Applies a certain strain on a lattice. The result is a change 
@@ -224,7 +213,6 @@ class Lattice(object):
         self.a2 = self.a2 + u2
         u3 = (eps*self.a3[numpy.newaxis,:]).sum(axis=1)
         self.a3 = self.a3 + u3
-        #}}}2
 
     def ReciprocalLattice(self):
         V = self.UnitCellVolume()
@@ -236,13 +224,11 @@ class Lattice(object):
         return Lattice(b1,b2,b3)
 
     def UnitCellVolume(self):
-        #{{{2
         """
         function to calculate the unit cell volume of a lattice (angstrom^3)
         """
         V = numpy.dot(self.a3,numpy.cross(self.a1,self.a2))
         return V
-        #}}}2
 
     def GetPoint(self,*args):
         if len(args)<3:
@@ -265,8 +251,6 @@ class Lattice(object):
             ostr += self.base.__str__()
 
         return ostr
-            
-    #}}}1
     
 #some idiom functions to simplify lattice creation
 
@@ -287,7 +271,6 @@ def CubicLattice(a):
 #some lattice related functions
 
 def ZincBlendeLattice(aa,ab,a):
-    #{{{1 
     #create lattice base
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
@@ -307,16 +290,12 @@ def ZincBlendeLattice(aa,ab,a):
     l = Lattice(a1,a2,a3,base=lb)    
     
     return l
-    #}}}1
 
 def DiamondLattice(aa,a):
-    #{{{1
     # Diamond is ZincBlende with two times the same atom
     return ZincBlendeLattice(aa,aa,a)
-    #}}}1
     
 def FCCLattice(aa,a):
-    #{{{1
     #create lattice base
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
@@ -332,10 +311,8 @@ def FCCLattice(aa,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
     
 def BCCLattice(aa,a):
-    #{{{1
     #create lattice base
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
@@ -349,10 +326,8 @@ def BCCLattice(aa,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def BCTLattice(aa,a,c):
-    #{{{1
     # body centered tetragonal lattice
     #create lattice base
     lb = LatticeBase()
@@ -367,10 +342,8 @@ def BCTLattice(aa,a,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def RockSaltLattice(aa,ab,a):
-    #{{{1
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.materials.RockSaltLattice: Warning; NaCl lattice is not using a cubic lattice structure") 
@@ -386,10 +359,8 @@ def RockSaltLattice(aa,ab,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def RockSalt_Cubic_Lattice(aa,ab,a):
-    #{{{1
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
     lb.append(aa,[0.5,0.5,0])
@@ -409,10 +380,8 @@ def RockSalt_Cubic_Lattice(aa,ab,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def RutileLattice(aa,ab,a,c,u):
-    #{{{1
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
     # P4_2/mmm(136) aa=2a,ab=4f; x \approx 0.305 (VO_2)
     lb = LatticeBase()
@@ -431,10 +400,8 @@ def RutileLattice(aa,ab,a,c,u):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def BaddeleyiteLattice(aa,ab,a,b,c,beta,deg=True):
-    #{{{1
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
     # P2_1/c(14), aa=4e,ab=2*4e  
     lb = LatticeBase()
@@ -462,10 +429,8 @@ def BaddeleyiteLattice(aa,ab,a,b,c,beta,deg=True):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def WurtziteLattice(aa,ab,a,c,u=3/8.):
-    #{{{1
     #create lattice base: data from laue atlas (hexagonal ZnS)
     # P63mc; aa=4e,ab=4e  
     lb = LatticeBase()
@@ -482,10 +447,8 @@ def WurtziteLattice(aa,ab,a,c,u=3/8.):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def Hexagonal4HLattice(aa,ab,a,c,u=3/16.,v1=1/4.,v2=7/16.):
-    #{{{1
     #create lattice base: data from laue atlas (hexagonal ZnS) + brainwork by B. Mandl and D. Kriegner
     # ABAC
     lb = LatticeBase()
@@ -506,10 +469,8 @@ def Hexagonal4HLattice(aa,ab,a,c,u=3/16.,v1=1/4.,v2=7/16.):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def Hexagonal6HLattice(aa,ab,a,c):
-    #{{{1
     #create lattice base: https://www.ifm.liu.se/semicond/new_page/research/sic/Chapter2.html + brainwork by B. Mandl and D. Kriegner
     # ABCACB
     lb = LatticeBase()
@@ -534,10 +495,8 @@ def Hexagonal6HLattice(aa,ab,a,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def TrigonalR3mh(aa,a,c):
-    #{{{1
     # create Lattice base from american mineralogist: R3mh (166)
     # http://rruff.geo.arizona.edu/AMS/download.php?id=12092.amc&down=amc
     lb = LatticeBase()
@@ -552,10 +511,8 @@ def TrigonalR3mh(aa,a,c):
     l = Lattice(a1,a2,a3,base=lb)
     
     return l
-    #}}}1
 
 def Hexagonal3CLattice(aa,ab,a,c):
-    #{{{1
     #create lattice base: data from laue atlas (hexagonal ZnS) + brainwork by B. Mandl and D. Kriegner
     lb = LatticeBase()
     lb.append(aa,[0.,0.,0.])
@@ -573,10 +530,8 @@ def Hexagonal3CLattice(aa,ab,a,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def QuartzLattice(aa,ab,a,b,c):
-    #{{{1
     #create lattice base: data from american mineralogist 65 (1980) 920-930
     lb = LatticeBase()
     lb.append(aa,[0.4697,0.,0.])
@@ -604,10 +559,8 @@ def QuartzLattice(aa,ab,a,b,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def TetragonalIndiumLattice(aa,a,c):
-    #{{{1
     #create lattice base: I4/mmm (139) site symmetry (2a) 
     # data from: Journal of less common-metals 7 (1964) 17-22 (see american mineralogist database) 
     lb = LatticeBase()
@@ -622,10 +575,8 @@ def TetragonalIndiumLattice(aa,a,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def TetragonalTinLattice(aa,a,c):
-    #{{{1
     #create lattice base: I4_1/amd (141) site symmetry (4a) 
     # data from: Wykhoff (see american mineralogist database) 
     lb = LatticeBase()
@@ -642,10 +593,8 @@ def TetragonalTinLattice(aa,a,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def NaumanniteLattice(aa,ab,a,b,c):
-    #{{{1
     #create lattice base: P 21 21 21 
     # data from: american mineralogist 
     # http://rruff.geo.arizona.edu/AMS/download.php?id=00261.amc&down=amc
@@ -673,10 +622,8 @@ def NaumanniteLattice(aa,ab,a,b,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 
 def CubicFm3mBaF2(aa,ab,a):
-    #{{{1
     #create lattice base: F m 3 m  
     # American Mineralogist Database: Frankdicksonite  
     lb = LatticeBase()
@@ -702,5 +649,4 @@ def CubicFm3mBaF2(aa,ab,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1
 

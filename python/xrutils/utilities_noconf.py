@@ -23,7 +23,6 @@ this part of utilities does not need the config class
 import scipy.constants
 
 def lam2en(inp):
-    #{{{
     """
     converts the input energy in eV to a wavelength in Angstrom
     or the input wavelength in Angstrom to an energy in eV
@@ -46,5 +45,4 @@ def lam2en(inp):
     out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
 
     return out
-    #}}}
 

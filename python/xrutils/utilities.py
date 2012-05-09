@@ -26,7 +26,6 @@ from . import config
 from .utilities_noconf import *
 
 def maplog(inte,dynlow = "config",dynhigh = "config",**keyargs):
-    #{{{
     """
     clips values smaller and larger as the given bounds and returns the log10
     of the input array. The bounds are given as exponent with base 10 with respect 
@@ -64,5 +63,4 @@ def maplog(inte,dynlow = "config",dynhigh = "config",**keyargs):
     mi = inte.max()*10**(-dynlow)  # lower bound
  
     return numpy.log10(numpy.minimum(numpy.maximum(inte,mi),ma))
-    #}}}
 

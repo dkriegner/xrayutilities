@@ -47,7 +47,6 @@ class DataBase(object):
         dbname .............. name of the database
         dbdesc .............. a short description of the database
         """
-        #{{{
         if self.h5file!=None:
             print("database already opened - close first to create new database")
             return None
@@ -63,7 +62,6 @@ class DataBase(object):
         #description
         self.h5file.setNodeAttr("/","DBName",dbname)
         self.h5file.setNodeAttr("/","DBDesc",dbdesc)
-        #}}}
         
 
     def Open(self,mode="r"):
@@ -71,7 +69,6 @@ class DataBase(object):
         Open():
         Open an existing database file.
         """
-        #{{{
         if self.h5file!=None:
             print("database already opened - close first to open new database!")
             return None
@@ -81,21 +78,18 @@ class DataBase(object):
         except:
             print("cannot open database file %s!" %(self.fname))
             return None
-        #}}}
 
     def Close(self):
         """
         Close():
         Close an opend database file.
         """
-        #{{{
         if self.h5file == None:
             print("no database file opened!")
             return None
 
         self.h5file.close()
         self.h5file = None
-        #}}}
     
     def CreateMaterial(self,name,description):
         """
@@ -107,7 +101,6 @@ class DataBase(object):
         name ................... a string with the name of the material
         description ............ a string with a description of the material
         """
-        #{{{
         if self.h5file == None:
             print("no database file opened!")
             return None
@@ -122,7 +115,6 @@ class DataBase(object):
             pass
 
         g = self.h5file.createGroup("/",name,title=description)
-        #}}}
 
     def SetF0(self,parameters):
         """
@@ -134,7 +126,6 @@ class DataBase(object):
         required input argument:
         parameters ............... list or numpy array with the fit parameters
         """
-        #{{{
         if isinstance(parameters,list):
             p = numpy.array(parameters,dtype=numpy.float32)
         elif isinstance(parameters,numpy.ndarray):
@@ -152,7 +143,6 @@ class DataBase(object):
 
         c[...] = p
         self.h5file.flush()
-        #}}}
 
     def SetF1(self,en,f1):
         """
@@ -163,7 +153,6 @@ class DataBase(object):
         en ...................... list or numpy array with energy in (eV)
         f1 ...................... list or numpy array with f1 values
         """
-        #{{{
         if isinstance(en,list):
             end = numpy.array(en,dtype=numpy.float32)
         elif isinstance(en,numpy.ndarray):
@@ -197,7 +186,6 @@ class DataBase(object):
         c = self.h5file.createCArray(self.h5group,"f1",a,f1d.shape,"f1 data")
         c[...] = f1d
         self.h5file.flush()
-        #}}}
 
     def SetF2(self,en,f2):
         """
@@ -208,7 +196,6 @@ class DataBase(object):
         en ...................... list or numpy array with energy in (eV)
         f2 ...................... list or numpy array with f2 values
         """
-        #{{{
         if isinstance(en,list):
             end = numpy.array(en,dtype=numpy.float32)
         elif isinstance(en,numpy.ndarray):
@@ -242,7 +229,6 @@ class DataBase(object):
         c = self.h5file.createCArray(self.h5group,"f2",a,f2d.shape,"f2 data")
         c[...] = f2d
         self.h5file.flush()
-        #}}}
 
     def SetMaterial(self,name):
         """
@@ -254,7 +240,6 @@ class DataBase(object):
         requiered input arguments:
         name ............... string with the name of the material
         """
-        #{{{
         try:
             self.h5group = self.h5file.getNode("/",name)
         except:
@@ -273,7 +258,6 @@ class DataBase(object):
             #self.f1        = None
             #self.f2_en     = None
             #self.f2        = None          
-        #}}}
 
     def GetF0(self,q):
         """
@@ -284,7 +268,6 @@ class DataBase(object):
         required input argument:
         q ......... single float value or numpy array
         """
-        #{{{
         #get parameters
         f0_params = self.f0_params.read()
         c = f0_params[0]
@@ -297,7 +280,6 @@ class DataBase(object):
             f0 += a*numpy.exp(-b*k**2)
 
         return f0+c
-        #}}}
 
     def GetF1(self,en):
         """
@@ -308,8 +290,6 @@ class DataBase(object):
         required input arguments:
         en ............. float or numpy array with the energy
         """
-
-        #{{{
         #check if energy is coverd by database data
         endb = self.f1_en.read()
         f1db = self.f1.read()
@@ -318,7 +298,6 @@ class DataBase(object):
         f1 = if1(en)
 
         return f1
-        #}}}
 
     def GetF2(self,en):
         """
@@ -329,8 +308,6 @@ class DataBase(object):
         required input arguments:
         en ............. float or numpy array with the energy
         """
-
-        #{{{
         #check if energy is coverd by database data
         endb = self.f2_en.read()
         f2db = self.f2.read()
@@ -339,7 +316,6 @@ class DataBase(object):
         f2 = if2(en)
 
         return f2
-        #}}}
 
 
 def init_material_db(db):
