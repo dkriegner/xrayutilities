@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -40,7 +40,7 @@ class DataBase(object):
     def Create(self,dbname,dbdesc):
         """
         Create(dbname,dbdesc):
-        Creates a new database. If the database file already exists 
+        Creates a new database. If the database file already exists
         its content is delete.
 
         required input arguments:
@@ -58,11 +58,11 @@ class DataBase(object):
             print("cannot create database file %s!" %(self.fname))
             return None
 
-        #set attributes to the root group with database name and 
+        #set attributes to the root group with database name and
         #description
         self.h5file.setNodeAttr("/","DBName",dbname)
         self.h5file.setNodeAttr("/","DBDesc",dbdesc)
-        
+
 
     def Open(self,mode="r"):
         """
@@ -90,11 +90,11 @@ class DataBase(object):
 
         self.h5file.close()
         self.h5file = None
-    
+
     def CreateMaterial(self,name,description):
         """
         CreateMaterial(name,description):
-        This method creates a new material. If the material group already exists 
+        This method creates a new material. If the material group already exists
         the procedure is aborted.
 
         required input arguments:
@@ -107,7 +107,7 @@ class DataBase(object):
 
         try:
             g = self.getNode("/",name)
-            #if this operation succeeds the material node already exists and 
+            #if this operation succeeds the material node already exists and
             #a warning message is printed
             print("material node already exists")
             return None
@@ -137,7 +137,7 @@ class DataBase(object):
             self.h5file.removeNode(self.h5group,"f0")
         except:
             pass
-    
+
         a = tables.Float32Atom()
         c = self.h5file.createCArray(self.h5group,"f0",a,[len(p)],title="f0 fit parameters")
 
@@ -168,7 +168,7 @@ class DataBase(object):
             raise TypeError("f1 values must be a list or a numpy array!")
 
         a = tables.Float32Atom()
-        
+
         try:
             self.h5file.removeNode(self.h5group,"en_f1")
         except:
@@ -211,7 +211,7 @@ class DataBase(object):
             raise TypeError("f2 values must be a list or a numpy array!")
 
         a = tables.Float32Atom()
-        
+
         try:
             self.h5file.removeNode(self.h5group,"en_f2")
         except:
@@ -233,7 +233,7 @@ class DataBase(object):
     def SetMaterial(self,name):
         """
         SetMaterial(name):
-        Set a particular material in the database as the actual material. 
+        Set a particular material in the database as the actual material.
         All operations like setting and getting optical constants are done for
         this particular material.
 
@@ -257,12 +257,12 @@ class DataBase(object):
             #self.f1_en     = None
             #self.f1        = None
             #self.f2_en     = None
-            #self.f2        = None          
+            #self.f2        = None
 
     def GetF0(self,q):
         """
         GetF0(q):
-        Obtain the f0 scattering factor component for a particular 
+        Obtain the f0 scattering factor component for a particular
         momentum transfer q.
 
         required input argument:
@@ -284,7 +284,7 @@ class DataBase(object):
     def GetF1(self,en):
         """
         GetF1(self,en):
-        Return the second, energy dependent, real part of the scattering 
+        Return the second, energy dependent, real part of the scattering
         factor for a certain energy en.
 
         required input arguments:
@@ -302,7 +302,7 @@ class DataBase(object):
     def GetF2(self,en):
         """
         GetF2(self,en):
-        Return the imaginary part of the scattering 
+        Return the imaginary part of the scattering
         factor for a certain energy en.
 
         required input arguments:
@@ -321,7 +321,7 @@ class DataBase(object):
 def init_material_db(db):
     db.CreateMaterial("H","Hydrogen")
     db.CreateMaterial("He","Helium")
-    db.CreateMaterial("Li","Lithium")   
+    db.CreateMaterial("Li","Lithium")
     db.CreateMaterial("Be","Berylium")
     db.CreateMaterial("B","Bor")
     db.CreateMaterial("C","Carbon")
@@ -433,7 +433,7 @@ def add_f0_from_intertab(db,itabfile):
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
     invalidelem = re.compile(r"[^A-Za-z]")
-    
+
     while True:
         lb = itf.readline()
         if lb == "": break
@@ -444,7 +444,7 @@ def add_f0_from_intertab(db,itabfile):
             lb = multiblank.split(lb)
             ename = lb[2]
             #check if this is not some funny isotope
-            
+
             if invalidelem.findall(ename)==[]:
                 print("set element %s" %ename)
                 db.SetMaterial(ename)
@@ -487,7 +487,7 @@ def add_f0_from_xop(db,xopfile):
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
     invalidelem = re.compile(r"[^A-Za-z]")
-    
+
     while True:
         lb = xop.readline()
         if lb == "": break
@@ -498,7 +498,7 @@ def add_f0_from_xop(db,xopfile):
             lb = multiblank.split(lb)
             ename = lb[2]
             #check if this is not some funny isotope
-            
+
             if invalidelem.findall(ename)==[]:
                 print("set element %s" %ename)
                 db.SetMaterial(ename)
@@ -549,7 +549,7 @@ def add_f1f2_from_henkedb(db,henkefile):
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
     invalidelem = re.compile(r"[^A-Za-z]")
-    
+
     while True:
         lb = hf.readline()
         if lb == "": break
@@ -561,13 +561,13 @@ def add_f1f2_from_henkedb(db,henkefile):
             enum = lb[1]
             ename = lb[2]
             #check if this is not some funny isotope
-            
+
             if invalidelem.findall(ename)==[]:
                 print("set element %s"%ename)
                 db.SetMaterial(ename)
                 #make one dummy read
                 for i in range(5): hf.readline()
-                
+
                 #read data
                 en_list = []
                 f1_list = []
@@ -607,7 +607,7 @@ def add_f1f2_from_kissel(db,kisselfile):
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
     invalidelem = re.compile(r"[^A-Za-z]")
-    
+
     while True:
         lb = kf.readline()
         if lb == "": break
@@ -619,13 +619,13 @@ def add_f1f2_from_kissel(db,kisselfile):
             enum = lb[1]
             ename = lb[2]
             #check if this is not some funny isotope
-            
+
             if invalidelem.findall(ename)==[]:
                 print("set element %s"%ename)
                 db.SetMaterial(ename)
                 #make 28 dummy reads
                 for i in range(28): kf.readline()
-                
+
                 #read data
                 en_list = []
                 f1_list = []
@@ -645,7 +645,7 @@ def add_f1f2_from_kissel(db,kisselfile):
                             db.SetF1(en_list,f1_list)
                             db.SetF2(en_list,f2_list)
                             break
-                    except: 
+                    except:
                         print(lb)
                         break
 

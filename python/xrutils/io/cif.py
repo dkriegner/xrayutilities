@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -35,9 +35,9 @@ re_cell_gamma = re.compile(r"^_cell_angle_gamma")
 
 class CIFFile(object):
     """
-    class for parsing CIF (Crystallographic Information File) files. The class aims 
+    class for parsing CIF (Crystallographic Information File) files. The class aims
     to provide an additional way of creating material classes instead of manual entering
-    of the information the lattice constants and unit cell structure are parsed from the 
+    of the information the lattice constants and unit cell structure are parsed from the
     CIF file
     """
     def __init__(self,filename):
@@ -69,11 +69,11 @@ class CIFFile(object):
 
     def Parse(self):
         """
-        function to parse a CIF file. The function reads the 
+        function to parse a CIF file. The function reads the
         space group symmetry operations and the basic atom positions
         as well as the lattice constants and unit cell angles
         """
-        
+
         self.symops = []
         self.atoms = []
         self.lattice_const = numpy.zeros(3,dtype=numpy.double)
@@ -98,7 +98,7 @@ class CIFFile(object):
                 atom_loop = True
                 loop_start = False
             elif re_labelline.match(line): # label line, check if needed
-                if re_cell_a.match(line): 
+                if re_cell_a.match(line):
                     self.lattice_const[0] = float(line.split()[1])
                 elif re_cell_b.match(line):
                     self.lattice_const[1] = float(line.split()[1])
@@ -123,11 +123,11 @@ class CIFFile(object):
                 asplit = line.split()
                 alabel = asplit[0]
                 apos = (float(asplit[1]),float(asplit[2]),float(asplit[3]))
-                self.atoms.append((alabel,apos))                
+                self.atoms.append((alabel,apos))
 
     def SymStruct(self):
         """
-        function to obtain the list of different atom positions 
+        function to obtain the list of different atom positions
         in the unit cell for the different types of atoms. The data
         are obtained from the data parsed from the CIF file.
         """
@@ -143,7 +143,7 @@ class CIFFile(object):
             for symop in self.symops:
                 exec("pos = numpy.array("+ symop+ ")")
                 # check that position is within unit cell
-                pos = pos - pos//1 
+                pos = pos - pos//1
                 # check if position is unique
                 unique = True
                 for upos in unique_pos:
@@ -158,14 +158,14 @@ class CIFFile(object):
         """
         returns a lattice object with the structure from the CIF file
         """
-        
+
         lb = materials.LatticeBase()
         for atom in self.unique_positions:
             element = atom[0]
             for pos in atom[1]:
                 lb.append(element,pos)
-        
-        #unit cell vectors 
+
+        #unit cell vectors
         ca = numpy.cos(numpy.radians(self.lattice_angles[0]))
         cb = numpy.cos(numpy.radians(self.lattice_angles[1]))
         cg = numpy.cos(numpy.radians(self.lattice_angles[2]))
@@ -175,7 +175,7 @@ class CIFFile(object):
 
         a1 = self.lattice_const[0]*numpy.array([1,0,0],dtype=numpy.double)
         a2 = self.lattice_const[1]*numpy.array([cg,sg,0],dtype=numpy.double)
-        a3 = self.lattice_const[2]*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-  cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)    
+        a3 = self.lattice_const[2]*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-  cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)
         # create lattice
         l = materials.Lattice(a1,a2,a3,base=lb)
 
@@ -183,7 +183,7 @@ class CIFFile(object):
 
     def __str__(self):
         """
-        returns a string with positions and names of the atoms 
+        returns a string with positions and names of the atoms
         """
         ostr = ""
         ostr += "unit cell structure\n"

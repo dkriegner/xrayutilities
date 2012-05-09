@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -43,58 +43,58 @@ class Atom(object):
     def __init__(self,name,num):
         self.name = name
         self.num = num
-        
+
     def f0(self,q):
         _db.SetMaterial(self.name)
-        
+
         if isinstance(q,numpy.ndarray) or isinstance(q,list):
             d = numpy.zeros((len(q)),dtype=numpy.double)
             for i in range(len(q)):
                 d[i] = _db.GetF0(q[i])
-                
+
             return d
         else:
             return _db.GetF0(q)
-                
+
     def f1(self,en="config"):
         if en=="config":
             en = config.ENERGY
 
         _db.SetMaterial(self.name)
-        
+
         if isinstance(en,numpy.ndarray) or isinstance(en,list):
             d = numpy.zeros((len(en)),dtype=numpy.double)
             for i in range(len(en)):
                 d[i] = _db.GetF1(en[i])
-                
+
             return d
         else:
             return _db.GetF1(en)
-        
+
     def f2(self,en="config"):
         if en=="config":
             en = config.ENERGY
 
         _db.SetMaterial(self.name)
-        
+
         if isinstance(en,numpy.ndarray) or isinstance(en,list):
             d = numpy.zeros((len(en)),dtype=numpy.double)
             for i in range(len(en)):
                 d[i] = _db.GetF2(en[i])
-                
+
             return d
         else:
             return _db.GetF2(en)
-    
+
     def f(self,q,en="config"):
         """
         function to calculate the atomic structure factor F
 
         Parameter
         ---------
-         q:     momentum transfer 
+         q:     momentum transfer
          en:    energy for which F should be calculated,
-                if omitted the value from the xrutils configuration is used 
+                if omitted the value from the xrutils configuration is used
 
         Returns
         -------
@@ -108,22 +108,22 @@ class Atom(object):
     def __str__(self):
         ostr = self.name
         ostr += " (%2d)" %self.num
-        return ostr 
+        return ostr
 
 
 class LatticeBase(list):
     """
-    The LatticeBase class implements a container for a set of 
+    The LatticeBase class implements a container for a set of
     points that form the base of a crystal lattice. An instance of this class
-    can be treated as a simple container object. 
+    can be treated as a simple container object.
     """
     def __init__(self,*args,**keyargs):
-       list.__init__(self,*args,**keyargs) 
+       list.__init__(self,*args,**keyargs)
 
     def append(self,atom,pos):
-        if not isinstance(atom,Atom):           
+        if not isinstance(atom,Atom):
             raise TypeError("atom must be an instance of class xrutils.materials.Atom")
-            
+
         if isinstance(pos,list):
             pos = numpy.array(pos,dtype=numpy.double)
         elif isinstance(pos,numpy.ndarray):
@@ -138,7 +138,7 @@ class LatticeBase(list):
         (atom,pos) = data
         if not isinstance(atom,Atom):
             raise TypeError("atom must be an instance of class xrutils.materials.Atom!")
-            
+
         if isinstance(pos,list):
             p = numpy.array(pos,dtype=numpy.double)
         elif isinstance(pos,numpy.ndarray):
@@ -152,17 +152,17 @@ class LatticeBase(list):
         ostr = ""
         for i in range(list.__len__(self)):
             (atom,p) = list.__getitem__(self,i)
-            
+
             ostr += "Base point %i: %s (%f %f %f)\n" %(i,atom.__str__(),p[0],p[1],p[2])
 
         return ostr
-    
+
 
 class Lattice(object):
     """
     class Lattice:
-    This object represents a Bravais lattice. A lattice consists of a 
-    base 
+    This object represents a Bravais lattice. A lattice consists of a
+    base
     """
     def __init__(self,a1,a2,a3,base=None):
         if isinstance(a1,list):
@@ -178,14 +178,14 @@ class Lattice(object):
             self.a2 = a2
         else:
             raise TypeError("a2 must be a list or a numpy array")
-        
+
         if isinstance(a3,list):
             self.a3 = numpy.array(a3,dtype=numpy.double)
         elif isinstance(a3,numpy.ndarray):
             self.a3 = a3
         else:
             raise TypeError("a3 must be a list or a numpy array")
-            
+
         if base!=None:
             if not isinstance(base,LatticeBase):
                 raise TypeError("lattice base must be an instance of class xrutils.materials.LatticeBase")
@@ -197,8 +197,8 @@ class Lattice(object):
     def ApplyStrain(self,eps):
         """
         ApplyStrain(eps):
-        Applies a certain strain on a lattice. The result is a change 
-        in the base vectors. 
+        Applies a certain strain on a lattice. The result is a change
+        in the base vectors.
 
         requiered input arguments:
         eps .............. a 3x3 matrix independent strain components
@@ -206,7 +206,7 @@ class Lattice(object):
 
         if isinstance(eps,list):
             eps = numpy.array(eps,dtype=numpy.double)
-        
+
         u1 = (eps*self.a1[numpy.newaxis,:]).sum(axis=1)
         self.a1 = self.a1 + u1
         u2 = (eps*self.a2[numpy.newaxis,:]).sum(axis=1)
@@ -251,14 +251,14 @@ class Lattice(object):
             ostr += self.base.__str__()
 
         return ostr
-    
+
 #some idiom functions to simplify lattice creation
 
 def CubicLattice(a):
     """
     CubicLattice(a):
     Returns a Lattice object representing a simple cubic lattice.
-    
+
     required input arguments:
     a ................ lattice parameter
 
@@ -281,20 +281,20 @@ def ZincBlendeLattice(aa,ab,a):
     lb.append(ab,[0.75,0.75,0.25])
     lb.append(ab,[0.75,0.25,0.75])
     lb.append(ab,[0.25,0.75,0.75])
-    
+
     #create lattice vectors
     a1 = [a,0,0]
     a2 = [0,a,0]
     a3 = [0,0,a]
-    
-    l = Lattice(a1,a2,a3,base=lb)    
-    
+
+    l = Lattice(a1,a2,a3,base=lb)
+
     return l
 
 def DiamondLattice(aa,a):
     # Diamond is ZincBlende with two times the same atom
     return ZincBlendeLattice(aa,aa,a)
-    
+
 def FCCLattice(aa,a):
     #create lattice base
     lb = LatticeBase()
@@ -302,16 +302,16 @@ def FCCLattice(aa,a):
     lb.append(aa,[0.5,0.5,0])
     lb.append(aa,[0.5,0,0.5])
     lb.append(aa,[0,0.5,0.5])
-    
+
     #create lattice vectors
     a1 = [a,0,0]
     a2 = [0,a,0]
     a3 = [0,0,a]
-    
+
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    
+
 def BCCLattice(aa,a):
     #create lattice base
     lb = LatticeBase()
@@ -346,7 +346,7 @@ def BCTLattice(aa,a,c):
 def RockSaltLattice(aa,ab,a):
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.materials.RockSaltLattice: Warning; NaCl lattice is not using a cubic lattice structure") 
+        print("XU.materials.RockSaltLattice: Warning; NaCl lattice is not using a cubic lattice structure")
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
     lb.append(ab,[0.5,0.5,0.5])
@@ -403,13 +403,13 @@ def RutileLattice(aa,ab,a,c,u):
 
 def BaddeleyiteLattice(aa,ab,a,b,c,beta,deg=True):
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
-    # P2_1/c(14), aa=4e,ab=2*4e  
+    # P2_1/c(14), aa=4e,ab=2*4e
     lb = LatticeBase()
     lb.append(aa,[0.242,0.975,0.025])
     lb.append(aa,[-0.242,0.975+0.5,-0.025+0.5])
     lb.append(aa,[-0.242,-0.975,-0.025])
     lb.append(aa,[0.242,-0.975+0.5,0.025+0.5])
-    
+
     lb.append(ab,[0.1,0.21,0.20])
     lb.append(ab,[-0.1,0.21+0.5,-0.20+0.5])
     lb.append(ab,[-0.1,-0.21,-0.20])
@@ -432,11 +432,11 @@ def BaddeleyiteLattice(aa,ab,a,b,c,beta,deg=True):
 
 def WurtziteLattice(aa,ab,a,c,u=3/8.):
     #create lattice base: data from laue atlas (hexagonal ZnS)
-    # P63mc; aa=4e,ab=4e  
+    # P63mc; aa=4e,ab=4e
     lb = LatticeBase()
     lb.append(aa,[0.,0.,0.])
     lb.append(aa,[1/3.,2/3.,0.5])
-    
+
     lb.append(ab,[0.,0,u])
     lb.append(ab,[1/3.,2/3.,u+0.5])
 
@@ -456,7 +456,7 @@ def Hexagonal4HLattice(aa,ab,a,c,u=3/16.,v1=1/4.,v2=7/16.):
     lb.append(aa,[1/3.,2/3.,v1]) # B
     lb.append(aa,[2/3.,1/3.,0.5]) # C
     lb.append(aa,[1/3.,2/3.,0.5+v1]) # B
-    
+
     lb.append(ab,[0.,0.,u]) # A
     lb.append(ab,[1/3.,2/3.,v2]) # B
     lb.append(ab,[2/3.,1/3.,0.5+u]) # C
@@ -509,7 +509,7 @@ def TrigonalR3mh(aa,a,c):
     a2 = numpy.array([a/2.,numpy.sqrt(3)*a/2.,0.],dtype=numpy.double)
     a3 = numpy.array([0.,0.,c],dtype=numpy.double)
     l = Lattice(a1,a2,a3,base=lb)
-    
+
     return l
 
 def Hexagonal3CLattice(aa,ab,a,c):
@@ -518,7 +518,7 @@ def Hexagonal3CLattice(aa,ab,a,c):
     lb.append(aa,[0.,0.,0.])
     lb.append(aa,[1/3.,2/3.,1/3.])
     lb.append(aa,[2/3.,1/3.,2/3.])
-    
+
     lb.append(ab,[0.,0.,0.+1/4.])
     lb.append(ab,[1/3.,2/3.,1/3.+1/4.])
     lb.append(ab,[2/3.,1/3.,2/3.+1/4.])
@@ -555,14 +555,14 @@ def QuartzLattice(aa,ab,a,b,c):
 
     a1 = a*numpy.array([1,0,0],dtype=numpy.double)
     a2 = b*numpy.array([cg,sg,0],dtype=numpy.double)
-    a3 = c*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)    
+    a3 = c*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
 
 def TetragonalIndiumLattice(aa,a,c):
-    #create lattice base: I4/mmm (139) site symmetry (2a) 
-    # data from: Journal of less common-metals 7 (1964) 17-22 (see american mineralogist database) 
+    #create lattice base: I4/mmm (139) site symmetry (2a)
+    # data from: Journal of less common-metals 7 (1964) 17-22 (see american mineralogist database)
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
     lb.append(aa,[0.5,0.5,0.5])
@@ -577,8 +577,8 @@ def TetragonalIndiumLattice(aa,a,c):
     return l
 
 def TetragonalTinLattice(aa,a,c):
-    #create lattice base: I4_1/amd (141) site symmetry (4a) 
-    # data from: Wykhoff (see american mineralogist database) 
+    #create lattice base: I4_1/amd (141) site symmetry (4a)
+    # data from: Wykhoff (see american mineralogist database)
     lb = LatticeBase()
     lb.append(aa,[0,0,0])
     lb.append(aa,[0.5,0.5,0.5])
@@ -595,15 +595,15 @@ def TetragonalTinLattice(aa,a,c):
     return l
 
 def NaumanniteLattice(aa,ab,a,b,c):
-    #create lattice base: P 21 21 21 
-    # data from: american mineralogist 
+    #create lattice base: P 21 21 21
+    # data from: american mineralogist
     # http://rruff.geo.arizona.edu/AMS/download.php?id=00261.amc&down=amc
     lb = LatticeBase()
     lb.append(aa,[0.107,0.369,0.456])
     lb.append(aa,[0.5-0.107,0.5+0.369,0.5-0.456])
     lb.append(aa,[0.5+0.107,-0.369,-0.456])
     lb.append(aa,[-0.107,0.5-0.369,0.5+0.456])
-    
+
     lb.append(aa,[0.728,0.029,0.361])
     lb.append(aa,[0.5-0.728,0.5+0.029,0.5-0.361])
     lb.append(aa,[0.5+0.728,-0.029,-0.361])
@@ -613,7 +613,7 @@ def NaumanniteLattice(aa,ab,a,b,c):
     lb.append(ab,[0.5-0.358,0.5+0.235,0.5-0.149])
     lb.append(ab,[0.5+0.358,-0.235,-0.149])
     lb.append(ab,[-0.358,0.5-0.235,0.5+0.149])
-    
+
     #create lattice vectors
     a1 = [a,0,0]
     a2 = [0,b,0]
@@ -624,8 +624,8 @@ def NaumanniteLattice(aa,ab,a,b,c):
     return l
 
 def CubicFm3mBaF2(aa,ab,a):
-    #create lattice base: F m 3 m  
-    # American Mineralogist Database: Frankdicksonite  
+    #create lattice base: F m 3 m
+    # American Mineralogist Database: Frankdicksonite
     lb = LatticeBase()
     lb.append(aa,[0.,0.,0.])
     lb.append(aa,[0.,0.5,0.5])

@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -18,12 +18,12 @@
 
 """
 a set of  routines to convert Seifert ASCII files to HDF5
-in fact there exist two posibilities how the data is stored (depending on the 
+in fact there exist two posibilities how the data is stored (depending on the
 use detector):
  1.) as a simple line scan (using the point detector)
  2.) as a map using the PSD
 
-In the first case the data ist stored 
+In the first case the data ist stored
 """
 
 import re
@@ -58,8 +58,8 @@ re_absorber = re.compile(r"^&Axis=A6")
 def repair_key(key):
     """
     repair_key(key):
-    Repair a key string in the sense that the string is changed in a way that 
-    it can be used as a valid Python identifier. For that purpose all blanks 
+    Repair a key string in the sense that the string is changed in a way that
+    it can be used as a valid Python identifier. For that purpose all blanks
     within the string will be replaced by _ and leading numbers get an
     preceeding _.
     """
@@ -132,7 +132,7 @@ class SeifertMultiScan(object):
         self.data = []
         m2_tmppos = 0
         self.int = []
-        self.sm_pos = None 
+        self.sm_pos = None
         self.m2_pos = []
         s = 0
         e = 0
@@ -142,7 +142,7 @@ class SeifertMultiScan(object):
             lb = self.fid.readline()
             if not lb: break
             lb = lb.strip()
-            
+
             #the first thing needed is the number of scans in the fiel
             if nscans_re.match(lb):
                 t = lb.split("=")[1]
@@ -158,7 +158,7 @@ class SeifertMultiScan(object):
                 t = lb.split("=")[1]
                 self.n_sm_pos = int(t)
                 self.m2_pos.append(m2_tmppos)
-                
+
             if re_stepscan.match(lb):
                 t = re_start.findall(lb)[0]
                 t = t.split("=")[1]
@@ -174,7 +174,7 @@ class SeifertMultiScan(object):
                 t = re_multiblank.split(lb)[1]
                 self.int.append(float(t))
 
-        #after reading all the data 
+        #after reading all the data
         self.m2_pos = numpy.array(self.m2_pos,dtype=numpy.double)
         self.sm_pos = numpy.arange(s,e+0.5*d,d,dtype=numpy.double)
         self.int = numpy.array(self.int,dtype=numpy.double)
@@ -186,8 +186,8 @@ class SeifertMultiScan(object):
         dump2hdf5(h5,*args,**keyargs):
         Saves the content of a multi-scan file to a HDF5 file. By default the
         data is stored in the root group of the file. To save data somewhere
-        else the keyword argument "group" must be used. 
-        
+        else the keyword argument "group" must be used.
+
         required arguments:
         h5 ................. a HDF5 file object
 
@@ -242,7 +242,7 @@ class SeifertMultiScan(object):
     def dump2mlab(self,fname,*args):
         """
         dump2malb(fname,*args):
-        Store the data in a matlab file. 
+        Store the data in a matlab file.
         """
         pass
 
@@ -271,7 +271,7 @@ class SeifertScan(object):
             self.parse()
 
     def parse(self):
-        if config.VERBOSITY >= config.INFO_ALL: 
+        if config.VERBOSITY >= config.INFO_ALL:
             print("XU.io.SeifertScan.parse: starting the parser")
         self.data = []
         while True:
@@ -289,12 +289,12 @@ class SeifertScan(object):
                     (key,value) = e.split("=")
                     #remove leading & from the key
                     key = key[1:]
-                    #have to manage malformed key names that cannot be used as 
+                    #have to manage malformed key names that cannot be used as
                     #Python identifiers (leading numbers or blanks inside the
                     #name)
                     key = repair_key(key)
 
-                    #try to convert the values to float numbers 
+                    #try to convert the values to float numbers
                     #leave them as strings if this is not possible
                     try:
                         value = float(value)
@@ -304,35 +304,35 @@ class SeifertScan(object):
                     self.hdr.__setattr__(key,value)
                 else:
                     try:
-                        tmplist.append(float(e)) 
+                        tmplist.append(float(e))
                     except:
                         pass
-                    
+
             if tmplist!=[]:
                 self.data.append(tmplist)
 
         #in the end we convert the data list to a numeric array
         self.data = numpy.array(self.data,dtype=numpy.float)
 
-    
+
     def dump2h5(self,h5,*args,**keyargs):
         """
         dump2h5(h5,**keyargs):
-        Save the data stored in the Seifert ASCII file to a HDF5 file. 
+        Save the data stored in the Seifert ASCII file to a HDF5 file.
 
 
         required input arguments:
         h5 ............. HDF5 file object
 
         optional arguments:
-        names to use to store the motors. The first must be the name 
-        for the intensity array. The number of names must be equal to the second 
+        names to use to store the motors. The first must be the name
+        for the intensity array. The number of names must be equal to the second
         element of the shape of the data object.
 
         optional keyword arguments:
         group .......... HDF5 group object where to store the data.
         """
-         
+
         #handle optional arguments:
         motor_names = []
         if len(args)!=0:
@@ -362,7 +362,7 @@ class SeifertScan(object):
         #dump the header data
         self.hdr.save_h5_attribs(g)
 
-        h5.flush() 
+        h5.flush()
 
     def dump2mlab(self,fname,*args):
         """
@@ -373,8 +373,8 @@ class SeifertScan(object):
         fname .................. name of the matlab file
 
         optional position arguments:
-        names to use to store the motors. The first must be the name 
-        for the intensity array. The number of names must be equal to the second 
+        names to use to store the motors. The first must be the name
+        for the intensity array. The number of names must be equal to the second
         element of the shape of the data object.
 
         """

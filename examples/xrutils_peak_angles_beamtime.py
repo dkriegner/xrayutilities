@@ -1,5 +1,5 @@
 import xrutils as xu
-import numpy 
+import numpy
 
 #define elements
 In = xu.materials.elements.In
@@ -13,14 +13,14 @@ InP = xu.materials.InP
 #hexagonal polytypes
 ainp = 5.8687
 InP_WZ = xu.materials.Material("InP(wz)",xu.materials.WurtziteLattice(In,P,ainp/numpy.sqrt(2),numpy.sqrt(4/3.)*ainp),numpy.zeros((6,6),dtype=numpy.double))
-InP_4H = xu.materials.Material("InP(4H)",xu.materials.Hexagonal4HLattice(In,P,ainp/numpy.sqrt(2),2*numpy.sqrt(4/3.)*ainp),numpy.zeros((6,6),dtype=numpy.double)) 
+InP_4H = xu.materials.Material("InP(4H)",xu.materials.Hexagonal4HLattice(In,P,ainp/numpy.sqrt(2),2*numpy.sqrt(4/3.)*ainp),numpy.zeros((6,6),dtype=numpy.double))
 
-for energy in [8041]: #eV    
+for energy in [8041]: #eV
 
     lam = xu.lam2en(energy) # e in eV -> lam in Angstroem
     print '         %d eV = %8.4f A' % (energy,lam)
-    print '-----------------------------------------------------------------------------------' 
-    print 'material |         peak    |   omega  |  2theta  |    phi   |   tt-om  |     |F|   ' 
+    print '-----------------------------------------------------------------------------------'
+    print 'material |         peak    |   omega  |  2theta  |    phi   |   tt-om  |     |F|   '
     print '-----------------------------------------------------------------------------------' 	
 
     exp111 = xu.HXRD(InP.Q(1,1,-2),InP.Q(1,1,1),en=energy)
@@ -55,5 +55,5 @@ for energy in [8041]: #eV
         F = mat.StructureFactor(qvec,exphex._en)/mat.lattice.UnitCellVolume()
         print '%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f ' %(mat.name,' '.join(map(str,numpy.round(hkl,2))),om,tt,phi,tt-om,numpy.abs(F))
 
-    print '-----------------------------------------------------------------------------------' 
+    print '-----------------------------------------------------------------------------------'
 

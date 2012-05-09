@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 energy = (2*8048 + 8028)/3. # copper k alpha 1,2
 
-# creating Indium powder 
+# creating Indium powder
 In_powder = xu.Powder(xu.materials.Indium,en=energy)
 # calculating the reflection strength for the powder
 In_powder.PowderIntensity()

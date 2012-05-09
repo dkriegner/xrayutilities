@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -20,7 +20,7 @@ import time
 import os
 import subprocess
 
-# relative imports from xrutils 
+# relative imports from xrutils
 from .. import config
 from ..exception import InputError
 
@@ -29,8 +29,8 @@ class RoperCCD(object):
     parse RoperScientific CCD frames (*.bin) to numpy arrays
     Ignore the header since it seems to contain no useful data
 
-    The routine was tested only for files with 4096x4096 pixel images 
-    created at Hasylab Hamburg which save an 16bit integer per point. 
+    The routine was tested only for files with 4096x4096 pixel images
+    created at Hasylab Hamburg which save an 16bit integer per point.
     """
     def __init__(self,flatfield=None,darkfield=None,nop1=4096,nop2=4096):
         """
@@ -43,13 +43,13 @@ class RoperCCD(object):
          flatfield: filename or data for flatfield correction. supported file
                     types include (*.bin *.bin.xz and *.npy files). otherwise
                     a 2D numpy array should be given
-         darkfield: filename or data for darkfield correction. same types as 
+         darkfield: filename or data for darkfield correction. same types as
                     for flat field are supported.
          nop1,nop2: number of pixels in the first and second dimension of the
                     image
         """
-        
-        # save number of pixels per image 
+
+        # save number of pixels per image
         self.nop1= nop1
         self.nop2= nop2
         self.dtype = numpy.int16
@@ -85,17 +85,17 @@ class RoperCCD(object):
         if flatfield:
             self.flatc = True
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.RoperCCD: flatfield correction enabled")        
+                print("XU.io.RoperCCD: flatfield correction enabled")
         if darkfield:
             self.darkc = True
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.RoperCCD: darkfield correction enabled") 
-                
+                print("XU.io.RoperCCD: darkfield correction enabled")
+
 
     def readImage(self,filename):
         """
-        read RoperScientic image file 
-        and correct for dark- and flatfield in case the necessary data are 
+        read RoperScientic image file
+        and correct for dark- and flatfield in case the necessary data are
         available.
 
         returned data = ((image data)-(darkfield))/flatfield*average(flatfield)
@@ -103,14 +103,14 @@ class RoperCCD(object):
         Parameter
         ---------
          filename: filename of the image to be read. so far only single
-                   filenames are supported. The data might be compressed. 
+                   filenames are supported. The data might be compressed.
                    supported extensions: .bin and .bin.xz
         """
-        
+
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.io.RoperCCD.readImage: file %s"%(filename))
             t1 = time.time()
-        
+
         if filename[-2:] == 'xz':
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.io.RoperCCD.readImage: uncompressing file %s"%(filename))
@@ -135,9 +135,9 @@ class RoperCCD(object):
         if self.flatc:
             imgf = imgf/self.flatfield
         fh.close()
-        if os.path.splitext(filename)[1] == '.xz':    
+        if os.path.splitext(filename)[1] == '.xz':
             subprocess.call(["rm","%s"%(filename[:-3])])
-        
+
         if config.VERBOSITY >= config.INFO_ALL:
             t2 = time.time()
             print("XU.io.RoperCCD.readImage: parsing time %8.3f"%(t2-t1))

@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -25,16 +25,16 @@ def getindex(x,y,xgrid,ygrid):
     """
     gives the indices of the point x,y in the grid given by xgrid ygrid
     xgrid,ygrid must be arrays containing equidistant points
-    
+
     Parameters
     ----------
      x,y:   coordinates of the point of interest (float)
      xgrid,
      ygrid: grid coordinates in x and y direction (array)
-     
+
     Returns
     -------
-     ix,iy: index of the closest gridpoint (lower left) of the point (x,y) 
+     ix,iy: index of the closest gridpoint (lower left) of the point (x,y)
     """
     dx = xgrid[1]-xgrid[0]
     dy = ygrid[1]-ygrid[0]
@@ -51,9 +51,9 @@ def getindex(x,y,xgrid,ygrid):
 
 def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
     """
-    extract qx line scan at position qzpos from a 
-    gridded reciprocal space map by taking the closest line of the 
-    intensity matrix, or summing up a given range along qz   
+    extract qx line scan at position qzpos from a
+    gridded reciprocal space map by taking the closest line of the
+    intensity matrix, or summing up a given range along qz
 
     Parameters
     ----------
@@ -64,7 +64,7 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
     **kwargs: possible keyword arguments:
         qrange: integration range perpendicular to scan direction
         qmin,qmax: minimum and maximum value of extracted scan axis
-        bounds: flag to specify if the scan bounds of the extracted scan should be returned (default:False)       
+        bounds: flag to specify if the scan bounds of the extracted scan should be returned (default:False)
 
     Returns
     -------
@@ -75,21 +75,21 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
     -------
     >>> qxcut,qxcut_int = get_qx_scan(qx,qz,inten,5.0,qrange=0.03)
     """
-    
+
     if qzpos < qz.min() or qzpos > qz.max():
         raise ValueError("given qzpos is not in the range of the given qz axis")
-        
+
     if intensity.shape != (qx.size,qz.size):
         raise ValueError("shape of given intensity does not match to (qx.size,qz.size)")
-    
+
     if 'qmin' in kwargs:
-        qxmin = max(qx.min(),kwargs['qmin']) 
+        qxmin = max(qx.min(),kwargs['qmin'])
     else: qxmin = qx.min()
- 
+
     if 'qmax' in kwargs:
-        qxmax = min(qx.max(),kwargs['qmax']) 
+        qxmax = min(qx.max(),kwargs['qmax'])
     else: qxmax = qx.max()
-    
+
     if 'qrange' in kwargs:
         qrange = kwargs['qrange']
     else: qrange = 0.
@@ -97,17 +97,17 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
     if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False
-     
-    # find line corresponding to qzpos 
+
+    # find line corresponding to qzpos
     ixmin,izmin = getindex(qxmin,qzpos-qrange/2.,qx,qz)
     ixmax,izmax = getindex(qxmax,qzpos+qrange/2.,qx,qz)
     if ('qmin' not in kwargs) and ('qmax' not in kwargs):
         ixmin = 0; ixmax = qx.size
-    
+
     # scan bounds for plotting if requested
     qxbounds = (numpy.array((qxmin,qxmax,qxmax,qxmin,qxmin)), \
       numpy.array((qzpos-qrange/2.,qzpos-qrange/2.,qzpos+qrange/2.,qzpos+qrange/2.,qzpos-qrange/2.)))
-      
+
     if qrange > 0:
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_q[x,z]_scan: %d points used for integration" %(izmax-izmin+1))
@@ -120,12 +120,12 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
             return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin],qxbounds
         else:
             return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin]
-        
+
 def get_qz_scan(qx,qz,intensity,qxpos,**kwargs):
     """
-    extract qz line scan at position qxpos from a 
-    gridded reciprocal space map by taking the closest line of the 
-    intensity matrix, or summing up a given range along qx   
+    extract qz line scan at position qxpos from a
+    gridded reciprocal space map by taking the closest line of the
+    intensity matrix, or summing up a given range along qx
 
     Parameters
     ----------
@@ -135,31 +135,31 @@ def get_qz_scan(qx,qz,intensity,qxpos,**kwargs):
     qxpos: position at which the line scan should be extracted
     **kwargs: possible keyword arguments:
         qrange: integration range perpendicular to scan direction
-        qmin,qmax: minimum and maximum value of extracted scan axis            
+        qmin,qmax: minimum and maximum value of extracted scan axis
 
     Returns
     -------
-    qz,qzint: qz scan coordinates and intensities 
+    qz,qzint: qz scan coordinates and intensities
 
     Example
     -------
     >>> qzcut,qzcut_int = get_qz_scan(qx,qz,inten,1.5,qrange=0.03)
     """
-    
+
     if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False
-    
+
     if bounds:
-        qzc,qzcint,(qzb,qxb) = get_qx_scan(qz,qx,intensity.transpose(),qxpos,**kwargs) 
+        qzc,qzcint,(qzb,qxb) = get_qx_scan(qz,qx,intensity.transpose(),qxpos,**kwargs)
         return qzc,qzcint,(qxb,qzb)
     else:
-        return get_qx_scan(qz,qx,intensity.transpose(),qxpos,**kwargs) 
+        return get_qx_scan(qz,qx,intensity.transpose(),qxpos,**kwargs)
 
 
 def get_omega_scan_q(qx,qz,intensity,qxcenter,qzcenter,omrange,npoints,**kwargs):
     """
-    extracts an omega scan from a gridded reciprocal space map    
+    extracts an omega scan from a gridded reciprocal space map
 
     Parameters
     ----------
@@ -180,18 +180,18 @@ def get_omega_scan_q(qx,qz,intensity,qxcenter,qzcenter,omrange,npoints,**kwargs)
     Returns
     -------
     om,omint: omega scan coordinates and intensities (bounds=False)
-    om,omint,(qxb,qzb): omega scan coordinates and intensities + 
+    om,omint,(qxb,qzb): omega scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
-    
+
     Example
     -------
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
-    
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
@@ -202,7 +202,7 @@ def get_omega_scan_q(qx,qz,intensity,qxcenter,qzcenter,omrange,npoints,**kwargs)
 
 def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwargs):
     """
-    extracts an omega scan from a gridded reciprocal space map    
+    extracts an omega scan from a gridded reciprocal space map
 
     Parameters
     ----------
@@ -223,33 +223,33 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
     Returns
     -------
     om,omint: omega scan coordinates and intensities (bounds=False)
-    om,omint,(qxb,qzb): omega scan coordinates and intensities + 
+    om,omint,(qxb,qzb): omega scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
-    
+
     Example
     -------
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
-    
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     if 'relative' in kwargs:
         relative = kwargs['relative']
     else: relative = True
-    
+
     if 'qrange' in kwargs:
         qrange = kwargs['qrange']
-    else: 
+    else:
         qrange = 0.
     dummy,qxcenter,qzcenter = exp.Ang2Q(omcenter,ttcenter)
     qxcenter = qxcenter[0]; qzcenter = qzcenter[0]
     dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[1]
     dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1]
-    
+
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
@@ -261,7 +261,7 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
     if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False
-    
+
     # angles of central line scan
     omscan = omcenter-omrange/2. + omrange/(1.0*npoints)*numpy.arange(npoints)
     ttscan = numpy.ones(npoints)*ttcenter
@@ -286,7 +286,7 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
 
     if relative:
         omscan = omscan - omcenter
-        
+
     if bounds:
         qxb,qzb = get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs)
         return omscan,intom,(qxb,qzb)
@@ -296,7 +296,7 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
 
 def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
     """
-    return reciprocal space boundaries of omega scan  
+    return reciprocal space boundaries of omega scan
 
     Parameters
     ----------
@@ -305,12 +305,12 @@ def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
     omrange: range of the omega scan to extract
     npoints: number of points of the omega scan
     **kwargs: possible keyword arguments:
-        qrange: integration range perpendicular to scan direction 
-        lam: wavelength for use in the conversion to angular coordinates         
+        qrange: integration range perpendicular to scan direction
+        lam: wavelength for use in the conversion to angular coordinates
 
     Returns
     -------
-    qx,qz: reciprocal space coordinates of the omega scan boundaries 
+    qx,qz: reciprocal space coordinates of the omega scan boundaries
 
     Example
     -------
@@ -319,20 +319,20 @@ def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
-    
+
     if 'qrange' in kwargs:
         qrange = kwargs['qrange']
-    else: 
+    else:
         qrange = 0.
     dummy,qxcenter,qzcenter = exp.Ang2Q(omcenter,ttcenter)
     qxcenter = qxcenter[0]; qzcenter = qzcenter[0]
     dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[1]
     dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1]
-    
+
     nint=2
-       
+
     # angles of central line scan
     omscan = omcenter-omrange/2. + omrange/(1.0*npoints)*numpy.arange(npoints)
     ttscan = numpy.ones(npoints)*ttcenter
@@ -345,7 +345,7 @@ def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
 
     # invert order of second half of angular coordinates
     OMSnew[:,0] = OMS[:,0]
-    TTSnew[:,0] = TTS[:,0] 
+    TTSnew[:,0] = TTS[:,0]
     for i in range(npoints):
         OMSnew[i,1] = OMS[-1-i,1]
         TTSnew[i,1] = TTS[-1-i,1]
@@ -359,7 +359,7 @@ def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
 
 def get_radial_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs):
     """
-    extracts a radial scan from a gridded reciprocal space map    
+    extracts a radial scan from a gridded reciprocal space map
 
     Parameters
     ----------
@@ -376,32 +376,32 @@ def get_radial_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
         lam: wavelength for use in the conversion to angular coordinates
         relative: determines if absolute or relative two theta positions are returned (default=True)
         bounds: flag to specify if the scan bounds should be returned (default: False)
-        
+
     Returns
     -------
     om,tt,radint: omega,two theta scan coordinates and intensities (bounds=False)
-    om,tt,radint,(qxb,qzb): radial scan coordinates and intensities + 
+    om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
     Example
     -------
     >>> omc,ttc,cut_int = get_radial_scan_q(qx,qz,intensity,0.0,5.0,1.0,100,omrange=0.01)
     """
-    
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
     dummy,omcenter,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
-    
+
     return get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs)
 
 
 def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs):
     """
-    extracts a radial scan from a gridded reciprocal space map    
+    extracts a radial scan from a gridded reciprocal space map
 
     Parameters
     ----------
@@ -418,36 +418,36 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
         lam: wavelength for use in the conversion to angular coordinates
         relative: determines if absolute or relative two theta positions are returned (default=True)
         bounds: flag to specify if the scan bounds should be returned (default: False)
-        
+
     Returns
     -------
     om,tt,radint: omega,two theta scan coordinates and intensities (bounds=False)
-    om,tt,radint,(qxb,qzb): radial scan coordinates and intensities + 
+    om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
 
     Example
     -------
     >>> omc,ttc,cut_int = get_radial_scan_ang(qx,qz,intensity,32.0,64.0,30.0,800,omrange=0.2)
     """
-    
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     if 'relative' in kwargs:
         relative = kwargs['relative']
     else: relative = True
-    
+
     if 'omrange' in kwargs:
         omrange = kwargs['omrange']
-    else: 
+    else:
         omrange = 0.
     dom_m = omrange/2.
     dom_p = omrange/2.
     qrange = numpy.abs(exp.Ang2Q(omcenter-dom_m,ttcenter)[1] - exp.Ang2Q(omcenter+dom_p,ttcenter)[1])
-    
+
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
@@ -458,15 +458,15 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
 
     if 'bounds' in kwargs:
         bounds = kwargs['bounds']
-    else: bounds = False   
-    
+    else: bounds = False
+
     # angles of central line scan
     omscan = omcenter-ttrange/4. + ttrange/(2.0*npoints)*numpy.arange(npoints)
     ttscan = ttcenter-ttrange/2. + ttrange/(1.0*npoints)*numpy.arange(npoints)
 
     # angles for subscans used for integration
     OMS = omscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) + numpy.linspace(-dom_m,dom_p,nint)[numpy.newaxis,:]
-    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) 
+    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint))
 
     intrad1d = numpy.zeros(OMS.size)
     OMS1d = OMS.reshape(OMS.size)
@@ -490,12 +490,12 @@ def get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
         qxb,qzb = get_radial_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs)
         return omscan,ttscan,intrad,(qxb,qzb)
     else:
-        return omscan,ttscan,intrad 
+        return omscan,ttscan,intrad
 
 
 def get_radial_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
     """
-    return reciprocal space boundaries of radial scan  
+    return reciprocal space boundaries of radial scan
 
     Parameters
     ----------
@@ -509,27 +509,27 @@ def get_radial_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
 
     Returns
     -------
-    qxrad,qzrad: reciprocal space boundaries of radial scan 
+    qxrad,qzrad: reciprocal space boundaries of radial scan
 
     Example
     -------
     >>>
     """
-    
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
-    
+
     if 'omrange' in kwargs:
         omrange = kwargs['omrange']
-    else: 
+    else:
         omrange = 0.
     dom_m = omrange/2.
     dom_p = omrange/2.
 
-    nint = 2    
+    nint = 2
 
     # angles of central line scan
     omscan = omcenter-ttrange/4. + ttrange/(2.0*npoints)*numpy.arange(npoints)
@@ -537,13 +537,13 @@ def get_radial_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
 
     # angles for subscans used for integration
     OMS = omscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) + numpy.linspace(-dom_m,dom_p,nint)[numpy.newaxis,:]
-    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) 
+    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint))
     OMSnew = numpy.zeros((npoints,nint))
     TTSnew = numpy.zeros((npoints,nint))
 
     # invert order of second half of angular coordinates
     OMSnew[:,0] = OMS[:,0]
-    TTSnew[:,0] = TTS[:,0] 
+    TTSnew[:,0] = TTS[:,0]
     for i in range(npoints):
         OMSnew[i,1] = OMS[-1-i,1]
         TTSnew[i,1] = TTS[-1-i,1]
@@ -557,7 +557,7 @@ def get_radial_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
 
 def get_ttheta_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs):
     """
-    extracts a twotheta scan from a gridded reciprocal space map    
+    extracts a twotheta scan from a gridded reciprocal space map
 
     Parameters
     ----------
@@ -574,33 +574,33 @@ def get_ttheta_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
         lam: wavelength for use in the conversion to angular coordinates
         relative: determines if absolute or relative two theta positions are returned (default=True)
         bounds: flag to specify if the scan bounds should be returned (default: False)
-        
+
     Returns
     -------
     tt,ttint: two theta scan coordinates and intensities (bounds=False)
-    om,tt,radint,(qxb,qzb): radial scan coordinates and intensities + 
+    om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
-    
+
     Example
     -------
     >>> ttc,cut_int = get_ttheta_scan_q(qx,qz,intensity,0.0,4.0,4.4,440)
     """
-    
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
     dummy,omcenter,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
-    
+
     return get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs)
 
 
 def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs):
     """
-    extracts a twotheta scan from a gridded reciprocal space map    
+    extracts a twotheta scan from a gridded reciprocal space map
 
     Parameters
     ----------
@@ -617,37 +617,37 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
         lam: wavelength for use in the conversion to angular coordinates
         relative: determines if absolute or relative two theta positions are returned (default=True)
         bounds: flag to specify if the scan bounds should be returned (default: False)
-        
+
     Returns
     -------
     tt,ttint: two theta scan coordinates and intensities (bounds=False)
-    tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities + 
+    tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
 
     Example
     -------
     >>> ttc,cut_int = get_ttheta_scan_ang(qx,qz,intensity,32.0,64.0,4.0,400)
     """
-    
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     if 'relative' in kwargs:
         relative = kwargs['relative']
     else: relative = True
-    
+
     if 'omrange' in kwargs:
         omrange = kwargs['omrange']
-    else: 
+    else:
         omrange = 0.
     dom_m = omrange
     dom_p = omrange
-    
+
     qrange = numpy.abs(exp.Ang2Q(omcenter-dom_m,ttcenter)[1] - exp.Ang2Q(omcenter+dom_p,ttcenter)[1])
-    
+
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
@@ -658,15 +658,15 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
 
     if 'bounds' in kwargs:
         bounds = kwargs['bounds']
-    else: bounds = False   
-    
+    else: bounds = False
+
     # angles of central line scan
     omscan = omcenter*numpy.ones(npoints)
     ttscan = ttcenter-ttrange/2. + ttrange/(1.0*npoints)*numpy.arange(npoints)
 
     # angles for subscans used for integration
     OMS = omscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) + numpy.linspace(-dom_m,dom_p,nint)[numpy.newaxis,:]
-    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) 
+    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint))
 
     inttt1d = numpy.zeros(OMS.size)
     OMS1d = OMS.reshape(OMS.size)
@@ -689,12 +689,12 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
         qxb,qzb = get_ttheta_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs)
         return ttscan,inttt,(qxb,qzb)
     else:
-        return ttscan,inttt 
-        
+        return ttscan,inttt
+
 
 def get_ttheta_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
     """
-    return reciprocal space boundaries of 2theta scan  
+    return reciprocal space boundaries of 2theta scan
 
     Parameters
     ----------
@@ -708,29 +708,29 @@ def get_ttheta_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
 
     Returns
     -------
-    qxtt,qztt: reciprocal space boundaries of 2theta scan (bounds=False)   
-    tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities + 
+    qxtt,qztt: reciprocal space boundaries of 2theta scan (bounds=False)
+    tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
 
     Example
     -------
     >>>
-    """   
-    
+    """
+
     if 'lam' in kwargs:
         lam = kwargs['lam']
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam)
-    else: 
+    else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     if 'omrange' in kwargs:
         omrange = kwargs['omrange']
-    else: 
+    else:
         omrange = 0.
     dom_m = omrange
     dom_p = omrange
-    
-    nint = 2    
+
+    nint = 2
 
     # angles of central line scan
     omscan = omcenter*numpy.ones(npoints)
@@ -738,14 +738,14 @@ def get_ttheta_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
 
     # angles for subscans used for integration
     OMS = omscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) + numpy.linspace(-dom_m,dom_p,nint)[numpy.newaxis,:]
-    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint)) 
-    
+    TTS = ttscan[:,numpy.newaxis]*numpy.ones((npoints,nint))
+
     OMSnew = numpy.zeros((npoints,nint))
     TTSnew = numpy.zeros((npoints,nint))
 
     # invert order of second half of angular coordinates
     OMSnew[:,0] = OMS[:,0]
-    TTSnew[:,0] = TTS[:,0] 
+    TTSnew[:,0] = TTS[:,0]
     for i in range(npoints):
         OMSnew[i,1] = OMS[-1-i,1]
         TTSnew[i,1] = TTS[-1-i,1]
@@ -755,4 +755,4 @@ def get_ttheta_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
     dummy,qx,qz = exp.Ang2Q(OMS1d,TTS1d)
 
     return numpy.append(qx,qx[0]),numpy.append(qz,qz[0])
-    
+

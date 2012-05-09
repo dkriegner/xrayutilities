@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -16,7 +16,7 @@
 # Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@aol.at>
 
 """
-xrutils derives its own exceptions which are raised 
+xrutils derives its own exceptions which are raised
 upon wrong input when calling one of xrutils functions.
 none of the pre-defined exceptions is made for that purpose.
 """
@@ -27,7 +27,7 @@ none of the pre-defined exceptions is made for that purpose.
 #  Raised when an operation or function is applied to an object of inappropriate type
 #
 # * ValueError
-#  Raised when a operation or function receives an argument that 
+#  Raised when a operation or function receives an argument that
 #  has the right type but an inappropriate value
 #
 # * UserWarning
@@ -37,10 +37,10 @@ none of the pre-defined exceptions is made for that purpose.
 class InputError(Exception):
     """
     Exception raised for errors in the input.
-    Either wrong datatype not handled by TypeError or missing mandatory 
-    keyword argument (Note that the obligation to give keyword arguments 
+    Either wrong datatype not handled by TypeError or missing mandatory
+    keyword argument (Note that the obligation to give keyword arguments
     might depend on the value of the arguments itself)
-    
+
     Attibutes
         expr -- input expression in which the error occurred
         msg  -- explanation of the error

@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -40,7 +40,7 @@ def lam2en(inp):
      >>> lambda = lam2en(8048)
      >>> energy = lam2en(1.5406)
     """
-    #  E(eV) = h*c/(e * lambda(A)) *1e10    
+    #  E(eV) = h*c/(e * lambda(A)) *1e10
     #  lambda(A) = h*c/(e * E(eV)) *1e10
     out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
 

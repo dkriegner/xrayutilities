@@ -10,7 +10,7 @@ alloy = xu.materials.Alloy(matA,matB,0)
 
 exp001 = xu.HXRD([1,1,0],[0,0,1])
 
-# note 
+# note
 # copy.deepcopy fails on matA.lattice; I think this is because it is not possible to copy the latticebase stuff because it is not a standard list and the deepcopy command is not capable of this?
 
 

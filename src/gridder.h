@@ -1,19 +1,19 @@
 /*
  * This file is part of xrayutilities.
- * 
- * xrayutilities is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2 of the License, or 
+ *
+ * xrayutilities is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
  * Copyright (C) 2009-2010 Dominik Kriegner <dominik.kriegner@aol.at>
 */
@@ -81,14 +81,14 @@ void *gridder2d_th_worker(void *arg);
 
 int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
               unsigned int nx,unsigned int ny,unsigned int nz,
-              double xmin, double xmax, double ymin, double ymax, 
+              double xmin, double xmax, double ymin, double ymax,
               double zmin, double zmax,
               double *odata,double *norm,int flags);
 
 int gridder3d_th(unsigned int nth,
                  double *x,double *y,double *z,double *data,unsigned int n,
                  unsigned int nx,unsigned int ny,unsigned int nz,
-                 double xmin, double xmax, double ymin, double ymax, 
+                 double xmin, double xmax, double ymin, double ymax,
                  double zmin, double zmax,
                  double *odata,double *norm,int flags);
 void *gridder3d_th_worker(void *arg);

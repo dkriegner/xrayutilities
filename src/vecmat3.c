@@ -1,24 +1,24 @@
 /*
  * This file is part of xrayutilities.
- * 
- * xrayutilities is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2 of the License, or 
+ *
+ * xrayutilities is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
 */
 
 /* ###################################
- * matrix vector operations for 
+ * matrix vector operations for
  * 3x3 matrices and vectors of length
  * 3
  * ################################### */
@@ -96,7 +96,7 @@ INLINE void diffmat(double *RESTRICT m1,double *RESTRICT m2) {
 INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) {
     double det;
     double h1,h2,h3,h4,h5,h6;
-    
+
     h1 = m[4]*m[8]; // m11*m22
     h2 = m[5]*m[6]; // m12*m20
     h3 = m[3]*m[7]; // m10*m21

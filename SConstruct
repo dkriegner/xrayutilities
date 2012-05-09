@@ -1,8 +1,8 @@
 # This file is part of xrayutilities.
 #
-# xrayutilities is free software; you can redistribute it and/or modify 
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation; either version 2 of the License, or 
+# xrayutilities is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -112,11 +112,11 @@ if not env.GetOption('clean') or not env.GetOption('help'):
     if not conf.CheckCC():
         print('Your compiler and/or environment is not correctly configured.')
         Exit(1)
-    
+
     if not conf.CheckHeader(['stdlib.h','stdio.h','math.h','time.h']):
         print 'Error: did not find one of the needed headers!'
         Exit(1)
-   
+
     if not conf.CheckLibWithHeader('gomp','omp.h','c'):
         print 'Warning: did not find openmp + header files -> using serial code'
     else:
@@ -135,18 +135,18 @@ if not env.GetOption('clean') or not env.GetOption('help'):
     conf.Finish()
 
 ############################
-# tarball creation/packaging 
+# tarball creation/packaging
 ############################
 
 # package xrayutilities into a tarball for distribution
 #print("Creating tarball for redistribution of xrayutilities...")
 env['DISTTAR_FORMAT']='gz'
 env.Append(
-    DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'], 
+    DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'],
     DISTTAR_EXCLUDEDIRS=['.git','.sconf_temp', 'dist', 'build'],
     DISTTAR_EXCLUDERES=[r'clib_path.conf','.gitignore'])
 
-env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat()), [env.Dir(".")]) 
+env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat()), [env.Dir(".")])
 
 
 ############################

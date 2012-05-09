@@ -13,16 +13,16 @@ def ZincBlendeLattice(aa,ab,a):
     lb.append(ab,[0.75,0.75,0.25])
     lb.append(ab,[0.75,0.25,0.75])
     lb.append(ab,[0.25,0.75,0.75])
-    
+
     #create lattice vectors
     a1 = [a,0,0]
     a2 = [0,a,0]
     a3 = [0,0,a]
-    
-    l = xu.materials.Lattice(a1,a2,a3,base=lb)    
+
+    l = xu.materials.Lattice(a1,a2,a3,base=lb)
     return l
 
-# defining InP, no elastic properties are given, 
-# helper functions exist to create the (6,6) elastic tensor for cubic materials 
+# defining InP, no elastic properties are given,
+# helper functions exist to create the (6,6) elastic tensor for cubic materials
 InP  = xu.materials.Material("InP",ZincBlendeLattice(xu.materials.elements.In, xu.materials.elements.P,5.8687), numpy.zeros((6,6),dtype=numpy.double))
 # InP is of course already included in the xu.materials module
