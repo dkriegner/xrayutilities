@@ -1,11 +1,6 @@
 To Do
 -----
 
-7.5.2012
-
-* check if energy is in range of tabulated data for optical constant
-  calculation
-
 27.3.2012
 
 implement alternative call of line_cut function with Gridder2D object instead
