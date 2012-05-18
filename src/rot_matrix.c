@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@aol.at>
+ * Copyright (C) 2010,2012 Dominik Kriegner <dominik.kriegner@aol.at>
 */
 
 /*##############################################
@@ -80,3 +80,26 @@ INLINE void rotation_zm(double a,double *mat){
     mat[3] = -sa; mat[4] = ca; mat[5] = 0.;
     mat[6] = 0.; mat[7] = 0.; mat[8] = 1.;
 }
+
+INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) {
+    double sa = sin(a), ca=cos(a);
+    double mtemp[9],mtemp2[9];
+    
+    /* e must be normalized */
+
+    /* ca*(ident(3) - vec(e) o vec(e))*/
+    ident(mat);
+    tensorprod(e,e,mtemp);
+    diffmat(mat,mtemp);
+    matmulc(mat,ca);
+    
+    /* tensorprod(vec(e),vec(e)) */
+    summat(mat,mtemp);
+
+    /* sa*(vec(e) cross ident(3)) */
+    ident(mtemp2);
+    vecmatcross(e,mtemp2,mtemp);
+    matmulc(mtemp,sa);
+    summat(mat,mtemp);
+}
+

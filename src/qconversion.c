@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+ * Copyright (C) 2010-2012 Dominik Kriegner <dominik.kriegner@aol.at>
 */
 
 /* ######################################
@@ -34,7 +34,7 @@
 #endif
 
 int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n);
-int determine_detector_pixel(double *rpixel,char *dir, double dpixel);
+int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt);
 int print_matrix(double *m);
 int print_vector(double *m);
 
@@ -119,7 +119,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     return 0;
 }
 
-int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis,  double cch, double dpixel, int *roi, char *dir, double lambda)
+int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis,  double cch, double dpixel, int *roi, char *dir, double tilt, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a linear detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -138,6 +138,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     *   dpixel .......... width of one pixel, same unit as distance rcch (in)
     *   roi ............. region of interest of the detector (in)
     *   dir ............. direction of the detector, e.g.: "x+" (in)
+    *   tilt ............ tilt of the detector direction from dir (in)
     *   lambda .......... wavelength of the used x-rays in Angstroem (in)
     *   */
 {
@@ -168,16 +169,15 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
         return 1;
     }
 
+    veccopy(r_i,rcch);
+    normalize(r_i);
     // determine detector pixel vector
-    if(determine_detector_pixel(rpixel, dir, dpixel) != 0) {
+    if(determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) {
         printf("XU.Qconversion(c): detector direction determination failed\n");
         return 1;
     };
     for(int k=0; k<3; ++k)
         rcchp[k] = rpixel[k]*cch;
-    veccopy(r_i,rcch);
-    normalize(r_i);
-
 
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
@@ -219,7 +219,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     return 0;
 }
 
-int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double lambda)
+int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tilt1, double tilt2, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -241,6 +241,8 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     *   roi ............. region of interest for the area detector [dir1min,dir1max,dir2min,dir2max]
     *   dir1 ............ first direction of the detector, e.g.: "x+" (in)
     *   dir2 ............ second direction of the detector, e.g.: "z+" (in)
+    *   tilt1 ........... tilt of the detector direction from dir1 (in)
+    *   tilt2 ........... tilt of the detector direction from dir2 (in)
     *   lambda .......... wavelength of the used x-rays (in)
     *   */
 {
@@ -271,19 +273,21 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
         return 1;
     }
 
-    // determine detector pixel vector
-    if(determine_detector_pixel(rpixel1, dir1, dpixel1) != 0) {
-        printf("XU.Qconversion(c): detector direction determination failed\n");
-        return 1;
-    };
-    if(determine_detector_pixel(rpixel2, dir2, dpixel2) != 0) {
-        printf("XU.Qconversion(c): detector direction determination failed\n");
-        return 1;
-    };
-    for(int k=0; k<3; ++k)
-        rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
     veccopy(r_i,rcch);
     normalize(r_i);
+    
+    // determine detector pixel vector
+    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, tilt1) != 0) {
+        printf("XU.Qconversion(c): detector direction determination failed\n");
+        return 1;
+    };
+    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, tilt2) != 0) {
+        printf("XU.Qconversion(c): detector direction determination failed\n");
+        return 1;
+    };
+
+    for(int k=0; k<3; ++k)
+        rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
 
     // calculate some index shortcuts
     idxh1 = (roi[1]-roi[0])*(roi[3]-roi[2]);
@@ -340,23 +344,28 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
 
 int print_matrix(double *m) {
     for(int i=0;i<9;i+=3) {
-        printf("%8.3f %8.3f %8.3f\n",m[i],m[i+1],m[i+2]);
+        printf("%8.5g %8.5g %8.5g\n",m[i],m[i+1],m[i+2]);
     }
     printf("\n");
     return 0;
 }
 
 int print_vector(double *m) {
-    printf("%8.3f %8.3f %8.3f\n",m[0],m[1],m[2]);
+    printf("\n%8.5g %8.5g %8.5g\n",m[0],m[1],m[2]);
     return 0;
 }
 
-int determine_detector_pixel(double *rpixel,char *dir, double dpixel) {
+int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt) {
     /* determine the direction of linear direction or one of the directions
      * of an area detector.
      * the function returns the vector containing the distance from one to
      * the next pixel
+     * a tilt of the detector axis with respect to the coordinate axis can 
+     * be considered as well! rotation of pixel direction around the 
+     * crossproduct of primary beam and detector axis 
      * */
+
+    double tiltaxis[3], tiltmat[9];
 
     for(int i=0; i<3; ++i)
         rpixel[i] = 0.;
@@ -405,6 +414,19 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel) {
             printf("XU.Qconversion(c): detector determination: no valid detector direction given\n");
             return 2;
     }
+
+    /* include possible tilt of detector axis with respect to the given direction */
+    cross(r_i,rpixel,tiltaxis);
+    normalize(tiltaxis);
+    //print_vector(tiltaxis);
+    /* create needed rotation matrix */
+    rotation_arb(tilt,tiltaxis,tiltmat);
+    //print_matrix(tiltmat);
+    /* rotate rpixel */
+    matvec(tiltmat,rpixel,tiltaxis);
+    //print_vector(rpixel);
+    veccopy(rpixel,tiltaxis);
+    //print_vector(rpixel);
     return 0;
 }
 

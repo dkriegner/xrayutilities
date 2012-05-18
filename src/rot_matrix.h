@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@aol.at>
+ * Copyright (C) 2010,2012 Dominik Kriegner <dominik.kriegner@aol.at>
 */
 
 #ifndef _rot_matrix_h_
 #define _rot_matrix_h_
 
 #include <math.h>
+#include "vecmat3.h"
 #define M_PI 3.14159265358979323846
 #define M_2PI (2*M_PI)
 #define INLINE
@@ -45,5 +46,7 @@ INLINE void rotation_zp(double a,double *mat) __attribute__((always_inline));
 INLINE void rotation_xm(double a,double *mat) __attribute__((always_inline));
 INLINE void rotation_ym(double a,double *mat) __attribute__((always_inline));
 INLINE void rotation_zm(double a,double *mat) __attribute__((always_inline));
+
+INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) __attribute__((always_inline));
 
 #endif

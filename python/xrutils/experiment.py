@@ -342,7 +342,7 @@ class QConversion(object):
 
         return qpos[:,0],qpos[:,1],qpos[:,2]
 
-    def init_linear(self,detectorDir,cch,Nchannel,distance=None,pixelwidth=None,chpdeg=None,**kwargs):
+    def init_linear(self,detectorDir,cch,Nchannel,distance=None,pixelwidth=None,chpdeg=None,tilt=0,**kwargs):
         """
         initialization routine for linear detectors
         detector direction as well as distance and pixel size or
@@ -360,6 +360,7 @@ class QConversion(object):
                          determined through detectorDir
 
                          !! Either distance and pixelwidth or chpdeg must be given !!
+        tilt:            tilt of the detector axis from the detectorDir (in degree)
 
         **kwargs:        optional keyword arguments
             Nav:         number of channels to average to reduce data size (default: 1)
@@ -375,6 +376,7 @@ class QConversion(object):
 
         self._linear_Nch = int(Nchannel)
         self._linear_cch = float(cch)
+        self._linear_tilt = numpy.radians(tilt)
 
         if distance!=None and pixelwidth!=None:
             self._linear_distance = 1.0
@@ -535,7 +537,7 @@ class QConversion(object):
 
         libxrayutils.cang2q_linear(sAngles, dAngles, qpos, self.r_i,len(self.sampleAxis),
                      len(self.detectorAxis),Npoints,sAxis,dAxis,cch, pwidth,roi,
-                     self._linear_detdir,wl)
+                     self._linear_detdir, self._linear_tilt, wl)
 
         #reshape output
         qpos.shape = (Npoints*(roi[1]-roi[0]),3)
@@ -543,7 +545,7 @@ class QConversion(object):
         return qpos[:,0],qpos[:,1],qpos[:,2]
 
     def init_area(self,detectorDir1,detectorDir2,cch1,cch2,Nch1,Nch2,distance=None,
-                  pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,**kwargs):
+                  pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,tilt1=0, tilt2=0, **kwargs):
         """
         initialization routine for area detectors
         detector direction as well as distance and pixel size or
@@ -565,6 +567,8 @@ class QConversion(object):
 
                          !! Either distance and pwidth1,2 or chpdeg1,2 must be given !!
 
+        tilt1,2:         tilt of the detector axis from the detectorDir1,2 (in degree)
+        
         **kwargs:        optional keyword arguments
             Nav:         number of channels to average to reduce data size (default: [1,1])
             roi:         region of interest for the detector pixels; e.g. [100,900,200,800]
@@ -587,6 +591,9 @@ class QConversion(object):
         self._area_Nch2 = int(Nch2)
         self._area_cch1 = int(cch1)
         self._area_cch2 = int(cch2)
+
+        self._area_tilt1 = numpy.radians(tilt1)
+        self._area_tilt2 = numpy.radians(tilt2)
 
         # mandatory keyword arguments
         if distance!=None and pwidth1!=None and pwidth2!=None:
@@ -758,7 +765,8 @@ class QConversion(object):
 
         libxrayutils.cang2q_area(sAngles, dAngles, qpos, self.r_i,len(self.sampleAxis),
                      len(self.detectorAxis),Npoints,sAxis,dAxis, cch1, cch2, pwidth1, pwidth2,
-                     roi,self._area_detdir1,self._area_detdir2,wl)
+                     roi,self._area_detdir1,self._area_detdir2,
+                     self._area_tilt1, self._area_tilt2,wl)
 
         #reshape output
         qpos.shape = (Npoints*(roi[1]-roi[0])*(roi[3]-roi[2]),3)

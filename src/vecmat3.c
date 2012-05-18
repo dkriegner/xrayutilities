@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+ * Copyright (C) 2010-2012 Dominik Kriegner <dominik.kriegner@aol.at>
 */
 
 /* ###################################
@@ -65,6 +65,26 @@ INLINE void vecmul(double *RESTRICT r, double a) {
         r[i] *= a;
 }
 
+INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT r) {
+    r[0] =  v1[1]*v2[2] - v1[2]*v2[1];
+    r[1] = -v1[0]*v2[2] + v1[2]*v2[0];
+    r[2] =  v1[0]*v2[1] - v1[1]*v2[0];
+}
+
+INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m, double *RESTRICT mr) {
+    for (int i=0; i<9; i=i+3) {
+        mr[0+i] =  v[1]*m[2+i] - v[2]*m[1+i];
+        mr[1+i] = -v[0]*m[2+i] + v[2]*m[0+i];
+        mr[2+i] =  v[0]*m[1+i] - v[1]*m[0+i];
+    }
+}
+
+INLINE void matmulc(double *RESTRICT m, double c) {
+    for (int i=0; i<9; i=i+1) {
+        m[i] *= c;
+    }
+}
+
 INLINE void matvec(double *RESTRICT m, double *RESTRICT v, double *RESTRICT r) {
     r[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2];
     r[1] = m[3]*v[0] + m[4]*v[1] + m[5]*v[2];
@@ -80,6 +100,14 @@ INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2) {
         m1[i] = a;
         m1[i+1] = b;
         m1[i+2] = c;
+    }
+}
+
+INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT m) {
+    for(int i=0; i<3; i=i+1) {
+        for(int j=0; j<3; j=j+1) {
+            m[i*3+j] = v1[i]*v2[j];
+        }
     }
 }
 

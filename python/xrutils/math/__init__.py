@@ -24,6 +24,7 @@ from .transforms import Cijkl2Cij
 from .transforms import XRotation
 from .transforms import YRotation
 from .transforms import ZRotation
+from .transforms import rotarb
 
 from .vector import VecNorm
 from .vector import VecUnit

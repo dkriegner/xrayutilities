@@ -346,3 +346,52 @@ def ZRotation(alpha,deg=True):
     return Transform(m)
 
 
+# helper scripts for rotations around arbitrary axis 
+def tensorprod(vec1,vec2):
+    """ 
+    function implements a "getrennt von"
+    """
+    return vec1[:,numpy.newaxis]*numpy.ones((3,3))*vec2[numpy.newaxis,:]
+
+def mycross(vec,mat):
+    """
+    function implements the cross-product of a vector with each column of a matrix
+    """
+    out = numpy.zeros((3,3))
+    for i in range(3):
+        out[:,i] = numpy.cross(vec,mat[:,i])
+    return out
+
+def rotarb(vec,axis,ang,deg=True):
+    """ 
+    function implements the rotation around an arbitrary axis by an angle ang
+    positive rotation is anti-clockwise when looking from positive end of axis vec
+tor
+
+    Parameter
+    ---------
+     vec:   numpy.array or list of length 3
+     axis:  numpy.array or list of length 3
+     ang:   rotation angle in degree (deg=True) or in rad (deg=False)
+     deg:   boolean which determines the input format of ang (default: True)
+
+    Returns
+    -------
+     rotvec:  rotated vector as numpy.array
+
+    Examples:
+    >>> rotarb([1,0,0],[0,0,1],90)
+    array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
+    """
+    if isinstance(axis,list):
+        axis=numpy.array(axis,dtype=numpy.double)
+    #normalize axis
+    e = axis/numpy.linalg.norm(axis)
+    if deg:
+        rad = numpy.radians(ang)
+    else:
+        rad = ang
+    get = tensorprod(e,e)
+    rot = get+cos(rad)*(numpy.identity(3)-get) + sin(rad)*mycross(e,numpy.identity(3))
+    return numpy.dot(rot,vec)
+
