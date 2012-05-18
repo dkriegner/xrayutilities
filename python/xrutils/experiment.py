@@ -614,7 +614,7 @@ class QConversion(object):
         if 'roi' in kwargs:
             self._area_roi = kwargs['roi']
         else:
-            self._area_roi = [0,self._area_Nch1-1,0,self._area_Nch2-1]
+            self._area_roi = [0,self._area_Nch1,0,self._area_Nch2]
         if 'Nav' in kwargs:
             self._area_nav = kwargs['Nav']
         else:
