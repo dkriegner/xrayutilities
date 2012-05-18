@@ -125,15 +125,14 @@ class Gridder1D(Gridder):
         self.xmax = x.max()
 
         dx = (self.xmax-self.xmin)/(self.nx-1)
-        ix = ((x-self.xmin)/dx).astype(numpy.int) # create index array
 
-        for i in range(self.nx):
-            dcell = data[ix==i]
-            if(self.flags == self.flags|4):
-                self.gdata[i] = numpy.average(dcell)
-            else:
-                self.gdata[i] = dcell.sum()
-            self.gnorm[i] = dcell.size
+        for i in range(x.size):
+            ix = ((x[i] - self.xmin)/dx).astype(numpy.int)
+            self.gdata[ix] += data[i]
+            self.gnorm[ix] += 1
+
+        if self.flags != self.flags|4:
+            self.gdata[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
 
 
 class Gridder2D(Gridder):
