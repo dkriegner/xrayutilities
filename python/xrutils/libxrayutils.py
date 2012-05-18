@@ -138,7 +138,7 @@ cang2q_linear.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="a
 # area detector conversion function
 #######################################
 cang2q_area = _library.ang2q_conversion_area
-# c declaration: int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tilt1, double tilt2, double lambda)
+# c declaration: int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
 #define argument types
 cang2q_area.restype = ctypes.c_int
 cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),

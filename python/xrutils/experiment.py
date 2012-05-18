@@ -545,7 +545,7 @@ class QConversion(object):
         return qpos[:,0],qpos[:,1],qpos[:,2]
 
     def init_area(self,detectorDir1,detectorDir2,cch1,cch2,Nch1,Nch2,distance=None,
-                  pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,tilt1=0, tilt2=0, **kwargs):
+                  pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,tiltazimuth=0, tilt=0, **kwargs):
         """
         initialization routine for area detectors
         detector direction as well as distance and pixel size or
@@ -567,7 +567,9 @@ class QConversion(object):
 
                          !! Either distance and pwidth1,2 or chpdeg1,2 must be given !!
 
-        tilt1,2:         tilt of the detector axis from the detectorDir1,2 (in degree)
+        tiltazimuth:     direction of the tilt vector in the detector plane (in degree)
+        tilt:            tilt of the detector plane around an axis normal to the direction
+                         given by the tiltazimuth
         
         **kwargs:        optional keyword arguments
             Nav:         number of channels to average to reduce data size (default: [1,1])
@@ -592,8 +594,8 @@ class QConversion(object):
         self._area_cch1 = int(cch1)
         self._area_cch2 = int(cch2)
 
-        self._area_tilt1 = numpy.radians(tilt1)
-        self._area_tilt2 = numpy.radians(tilt2)
+        self._area_tiltazimuth = numpy.radians(tiltazimuth)
+        self._area_tilt = numpy.radians(tilt)
 
         # mandatory keyword arguments
         if distance!=None and pwidth1!=None and pwidth2!=None:
@@ -766,7 +768,7 @@ class QConversion(object):
         libxrayutils.cang2q_area(sAngles, dAngles, qpos, self.r_i,len(self.sampleAxis),
                      len(self.detectorAxis),Npoints,sAxis,dAxis, cch1, cch2, pwidth1, pwidth2,
                      roi,self._area_detdir1,self._area_detdir2,
-                     self._area_tilt1, self._area_tilt2,wl)
+                     self._area_tiltazimuth, self._area_tilt,wl)
 
         #reshape output
         qpos.shape = (Npoints*(roi[1]-roi[0])*(roi[3]-roi[2]),3)
