@@ -1066,7 +1066,10 @@ class HXRD(Experiment):
         geometry:   determines the scattering geometry:
                     "hi_lo" high incidence-low exit
                     "lo_hi" low incidence - high exit
-                    "real" general geometry - angles determined by q-coordinates
+                    "real" general geometry - angles determined by q-coordinates (azimuth)
+                        upper geometries return [phi,omega,twotheta]
+				    "real_tilt" general geometry - angles determined by q-coordinates (tilt)
+                        returns [chi,omega,twotheta]
                     default: self.geometry
         refrac:     boolean to determine if refraction is taken into account
                     default: False
@@ -1116,7 +1119,7 @@ class HXRD(Experiment):
 
         # parse keyword arguments
         if 'geometry' in keyargs:
-            if keyargs['geometry'] in ["hi_lo","lo_hi","real"]:
+            if keyargs['geometry'] in ["hi_lo","lo_hi","real", "realTilt"]:
                 geom = keyargs['geometry']
             else:
                 raise InputError("HXRD: invalid value for the geometry argument given")
@@ -1193,13 +1196,19 @@ class HXRD(Experiment):
             if numpy.isnan(phi):
                 phi = 0
 
+            chi = numpy.arctan2(qvec[0],qvec[2])
+            if numpy.isnan(chi):
+                chi = 0 
+            
             if geom == 'hi_lo':
                 om = tth/2. + math.VecAngle(z,qvec) # +: high incidence geometry
             elif geom == 'lo_hi':
                 om = tth/2. - math.VecAngle(z,qvec) # -: low incidence geometry
-            else:
+            elif geom == 'real':
                 om = tth/2 - numpy.sign(math.VecAngle(y,qvec)-numpy.pi/2.) * math.VecAngle(z,qvec)
-
+            elif geom == 'realTilt':
+                om = tth/2 + numpy.arctan2(qvec[1],qvec[2])
+        
             # refraction correction at incidence and exit facet
             psi_i = 0.
             psi_d = 0. # needed if refrac is false and full_output is True
@@ -1231,9 +1240,14 @@ class HXRD(Experiment):
                 psi_i = numpy.arcsin(ki0[0]/self.k0)
                 psi_d = numpy.arcsin(kd0[0]/self.k0)
 
-            angle[0,i] = phi
-            angle[1,i] = om
-            angle[2,i] = tth
+            if geom == 'realTilt':
+                angle[0,i] = chi
+                angle[1,i] = om
+                angle[2,i] = tth
+            else:
+                angle[0,i] = phi
+                angle[1,i] = om
+                angle[2,i] = tth
             if foutp:
                 angle[3,i] = psi_i
                 angle[4,i] = psi_d
