@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 parser for the alignment log file of the rotating anode

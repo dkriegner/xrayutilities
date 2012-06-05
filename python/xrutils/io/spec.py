@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a threaded class for observing a SPEC data file

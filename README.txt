@@ -3,7 +3,7 @@ xrayutilities - a package with useful scripts for X-ray diffraction
 ===================================================================
 
  Copyright (C) 2009-2012 Eugen Wintersberger <eugen.wintersberger@desy.de>
- Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
+ Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Directories:
 doc ........ directory for documentation

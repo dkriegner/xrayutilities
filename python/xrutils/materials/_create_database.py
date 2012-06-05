@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 script to create the HDF5 database from the raw data of XOP
 this file is only needed for administration

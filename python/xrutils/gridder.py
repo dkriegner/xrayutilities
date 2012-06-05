@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 import ctypes

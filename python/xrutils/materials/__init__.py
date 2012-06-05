@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@aol.at>
+# Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 #import module objects
 
