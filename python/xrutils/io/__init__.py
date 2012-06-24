@@ -35,8 +35,9 @@ from .spectra import geth5_spectra_map
 #from tascom import dat2hdf5
 #from tascom import dats2hdf5
 
-from .roperccd import RoperCCD
-from .roperccd import ImageReader
+from .imagereader import RoperCCD
+from .imagereader import PerkinElmer
+from .imagereader import ImageReader
 
 from .spec import SPECFile
 from .spec import SPECScan
