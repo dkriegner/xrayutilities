@@ -610,6 +610,9 @@ class Alloy(Material):
         self.xb = 0
         self._setxb(x)
 
+    def lattice_const_AB(self, latA, latB, x):
+        return (latB-latA)*x + latA
+
     def _getxb(self):
         return self.xb
 
@@ -617,12 +620,9 @@ class Alloy(Material):
         self.xb = x
         self.name = "%s(%2.2f)%s(%2.2f)" %(self.matA.name,1.-x,self.matB.name,x)
         #modify the lattice
-        self.lattice.a1 = (self.matB.lattice.a1-self.matA.lattice.a1)*x+\
-                          self.matA.lattice.a1
-        self.lattice.a2 = (self.matB.lattice.a2-self.matA.lattice.a2)*x+\
-                          self.matA.lattice.a2
-        self.lattice.a3 = (self.matB.lattice.a3-self.matA.lattice.a3)*x+\
-                          self.matA.lattice.a3
+        self.lattice.a1 = self.lattice_const_AB(self.matA.lattice.a1, self.matB.lattice.a1, x)
+        self.lattice.a2 = self.lattice_const_AB(self.matA.lattice.a2, self.matB.lattice.a2, x)
+        self.lattice.a3 = self.lattice_const_AB(self.matA.lattice.a3, self.matB.lattice.a3, x)
         self.rlattice = self.lattice.ReciprocalLattice()
 
         #set elastic constants
@@ -670,9 +670,9 @@ class Alloy(Material):
             warnings.warn("Alloy: given hkl differs from the geometry of the Experiment instance in the azimuthal direction")
 
         # calculate relaxed points for matA and matB as general as possible:
-        a1 = lambda x: (self.matB.lattice.a1-self.matA.lattice.a1)*x+self.matA.lattice.a1
-        a2 = lambda x: (self.matB.lattice.a2-self.matA.lattice.a2)*x+self.matA.lattice.a2
-        a3 = lambda x: (self.matB.lattice.a3-self.matA.lattice.a3)*x+self.matA.lattice.a3
+        a1 = lambda x: self.lattice_const_AB(self.matA.lattice.a1, self.matB.lattice.a1, x)
+        a2 = lambda x: self.lattice_const_AB(self.matA.lattice.a2, self.matB.lattice.a2, x)
+        a3 = lambda x: self.lattice_const_AB(self.matA.lattice.a3, self.matB.lattice.a3, x)
         V = lambda x: numpy.dot(a3(x),numpy.cross(a1(x),a2(x)))
         b1 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a2(x),a3(x))
         b2 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a3(x),a1(x))
@@ -769,9 +769,9 @@ class CubicAlloy(Alloy):
         cijB = Cijkl2Cij(trans(self.matB.cijkl))
 
         # define lambda functions for all things in the equation to solve
-        a1 = lambda x: (self.matB.lattice.a1-self.matA.lattice.a1)*x+self.matA.lattice.a1
-        a2 = lambda x: (self.matB.lattice.a2-self.matA.lattice.a2)*x+self.matA.lattice.a2
-        a3 = lambda x: (self.matB.lattice.a3-self.matA.lattice.a3)*x+self.matA.lattice.a3
+        a1 = lambda x: self.lattice_const_AB(self.matA.lattice.a1, self.matB.lattice.a1, x)
+        a2 = lambda x: self.lattice_const_AB(self.matA.lattice.a2, self.matB.lattice.a2, x)
+        a3 = lambda x: self.lattice_const_AB(self.matA.lattice.a3, self.matB.lattice.a3, x)
         V = lambda x: numpy.dot(a3(x),numpy.cross(a1(x),a2(x)))
         b1 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a2(x),a3(x))
         b2 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a3(x),a1(x))
@@ -857,9 +857,9 @@ class CubicAlloy(Alloy):
         cijB = Cijkl2Cij(trans(self.matB.cijkl))
 
         # define lambda functions for all things in the equation to solve
-        a1 = lambda x: (self.matB.lattice.a1-self.matA.lattice.a1)*x+self.matA.lattice.a1
-        a2 = lambda x: (self.matB.lattice.a2-self.matA.lattice.a2)*x+self.matA.lattice.a2
-        a3 = lambda x: (self.matB.lattice.a3-self.matA.lattice.a3)*x+self.matA.lattice.a3
+        a1 = lambda x: self.lattice_const_AB(self.matA.lattice.a1, self.matB.lattice.a1, x)
+        a2 = lambda x: self.lattice_const_AB(self.matA.lattice.a2, self.matB.lattice.a2, x)
+        a3 = lambda x: self.lattice_const_AB(self.matA.lattice.a3, self.matB.lattice.a3, x)
         V = lambda x: numpy.dot(a3(x),numpy.cross(a1(x),a2(x)))
         b1 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a2(x),a3(x))
         b2 = lambda x: 2*numpy.pi/V(x)*numpy.cross(a3(x),a1(x))
@@ -890,13 +890,15 @@ class SiGe(CubicAlloy):
     def __init__(self,x):
         CubicAlloy.__init__(self,Si,Ge,x)
 
+    def lattice_const_AB(self, latA, latB, x):
+        return latA+ (0.2*x+0.027*x**2)*latA/numpy.linalg.norm(latA)
+
     def _setxb(self,x):
-        a = self.matA.lattice.a1[0]
         if config.VERBOSITY >= config.DEBUG: print("XU.materials.SiGe._setxb: jump to base class")
         CubicAlloy._setxb(self,x)
         if config.VERBOSITY >= config.DEBUG: print("back from base class")
         #the lattice parameters need to be done in a different way
-        a = a+0.2*x+0.027*x**2
+        a = self.lattice_const_AB(self.matA.lattice.a1[0], self.matB.lattice.a1[0], x)
         self.lattice = lattice.CubicLattice(a)
         self.rlattice = self.lattice.ReciprocalLattice()
 
