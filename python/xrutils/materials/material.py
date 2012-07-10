@@ -552,7 +552,7 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
 Si = Material("Si",lattice.DiamondLattice(elements.Si,5.43104),
                    CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9))
 Ge = Material("Ge",lattice.DiamondLattice(elements.Ge,5.65785),
-                   CubicElasticTensor(124.0e+9,41.3e+9,68.3e+9))
+                   CubicElasticTensor(128.5e+9,48.3e+9,66.8e+9))
 InAs = Material("InAs",lattice.ZincBlendeLattice(elements.In,elements.As,6.0583),
                    CubicElasticTensor(8.34e+10,4.54e+10,3.95e+10))
 InP  = Material("InP",lattice.ZincBlendeLattice(elements.In,elements.P,5.8687),
