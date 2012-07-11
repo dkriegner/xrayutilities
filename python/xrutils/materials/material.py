@@ -563,6 +563,8 @@ GaP  = Material("GaP",lattice.ZincBlendeLattice(elements.Ga,elements.P,5.4505),
                    CubicElasticTensor(14.05e+10,6.20e+10,7.03e+10))
 GaAs = Material("GaAs",lattice.ZincBlendeLattice(elements.Ga,elements.As,5.65325),
                    CubicElasticTensor(11.9e+10,5.34e+10,5.96e+10))
+GaSb = Material("GaSb",lattice.ZincBlendeLattice(elements.Ga,elements.Sb,6.09593),
+                   CubicElasticTensor(8.83e+10,4.02e+10,4.32e+10))
 CdTe = Material("CdTe",lattice.ZincBlendeLattice(elements.Cd,elements.Te,6.482),
                    CubicElasticTensor(53.5,36.7,19.9)) # ? Unit of elastic constants
 CdSe = Material("CdSe",lattice.WurtziteLattice(elements.Cd,elements.Se,4.300,7.011),

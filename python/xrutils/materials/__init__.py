@@ -50,6 +50,7 @@ from .material import InP
 from .material import InSb
 from .material import GaP
 from .material import GaAs
+from .material import GaSb
 from .material import PbTe
 from .material import CdTe
 from .material import CdSe_ZB
