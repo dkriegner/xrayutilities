@@ -1,11 +1,6 @@
 To Do
 -----
 
-18.5.2012
-
-derive PerkinElmer and RoperScientific CCD file readers from the ImageReader
-class. should be easy -> just needs the correct initialization!
-
 27.3.2012
 
 implement alternative call of line_cut function with Gridder2D object instead
