@@ -457,7 +457,7 @@ class QConversion(object):
         if 'Nav' in kwargs:
             nav = kwargs['Nav']
         else:
-            nav = 1
+            nav = self._linear_nav
 
         if 'roi' in kwargs:
             oroi = kwargs['roi']
