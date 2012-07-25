@@ -24,7 +24,7 @@ import os
 
 filename = os.path.join("data","elements.db")
 
-dbf = db.DataBase("data/elements.db")
+dbf = db.DataBase(filename)
 dbf.Create(filename,"Database with elemental data from XOP and Kissel databases")
 
 db.init_material_db(dbf)

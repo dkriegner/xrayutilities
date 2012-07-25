@@ -31,7 +31,7 @@ from .. import math
 from .. import config
 from ..exception import InputError
 
-_db = database.DataBase(os.path.join(__path__[0],"data","elements.db"))
+_db = database.DataBase(os.path.join(__path__[0],"data",config.DBNAME))
 _db.Open()
 
 def _db_cleanup():
