@@ -43,6 +43,7 @@ from . import utilities_noconf
 # dynhigh
 # epsilon
 # clib_path
+# database filename for atomic structure factors
 
 xrutilsParser = configparser.ConfigParser()
 
@@ -73,6 +74,9 @@ DYNHIGH = xrutilsParser.getfloat("xrutils","dynhigh")
 
 # small number needed for error checks
 EPSILON = xrutilsParser.getfloat("xrutils","epsilon")
+
+# name of the database with atomic scattering factors
+DBNAME = xrutilsParser.get("xrutils","dbname")
 
 try:
     CLIB_PATH = xrutilsParser.get("xrutils","clib_path")
