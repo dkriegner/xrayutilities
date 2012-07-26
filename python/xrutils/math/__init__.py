@@ -30,3 +30,5 @@ from .vector import VecNorm
 from .vector import VecUnit
 from .vector import VecDot
 from .vector import VecAngle
+
+from .debye import Debye1
