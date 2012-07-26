@@ -108,8 +108,10 @@ def Cijkl2Cij(cijkl):
     return cij
 
 class Material(object):
-    def __init__(self,name,lat,cij):
-        if isinstance(cij,list):
+    def __init__(self,name,lat,cij=None,thetaDebye=None):
+        if cij==None:
+            self.cij = numpy.zeros((6,6),dtype=numpy.double)
+        elif isinstance(cij,list):
             self.cij = numpy.array(cij,dtype=numpy.double)
         elif isinstance(cij,numpy.ndarray):
             self.cij = cij
@@ -121,6 +123,11 @@ class Material(object):
         self.rlattice = lat.ReciprocalLattice()
         self.cijkl = Cij2Cijkl(self.cij)
         self.transform = None
+        if numpy.isscalar(thetaDebye):
+            self.thetaDebye = float(thetaDebye)
+        else:
+            self.thetaDebye = thetaDebye
+
 
     def __getattr__(self,name):
         if name.startswith("c"):
@@ -277,7 +284,7 @@ class Material(object):
 
     def chi0(self,en="config"):
         """
-        calculates the complex chi_0 values ofter needed in simulations.
+        calculates the complex chi_0 values often needed in simulations.
         They are closely related to delta and beta
         (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
         """
@@ -337,10 +344,11 @@ class Material(object):
 
         return ostr
 
-    def StructureFactor(self,q,en="config"):
+    def StructureFactor(self,q,en="config",temp=0):
         """
         caluclates the structure factor of a material
         for a certain momentum transfer and energy
+        at a certain temperature of the material
 
         Parameter
         ---------
@@ -366,13 +374,31 @@ class Material(object):
 
         if self.lattice.base==None: return 1.
 
+        if temp!=0 and self.thetaDebye: 
+            # calculate Debye-Waller factor according to 
+            # 2W(q) = 3* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
+            # DWF = exp(-2W(q))
+            hbar = scipy.constants.hbar
+            kb = scipy.constants.Boltzmann
+            x = self.thetaDebye/float(temp)
+            m = 0.
+            for a,p in self.lattice.base:
+                m += a.weight
+            m = m/len(self.lattice.base)
+            exponentf = 3*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"%exponentf)
+            dwf = numpy.exp(-exponentf*math.VecNorm(q)**2)
+        else:
+            dwf = 1.0
+
         s = 0.+0.j
         for a,p in self.lattice.base: # a: atom, p: position
             r = self.lattice.GetPoint(p)
             f = a.f(q,en)
             s += f*numpy.exp(-1.j*math.VecDot(q,r))
 
-        return s
+        return s*dwf
 
     def StructureFactorForEnergy(self,q0,en):
         """
@@ -548,7 +574,8 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
     return m
 
 #calculate some predefined materials
-# PLEASE use N/m^2 as unit for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa)
+# PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa) 
+# Use Kelvin as unit for the Debye temperature
 Si = Material("Si",lattice.DiamondLattice(elements.Si,5.43104),
                    CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9))
 Ge = Material("Ge",lattice.DiamondLattice(elements.Ge,5.65785),
@@ -560,7 +587,7 @@ InP  = Material("InP",lattice.ZincBlendeLattice(elements.In,elements.P,5.8687),
 InSb  = Material("InSb",lattice.ZincBlendeLattice(elements.In,elements.Sb,6.47937),
                    CubicElasticTensor(6.66e+10,3.65e+10,3.02e+10))
 GaP  = Material("GaP",lattice.ZincBlendeLattice(elements.Ga,elements.P,5.4505),
-                   CubicElasticTensor(14.05e+10,6.20e+10,7.03e+10))
+                   CubicElasticTensor(14.05e+10,6.20e+10,7.03e+10),thetaDebye=445)
 GaAs = Material("GaAs",lattice.ZincBlendeLattice(elements.Ga,elements.As,5.65325),
                    CubicElasticTensor(11.9e+10,5.34e+10,5.96e+10))
 GaSb = Material("GaSb",lattice.ZincBlendeLattice(elements.Ga,elements.Sb,6.09593),
@@ -569,8 +596,7 @@ CdTe = Material("CdTe",lattice.ZincBlendeLattice(elements.Cd,elements.Te,6.482),
                    CubicElasticTensor(53.5,36.7,19.9)) # ? Unit of elastic constants
 CdSe = Material("CdSe",lattice.WurtziteLattice(elements.Cd,elements.Se,4.300,7.011),
                    HexagonalElasticTensor(7.490e10,4.609e10,3.926e10,8.451e10,1.315e10))
-CdSe_ZB = Material("CdSe ZB",lattice.ZincBlendeLattice(elements.Cd,elements.Se,6.052),
-                   CubicElasticTensor(0,0,0))
+CdSe_ZB = Material("CdSe ZB",lattice.ZincBlendeLattice(elements.Cd,elements.Se,6.052))
 HgSe = Material("HgSe",lattice.ZincBlendeLattice(elements.Hg,elements.Se,6.085),
                    CubicElasticTensor(6.1e10,4.4e10,2.2e10))
 PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.464),
@@ -579,30 +605,18 @@ PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.
                    CubicElasticTensor(123.7,19.3,15.9))
 GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186),
                    HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9))
-BaF2 = Material("BaF2",lattice.CubicFm3mBaF2(elements.Ba,elements.F,6.2001),
-                   CubicElasticTensor(0.,0.,0.))
-Al = Material("Al",lattice.FCCLattice(elements.Al,4.04958),
-                   numpy.zeros((6,6),dtype=numpy.double))
-Au = Material("Au",lattice.FCCLattice(elements.Au,4.0782),
-                   numpy.zeros((6,6),dtype=numpy.double))
-V = Material("V",lattice.BCCLattice(elements.V,3.024),
-                   numpy.zeros((6,6),dtype=numpy.double))
-Ag2Se = Material("Ag2Se",lattice.NaumanniteLattice(elements.Ag,elements.Se,4.333,7.062,7.764),
-                   numpy.zeros((6,6),dtype=numpy.double))
-VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.88,0.305),
-                   numpy.zeros((6,6),dtype=numpy.double))
-VO2_Baddeleyite = Material("VO_2",lattice.BaddeleyiteLattice(elements.V,elements.O,5.75,5.42,5.38,122.6),
-                   numpy.zeros((6,6),dtype=numpy.double))
-SiO2 = Material("SiO_2",lattice.QuartzLattice(elements.Si,elements.O,4.916,4.916,5.4054),
-                   numpy.zeros((6,6),dtype=numpy.double))
-In = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461),
-                   numpy.zeros((6,6),dtype=numpy.double))
-Sb = Material("Sb",lattice.TrigonalR3mh(elements.Sb,4.307,11.273),
-                   numpy.zeros((6,6),dtype=numpy.double))
-Sn = Material("Sn",lattice.TetragonalTinLattice(elements.Sn,5.8197,3.17488),
-                   numpy.zeros((6,6),dtype=numpy.double))
-SnAlpha = Material("Sn-alpha",lattice.DiamondLattice(elements.Sn,6.4912),
-                   numpy.zeros((6,6),dtype=numpy.double))
+BaF2 = Material("BaF2",lattice.CubicFm3mBaF2(elements.Ba,elements.F,6.2001))
+Al = Material("Al",lattice.FCCLattice(elements.Al,4.04958))
+Au = Material("Au",lattice.FCCLattice(elements.Au,4.0782))
+V = Material("V",lattice.BCCLattice(elements.V,3.024))
+Ag2Se = Material("Ag2Se",lattice.NaumanniteLattice(elements.Ag,elements.Se,4.333,7.062,7.764))
+VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.88,0.305))
+VO2_Baddeleyite = Material("VO_2",lattice.BaddeleyiteLattice(elements.V,elements.O,5.75,5.42,5.38,122.6))
+SiO2 = Material("SiO_2",lattice.QuartzLattice(elements.Si,elements.O,4.916,4.916,5.4054))
+In = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461))
+Sb = Material("Sb",lattice.TrigonalR3mh(elements.Sb,4.307,11.273))
+Sn = Material("Sn",lattice.TetragonalTinLattice(elements.Sn,5.8197,3.17488))
+SnAlpha = Material("Sn-alpha",lattice.DiamondLattice(elements.Sn,6.4912))
 
 class Alloy(Material):
     def __init__(self,matA,matB,x):
