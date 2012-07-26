@@ -23,6 +23,7 @@ module to handle access to the optical parameters database
 import tables
 import numpy
 import scipy.interpolate
+import scipy.constants
 import re
 
 
@@ -115,6 +116,21 @@ class DataBase(object):
             pass
 
         g = self.h5file.createGroup("/",name,title=description)
+
+    def SetWeight(self,weight):
+        """
+        SetWeight(weight):
+        Save weight of the element as float 
+
+        required input argument:
+        weight .......... atomic standard weight of the element (float)
+        """
+        if not isinstance(weight,float):
+            raise TypeError("weight parameter must be a float!")
+
+        self.h5group._v_attrs.atomic_standard_weight = weight
+        self.h5file.flush()
+        print self.h5group
 
     def SetF0(self,parameters):
         """
@@ -243,7 +259,7 @@ class DataBase(object):
         try:
             self.h5group = self.h5file.getNode("/",name)
         except:
-            print("material does not exist!")
+            print("XU.materials.database: material does not exist!")
 
         try:
             self.f0_params = self.h5group.f0
@@ -251,8 +267,9 @@ class DataBase(object):
             self.f1        = self.h5group.f1
             self.f2_en     = self.h5group.en_f2
             self.f2        = self.h5group.f2
+            self.weight    = self.h5group._v_attrs.atomic_standard_weight
         except:
-            print("optical constants are missing!")
+            print("XU.materials.database: some (optical|other) constants are missing!")
             #self.f0_params = None
             #self.f1_en     = None
             #self.f1        = None
@@ -650,3 +667,58 @@ def add_f1f2_from_kissel(db,kisselfile):
                         break
 
     kf.close()
+
+def add_mass_from_NIST(db,nistfile):
+    """
+    Read atoms standard mass and save it to the database.
+    """
+
+    #parse the nist file
+    try:
+        nf = open(nistfile,"r")
+    except:
+        print("cannot open NIST data file")
+        return None
+
+    #some regular expressions
+    commentline = re.compile(r"^#")
+    isotope = re.compile(r"^Atomic Number =")
+    standardw = re.compile(r"^Standard Atomic Weight")
+    number = re.compile(r"[0-9.]+")
+    multiblank = re.compile(r"\s+")
+
+    while True:
+        lb = nf.readline()
+        if lb == "": break
+        lb = lb.strip()
+
+        if isotope.match(lb):
+            #found new element
+            lb = multiblank.split(lb)
+            enum = int(lb[-1])
+            lb = nf.readline()
+            lb = lb.strip()
+            lb = multiblank.split(lb)
+            ename = lb[-1]
+
+            print("set element %s"%ename)
+            db.SetMaterial(ename)
+
+            #read data
+            while True:
+                lb = nf.readline()
+                lb = lb.strip()
+                if standardw.match(lb):
+                    lb = multiblank.split(lb)
+                    try:
+                        w = float(number.findall(lb[-1])[0]) # extract weight
+                        db.SetWeight(w*scipy.constants.atomic_mass)
+                        break
+                    except:
+                        print(lb)
+                        break
+
+    nf.close()
+    
+
+

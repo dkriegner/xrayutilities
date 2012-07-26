@@ -43,6 +43,8 @@ class Atom(object):
     def __init__(self,name,num):
         self.name = name
         self.num = num
+        _db.SetMaterial(self.name)
+        self.weight = _db.weight
 
     def f0(self,q):
         _db.SetMaterial(self.name)
