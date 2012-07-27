@@ -28,9 +28,6 @@ calculated. This should be implemented somewhere.
 17.08.2010
 discussion Eugen, Dominik
 
-* calculation of chi_h should be implemented according to Lugovskaya, Stepanov
-  Sov. Phys. Crystallogr. 36(4) 1991
-* include Debye-Waller factor into calculation of the structurefactor
 * a example/test folder should be created. two possibilities exist for its
   exact purpose:
   * templates of scripts could be hold there for the user

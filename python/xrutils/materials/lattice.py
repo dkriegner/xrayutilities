@@ -122,7 +122,16 @@ class LatticeBase(list):
     def __init__(self,*args,**keyargs):
        list.__init__(self,*args,**keyargs)
 
-    def append(self,atom,pos):
+    def append(self,atom,pos,occ=1.0):
+        """
+        add new Atom to the lattice base
+
+        Parameter
+        ---------
+         atom:   atom object to be added
+         pos:    position of the atom
+         occ:    occupancy (default=1.0)
+        """
         if not isinstance(atom,Atom):
             raise TypeError("atom must be an instance of class xrutils.materials.Atom")
 

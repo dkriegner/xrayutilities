@@ -251,7 +251,8 @@ class Material(object):
          beta (float)
         """
 
-        r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
+        r_e = 1/(4*numpy.pi*scipy.constants.epsilon_0)*scipy.constants.e**2/(scipy.constants.electron_mass*scipy.constants.speed_of_light**2)*1e10
+        # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
         if en=="config":
             en = config.ENERGY
 
@@ -265,22 +266,75 @@ class Material(object):
         beta *= r_e/(2*numpy.pi)*lam**2/self.lattice.UnitCellVolume()
         return beta
 
-    def chih(self,q,en="config"):
+    def chih(self,q,en="config",temp=0,polarization='S'):
         """
         calculates the complex polarizability of a material for a certain
-        momentum transfer
+        momentum transfer and energy
 
         Parameter
         ---------
          q:     momentum transfer in (1/A)
          en:    xray energy in eV,
                 if omitted the value from the xrutils configuration is used
+         temp:  temperature used for Debye-Waller-factor calculation
+         polarization:  either 'S' (default) sigma or 'P' pi polarization
 
         Returns
         -------
          complex polarizability
         """
-        raise NotImplementedError("This needs to be implemented!")
+
+        if isinstance(q,(list,tuple)):
+            q = numpy.array(q,dtype=numpy.double)
+        elif isinstance(q,numpy.ndarray):
+            pass
+        else:
+            raise TypeError("q must be a list or numpy array!")
+
+        if en=="config":
+            en = config.ENERGY
+
+        if self.lattice.base==None: 
+            return (0,0)
+
+        #Debye Waller factor calculation
+        if temp!=0 and self.thetaDebye: 
+            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
+            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
+            # -> do not trust Wikipedia!?
+            hbar = scipy.constants.hbar
+            kb = scipy.constants.Boltzmann
+            x = self.thetaDebye/float(temp)
+            m = 0.
+            for a,p in self.lattice.base:
+                m += a.weight
+            m = m/len(self.lattice.base)
+            exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"%exponentf)
+            dwf = numpy.exp(-exponentf*math.VecNorm(q)**2)
+        else:
+            dwf = 1.0
+
+        sr = 0.+0.j
+        si = 0.+0.j
+        for a,p in self.lattice.base: # a: atom, p: position
+            r = self.lattice.GetPoint(p)
+            fr = numpy.real(a.f(q,en))
+            fi = numpy.imag(a.f(q,en))
+            sr += fr*numpy.exp(-1.j*math.VecDot(q,r))*dwf
+            si += fi*numpy.exp(-1.j*math.VecDot(q,r))*dwf
+
+
+        #classical electron radius
+        r_e = 1/(4*numpy.pi*scipy.constants.epsilon_0)*scipy.constants.e**2/(scipy.constants.electron_mass*scipy.constants.speed_of_light**2)*1e10
+        lam = utilities.lam2en(en)
+        
+        f = -lam**2*r_e/(numpy.pi*self.lattice.UnitCellVolume())
+        rchi = numpy.abs(f*sr)
+        ichi = numpy.abs(f*si)
+
+        return rchi,ichi
 
     def chi0(self,en="config"):
         """
@@ -306,6 +360,29 @@ class Material(object):
         """
         n = 1. - self.delta(en) + 1.j*self.beta(en)
         return n
+
+    def critical_angle(self,en="config",deg=True):
+        """
+        calculate critical angle for total external reflection
+
+        Parameter
+        ---------
+         en:    energy of the x-rays,
+                if omitted the value from the xrutils configuration is used
+         deg:   return angle in degree if True otherwise radians (default:True)
+
+        Returns
+        -------
+         Angle of total external reflection
+
+        """
+        rn = 1. - self.delta(en)
+
+        alphac = numpy.arccos(rn)
+        if deg:
+            alphac = numpy.degrees(alphac)
+
+        return alphac
 
     def dTheta(self,Q,en="config"):
         """
@@ -356,6 +433,7 @@ class Material(object):
                 or numpy array are valid)
          en:    energy in eV,
                 if omitted the value from the xrutils configuration is used
+         temp:  temperature used for Debye-Waller-factor calculation    
 
         Returns
         -------
@@ -374,10 +452,11 @@ class Material(object):
 
         if self.lattice.base==None: return 1.
 
+        #Debye Waller factor calculation
         if temp!=0 and self.thetaDebye: 
-            # calculate Debye-Waller factor according to 
-            # 2W(q) = 3* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
-            # DWF = exp(-2W(q))
+            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
+            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
+            # -> do not trust Wikipedia!?
             hbar = scipy.constants.hbar
             kb = scipy.constants.Boltzmann
             x = self.thetaDebye/float(temp)
@@ -385,7 +464,7 @@ class Material(object):
             for a,p in self.lattice.base:
                 m += a.weight
             m = m/len(self.lattice.base)
-            exponentf = 3*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
+            exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
             if config.VERBOSITY >= config.DEBUG:
                 print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"%exponentf)
             dwf = numpy.exp(-exponentf*math.VecNorm(q)**2)
@@ -400,7 +479,7 @@ class Material(object):
 
         return s*dwf
 
-    def StructureFactorForEnergy(self,q0,en):
+    def StructureFactorForEnergy(self,q0,en,temp=0):
         """
         caluclates the structure factor of a material
         for a certain momentum transfer and a bunch of energies
@@ -410,6 +489,7 @@ class Material(object):
          q0:    vectorial momentum transfer (vectors as list,tuple
                 or numpy array are valid)
          en:    list, tuple or array of energy values in eV
+         temp:  temperature used for Debye-Waller-factor calculation
 
         Returns
         -------
@@ -432,6 +512,25 @@ class Material(object):
 
         if self.lattice.base==None: return numpy.ones(len(en))
 
+        #Debye Waller factor calculation
+        if temp!=0 and self.thetaDebye: 
+            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
+            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
+            # -> do not trust Wikipedia!?
+            hbar = scipy.constants.hbar
+            kb = scipy.constants.Boltzmann
+            x = self.thetaDebye/float(temp)
+            m = 0.
+            for a,p in self.lattice.base:
+                m += a.weight
+            m = m/len(self.lattice.base)
+            exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"%exponentf)
+            dwf = numpy.exp(-exponentf*qnorm**2)
+        else:
+            dwf = 1.0
+
          # create list of different atoms and buffer the scattering factors
         atoms = []
         f = []
@@ -452,9 +551,9 @@ class Material(object):
             r = self.lattice.GetPoint(p)
             s += f[types[i]]*numpy.exp(-1.j*math.VecDot(q,r))
 
-        return s
+        return s*dwf
 
-    def StructureFactorForQ(self,q,en0="config"):
+    def StructureFactorForQ(self,q,en0="config",temp=0):
         """
         caluclates the structure factor of a material
         for a bunch of momentum transfers and a certain energy
@@ -467,6 +566,7 @@ class Material(object):
                  numpy.array([Si.Q(0,0,4),Si.Q(0,0,4.1)])
          en0:   energy value in eV,
                 if omitted the value from the xrutils configuration is used
+         temp:  temperature used for Debye-Waller-factor calculation
 
         Returns
         -------
@@ -486,6 +586,24 @@ class Material(object):
 
         if self.lattice.base==None: return numpy.ones(len(q))
 
+        #Debye Waller factor calculation
+        if temp!=0 and self.thetaDebye: 
+            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
+            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
+            # -> do not trust Wikipedia!?
+            hbar = scipy.constants.hbar
+            kb = scipy.constants.Boltzmann
+            x = self.thetaDebye/float(temp)
+            m = 0.
+            for a,p in self.lattice.base:
+                m += a.weight
+            m = m/len(self.lattice.base)
+            exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"%exponentf)
+        else:
+            exponentf = 1.0
+
         # create list of different atoms and buffer the scattering factors
         atoms = []
         f = []
@@ -498,9 +616,15 @@ class Material(object):
                 #add atom type to list and calculate the scattering factor
                 types.append(len(atoms))
                 f_q = numpy.zeros(len(q))
+                dwf = numpy.zeros(len(q))
                 for j in range(len(q)):
-                    f_q[j] = at[0].f0(numpy.linalg.norm(q[j]))
-                f.append( f_q + at[0].f1(en0) +1.j*at[0].f2(en0) )
+                    qnorm = numpy.linalg.norm(q[j])
+                    f_q[j] = at[0].f0(qnorm)
+                    if temp!=0 and self.thetaDebye:
+                        dwf[j] = numpy.exp(-exponentf*qnorm**2)
+                    else: dwf[j] = 1.
+
+                f.append( (f_q + at[0].f1(en0) +1.j*at[0].f2(en0))*dwf )
                 atoms.append(at[0])
 
         s = 0.+0.j
@@ -577,21 +701,21 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
 # PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa) 
 # Use Kelvin as unit for the Debye temperature
 Si = Material("Si",lattice.DiamondLattice(elements.Si,5.43104),
-                   CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9))
+                   CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9),thetaDebye=640)
 Ge = Material("Ge",lattice.DiamondLattice(elements.Ge,5.65785),
-                   CubicElasticTensor(128.5e+9,48.3e+9,66.8e+9))
+                   CubicElasticTensor(128.5e+9,48.3e+9,66.8e+9),thetaDebye=374)
 InAs = Material("InAs",lattice.ZincBlendeLattice(elements.In,elements.As,6.0583),
-                   CubicElasticTensor(8.34e+10,4.54e+10,3.95e+10))
+                   CubicElasticTensor(8.34e+10,4.54e+10,3.95e+10),thetaDebye=280)
 InP  = Material("InP",lattice.ZincBlendeLattice(elements.In,elements.P,5.8687),
-                   CubicElasticTensor(10.11e+10,5.61e+10,4.56e+10))
+                   CubicElasticTensor(10.11e+10,5.61e+10,4.56e+10),thetaDebye=425)
 InSb  = Material("InSb",lattice.ZincBlendeLattice(elements.In,elements.Sb,6.47937),
-                   CubicElasticTensor(6.66e+10,3.65e+10,3.02e+10))
+                   CubicElasticTensor(6.66e+10,3.65e+10,3.02e+10),thetaDebye=160)
 GaP  = Material("GaP",lattice.ZincBlendeLattice(elements.Ga,elements.P,5.4505),
                    CubicElasticTensor(14.05e+10,6.20e+10,7.03e+10),thetaDebye=445)
 GaAs = Material("GaAs",lattice.ZincBlendeLattice(elements.Ga,elements.As,5.65325),
-                   CubicElasticTensor(11.9e+10,5.34e+10,5.96e+10))
+                   CubicElasticTensor(11.9e+10,5.34e+10,5.96e+10),thetaDebye=360)
 GaSb = Material("GaSb",lattice.ZincBlendeLattice(elements.Ga,elements.Sb,6.09593),
-                   CubicElasticTensor(8.83e+10,4.02e+10,4.32e+10))
+                   CubicElasticTensor(8.83e+10,4.02e+10,4.32e+10),thetaDebye=266)
 CdTe = Material("CdTe",lattice.ZincBlendeLattice(elements.Cd,elements.Te,6.482),
                    CubicElasticTensor(53.5,36.7,19.9)) # ? Unit of elastic constants
 CdSe = Material("CdSe",lattice.WurtziteLattice(elements.Cd,elements.Se,4.300,7.011),
@@ -604,7 +728,7 @@ PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.
 PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
 GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186),
-                   HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9))
+                   HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9),thetaDebye=600)
 BaF2 = Material("BaF2",lattice.CubicFm3mBaF2(elements.Ba,elements.F,6.2001))
 Al = Material("Al",lattice.FCCLattice(elements.Al,4.04958))
 Au = Material("Au",lattice.FCCLattice(elements.Au,4.0782))
