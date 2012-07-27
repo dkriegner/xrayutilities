@@ -281,7 +281,7 @@ class Material(object):
 
         Returns
         -------
-         complex polarizability
+         (abs(chih_real),abs(chih_imag)) complex polarizability
         """
 
         if isinstance(q,(list,tuple)):
@@ -306,7 +306,7 @@ class Material(object):
             kb = scipy.constants.Boltzmann
             x = self.thetaDebye/float(temp)
             m = 0.
-            for a,p in self.lattice.base:
+            for a,p,o,b in self.lattice.base:
                 m += a.weight
             m = m/len(self.lattice.base)
             exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
@@ -318,10 +318,12 @@ class Material(object):
 
         sr = 0.+0.j
         si = 0.+0.j
-        for a,p in self.lattice.base: # a: atom, p: position
+        for a,p,o,b in self.lattice.base: # a: atom, p: position, o: occupancy, b: temperatur-factor
             r = self.lattice.GetPoint(p)
-            fr = numpy.real(a.f(q,en))
-            fi = numpy.imag(a.f(q,en))
+            if temp==0:
+                dwf = numpy.exp(-b*math.VecNorm(q)**2/(4*numpy.pi)**2)
+            fr = numpy.real(a.f(q,en))*o
+            fi = numpy.imag(a.f(q,en))*o
             sr += fr*numpy.exp(-1.j*math.VecDot(q,r))*dwf
             si += fi*numpy.exp(-1.j*math.VecDot(q,r))*dwf
 
@@ -461,7 +463,7 @@ class Material(object):
             kb = scipy.constants.Boltzmann
             x = self.thetaDebye/float(temp)
             m = 0.
-            for a,p in self.lattice.base:
+            for a,p,o,b in self.lattice.base:
                 m += a.weight
             m = m/len(self.lattice.base)
             exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
@@ -472,12 +474,14 @@ class Material(object):
             dwf = 1.0
 
         s = 0.+0.j
-        for a,p in self.lattice.base: # a: atom, p: position
+        for a,p,o,b in self.lattice.base: # a: atom, p: position, o: occupancy, b: temperatur-factor
             r = self.lattice.GetPoint(p)
-            f = a.f(q,en)
-            s += f*numpy.exp(-1.j*math.VecDot(q,r))
+            if temp==0:
+                dwf = numpy.exp(-b*math.VecNorm(q)**2/(4*numpy.pi)**2)
+            f = a.f(q,en)*o
+            s += f*numpy.exp(-1.j*math.VecDot(q,r))*dwf
 
-        return s*dwf
+        return s
 
     def StructureFactorForEnergy(self,q0,en,temp=0):
         """
@@ -521,7 +525,7 @@ class Material(object):
             kb = scipy.constants.Boltzmann
             x = self.thetaDebye/float(temp)
             m = 0.
-            for a,p in self.lattice.base:
+            for a,p,o,b in self.lattice.base:
                 m += a.weight
             m = m/len(self.lattice.base)
             exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
@@ -547,11 +551,13 @@ class Material(object):
 
         s = 0.+0.j
         for i in range(len(self.lattice.base)):
-            p = self.lattice.base[i][1]
+            a,p,o,b = self.lattice.base[i]
+            if temp==0:
+                dwf = numpy.exp(-b*qnorm**2/(4*numpy.pi)**2)
             r = self.lattice.GetPoint(p)
-            s += f[types[i]]*numpy.exp(-1.j*math.VecDot(q,r))
+            s += f[types[i]]*o*dwf*numpy.exp(-1.j*math.VecDot(q,r))
 
-        return s*dwf
+        return s
 
     def StructureFactorForQ(self,q,en0="config",temp=0):
         """
@@ -580,6 +586,9 @@ class Material(object):
             raise TypeError("q must be a list or numpy array!")
         if len(q.shape) != 2:
             raise ValueError("q does not have the correct shape (shape = %s)" %str(q.shape))
+        qnorm = numpy.zeros(len(q))
+        for j in range(len(q)):
+            qnorm[j] = numpy.linalg.norm(q[j])
 
         if en0=="config":
             en0 = config.ENERGY
@@ -595,7 +604,7 @@ class Material(object):
             kb = scipy.constants.Boltzmann
             x = self.thetaDebye/float(temp)
             m = 0.
-            for a,p in self.lattice.base:
+            for a,p,o,b in self.lattice.base:
                 m += a.weight
             m = m/len(self.lattice.base)
             exponentf = 3/2.*hbar**2*1.0e20/(m*kb*self.thetaDebye) * ( math.Debye1(x)/x + 0.25)
@@ -615,23 +624,21 @@ class Material(object):
             except ValueError:
                 #add atom type to list and calculate the scattering factor
                 types.append(len(atoms))
-                f_q = numpy.zeros(len(q))
-                dwf = numpy.zeros(len(q))
-                for j in range(len(q)):
-                    qnorm = numpy.linalg.norm(q[j])
-                    f_q[j] = at[0].f0(qnorm)
-                    if temp!=0 and self.thetaDebye:
-                        dwf[j] = numpy.exp(-exponentf*qnorm**2)
-                    else: dwf[j] = 1.
-
-                f.append( (f_q + at[0].f1(en0) +1.j*at[0].f2(en0))*dwf )
+                f_q = at[0].f0(qnorm)
+                f.append( (f_q + at[0].f1(en0) +1.j*at[0].f2(en0)) )
                 atoms.append(at[0])
 
         s = 0.+0.j
         for i in range(len(self.lattice.base)):
-            p = self.lattice.base[i][1]
+            a,p,o,b = self.lattice.base[i]
+
+            if temp!=0 and self.thetaDebye:
+                dwf = numpy.exp(-exponentf*qnorm**2)
+            else:
+                dwf = numpy.exp(-b*qnorm**2/(4*numpy.pi)**2)
+
             r = self.lattice.GetPoint(p)
-            s += f[types[i]]*numpy.exp(-1.j*numpy.dot(q,r))
+            s += f[types[i]]*o*numpy.exp(-1.j*numpy.dot(q,r))*dwf
 
         return s
         # still a lot of overhead, because normally we do have 2 different types of atoms in a 8 atom base, but we calculate all 8 times which is obviously not necessary. One would have to reorganize the things in the LatticeBase class, and introduce something like an atom type and than only store the type in the List.

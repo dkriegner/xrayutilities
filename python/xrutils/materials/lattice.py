@@ -122,7 +122,7 @@ class LatticeBase(list):
     def __init__(self,*args,**keyargs):
        list.__init__(self,*args,**keyargs)
 
-    def append(self,atom,pos,occ=1.0):
+    def append(self,atom,pos,occ=1.0,b=0.):
         """
         add new Atom to the lattice base
 
@@ -131,6 +131,9 @@ class LatticeBase(list):
          atom:   atom object to be added
          pos:    position of the atom
          occ:    occupancy (default=1.0)
+         b:      b-factor of the atom used as exp(-b*q**2/(4*pi)**2) to reduce the 
+                 intensity of this atom (only used in case of temp=0 in StructureFactor
+                 and chi calculation)
         """
         if not isinstance(atom,Atom):
             raise TypeError("atom must be an instance of class xrutils.materials.Atom")
@@ -142,11 +145,11 @@ class LatticeBase(list):
         else:
             raise TypeError("Atom position must be array or list!")
 
-        list.append(self,(atom,pos))
+        list.append(self,(atom,pos,occ,b))
 
 
     def __setitem__(self,key,data):
-        (atom,pos) = data
+        (atom,pos,occ,b) = data
         if not isinstance(atom,Atom):
             raise TypeError("atom must be an instance of class xrutils.materials.Atom!")
 
@@ -157,14 +160,19 @@ class LatticeBase(list):
         else:
             raise TypeError("point must be a list or numpy array of shape (3)")
 
-        list.__setitem__(self,key,(atom,p))
+        if not numpy.isscalar(occ):
+            raise TypeError("occupation (occ) must be a float/numerical value")
+        if not numpy.isscalar(b):
+            raise TypeError("occupation (occ) must be a float/numerical value")
+
+        list.__setitem__(self,key,(atom,p,float(occ),float(b)))
 
     def __str__(self):
         ostr = ""
         for i in range(list.__len__(self)):
-            (atom,p) = list.__getitem__(self,i)
+            (atom,p,occ,b) = list.__getitem__(self,i)
 
-            ostr += "Base point %i: %s (%f %f %f)\n" %(i,atom.__str__(),p[0],p[1],p[2])
+            ostr += "Base point %i: %s (%f %f %f) occ=%4.2f b=%4.2f\n" %(i,atom.__str__(),p[0],p[1],p[2],occ,b)
 
         return ostr
 
