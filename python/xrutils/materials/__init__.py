@@ -40,6 +40,7 @@ from .lattice import TetragonalIndiumLattice
 from .lattice import TetragonalTinLattice
 from .lattice import TrigonalR3mh
 from .lattice import CubicFm3mBaF2
+from .lattice import CuMnAsLattice
 
 from . import elements
 from .material import Si
@@ -70,12 +71,18 @@ from .material import In
 from .material import Sb
 from .material import Sn
 from .material import SnAlpha
+from .material import Cu
+from .material import CuMnAs
 from .material import Alloy
 from .material import CubicAlloy
 from .material import PseudomorphicMaterial
 from .material import Material
 from .material import CubicElasticTensor
+
 from .database import DataBase
 from .database import init_material_db
 from .database import add_f0_from_intertab
+from .database import add_f0_from_xop
 from .database import add_f1f2_from_henkedb
+from .database import add_f1f2_from_kissel
+from .database import add_mass_from_NIST

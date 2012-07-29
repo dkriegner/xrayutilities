@@ -719,6 +719,3 @@ def add_mass_from_NIST(db,nistfile):
                         break
 
     nf.close()
-    
-
-

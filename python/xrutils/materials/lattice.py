@@ -669,3 +669,26 @@ def CubicFm3mBaF2(aa,ab,a):
 
     return l
 
+def CuMnAsLattice(aa,ab,ac,a,b,c):
+    #{{{1
+    # data from: http://www.sciencedirect.com/science/article/pii/S0304885311008900 and private communication X. Marti
+    # unique positions of Cu (2a) (0, 0, 0)
+    #                     Mn (2c) (0,0.5,0.2840)
+    #                     As (2c) (0,0.5,0.6895)
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[0.5,0.5,0])
+    lb.append(ab,[0,0.5,0.2840])
+    lb.append(ab,[0.5,0,1-0.2840])
+    lb.append(ac,[0,0.5,0.6895])
+    lb.append(ac,[0.5,0,1-0.6895])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,b,0]
+    a3 = [0,0,c]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+    #}}}1
