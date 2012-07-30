@@ -81,7 +81,7 @@ class ImageReader(object):
             if isinstance(darkfield,str):
                 if os.path.splitext(darkfield)[1] == '.npy':
                     self.darkfield = numpy.load(darkfield)
-                elif os.path.splitext(flatfield)[1] in ['.xz','.bin','.tif']:
+                elif os.path.splitext(darkfield)[1] in ['.xz','.bin','.tif']:
                     self.darkfield = self.readImage(darkfield) # read without flatc and darkc
                 else:
                     raise InputError("Error: unknown filename for darkfield correction!")

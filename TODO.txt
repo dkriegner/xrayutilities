@@ -20,11 +20,6 @@ DK: the new config should be used by the whole python package were necessary.
 maybe much more config options should be added, this needs discussion.
 One idea would be the nthreads (number of threads used by the gridder) variable...
 
-3.09.2010
-
-DK: from the refractive index the angle for total reflection for GID can be
-calculated. This should be implemented somewhere.
-
 17.08.2010
 discussion Eugen, Dominik
 
