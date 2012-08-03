@@ -14,7 +14,7 @@
 % along with this program; if not, see <http://www.gnu.org/licenses/>.
 %
 % Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-% Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+% Copyright (C) 2010,2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 %%% basic usage principles of xrutils
 
@@ -66,11 +66,11 @@ RA_normalizer_psd = xu.IntensityNormalizer("MCA",time="Seconds",absfun=lambda d:
 ang111 = expcub.Q2Ang(InAs.Q(1,1,1))
 ang331 = expcub.Q2Ang(InAs.Q(3,3,1))
 ang224 = expcub.Q2Ang(InAs.Q(2,2,4))
-print " hkl\t%10s\t%10s\t%10s" %("om","tt","phi")
-print "-------------------------------------------------------"
-print " 111\t %10.3f\t%10.3f\t%10.3f" %(ang111[1],ang111[2],ang111[0])
-print " 331\t %10.3f\t%10.3f\t%10.3f" %(ang331[1],ang331[2],ang331[0])
-print " 224\t %10.3f\t%10.3f\t%10.3f" %(ang224[1],ang224[2],ang224[0])
+print(" hkl\t%10s\t%10s\t%10s" %("om","tt","phi"))
+print("-------------------------------------------------------")
+print(" 111\t %10.3f\t%10.3f\t%10.3f" %(ang111[0],ang111[3],ang111[2]))
+print(" 331\t %10.3f\t%10.3f\t%10.3f" %(ang331[0],ang331[3],ang331[2]))
+print(" 224\t %10.3f\t%10.3f\t%10.3f" %(ang224[0],ang224[3],ang224[2]))
 
 #read spec file and save to HDF5
 try: s
@@ -90,37 +90,28 @@ s.Save2HDF5(h5)
 
 uom = 12.7279 # aligned angular positions
 utt = 25.4447
-[thdel,thom,thtt] = expcub.Q2Ang(InAs.Q(1,1,1))
+[thom,dummy,dummy,thtt] = expcub.Q2Ang(InAs.Q(1,1,1))
 
 # parse map from file (omega scan around InAs(111) with PSD)
-MAP = numpy.zeros(0)
-for i in [17,]:
-    exec ("scan = h5.root.%s.scan_%d.data.read()" %(sample,i))
-    if MAP.dtype == numpy.float64:  MAP.dtype = scan.dtype
-    MAP = numpy.append(MAP,scan)
-                
+[mu,nu],sdata = xu.io.geth5_map(h5,[17],"Mu","Nu") # 17 is the scannumber
+
 # normalize intensity and apply region of interests
 PSDRAW = RA_normalizer_psd(MAP)
 PSD = xu.blockAveragePSD(PSDRAW, 1, roi=roi)
 # conversion to reciprocal space
-[qx,qy,qz] = expcub.Ang2Q.linear(MAP['Omega'],
-                utt*numpy.ones(MAP['Omega'].size),
-                delta=[ uom-thom, utt-thtt])
+[qx,qy,qz] = expcub.Ang2Q.linear(mu,nu,delta=[ uom-thom, utt-thtt])
 
 # grid intensity for visualization
 gridder = xu.Gridder2D(200,200)
 gridder(qy,qz,PSD)
 
 # restrict dynamic range of measurement and make log10
-ma = gridder.gdata.max()*10**(-0)
-mi = gridder.gdata.max()*10**(-6)
-INT = numpy.log10(numpy.minimum(
-       numpy.maximum(gridder.gdata.transpose(),mi),ma))
+INT = xu.maplog(gridder.gdata.transpose(),6,0)
 
 # plot the map
 plt.figure(); plt.clf()
 cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT,50)
-plt.xlabel(r'$Q_y$ ($\AA$)'); plt.ylabel(r'$Q_z$ ($\AA$)')
+plt.xlabel(r'$Q_y$ ($\AA^{-1}$)'); plt.ylabel(r'$Q_z$ ($\AA^{-1}$)')
 #plt.subplots_adjust(bottom=0.12, top=0.92)
 plt.colorbar(cf,ticks=numpy.arange(INT.min(),INT.max()+.1,
              round((INT.max()-INT.min())/10,1)),format="%.1f")

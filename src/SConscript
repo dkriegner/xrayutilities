@@ -15,6 +15,8 @@ Default(lib)
 
 #install the library
 if os.sys.platform in ["darwin","linux2"]:
+    Command("dummy","dummy",[Mkdir(os.path.join(env['DESTDIRPREFIX'],"lib"))])
     Alias("install",env.Install(os.path.join(env['DESTDIRPREFIX'],"lib"),lib[0]))
 elif "win" in os.sys.platform:
+    Command("dummy","dummy",[Mkdir(os.path.join(env['PREFIX'],"Lib"))])
     Alias("install",env.Install(os.path.join(env['PREFIX'],"Lib"),lib[0]))

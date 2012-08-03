@@ -48,12 +48,14 @@ else:
 
 #add the aliases for install target
 if os.sys.platform in ["darwin","linux2"]:
-    env.Alias("install",[os.path.join(env['DESTDIRPREFIX'],"lib")])
+    installpaths = [os.path.join(env['DESTDIRPREFIX'],"lib"),os.path.join(env['DESTDIRPREFIX'],"share","doc","xrayutilities")]
 elif "win" in os.sys.platform:
-    env.Alias("install",[os.path.join(env['PREFIX'],"Lib")])
+    installpaths = [os.path.join(env['PREFIX'],"Lib"),os.path.join(env['PREFIX'],"share","doc","xrayutilities")]
+
+env.Alias("install",installpaths)
 
 #add aliases for documentation target
-env.Alias("doc",[os.path.join("doc","manual","xrutils.pdf")])
+env.Alias("doc",[os.path.join("doc","manual","xrayutilities.pdf")])
 
 debug = ARGUMENTS.get('debug', 0)
 if int(debug):

@@ -1,7 +1,17 @@
+import os
+
 #build the user manual with pdflatex
 Import("env")
 
 try:
-    env.PDF("xrutils.pdf","xrutils.tex")
+    manual = env.PDF("xrayutilities.pdf","xrayutilities.tex")
 except:
     print("Warning: Documentation can not be built (pdflatex not found)")
+
+#install the manual
+if os.sys.platform in ["darwin","linux2"]:
+    Command("dummy","dummy",[Mkdir(os.path.join(env['DESTDIRPREFIX'],"share","doc","xrayutilities"))])
+    Alias("install",env.Install(os.path.join(env['DESTDIRPREFIX'],"share","doc","xrayutilities"),manual[0]))
+elif "win" in os.sys.platform:
+    Command("dummy","dummy",[Mkdir(os.path.join(env['PREFIX'],"share","doc","xrayutilities"))])
+    Alias("install",env.Install(os.path.join(env['PREFIX'],"share","doc","xrayutilities"),manual[0]))

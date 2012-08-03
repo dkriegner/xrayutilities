@@ -13,7 +13,7 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, see <http://www.gnu.org/licenses/>.
 %
-% Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+% Copyright (C) 2010,2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 %%%documentation of the Experimental classes included in xrutils
 
@@ -208,20 +208,37 @@ exp = xu.HXRD(Si.Q(1,1,-2),Si.Q(1,1,1))
 
 # calculate angles and print them to the screen
 angs = exp.Q2Ang(Si.Q(1,1,1))
-print "Si (111)"
-print "om: %8.3f" %angs[1] 
-print "tt: %8.3f" %angs[2]
+print("Si (111)")
+print("om: %8.3f" %angs[0])
+print("tt: %8.3f" %angs[3])
 
 angs = exp.Q2Ang(Si.Q(2,2,4))
-print "Si (224)"
-print "om: %8.3f" %angs[1] 
-print "tt: %8.3f" %angs[2]
+print("Si (224)")
+print("om: %8.3f" %angs[0])
+print("tt: %8.3f" %angs[3])
 \end{lstlisting}
-
 
 \section{GID experiments}
 
-Implementation of this class is missing
+There are two implementations for GID experiments. Both describe 2S+2D diffractometers.
+One of them describes a setup as available in Linz at the rotating anode, the other one describes a setup as available at ID10B/ESRF.
+The difference is the mounting order of the detector circles.
+
+\begin{lstlisting}[caption=calculation of angles for Si Bragg reflections in GID]
+import xrutils as xu
+
+Si = xu.materials.Si  # load material from materials submodule
+
+# initialize experimental class with directions from experiment
+exp = xu.GID(Si.Q(1,-1,0),Si.Q(0,0,1))
+
+# calculate angles and print them to the screen
+(alphai,azimuth,tt,beta) = exp.Q2Ang(Si.Q(2,-2,0))
+print("Si (2-20)")
+print("azi: %8.3f" %azimuth)
+print("tt : %8.3f" %tt)
+
+\end{lstlisting}
 
 \section{Powder diffraction}
 
