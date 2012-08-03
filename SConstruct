@@ -29,7 +29,7 @@ env = Environment(PREFIX=GetOption("prefix"),
                   ENV=os.environ,
                   DESTDIR=os.path.expandvars('${DESTDIR}'),
                   CCFLAGS=["-fPIC","-Wall","-std=c99"],
-                  tools=["default", "disttar"], toolpath=[os.path.join(".","tools")],
+                  tools=["default", "disttar",TOOL_INSTALL], toolpath=[os.path.join(".","site_scons")],
                   LIBS=["m"])
 
 vars = Variables()
@@ -69,6 +69,7 @@ else:
 ############################
 
 if "install" in COMMAND_LINE_TARGETS:
+    env.InstallFiles(os.path.join(env['PREFIX'],'share','doc','xrayutilities','examples'), '#examples', glob=['*.py', '*.cif'])
     #write the clib_path.conf file
     conffilename = os.path.join(".","python","xrutils","clib_path.conf")
     fid = open(conffilename,"w")
