@@ -6,10 +6,6 @@ To Do
 implement alternative call of line_cut function with Gridder2D object instead
 of data... basically overload the function if this is possible in python?
 
-24.3.2012
-
-install examples and documentation
-
 9.2.2012
 
 make the use of pthreads optional
@@ -23,9 +19,6 @@ One idea would be the nthreads (number of threads used by the gridder) variable.
 17.08.2010
 discussion Eugen, Dominik
 
-* a example/test folder should be created. two possibilities exist for its
-  exact purpose:
-  * templates of scripts could be hold there for the user
-  * pyunit tests could be implemented to test the core functionality of the
-    xrutils package. 
-  Therefore example files for each io module should be included.
+pyunit tests could be implemented to test the core functionality of the
+xrutils package. 
+Therefore example files for each io module should be included.
