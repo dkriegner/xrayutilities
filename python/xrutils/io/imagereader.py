@@ -26,8 +26,8 @@ from ..exception import InputError
 
 class ImageReader(object):
     """
-    parse CCD frames in the form of tiffs or binary data (*.bin) 
-    to numpy arrays. ignore the header since it seems to contain 
+    parse CCD frames in the form of tiffs or binary data (*.bin)
+    to numpy arrays. ignore the header since it seems to contain
     no useful data
 
     The routine was tested so far with
@@ -94,7 +94,7 @@ class ImageReader(object):
             self.flatc = True
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.io.ImageReader: flatfield correction enabled")
-        else: 
+        else:
             self.flatc = False
         if darkfield:
             self.darkc = True
@@ -161,18 +161,18 @@ class ImageReader(object):
 class PerkinElmer(ImageReader):
     """
     parse PerkinElmer CCD frames (*.bin) to numpy arrays
-    Ignore the header since it seems to contain no useful data 
-    
+    Ignore the header since it seems to contain no useful data
+
     The routine was tested only for files with 2048x2048 pixel images
     created at Hasylab Hamburg which save an 32bit float per point.
     """
     def __init__(self,**keyargs):
-        """ 
+        """
         initialize the PerkinElmer reader, which includes setting the dimension of
         the images as well as defining the data used for flat- and darkfield
         correction!
-        
-        Parameter 
+
+        Parameter
         ---------
          optional keywords arguments keyargs:
           flatfield: filename or data for flatfield correction. supported file
@@ -181,7 +181,7 @@ class PerkinElmer(ImageReader):
           darkfield: filename or data for darkfield correction. same types as
                      for flat field are supported.
         """
-        
+
         ImageReader.__init__(self,2048,2048,hdrlen=8,dtype=numpy.float32,byte_swap=False,**keyargs)
 
 
@@ -209,6 +209,6 @@ class RoperCCD(ImageReader):
           darkfield: filename or data for darkfield correction. same types as
                      for flat field are supported.
         """
-        
+
         ImageReader.__init__(self,4096,4096,hdrlen=216,dtype=numpy.int16,byte_swap=False,**keyargs)
 

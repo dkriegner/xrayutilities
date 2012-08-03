@@ -131,7 +131,7 @@ class LatticeBase(list):
          atom:   atom object to be added
          pos:    position of the atom
          occ:    occupancy (default=1.0)
-         b:      b-factor of the atom used as exp(-b*q**2/(4*pi)**2) to reduce the 
+         b:      b-factor of the atom used as exp(-b*q**2/(4*pi)**2) to reduce the
                  intensity of this atom (only used in case of temp=0 in StructureFactor
                  and chi calculation)
         """

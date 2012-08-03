@@ -346,9 +346,9 @@ def ZRotation(alpha,deg=True):
     return Transform(m)
 
 
-# helper scripts for rotations around arbitrary axis 
+# helper scripts for rotations around arbitrary axis
 def tensorprod(vec1,vec2):
-    """ 
+    """
     function implements a "getrennt von"
     """
     return vec1[:,numpy.newaxis]*numpy.ones((3,3))*vec2[numpy.newaxis,:]
@@ -363,7 +363,7 @@ def mycross(vec,mat):
     return out
 
 def rotarb(vec,axis,ang,deg=True):
-    """ 
+    """
     function implements the rotation around an arbitrary axis by an angle ang
     positive rotation is anti-clockwise when looking from positive end of axis vec
 tor

@@ -16,7 +16,7 @@
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-module to calculate the first Debye function as needed 
+module to calculate the first Debye function as needed
 for the calculation of the thermal Debye-Waller-factor
 
 for definition see:
@@ -43,14 +43,14 @@ def Debye1(x):
     --------
      D1(x) float value of the Debye function
      """
-     
+
     def __int_kernel(t):
         """
         integration kernel for the numeric integration
         """
         y = t/(numpy.exp(t)-1)
         return y
-    
+
     if x>0.:
         integral = scipy.integrate.quad(__int_kernel, 0, x)
         d1 = (1/float(x)) * integral[0]

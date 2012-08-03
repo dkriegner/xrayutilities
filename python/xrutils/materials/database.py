@@ -120,7 +120,7 @@ class DataBase(object):
     def SetWeight(self,weight):
         """
         SetWeight(weight):
-        Save weight of the element as float 
+        Save weight of the element as float
 
         required input argument:
         weight .......... atomic standard weight of the element (float)

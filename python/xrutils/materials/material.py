@@ -208,7 +208,7 @@ class Material(object):
 
     def delta(self,en="config"):
         """
-        function to calculate the real part of the deviation of the 
+        function to calculate the real part of the deviation of the
         refractive index from 1 (n=1-delta+i*beta)
 
         Parameter
@@ -238,7 +238,7 @@ class Material(object):
 
     def beta(self,en="config"):
         """
-        function to calculate the imaginary part of the deviation 
+        function to calculate the imaginary part of the deviation
         of the refractive index from 1 (n=1-delta+i*beta)
 
         Parameter
@@ -294,11 +294,11 @@ class Material(object):
         if en=="config":
             en = config.ENERGY
 
-        if self.lattice.base==None: 
+        if self.lattice.base==None:
             return (0,0)
 
         #Debye Waller factor calculation
-        if temp!=0 and self.thetaDebye: 
+        if temp!=0 and self.thetaDebye:
             # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
             # DWF = exp(-W(q)) consistent with Vaclav H. and several books
             # -> do not trust Wikipedia!?
@@ -331,7 +331,7 @@ class Material(object):
         #classical electron radius
         r_e = 1/(4*numpy.pi*scipy.constants.epsilon_0)*scipy.constants.e**2/(scipy.constants.electron_mass*scipy.constants.speed_of_light**2)*1e10
         lam = utilities.lam2en(en)
-        
+
         f = -lam**2*r_e/(numpy.pi*self.lattice.UnitCellVolume())
         rchi = numpy.abs(f*sr)
         ichi = numpy.abs(f*si)
@@ -435,7 +435,7 @@ class Material(object):
                 or numpy array are valid)
          en:    energy in eV,
                 if omitted the value from the xrutils configuration is used
-         temp:  temperature used for Debye-Waller-factor calculation    
+         temp:  temperature used for Debye-Waller-factor calculation
 
         Returns
         -------
@@ -455,7 +455,7 @@ class Material(object):
         if self.lattice.base==None: return 1.
 
         #Debye Waller factor calculation
-        if temp!=0 and self.thetaDebye: 
+        if temp!=0 and self.thetaDebye:
             # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
             # DWF = exp(-W(q)) consistent with Vaclav H. and several books
             # -> do not trust Wikipedia!?
@@ -517,7 +517,7 @@ class Material(object):
         if self.lattice.base==None: return numpy.ones(len(en))
 
         #Debye Waller factor calculation
-        if temp!=0 and self.thetaDebye: 
+        if temp!=0 and self.thetaDebye:
             # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
             # DWF = exp(-W(q)) consistent with Vaclav H. and several books
             # -> do not trust Wikipedia!?
@@ -596,7 +596,7 @@ class Material(object):
         if self.lattice.base==None: return numpy.ones(len(q))
 
         #Debye Waller factor calculation
-        if temp!=0 and self.thetaDebye: 
+        if temp!=0 and self.thetaDebye:
             # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
             # DWF = exp(-W(q)) consistent with Vaclav H. and several books
             # -> do not trust Wikipedia!?
@@ -705,7 +705,7 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
     return m
 
 #calculate some predefined materials
-# PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa) 
+# PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa)
 # Use Kelvin as unit for the Debye temperature
 Si = Material("Si",lattice.DiamondLattice(elements.Si,5.43104),
                    CubicElasticTensor(165.77e+9,63.93e+9,79.62e+9),thetaDebye=640)
@@ -961,10 +961,10 @@ class CubicAlloy(Alloy):
 
         Returns
         -------
-        content,[a_inplane,a_perp,a_bulk_perp(x), eps_inplane, eps_perp] : 
-                the content of B in the alloy determined from the input 
-                variables and the lattice constants calculated from the 
-                reciprocal space positions as well as the strain (eps) of 
+        content,[a_inplane,a_perp,a_bulk_perp(x), eps_inplane, eps_perp] :
+                the content of B in the alloy determined from the input
+                variables and the lattice constants calculated from the
+                reciprocal space positions as well as the strain (eps) of
                 the layer
         """
 
