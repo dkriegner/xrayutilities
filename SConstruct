@@ -69,7 +69,7 @@ else:
 ############################
 
 if "install" in COMMAND_LINE_TARGETS:
-    env.InstallFiles(os.path.join(env['PREFIX'],'share','doc','xrayutilities','examples'), '#examples', glob=['*.py', '*.cif'])
+    env.InstallFiles(os.path.join(env['PREFIX'],'share','doc','xrayutilities','examples'), '#doc/examples', glob=['*.py', '*.cif'])
     #write the clib_path.conf file
     conffilename = os.path.join(".","python","xrutils","clib_path.conf")
     fid = open(conffilename,"w")
