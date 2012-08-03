@@ -25,6 +25,6 @@ plt.plot(qxt0,qzt0,'r-')
 plt.plot(qxt1,qzt1,'b-')
 
 # print concentration of alloy B calculated from a reciprocal space point
-print alloy.ContentBasym(3.02829203,4.28265165,[2,2,4],[0,0,1])
+print(alloy.ContentBasym(3.02829203,4.28265165,[2,2,4],[0,0,1]))
 
 

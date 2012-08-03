@@ -15,7 +15,7 @@ powder_cal = xu.Powder(Calcite)
 powder_cal.PowderIntensity()
 th,inte = powder_cal.Convolute(0.002,0.02)
 
-print powder_cal
+print(powder_cal)
 
 #plt.figure()
 #plt.clf()

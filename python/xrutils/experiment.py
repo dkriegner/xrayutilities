@@ -335,8 +335,12 @@ class QConversion(object):
         sAxis=ctypes.c_char_p(self._sampleAxis_str)
         dAxis=ctypes.c_char_p(self._detectorAxis_str)
 
-        libxrayutils.cang2q_point(sAngles, dAngles, qpos, self.r_i,len(self.sampleAxis),
-                     len(self.detectorAxis),Npoints,sAxis,dAxis,wl)
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.QConversion: Ns, Nd: %d %d" % (Ns,Nd))
+            print("XU.QConversion: sAngles / dAngles %s / %s" %(str(sAngles),str(dAngles)))
+
+        libxrayutils.cang2q_point(sAngles, dAngles, qpos, self.r_i,Ns,
+                     Nd,Npoints,sAxis,dAxis,wl)
 
         #reshape output
         qpos.shape = (Npoints,3)
@@ -536,8 +540,8 @@ class QConversion(object):
         sAxis=ctypes.c_char_p(self._sampleAxis_str)
         dAxis=ctypes.c_char_p(self._detectorAxis_str)
 
-        libxrayutils.cang2q_linear(sAngles, dAngles, qpos, self.r_i,len(self.sampleAxis),
-                     len(self.detectorAxis),Npoints,sAxis,dAxis,cch, pwidth,roi,
+        libxrayutils.cang2q_linear(sAngles, dAngles, qpos, self.r_i,Ns,
+                     Nd,Npoints,sAxis,dAxis,cch, pwidth,roi,
                      self._linear_detdir, self._linear_tilt, wl)
 
         #reshape output
@@ -571,7 +575,7 @@ class QConversion(object):
         tiltazimuth:     direction of the tilt vector in the detector plane (in degree)
         tilt:            tilt of the detector plane around an axis normal to the direction
                          given by the tiltazimuth
-        
+
         **kwargs:        optional keyword arguments
             Nav:         number of channels to average to reduce data size (default: [1,1])
             roi:         region of interest for the detector pixels; e.g. [100,900,200,800]
@@ -766,8 +770,8 @@ class QConversion(object):
         sAxis=ctypes.c_char_p(self._sampleAxis_str)
         dAxis=ctypes.c_char_p(self._detectorAxis_str)
 
-        libxrayutils.cang2q_area(sAngles, dAngles, qpos, self.r_i,len(self.sampleAxis),
-                     len(self.detectorAxis),Npoints,sAxis,dAxis, cch1, cch2, pwidth1, pwidth2,
+        libxrayutils.cang2q_area(sAngles, dAngles, qpos, self.r_i,Ns,
+                     Nd,Npoints,sAxis,dAxis, cch1, cch2, pwidth1, pwidth2,
                      roi,self._area_detdir1,self._area_detdir2,
                      self._area_tiltazimuth, self._area_tilt,wl)
 
@@ -994,32 +998,6 @@ class HXRD(Experiment):
         if config.VERBOSITY >= config.DEBUG:
             print("XU.HXRD.__init__: \nEnergy: %s \nGeometry: %s \n%s---" %(self._en,self.geometry,str(self.Ang2Q)))
 
-    def TiltCorr(self,q,ang,deg=False):
-        """
-        Correct a q-space position by a certain tilt angle.
-
-        Parameters
-        ----------
-        q:       list or numpy array with the tilted q-space position
-        ang:     tilt angle
-
-        optional keyword arguments:
-        deg:     True/False (default False) whether the input data is
-                 in degree or radians
-
-        Returns
-        -------
-        numpy array with the corrected q-space position
-        """
-
-        #calculate the angular position of the q-space point
-        [om,tth,delta] = self.Q2Ang(q)
-
-        #calcualte the new direction of the peak
-        q = self._Ang2Q(om-a,tth,delta)
-
-        return q
-
     def Ang2Q(self,om,tt,**kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -1068,9 +1046,9 @@ class HXRD(Experiment):
                     "hi_lo" high incidence-low exit
                     "lo_hi" low incidence - high exit
                     "real" general geometry - angles determined by q-coordinates (azimuth)
-                        upper geometries return [phi,omega,twotheta]
-				    "real_tilt" general geometry - angles determined by q-coordinates (tilt)
-                        returns [chi,omega,twotheta]
+                        upper geometries return [omega,0,phi,twotheta]
+				    "realTilt" general geometry - angles determined by q-coordinates (tilt)
+                        returns [omega,chi,phi,twotheta]
                     default: self.geometry
         refrac:     boolean to determine if refraction is taken into account
                     default: False
@@ -1078,7 +1056,7 @@ class HXRD(Experiment):
         mat:        Material object; needed to obtain its optical properties for
                     refraction correction, otherwise not used
         full_output:boolean to determine if additional output is given to determine
-                    scattering angles more acurately in case refraction is set to True
+                    scattering angles more accurately in case refraction is set to True
                     default: False
         fi,fd:      if refraction correction is applied one can optionally specify
                     the facet through which the beam enters (fi) and exits (fd)
@@ -1088,14 +1066,16 @@ class HXRD(Experiment):
 
         Returns
         -------
-        a numpy array of shape (3) with three scattering angles which are
-        [phi,omega,twotheta]
-        phi:        sample azimuth
+        a numpy array of shape (4) with four scattering angles which are
+        [omega,chi,phi,twotheta]
         omega:      incidence angle with respect to surface
+        chi:        sample tilt for the case of non-coplanar geometry
+        phi:        sample azimuth with respect to inplane reference direction
         twotheta:   scattering angle
+
         if full_output:
-            a numpy array of shape (5) with five angles which are
-          [phi,omega,twotheta,psi_i,psi_d]
+            a numpy array of shape (6) with five angles which are
+          [omega,chi,phi,twotheta,psi_i,psi_d]
          psi_i: offset of the incidence beam from the scattering plane due to refraction
          pdi_d: offset ot the diffracted beam from the scattering plane due to refraction
         """
@@ -1123,7 +1103,7 @@ class HXRD(Experiment):
             if keyargs['geometry'] in ["hi_lo","lo_hi","real", "realTilt"]:
                 geom = keyargs['geometry']
             else:
-                raise InputError("HXRD: invalid value for the geometry argument given")
+                raise InputError("HXRD: invalid value for the geometry argument given\n valid entries are: hi_lo,lo_hi,real,realTilt")
         else:
             geom = self.geometry
 
@@ -1177,9 +1157,9 @@ class HXRD(Experiment):
 
         # start calculation for each given Q-point
         if foutp:
-            angle = numpy.zeros((5,q.shape[1]))
+            angle = numpy.zeros((6,q.shape[1]))
         else:
-            angle= numpy.zeros((3,q.shape[1]))
+            angle= numpy.zeros((4,q.shape[1]))
         for i in range(q.shape[1]):
             qvec = q[:,i]
 
@@ -1192,24 +1172,31 @@ class HXRD(Experiment):
             qa = math.VecNorm(qvec)
             tth = 2.*numpy.arcsin(qa/2./k)
 
-            #calculation of the sample azimuth phi
-            phi = numpy.arctan2(qvec[0],qvec[1])
-            if numpy.isnan(phi):
-                phi = 0
+            #calculation of the sample azimuth phi (scattering plane spanned by qvec[1] and qvec[2] directions)
 
             chi = numpy.arctan2(qvec[0],qvec[2])
             if numpy.isnan(chi):
-                chi = 0 
-            
+                chi = 0
+
             if geom == 'hi_lo':
                 om = tth/2. + math.VecAngle(z,qvec) # +: high incidence geometry
+                phi = numpy.arctan2(qvec[0],qvec[1])
             elif geom == 'lo_hi':
                 om = tth/2. - math.VecAngle(z,qvec) # -: low incidence geometry
+                phi = numpy.arctan2(-1*qvec[0],-1*qvec[1])
             elif geom == 'real':
-                om = tth/2 - numpy.sign(math.VecAngle(y,qvec)-numpy.pi/2.) * math.VecAngle(z,qvec)
+                phi = numpy.arctan2(qvec[0],qvec[1])
+                if numpy.abs(phi)<=numpy.pi/2.:
+                    sign = +1.
+                    phi = numpy.arctan2(qvec[0],qvec[1])
+                else:
+                    sign = -1.
+                    phi = numpy.arctan2(-1*qvec[0],-1*qvec[1])
+                om = tth/2 + sign * math.VecAngle(z,qvec)
             elif geom == 'realTilt':
-                om = tth/2 + numpy.arctan2(qvec[1],qvec[2])
-        
+                phi = 0.
+                om = tth/2 + numpy.arctan2(qvec[1],numpy.sqrt(qvec[2]**2+qvec[0]**2))
+
             # refraction correction at incidence and exit facet
             psi_i = 0.
             psi_d = 0. # needed if refrac is false and full_output is True
@@ -1242,21 +1229,21 @@ class HXRD(Experiment):
                 psi_d = numpy.arcsin(kd0[0]/self.k0)
 
             if geom == 'realTilt':
-                angle[0,i] = chi
-                angle[1,i] = om
-                angle[2,i] = tth
+                angle[0,i] = om
+                angle[1,i] = chi
+                angle[3,i] = tth
             else:
-                angle[0,i] = phi
-                angle[1,i] = om
-                angle[2,i] = tth
+                angle[0,i] = om
+                angle[2,i] = phi
+                angle[3,i] = tth
             if foutp:
-                angle[3,i] = psi_i
-                angle[4,i] = psi_d
+                angle[4,i] = psi_i
+                angle[5,i] = psi_d
 
         if q.shape[1]==1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: phi,om,tth,[psi_i,psi_d] = %s" %repr(angle))
+                print("XU.HXRD.Q2Ang: om,chi,phi,tth,[psi_i,psi_d] = %s" %repr(angle))
 
         if deg:
             return numpy.degrees(angle)
@@ -1402,7 +1389,7 @@ class NonCOP(Experiment):
         if q.shape[1]==1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: [phi,om,tth] = %s" %repr(angle))
+                print("XU.HXRD.Q2Ang: [om,chi,phi,tth] = %s" %repr(angle))
 
         if deg:
             return numpy.degrees(angle)
@@ -1415,7 +1402,7 @@ class GID(Experiment):
     the class helps with calculating the angles of Bragg reflections
     as well as it helps with analyzing measured data
 
-    the class describes a four circle (alpha_i,omega,twotheta,beta)
+    the class describes a four circle (alpha_i,azimuth,twotheta,beta)
     goniometer to help with GID experiments at the ROTATING ANODE.
     3D data can be treated with the use of linear and area detectors.
     see help self.Ang2Q
@@ -1457,10 +1444,12 @@ class GID(Experiment):
 
         Returns
         -------
-        a numpy array of shape (2) with three scattering angles which are
-        [omega,twotheta]
-        omega:      incidence angle with respect to surface
+        a numpy array of shape (4) with the four GID scattering angles which are
+        [alpha_i,azimuth,twotheta,beta]
+        alpha_i:    incidence angle to surface (at the moment always 0)
+        azimuth:    sample rotation with respect to the inplane reference direction
         twotheta:   scattering angle
+        beta:       exit angle from surface (at the moment always 0)
         """
 
         if isinstance(Q,list):
@@ -1486,17 +1475,45 @@ class GID(Experiment):
         # calculate scattering angle
         qa = math.VecNorm(q)
         tth = 2.*numpy.arcsin(qa/2./self.k0)
-        om = numpy.pi/2 + aref + tth/2.
+        azimuth = numpy.pi/2 + aref + tth/2.
 
         if deg:
-            ang = [numpy.degrees(om),numpy.degrees(tth)]
+            ang = [0,numpy.degrees(azimuth),numpy.degrees(tth),0]
         else:
-            ang = [om,tth]
+            ang = [0,azimuth,tth,0]
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.GID.Q2Ang: [om,tth] = %s \n difference to inplane reference = %5.2f" %(str(ang),aref) )
+            print("XU.GID.Q2Ang: [ai,azimuth,tth,beta] = %s \n difference to inplane reference which is %5.2f" %(str(ang),aref) )
 
         return ang
+
+    def Ang2Q(self,ai,phi,tt,beta,**kwargs):
+        """
+        angular to momentum space conversion for a point detector. Also see
+        help GID.Ang2Q for procedures which treat line and area detectors
+
+        Parameters
+        ----------
+        ai,phi,tt,beta: sample and detector angles as numpy array, lists or Scalars
+                       must be given. all arguments must have the same shape or
+                       length
+
+        **kwargs:   optional keyword arguments
+            delta:  giving delta angles to correct the given ones for misalignment
+                    delta must be an numpy array or list of length 4.
+                    used angles are than ai,phi,tt,beta - delta
+            wl:     x-ray wavelength in angstroem (default: self._wl)
+            deg:    flag to tell if angles are passed as degree (default: True)
+
+        Returns
+        -------
+        reciprocal space positions as numpy.ndarray with shape ( * , 3 )
+        where * corresponds to the number of points given in the input
+
+        """
+        # dummy function to have some documentation string available
+        # the real function is generated dynamically in the __init__ routine
+        pass
 
 class GID_ID10B(GID):
     """
@@ -1527,11 +1544,65 @@ class GID_ID10B(GID):
         self._A2QConversion = QConversion(['x+','z-'],['x+','z-'],[0,1,0],wl=self._wl) # 2S+2D goniometer
         self.Ang2Q = self._A2QConversion
 
+    def Ang2Q(self,th,om,delta,gamma,**kwargs):
+        """
+        angular to momentum space conversion for a point detector. Also see
+        help GID_ID10B.Ang2Q for procedures which treat line and area detectors
+
+        Parameters
+        ----------
+        th,om,delta,gamma: sample and detector angles as numpy array, lists or Scalars
+                       must be given. all arguments must have the same shape or
+                       length
+
+        **kwargs:   optional keyword arguments
+            delta:  giving delta angles to correct the given ones for misalignment
+                    delta must be an numpy array or list of length 4.
+                    used angles are than th,om,delta,gamma - delta
+            wl:     x-ray wavelength in angstroem (default: self._wl)
+            deg:    flag to tell if angles are passed as degree (default: True)
+
+        Returns
+        -------
+        reciprocal space positions as numpy.ndarray with shape ( * , 3 )
+        where * corresponds to the number of points given in the input
+
+        """
+        # dummy function to have some documentation string available
+        # the real function is generated dynamically in the __init__ routine
+        pass
+
     def Q2Ang(self,Q,trans=True,deg=True,**kwargs):
         """
         calculate the GID angles needed in the experiment
+        the inplane reference direction defines the direction were
+        the reference direction is parallel to the primary beam
+        (i.e. lattice planes perpendicular to the beam)
+
+        Parameters
+        ----------
+        Q:          a list or numpy array of shape (3) with
+                    q-space vector components
+
+        optional keyword arguments:
+        trans:      True/False apply coordinate transformation on Q
+        deg:        True/Flase (default True) determines if the
+                    angles are returned in radians or degrees
+
+        Returns
+        -------
+        a numpy array of shape (4) with the four GID scattering angles which are
+        (theta,omega,delta,gamma)
+        theta:    incidence angle to surface (at the moment always 0)
+        omega:    sample rotation with respect to the inplane reference direction
+        delta:    exit angle from surface (at the moment always 0)
+        gamma:    scattering angle
         """
-        pass
+
+        [ai,azi,tt,beta] = GID.Q2Ang(self, Q, trans,deg, **kwargs)
+
+        return [0,azi,0,tt]
+
 
 class GISAXS(Experiment):
     """
@@ -1539,8 +1610,8 @@ class GISAXS(Experiment):
     the class helps with calculating the angles of Bragg reflections
     as well as it helps with analyzing measured data
 
-    the class describes a four circle (alpha_i,omega,twotheta,beta)
-    goniometer to help with GID experiments at the ROTATING ANODE.
+    the class describes a three circle (alpha_i,twotheta,beta)
+    goniometer to help with GISAXS experiments at the ROTATING ANODE.
     3D data can be treated with the use of linear and area detectors.
     see help self.Ang2Q
     """
@@ -1564,6 +1635,34 @@ class GISAXS(Experiment):
             self.Ang2Q = self._A2QConversion
 
     def Q2Ang(self,Q,trans=True,deg=True,**kwargs):
+        pass
+
+    def Ang2Q(self,ai,tt,beta,**kwargs):
+        """
+        angular to momentum space conversion for a point detector. Also see
+        help GISAXS.Ang2Q for procedures which treat line and area detectors
+
+        Parameters
+        ----------
+        ai,tt,beta: sample and detector angles as numpy array, lists or Scalars
+                       must be given. all arguments must have the same shape or
+                       length
+
+        **kwargs:   optional keyword arguments
+            delta:  giving delta angles to correct the given ones for misalignment
+                    delta must be an numpy array or list of length 3.
+                    used angles are than ai,tt,beta - delta
+            wl:     x-ray wavelength in angstroem (default: self._wl)
+            deg:    flag to tell if angles are passed as degree (default: True)
+
+        Returns
+        -------
+        reciprocal space positions as numpy.ndarray with shape ( * , 3 )
+        where * corresponds to the number of points given in the input
+
+        """
+        # dummy function to have some documentation string available
+        # the real function is generated dynamically in the __init__ routine
         pass
 
 class Powder(Experiment):
@@ -1653,13 +1752,10 @@ class Powder(Experiment):
         self.hkl = self.hkl[1:]
 
         # correct data for polarization and lorentzfactor and unit cell volume
-        # and also include Debye-Waller factor for later implementation
         # see L.S. Zevin : Quantitative X-Ray Diffractometry
         # page 18ff
         polarization_factor = (1+numpy.cos(numpy.radians(2*self.ang))**2)/2.
         lorentz_factor = 1./(numpy.sin(numpy.radians(self.ang))**2*numpy.cos(numpy.radians(self.ang)))
-        B=0 # do not have B data yet: they need to be implemented in lattice base class and feeded by the material initialization also the debye waller factor needs to be included there and not here
-        debye_waller_factor = numpy.exp(-2*B*numpy.sin(numpy.radians(self.ang))**2/self._wl**2)
         unitcellvol = self.mat.lattice.UnitCellVolume()
         self.data = self.data * polarization_factor * lorentz_factor / unitcellvol**2
 

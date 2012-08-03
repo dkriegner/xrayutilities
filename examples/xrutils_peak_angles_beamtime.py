@@ -18,10 +18,10 @@ InP_4H = xu.materials.Material("InP(4H)",xu.materials.Hexagonal4HLattice(In,P,ai
 for energy in [8041]: #eV
 
     lam = xu.lam2en(energy) # e in eV -> lam in Angstroem
-    print '         %d eV = %8.4f A' % (energy,lam)
-    print '-----------------------------------------------------------------------------------'
-    print 'material |         peak    |   omega  |  2theta  |    phi   |   tt-om  |     |F|   '
-    print '-----------------------------------------------------------------------------------' 	
+    print('         %d eV = %8.4f A' % (energy,lam))
+    print('-----------------------------------------------------------------------------------')
+    print('material |         peak    |   omega  |  2theta  |    phi   |   tt-om  |     |F|   ')
+    print('-----------------------------------------------------------------------------------') 	
 
     exp111 = xu.HXRD(InP.Q(1,1,-2),InP.Q(1,1,1),en=energy)
     exphex = xu.HXRD(InP_WZ.Q(1,-1,0),InP_WZ.Q(0,0,1),en=energy)
@@ -31,29 +31,29 @@ for energy in [8041]: #eV
     mat = InP
     for hkl in reflections:
         qvec = mat.Q(hkl)
-        [phi,om,tt] = exp111.Q2Ang(qvec,trans=True)
+        [om,chi,phi,tt] = exp111.Q2Ang(qvec,trans=True)
         F = mat.StructureFactor(qvec,exp111._en,)/mat.lattice.UnitCellVolume()
-        print '%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f ' %(mat.name,' '.join(map(str,numpy.round(hkl,2))),om,tt,phi,tt-om,numpy.abs(F))
+        print('%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f ' %(mat.name,' '.join(map(str,numpy.round(hkl,2))),om,tt,phi,tt-om,numpy.abs(F)))
 
-    print '-----------------------------------------------------------------------------------'
+    print('-----------------------------------------------------------------------------------')
     # InP WZ reflections
     reflections = [[0,0,2],[0,0,4],[1,-1,4],[1,-1,5],[1,-1,6]]
     mat = InP_WZ
     for hkl in reflections:
         qvec = mat.Q(hkl)
-        [phi,om,tt] = exphex.Q2Ang(qvec,trans=True)
+        [om,chi,phi,tt] = exphex.Q2Ang(qvec,trans=True)
         F = mat.StructureFactor(qvec,exphex._en)/mat.lattice.UnitCellVolume()
-        print '%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f ' %(mat.name,' '.join(map(str,numpy.round(hkl,2))),om,tt,phi,tt-om,numpy.abs(F))
+        print('%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f ' %(mat.name,' '.join(map(str,numpy.round(hkl,2))),om,tt,phi,tt-om,numpy.abs(F)))
 
-    print '-----------------------------------------------------------------------------------'
+    print('-----------------------------------------------------------------------------------')
     # InP 4H
     reflections = [[0,0,4],[0,0,8],[1,-1,9],[1,-1,10],[1,-1,11]]
     mat = InP_4H
     for hkl in reflections:
         qvec = mat.Q(hkl)
-        [phi,om,tt] = exphex.Q2Ang(qvec,trans=True)
+        [om,chi,phi,tt] = exphex.Q2Ang(qvec,trans=True)
         F = mat.StructureFactor(qvec,exphex._en)/mat.lattice.UnitCellVolume()
-        print '%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f ' %(mat.name,' '.join(map(str,numpy.round(hkl,2))),om,tt,phi,tt-om,numpy.abs(F))
+        print('%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f ' %(mat.name,' '.join(map(str,numpy.round(hkl,2))),om,tt,phi,tt-om,numpy.abs(F)))
 
-    print '-----------------------------------------------------------------------------------'
+    print('-----------------------------------------------------------------------------------')
 
