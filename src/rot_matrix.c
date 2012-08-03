@@ -84,7 +84,7 @@ INLINE void rotation_zm(double a,double *mat){
 INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) {
     double sa = sin(a), ca=cos(a);
     double mtemp[9],mtemp2[9];
-    
+
     /* e must be normalized */
 
     /* ca*(ident(3) - vec(e) o vec(e))*/
@@ -92,7 +92,7 @@ INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) {
     tensorprod(e,e,mtemp);
     diffmat(mat,mtemp);
     matmulc(mat,ca);
-    
+
     /* tensorprod(vec(e),vec(e)) */
     summat(mat,mtemp);
 

@@ -131,7 +131,7 @@ INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) {
     h4 = m[4]*m[6]; // m11*m20
     h5 = m[3]*m[8]; // m10*m22
     h6 = m[5]*m[7]; // m12*m21
-    det = m[0]*h1 + m[1]*h2* + m[2]*h3 - m[2]*h4 - m[1]*h5 - m[0]*h6;
+    det = m[0]*h1 + m[1]*h2 + m[2]*h3 - m[2]*h4 - m[1]*h5 - m[0]*h6;
 
     i[0] = (h1 - h6);
     i[1] = (m[2]*m[7] - m[1]*m[8]);
@@ -145,4 +145,19 @@ INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) {
 
     for(int j=0; j<9; ++j)
         i[j] /= det;
+}
+
+INLINE double determinant(double *RESTRICT m) {
+    double h1,h2,h3,h4,h5,h6;
+    double det=0;
+
+    h1 = m[4]*m[8]; // m11*m22
+    h2 = m[5]*m[6]; // m12*m20
+    h3 = m[3]*m[7]; // m10*m21
+    h4 = m[4]*m[6]; // m11*m20
+    h5 = m[3]*m[8]; // m10*m22
+    h6 = m[5]*m[7]; // m12*m21
+
+    det = m[0]*h1 + m[1]*h2 + m[2]*h3 - m[2]*h4 - m[1]*h5 - m[0]*h6;
+    return det;
 }

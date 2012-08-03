@@ -17,7 +17,7 @@
  * Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
-/* Test file to determine rotation sense and test 
+/* Test file to determine rotation sense and test
    blas routines */
 
 #include "rot_matrix.h"
@@ -33,7 +33,7 @@ int main(void) {
     double ang = 90.;
 
     ang = deg2rad(ang);
-    rotation_xp(ang,mx); 
+    rotation_xp(ang,mx);
     rotation_yp(ang,my);
     rotation_zp(ang,mz);
     /* apply rotation */

@@ -242,7 +242,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     *   dir1 ............ first direction of the detector, e.g.: "x+" (in)
     *   dir2 ............ second direction of the detector, e.g.: "z+" (in)
     *   tiltazimuth ..... azimuth of the tilt (in)
-    *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction 
+    *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction
     *                     given by the tiltazimuth (in)
     *   lambda .......... wavelength of the used x-rays (in)
     *   */
@@ -276,7 +276,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
 
     veccopy(r_i,rcch);
     normalize(r_i);
-    
+
     // determine detector pixel vector
     if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
         printf("XU.Qconversion(c): detector direction determination failed\n");
@@ -299,7 +299,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     vecmul(rtemp2,sin(tiltazimuth+M_PI/2.));
 
     sumvec(rtemp,rtemp2); // tiltaxis (rotation axis) now stored in rtemp
-    
+
     rotation_arb(tilt,rtemp,mtemp); // rotation matrix now in mtemp
 
     // rotate detector pixel directions
@@ -310,7 +310,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
 
     /*print_vector(rpixel1);
     print_vector(rpixel2);*/
-    
+
     // calculate center channel position in detector plane
     for(int k=0; k<3; ++k)
         rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
@@ -386,10 +386,10 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_
      * of an area detector.
      * the function returns the vector containing the distance from one to
      * the next pixel
-     * a tilt of the detector axis with respect to the coordinate axis can 
-     * be considered as well! rotation of pixel direction around the 
+     * a tilt of the detector axis with respect to the coordinate axis can
+     * be considered as well! rotation of pixel direction around the
      * crossproduct of primary beam and detector axis.
-     * this is mainly usefull for linear detectors, since the tilt of area 
+     * this is mainly usefull for linear detectors, since the tilt of area
      * detectors is handled different.
      * */
 

@@ -17,7 +17,7 @@
  * Copyright (C) 2010-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
-/* Test file to determine the speed of a lot of rotations  
+/* Test file to determine the speed of a lot of rotations
    for different implementations and optimizations */
 
 #include "rot_matrix.h"
@@ -44,8 +44,8 @@ int main(void) {
     time0 = clock();
     for(int i=0; i<N; ++i) {
         ang = deg2rad(M_PI/(double)i);
-        for(int j=0; j<axes; ++j) { 
-            rotation_xp(ang,mx); 
+        for(int j=0; j<axes; ++j) {
+            rotation_xp(ang,mx);
             rotation_yp(ang,my);
             rotation_zp(ang,mz);
         }
@@ -64,18 +64,18 @@ int main(void) {
     time0 = clock();
     for(int i=0; i<N; ++i) {
         ang = deg2rad(M_PI/(double)i);
-        for(int j=0; j<axes; ++j) { 
-           /*matvec(mx,z,r); 
-           matvec(my,x,r); 
+        for(int j=0; j<axes; ++j) {
+           /*matvec(mx,z,r);
+           matvec(my,x,r);
            matvec(mz,y,r); */
-           cblas_dgemv(CblasRowMajor,CblasNoTrans,3,3,1,mx,3,z,1,0.,r,1); 
-           cblas_dgemv(CblasRowMajor,CblasNoTrans,3,3,1,my,3,x,1,0.,r,1); 
-           cblas_dgemv(CblasRowMajor,CblasNoTrans,3,3,1,mz,3,y,1,0.,r,1); 
+           cblas_dgemv(CblasRowMajor,CblasNoTrans,3,3,1,mx,3,z,1,0.,r,1);
+           cblas_dgemv(CblasRowMajor,CblasNoTrans,3,3,1,my,3,x,1,0.,r,1);
+           cblas_dgemv(CblasRowMajor,CblasNoTrans,3,3,1,mz,3,y,1,0.,r,1);
         }
     }
     time1 = clock();
     clock_gettime(CLOCK_REALTIME,&wtime1);
-    
+
     printf("matrix multiplication (BLAS)\n");
     elapsed = ((double) (time1 - time0)) / CLOCKS_PER_SEC;
     printf(" CPU time:  %8.4f\n",elapsed);
@@ -87,15 +87,15 @@ int main(void) {
     time0 = clock();
     for(int i=0; i<N; ++i) {
         ang = deg2rad(M_PI/(double)i);
-        for(int j=0; j<axes; ++j) { 
-           matvec(mx,z,r); 
-           matvec(my,x,r); 
+        for(int j=0; j<axes; ++j) {
+           matvec(mx,z,r);
+           matvec(my,x,r);
            matvec(mz,y,r);
         }
     }
     time1 = clock();
     clock_gettime(CLOCK_REALTIME,&wtime1);
-    
+
     printf("matrix multiplication\n");
     elapsed = ((double) (time1 - time0)) / CLOCKS_PER_SEC;
     printf(" CPU time:  %8.4f\n",elapsed);
@@ -107,13 +107,13 @@ int main(void) {
     time0 = clock();
     for(int i=0; i<N; ++i) {
         ang = deg2rad(M_PI/(double)i);
-        for(int j=0; j<axes; ++j) { 
-           inversemat(mx,inv); 
+        for(int j=0; j<axes; ++j) {
+           inversemat(mx,inv);
         }
     }
     time1 = clock();
     clock_gettime(CLOCK_REALTIME,&wtime1);
-    
+
     printf("matrix inversion\n");
     elapsed = ((double) (time1 - time0)) / CLOCKS_PER_SEC;
     printf(" CPU time:  %8.4f\n",elapsed);

@@ -58,4 +58,5 @@ INLINE void diffmat(double *RESTRICT m1,double *RESTRICT m2) __attribute__((alwa
 
 INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) __attribute__((always_inline));
 
+INLINE double determinant(double *RESTRICT m) __attribute__((always_inline));
 #endif
