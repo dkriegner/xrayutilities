@@ -195,7 +195,7 @@ def get_omega_scan_q(qx,qz,intensity,qxcenter,qzcenter,omrange,npoints,**kwargs)
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
-    dummy,omcenter,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
+    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
 
     return get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwargs)
 
@@ -247,8 +247,8 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
         qrange = 0.
     dummy,qxcenter,qzcenter = exp.Ang2Q(omcenter,ttcenter)
     qxcenter = qxcenter[0]; qzcenter = qzcenter[0]
-    dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[1]
-    dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1]
+    dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[0]
+    dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0]
 
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
@@ -328,8 +328,8 @@ def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
         qrange = 0.
     dummy,qxcenter,qzcenter = exp.Ang2Q(omcenter,ttcenter)
     qxcenter = qxcenter[0]; qzcenter = qzcenter[0]
-    dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[1]
-    dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[1] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[1]
+    dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[0]
+    dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0]
 
     nint=2
 
@@ -394,7 +394,7 @@ def get_radial_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
-    dummy,omcenter,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
+    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
 
     return get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs)
 
@@ -593,7 +593,7 @@ def get_ttheta_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
-    dummy,omcenter,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
+    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
 
     return get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs)
 
