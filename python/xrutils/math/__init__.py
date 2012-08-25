@@ -31,4 +31,8 @@ from .vector import VecUnit
 from .vector import VecDot
 from .vector import VecAngle
 
-from .debye import Debye1
+from .functions import Debye1
+from .functions import Gauss1d
+from .functions import Gauss2d
+from .functions import Lorentz1d
+from .functions import Lorentz2d
