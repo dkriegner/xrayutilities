@@ -26,6 +26,7 @@ import scipy.stats
 import scipy.optimize as optimize
 
 from .. import config
+from .. import math
 
 try:
     from matplotlib import pyplot as plt
@@ -233,4 +234,74 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
                 \t mixcut angle: %8.4f \n" % (ret[0],ret[1],ret[2]))
 
     return ret
+
+#################################################
+#  correct substrate Bragg peak position in 
+#  reciprocal space maps
+#################################################
+def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=True):
+    """
+    helper function to determine the Bragg peak position in a reciprocal 
+    space map used to obtain the position needed for correction of the data.
+    the determination is done by fitting a two dimensional Gaussian 
+    (xrutils.math.Gauss2d)
+    
+    PLEASE ALWAYS CHECK THE RESULT CAREFULLY!
+
+    Parameter
+    ---------
+     om,tt: angular coordinates of the measurement (numpy.ndarray)
+            either with size of psd or of psd.shape[0]
+     psd:   intensity values needed for fitting
+     omalign: aligned omega value, used as first guess in the fit
+     ttalign: aligned two theta values used as first guess in the fit
+              these values are also used to set the range for the fit:
+              the peak should be within +/-frange\AA^{-1} of those values
+     exphxrd: experiment class used for the conversion between angular and 
+              reciprocal space.
+     frange:  data range used for the fit in both directions
+              (see above for details default:(0.03,0.03) unit: \AA^{-1})
+     plot:  if True (default) function will plot the result of the fit in comparison
+            with the measurement.
+    
+    Returns
+    -------
+    omfit,ttfit,params,covariance: fitted angular values, and the fit
+            parameters (of the Gaussian) as well as their errors
+    """ 
+    if om.size != psd.size:
+        [qx,qy,qz] = exphxrd.Ang2Q.linear(om,tt)
+    else:
+        [qx,qy,qz] = exphxrd.Ang2Q(om,tt)
+    [qxsub,qysub,qzsub] = exphxrd.Ang2Q(omalign,ttalign)
+    params = [qysub[0],qzsub[0],0.001,0.001,psd.max(),0,0.]
+    params,covariance = math.fit_peak2d(qy,qz,psd.flatten(),params,[qysub[0]-frange[0],qysub[0]+frange[0],qzsub[0]-frange[1],qzsub[0]+frange[1]],math.Gauss2d,maxfev=10000)
+    # correct params
+    params[6] = params[6]%(numpy.pi)
+    if params[5]<0 : params[5] = 0
+
+    [omfit,dummy,dummy,ttfit] = exphxrd.Q2Ang((0,params[0],params[1]),trans=False,geometry="real")
+    if config.VERBOSITY >= config.INFO_LOW:
+        print("XU.analysis.fit_bragg_peak:fitted substrate angles: \n\tom =%8.4f \n\ttt =%8.4f" %(omfit,ttfit))
+    
+    if plot:
+        plt.figure(); plt.clf()
+        from .. import gridder
+        from .. import utilities
+        gridder = gridder.Gridder2D(200,200)
+        gridder(qy,qz,psd)
+        # calculate intensity which should be plotted
+        INT = utilities.maplog(gridder.gdata.transpose(),4,0)
+        QXm = gridder.xmatrix
+        QZm = gridder.ymatrix
+        cl = plt.contour(gridder.xaxis,gridder.yaxis,utilities.maplog(math.Gauss2d(params,QXm,QZm),4,0).transpose(),8,colors='k',linestyles='solid')
+        cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT,35)
+        cf.collections[0].set_label('data')
+        cl.collections[0].set_label('fit')
+        #plt.legend() # for some reason not working?
+        plt.colorbar(extend='min')
+        plt.title("plot shows only coarse data! fit used raw data!")
+    
+    return omfit,ttfit,params,covariance
+
 

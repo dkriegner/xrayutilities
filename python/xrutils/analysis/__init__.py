@@ -28,6 +28,7 @@ line cut direction.
 from .sample_align import psd_refl_align
 from .sample_align import psd_chdeg
 from .sample_align import miscut_calc
+from .sample_align import fit_bragg_peak
 
 # functions from line_cuts.py
 from .line_cuts import get_qx_scan
