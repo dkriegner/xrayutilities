@@ -392,6 +392,6 @@ tor
     else:
         rad = ang
     get = tensorprod(e,e)
-    rot = get+cos(rad)*(numpy.identity(3)-get) + sin(rad)*mycross(e,numpy.identity(3))
+    rot = get+numpy.cos(rad)*(numpy.identity(3)-get) + numpy.sin(rad)*mycross(e,numpy.identity(3))
     return numpy.dot(rot,vec)
 
