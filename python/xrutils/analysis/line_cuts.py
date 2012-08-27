@@ -13,13 +13,48 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2011 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 import numpy
 
 from .. import config
 from .. import experiment
+
+def fwhm_exp(pos,data):
+    """
+    function to determine the full width at half maximum value of experimental
+    data. Please check the obtained value visually (noise influences the result)
+    
+    Parameter
+    ---------
+     pos:  position of the data points
+     data: data values
+
+    Returns
+    -------
+     fwhm value (single float)
+    """
+
+    m = data.max()
+    p0 = numpy.argmax(data)
+    datal = data[:p0]
+    datar = data[p0:]
+
+    # determine left side half value position
+    pls = pos[:p0][datal<m/2.][-1]
+    pll = pos[:p0][datal>m/2.][0]
+    ds = data[pos==pls][0]
+    dl = data[pos==pll][0]
+    pl = pls + (pll-pls)*(m/2. - ds)/(dl - ds)
+    # determine right side half value position  
+    prs = pos[p0:][datar<m/2.][0]
+    prl = pos[p0:][datar>m/2.][-1]
+    ds = data[pos==prs][0]
+    dl = data[pos==prl][0]
+    pr = prs + (prl-prs)*(m/2. - ds)/(dl - ds)
+
+    return pr - pl
 
 def getindex(x,y,xgrid,ygrid):
     """
