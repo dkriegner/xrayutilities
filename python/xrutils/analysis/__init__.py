@@ -50,3 +50,5 @@ from .line_cuts3d import get_qx_scan3d
 from .line_cuts3d import get_qy_scan3d
 from .line_cuts3d import get_qz_scan3d
 
+# misc
+from .misc import getangles
