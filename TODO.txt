@@ -9,12 +9,7 @@ of data... basically overload the function if this is possible in python?
 9.2.2012
 
 make the use of pthreads optional
-
-3.11.2010
-
-DK: the new config should be used by the whole python package were necessary. 
-maybe much more config options should be added, this needs discussion.
-One idea would be the nthreads (number of threads used by the gridder) variable...
+nthreads (number of threads used by the gridder) should be in the config
 
 17.08.2010
 discussion Eugen, Dominik
