@@ -1,3 +1,13 @@
+
+"""
+Example script to show how to use xrayutilities to read and plot
+reciprocal space map scans from a spec file created at the ESRF/ID10B
+
+for details about the measurement see:
+    D Kriegner et al. Nanotechnology 22 425704 (2011)
+    http://dx.doi.org/10.1088/0957-4484/22/42/425704
+"""
+
 import numpy
 import tables
 import matplotlib as mpl
