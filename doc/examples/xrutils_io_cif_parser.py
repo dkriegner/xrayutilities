@@ -1,9 +1,10 @@
 import xrutils as xu
 import numpy
+import os
 #import matplotlib.pyplot as plt
 
 # parse cif file to get unit cell structure
-cif_cal = xu.io.CIFFile("cif_files/Calcite.cif")
+cif_cal = xu.io.CIFFile(os.path.join("data","Calcite.cif"))
 
 #create material
 Calcite = xu.materials.Material("Calcite",cif_cal.Lattice(),numpy.zeros((6,6),dtype=numpy.double))

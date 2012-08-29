@@ -385,9 +385,9 @@ class SPECScan(object):
 
 
 
-    def Save2HDF5(self,h5file,**keyargs):
+    def Save2HDF5(self,h5f,**keyargs):
         """
-        Save2HDF5(h5file,**keyargs):
+        Save2HDF5(h5f,**keyargs):
         Save a SPEC scan to an HDF5 file. The method creates a group with the name of the
         scan and stores the data there as a table object with name "data". By default the
         scan group is created under the root group of the HDF5 file.
@@ -396,7 +396,7 @@ class SPECScan(object):
         group can be passed as a dictionary via the optattrs keyword argument.
 
         input arguments:
-        h5file ..................... a HDF5 file object
+        h5f ..................... a HDF5 file object or its filename
 
         optional keyword arguments:
         group ...................... name or group object of the HDF5 group where to store the data
@@ -405,7 +405,19 @@ class SPECScan(object):
         optattrs ............ a dictionary with optional attributes to store for the data
         comp ................ activate compression - true by default
         """
-
+        
+        closeFile=False
+        if isinstance(h5f,tables.file.File):
+            h5 = h5f
+            if not h5.isopen:
+                h5 = tables.openFile(h5f,mode='a')
+                closeFile=True
+        elif isinstance(h5f,str):
+            h5 = tables.openFile(h5f,mode='a')
+            closeFile=True
+        else:
+            raise InputError("h5f argument of wrong type was passed")
+        
         #check if data object has been already written
         if self.data == None:
             raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read so far - call ReadData method of the scan")
@@ -414,7 +426,7 @@ class SPECScan(object):
         #parse keyword arguments:
         if "group" in keyargs:
             if isinstance(keyargs["group"],str):
-                rootgroup = h5file.getNode(keyargs["group"])
+                rootgroup = h5.getNode(keyargs["group"])
             else:
                 rootgroup = keyargs["group"]
         else:
@@ -457,21 +469,21 @@ class SPECScan(object):
             try:
                 #if everything goes well the group will be created and the
                 #loop stoped
-                g = h5file.createGroup(rootgroup,group_title,group_desc)
+                g = h5.createGroup(rootgroup,group_title,group_desc)
                 break
             except:
                 #if the group already exists the name must be changed and
                 #another will be made to create the group.
                 if self.ischanged:
-                    g = h5file.removeNode(rootgroup,group_title,recursive=True)
+                    g = h5.removeNode(rootgroup,group_title,recursive=True)
                 else:
                     group_title = group_title + "_%i" %(copy_count)
                     copy_count = copy_count + 1
 
         if compflag:
-            tab = h5file.createTable(g,"data",tab_desc_dict,"scan data",filters=f)
+            tab = h5.createTable(g,"data",tab_desc_dict,"scan data",filters=f)
         else:
-            tab = h5file.createTable(g,"data",tab_desc_dict,"scan data")
+            tab = h5.createTable(g,"data",tab_desc_dict,"scan data")
 
         for rec in self.data:
             for cname in rec.dtype.names:
@@ -501,7 +513,10 @@ class SPECScan(object):
             for k in optattrs.keys():
                 g._v_attrs.__setattr__(k,opattrs[k])
 
-        h5file.flush()
+        h5.flush()
+
+        if closeFile:
+            h5.close()
 
 class SPECFile(object):
     """
@@ -552,22 +567,34 @@ class SPECFile(object):
 
         return ostr
 
-    def Save2HDF5(self,h5,**keyargs):
+    def Save2HDF5(self,h5f,**keyargs):
         """
-        Save2HDF5(h5):
+        Save2HDF5(h5f):
         Save the entire file in an HDF5 file. For that purpose a group is set up in the root
         group of the file with the name of the file without extension and leading path.
         If the method is called after an previous update only the scans not written to the file meanwhile are
         saved.
 
         required arguments:
-        h5 .................... a HDF5 file object
+        h5f .................... a HDF5 file object or its filename
 
         optional keyword arguments:
         comp .................. activate compression - true by default
         name .................. optional name for the file group
         """
 
+        closeFile=False
+        if isinstance(h5f,tables.file.File):
+            h5 = h5f
+            if not h5.isopen:
+                h5 = tables.openFile(h5f,mode='a')
+                closeFile=True
+        elif isinstance(h5f,str):
+            h5 = tables.openFile(h5f,mode='a')
+            closeFile=True
+        else:
+            raise InputError("h5f argument of wrong type was passed")
+        
         try:
             g = h5.createGroup("/",os.path.splitext(self.filename)[0],"Data of SPEC - File %s" %(self.filename))
         except:
@@ -585,6 +612,9 @@ class SPECFile(object):
                     s.Save2HDF5(h5,group=g,comp=compflag)
                     s.ClearData()
                     s.ischanged = False
+
+        if closeFile:
+            h5.close()
 
     def Update(self):
         """
@@ -889,7 +919,7 @@ def geth5_map(h5f,scans,*args,**kwargs):
 
     Parameters
     ----------
-     h5f:     file object of a HDF5 file opened using pytables
+     h5f:     file object of a HDF5 file opened using pytables or its filename
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
      *args:   names of the motors (strings)
         omname:  name of the omega motor (or its equivalent)
@@ -907,11 +937,23 @@ def geth5_map(h5f,scans,*args,**kwargs):
                 data values as stored in the data file (includes the
                 intensities e.g. MAP['MCA']).
     """
+    
+    closeFile=False
+    if isinstance(h5f,tables.file.File):
+        h5 = h5f
+        if not h5.isopen:
+            h5 = tables.openFile(h5f,mode='r')
+            closeFile=True
+    elif isinstance(h5f,str):
+        h5 = tables.openFile(h5f,mode='r')
+        closeFile=True
+    else:
+        raise InputError("h5f argument of wrong type was passed")
 
     if "samplename" in kwargs:
-        h5g = h5f.getNode(h5f.root,kwargs["samplename"])
+        h5g = h5.getNode(h5.root,kwargs["samplename"])
     else:
-        h5g = h5f.listNodes(h5f.root)[0]
+        h5g = h5.listNodes(h5.root)[0]
 
     if isinstance(scans,(list,tuple)):
         scanlist = scans
@@ -920,13 +962,15 @@ def geth5_map(h5f,scans,*args,**kwargs):
 
     angles = dict.fromkeys(args)
     for key in angles.keys():
+        if not isinstance(key,str):
+            raise InputError("*arg values need to be strings with motornames")
         angles[key] = numpy.zeros(0)
     buf=numpy.zeros(0)
     MAP = numpy.zeros(0)
 
     for nr in scanlist:
-        h5scan = h5f.getNode(h5g,"scan_%d" %nr)
-        command = h5f.getNodeAttr(h5scan,'Command')
+        h5scan = h5.getNode(h5g,"scan_%d" %nr)
+        command = h5.getNodeAttr(h5scan,'Command')
         sdata = h5scan.data.read()
         if MAP.dtype == numpy.float64:  MAP.dtype = sdata.dtype
         # append scan data to MAP, where all data are stored
@@ -945,13 +989,16 @@ def geth5_map(h5f,scans,*args,**kwargs):
             scanshape = MAP.shape
         for i in notscanmotors:
             motname = args[i]
-            buf = numpy.ones(scanshape) * h5f.getNodeAttr(h5scan,"INIT_MOPO_%s" %motname)
+            buf = numpy.ones(scanshape) * h5.getNodeAttr(h5scan,"INIT_MOPO_%s" %motname)
             angles[motname] =numpy.concatenate((angles[motname],buf))
 
     retval = []
     for motname in args:
         #create return values in correct order
         retval.append(angles[motname])
+
+    if closeFile:
+        h5.close()
 
     return retval,MAP
 
