@@ -781,10 +781,10 @@ class QConversion(object):
         #reshape output
         if Npoints==1:
             qpos.shape = ((roi[1]-roi[0]),(roi[3]-roi[2]),3)
-            return qpos[:,:,0],qpos[:,:,1],qpos[:,2]
+            return qpos[:,:,0],qpos[:,:,1],qpos[:,:,2]
         else:
             qpos.shape = (Npoints,(roi[1]-roi[0]),(roi[3]-roi[2]),3)
-            return qpos[:,:,:,0],qpos[:,:,:,1],qpos[:,2]
+            return qpos[:,:,:,0],qpos[:,:,:,1],qpos[:,:,:,2]
 
 
 class Experiment(object):
