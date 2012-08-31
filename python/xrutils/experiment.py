@@ -545,9 +545,12 @@ class QConversion(object):
                      self._linear_detdir, self._linear_tilt, wl)
 
         #reshape output
-        qpos.shape = (Npoints*(roi[1]-roi[0]),3)
-
-        return qpos[:,0],qpos[:,1],qpos[:,2]
+        if Npoints==1:
+            qpos.shape = (Npoints*(roi[1]-roi[0]),3)
+            return qpos[:,0],qpos[:,1],qpos[:,2]
+        else:
+            qpos.shape = (Npoints,(roi[1]-roi[0]),3)
+            return qpos[:,:,0],qpos[:,:,1],qpos[:,:,2]
 
     def init_area(self,detectorDir1,detectorDir2,cch1,cch2,Nch1,Nch2,distance=None,
                   pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,tiltazimuth=0, tilt=0, **kwargs):
@@ -776,9 +779,12 @@ class QConversion(object):
                      self._area_tiltazimuth, self._area_tilt,wl)
 
         #reshape output
-        qpos.shape = (Npoints*(roi[1]-roi[0])*(roi[3]-roi[2]),3)
-
-        return qpos[:,0],qpos[:,1],qpos[:,2]
+        if Npoints==1:
+            qpos.shape = ((roi[1]-roi[0]),(roi[3]-roi[2]),3)
+            return qpos[:,:,0],qpos[:,:,1],qpos[:,2]
+        else:
+            qpos.shape = (Npoints,(roi[1]-roi[0]),(roi[3]-roi[2]),3)
+            return qpos[:,:,:,0],qpos[:,:,:,1],qpos[:,2]
 
 
 class Experiment(object):
