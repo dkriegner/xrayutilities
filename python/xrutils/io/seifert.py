@@ -110,6 +110,7 @@ class SeifertMultiScan(object):
             self.fid = open(filename,"r")
         except:
             self.fid = None
+            raise IOError("error opening Seifert datafile %s" %(filename))
 
         self.nscans = 0   #total number of scans
         self.npscan = 0   #number of points per scan
@@ -262,6 +263,7 @@ class SeifertScan(object):
             self.fid = open(filename,"r")
         except:
             self.fid = None
+            raise IOError("error opening Seifert datafile %s" %(filename))
 
         self.hdr = SeifertHeader()
         self.data = []
