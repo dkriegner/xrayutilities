@@ -267,7 +267,7 @@ class QConversion(object):
 
         # kwargs
         if 'wl' in kwargs:
-            wl = numpy.double(kwargs['wl'])
+            wl = utilities.wavelength(kwargs['wl'])
         else:
             wl = self._wl
 
@@ -450,7 +450,7 @@ class QConversion(object):
 
         # kwargs
         if 'wl' in kwargs:
-            wl = numpy.double(kwargs['wl'])
+            wl = utilities.wavelength(kwargs['wl'])
         else:
             wl = self._wl
 
@@ -677,7 +677,7 @@ class QConversion(object):
 
         # kwargs
         if 'wl' in kwargs:
-            wl = numpy.double(kwargs['wl'])
+            wl = utilities.wavelength(kwargs['wl'])
         else:
             wl = self._wl
 
