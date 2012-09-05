@@ -29,6 +29,7 @@ from . import __path__
 from . import database
 from .. import math
 from .. import config
+from .. import utilities
 from ..exception import InputError
 
 _db = database.DataBase(os.path.join(__path__[0],"data",config.DBNAME))
@@ -60,7 +61,7 @@ class Atom(object):
 
     def f1(self,en="config"):
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.name)
 
@@ -75,7 +76,7 @@ class Atom(object):
 
     def f2(self,en="config"):
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.name)
 
@@ -103,7 +104,7 @@ class Atom(object):
          f (float)
         """
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
         f = self.f0(norm(q))+self.f1(en)+1.j*self.f2(en)
         return f
 
@@ -670,7 +671,6 @@ def CubicFm3mBaF2(aa,ab,a):
     return l
 
 def CuMnAsLattice(aa,ab,ac,a,b,c):
-    #{{{1
     # data from: http://www.sciencedirect.com/science/article/pii/S0304885311008900 and private communication X. Marti
     # unique positions of Cu (2a) (0, 0, 0)
     #                     Mn (2c) (0,0.5,0.2840)
@@ -691,4 +691,3 @@ def CuMnAsLattice(aa,ab,ac,a,b,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    #}}}1

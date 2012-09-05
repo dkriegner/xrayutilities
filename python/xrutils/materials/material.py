@@ -224,7 +224,7 @@ class Material(object):
         r_e = 2.8179402894e-15 * 1e10 # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
 
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
 
         lam = utilities.lam2en(en)
         delta = 0.
@@ -254,7 +254,7 @@ class Material(object):
         r_e = 1/(4*numpy.pi*scipy.constants.epsilon_0)*scipy.constants.e**2/(scipy.constants.electron_mass*scipy.constants.speed_of_light**2)*1e10
         # angstrom (classical electron radius) r_e = 1/(4pi*eps_0)*e^2/(m_e*c^2)
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
 
         lam = utilities.lam2en(en)
         beta = 0.
@@ -292,7 +292,7 @@ class Material(object):
             raise TypeError("q must be a list or numpy array!")
 
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
 
         if self.lattice.base==None:
             return (0,0)
@@ -402,7 +402,7 @@ class Material(object):
         """
 
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
         lam = utilities.lam2en(en)
         dth = numpy.degrees(2*self.delta(en)/numpy.sin(2*numpy.arcsin(lam*numpy.linalg.norm(Q)/(4*numpy.pi))))
         return dth
@@ -450,7 +450,7 @@ class Material(object):
             raise TypeError("q must be a list or numpy array!")
 
         if en=="config":
-            en = config.ENERGY
+            en = utilities.energy(config.ENERGY)
 
         if self.lattice.base==None: return 1.
 
@@ -591,7 +591,7 @@ class Material(object):
             qnorm[j] = numpy.linalg.norm(q[j])
 
         if en0=="config":
-            en0 = config.ENERGY
+            en0 = utilities.energy(config.ENERGY)
 
         if self.lattice.base==None: return numpy.ones(len(q))
 

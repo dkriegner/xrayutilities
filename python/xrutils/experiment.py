@@ -92,9 +92,9 @@ class QConversion(object):
 
         # kwargs
         if "wl" in kwargs:
-            self._wl = numpy.double(kwargs["wl"])
+            self._wl = self._set_wavelength(kwargs["wl"])
         else:
-            self._wl = numpy.double(config.WAVELENGTH)
+            self._wl = self._set_wavelength(config.WAVELENGTH)
 
         if "en" in kwargs:
             self._set_energy(kwargs["en"])
@@ -102,14 +102,15 @@ class QConversion(object):
         self._linear_init = False
         self._area_init = False
 
+    
     def _set_energy(self,energy):
-        self._en = energy
-        self._wl = utilities.lam2en(energy)
+        self._en = utilities.energy(energy)
+        self._wl = utilities.lam2en(self._en)
 
     def _set_wavelength(self,wl):
-        self._wl = wl
-        self._en = utilities.lam2en(wl)
-
+        self._wl = utilities.wavelength(wl)
+        self._en = utilities.lam2en(self._wl)
+    
     def _get_energy(self):
         return self._en
 
@@ -869,14 +870,14 @@ class Experiment(object):
         return ostr
 
     def _set_energy(self,energy):
-        self._en = energy
-        self._wl = utilities.lam2en(energy)
+        self._en = utilities.energy(energy)
+        self._wl = utilities.lam2en(self._en)
         self.k0 = numpy.pi*2./self._wl
         self._A2QConversion.wavelength = self._wl
 
     def _set_wavelength(self,wl):
-        self._wl = wl
-        self._en = utilities.lam2en(wl)
+        self._wl = utilities.wavelength(wl)
+        self._en = utilities.lam2en(self._wl)
         self.k0 = numpy.pi*2./self._wl
         self._A2QConversion.wavelength = self._wl
 
