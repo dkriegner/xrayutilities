@@ -413,7 +413,8 @@ class SPECTRAFile(object):
                 try:
                     (key,value) = lbuffer.split("=")
                 except:
-                    print("XU.io.SPECTRAFile.Read: cannot interpret the comment string: %s" %(lbuffer))
+                    if config.VERBOSITY >= config.INFO_ALL: # avoid annoying output
+                        print("XU.io.SPECTRAFile.Read: cannot interpret the comment string: %s" %(lbuffer))
                     continue
 
                 key = key.strip()
