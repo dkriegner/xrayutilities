@@ -92,9 +92,9 @@ class QConversion(object):
 
         # kwargs
         if "wl" in kwargs:
-            self._wl = self._set_wavelength(kwargs["wl"])
+            self._set_wavelength(kwargs["wl"])
         else:
-            self._wl = self._set_wavelength(config.WAVELENGTH)
+            self._set_wavelength(config.WAVELENGTH)
 
         if "en" in kwargs:
             self._set_energy(kwargs["en"])
