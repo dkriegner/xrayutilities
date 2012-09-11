@@ -53,10 +53,12 @@ def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
         print("XU.math.fit: Fitting started... ",end='')
 
     start = numpy.array(start)
-    mask = (x>drange[0])*(x<drange[1])*(y>drange[2])*(y<drange[3])
-    ly = y[mask]
-    lx = x[mask]
-    ldata = data[mask]
+    lx = x.flatten()
+    ly = y.flatten()
+    mask = (lx>drange[0])*(lx<drange[1])*(ly>drange[2])*(ly<drange[3])
+    ly = ly[mask]
+    lx = lx[mask]
+    ldata = data.flatten()[mask]
     errfunc = lambda p,x,z,data: fit_function(p,x,z) - data
     p, cov, infodict, errmsg, success = optimize.leastsq(errfunc, start, args=(lx,ly,ldata), full_output=1,maxfev=maxfev)
 
