@@ -62,8 +62,14 @@ INFO_ALL = xrutilsParser.getint("xrutils","info_all")
 DEBUG = xrutilsParser.getint("xrutils","debug")
 
 VERBOSITY = xrutilsParser.getint("xrutils","verbosity")
-WAVELENGTH = xrutilsParser.get("xrutils","wavelength")
-ENERGY = xrutilsParser.get("xrutils","energy")
+try: 
+    WAVELENGTH = xrutilsParser.getfloat("xrutils","wavelength")
+except:
+    WAVELENGTH = xrutilsParser.get("xrutils","wavelength")
+try:
+    ENERGY = xrutilsParser.getfloat("xrutils","energy")
+except:
+    ENERGY = xrutilsParser.get("xrutils","energy")
 if ENERGY=='NaN':
     ENERGY = utilities_noconf.lam2en(utilities_noconf.wavelength(WAVELENGTH))
 else: # energy was given and wavelength is calculated from given energy
