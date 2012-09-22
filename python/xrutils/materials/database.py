@@ -548,7 +548,6 @@ def add_f0_from_xop(db,xopfile):
 
     xop.close()
 
-
 def add_f1f2_from_henkedb(db,henkefile):
     """
     Read f1 and f2 data from Henke database and add
@@ -605,7 +604,6 @@ def add_f1f2_from_henkedb(db,henkefile):
                         break
 
     hf.close()
-
 
 def add_f1f2_from_kissel(db,kisselfile):
     """
@@ -667,6 +665,27 @@ def add_f1f2_from_kissel(db,kisselfile):
                         break
 
     kf.close()
+
+def add_f1f2_from_ascii_file(db,asciifile,element):
+    """
+    Read f1 and f2 data for specific element from ASCII file (3 columns) and save
+    it to the database.
+    """
+
+    #parse the f1f2 file
+    try:
+        af = numpy.loadtxt(asciifile)
+    except:
+        print("cannot open f1f2 database file")
+        return None
+    db.SetMaterial(element)
+
+    en = af[:,0]
+    f1 = af[:,1]
+    f2 = af[:,2]
+    db.SetF1(en,f1)
+    db.SetF2(en,f2)
+    
 
 def add_mass_from_NIST(db,nistfile):
     """

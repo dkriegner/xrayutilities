@@ -32,5 +32,8 @@ db.init_material_db(dbf)
 db.add_mass_from_NIST(dbf,os.path.join("data","nist_atom.dat"))
 db.add_f0_from_xop(dbf,os.path.join("data","f0_xop.dat"))
 db.add_f1f2_from_kissel(dbf,os.path.join("data","f1f2_asf_Kissel.dat"))
+# add costum (more acurate data for Ga and P)
+db.add_f1f2_from_ascii_file(dbf,os.path.join("data","Ga.f1f2"),'Ga')
+db.add_f1f2_from_ascii_file(dbf,os.path.join("data","P.f1f2"),'P')
 
 dbf.Close()
