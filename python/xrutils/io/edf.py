@@ -26,6 +26,7 @@ import tables
 import os
 import os.path
 import glob
+import gzip
 
 from .. import config
 
@@ -76,7 +77,10 @@ class EDFFile(object):
             self.full_filename = fname
 
         try:
-            self.fid = open(self.full_filename,"r")
+            if os.path.splitext(self.full_filename)[-1] == '.gz':
+                self.fid = gzip.open(self.full_filename,"r")
+            else : 
+                self.fid = open(self.full_filename,"r")
         except:
             raise IOError("cannot open file %s" %(self.full_filename))
 
@@ -104,9 +108,14 @@ class EDFFile(object):
         #create attributes for holding data
         self.header = {}
         self.data = None
+        self.ReadData()
 
 
     def ReadData(self):
+        """
+        Read the CCD data into the .data object
+        this function is called by the initialization
+        """
         line_buffer = " "
         hdr_flag = False
         ml_value_flag = False #marks a multiline header
@@ -166,7 +175,10 @@ class EDFFile(object):
         #----------------start to read the data section----------------------
 
         #to read the data we have to open the file in binary mode
-        binfid = open(self.full_filename,"rb")
+        if os.path.splitext(self.full_filename)[-1] == '.gz':
+            binfid = gzip.open(self.full_filename,"rb")
+        else : 
+            binfid = open(self.full_filename,"rb")
 
         if (not self.headerflag): #for fast scan at ID01
             byte_order = 'LowByteFirst'
@@ -303,6 +315,9 @@ class EDFFile(object):
             ca.attrs.__setattr__(aname,self.header[k])
 
 class EDFDirectory(object):
+    """
+    Parses a directory for EDF files, which can be stored to a HDF5 file for further usage
+    """
     def __init__(self,datapath,**keyargs):
         """
 
@@ -374,6 +389,6 @@ class EDFDirectory(object):
             # read EDFFile and save to hdf5
             filename = os.path.split(infile)[1]
             e = EDFFile(filename,path=self.datapath,**self.init_keyargs)
-            e.ReadData()
+            #e.ReadData()
             e.Save2HDF5(h5,group=g)
 
