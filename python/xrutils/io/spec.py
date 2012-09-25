@@ -914,11 +914,11 @@ class SPECLog(object):
         return ostr
 
 
-def geth5_map(h5f,scans,*args,**kwargs):
+def geth5_scan(h5f,scans,*args,**kwargs):
     """
-    function to obtain the omega and twotheta as well as intensity values
-    for a reciprocal space map saved in an HDF5 file, which was created
-    from a spec file by the Save2HDF5 method.
+    function to obtain the angular cooridinates as well as intensity values
+    saved in an HDF5 file, which was created from a spec file by the Save2HDF5
+    method. Especially usefull for reciprocal space map measurements.
 
     further more it is possible to obtain even more positions from
     the data file if more than two string arguments with its names are given
@@ -927,9 +927,10 @@ def geth5_map(h5f,scans,*args,**kwargs):
     ----------
      h5f:     file object of a HDF5 file opened using pytables or its filename
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
-     *args:   names of the motors (strings)
-        omname:  name of the omega motor (or its equivalent)
-        ttname:  name of the two theta motor (or its equivalent)
+     *args:   names of the motors (optional) (strings)
+        to read reciprocal space maps measured in coplanar diffraction give:
+        omname:  e.g. name of the omega motor (or its equivalent)
+        ttname:  e.g. name of the two theta motor (or its equivalent)
 
      **kwargs (optional):
         samplename: string with the hdf5-group containing the scan data
@@ -937,6 +938,10 @@ def geth5_map(h5f,scans,*args,**kwargs):
 
     Returns
     -------
+     MAP
+
+     or 
+
      [ang1,ang2,...],MAP:
                 angular positions of the center channel of the position
                 sensitive detector (numpy.ndarray 1D) together with all the
@@ -1005,6 +1010,8 @@ def geth5_map(h5f,scans,*args,**kwargs):
 
     if closeFile:
         h5.close()
-
-    return retval,MAP
+    
+    if len(args)==0:
+        return MAP
+    else: return retval,MAP
 
