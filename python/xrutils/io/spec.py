@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a threaded class for observing a SPEC data file
@@ -135,8 +135,14 @@ class SPECScan(object):
 
         #setup the initial motor positions dictionary - set the motor names
         self.init_motor_pos = {}    #dictionary holding the initial motor positions
-        for i in range(len(imopnames)):
-            self.init_motor_pos["INIT_MOPO_"+imopnames[i]] = float(imopvalues[i])
+        if len(imopnames) == len(imopvalues):
+            for i in range(len(imopnames)):
+                self.init_motor_pos["INIT_MOPO_"+imopnames[i]] = float(imopvalues[i])
+        else:
+            print("XU.io.spec.SPECScan: incorrect number of initial motor positions")
+            if config.VERBOSITY >= config.INFO_ALL:
+                print(imopnames)
+                print(imopvalues)
 
         #some additional attributes for the MCA data
         self.has_mca = False       #False if scan contains no MCA data, True otherwise
