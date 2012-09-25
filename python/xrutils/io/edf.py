@@ -122,7 +122,7 @@ class EDFFile(object):
         offset = 0
         byte_order = ""
 
-        if config.VERBOSITY >= config.INFO_LOW:
+        if config.VERBOSITY >= config.INFO_ALL:
             print("XU.io.EDFFile.ReadData: file: %s" %self.filename)
 
         while self.headerflag:
