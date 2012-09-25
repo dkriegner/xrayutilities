@@ -682,7 +682,7 @@ class SPECFile(object):
             elif SPEC_initmoponames.match(line_buffer):
                 line_buffer = SPEC_initmoponames.sub("",line_buffer)
                 line_buffer = line_buffer.strip()
-                self.init_motor_names = self.init_motor_names + SPEC_multi_blank.split(line_buffer)
+                self.init_motor_names = self.init_motor_names + SPEC_multi_blank2.split(line_buffer)
 
             #if the line marks the beginning of a new scan
             elif SPEC_scan.match(line_buffer) and not scan_started:
