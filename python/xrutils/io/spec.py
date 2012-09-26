@@ -137,7 +137,7 @@ class SPECScan(object):
         self.init_motor_pos = {}    #dictionary holding the initial motor positions
         if len(imopnames) == len(imopvalues):
             for i in range(len(imopnames)):
-                self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_")] = float(imopvalues[i])
+                self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
         else:
             print("XU.io.spec.SPECScan: incorrect number of initial motor positions")
             if config.VERBOSITY >= config.INFO_ALL:
