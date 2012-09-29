@@ -127,9 +127,10 @@ class Gridder1D(Gridder):
         dx = (self.xmax-self.xmin)/(self.nx-1)
 
         for i in range(x.size):
-            ix = ((x[i] - self.xmin)/dx).astype(numpy.int)
-            self.gdata[ix] += data[i]
-            self.gnorm[ix] += 1
+            if not numpy.isnan(data[i]):
+                ix = ((x[i] - self.xmin)/dx).astype(numpy.int)
+                self.gdata[ix] += data[i]
+                self.gnorm[ix] += 1
 
         if self.flags != self.flags|4:
             self.gdata[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
