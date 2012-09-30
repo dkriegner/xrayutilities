@@ -24,7 +24,7 @@ import scipy.integrate
 
 from .. import config
 
-def Gauss1d(p,x):
+def Gauss1d(x,*p):
     """ 
     function to calculate a general one dimensional Gaussian
     
@@ -45,7 +45,7 @@ def Gauss1d(p,x):
     g = p[3]+p[2]*numpy.exp(-((p[0]-x)/p[1])**2/2.)
     return g
 
-def Gauss2d(p,x,y):
+def Gauss2d(x,y,*p):
     """ 
     function to calculate a general two dimensional Gaussian
     
@@ -72,7 +72,7 @@ def Gauss2d(p,x,y):
                                      ((rcen_y-yp)/p[3])**2)/2.)
     return g
 
-def Lorentz1d(p,x):
+def Lorentz1d(x,*p):
     """ 
     function to calculate a general one dimensional Lorentzian
     
@@ -93,7 +93,7 @@ def Lorentz1d(p,x):
 
     return g
 
-def Lorentz2d(p,x,y):
+def Lorentz2d(x,y,*p):
     """ 
     function to calculate a general two dimensional Lorentzian
     
