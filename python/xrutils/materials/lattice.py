@@ -691,3 +691,27 @@ def CuMnAsLattice(aa,ab,ac,a,b,c):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
+
+def PerovskiteTypeRhombohedral(aa,ab,ac,a,ang):
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0.,0.,0.])
+    lb.append(ab,[0.5,0.5,0.5])
+    lb.append(ac,[0.5,0.5,0.])
+    lb.append(ac,[0.,0.5,0.5])
+    lb.append(ac,[0.5,0.,0.5])
+
+    #create lattice vectors alpha=beta=90 gamma=120
+    ca = numpy.cos(numpy.radians(ang))
+    cb = numpy.cos(numpy.radians(ang))
+    cg = numpy.cos(numpy.radians(ang))
+    sa = numpy.sin(numpy.radians(ang))
+    sb = numpy.sin(numpy.radians(ang))
+    sg = numpy.sin(numpy.radians(ang))
+
+    a1 = a*numpy.array([1,0,0],dtype=numpy.double)
+    a2 = b*numpy.array([cg,sg,0],dtype=numpy.double)
+    a3 = c*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
