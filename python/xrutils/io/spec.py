@@ -546,7 +546,7 @@ class SPECFile(object):
         self.scan_list = []
         #open the file for reading
         try:
-            self.fid = open(self.full_filename,"r")
+            self.fid = open(self.full_filename,"rb")
             self.last_offset = self.fid.tell()
         except:
             self.fid = None
