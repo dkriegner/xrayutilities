@@ -125,12 +125,16 @@ class Gridder1D(Gridder):
         self.xmax = x.max()
 
         dx = (self.xmax-self.xmin)/(self.nx-1)
-
-        for i in range(x.size):
-            if not numpy.isnan(data[i]):
-                ix = ((x[i] - self.xmin)/dx).astype(numpy.int)
-                self.gdata[ix] += data[i]
-                self.gnorm[ix] += 1
+        
+        # use only non-NaN data values
+        ldata = data[numpy.isnan(data)]
+        lx = x[numpy.isnan(data)]
+        
+        # grid the data
+        for i in range(lx.size):
+            ix = ((lx[i] - self.xmin)/dx).astype(numpy.int)
+            self.gdata[ix] += ldata[i]
+            self.gnorm[ix] += 1
 
         if self.flags != self.flags|4:
             self.gdata[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
