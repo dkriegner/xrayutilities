@@ -710,8 +710,8 @@ def PerovskiteTypeRhombohedral(aa,ab,ac,a,ang):
     sg = numpy.sin(numpy.radians(ang))
 
     a1 = a*numpy.array([1,0,0],dtype=numpy.double)
-    a2 = b*numpy.array([cg,sg,0],dtype=numpy.double)
-    a3 = c*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)
+    a2 = a*numpy.array([cg,sg,0],dtype=numpy.double)
+    a3 = a*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
