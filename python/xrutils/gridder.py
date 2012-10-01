@@ -127,8 +127,9 @@ class Gridder1D(Gridder):
         dx = (self.xmax-self.xmin)/(self.nx-1)
         
         # use only non-NaN data values
-        ldata = data[numpy.isnan(data)]
-        lx = x[numpy.isnan(data)]
+        mask = numpy.invert(numpy.isnan(data))
+        ldata = data[mask]
+        lx = x[mask]
         
         # grid the data
         for i in range(lx.size):
