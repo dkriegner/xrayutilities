@@ -294,7 +294,7 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
         INT = utilities.maplog(gridder.gdata.transpose(),4,0)
         QXm = gridder.xmatrix
         QZm = gridder.ymatrix
-        cl = plt.contour(gridder.xaxis,gridder.yaxis,utilities.maplog(math.Gauss2d(QXm,QZm,params),4,0).transpose(),8,colors='k',linestyles='solid')
+        cl = plt.contour(gridder.xaxis,gridder.yaxis,utilities.maplog(math.Gauss2d(QXm,QZm,*params),4,0).transpose(),8,colors='k',linestyles='solid')
         cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT,35)
         cf.collections[0].set_label('data')
         cl.collections[0].set_label('fit')
