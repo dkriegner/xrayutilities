@@ -750,6 +750,8 @@ Sn = Material("Sn",lattice.TetragonalTinLattice(elements.Sn,5.8197,3.17488))
 SnAlpha = Material("Sn-alpha",lattice.DiamondLattice(elements.Sn,6.4912))
 Cu = Material("Cu",lattice.FCCLattice(elements.Cu,3.61496))
 CuMnAs = Material("CuMnAs",lattice.CuMnAsLattice(elements.Cu,elements.Mn,elements.As,3.82,3.82,6.30))
+CaTiO3 = Material("CaTiO3",lattice.PerovskiteTypeRhombohedral(elements.Ca,elements.Ti,elements.O,3.795,90))
+BiFeO3 = Material("BiFeO3",lattice.PerovskiteTypeRhombohedral(elements.Bi,elements.Fe,elements.O,3.965,89.3))
 
 class Alloy(Material):
     def __init__(self,matA,matB,x):

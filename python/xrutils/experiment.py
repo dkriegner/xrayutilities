@@ -1775,9 +1775,6 @@ class Powder(Experiment):
         """
 
         if not max: max= 2*self.k0
-        # define a gaussion which is needed for convolution
-        def gauss(amp,x0,sigma,x):
-            return amp*numpy.exp(-(x-x0)**2/(2*sigma**2))
 
         # convolute each peak with a gaussian and add them up
         qcoord = numpy.arange(min,max,stepwidth)
@@ -1785,7 +1782,7 @@ class Powder(Experiment):
         intensity = numpy.zeros(theta.size,dtype=numpy.double)
 
         for i in range(self.ang.size):
-            intensity += gauss(self.data[i],self.qpos[i],width,qcoord)
+            intensity += math.Gauss1d(qcoord,self.qpos,width,self.data[i],0)
 
         return theta,intensity
 

@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a threaded class for observing a SPEC data file
@@ -135,8 +135,14 @@ class SPECScan(object):
 
         #setup the initial motor positions dictionary - set the motor names
         self.init_motor_pos = {}    #dictionary holding the initial motor positions
-        for i in range(len(imopnames)):
-            self.init_motor_pos["INIT_MOPO_"+imopnames[i]] = float(imopvalues[i])
+        if len(imopnames) == len(imopvalues):
+            for i in range(len(imopnames)):
+                self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
+        else:
+            print("XU.io.spec.SPECScan: incorrect number of initial motor positions")
+            if config.VERBOSITY >= config.INFO_ALL:
+                print(imopnames)
+                print(imopvalues)
 
         #some additional attributes for the MCA data
         self.has_mca = False       #False if scan contains no MCA data, True otherwise
@@ -540,7 +546,7 @@ class SPECFile(object):
         self.scan_list = []
         #open the file for reading
         try:
-            self.fid = open(self.full_filename,"r")
+            self.fid = open(self.full_filename,"rb")
             self.last_offset = self.fid.tell()
         except:
             self.fid = None
@@ -676,7 +682,7 @@ class SPECFile(object):
             elif SPEC_initmoponames.match(line_buffer):
                 line_buffer = SPEC_initmoponames.sub("",line_buffer)
                 line_buffer = line_buffer.strip()
-                self.init_motor_names = self.init_motor_names + SPEC_multi_blank.split(line_buffer)
+                self.init_motor_names = self.init_motor_names + SPEC_multi_blank2.split(line_buffer)
 
             #if the line marks the beginning of a new scan
             elif SPEC_scan.match(line_buffer) and not scan_started:
@@ -908,11 +914,11 @@ class SPECLog(object):
         return ostr
 
 
-def geth5_map(h5f,scans,*args,**kwargs):
+def geth5_scan(h5f,scans,*args,**kwargs):
     """
-    function to obtain the omega and twotheta as well as intensity values
-    for a reciprocal space map saved in an HDF5 file, which was created
-    from a spec file by the Save2HDF5 method.
+    function to obtain the angular cooridinates as well as intensity values
+    saved in an HDF5 file, which was created from a spec file by the Save2HDF5
+    method. Especially usefull for reciprocal space map measurements.
 
     further more it is possible to obtain even more positions from
     the data file if more than two string arguments with its names are given
@@ -921,9 +927,10 @@ def geth5_map(h5f,scans,*args,**kwargs):
     ----------
      h5f:     file object of a HDF5 file opened using pytables or its filename
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
-     *args:   names of the motors (strings)
-        omname:  name of the omega motor (or its equivalent)
-        ttname:  name of the two theta motor (or its equivalent)
+     *args:   names of the motors (optional) (strings)
+        to read reciprocal space maps measured in coplanar diffraction give:
+        omname:  e.g. name of the omega motor (or its equivalent)
+        ttname:  e.g. name of the two theta motor (or its equivalent)
 
      **kwargs (optional):
         samplename: string with the hdf5-group containing the scan data
@@ -931,6 +938,10 @@ def geth5_map(h5f,scans,*args,**kwargs):
 
     Returns
     -------
+     MAP
+
+     or 
+
      [ang1,ang2,...],MAP:
                 angular positions of the center channel of the position
                 sensitive detector (numpy.ndarray 1D) together with all the
@@ -999,6 +1010,8 @@ def geth5_map(h5f,scans,*args,**kwargs):
 
     if closeFile:
         h5.close()
-
-    return retval,MAP
+    
+    if len(args)==0:
+        return MAP
+    else: return retval,MAP
 

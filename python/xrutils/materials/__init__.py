@@ -41,6 +41,7 @@ from .lattice import TetragonalTinLattice
 from .lattice import TrigonalR3mh
 from .lattice import CubicFm3mBaF2
 from .lattice import CuMnAsLattice
+from .lattice import PerovskiteTypeRhombohedral
 
 from . import elements
 from .material import Si
@@ -73,6 +74,8 @@ from .material import Sn
 from .material import SnAlpha
 from .material import Cu
 from .material import CuMnAs
+from .material import CaTiO3
+from .material import BiFeO3
 from .material import Alloy
 from .material import CubicAlloy
 from .material import PseudomorphicMaterial
@@ -86,3 +89,4 @@ from .database import add_f0_from_xop
 from .database import add_f1f2_from_henkedb
 from .database import add_f1f2_from_kissel
 from .database import add_mass_from_NIST
+from .database import add_f1f2_from_ascii_file

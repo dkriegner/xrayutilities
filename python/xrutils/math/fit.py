@@ -42,7 +42,7 @@ def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
               e.g. it is clever to use only a small region around the peak which 
               should be fitted: [xmin,xmax,ymin,ymax]
      fit_function:  function which should be fitted 
-                    must accept the parameters (params,x,y)
+                    must accept the parameters (x,y,*params)
 
     Returns
     -------
@@ -59,7 +59,7 @@ def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
     ly = ly[mask]
     lx = lx[mask]
     ldata = data.flatten()[mask]
-    errfunc = lambda p,x,z,data: fit_function(p,x,z) - data
+    errfunc = lambda p,x,z,data: fit_function(x,z,*p) - data
     p, cov, infodict, errmsg, success = optimize.leastsq(errfunc, start, args=(lx,ly,ldata), full_output=1,maxfev=maxfev)
 
     s = time.time() - s
