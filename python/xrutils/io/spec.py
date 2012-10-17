@@ -62,6 +62,7 @@ SPEC_scanbroken = re.compile(r"#C[a-zA-Z0-9: .]*Scan aborted")
 SPEC_scanresumed = re.compile(r"#C[a-zA-Z0-9: .]*Scan resumed")
 SPEC_commentline = re.compile(r"#C")
 SPEC_newheader = re.compile(r"^#E")
+SPEC_errorbm20 = re.compile(r"^MI:")
 scan_status_flags = ["OK","ABORTED","CORRUPTED"]
 
 class SPECMCA(object):
@@ -282,6 +283,9 @@ class SPECScan(object):
                         print("XU.io.SPECScan.ReadData: %s resumed" %self.name)
                     continue
                 elif SPEC_commentline.match(line_buffer):
+                    continue
+                elif SPEC_errorbm20.match(line_buffer):
+                    print(line_buffer)
                     continue
                 else:
                     break
