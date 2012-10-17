@@ -6,7 +6,8 @@ Import("env")
 try:
     manual = env.PDF("xrayutilities.pdf","xrayutilities.tex")
 except:
-    print("Warning: Documentation can not be built (pdflatex not found)")
+    print("Warning: Documentation can not be built (pdflatex not found) -> Use prebuild version")
+    manual = ["xrayutilities.pdf",""]
 
 #install the manual
 if os.sys.platform in ["darwin","linux2"]:
