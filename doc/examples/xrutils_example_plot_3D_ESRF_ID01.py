@@ -20,7 +20,7 @@ qconv = xu.experiment.QConversion(['z+','y-'],['z+','y-'],[1,0,0]) # 2S+2D gonio
 # convention for coordinate system: x downstream; z upwards; y to the "outside" (righthanded)
 
 hxrd = xu.HXRD([1,0,0],[0,0,1],en=en,qconv=qconv)
-hxrd.Ang2Q.init_area('z-','y+',cch1=cch[0],cch2=cch[1],Nch1=516,Nch2=516, chpdeg1=chpdeg[0],chpdeg2=chpdeg[1],Nav=nav)
+hxrd.Ang2Q.init_area('z-','y+',cch1=cch[0],cch2=cch[1],Nch1=516,Nch2=516, chpdeg1=chpdeg[0],chpdeg2=chpdeg[1],Nav=nav,roi=roi)
 
 h5file = os.path.join(specdir,sample+".h5")
 #read spec file and save to HDF5 (needs to be done only once)
