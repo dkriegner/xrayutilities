@@ -450,15 +450,15 @@ def BaddeleyiteLattice(aa,ab,a,b,c,beta,deg=True):
 
     return l
 
-def WurtziteLattice(aa,ab,a,c,u=3/8.):
+def WurtziteLattice(aa,ab,a,c,u=3/8.,biso=0.):
     #create lattice base: data from laue atlas (hexagonal ZnS)
     # P63mc; aa=4e,ab=4e
     lb = LatticeBase()
-    lb.append(aa,[0.,0.,0.])
-    lb.append(aa,[1/3.,2/3.,0.5])
+    lb.append(aa,[0.,0.,0.],b=biso)
+    lb.append(aa,[1/3.,2/3.,0.5],b=biso)
 
-    lb.append(ab,[0.,0,u])
-    lb.append(ab,[1/3.,2/3.,u+0.5])
+    lb.append(ab,[0.,0,u],b=biso)
+    lb.append(ab,[1/3.,2/3.,u+0.5],b=biso)
 
     #create lattice vectors
     a1 = numpy.array([a,0.,0.],dtype=numpy.double)
