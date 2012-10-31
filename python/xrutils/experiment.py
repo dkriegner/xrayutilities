@@ -43,6 +43,7 @@ from .exception import InputError
 
 # regular expression to check goniometer circle syntax
 circleSyntax = re.compile("[xyz][+-]")
+circleSyntaxSample = re.compile("[xyzk][+-]")
 
 class QConversion(object):
     """
@@ -76,10 +77,14 @@ class QConversion(object):
             en:         energy of the x-rays in electronvolt
         """
 
+        #initialize some needed variables
+        self._kappa_dir = numpy.array((numpy.nan,numpy.nan,numpy.nan))
+        
+        # set/check sample and detector axis geometry
         self._set_sampleAxis(sampleAxis)
         self._set_detectorAxis(detectorAxis)
 
-        # r_i
+        # r_i: primary beam direction
         if isinstance(r_i,(list,tuple,numpy.ndarray)):
             self.r_i = numpy.array(r_i,dtype=numpy.double)
             self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
@@ -136,8 +141,47 @@ class QConversion(object):
             for circ in sAxis:
                 if not isinstance(circ,str) or len(circ)!=2:
                     raise InputError("QConversion: incorrect sample circle type or syntax (%s)" %repr(circ))
-                if not circleSyntax.search(circ):
+                if not circleSyntaxSample.search(circ):
                     raise InputError("QConversion: incorrect sample circle syntax (%s)" %circ)
+                if circ[0]=='k': # determine kappa rotation axis
+                    # determine reference direction
+                    if config.KAPPA_PLANE[0] == 'x':
+                        self._kappa_dir = numpy.array((1.,0,0))
+                        # turn reference direction
+                        if config.KAPPA_PLANE[1] =='y':
+                            self._kappa_dir = math.ZRotation(config.KAPPA_ANGLE)(self._kappa_dir)
+                        elif config.KAPPA_PLANE[1] == 'z':
+                            self._kappa_dir = math.YRotation(-config.KAPPA_ANGLE)(self._kappa_dir)
+                        else:
+                            raise TypeError("Qconverision init: invalid kappa_plane in config!")
+                    elif config.KAPPA_PLANE[0] == 'y':
+                        self._kappa_dir = numpy.array((0,1.,0))
+                        # turn reference direction
+                        if config.KAPPA_PLANE[1] =='z':
+                            self._kappa_dir = math.XRotation(config.KAPPA_ANGLE)(self._kappa_dir)
+                        elif config.KAPPA_PLANE[1] == 'x':
+                            self._kappa_dir = math.ZRotation(-config.KAPPA_ANGLE)(self._kappa_dir)
+                        else:
+                            raise TypeError("Qconverision init: invalid kappa_plane in config!")
+                    elif config.KAPPA_PLANE[0] == 'z':
+                        self._kappa_dir = numpy.array((0,0,1.))
+                        # turn reference direction
+                        if config.KAPPA_PLANE[1] =='x':
+                            self._kappa_dir = math.YRotation(config.KAPPA_ANGLE)(self._kappa_dir)
+                        elif config.KAPPA_PLANE[1] == 'y':
+                            self._kappa_dir = math.XRotation(-config.KAPPA_ANGLE)(self._kappa_dir)
+                        else:
+                            raise TypeError("Qconverision init: invalid kappa_plane in config!")
+                    else:
+                        raise TypeError("Qconverision init: invalid kappa_plane in config!")
+                    
+                    # rotation sense
+                    if circ[1]=='-':
+                        self._kappa_dir = -self._kappa_dir
+                    
+                    if config.VERBOSITY >= config.DEBUG:
+                        print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)" % tuple(self._kappa_dir))
+
         else:
             raise TypeError("Qconversion error: invalid type for sampleAxis, must be str, list, or tuple")
         self._sampleAxis = sAxis
@@ -151,7 +195,7 @@ class QConversion(object):
 
         Returns
         -------
-        list of sample axis following the syntax /[xyz][+-]/
+        list of sample axis following the syntax /[xyzk][+-]/
         """
         return self._sampleAxis
 
@@ -201,6 +245,8 @@ class QConversion(object):
         pstr =  'QConversion geometry \n'
         pstr += '---------------------------\n'
         pstr += 'sample geometry(%d): ' %len(self._sampleAxis) + self._sampleAxis_str + '\n'
+        if self._sampleAxis_str.find('k') != -1:
+            pstr += 'kappa rotation axis (%5.3f %5.3f %5.3f)\n' % tuple(self._kappa_dir) 
         pstr += 'detector geometry(%d): ' %len(self._detectorAxis) + self._detectorAxis_str + '\n'
         pstr += 'primary beam direction: (%5.2f %5.2f %5.2f) \n' %(self.r_i[0],self.r_i[1],self.r_i[2])
 
@@ -290,7 +336,7 @@ class QConversion(object):
                              number of arguments should be %d" %(len(args),Ncirc))
 
         try: Npoints = len(args[0])
-        except TypeError: Npoints = 1
+        except (TypeError,IndexError): Npoints = 1
 
         sAngles = numpy.array((),dtype=numpy.double)
         for i in range(Ns):
@@ -341,7 +387,7 @@ class QConversion(object):
             print("XU.QConversion: sAngles / dAngles %s / %s" %(str(sAngles),str(dAngles)))
 
         libxrayutils.cang2q_point(sAngles, dAngles, qpos, self.r_i,Ns,
-                     Nd,Npoints,sAxis,dAxis,wl)
+                     Nd,Npoints,sAxis,dAxis,self._kappa_dir,wl)
 
         #reshape output
         qpos.shape = (Npoints,3)
@@ -483,7 +529,7 @@ class QConversion(object):
                              number of arguments should be %d" %(len(args),Ncirc))
 
         try: Npoints = len(args[0])
-        except TypeError: Npoints = 1
+        except (TypeError,IndexError): Npoints = 1
 
         sAngles = numpy.array((),dtype=numpy.double)
         for i in range(Ns):
@@ -542,7 +588,7 @@ class QConversion(object):
         dAxis=ctypes.c_char_p(self._detectorAxis_str)
 
         libxrayutils.cang2q_linear(sAngles, dAngles, qpos, self.r_i,Ns,
-                     Nd,Npoints,sAxis,dAxis,cch, pwidth,roi,
+                     Nd,Npoints,sAxis,dAxis,self._kappa_dir,cch, pwidth,roi,
                      self._linear_detdir, self._linear_tilt, wl)
 
         #reshape output
@@ -710,7 +756,7 @@ class QConversion(object):
                              number of arguments should be %d" %(len(args),Ncirc))
 
         try: Npoints = len(args[0])
-        except TypeError: Npoints = 1
+        except (TypeError,IndexError): Npoints = 1
 
         sAngles = numpy.array((),dtype=numpy.double)
         for i in range(Ns):
@@ -775,7 +821,7 @@ class QConversion(object):
         dAxis=ctypes.c_char_p(self._detectorAxis_str)
 
         libxrayutils.cang2q_area(sAngles, dAngles, qpos, self.r_i,Ns,
-                     Nd,Npoints,sAxis,dAxis, cch1, cch2, pwidth1, pwidth2,
+                     Nd,Npoints,sAxis,dAxis, self._kappa_dir, cch1, cch2, pwidth1, pwidth2,
                      roi,self._area_detdir1,self._area_detdir2,
                      self._area_tiltazimuth, self._area_tilt,wl)
 

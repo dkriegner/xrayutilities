@@ -81,6 +81,12 @@ INLINE void rotation_zm(double a,double *mat){
     mat[6] = 0.; mat[7] = 0.; mat[8] = 1.;
 }
 
+INLINE void rotation_kappa(double a, double *mat){
+    double e[3];
+    e[0] = mat[0]; e[1] = mat[1]; e[2] = mat[2];
+    rotation_arb(a,e,mat);
+}
+
 INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) {
     double sa = sin(a), ca=cos(a);
     double mtemp[9],mtemp2[9];
