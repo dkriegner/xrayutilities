@@ -157,8 +157,8 @@ def blockAveragePSD(psddata,Nav,**kwargs):
 ######################################
 class IntensityNormalizer(object):
     """
-    generic class for correction of intensity (point detector,or MCA)
-    for count time and absorber factors
+    generic class for correction of intensity (point detector,or MCA, 
+    single CCD frames) for count time and absorber factors
     the class must be supplied with a absorber correction function
     and works with data structures provided by xrutils.io classes or the
     corresponding objects from hdf5 files read by pytables
@@ -410,13 +410,17 @@ class IntensityNormalizer(object):
 
         c = abscorr*avmon/(mon*time)
         # correct the correction factor if it was evaluated to an incorrect value
-        c[numpy.isnan(c)] = 1.0
-        c[numpy.isinf(c)] = 1.0
-        c[c==0] = 1.0
+        if isinstance(c,numpy.ndarray):
+            c[numpy.isnan(c)] = 1.0
+            c[numpy.isinf(c)] = 1.0
+            c[c==0] = 1.0
+        else:
+            if numpy.isnan(c) or numpy.isinf(c) or c==0: c = 1.0
 
         if len(data[self._det].shape) == 1:
             corrint = data[self._det]*c
-        elif len(data[self._det].shape) == 2:
+        elif len(data[self._det].shape) == 2 and isinstance(c,numpy.ndarray):
+            # 1D detector c.shape[0] should be data[self._det].shape[0]
             if self._darkfield!=None:
                 if self._darkfield.shape[0] != data[self._det].shape[1]:
                     raise InputError("data[det] second dimension must have the same length as darkfield")
@@ -438,6 +442,11 @@ class IntensityNormalizer(object):
                 if self._flatfield.shape[0] != data[self._det].shape[1]:
                     raise InputError("data[det] second dimension must have the same length as flatfield")
                 corrint = corrint/self._flatfield[numpy.newaxis,:]*self._flatfieldav #flatfield correction
+        
+        elif len(data[self._det].shape) == 2 and isinstance(c,numpy.float):
+            # single 2D detector frame 
+            corrint = data[self._det]*c
+        
         else:
             raise InputError("data[det] must be an array of dimension one or two")
 
