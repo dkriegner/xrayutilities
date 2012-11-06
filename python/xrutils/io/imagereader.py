@@ -19,6 +19,7 @@ import numpy
 import time
 import os
 import subprocess
+import gzip
 
 # relative imports from xrutils
 from .. import config
@@ -47,8 +48,8 @@ class ImageReader(object):
                     image
          hdrlen:    length of the file header which should be ignored
          flatfield: filename or data for flatfield correction. supported file
-                    types include (*.bin *.bin.xz and *.npy files). otherwise
-                    a 2D numpy array should be given
+                    types include (*.bin/*.tif (also compressed .xz or .gz)
+                    and *.npy files). otherwise a 2D numpy array should be given
          darkfield: filename or data for darkfield correction. same types as
                     for flat field are supported.
          dtype:     datatype of the stored values (default: numpy.int16)
@@ -67,7 +68,7 @@ class ImageReader(object):
             if isinstance(flatfield,str):
                 if os.path.splitext(flatfield)[1] == '.npy':
                     self.flatfield = numpy.load(flatfield)
-                elif os.path.splitext(flatfield)[1] in ['.xz','.bin','.tif']:
+                elif os.path.splitext(flatfield)[1] in ['.gz','.xz','.bin','.tif']:
                     self.flatfield = self.readImage(flatfield) # read without flatc and darkc
                 else:
                     raise InputError("Error: unknown filename for flatfield correction!")
@@ -81,7 +82,7 @@ class ImageReader(object):
             if isinstance(darkfield,str):
                 if os.path.splitext(darkfield)[1] == '.npy':
                     self.darkfield = numpy.load(darkfield)
-                elif os.path.splitext(darkfield)[1] in ['.xz','.bin','.tif']:
+                elif os.path.splitext(darkfield)[1] in ['.gz','.xz','.bin','.tif']:
                     self.darkfield = self.readImage(darkfield) # read without flatc and darkc
                 else:
                     raise InputError("Error: unknown filename for darkfield correction!")
@@ -129,6 +130,8 @@ class ImageReader(object):
 
             subprocess.call("xz --decompress --verbose --keep %s" %(filename),shell=True)
             fh = open(filename[:-3], 'rb')
+        elif filename[-2:] == 'gz':
+            fh = gzip.open(filename, 'rb')
         else:
             fh = open(filename, 'rb')
 
