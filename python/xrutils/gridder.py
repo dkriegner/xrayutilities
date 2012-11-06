@@ -84,8 +84,8 @@ class Gridder1D(Gridder):
         self.gnorm = numpy.zeros(nx,dtype=numpy.double)
 
     def __get_xaxis(self):
-        dx = (self.xmax-self.xmin)/(self.nx-1)
-        ax = self.xmin+dx*numpy.arange(0,self.nx)
+        dx = (self.xmax-self.xmin)/(self.nx)
+        ax = self.xmin+dx*numpy.arange(0,self.nx) + dx/2.
         return ax
 
     def __get_data(self):
@@ -124,18 +124,16 @@ class Gridder1D(Gridder):
         self.xmin = x.min()
         self.xmax = x.max()
 
-        dx = (self.xmax-self.xmin)/(self.nx-1)
+        dx = (self.xmax-self.xmin)/(self.nx) # no -1 here to be consistent with numpy.histogram
         
         # use only non-NaN data values
         mask = numpy.invert(numpy.isnan(data))
         ldata = data[mask]
         lx = x[mask]
         
-        # grid the data
-        for i in range(lx.size):
-            ix = ((lx[i] - self.xmin)/dx).astype(numpy.int)
-            self.gdata[ix] += ldata[i]
-            self.gnorm[ix] += 1
+        # grid the data using numpy histogram
+        self.gdata,bins = numpy.histogram(lx,weights=ldata,bins=self.nx)
+        self.gnorm,bins = numpy.histogram(lx,bins=self.nx)
 
         if self.flags != self.flags|4:
             self.gdata[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
@@ -163,12 +161,12 @@ class Gridder2D(Gridder):
 
     def __get_xaxis(self):
         dx = (self.xmax-self.xmin)/(self.nx-1)
-        ax = self.xmin+dx*numpy.arange(0,self.nx)
+        ax = self.xmin+dx*numpy.arange(0,self.nx)+dx/2.
         return ax
 
     def __get_yaxis(self):
         dy = (self.ymax-self.ymin)/(self.ny-1)
-        ax = self.ymin + dy*numpy.arange(0,self.ny)
+        ax = self.ymin + dy*numpy.arange(0,self.ny)+dy/2.
         return ax
 
     def __get_xmatrix(self):
@@ -271,7 +269,7 @@ class Gridder3D(Gridder2D):
 
     def __get_zaxis(self):
         dz = (self.zmax-self.zmin)/(self.nz-1)
-        az = self.zmin + dz*numpy.arange(0,self.nz)
+        az = self.zmin + dz*numpy.arange(0,self.nz) + dz/2.
         return az
 
     def __get_zmatrix(self):
