@@ -138,7 +138,10 @@ class ImageReader(object):
         # jump over header
         fh.seek(self.hdrlen)
         # read image
-        img = numpy.fromfile(fh,dtype=self.dtype,count=self.nop1*self.nop2)
+        if filename[-2:] == 'gz':
+            img = numpy.fromstring(fh.read(),dtype=self.dtype,count=self.nop1*self.nop2)
+        else:
+            img = numpy.fromfile(fh,dtype=self.dtype,count=self.nop1*self.nop2)
         if self.byteswap:
             img = img.byteswap()
         img.shape = (self.nop1,self.nop2) # reshape the data
