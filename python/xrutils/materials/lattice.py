@@ -346,6 +346,21 @@ def BCCLattice(aa,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
+    
+def HCPLattice(aa,a,c):
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(aa,[1/3.,2/3.,0.5])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,c]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
 
 def BCTLattice(aa,a,c):
     # body centered tetragonal lattice

@@ -26,6 +26,7 @@ from .lattice import ZincBlendeLattice
 from .lattice import DiamondLattice
 from .lattice import FCCLattice
 from .lattice import BCCLattice
+from .lattice import HCPLattice
 from .lattice import BCTLattice
 from .lattice import RockSaltLattice
 from .lattice import RockSalt_Cubic_Lattice
