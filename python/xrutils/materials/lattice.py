@@ -354,10 +354,10 @@ def HCPLattice(aa,a,c):
     lb.append(aa,[1/3.,2/3.,0.5])
 
     #create lattice vectors
-    a1 = [a,0,0]
-    a2 = [0,a,0]
-    a3 = [0,0,c]
-
+    a1 = numpy.array([a,0.,0.],dtype=numpy.double)
+    a2 = numpy.array([-a/2.,numpy.sqrt(3)*a/2.,0.],dtype=numpy.double)
+    a3 = numpy.array([0.,0.,c],dtype=numpy.double)
+    
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
