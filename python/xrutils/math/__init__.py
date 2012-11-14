@@ -33,6 +33,8 @@ from .vector import VecAngle
 
 from .functions import Debye1
 from .functions import Gauss1d
+from .functions import Gauss1d_der_x
+from .functions import Gauss1d_der_p
 from .functions import Gauss2d
 from .functions import Lorentz1d
 from .functions import Lorentz2d

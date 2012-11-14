@@ -67,8 +67,15 @@ class QConversion(object):
 
         Parameters
         ----------
-        sampleAxis:     list or tuple of sample circles, e.g. ['x+','z+']
+        sampleAxis:     list or tuple of sample circles, 
+                        e.g. ['x+','z+'] would mean two sample circles whereas
+                        the outer one turns righthanded around the x axis and the inner
+                        one turns righthanded around z.
+                        
         detectorAxis:   list or tuple of detector circles
+                        e.g. ['x-'] would mean a detector arm with a single motor turning
+                        lefthanded around the x-axis.
+                        
         r_i:            vector giving the direction of the primary beam
                         (length is irrelevant)
         **kwargs:       optional keyword arguments
@@ -563,7 +570,8 @@ class QConversion(object):
 
         Parameters
         ----------
-        detectorDir1:    direction of the detector (along the pixel direction 1); e.g. 'z+'
+        detectorDir1:    direction of the detector (along the pixel direction 1); 
+                         e.g. 'z+' means higher pixel numbers at larger z positions
         detectorDir2:    direction of the detector (along the pixel direction 2); e.g. 'x+'
         cch1,2:          center pixel, in direction of self.r_i at zero
                          detectorAngles
@@ -803,7 +811,7 @@ class Experiment(object):
         ----------
         ipdir:      inplane reference direction (ipdir points into the PB
                     direction at zero angles)
-        ndir:       surface normal
+        ndir:       surface normal of your sample
         keyargs:    optional keyword arguments
             qconv:  QConversion object to use for the Ang2Q conversion
             wl:     wavelength of the x-rays in Angstroem (default: 1.5406A)
@@ -978,7 +986,8 @@ class HXRD(Experiment):
 
         Parameters
         ----------
-        same as for the Experiment base class
+        same as for the Experiment base class -> please look at the docstring of
+        Experiment.__init__ for more details
         +
         keyargs         additional optional keyword argument
             geometry:   determines the scattering geometry:
