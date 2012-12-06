@@ -288,6 +288,24 @@ def CubicLattice(a):
 
     return Lattice([a,0,0],[0,a,0],[0,0,a])
 
+
+def GeneralPrimitiveLattice(a,b,c,alpha,beta,gamma):
+
+    #create lattice vectors 
+    ca = numpy.cos(numpy.radians(alpha))
+    cb = numpy.cos(numpy.radians(beta))
+    cg = numpy.cos(numpy.radians(gamma))
+    sa = numpy.sin(numpy.radians(alpha))
+    sb = numpy.sin(numpy.radians(beta))
+    sg = numpy.sin(numpy.radians(gamma))
+
+    a1 = a*numpy.array([1,0,0],dtype=numpy.double)
+    a2 = b*numpy.array([cg,sg,0],dtype=numpy.double)
+    a3 = c*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)
+    l = Lattice(a1,a2,a3)
+
+    return l
+
 #some lattice related functions
 
 def ZincBlendeLattice(aa,ab,a):

@@ -22,6 +22,7 @@ from .lattice import Atom
 from .lattice import LatticeBase
 from .lattice import Lattice
 from .lattice import CubicLattice
+from .lattice import GeneralPrimitiveLattice
 from .lattice import ZincBlendeLattice
 from .lattice import DiamondLattice
 from .lattice import FCCLattice
@@ -45,6 +46,7 @@ from .lattice import CuMnAsLattice
 from .lattice import PerovskiteTypeRhombohedral
 
 from . import elements
+from .material import GeneralUC
 from .material import Si
 from .material import Ge
 from .material import SiGe

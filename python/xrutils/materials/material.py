@@ -704,6 +704,11 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
 
     return m
 
+
+# define general material usefull for peak position calculations
+def GeneralUC(a=4,b=4,c=4,alpha=90,beta=90,gamma=90,name="General"):
+    return Material(name,GeneralBasicLattice(a,b,c,alpha,beta,gamma))  
+
 #calculate some predefined materials
 # PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa)
 # Use Kelvin as unit for the Debye temperature
