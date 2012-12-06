@@ -230,7 +230,7 @@ def get_omega_scan_q(qx,qz,intensity,qxcenter,qzcenter,omrange,npoints,**kwargs)
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
-    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
+    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False,geometry="real")
 
     return get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwargs)
 
@@ -429,7 +429,7 @@ def get_radial_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
-    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
+    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False,geometry="real")
 
     return get_radial_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs)
 
@@ -628,7 +628,7 @@ def get_ttheta_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
         exp = experiment.HXRD([1,0,0],[0,0,1])
 
     # angular coordinates of scan center
-    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False)
+    omcenter,dummy,dummy,ttcenter = exp.Q2Ang(0,qxcenter,qzcenter,trans=False,geometry="real")
 
     return get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwargs)
 
