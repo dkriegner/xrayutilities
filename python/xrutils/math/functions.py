@@ -100,6 +100,32 @@ def Gauss2d(x,y,*p):
                                      ((rcen_y-yp)/p[3])**2)/2.)
     return g
 
+def TwoGauss2d(x,y,*p):
+    """ 
+    function to calculate two general two dimensional Gaussians
+    
+    Parameters
+    ----------
+     p:     list of parameters of the Gauss-function
+            [XCEN1,YCEN1,SIGMAX1,SIGMAY1,AMP1,ANGLE1,XCEN2,YCEN2,SIGMAX2,SIGMAY2,AMP2,ANGLE2,BACKGROUND]
+                SIGMA = FWHM / (2*sqrt(2*log(2)))
+                ANGLE = rotation of the X,Y direction of the Gaussian    
+     x,y:   coordinate(s) where the function should be evaluated
+    
+    Returns
+    -------
+    the value of the Gaussian described by the parameters p 
+    at position (x,y)
+    """
+
+    p = list(p)
+    p1 = p[0:5] + [p[12],] + [p[6],]
+    p2 = p[6:11] + [p[12],] +[p[11],]
+
+    g = Gauss2d(x,y,*p1) + Gauss2d(x,y,*p2)
+
+    return g
+
 def Lorentz1d(x,*p):
     """ 
     function to calculate a general one dimensional Lorentzian

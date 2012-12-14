@@ -59,7 +59,7 @@ def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
     ly = ly[mask]
     lx = lx[mask]
     ldata = data.flatten()[mask]
-    errfunc = lambda p,x,z,data: fit_function(x,z,*p) - data
+    errfunc = lambda p,x,z,data: (fit_function(x,z,*p) - data)#/(numpy.abs(numpy.sqrt(data))+numpy.abs(numpy.sqrt(data[data!=0].min())))
     p, cov, infodict, errmsg, success = optimize.leastsq(errfunc, start, args=(lx,ly,ldata), full_output=1,maxfev=maxfev)
 
     s = time.time() - s
