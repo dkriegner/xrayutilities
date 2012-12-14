@@ -1795,7 +1795,7 @@ class Powder(Experiment):
 
         return theta,intensity
 
-    def Ang2Q(self,th,deg=True):
+    def _Ang2Q(self,th,deg=True):
         """
         Converts theta angles to reciprocal space positions
         returns the absolute value of momentum transfer
