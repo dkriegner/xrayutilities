@@ -155,6 +155,114 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
             return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin],qxbounds
         else:
             return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin]
+            
+            
+def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
+    """
+    extracts a qz scan from a gridded reciprocal space map with integration along 
+    omega (sample rocking angle)
+
+    Parameters
+    ----------
+    qx: equidistant array of qx momentum transfer
+    qz: equidistant array of qz momentum transfer
+    intensity: 2D array of gridded reciprocal space intensity with shape (qx.size,qz.size)
+    qxpos: position at which the line scan should be extracted
+    **kwargs: possible keyword arguments:
+        omrange: integration range in omega direction
+        qmin,qmax: minimum and maximum value of extracted scan axis
+        bounds: flag to specify if the scan bounds of the extracted scan should be returned (default:False)
+
+    Returns
+    -------
+    qz,qzint: qz scan coordinates and intensities (bounds=False)
+    qz,qzint,(qzb,qzb): qz scan coordinates and intensities + scan bounds for plotting
+
+    Example
+    -------
+    >>> qzcut,qzcut_int = get_qz_scan_int(qx,qz,inten,5.0,omrange=0.3)
+    """
+
+    if 'lam' in kwargs:
+        lam = kwargs['lam']
+        exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam,geometry='real')
+    else:
+        exp = experiment.HXRD([1,0,0],[0,0,1])
+        
+    if 'omrange' in kwargs:
+        omrange = kwargs['omrange']
+    else:
+        omrange = 0.
+    
+    if 'qmin' in kwargs:
+        qzmin = max(qz.min(),kwargs['qmin'])
+    else: qzmin = qz.min()
+
+    if 'qmax' in kwargs:
+        qzmax = min(qz.max(),kwargs['qmax'])
+    else: qzmax = qz.max()    
+        
+    if 'bounds' in kwargs:
+        bounds = kwargs['bounds']
+    else: bounds = False
+    
+    # find line corresponding to qxpos
+    ixpos,izmax = getindex(qxpos,qzmax,qx,qz)
+    ixpos,izmin = getindex(qxpos,qzmin,qx,qz)
+    if ('qmin' not in kwargs) and ('qmax' not in kwargs):
+        izmin = 0; izmax = qz.size
+            
+    dom_m = omrange/2.
+    dom_p = omrange/2.
+    
+    qxp = qx[ixpos]
+    qzcenter = qz[izmin:izmax]
+    intscan = numpy.zeros(numpy.abs(izmax-izmin))
+    
+    for i in range(len(qzcenter)):
+        qzp = qzcenter[i]
+        omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzp,trans=False)
+        if i==0:
+            dummy,rxmin,rzmin = exp.Ang2Q(omc-dom_m,ttc)
+            dummy,rxmax,rzmax = exp.Ang2Q(omc+dom_p,ttc)
+            ixmin,dummy = getindex(rxmin,rzmin,qx,qz)
+            ixmax,dummy = getindex(rxmax,rzmax,qx,qz)
+            nsubscans = numpy.abs(ixmax-ixmin)
+            if nsubscans==0: nsubscans=1
+        
+        omscan = numpy.linspace(omc-dom_m,omc+dom_p,nsubscans)
+        ns = 0
+        for om in omscan:
+            dummy,rx,rz = exp.Ang2Q(om,ttc)
+            ix,iz = getindex(rx,rz,qx,qz)
+            if (ix>=0 and ix<qx.size and iz>=0 and iz < qz.size):
+                intscan[i] += intensity[ix,iz]
+                ns+=1
+        intscan[i] /= float(ns)
+        
+    # bounds
+    qxb = numpy.zeros(0)
+    qzb = numpy.zeros(0)
+    
+    omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzcenter[0],trans=False)
+    dummy,qxbp,qzbp = exp.Ang2Q(numpy.linspace(omc-dom_m,omc+dom_p,nsubscans),numpy.ones(nsubscans)*ttc)
+    qend = (qxbp[0],qzbp[0])
+
+    qxb = numpy.append(qxb,qxbp)
+    qzb = numpy.append(qzb,qzbp)
+
+    omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzcenter[-1],trans=False)
+    dummy,qxbp,qzbp = exp.Ang2Q(numpy.linspace(omc+dom_p,omc-dom_m,nsubscans),numpy.ones(nsubscans)*ttc)
+
+    qxb = numpy.append(qxb,qxbp)
+    qzb = numpy.append(qzb,qzbp)
+    qxb = numpy.append(qxb,qend[0])
+    qzb = numpy.append(qzb,qend[1])
+    
+    if bounds:
+        return qzcenter,intscan,(qxb,qzb)
+    else: 
+        return qzcenter,intscan
 
 def get_qz_scan(qx,qz,intensity,qxpos,**kwargs):
     """

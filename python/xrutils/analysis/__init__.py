@@ -33,6 +33,7 @@ from .sample_align import fit_bragg_peak
 # functions from line_cuts.py
 from .line_cuts import get_qx_scan
 from .line_cuts import get_qz_scan
+from .line_cuts import get_qz_scan_int
 
 from .line_cuts import get_omega_scan_q
 from .line_cuts import get_omega_scan_ang
