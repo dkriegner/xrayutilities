@@ -4,7 +4,7 @@ import os
 Import("env")
 
 #compile the shared library - default behavior
-sources = ["gridder.c","qconversion.c","vecmat3.c","rot_matrix.c","block_average.c"]
+sources = ["gridder.c","qconversion.c","block_average.c"]
 objects_env = env.SharedObject(sources)
 
 if os.sys.platform == "linux2":
