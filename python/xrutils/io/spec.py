@@ -229,6 +229,7 @@ class SPECScan(object):
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.io.SPECScan.ReadData: %s has been aborted - no data available!" %self.name)
             self.data = None
+            self.ischanged = False # prevent furture tries to save to HDF5
             return None
 
         if not self.has_mca:
