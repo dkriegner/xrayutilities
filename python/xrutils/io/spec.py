@@ -63,7 +63,7 @@ SPEC_scanresumed = re.compile(r"#C[a-zA-Z0-9: .]*Scan resumed")
 SPEC_commentline = re.compile(r"#C")
 SPEC_newheader = re.compile(r"^#E")
 SPEC_errorbm20 = re.compile(r"^MI:")
-scan_status_flags = ["OK","ABORTED","CORRUPTED"]
+scan_status_flags = ["OK","NODATA","ABORTED","CORRUPTED"]
 
 class SPECMCA(object):
     """
@@ -225,11 +225,10 @@ class SPECScan(object):
         Set the data attribute of the scan class.
         """
 
-        if self.scan_status == "ABORTED":
+        if self.scan_status == "NODATA":
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.io.SPECScan.ReadData: %s has been aborted - no data available!" %self.name)
             self.data = None
-            self.ischanged = False # prevent furture tries to save to HDF5
             return None
 
         if not self.has_mca:
@@ -568,7 +567,7 @@ class SPECFile(object):
         return self.scan_list[index]
 
     def __len__(self):
-        return scan_list.__len__()
+        return self.scan_list.__len__()
 
     def __str__(self):
         ostr = ""
@@ -617,7 +616,7 @@ class SPECFile(object):
             compflag = True
 
         for s in self.scan_list:
-            if ((not g.__contains__(s.name)) or s.ischanged):
+            if (((not g.__contains__(s.name)) or s.ischanged) and s.scan_status!="NODATA"):
                 s.ReadData()
                 if s.data != None:
                     s.Save2HDF5(h5,group=g,comp=compflag)
@@ -767,13 +766,13 @@ class SPECFile(object):
                     s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
                                  date,time,itime,col_names,
                                  scan_header_offset,scan_data_offset,self.fid,
-                                 self.init_motor_names,init_motor_values,"ABORTED")
+                                 self.init_motor_names,init_motor_values,"NODATA")
                 except:
                     scan_data_offset = self.last_offset
                     s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
                                  date,time,itime,col_names,
                                  scan_header_offset,scan_data_offset,self.fid,
-                                 self.init_motor_names,init_motor_values,"ABORTED")
+                                 self.init_motor_names,init_motor_values,"NODATA")
 
                 self.scan_list.append(s)
 
