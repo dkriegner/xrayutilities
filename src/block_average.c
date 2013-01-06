@@ -98,7 +98,7 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
 
     int i=0,j=0,k=0,l=0; //loop indices
     double buf;
-    int Nout1,Nout2;
+    int Nout1; 
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
@@ -106,7 +106,6 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
     #endif
 
     Nout1 = ceil(Nch1/(float)Nav1);
-    Nout2 = ceil(Nch2/(float)Nav2);
 
     #pragma omp parallel for default(shared) private(i,j,k,l,buf) schedule(static)
     for(i=0; i<Nch2; i=i+Nav2) {

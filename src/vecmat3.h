@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-#define INLINE inline
+#define INLINE extern inline
 #define RESTRICT restrict
 
 

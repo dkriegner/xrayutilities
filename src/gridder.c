@@ -109,9 +109,6 @@ int gridder2d_th(unsigned int nth,
     double dy;
     double *gnorm;
     unsigned int i;
-    unsigned int offset;
-    int x_index,y_index;
-    unsigned int start,stop;
     int rc;
     void *status;
 
@@ -234,8 +231,6 @@ void *gridder2d_th_worker(void *arg)
     unsigned int offset;
     _ThGridderArgs tharg;
     unsigned int start,stop;
-    unsigned int *x_index_buffer;
-    unsigned int *y_index_buffer;
     unsigned int *offset_buffer;
     unsigned int *data_index_buffer;
     unsigned int valid_point_count=0;
@@ -536,7 +531,7 @@ void *gridder3d_th_worker(void *arg)
     unsigned int start,stop;
     unsigned int *offset_buffer;
     unsigned int *data_index_buffer;
-    unsigned int valid_point_count;
+    unsigned int valid_point_count=0;
     unsigned int index;
 
     tharg = *(_ThGridderArgs *)arg;
