@@ -1,0 +1,9 @@
+import os
+
+#build the user manual with pdflatex
+Import("env")
+
+try:
+    manual = env.PDF("xrayutilities.pdf","xrayutilities.tex")
+except:
+    print("Warning: Documentation can not be built (pdflatex not found) -> Use prebuild version")

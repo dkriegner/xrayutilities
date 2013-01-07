@@ -159,4 +159,8 @@ env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat
 Export("env")
 
 #add subdirectories
-SConscript(["src/SConscript","doc/manual/SConscript"])
+if "doc" in COMMAND_LINE_TARGETS:
+    SConscript(["src/SConscript","doc/manual/SConscriptBuild"])
+else:
+    SConscript(["src/SConscript","doc/manual/SConscript"])
+
