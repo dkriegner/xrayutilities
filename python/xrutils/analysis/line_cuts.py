@@ -160,7 +160,7 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
 def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
     """
     extracts a qz scan from a gridded reciprocal space map with integration along 
-    omega (sample rocking angle)
+    omega (sample rocking angle) or 2theta direction
 
     Parameters
     ----------
@@ -169,9 +169,12 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
     intensity: 2D array of gridded reciprocal space intensity with shape (qx.size,qz.size)
     qxpos: position at which the line scan should be extracted
     **kwargs: possible keyword arguments:
-        omrange: integration range in omega direction
+        angrange: integration range in angular direction
         qmin,qmax: minimum and maximum value of extracted scan axis
         bounds: flag to specify if the scan bounds of the extracted scan should be returned (default:False)
+        intdir: integration direction
+                'omega': sample rocking angle (default)
+                '2theta': scattering angle 
 
     Returns
     -------
@@ -189,10 +192,10 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
     else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
         
-    if 'omrange' in kwargs:
-        omrange = kwargs['omrange']
+    if 'angrange' in kwargs:
+        angrange = kwargs['angrange']
     else:
-        omrange = 0.
+        angrange = 0.
     
     if 'qmin' in kwargs:
         qzmin = max(qz.min(),kwargs['qmin'])
@@ -206,53 +209,99 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
         bounds = kwargs['bounds']
     else: bounds = False
     
+    if 'intdir' in kwargs:
+        if kwargs['intdir'] in ['omega','2theta']:
+            intdir = kwargs['intdir']
+        else: 
+            print("XU:analysis.get_qz_scan_int: invalid intdir given; using 'omega'")
+            intdir = 'omega'
+    else: intdir = 'omega'
+    
     # find line corresponding to qxpos
     ixpos,izmax = getindex(qxpos,qzmax,qx,qz)
     ixpos,izmin = getindex(qxpos,qzmin,qx,qz)
     if ('qmin' not in kwargs) and ('qmax' not in kwargs):
         izmin = 0; izmax = qz.size
             
-    dom_m = omrange/2.
-    dom_p = omrange/2.
+    dom_m = angrange/2.
+    dom_p = angrange/2.
+    dtt = angrange/2.
     
     qxp = qx[ixpos]
     qzcenter = qz[izmin:izmax]
     intscan = numpy.zeros(numpy.abs(izmax-izmin))
     
-    for i in range(len(qzcenter)):
-        qzp = qzcenter[i]
-        omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzp,trans=False)
-        if i==0:
-            dummy,rxmin,rzmin = exp.Ang2Q(omc-dom_m,ttc)
-            dummy,rxmax,rzmax = exp.Ang2Q(omc+dom_p,ttc)
-            ixmin,dummy = getindex(rxmin,rzmin,qx,qz)
-            ixmax,dummy = getindex(rxmax,rzmax,qx,qz)
-            nsubscans = numpy.abs(ixmax-ixmin)
-            if nsubscans==0: nsubscans=1
-        
-        omscan = numpy.linspace(omc-dom_m,omc+dom_p,nsubscans)
-        ns = 0
-        for om in omscan:
-            dummy,rx,rz = exp.Ang2Q(om,ttc)
-            ix,iz = getindex(rx,rz,qx,qz)
-            if (ix>=0 and ix<qx.size and iz>=0 and iz < qz.size):
-                intscan[i] += intensity[ix,iz]
-                ns+=1
-        intscan[i] /= float(ns)
+    # integration for omega direction
+    if intdir=='omega':
+        for i in range(len(qzcenter)):
+            qzp = qzcenter[i]
+            omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzp,trans=False)
+            if i==0:
+                dummy,rxmin,rzmin = exp.Ang2Q(omc-dom_m,ttc)
+                dummy,rxmax,rzmax = exp.Ang2Q(omc+dom_p,ttc)
+                ixmin,dummy = getindex(rxmin,rzmin,qx,qz)
+                ixmax,dummy = getindex(rxmax,rzmax,qx,qz)
+                nsubscans = numpy.abs(ixmax-ixmin)
+                if nsubscans <= 1: nsubscans=2
+            
+            omscan = numpy.linspace(omc-dom_m,omc+dom_p,nsubscans)
+            ns = 0
+            for om in omscan:
+                dummy,rx,rz = exp.Ang2Q(om,ttc)
+                ix,iz = getindex(rx,rz,qx,qz)
+                if (ix>=0 and ix<qx.size and iz>=0 and iz < qz.size):
+                    intscan[i] += intensity[ix,iz]
+                    ns+=1
+            intscan[i] /= float(ns)
+
+    else:
+        # integration for 2theta direction
+        for i in range(len(qzcenter)):
+            qzp = qzcenter[i]
+            omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzp,trans=False)
+            if i==0:
+                dummy,rxmin,rzmin = exp.Ang2Q(omc,ttc-dtt)
+                dummy,rxmax,rzmax = exp.Ang2Q(omc,ttc+dtt)
+                ixmin,izmin = getindex(rxmin,rzmin,qx,qz)
+                ixmax,izmax = getindex(rxmax,rzmax,qx,qz)
+                nsubscans = int(numpy.sqrt((numpy.abs(ixmax-ixmin)**2 + numpy.abs(izmax-izmin)**2)))
+                if nsubscans <= 1: nsubscans=2
+            
+            ttscan = numpy.linspace(ttc-dtt,ttc+dtt,nsubscans)
+            ns = 0
+            for tt in ttscan:
+                dummy,rx,rz = exp.Ang2Q(omc,tt)
+                ix,iz = getindex(rx,rz,qx,qz)
+                if (ix>=0 and ix<qx.size and iz>=0 and iz < qz.size):
+                    intscan[i] += intensity[ix,iz]
+                    ns+=1
+            intscan[i] /= float(ns)
         
     # bounds
     qxb = numpy.zeros(0)
     qzb = numpy.zeros(0)
-    
     omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzcenter[0],trans=False)
-    dummy,qxbp,qzbp = exp.Ang2Q(numpy.linspace(omc-dom_m,omc+dom_p,nsubscans),numpy.ones(nsubscans)*ttc)
-    qend = (qxbp[0],qzbp[0])
 
-    qxb = numpy.append(qxb,qxbp)
-    qzb = numpy.append(qzb,qzbp)
+    if intdir=='omega':
+        # determine bounds for case of omega integration
+        dummy,qxbp,qzbp = exp.Ang2Q(numpy.linspace(omc-dom_m,omc+dom_p,nsubscans),numpy.ones(nsubscans)*ttc)
+        qend = (qxbp[0],qzbp[0])
 
-    omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzcenter[-1],trans=False)
-    dummy,qxbp,qzbp = exp.Ang2Q(numpy.linspace(omc+dom_p,omc-dom_m,nsubscans),numpy.ones(nsubscans)*ttc)
+        qxb = numpy.append(qxb,qxbp)
+        qzb = numpy.append(qzb,qzbp)
+
+        omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzcenter[-1],trans=False)
+        dummy,qxbp,qzbp = exp.Ang2Q(numpy.linspace(omc+dom_p,omc-dom_m,nsubscans),numpy.ones(nsubscans)*ttc)
+    else:
+        # determine bounds for case of 2theta integration
+        dummy,qxbp,qzbp = exp.Ang2Q(numpy.ones(nsubscans)*omc,numpy.linspace(ttc-dtt,ttc+dtt,nsubscans))
+        qend = (qxbp[0],qzbp[0])
+
+        qxb = numpy.append(qxb,qxbp)
+        qzb = numpy.append(qzb,qzbp)
+
+        omc,dummy,dummy,ttc = exp.Q2Ang(0,qxp,qzcenter[-1],trans=False)
+        dummy,qxbp,qzbp = exp.Ang2Q(numpy.ones(nsubscans)*omc,numpy.linspace(ttc+dtt,ttc-dtt,nsubscans))
 
     qxb = numpy.append(qxb,qxbp)
     qzb = numpy.append(qzb,qzbp)
