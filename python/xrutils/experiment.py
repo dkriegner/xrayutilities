@@ -1791,7 +1791,7 @@ class Powder(Experiment):
         intensity = numpy.zeros(theta.size,dtype=numpy.double)
 
         for i in range(self.ang.size):
-            intensity += math.Gauss1d(qcoord,self.qpos,width,self.data[i],0)
+            intensity += math.Gauss1d(qcoord,self.qpos[i],width,self.data[i],0)
 
         return theta,intensity
 
