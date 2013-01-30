@@ -22,10 +22,14 @@ from .. import materials
 from .. import config
 
 re_loop = re.compile(r"^loop_")
-re_symop = re.compile(r"^_space_group_symop_operation_xyz")
+re_symop = re.compile(r"^(_space_group_symop_operation_xyz|_symmetry_equiv_pos_as_xyz)")
 re_atom = re.compile(r"^_atom_site_label")
+re_atomx = re.compile(r"^_atom_site_fract_x")
+re_atomy = re.compile(r"^_atom_site_fract_y")
+re_atomz = re.compile(r"^_atom_site_fract_z")
 re_labelline = re.compile(r"^_")
 re_emptyline = re.compile(r"^\s*$")
+re_quote = re.compile(r"'")
 re_cell_a = re.compile(r"^_cell_length_a")
 re_cell_b = re.compile(r"^_cell_length_b")
 re_cell_c = re.compile(r"^_cell_length_c")
@@ -84,45 +88,68 @@ class CIFFile(object):
         symop_loop = False
         atom_loop = False
 
+        def floatconv(string):
+            """ 
+            helper function to convert string with possible error
+            given in brackets to float
+            """
+            f = float(re.sub(r"\(.+\)",r"",string))
+            return f
+
         for line in self.fid.readlines():
             if config.VERBOSITY >= config.DEBUG:
                 print(line)
             if re_loop.match(line): # start of loop
                 loop_start = True
+                loop_labels = []
                 symop_loop = False
                 atom_loop = False
-            elif re_symop.match(line) and loop_start: # start of symmetry op. loop
-                symop_loop = True
-                loop_start = False
-            elif re_atom.match(line) and loop_start: # start of atom position loop
-                atom_loop = True
-                loop_start = False
+            elif re_labelline.match(line) and loop_start:
+                loop_labels.append(line.strip())
+                if re_symop.match(line): # start of symmetry op. loop
+                    symop_loop = True
+                    loop_start = False
+                    symop_idx = len(loop_labels)-1
+                elif re_atom.match(line): # start of atom position loop
+                    atom_loop = True
+                    alab_idx = len(loop_labels)-1
+                elif re_atomx.match(line):
+                    ax_idx = len(loop_labels)-1
+                elif re_atomy.match(line):
+                    ay_idx = len(loop_labels)-1
+                elif re_atomz.match(line):
+                    az_idx = len(loop_labels)-1
+                    loop_start=False
             elif re_labelline.match(line): # label line, check if needed
                 if re_cell_a.match(line):
-                    self.lattice_const[0] = float(line.split()[1])
+                    self.lattice_const[0] = floatconv(line.split()[1])
                 elif re_cell_b.match(line):
-                    self.lattice_const[1] = float(line.split()[1])
+                    self.lattice_const[1] = floatconv(line.split()[1])
                 elif re_cell_c.match(line):
-                    self.lattice_const[2] = float(line.split()[1])
+                    self.lattice_const[2] = floatconv(line.split()[1])
                 elif re_cell_alpha.match(line):
-                    self.lattice_angles[0] = float(line.split()[1])
+                    self.lattice_angles[0] = floatconv(line.split()[1])
                 elif re_cell_beta.match(line):
-                    self.lattice_angles[1] = float(line.split()[1])
+                    self.lattice_angles[1] = floatconv(line.split()[1])
                 elif re_cell_gamma.match(line):
-                    self.lattice_angles[2] = float(line.split()[1])
+                    self.lattice_angles[2] = floatconv(line.split()[1])
 
             elif re_emptyline.match(line):
                 continue
             elif symop_loop: # symmetry operation entry
-                opstr = line.split()[0]
+                entry = line.split()[symop_idx]
+                if re_quote.match(line):
+                    opstr = entry
+                else:
+                    opstr = "'" + entry + "'"
                 opstr = re.sub(r"^'",r"(",opstr)
                 opstr = re.sub(r"'$",r")",opstr)
                 opstr = re.sub(r"/([1-9])",r"/\1.",opstr) # add a comma to a fraction
                 self.symops.append(opstr)
             elif atom_loop: # atom label and position
                 asplit = line.split()
-                alabel = asplit[0]
-                apos = (float(asplit[1]),float(asplit[2]),float(asplit[3]))
+                alabel = asplit[alab_idx]
+                apos = (floatconv(asplit[ax_idx]),floatconv(asplit[ay_idx]),floatconv(asplit[az_idx]))
                 self.atoms.append((alabel,apos))
 
     def SymStruct(self):

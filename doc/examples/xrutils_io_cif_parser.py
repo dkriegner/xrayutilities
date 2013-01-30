@@ -24,7 +24,7 @@ import os
 cif_cal = xu.io.CIFFile(os.path.join("data","Calcite.cif"))
 
 #create material
-Calcite = xu.materials.Material("Calcite",cif_cal.Lattice(),numpy.zeros((6,6),dtype=numpy.double))
+Calcite = xu.materials.Material("Calcite",cif_cal.Lattice())
 
 #experiment class according to Nina
 expcal = xu.HXRD(Calcite.Q(-2,1,9),Calcite.Q(1,-1,4))
