@@ -17,6 +17,7 @@
 
 import re
 import numpy
+import shelx
 
 from .. import materials
 from .. import config
@@ -137,7 +138,7 @@ class CIFFile(object):
             elif re_emptyline.match(line):
                 continue
             elif symop_loop: # symmetry operation entry
-                entry = line.split()[symop_idx]
+                entry = shlex.split(line)[symop_idx]
                 if re_quote.match(line):
                     opstr = entry
                 else:
