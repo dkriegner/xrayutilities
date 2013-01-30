@@ -17,7 +17,7 @@
 
 import re
 import numpy
-import shelx
+import shlex
 
 from .. import materials
 from .. import config
@@ -105,23 +105,7 @@ class CIFFile(object):
                 loop_labels = []
                 symop_loop = False
                 atom_loop = False
-            elif re_labelline.match(line) and loop_start:
-                loop_labels.append(line.strip())
-                if re_symop.match(line): # start of symmetry op. loop
-                    symop_loop = True
-                    loop_start = False
-                    symop_idx = len(loop_labels)-1
-                elif re_atom.match(line): # start of atom position loop
-                    atom_loop = True
-                    alab_idx = len(loop_labels)-1
-                elif re_atomx.match(line):
-                    ax_idx = len(loop_labels)-1
-                elif re_atomy.match(line):
-                    ay_idx = len(loop_labels)-1
-                elif re_atomz.match(line):
-                    az_idx = len(loop_labels)-1
-                    loop_start=False
-            elif re_labelline.match(line): # label line, check if needed
+            elif re_labelline.match(line):
                 if re_cell_a.match(line):
                     self.lattice_const[0] = floatconv(line.split()[1])
                 elif re_cell_b.match(line):
@@ -134,6 +118,22 @@ class CIFFile(object):
                     self.lattice_angles[1] = floatconv(line.split()[1])
                 elif re_cell_gamma.match(line):
                     self.lattice_angles[2] = floatconv(line.split()[1])
+                if loop_start:
+                    loop_labels.append(line.strip())
+                    if re_symop.match(line): # start of symmetry op. loop
+                        symop_loop = True
+                        loop_start = False
+                        symop_idx = len(loop_labels)-1
+                    elif re_atom.match(line): # start of atom position loop
+                        atom_loop = True
+                        alab_idx = len(loop_labels)-1
+                    elif re_atomx.match(line):
+                        ax_idx = len(loop_labels)-1
+                    elif re_atomy.match(line):
+                        ay_idx = len(loop_labels)-1
+                    elif re_atomz.match(line):
+                        az_idx = len(loop_labels)-1
+                        loop_start=False
 
             elif re_emptyline.match(line):
                 continue
