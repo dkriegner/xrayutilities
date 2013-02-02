@@ -229,9 +229,9 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("xu.analysis.misfit_calc: \n \
-                \t fitted reflection angle: %8.4f \n \
-                \t looking upstairs at phi: %8.4f \n \
-                \t mixcut angle: %8.4f \n" % (ret[0],ret[1],ret[2]))
+                \t fitted reflection angle: %8.3f \n \
+                \t looking upstairs at phi: %8.2f \n \
+                \t mixcut angle: %8.3f \n" % (ret[0],ret[1],ret[2]))
 
     return ret
 
