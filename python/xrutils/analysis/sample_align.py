@@ -203,7 +203,6 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
         p0 = (a[om.argmax()],om.max()-om.min()) # # omega0,phi0,miscut
         fitfunc = lambda p,phi: numpy.abs(p[1])*numpy.cos(numpy.radians(phi-(p[0]%360.))) + omega0
     errfunc = lambda p,phi,om: fitfunc(p,phi) - om
-    errfunc2 = lambda p,phi,om: numpy.sum((fitfunc(p,phi) - om)**2)
 
     p1, success = optimize.leastsq(errfunc, p0, args=(a,om),maxfev=10000)
     if config.VERBOSITY >= config.INFO_ALL:
