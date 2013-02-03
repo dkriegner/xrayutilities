@@ -56,6 +56,8 @@ INLINE void rotation_xm(double a,double *mat) __attribute__((always_inline));
 INLINE void rotation_ym(double a,double *mat) __attribute__((always_inline));
 INLINE void rotation_zm(double a,double *mat) __attribute__((always_inline));
 
+INLINE void rotation_kappa(double a, double *mat) __attribute__((always_inline));
+
 INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) __attribute__((always_inline));
 
 

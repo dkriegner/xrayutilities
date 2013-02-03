@@ -44,6 +44,7 @@ from . import utilities_noconf
 # epsilon
 # clib_path
 # database filename for atomic structure factors
+# kappa_plane and kappa_angle
 
 xrutilsParser = configparser.ConfigParser()
 
@@ -84,6 +85,10 @@ EPSILON = xrutilsParser.getfloat("xrutils","epsilon")
 
 # name of the database with atomic scattering factors
 DBNAME = xrutilsParser.get("xrutils","dbname")
+
+# kappa goniometer specific config parameters
+KAPPA_PLANE = xrutilsParser.get("xrutils","kappa_plane")
+KAPPA_ANGLE = xrutilsParser.getfloat("xrutils","kappa_angle")
 
 try:
     CLIB_PATH = xrutilsParser.get("xrutils","clib_path")

@@ -42,7 +42,7 @@ int print_vector(double *m);
  *  conversion functions
  * #######################################*/
 
-int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double lambda)
+int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a setup with point detector
     *
@@ -56,6 +56,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     *   Npoints ....... number of goniometer positions (in)
     *   sampleAxis .... string with sample axis directions (in)
     *   detectorAxis .. string with detector axis directions (in)
+    *   kappadir ...... rotation axis of a possible kappa circle (in)
     *   lambda ........ wavelength of the used x-rays (Angstreom) (in)
     *   */
 {
@@ -96,6 +97,8 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
         // determine sample rotations
         ident(mtemp);
         for(j=0; j<Ns; ++j) {
+            // load kappa direction into matrix (just needed for kappa goniometer)
+            mtemp2[0] = kappadir[0]; mtemp2[1] = kappadir[1]; mtemp2[2] = kappadir[2];
             sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
             matmul(mtemp,mtemp2);
         }
@@ -119,7 +122,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     return 0;
 }
 
-int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis,  double cch, double dpixel, int *roi, char *dir, double tilt, double lambda)
+int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a linear detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -134,6 +137,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     *   Npoints ......... number of goniometer positions (in)
     *   sampleAxis ...... string with sample axis directions (in)
     *   detectorAxis .... string with detector axis directions (in)
+    *   kappadir ........ rotation axis of a possible kappa circle (in)
     *   cch ............. center channel of the detector (in)
     *   dpixel .......... width of one pixel, same unit as distance rcch (in)
     *   roi ............. region of interest of the detector (in)
@@ -187,6 +191,8 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
         // determine sample rotations
         ident(mtemp);
         for(j=0; j<Ns; ++j) {
+            // load kappa direction into matrix (just needed for kappa goniometer)
+            mtemp2[0] = kappadir[0]; mtemp2[1] = kappadir[1]; mtemp2[2] = kappadir[2];
             sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
             matmul(mtemp,mtemp2);
         }
@@ -219,7 +225,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     return 0;
 }
 
-int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
+int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -234,6 +240,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     *   Npoints ......... number of goniometer positions (in)
     *   sampleAxis ...... string with sample axis directions (in)
     *   detectorAxis .... string with detector axis directions (in)
+    *   kappadir ...... rotation axis of a possible kappa circle (in)
     *   cch1 ............ center channel of the detector (in)
     *   cch2 ............ center channel of the detector (in)
     *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch (in)
@@ -327,6 +334,8 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
         // determine sample rotations
         ident(mtemp);
         for(j=0; j<Ns; ++j) {
+            // load kappa direction into matrix (just needed for kappa goniometer)
+            mtemp2[0] = kappadir[0]; mtemp2[1] = kappadir[1]; mtemp2[2] = kappadir[2];
             sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
             matmul(mtemp,mtemp2);
         }
@@ -503,6 +512,9 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                         printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
                         return 1;
                 }
+            break;
+            case 'k':
+                fp_circles[i] = &rotation_kappa;
             break;
             default:
                 printf("XU.Qconversion(c): axis determination: no valid axis direction found!\n");

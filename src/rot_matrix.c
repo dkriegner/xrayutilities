@@ -17,6 +17,4 @@
  * Copyright (C) 2010,2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
-
 #include "rot_matrix.h"
-
