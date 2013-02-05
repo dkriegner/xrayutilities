@@ -60,7 +60,7 @@ class EDFFile(object):
         """
 
         required arguments:
-        fname ................ name of the EDF file
+        fname ................ name of the EDF file of type .edf or .edf.gz
 
         optional keyword arguments:
         nxkey ................ name of the header key that holds the number of points in x-direction
@@ -279,6 +279,7 @@ class EDFFile(object):
         #create the array name
         ca_name = os.path.split(self.filename)[-1]
         ca_name = os.path.splitext(ca_name)[0]
+        ca_name = os.path.splitext(ca_name)[0] # perform a second time for case of .edf.gz files
         ca_name = ca_name.replace("-","_")
         if edf_name_start_num.match(ca_name):
             ca_name = "ccd_"+ca_name
