@@ -16,15 +16,72 @@
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module with a function wrapper to scipy.optimize.leastsq
-for fitting of a 2D function to a peak
+for fitting of a 2D function to a peak or a 1D Gauss fit with
+the odr package
 """
 
 from __future__ import print_function
 import numpy
 import scipy.optimize as optimize
 import time
+from scipy.odr import odrpack as odr
+from scipy.odr import models
 
 from .. import config
+from .. import math
+
+def gauss_fit(xdata,ydata,iparams=[],maxit=200):
+    """
+    Gauss fit function using odr-pack wrapper in scipy similar to 
+    https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
+    
+
+    """
+
+    gfunc = lambda param,x: math.Gauss1d(x, *param)
+    gfunc_dx = lambda param,x: math.Gauss1d_der_x(x, *param)
+    gfunc_dp = lambda param,x: math.Gauss1d_der_p(x, *param)
+    
+    if not any(iparams):
+        cen = numpy.sum(xdata*ydata)/numpy.sum(ydata)
+        iparams = numpy.array([cen,\
+            numpy.sqrt(numpy.abs(numpy.sum((xdata-cen)**2*ydata)/numpy.sum(ydata))),\
+            numpy.max(ydata),\
+            0.])
+        
+    if config.VERBOSITY >= config.DEBUG:
+        print("XU.math.gauss_fit: iparams: [%f %f %f %f]" %tuple(iparams))
+
+    gauss  = odr.Model(gfunc, fjacd=gfunc_dx, fjacb=gfunc_dp)
+
+    sy = numpy.sqrt(ydata)
+    sy[sy==0] = 1
+    mydata = odr.RealData(xdata, ydata, sy=sy)
+
+    myodr  = odr.ODR(mydata, gauss, beta0=iparams,maxit=maxit)
+
+    # use least-square fit
+    myodr.set_job(fit_type=2)
+
+    if config.VERBOSITY >= config.DEBUG:
+        myodr.set_iprint(final=1)
+
+    fit = myodr.run()
+
+    #fit.pprint()
+
+    if config.VERBOSITY >= config.DEBUG:
+        print("XU.math.gauss_fit: params: [%f %f %f %f]" %tuple(fit.beta))
+        print("XU.math.gauss_fit: params std: [%f %f %f %f]" %tuple(fit.sd_beta))
+        print("XU.math.gauss_fit: %s" %fit.stopreason[0])
+
+    itlim = False
+    if fit.stopreason[0] == 'Iteration limit reached':
+        itlim = True
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.math.gauss_fit: Iteration limit reached, do not trust the result!")
+
+    return fit.beta, fit.sd_beta, itlim
 
 
 def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):

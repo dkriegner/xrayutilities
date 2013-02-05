@@ -41,3 +41,4 @@ from .functions import Lorentz1d
 from .functions import Lorentz2d
 
 from .fit import fit_peak2d
+from .fit import gauss_fit
