@@ -143,10 +143,10 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         plt.figure()
         # first plot to show linear model
         plt.subplot(211)
-        if stdev:
-            plt.errorbar(angles,channels,fmt='kx',yerr=stdevu,label='data')
-        else:
+        if stdev == None:
             plt.plot(angles,channels,'kx',label='data')
+        else:
+            plt.errorbar(angles,channels,fmt='kx',yerr=stdevu,label='data')
         angr = angles.max()-angles.min()
         angp = numpy.linspace(angles.min()-angr*0.1,angles.max()+angr*.1,1000)
         plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))),'r-',label='tan')
@@ -158,10 +158,10 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         
         # lower plot to show deviations from linear model
         plt.subplot(212)
-        if stdev:
-            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt='kx',yerr=stdevu,label='data')
-        else:
+        if stdev == None:
             plt.plot(angles,channels - models._unilin(fitlin.beta,angles),'kx',label='data')
+        else:
+            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt='kx',yerr=stdevu,label='data')
         plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))) - models._unilin(fitlin.beta,angp),'r-',label='tan')
         if usetilt:
             plt.plot(angp,straight_tilt(fittilt.beta,angp) - models._unilin(fitlin.beta,angp),'b-',label='w/tilt')
