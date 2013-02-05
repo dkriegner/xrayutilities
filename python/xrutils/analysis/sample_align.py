@@ -171,9 +171,9 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         plt.legend(numpoints=1)
 
         if usetilt:
-            plt.figtitle("center_ch: %8.2f; ch/deg: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
+            plt.suptitle("center_ch: %8.2f; ch/deg: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
         else:
-            plt.figtitle("center_ch: %8.2f; ch/deg: %8.2f"%(fittan.beta[0],fittan.beta[1]))
+            plt.suptitle("center_ch: %8.2f; ch/deg: %8.2f"%(fittan.beta[0],fittan.beta[1]))
     
     if usetilt: 
         fit = fittilt
