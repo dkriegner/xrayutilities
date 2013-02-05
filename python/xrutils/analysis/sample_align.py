@@ -199,6 +199,7 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
      angle ........ array of angles in degree of measured detector spectra
      mca_spectra .. corresponding detector spectra 
                     (shape: (len(angle),Nchannels) 
+     **keyargs passed to psd_chdeg function used for the modelling
      
     returns
     -------
@@ -249,7 +250,7 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.det_distance: used/total spectra: %d/%d" %(mca_spectra.shape[0]-nignored,mca_spectra.shape[0]))
-    return psd_chdeg(ang, pos, stdev=posstd **keyargs)
+    return psd_chdeg(ang, pos, stdev=posstd, **keyargs)
 
 #################################################
 ## equivalent to PSD_refl_align MATLAB script
