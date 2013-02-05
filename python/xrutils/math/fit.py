@@ -28,7 +28,7 @@ from scipy.odr import odrpack as odr
 from scipy.odr import models
 
 from .. import config
-from .. import math
+from .functions import Gauss1d,Gauss1d_der_x,Gauss1d_der_p
 
 def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     """
@@ -38,9 +38,9 @@ def gauss_fit(xdata,ydata,iparams=[],maxit=200):
 
     """
 
-    gfunc = lambda param,x: math.Gauss1d(x, *param)
-    gfunc_dx = lambda param,x: math.Gauss1d_der_x(x, *param)
-    gfunc_dp = lambda param,x: math.Gauss1d_der_p(x, *param)
+    gfunc = lambda param,x: Gauss1d(x, *param)
+    gfunc_dx = lambda param,x: Gauss1d_der_x(x, *param)
+    gfunc_dp = lambda param,x: Gauss1d_der_p(x, *param)
     
     if not any(iparams):
         cen = numpy.sum(xdata*ydata)/numpy.sum(ydata)
