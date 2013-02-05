@@ -42,19 +42,30 @@ def fwhm_exp(pos,data):
     datar = data[p0:]
 
     # determine left side half value position
-    pls = pos[:p0][datal<m/2.][-1]
-    pll = pos[:p0][datal>m/2.][0]
-    ds = data[pos==pls][0]
-    dl = data[pos==pll][0]
-    pl = pls + (pll-pls)*(m/2. - ds)/(dl - ds)
-    # determine right side half value position  
-    prs = pos[p0:][datar<m/2.][0]
-    prl = pos[p0:][datar>m/2.][-1]
-    ds = data[pos==prs][0]
-    dl = data[pos==prl][0]
-    pr = prs + (prl-prs)*(m/2. - ds)/(dl - ds)
+    try:
+        pls = pos[:p0][datal<m/2.][-1]
+        pll = pos[:p0][datal>m/2.][0]
+        ds = data[pos==pls][0]
+        dl = data[pos==pll][0]
+        pl = pls + (pll-pls)*(m/2. - ds)/(dl - ds)
+    except IndexError:
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.analysis.fwhm_exp: warning: left side half value could not be determined -> returns 2*hwhm")
+        pl=0
 
-    return pr - pl
+    # determine right side half value position  
+    try:
+        prs = pos[p0:][datar<m/2.][0]
+        prl = pos[p0:][datar>m/2.][-1]
+        ds = data[pos==prs][0]
+        dl = data[pos==prl][0]
+        pr = prs + (prl-prs)*(m/2. - ds)/(dl - ds)
+    except IndexError:
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.analysis.fwhm_exp: warning: right side half value could not be determined -> returns 2*hwhm")
+        pr=0
+
+    return numpy.abs(pr - pl)
 
 def getindex(x,y,xgrid,ygrid):
     """

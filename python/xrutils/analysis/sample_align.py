@@ -24,9 +24,12 @@ import numpy
 import scipy
 import scipy.stats
 import scipy.optimize as optimize
+from scipy.odr import odrpack as odr
+from scipy.odr import models
 
 from .. import config
 from .. import math
+from .line_cuts import fwhm_exp
 
 try:
     from matplotlib import pyplot as plt
@@ -38,30 +41,98 @@ except RuntimeError:
 #################################################
 ## channel per degree calculation
 #################################################
-def psd_chdeg(angles,channels,plot=True):
+def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
     """
     function to determine the channels per degree using a linear
-    fit.
+    fit of the function nchannel = center_ch+chdeg*tan(angles)
+    or the equivalent including a detector tilt
 
     Parameters
     ----------
      angles:    detector angles for which the position of the beam was
                 measured
      channels:  detector channels where the beam was found
-     plot:      flag to specify if a visualization of the fit should be done
+     keyword arguments:
+      stdev     standard deviation of the beam position
+      plot:     flag to specify if a visualization of the fit should be done
+      usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: False)
 
     Returns:
-     (chdeg,centerch)
+     (chdeg,centerch[,tilt])
         chdeg:    channel per degree
         centerch: center channel of the detector
+        tilt: tilt of the detector from perpendicular to the beam
+    
+    Note:
+    distance is given by: channel_width*channelperdegree/tan(radians(1))
     """
 
-    (a_s,b_s,r,tt,stderr)=scipy.stats.linregress(angles,channels)
+    if not stdev:
+        stdevu = numpy.ones(len(channels))
+    else:
+        stdevu = stdev
 
-    if config.VERBOSITY >= config.DEBUG:
-        print ("XU.analysis.psd_chdeg: %8.4f %8.4f %6.4f %6.4f %6.4f" %(a_s,b_s,r,tt,stderr))
-    centerch = scipy.polyval(numpy.array([a_s,b_s]),0.0)
-    chdeg = a_s
+    # define detector model and other functions needed for the tilt
+    def straight_tilt(p, x):
+        """
+        model for straight-linear detectors including tilt 
+        
+        Parameters
+        ----------
+         p ... [D/w_pix*pi/180 ~= channel/degree, center_channel, detector_tilt] 
+         x ... independent variable of the model: detector angle (degree)
+        """
+        rad = numpy.radians(x)
+        r = numpy.degrees(p[0])*numpy.sin(rad)/numpy.cos(rad-numpy.radians(p[2])) + p[1]
+        return r
+            
+    def straight_tilt_der_x(p, x):
+        """
+        derivative of straight-linear detector model with respect to the angle
+        for parameter description see straigt_tilt
+        """
+        rad = numpy.radians(x)
+        p2 = numpy.radians(p[2])
+        r = numpy.degrees(p[0])*(numpy.cos(rad)/numpy.cos(rad-p2) + numpy.sin(rad)/numpy.cos(rad-p2)**2*numpy.sin(rad-p2))
+        return r
+        
+    def straight_tilt_der_p(p, x):
+        """
+        derivative of straight-linear detector model with respect to the paramters
+        for parameter description see straigt_tilt
+        """
+        rad = numpy.radians(x)
+        p2 = numpy.radians(p[2])
+        r = numpy.concatenate([180./numpy.pi*numpy.sin(rad)/numpy.cos(rad-p2),\
+            numpy.ones(x.shape,dtype=numpy.float),\
+            -numpy.degrees(p[0])*numpy.sin(rad)/numpy.cos(rad-p2)**2*numpy.sin(rad-p2)])
+        r.shape = (3,) + x.shape
+        return r
+
+    # fit linear
+    model = models.unilinear
+    data = odr.RealData(angles,channels,sy=stdevu)
+    my_odr = odr.ODR(data,model)
+    # fit type 2 for least squares
+    my_odr.set_job(fit_type=2)
+    fitlin = my_odr.run()
+
+    # fit linear with tangens angle
+    model = models.unilinear
+    data = odr.RealData(numpy.degrees(numpy.tan(numpy.radians(angles))),channels,sy=stdevu)
+    my_odr = odr.ODR(data,model)
+    # fit type 2 for least squares
+    my_odr.set_job(fit_type=2)
+    fittan = my_odr.run()
+
+    if usetilt:
+        # fit tilted straight detector model
+        model = odr.Model(straight_tilt, fjacd=straight_tilt_der_x, fjacb=straight_tilt_der_p)
+        data = odr.RealData(angles,channels,sy=stdevu)
+        my_odr = odr.ODR(data,model,beta0=[fittan.beta[0],fittan.beta[1],0])
+        # fit type 2 for least squares
+        my_odr.set_job(fit_type=2)
+        fittilt = my_odr.run()        
 
     try: plt.__name__
     except NameError:
@@ -69,26 +140,116 @@ def psd_chdeg(angles,channels,plot=True):
             plot = False
 
     if plot:
-        ymin = min(min(channels),centerch)
-        ymax = max(max(channels),centerch)
-        xmin = min(min(angles),0.0)
-        xmax = max(max(angles),0.0)
-        # open new figure for the plot
         plt.figure()
-        plt.plot(angles,channels,'kx',ms=8.,mew=2.)
-        plt.plot([xmin-(xmax-xmin)*0.1,xmax+(xmax-xmin)*0.1],scipy.polyval(numpy.array([a_s,b_s]),[xmin-(xmax-xmin)*0.1,xmax+(xmax-xmin)*0.1]),'g-',linewidth=1.5)
-        ax = plt.gca()
-        plt.grid()
-        ax.set_xlim(xmin-(xmax-xmin)*0.15,xmax+(xmax-xmin)*0.15)
-        ax.set_ylim(ymin-(ymax-ymin)*0.15,ymax+(ymax-ymin)*0.15)
-        plt.vlines(0.0,ymin-(ymax-ymin)*0.1,ymax+(ymax-ymin)*0.1,linewidth=1.5)
-        plt.xlabel("detector angle")
+        # first plot to show linear model
+        plt.subplot(211)
+        if stdev:
+            plt.errorbar(angles,channels,fmt='kx',yerr=stdevu,label='data')
+        else:
+            plt.plot(angles,channels,'kx',label='data')
+        angr = angles.max()-angles.min()
+        angp = numpy.linspace(angles.min()-angr*0.1,angles.max()+angr*.1,1000)
+        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))),'r-',label='tan')
+        plt.plot(angp,models._unilin(fitlin.beta,angp),'k-',label='')
+        if usetilt:
+            plt.plot(angp,straight_tilt(fittilt.beta,angp),'b-',label='w/tilt')
+
         plt.ylabel("PSD channel")
+        
+        # lower plot to show deviations from linear model
+        plt.subplot(212)
+        if stdev:
+            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt='kx',yerr=stdevu,label='data')
+        else:
+            plt.plot(angles,channels - models._unilin(fitlin.beta,angles),'kx',label='data')
+        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))) - models._unilin(fitlin.beta,angp),'r-',label='tan')
+        if usetilt:
+            plt.plot(angp,straight_tilt(fittilt.beta,angp) - models._unilin(fitlin.beta,angp),'b-',label='w/tilt')
+        plt.xlabel("detector angle")
+        plt.ylabel("PSD channel - linear trend")
+        plt.hlines(0,angp.min(),angp.max())
+        plt.legend(numpoints=1)
+
+        if usetilt:
+            plt.figtitle("center_ch: %8.2f; ch/deg: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
+        else:
+            plt.figtitle("center_ch: %8.2f; ch/deg: %8.2f"%(fittan.beta[0],fittan.beta[1]))
+    
+    if usetilt: 
+        fit = fittilt
+    else: 
+        fit = fittan
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.analysis.psd_chdeg: channel per degree / center channel: %8.4f / %8.4f (R=%6.4f)" % (chdeg,centerch,r))
-    return (chdeg,centerch)
+        print("XU.analysis.psd_chdeg: channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
 
+    return fit.beta
+
+#################################################
+## channel per degree calculation from scan with
+## linear detector (determined maximum by Gauss fit)
+#################################################
+def linear_detector_calib(angle,mca_spectra,**keyargs):
+    """
+    function to calibrate the detector distance/channel per degrees
+    for a straigt linear detector mounted on a detector arm
+    
+    parameters
+    ----------
+     angle ........ array of angles in degree of measured detector spectra
+     mca_spectra .. corresponding detector spectra 
+                    (shape: (len(angle),Nchannels) 
+     
+    returns
+    -------
+     channelperdegree,centerchannel[,tilt]
+
+     distance is given by: channel_width*channelperdegree/tan(radians(1))
+    """
+
+    # max intensity per spectrum
+    mca_int = mca_spectra.sum(axis=1)
+    mca_avg = numpy.average(mca_int)
+    mca_rowmax = numpy.max(mca_int)
+    mca_std = numpy.std(mca_int)
+
+    # determine positions
+    pos = []
+    posstd = []
+    ang = []
+    nignored = 0
+    for i in range(len(mca_spectra)):
+        #print(i)
+        row = mca_spectra[i,:]
+        row_int = row.sum()
+        #print(row_int)
+        if (numpy.abs(row_int-mca_avg) > 3*mca_std) or (row_int-mca_rowmax*0.7 < 0):
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.analysis.det_dist: spectrum #%d out of intensity range -> ignored" %i)
+            nignored += 1
+            continue
+            
+        maxp = numpy.argmax(row)
+        fwhm = fwhm_exp(numpy.arange(row.size),row)
+        N = int(7*numpy.ceil(fwhm))//2*2
+
+        # fit beam position
+        # determine maximal usable length of array around peak position
+        Nuse = min(maxp+N//2,len(row)-1) - max(maxp-N//2,0)
+        #print("%d %d %d"%(N,max(maxp-N//2,0),min(maxp+N//2,len(row)-1)))
+        param, perr, itlim = math.gauss_fit(numpy.arange(Nuse),row[max(maxp-N//2,0):min(maxp+N//2,len(row)-1)])
+        param[0] += max(maxp-N//2,0)
+        pos.append(param[0])
+        posstd.append(perr[0])
+        ang.append(angle[i])
+        
+    ang = numpy.array(ang)
+    pos = numpy.array(pos)
+    posstd = numpy.array(posstd)
+
+    if config.VERBOSITY >= config.INFO_LOW:
+        print("XU.analysis.det_distance: used/total spectra: %d/%d" %(mca_spectra.shape[0]-nignored,mca_spectra.shape[0]))
+    return psd_chdeg(ang, pos, stdev=posstd **keyargs)
 
 #################################################
 ## equivalent to PSD_refl_align MATLAB script
