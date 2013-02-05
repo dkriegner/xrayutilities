@@ -67,7 +67,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
     distance is given by: channel_width*channelperdegree/tan(radians(1))
     """
 
-    if not stdev:
+    if stdev == None:
         stdevu = numpy.ones(len(channels))
     else:
         stdevu = stdev
