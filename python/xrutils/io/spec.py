@@ -140,10 +140,16 @@ class SPECScan(object):
             for i in range(len(imopnames)):
                 self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
         else:
-            print("XU.io.spec.SPECScan: incorrect number of initial motor positions")
+            print("XU.io.spec.SPECScan: Warning: incorrect number of initial motor positions")
             if config.VERBOSITY >= config.INFO_ALL:
                 print(imopnames)
                 print(imopvalues)
+            # ASSUME ORDER DID NOT CHANGE!! (which might be wrong)
+            # in fact this is sign for a broken spec file
+            # number of initial motor positions should not change without new file header!
+            for i in range(len(imopnames)):
+                self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
+
 
         #some additional attributes for the MCA data
         self.has_mca = False       #False if scan contains no MCA data, True otherwise
