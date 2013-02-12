@@ -149,7 +149,9 @@ class SPECScan(object):
             # number of initial motor positions should not change without new file header!
             for i in range(len(imopnames)):
                 self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
-
+            # read the rest of the positions into dummy INIT_MOPO__NONAME__%03d
+            for i in range(len(imopnames),len(imopvalues)):
+                self.init_motor_pos["INIT_MOPO___NONAME__%03d"%(i)] = float(imopvalues[i])
 
         #some additional attributes for the MCA data
         self.has_mca = False       #False if scan contains no MCA data, True otherwise
