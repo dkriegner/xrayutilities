@@ -58,8 +58,10 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
       usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: False)
 
     Returns:
-     (chdeg,centerch[,tilt])
-        chdeg:    channel per degree
+     (L/w_pix*pi/180 ,centerch[,tilt])
+        L/w_pix*pi/180 ~= channel/degree for large detector distance
+            with L sample detector disctance
+            w_pix the width of one detector channel
         centerch: center channel of the detector
         tilt: tilt of the detector from perpendicular to the beam
     
@@ -79,7 +81,9 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         
         Parameters
         ----------
-         p ... [D/w_pix*pi/180 ~= channel/degree, center_channel, detector_tilt] 
+         p ... [L/w_pix*pi/180 ~= channel/degree, center_channel, detector_tilt] 
+                with L sample detector disctance
+                w_pix the width of one detector channel
          x ... independent variable of the model: detector angle (degree)
         """
         rad = numpy.radians(x)
@@ -140,40 +144,45 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
             plot = False
 
     if plot:
+        markersize = 5.5
+        markeredgewidth = 1.5
         plt.figure()
         # first plot to show linear model
-        plt.subplot(211)
+        ax1 = plt.subplot(211)
         if stdev == None:
-            plt.plot(angles,channels,'kx',label='data')
+            plt.plot(angles,channels,'kx', ms=markersize, mew=markeredgewidth ,label='data')
         else:
-            plt.errorbar(angles,channels,fmt='kx',yerr=stdevu,label='data')
+            plt.errorbar(angles,channels,fmt='kx',yerr=stdevu, ms=markersize, mew=markeredgewidth ,label='data')
         angr = angles.max()-angles.min()
         angp = numpy.linspace(angles.min()-angr*0.1,angles.max()+angr*.1,1000)
-        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))),'r-',label='tan')
+        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))),'r-',label='fit')
         plt.plot(angp,models._unilin(fitlin.beta,angp),'k-',label='')
+        plt.grid(True)
         if usetilt:
-            plt.plot(angp,straight_tilt(fittilt.beta,angp),'b-',label='w/tilt')
+            plt.plot(angp,straight_tilt(fittilt.beta,angp),'b-', label='fit w/tilt')
+        leg = plt.legend(numpoints=1)
+        leg.get_frame().set_alpha(0.5)
 
-        plt.ylabel("PSD channel")
+        plt.ylabel("channel number")
         
         # lower plot to show deviations from linear model
-        plt.subplot(212)
+        ax2 = plt.subplot(212,sharex=ax1)
         if stdev == None:
-            plt.plot(angles,channels - models._unilin(fitlin.beta,angles),'kx',label='data')
+            plt.plot(angles,channels - models._unilin(fitlin.beta,angles),'kx', ms=markersize, mew=markeredgewidth ,label='data')
         else:
-            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt='kx',yerr=stdevu,label='data')
-        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))) - models._unilin(fitlin.beta,angp),'r-',label='tan')
+            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt='kx',yerr=stdevu, ms=markersize, mew=markeredgewidth ,label='data')
+        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))) - models._unilin(fitlin.beta,angp),'r-',label='fit')
         if usetilt:
-            plt.plot(angp,straight_tilt(fittilt.beta,angp) - models._unilin(fitlin.beta,angp),'b-',label='w/tilt')
-        plt.xlabel("detector angle")
-        plt.ylabel("PSD channel - linear trend")
+            plt.plot(angp,straight_tilt(fittilt.beta,angp) - models._unilin(fitlin.beta,angp),'b-',label='fit w/tilt')
+        plt.xlabel("detector angle (deg)")
+        plt.ylabel("ch. num. - linear trend")
+        plt.grid(True)
         plt.hlines(0,angp.min(),angp.max())
-        plt.legend(numpoints=1)
-
+        
         if usetilt:
-            plt.suptitle("center_ch: %8.2f; ch/deg: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
+            plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
         else:
-            plt.suptitle("center_ch: %8.2f; ch/deg: %8.2f"%(fittan.beta[0],fittan.beta[1]))
+            plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f"%(fittan.beta[0],fittan.beta[1]))
     
     if usetilt: 
         fit = fittilt
@@ -181,7 +190,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         fit = fittan
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.analysis.psd_chdeg: channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
+        print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
 
     return fit.beta
 
