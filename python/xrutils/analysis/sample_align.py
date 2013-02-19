@@ -212,7 +212,7 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
      
     returns
     -------
-     channelperdegree,centerchannel[,tilt]
+     L/w_pix*pi/180 ~= channel/degree, center_channel[, detector_tilt]
 
      distance is given by: channel_width*channelperdegree/tan(radians(1))
     """
