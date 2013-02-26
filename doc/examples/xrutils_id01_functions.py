@@ -68,7 +68,7 @@ def hotpixelkill(ccd):
     ccd[414,283] = 0
     return ccd
 
-def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=default_en,cch=default_cch,chdeg=default_chpdeg):
+def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=default_en,cch=default_cch,chpdeg=default_chpdeg,nav=default_nav):
     """
     read ccd frames and and convert them in reciprocal space
     angular coordinates are taken from the spec file
@@ -124,7 +124,7 @@ def gridmap(h5file,scannr,ccdfiletmp,nx,ny,nz,**kwargs):
     *kwargs are passed to the rawmap function
     """
    
-    qx,qy,qz,intensity = rawmap(h5file,scannr,ccdfiletmp,*kwargs)
+    qx,qy,qz,intensity = rawmap(h5file,scannr,ccdfiletmp,**kwargs)
 
     # convert data to rectangular grid in reciprocal space
     gridder = xu.Gridder3D(nx,ny,nz)
