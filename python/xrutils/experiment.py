@@ -908,7 +908,8 @@ class Experiment(object):
         ----------
         ipdir:      inplane reference direction (ipdir points into the primary beam
                     direction at zero angles)
-        ndir:       surface normal of your sample
+        ndir:       surface normal of your sample (ndir points in a direction perpendicular
+                    to the primary beam and the innermost detector rotation axis)
         keyargs:    optional keyword arguments
             qconv:  QConversion object to use for the Ang2Q conversion
             wl:     wavelength of the x-rays in Angstroem (default: 1.5406A)
@@ -937,16 +938,16 @@ class Experiment(object):
             self.idir = self.idir/norm(self.idir)
             warnings.warn("Experiment: given inplane direction is not perpendicular to normal direction\n -> Experiment class uses the following direction with the same azimuth:\n %s" %(' '.join(map(str,numpy.round(self.idir,3)))))
 
-        #set the coordinate transform for the azimuth used in the experiment
-        self.scatplane = math.VecUnit(numpy.cross(self.ndir,self.idir))
-        self._transform = math.CoordinateTransform(self.scatplane,self.idir,self.ndir)
-
         # initialize Ang2Q conversion
         if "qconv" in keyargs:
             self._A2QConversion = keyargs["qconv"]
         else:
             self._A2QConversion = QConversion('x+','x+',[0,1,0]) # 1S+1D goniometer
         self.Ang2Q = self._A2QConversion
+
+        #set the coordinate transform for the azimuth used in the experiment
+        self.scatplane = math.VecUnit(numpy.cross(self.ndir,self.idir))
+        self._set_transform( self.scatplane, self.idir, self.ndir)
 
         #calculate the energy from the wavelength
         if "wl" in keyargs:
@@ -973,6 +974,21 @@ class Experiment(object):
         ostr += self._A2QConversion.__str__()
 
         return ostr
+
+    def _set_transform(self,v1,v2,v3):
+        """
+        set new transformation of the coordinate system to use in the experimental class
+        """
+        self._t1 = math.CoordinateTransform(v1,v2,v3) # turn idir to Y and ndir to Z
+
+        yi = self._A2QConversion.r_i
+        idc = self._A2QConversion.detectorAxis[-1]
+        xi = math.getVector(idc)
+        zi = math.VecUnit(numpy.cross(xi,yi))
+        # turn r_i to Y and Z define by detector rotation plane
+        self._t2 = math.CoordinateTransform(xi,yi,zi)
+        
+        self._transform = math.Transform(numpy.dot(self._t2.imatrix,self._t1.matrix))
 
     def _set_energy(self,energy):
         self._en = utilities.energy(energy)
@@ -1004,7 +1020,7 @@ class Experiment(object):
             raise TypeError("Inplane direction must be list or numpy array")
 
         v1 = numpy.cross(self.ndir,self.idir)
-        self._transform = math.CoordinateTransform(v1,self.idir,self.ndir)
+        self._set_transform(v1,self.idir,self.ndir)
 
     def _get_inplane_direction(self):
         return self.idir
@@ -1018,7 +1034,7 @@ class Experiment(object):
             raise TypeError("Surface normal must be list or numpy array")
 
         v1 = numpy.cross(self.ndir,self.idir)
-        self._transform = math.CoordinateTransform(v1,self.idir,self.ndir)
+        self._set_transform(v1,self.idir,self.ndir)
 
     def _get_normal_direction(self):
         return self.ndir
@@ -1070,7 +1086,7 @@ class Experiment(object):
         else:
             U = self._transform.matrix
 
-        kwargs['UB'] = numpy.inner(U,B)
+        kwargs['UB'] = numpy.dot(U,B)
 
         if "dettype" in kwargs:
             typ = kwargs['dettype']
@@ -1350,28 +1366,28 @@ class HXRD(Experiment):
 
             #calculation of the sample azimuth phi (scattering plane spanned by qvec[1] and qvec[2] directions)
 
-            chi = numpy.arctan2(qvec[0],qvec[2])
+            chi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(z,qvec))
             if numpy.isnan(chi):
                 chi = 0
 
             if geom == 'hi_lo':
                 om = tth/2. + math.VecAngle(z,qvec) # +: high incidence geometry
-                phi = numpy.arctan2(qvec[0],qvec[1])
+                phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
             elif geom == 'lo_hi':
                 om = tth/2. - math.VecAngle(z,qvec) # -: low incidence geometry
-                phi = numpy.arctan2(-1*qvec[0],-1*qvec[1])
+                phi = numpy.arctan2(-1*math.VecDot(x,qvec),-1*math.VecDot(y,qvec))
             elif geom == 'real':
-                phi = numpy.arctan2(qvec[0],qvec[1])
+                phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
                 if numpy.abs(phi)<=numpy.pi/2.:
                     sign = +1.
-                    phi = numpy.arctan2(qvec[0],qvec[1])
+                    phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
                 else:
                     sign = -1.
-                    phi = numpy.arctan2(-1*qvec[0],-1*qvec[1])
+                    phi = numpy.arctan2(-1*math.VecDot(x,qvec),-1*math.VecDot(y,qvec))
                 om = tth/2 + sign * math.VecAngle(z,qvec)
             elif geom == 'realTilt':
                 phi = 0.
-                om = tth/2 + numpy.arctan2(qvec[1],numpy.sqrt(qvec[2]**2+qvec[0]**2))
+                om = tth/2 + numpy.arctan2(math.VecDot(y,qvec),numpy.sqrt(math.VecDot(z,qvec)**2+math.VecDot(x,qvec)**2))
 
             # refraction correction at incidence and exit facet
             psi_i = 0.
