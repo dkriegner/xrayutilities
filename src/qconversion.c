@@ -42,7 +42,7 @@ int print_vector(double *m);
  *  conversion functions
  * #######################################*/
 
-int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double lambda)
+int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a setup with point detector
     *
@@ -57,6 +57,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     *   sampleAxis .... string with sample axis directions (in)
     *   detectorAxis .. string with detector axis directions (in)
     *   kappadir ...... rotation axis of a possible kappa circle (in)
+    *   UB ............ orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
     *   lambda ........ wavelength of the used x-rays (Angstreom) (in)
     *   */
 {
@@ -89,6 +90,9 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     normalize(local_ri);
     vecmul(local_ri,M_2PI/lambda);
 
+    //debug
+    //print_matrix(UB);
+
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
             private(i,j,mtemp,mtemp2,ms,md) \
@@ -102,6 +106,9 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
             sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
             matmul(mtemp,mtemp2);
         }
+        // apply rotation of orientation matrix
+        matmul(mtemp,UB);
+        // determine inverse matrix
         inversemat(mtemp,ms);
 
         // determine detector rotations
@@ -122,7 +129,7 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     return 0;
 }
 
-int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double lambda)
+int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a linear detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -143,6 +150,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     *   roi ............. region of interest of the detector (in)
     *   dir ............. direction of the detector, e.g.: "x+" (in)
     *   tilt ............ tilt of the detector direction from dir (in)
+    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
     *   lambda .......... wavelength of the used x-rays in Angstroem (in)
     *   */
 {
@@ -195,7 +203,10 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
             mtemp2[0] = kappadir[0]; mtemp2[1] = kappadir[1]; mtemp2[2] = kappadir[2];
             sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
             matmul(mtemp,mtemp2);
-        }
+        }        
+        // apply rotation of orientation matrix
+        matmul(mtemp,UB);
+        // determine inverse matrix
         inversemat(mtemp,ms);
 
         // determine detector rotations
@@ -225,7 +236,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     return 0;
 }
 
-int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
+int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -251,6 +262,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     *   tiltazimuth ..... azimuth of the tilt (in)
     *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction
     *                     given by the tiltazimuth (in)
+    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
     *   lambda .......... wavelength of the used x-rays (in)
     *   */
 {
@@ -339,6 +351,9 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
             sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
             matmul(mtemp,mtemp2);
         }
+        // apply rotation of orientation matrix
+        matmul(mtemp,UB);
+        // determine inverse matrix
         inversemat(mtemp,ms);
 
         // determine detector rotations

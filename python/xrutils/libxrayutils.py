@@ -83,7 +83,7 @@ _gridder3d_th = _library.gridder3d
 #     point conversion function
 ######################################
 cang2q_point = _library.ang2q_conversion
-# c declaration: int conversion(double *sampleAngles, double *detectorAngles, double *qpos, int Ns, int Nd, int Npoints,char *sampleAxis, char *detectorAxis, double *kappadir, double lambda)
+# c declaration: int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double *UB, double lambda)
 #define argument types
 cang2q_point.restype = ctypes.c_int
 cang2q_point.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
@@ -96,13 +96,14 @@ cang2q_point.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="al
                    ctypes.c_char_p,
                    ctypes.c_char_p,
                    numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
+                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
                    ctypes.c_double ]
 
 ######################################
 # linear detector conversion function
 ######################################
 cang2q_linear = _library.ang2q_conversion_linear
-# c declaration: int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double lambda)
+# c declaration: int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double *UB, double lambda)
 #define argument types
 cang2q_linear.restype = ctypes.c_int
 cang2q_linear.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
@@ -120,13 +121,14 @@ cang2q_linear.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="a
                    numpy.ctypeslib.ndpointer(numpy.int32,ndim=1,flags="aligned, contiguous"),
                    ctypes.c_char_p,
                    ctypes.c_double,
+                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
                    ctypes.c_double ]
 
 #######################################
 # area detector conversion function
 #######################################
 cang2q_area = _library.ang2q_conversion_area
-# c declaration: int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
+# c declaration: int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
 #define argument types
 cang2q_area.restype = ctypes.c_int
 cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
@@ -148,6 +150,7 @@ cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="ali
                    ctypes.c_char_p,
                    ctypes.c_double,
                    ctypes.c_double,
+                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
                    ctypes.c_double ]
 
 # c library functions for block averaging

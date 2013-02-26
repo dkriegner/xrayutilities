@@ -304,6 +304,9 @@ class QConversion(object):
                         misalignment delta must be an numpy array or list
                         of len(*args)
                         used angles are than *args - delta
+            UB:         matrix for conversion from (hkl) coordinates to Q of sample
+                        used to determine not Q but (hkl)
+                        (default: identity matrix)
             wl:         x-ray wavelength in angstroem (default: self._wl)
             deg:        flag to tell if angles are passed as degree
                         (default: True)
@@ -335,6 +338,12 @@ class QConversion(object):
                 raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
         else:
             delta = numpy.zeros(Ncirc)
+
+        if 'UB' in kwargs:
+            UB = numpy.ravel(numpy.array(kwargs['UB']))
+        else:
+            UB = numpy.ravel(numpy.identity(3))
+        UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -394,7 +403,7 @@ class QConversion(object):
             print("XU.QConversion: sAngles / dAngles %s / %s" %(str(sAngles),str(dAngles)))
 
         libxrayutils.cang2q_point(sAngles, dAngles, qpos, self.r_i,Ns,
-                     Nd,Npoints,sAxis,dAxis,self._kappa_dir,wl)
+                     Nd,Npoints,sAxis,dAxis,self._kappa_dir,UB,wl)
 
         #reshape output
         qpos.shape = (Npoints,3)
@@ -483,6 +492,9 @@ class QConversion(object):
             delta:      giving delta angles to correct the given ones for misalignment
                         delta must be an numpy array or list of len(*args)
                         used angles are than *args - delta
+            UB:         matrix for conversion from (hkl) coordinates to Q of sample
+                        used to determine not Q but (hkl)
+                        (default: identity matrix)
             Nav:        number of channels to average to reduce data size (default: self._linear_nav)
             roi:        region of interest for the detector pixels; e.g. [100,900] (default: self._linear_roi)
             wl:         x-ray wavelength in angstroem (default: self._wl)
@@ -528,6 +540,12 @@ class QConversion(object):
                 raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
         else:
             delta = numpy.zeros(Ncirc)
+
+        if 'UB' in kwargs:
+            UB = numpy.ravel(numpy.array(kwargs['UB']))
+        else:
+            UB = numpy.ravel(numpy.identity(3))
+        UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -596,7 +614,7 @@ class QConversion(object):
 
         libxrayutils.cang2q_linear(sAngles, dAngles, qpos, self.r_i,Ns,
                      Nd,Npoints,sAxis,dAxis,self._kappa_dir,cch, pwidth,roi,
-                     self._linear_detdir, self._linear_tilt, wl)
+                     self._linear_detdir, self._linear_tilt,UB, wl)
 
         #reshape output
         if Npoints==1:
@@ -708,6 +726,9 @@ class QConversion(object):
             delta:      giving delta angles to correct the given ones for misalignment
                         delta must be an numpy array or list of len(*args)
                         used angles are than *args - delta
+            UB:         matrix for conversion from (hkl) coordinates to Q of sample
+                        used to determine not Q but (hkl)
+                        (default: identity matrix)
             roi:        region of interest for the detector pixels; e.g. [100,900,200,800]
                         (default: self._area_roi)
             Nav:        number of channels to average to reduce data size e.g. [2,2]
@@ -756,6 +777,12 @@ class QConversion(object):
                 raise InputError("QConversion: keyword argument delta does not have an appropriate shape")
         else:
             delta = numpy.zeros(Ncirc)
+
+        if 'UB' in kwargs:
+            UB = numpy.ravel(numpy.array(kwargs['UB']))
+        else:
+            UB = numpy.ravel(numpy.identity(3))
+        UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -831,7 +858,7 @@ class QConversion(object):
         libxrayutils.cang2q_area(sAngles, dAngles, qpos, self.r_i,Ns,
                      Nd,Npoints,sAxis,dAxis, self._kappa_dir, cch1, cch2, pwidth1, pwidth2,
                      roi,self._area_detdir1,self._area_detdir2,
-                     self._area_tiltazimuth, self._area_tilt,wl)
+                     self._area_tiltazimuth, self._area_tilt,UB,wl)
 
         #reshape output
         if Npoints==1:
@@ -855,7 +882,7 @@ class Experiment(object):
 
         Parameters
         ----------
-        ipdir:      inplane reference direction (ipdir points into the PB
+        ipdir:      inplane reference direction (ipdir points into the primary beam
                     direction at zero angles)
         ndir:       surface normal of your sample
         keyargs:    optional keyword arguments
@@ -975,7 +1002,7 @@ class Experiment(object):
     def Q2Ang(self,qvec):
         pass
 
-    def Transform(self,v):
+    def Transform(self,v,**kwargs):
         """
         transforms a vector, matrix or tensor of rank 4 (e.g. elasticity tensor)
         to the coordinate frame of the Experiment class.
@@ -990,7 +1017,7 @@ class Experiment(object):
         -------
          transformed object of the same shape as v
         """
-        return self._transform(v)
+        return self._transform(v,**kwargs)
 
     def TiltAngle(self,q,deg=True):
         """
@@ -1075,6 +1102,9 @@ class HXRD(Experiment):
             delta:  giving delta angles to correct the given ones for misalignment
                     delta must be an numpy array or list of length 2.
                     used angles are than om,tt - delta
+            UB:     matrix for conversion from (hkl) coordinates to Q of sample
+                    used to determine not Q but (hkl)
+                    (default: identity matrix)
             wl:     x-ray wavelength in angstroem (default: self._wl)
             deg:    flag to tell if angles are passed as degree (default: True)
 
@@ -1354,6 +1384,9 @@ class NonCOP(Experiment):
             delta:  giving delta angles to correct the given ones for misalignment
                     delta must be an numpy array or list of length 4.
                     used angles are than om,chi,phi,tt - delta
+            UB:     matrix for conversion from (hkl) coordinates to Q of sample
+                    used to determine not Q but (hkl)
+                    (default: identity matrix)
             wl:     x-ray wavelength in angstroem (default: self._wl)
             deg:    flag to tell if angles are passed as degree (default: True)
 
@@ -1564,6 +1597,9 @@ class GID(Experiment):
             delta:  giving delta angles to correct the given ones for misalignment
                     delta must be an numpy array or list of length 4.
                     used angles are than ai,phi,tt,beta - delta
+            UB:     matrix for conversion from (hkl) coordinates to Q of sample
+                    used to determine not Q but (hkl)
+                    (default: identity matrix)
             wl:     x-ray wavelength in angstroem (default: self._wl)
             deg:    flag to tell if angles are passed as degree (default: True)
 
@@ -1621,6 +1657,9 @@ class GID_ID10B(GID):
             delta:  giving delta angles to correct the given ones for misalignment
                     delta must be an numpy array or list of length 4.
                     used angles are than th,om,delta,gamma - delta
+            UB:     matrix for conversion from (hkl) coordinates to Q of sample
+                    used to determine not Q but (hkl)
+                    (default: identity matrix)
             wl:     x-ray wavelength in angstroem (default: self._wl)
             deg:    flag to tell if angles are passed as degree (default: True)
 
@@ -1714,6 +1753,9 @@ class GISAXS(Experiment):
             delta:  giving delta angles to correct the given ones for misalignment
                     delta must be an numpy array or list of length 3.
                     used angles are than ai,tt,beta - delta
+            UB:     matrix for conversion from (hkl) coordinates to Q of sample
+                    used to determine not Q but (hkl)
+                    (default: identity matrix)
             wl:     x-ray wavelength in angstroem (default: self._wl)
             deg:    flag to tell if angles are passed as degree (default: True)
 
