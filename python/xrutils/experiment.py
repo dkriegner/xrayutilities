@@ -1556,6 +1556,11 @@ class NonCOP(Experiment):
             deg = True
 
         angle = numpy.zeros((4,q.shape[1]))
+        # set parameters for the calculation
+        z = self.Transform(self.ndir) # z
+        y = self.Transform(self.idir) # y
+        x = self.Transform(self.scatplane) # x
+
         for i in range(q.shape[1]):
             qvec = q[:,i]
 
@@ -1570,11 +1575,11 @@ class NonCOP(Experiment):
             om = tth/2.
 
             #calculation of the sample azimuth
-            phi = numpy.arctan2(qvec[0],qvec[1]) - numpy.pi/2. # the sign depends on the phi movement direction
+            phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec)) - numpy.pi/2. # the sign depends on the phi movement direction
             if numpy.isnan(phi):
                 phi = 0
 
-            chi = numpy.arccos(qvec[2]/qa)
+            chi = math.VecAngle(z,qvec)
 
             angle[0,i] = om
             angle[1,i] = chi
@@ -1607,7 +1612,9 @@ class GID(Experiment):
         initialization routine for the GID Experiment class
 
         idir defines the inplane reference direction (idir points into the PB
-        direction at zero angles)
+           direction at zero angles)
+        ndir defines the surface normal of your sample (ndir points along the
+           innermost sample rotation axis)
 
         Parameters
         ----------
@@ -1619,6 +1626,21 @@ class GID(Experiment):
         # initialize Ang2Q conversion
         self._A2QConversion = QConversion(['z-','x+'],['x+','z-'],[0,1,0],wl=self._wl) # 2S+2D goniometer
         self.Ang2Q = self._A2QConversion
+
+    def _set_transform(self,v1,v2,v3):
+        """
+        set new transformation of the coordinate system to use in the experimental class
+        """
+        self._t1 = math.CoordinateTransform(v1,v2,v3) # turn idir to Y and ndir to Z
+
+        yi = self._A2QConversion.r_i
+        isc = self._A2QConversion.sampleAxis[-1]
+        zi = numpy.abs(math.getVector(isc))
+        xi = math.VecUnit(numpy.cross(yi,zi))
+        # turn r_i to Y and Z define by detector rotation plane
+        self._t2 = math.CoordinateTransform(xi,yi,zi)
+        
+        self._transform = math.Transform(numpy.dot(self._t2.imatrix,self._t1.matrix))
 
     def Q2Ang(self,Q,trans=True,deg=True,**kwargs):
         """
@@ -1660,12 +1682,17 @@ class GID(Experiment):
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.GID.Q2Ang: q = %s" %repr(q))
 
+        # set parameters for the calculation
+        z = self.Transform(self.ndir) # z
+        y = self.Transform(self.idir) # y
+        x = self.Transform(self.scatplane) # x
+
         # check if reflection is inplane
-        if numpy.abs(q[2]) >= 0.001:
+        if numpy.abs(math.VecDot(q,z)) >= 0.001:
             raise InputError("Reflection not reachable in GID geometry (Q: %s)" %str(q))
 
         # calculate angle to inplane reference direction
-        aref = numpy.arctan2(q[0],q[1])
+        aref = numpy.arctan2(math.VecDot(x,q),math.VecDot(y,q))
 
         # calculate scattering angle
         qa = math.VecNorm(q)
