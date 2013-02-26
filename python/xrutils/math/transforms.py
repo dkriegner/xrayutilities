@@ -127,7 +127,7 @@ class Transform(object):
 
         olist = []
         for a in args:
-            if isinstance(a,list):
+            if isinstance(a,(list,tuple)):
                 p = numpy.array(a,dtype=numpy.double)
             elif isinstance(a,numpy.ndarray):
                 p = a
@@ -196,7 +196,7 @@ class CoordinateTransform(Transform):
     CoordinateTransform(v1,v2,v3):
     Create a Transformation object which transforms a point into a new
     coordinate frame. The new frame is determined by the three vectors
-    v1, v2 and v3, which need to be orthogonal!
+    v1/norm(v1), v2/norm(v2) and v3/norm(v3), which need to be orthogonal!
     """
     def __init__(self,v1,v2,v3):
         """
