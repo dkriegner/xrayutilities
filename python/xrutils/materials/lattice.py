@@ -214,6 +214,9 @@ class Lattice(object):
         else:
             self.base = None
 
+        m = numpy.array([self.a1,self.a2,self.a3])
+        self.transform = math.Transform(m)
+
     def ApplyStrain(self,eps):
         """
         ApplyStrain(eps):
@@ -251,12 +254,15 @@ class Lattice(object):
         return V
 
     def GetPoint(self,*args):
+        """
+        determine lattice points with indices given in *args
+        """
         if len(args)<3:
             args = args[0]
             if len(args)<3:
                 raise InputError("need 3 indices for the lattice point")
 
-        return args[0]*self.a1+args[1]*self.a2+args[2]*self.a3
+        return self.transform(args)
 
     def __str__(self):
         ostr = ""

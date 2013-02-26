@@ -142,7 +142,7 @@ class Material(object):
                 raise AttributeError("Cij indices must be between 1 and 6")
 
             if self.transform:
-                cij = self.transform(self.cij)
+                cij = Cijkl2Cij(self.transform(Cij2Cijkl(self.cij)))
             else:
                 cij = self.cij
 
@@ -175,6 +175,9 @@ class Material(object):
     def _getb3(self):
         return self.rlattice.a3
 
+    def _get_matrixB(self):
+        return self.rlattice.transform.matrix
+
     mu  = property(_getmu)
     lam = property(_getlam)
     nu  = property(_getnu)
@@ -184,7 +187,7 @@ class Material(object):
     b1 = property(_getb1)
     b2 = property(_getb2)
     b3 = property(_getb3)
-
+    B = property(_get_matrixB)
 
     def Q(self,*hkl):
         """
@@ -202,7 +205,6 @@ class Material(object):
                 raise InputError("need 3 indices for the lattice point")
 
         p = self.rlattice.GetPoint(hkl[0],hkl[1],hkl[2])
-        if self.transform: p = self.transform(p)
 
         return p
 
