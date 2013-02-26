@@ -30,6 +30,7 @@ from .vector import VecNorm
 from .vector import VecUnit
 from .vector import VecDot
 from .vector import VecAngle
+from .vector import getVector
 
 from .functions import Debye1
 from .functions import Gauss1d

@@ -132,3 +132,38 @@ def VecAngle(v1,v2,deg=False):
 
     return alpha
 
+def getVector(string):
+    """
+    returns unit vector along a rotation axis given in the syntax
+    'x+' 'z-' or equivalents
+
+    Parameters
+    ----------
+     string   [xyz][+-]
+
+    Returns
+    -------
+     vector along the given direction as numpy array
+    """
+
+    if len(string) != 2:
+        raise InputError("wrong length of string for conversion given")
+
+
+    if string[0] == 'x':
+        v = [1.,0,0]
+    elif string[0] == 'y':
+        v = [0,1.,0]
+    elif string[0] == 'z':
+        v = [0,0,1.]
+    else:
+        raise InputError("wrong first character of string given (needs to be one of x,y,z)")
+    
+    if string[1] == '+':
+        v = numpy.array(v)*(+1)
+    elif string[1] == '-':
+        v = numpy.array(v)*(-1)
+    else:
+        raise InputError("wrong second character of string given (needs to be + or -)")
+
+    return v
