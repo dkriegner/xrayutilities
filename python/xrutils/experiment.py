@@ -82,6 +82,9 @@ class QConversion(object):
         **kwargs:       optional keyword arguments
             wl:         wavelength of the x-rays in Angstroem
             en:         energy of the x-rays in electronvolt
+            UB:         matrix for conversion from (hkl) coordinates to Q of sample
+                        used to determine not Q but (hkl)
+                        (default: identity matrix)
         """
 
         #initialize some needed variables
@@ -110,6 +113,11 @@ class QConversion(object):
 
         if "en" in kwargs:
             self._set_energy(kwargs["en"])
+
+        if 'UB' in kwargs:
+            self._set_UB(kwargs['UB'])
+        else:
+            self._set_UB(numpy.identity(3))
 
         self._linear_init = False
         self._area_init = False
@@ -243,10 +251,26 @@ class QConversion(object):
         """
         return self._detectorAxis
 
+    def _get_UB(self):
+        return self._UB
+
+    def _set_UB(self,UB):
+        """
+        set the orientation matrix used in the Qconversion
+        needs to be (3,3) matrix
+        """
+        tmp = numpy.array(UB)
+        if tmp.shape==(3,3):
+            self._UB = tmp
+        else:
+            raise InputError("QConversion: incorrect shape of UB matrix (shape: %s)" %str(tmp.shape))
+
+
     energy = property(_get_energy,_set_energy)
     wavelength = property(_get_wavelength,_set_wavelength)
     sampleAxis = property(_get_sampleAxis,_set_sampleAxis)
     detectorAxis = property(_get_detectorAxis,_set_detectorAxis)
+    UB = property(_get_UB,_set_UB)
 
     def __str__(self):
         pstr =  'QConversion geometry \n'
@@ -306,7 +330,7 @@ class QConversion(object):
                         used angles are than *args - delta
             UB:         matrix for conversion from (hkl) coordinates to Q of sample
                         used to determine not Q but (hkl)
-                        (default: identity matrix)
+                        (default: self.UB)
             wl:         x-ray wavelength in angstroem (default: self._wl)
             deg:        flag to tell if angles are passed as degree
                         (default: True)
@@ -342,7 +366,7 @@ class QConversion(object):
         if 'UB' in kwargs:
             UB = numpy.ravel(numpy.array(kwargs['UB']))
         else:
-            UB = numpy.ravel(numpy.identity(3))
+            UB = numpy.ravel(self.UB)
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
@@ -494,7 +518,7 @@ class QConversion(object):
                         used angles are than *args - delta
             UB:         matrix for conversion from (hkl) coordinates to Q of sample
                         used to determine not Q but (hkl)
-                        (default: identity matrix)
+                        (default: self.UB)
             Nav:        number of channels to average to reduce data size (default: self._linear_nav)
             roi:        region of interest for the detector pixels; e.g. [100,900] (default: self._linear_roi)
             wl:         x-ray wavelength in angstroem (default: self._wl)
@@ -544,7 +568,7 @@ class QConversion(object):
         if 'UB' in kwargs:
             UB = numpy.ravel(numpy.array(kwargs['UB']))
         else:
-            UB = numpy.ravel(numpy.identity(3))
+            UB = numpy.ravel(self.UB)
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
@@ -728,7 +752,7 @@ class QConversion(object):
                         used angles are than *args - delta
             UB:         matrix for conversion from (hkl) coordinates to Q of sample
                         used to determine not Q but (hkl)
-                        (default: identity matrix)
+                        (default: self.UB)
             roi:        region of interest for the detector pixels; e.g. [100,900,200,800]
                         (default: self._area_roi)
             Nav:        number of channels to average to reduce data size e.g. [2,2]
@@ -781,7 +805,7 @@ class QConversion(object):
         if 'UB' in kwargs:
             UB = numpy.ravel(numpy.array(kwargs['UB']))
         else:
-            UB = numpy.ravel(numpy.identity(3))
+            UB = numpy.ravel(self.UB)
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
@@ -1001,6 +1025,66 @@ class Experiment(object):
 
     def Q2Ang(self,qvec):
         pass
+
+    def Ang2HKL(self,*args,**kwargs):
+        """
+        angular to (h,k,l) space conversion. 
+        It will set the UB argument to Ang2Q and pass all other parameters unchanged.
+        See Ang2Q for description of the rest of the arguments.
+
+        Parameters
+        ----------
+
+        **kwargs:   optional keyword arguments
+            B:      reciprocal space conversion matrix of a Material.
+                    you can specify the matrix B (default identiy matrix)
+                    shape needs to be (3,3)
+            mat:    Material object to use to obtain a B matrix
+                    (e.g. xu.materials.Si)
+                    can be used as alternative to the B keyword argument
+                    B is favored in case both are given
+            U:      orientation matrix U can be given
+                    if none is given the orientation defined in the Experiment class
+                    is used.
+            dettype:detector type: one of ('point', 'linear', 'area')
+                    decides which routine of Ang2Q to call
+                    default 'point'
+
+        Returns
+        -------
+        H K L coordinates as numpy.ndarray with shape ( * , 3 )
+        where * corresponds to the number of points given in the input (*args)
+        
+        """
+        
+        if "B" in kwargs:
+            B = numpy.array(B)
+        elif "mat" in kwargs:
+            mat = kwargs['mat']
+            B = mat.B
+        else:
+            B = numpy.identity(3)
+
+        if "U" in kwargs:
+            U = numpy.array(U)
+        else:
+            U = self._transform.matrix
+
+        kwargs['UB'] = numpy.inner(U,B)
+
+        if "dettype" in kwargs:
+            typ = kwargs['dettype']
+            if typ not in ('point', 'linear', 'area'):
+                raise InputError("wrong dettype given: needs to be one of 'point', 'linear', 'area'")
+        else:
+            typ = 'point'
+        
+        if typ=='linear':
+            return self.Ang2Q.linear(*args,**kwargs)
+        elif typ=='area':
+            return self.Ang2Q.area(*args,**kwargs)
+        else:
+            return self.Ang2Q(*args,**kwargs)
 
     def Transform(self,v,**kwargs):
         """
