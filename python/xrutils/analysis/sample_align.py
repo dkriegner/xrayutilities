@@ -190,7 +190,10 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         fit = fittan
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
+        if usetilt:
+            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel / tilt: %8.2f / %8.2f / %5.2fdeg" % (fit.beta[0],fit.beta[1],fit.beta[2]))            
+        else:
+            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
 
     return fit.beta
 
@@ -209,6 +212,11 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
      mca_spectra .. corresponding detector spectra 
                     (shape: (len(angle),Nchannels) 
      **keyargs passed to psd_chdeg function used for the modelling
+        additional options:
+        r_i ....... primary beam direction as vector [xyz][+-]
+                    default: 'y+'
+        detaxis ... detector rotation axis [xyz][+-] e.g. 'x+'
+                    default: 'x+'
      
     returns
     -------
@@ -216,6 +224,15 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
 
      distance is given by: channel_width*channelperdegree/tan(radians(1))
     """
+
+    if "detaxis" in keyargs:
+        detrotaxis = keyargs["detaxis"]
+    else: # use default
+        detrotaxis = 'x+'
+    if "r_i" in keyargs:
+        r_i = keyargs["r_i"]
+    else: # use default
+        r_i = 'y+'
 
     # max intensity per spectrum
     mca_int = mca_spectra.sum(axis=1)
@@ -257,9 +274,31 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
     pos = numpy.array(pos)
     posstd = numpy.array(posstd)
 
+    detparam = psd_chdeg(ang, pos, stdev=posstd, **keyargs)
+    if numpy.sign(detparam[0]) > 0:
+        sign = '-'
+    else:
+        sign = '+'
+    
+    detaxis='  '
+    detd = numpy.cross(math.getVector(detrotaxis),math.getVector(r_i)) 
+    if detd.argmax() == 0:
+        detaxis = 'x'+sign
+    elif detd.argmax() == 1:
+        detaxis = 'y'+sign
+    elif detd.argmax() == 2:
+        detaxis = 'z'+sign
+
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.analysis.det_distance: used/total spectra: %d/%d" %(mca_spectra.shape[0]-nignored,mca_spectra.shape[0]))
-    return psd_chdeg(ang, pos, stdev=posstd, **keyargs)
+        print("XU.analysis.linear_detector_calib:\n\tused/total spectra: %d/%d" %(mca_spectra.shape[0]-nignored,mca_spectra.shape[0]))
+        print("\tdetector rotation axis (given by user): %s" %detrotaxis)
+        if len(detparam)==3:
+            tilt = detparam[2]
+        else:
+            tilt = 0
+        print("\tdetector initialization with: init_linear('%s',%.1f,%d,chpdeg=%.1f,tilt=%.2f)" %(detaxis,detparam[1],mca_spectra.shape[1],detparam[0],tilt))
+
+    return detparam
 
 #################################################
 ## equivalent to PSD_refl_align MATLAB script
