@@ -450,8 +450,6 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
         return 1;
     };
 
-    /*print_vector(rpixel1);
-    print_vector(rpixel2);*/
     // rotate detector pixel vectors according to tilt
     veccopy(rtemp,rpixel1);
     normalize(rtemp);
@@ -471,9 +469,6 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
     veccopy(rtemp,rpixel2);
     matvec(mtemp,rtemp,rpixel2);
 
-    /*print_vector(rpixel1);
-    print_vector(rpixel2);*/
-
     // calculate center channel position in detector plane
     for(int k=0; k<3; ++k)
         rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
@@ -489,7 +484,6 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
             detectorRotation[j](detectorAngles[Nd*i+j],mtemp);
             matmul(md,mtemp);
         }
-
         // md contains the detector rotation matrix
         // calculate momentum transfer for the detector pixel n1[i],n2[i]
         for (k=0; k<3; ++k)
