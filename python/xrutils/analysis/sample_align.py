@@ -20,16 +20,20 @@ functions to help with experimental alignment during experiments, especially for
 experiments with linear detectors
 """
 
+import re
 import numpy
 import scipy
 import scipy.stats
 import scipy.optimize as optimize
 from scipy.odr import odrpack as odr
 from scipy.odr import models
+from scipy.ndimage.measurements import center_of_mass
 
 from .. import config
 from .. import math
 from .line_cuts import fwhm_exp
+from ..exception import InputError
+from .. import libxrayutils
 
 try:
     from matplotlib import pyplot as plt
@@ -37,6 +41,8 @@ except RuntimeError:
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.analysis.sample_align: warning; plotting functionality not available")
 
+# regular expression to check goniometer circle syntax
+circleSyntax = re.compile("[xyz][+-]")
 
 #################################################
 ## channel per degree calculation
@@ -299,6 +305,439 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
         print("\tdetector initialization with: init_linear('%s',%.1f,%d,chpdeg=%.1f,tilt=%.2f)" %(detaxis,detparam[1],mca_spectra.shape[1],detparam[0],tilt))
 
     return detparam
+
+######################################################
+## detector parameter calculation from scan with
+## area detector (determine maximum by center of mass)
+######################################################
+def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 0.7,start = (0,0,0,0),fig=None):
+    """
+    function to calibrate the detector parameters of an area detector
+    it determines the detector tilt possible rotations and offsets in the
+    detector arm angles
+
+    parameters
+    ----------
+     angle1 ..... outer detector arm angle
+     angle2 ..... inner detector arm angle
+     ccdimages .. images of the ccd taken at the angles given above
+     detaxis .... detector arm rotation axis
+                  default: ['z+','y-']
+     r_i ........ primary beam direction [xyz][+-]
+                  default 'x+'
+
+     keyword_arguments:
+        plot .... flag to determine if results and intermediate results should be plotted
+                  default: True
+        cut_off . cut off intensity to decide if image is used for the determination or not
+                  default: 0.7 = 70%
+        start ... sequence of start values of the fit for parameters, 
+                  which can not be estimated automatically
+               these are:
+                tiltazimuth
+                tilt
+                detector_rotation
+                outerangle_offset
+                 default: (0,0,0,0)
+        fig ..... matplotlib figure used for plotting the error
+                  default: None (creates own figure)
+
+    """
+
+    debug=False
+    if plot:
+        try: plt.__name__
+        except NameError:
+            print("XU.analyis.area_detector_calib: Warning: plot functionality not available")
+            plot = False
+
+    def areapixel(params,detectorDir1,detectorDir2,r_i,detectorAxis,*args,**kwargs):
+        """
+        angular to momentum space conversion for pixels of an area detector 
+        the center pixel is in direction of self.r_i when detector angles are zero
+
+        the detector geometry must be given to the routine
+
+        Parameters
+        ----------
+        *args:          detector angles and channel numbers
+                dAngles as numpy array, lists or Scalars
+                        in total len(detectorAxis) must be given starting with 
+                        the outer most circle all arguments must have the same shape or length
+                channel numbers n1 and n2 where the primary beam hits the detector
+                        same length as the detector values
+
+        params:         parameters of the detector calibration model
+                        (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot)
+                cch1,2: center pixel, in direction of self.r_i at zero
+                        detectorAngles
+                pwidth1,2: width of one pixel (same unit as distance)
+                tiltazimuth: direction of the tilt vector in the detector plane (in degree)
+                tilt: tilt of the detector plane around an axis normal to the direction
+                      given by the tiltazimuth
+                detrot: detector rotation around the primary beam direction as given by r_i
+ 
+        detectorDir1:   direction of the detector (along the pixel direction 1); 
+                        e.g. 'z+' means higher pixel numbers at larger z positions
+        detectorDir2:   direction of the detector (along the pixel direction 2); e.g. 'x+'
+        
+        r_i:            primary beam direction e.g. 'x+'
+        detectorAxis:   list or tuple of detector circles
+                        e.g. ['z+','y-'] would mean a detector arm with a two rotations
+     
+        **kwargs:       possible keyword arguments
+            delta:      giving delta angles to correct the given ones for misalignment
+                        delta must be an numpy array or list of len(*dAngles)
+                        used angles are than *args - delta
+            wl:         x-ray wavelength in angstroem (default: 1 (since it does not matter here))
+            distance:   distance of center pixel from center of rotation (default: 1. (since it does not matter here))
+            deg:        flag to tell if angles are passed as degree (default: True)
+
+        Returns
+        -------
+        reciprocal space position of detector pixels n1,n2 in a numpy.ndarray of shape
+        ( len(args) , 3 )
+        """
+        
+        # check detector circle argument
+        if isinstance(detectorAxis,(str,list,tuple)):
+            if isinstance(detectorAxis,str):
+                dAxis = list([detectorAxis])
+            else:
+                dAxis = list(detectorAxis)
+            for circ in dAxis:
+                if not isinstance(circ,str) or len(circ)!=2:
+                    raise InputError("QConversionPixel: incorrect detector circle type or syntax (%s)" %repr(circ))
+                if not circleSyntax.search(circ):
+                    raise InputError("QConversionPixel: incorrect detector circle syntax (%s)" %circ)
+        else:
+            raise TypeError("Qconversion error: invalid type for detectorAxis, must be str, list or tuple")
+        # add detector rotation around primary beam
+        dAxis += [r_i] 
+        _detectorAxis_str = ''
+        for circ in dAxis:
+            _detectorAxis_str += circ
+
+        Nd = len(dAxis)
+        Nargs = Nd + 2 -1
+
+        # check detectorDir
+        if not isinstance(detectorDir1,str) or len(detectorDir1)!=2:
+            raise InputError("QConversionPixel: incorrect detector direction1 type or syntax (%s)" %repr(detectorDir1))
+        if not circleSyntax.search(detectorDir1):
+            raise InputError("QConversionPixel: incorrect detector direction1 syntax (%s)" %detectorDir1)
+        _area_detdir1 = detectorDir1
+        if not isinstance(detectorDir2,str) or len(detectorDir2)!=2:
+            raise InputError("QConversionPixel: incorrect detector direction2 type or syntax (%s)" %repr(detectorDir2))
+        if not circleSyntax.search(detectorDir2):
+            raise InputError("QConversionPixel: incorrect detector direction2 syntax (%s)" %detectorDir2)
+        _area_detdir2 = detectorDir2
+
+        # parse parameter arguments
+        _area_cch1 = float(params[0])
+        _area_cch2 = float(params[1])
+        _area_pwidth1 = float(params[2])
+        _area_pwidth2 = float(params[3])
+        _area_tiltazimuth = numpy.radians(params[4])
+        _area_tilt = numpy.radians(params[5])
+        _area_rot = float(params[6])
+        _area_ri = math.getVector(r_i)
+
+        # kwargs
+        if "distance" in kwargs:
+            _area_distance = float(kwargs["distance"])
+        else:
+            _area_distance = 1.
+
+        if 'wl' in kwargs:
+            wl = utilities.wavelength(kwargs['wl'])
+        else:
+            wl = 1.
+
+        if 'deg' in kwargs:
+            deg = kwargs['deg']
+        else:
+            deg = True
+
+        if 'delta' in kwargs:
+            delta = numpy.array(kwargs['delta'],dtype=numpy.double)
+            if delta.size != Nd-1:
+                raise InputError("QConversionPixel: keyword argument delta does not have an appropriate shape")
+        else:
+            delta = numpy.zeros(Nd)
+
+        # prepare angular arrays from *args
+        # need one sample angle and one detector angle array
+        if len(args) != Nargs:
+            raise InputError("QConversionPixel: wrong amount (%d) of arguments given, \
+                             number of arguments should be %d" %(len(args),Nargs))
+
+        try: Npoints = len(args[0])
+        except (TypeError,IndexError): Npoints = 1
+
+        dAngles = numpy.array((),dtype=numpy.double)
+        for i in range(Nd-1):
+            arg = args[i]
+            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+                raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
+            elif isinstance(arg,numpy.ScalarType):
+                arg = numpy.array([arg],dtype=numpy.double)
+            elif isinstance(arg,list):
+                arg = numpy.array(arg,dtype=numpy.double)
+            arg = arg - delta[i]
+            dAngles = numpy.concatenate((dAngles,arg))
+        # add detector rotation around primary beam
+        dAngles = numpy.concatenate((dAngles,numpy.ones(arg.shape,dtype=numpy.double)*_area_rot))
+
+        # read channel numbers
+        n1 = numpy.array((),dtype=numpy.double)
+        n2 = numpy.array((),dtype=numpy.double)
+
+        arg = args[Nd-1]
+        if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+            raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
+        elif isinstance(arg,numpy.ScalarType):
+            arg = numpy.array([arg],dtype=numpy.double)
+        elif isinstance(arg,list):
+            arg = numpy.array(arg,dtype=numpy.double)
+        n1 = arg
+
+        arg = args[Nd]
+        if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+            raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
+        elif isinstance(arg,numpy.ScalarType):
+            arg = numpy.array([arg],dtype=numpy.double)
+        elif isinstance(arg,list):
+            arg = numpy.array(arg,dtype=numpy.double)
+        n2 = arg
+
+        # flatten arrays with angles for passing to C routine
+        if Npoints > 1:
+            dAngles.shape = (Nd,Npoints)
+            dAngles = numpy.ravel(dAngles.transpose())
+            n1 = numpy.ravel(n1)
+            n2 = numpy.ravel(n2)
+
+        if deg:
+            dAngles = numpy.radians(dAngles)
+
+        # check that arrays have correct type and memory alignment for passing to C routine
+        dAngles = numpy.require(dAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        n1 = numpy.require(n1,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        n2 = numpy.require(n2,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+
+        # initialize return value (qposition) array
+        qpos = numpy.empty(Npoints*3,dtype=numpy.double,order='C')
+        qpos = numpy.require(qpos,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+
+        libxrayutils.cang2q_areapixel( dAngles, qpos, n1, n2 ,_area_ri, Nd, Npoints, _detectorAxis_str, 
+                     _area_cch1, _area_cch2, _area_pwidth1/_area_distance, _area_pwidth2/_area_distance, 
+                     _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, wl)
+
+        #reshape output
+        qpos.shape = (Npoints,3)
+        return qpos[:,0],qpos[:,1],qpos[:,2]
+
+    def afunc(param,x,detectorDir1,detectorDir2,r_i,detectorAxis):
+        """
+        function for fitting the detector parameters
+        basically this is a wrapper for the areapixel function
+
+        parameters
+        ----------
+        param           fit parameters
+                        (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)
+        x               independent variables (contains angle1, angle2, n1, n2)
+                        shape is (4,Npoints)
+ 
+        detectorDir1:   direction of the detector (along the pixel direction 1); 
+                        e.g. 'z+' means higher pixel numbers at larger z positions
+        detectorDir2:   direction of the detector (along the pixel direction 2); e.g. 'x+'
+        
+        r_i:            primary beam direction e.g. 'x+'
+        detectorAxis:   list or tuple of detector circles
+                        e.g. ['z+','y-'] would mean a detector arm with a two rotations
+     
+        Returns
+        -------
+        reciprocal space position of detector pixels n1,n2 in a numpy.ndarray of shape
+        ( 3, x.shape[1] )
+        """
+        
+        angle1 = x[0,:]
+        angle2 = x[1,:]
+        n1 = x[2,:]
+        n2 = x[3,:]
+
+        (qx,qy,qz) = areapixel(param[:-1],detectorDir1,detectorDir2,r_i,detectorAxis,angle1,angle2,n1,n2,delta=[param[-1],0.],distance=1.)
+        
+        return qx**2+qy**2+qz**2
+
+    Npoints = len(angle1)
+
+    # determine center of mass position from detector images
+    # also use only images with an intensity larger than 70% of the average intensity
+    n1 = numpy.zeros(0,dtype=numpy.double)
+    n2 = n1
+    ang1 = n1
+    ang2 = n1
+
+    avg = 0
+    for i in range(Npoints):
+        avg += numpy.sum(ccdimages[i])
+    avg /= float(Npoints)
+
+    for i in range(Npoints):
+        img = ccdimages[i]
+        if numpy.sum(img) >cut_off*avg:
+            [cen1,cen2] = center_of_mass(img)
+            n1 = numpy.append(n1,cen1)
+            n2 = numpy.append(n2,cen2)
+            ang1 = numpy.append(ang1,angle1[i])
+            ang2 = numpy.append(ang2,angle2[i])
+            #if debug:
+            #    print("%8.3f %8.3f \t%.2f %.2f"%(angle1[i],angle2[i],cen1,cen2))
+    Nused = len(ang1)
+
+    if debug:
+        print("Nused / Npoints: %d / %d" %(Nused,Npoints))
+
+    # guess initial parameters
+    # center channel and detector pixel direction and pixel size
+    (s1,i1,r1,dummy,dummy)=scipy.stats.linregress(ang1-start[3],n1)
+    (s2,i2,r2,dummy,dummy)=scipy.stats.linregress(ang1-start[3],n2)
+    (s3,i3,r3,dummy,dummy)=scipy.stats.linregress(ang2,n1)
+    (s4,i4,r4,dummy,dummy)=scipy.stats.linregress(ang2,n2)
+    if debug:
+        print("%.2f %.2f %.2f %.2f"%(s1,s2,s3,s4))
+        print("%.2f %.2f %.2f %.2f"%(r1,r2,r3,r4))
+        if plot:
+            plt.figure()
+            plt.subplot(211)
+            plt.plot(ang1-start[3],n1,'bx',label='channel 1')
+            plt.plot(ang1-start[3],n2,'rx',label='channel 2')
+            plt.legend()
+            plt.xlabel('angle 1')
+            plt.subplot(212)
+            plt.plot(ang2,n1,'bx',label='channel 1')
+            plt.plot(ang2,n2,'rx',label='channel 2')
+            plt.legend()
+            plt.xlabel('angle 2')
+
+
+    s = ord('x') + ord('y') + ord('z')
+    c1 = ord(detaxis[0][0]) + ord(r_i[0])
+    c2 = ord(detaxis[1][0]) + ord(r_i[0])
+    sign1 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[0]),math.getVector(r_i))))
+    sign2 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[1]),math.getVector(r_i))))
+    if r1**2>r2**2:
+        detdir1 = chr(s-c1)
+        detdir2 = chr(s-c2)
+        if numpy.sign(s1) > 0:
+            if sign1 > 0:
+                detdir1 += '-'
+            else:
+                detdir1 += '+'
+        else:
+            if sign1 > 0:
+                detdir1 += '+'
+            else:
+                detdir1 += '-'
+
+        if numpy.sign(s4) > 0:
+            if sign2 > 0:
+                detdir2 += '-'
+            else:
+                detdir2 += '+'
+        else:
+            if sign2 > 0:
+                detdir2 += '+'
+            else:
+                detdir2 += '-'
+        cch1 = i1
+        cch2 = i4
+        pwidth1 = 2/numpy.abs(float(s1))*numpy.tan(numpy.radians(0.5))
+        pwidth2 = 2/numpy.abs(float(s4))*numpy.tan(numpy.radians(0.5))
+    else:
+        detdir1 = chr(s-c2)
+        detdir2 = chr(s-c1)
+        if numpy.sign(s3) > 0:
+            if sign2 > 0:
+                detdir1 += '-'
+            else:
+                detdir1 += '+'
+        else:
+            if sign2 > 0:
+                detdir1 += '+'
+            else:
+                detdir1 += '-'
+
+        if numpy.sign(s2) > 0:
+            if sign1 > 0:
+                detdir2 += '-'
+            else:
+                detdir2 += '+'
+        else:
+            if sign1 > 0:
+                detdir2 += '+'
+            else:
+                detdir2 += '-'
+        cch1 = i3
+        cch2 = i2
+        pwidth1 = 2/numpy.abs(float(s3))*numpy.tan(numpy.radians(0.5))
+        pwidth2 = 2/numpy.abs(float(s2))*numpy.tan(numpy.radians(0.5))
+    
+    tilt = start[1]
+    tiltazimuth = start[0]
+    detrot = start[2]
+    outerangle_offset = start[3]
+    # parameters for the fitting
+    param = (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)
+    if debug:
+        print("initial parameters: ")
+        print("primary beam / detector pixel directions / distance: %s / %s %s / %e" %(r_i,detdir1,detdir2,1.))
+        print("param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)")
+        print("param: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %param)
+
+
+    # set data
+    x = numpy.empty((4,Nused),dtype=numpy.double)
+    x[0,:] = ang1 
+    x[1,:] = ang2 
+    x[2,:] = n1
+    x[3,:] = n2
+    data = odr.Data(x,y=1)
+    # define model for fitting
+    model = odr.Model(afunc, extra_args=(detdir1,detdir2,r_i,detaxis), implicit=True)
+    my_odr = odr.ODR(data,model,beta0=param,ifixb=(1,1,1,1,1,1,1,1) , ifixx =(0,0,0,0) ,stpb=(1,1,pwidth1/50.,pwidth2/50.,10,0.05,0.05,0.03), sclb=(1/cch1,1/cch2,1/pwidth1,1/pwidth2,1/90.,1/0.2,1/0.2,1/0.2) ,maxit=1000,ndigit=12)
+    if debug:
+        my_odr.set_iprint(final=1)
+        my_odr.set_iprint(iter=2)
+
+    fit = my_odr.run() 
+    
+    (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset) = fit.beta
+    # fix things in parameters
+    tiltazimuth = tiltazimuth%360.
+
+    if plot:
+        if fig:
+            plt.figure(fig.number)
+        else:
+            plt.figure("CCD Calib fit")
+        plt.grid(True)
+        plt.xlabel("Image number")
+        plt.ylabel(r"|$\Delta$Q|") 
+        errp1, = plt.semilogy(afunc(my_odr.beta0,x,detdir1,detdir2,r_i,detaxis),'x-',label='initial param')
+        errp2, = plt.semilogy(afunc(fit.beta,x,detdir1,detdir2,r_i,detaxis),'x-',label='param: %.1f %.1f %5.2g %5.2g %.1f %.2f %.3f %.3f'%(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset))
+    
+    if config.VERBOSITY >= config.INFO_LOW:
+        print("fitted parameters: (%d,%s) " %(fit.info,repr(fit.stopreason)))
+        print("primary beam / detector pixel directions / distance: %s / %s %s / %g" %(r_i,detdir1,detdir2,1.))
+        print("param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)")
+        print("param: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset))
+
+    return (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset),fit
 
 #################################################
 ## equivalent to PSD_refl_align MATLAB script
