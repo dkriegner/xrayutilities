@@ -156,11 +156,11 @@ cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="ali
 ####################################################
 # area detector conversion function for calibration
 ####################################################
-cang2q_area = _library.ang2q_conversion_area_pixel
+cang2q_areapixel = _library.ang2q_conversion_area_pixel
 # c declaration: int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Nd, int Npoints, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
 #define argument types
-cang2q_area.restype = ctypes.c_int
-cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
+cang2q_areapixel.restype = ctypes.c_int
+cang2q_areapixel.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
                    numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
                    numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
                    numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
