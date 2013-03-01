@@ -28,6 +28,7 @@ line cut direction.
 from .sample_align import psd_refl_align
 from .sample_align import psd_chdeg
 from .sample_align import linear_detector_calib
+from .sample_align import area_detector_calib
 from .sample_align import miscut_calc
 from .sample_align import fit_bragg_peak
 
