@@ -23,8 +23,11 @@ however custom error checking is done to ensure vectors of length 3.
 """
 
 import numpy
+import re
 
 from .. import config
+
+circleSyntax = re.compile("[xyz][+-]")
 
 def VecNorm(v):
     """
@@ -148,7 +151,8 @@ def getVector(string):
 
     if len(string) != 2:
         raise InputError("wrong length of string for conversion given")
-
+    if not circleSyntax.search(string):
+        raise InputError("getVector: incorrect string syntax (%s)" %string)
 
     if string[0] == 'x':
         v = [1.,0,0]
@@ -167,3 +171,47 @@ def getVector(string):
         raise InputError("wrong second character of string given (needs to be + or -)")
 
     return v
+
+def getSyntax(vec):
+    """
+    returns vector direction in the syntax
+    'x+' 'z-' or equivalents
+    therefore works only for principle vectors of the coordinate system
+    like e.g. [1,0,0] or [0,2,0]
+
+    Parameters
+    ----------
+     string   [xyz][+-]
+
+    Returns
+    -------
+     vector along the given direction as numpy array
+    """
+
+    if len(vec) != 3:
+        raise InputError("no valid 3D vector given")
+
+    x = [1,0,0]
+    y = [0,1,0]
+    z = [0,0,1]
+
+    vec = numpy.array(vec)
+    if numpy.linalg.norm(numpy.cross(numpy.cross(x,y),vec)) <= config.EPSILON:
+        if vec[2] >= 0:
+            string = 'z+'
+        else:
+            string = 'z-'
+    elif numpy.linalg.norm(numpy.cross(numpy.cross(x,z),vec)) <= config.EPSILON:
+        if vec[1] >= 0:
+            string = 'y+'
+        else:
+            string = 'y-'
+    elif numpy.linalg.norm(numpy.cross(numpy.cross(y,z),vec)) <= config.EPSILON:
+        if vec[0] >= 0:
+            string = 'x+'
+        else:
+            string = 'x-'
+    else:
+        raise InputError("no valid 3D vector given")
+
+    return string
