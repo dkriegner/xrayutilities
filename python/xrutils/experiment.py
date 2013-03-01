@@ -121,6 +121,7 @@ class QConversion(object):
 
         self._linear_init = False
         self._area_init = False
+        self._area_detrotaxis_set = False
 
     
     def _set_energy(self,energy):
@@ -214,7 +215,7 @@ class QConversion(object):
         """
         return self._sampleAxis
 
-    def _set_detectorAxis(self,detectorAxis):
+    def _set_detectorAxis(self,detectorAxis,detrot=False):
         """
         property handler for _detectorAxis_
 
@@ -223,6 +224,8 @@ class QConversion(object):
         Parameter
         ---------
         detectorAxis:     list or tuple of detector circles, e.g. ['x+']
+        detrot:           flag to tell that the detector rotation is going to be added
+                          (used internally to avoid double adding of detector rotation axis)
         """
         if isinstance(detectorAxis,(str,list,tuple)):
             if isinstance(detectorAxis,str):
@@ -240,6 +243,10 @@ class QConversion(object):
         self._detectorAxis_str = ''
         for circ in self._detectorAxis:
             self._detectorAxis_str += circ
+        if detrot:
+            self._area_detrotaxis_set = True
+        else:
+            self._area_init = False
 
     def _get_detectorAxis(self):
         """
@@ -649,7 +656,7 @@ class QConversion(object):
             return qpos[:,:,0],qpos[:,:,1],qpos[:,:,2]
 
     def init_area(self,detectorDir1,detectorDir2,cch1,cch2,Nch1,Nch2,distance=None,
-                  pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,tiltazimuth=0, tilt=0, **kwargs):
+                  pwidth1=None,pwidth2=None,chpdeg1=None,chpdeg2=None,detrot=0, tiltazimuth=0, tilt=0, **kwargs):
         """
         initialization routine for area detectors
         detector direction as well as distance and pixel size or
@@ -672,6 +679,7 @@ class QConversion(object):
 
                          !! Either distance and pwidth1,2 or chpdeg1,2 must be given !!
 
+        detrot:          detector rotation around primary beam direction 
         tiltazimuth:     direction of the tilt vector in the detector plane (in degree)
         tilt:            tilt of the detector plane around an axis normal to the direction
                          given by the tiltazimuth
@@ -693,11 +701,19 @@ class QConversion(object):
             raise InputError("QConversion: incorrect detector direction2 syntax (%s)" %detectorDir2)
         self._area_detdir2 = detectorDir2
 
-        # other nonw keyword arguments
+        # other none keyword arguments
         self._area_Nch1 = int(Nch1)
         self._area_Nch2 = int(Nch2)
         self._area_cch1 = int(cch1)
         self._area_cch2 = int(cch2)
+
+        # if detector rotation is present add new motor to consider it in conversion
+        self._area_detrot = numpy.radians(detrot)
+        if self._area_detrot !=0.:
+            if self._area_detrotaxis_set:
+                self._set_detectorAxis(self._get_detectorAxis()[:-1] + [math.getSyntax(self.r_i)],detrot=True)
+            else:
+                self._set_detectorAxis(self._get_detectorAxis() + [math.getSyntax(self.r_i)],detrot=True)
 
         self._area_tiltazimuth = numpy.radians(tiltazimuth)
         self._area_tilt = numpy.radians(tilt)
@@ -772,6 +788,8 @@ class QConversion(object):
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
+        if self._area_detrotaxis_set:
+            Nd = Nd-1
         Ncirc = Ns + Nd
 
         # kwargs
@@ -840,6 +858,12 @@ class QConversion(object):
                 arg = numpy.array(arg,dtype=numpy.double)
             arg = arg - delta[i]
             dAngles = numpy.concatenate((dAngles,arg))
+        if self._area_detrotaxis_set:
+            Nd = Nd + 1
+            if deg:
+                dAngles = numpy.concatenate((dAngles,numpy.ones(Npoints)*numpy.degrees(self._area_detrot)))
+            else:
+                dAngles = numpy.concatenate((dAngles,numpy.ones(Npoints)*self._area_detrot))
 
         # flatten arrays with angles for passing to C routine
         if Npoints > 1:
