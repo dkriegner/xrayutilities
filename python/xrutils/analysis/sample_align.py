@@ -513,6 +513,8 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
                     print("new best parameters: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %parammin)
                     print("************************\n")
 
+    (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset) = parammin
+
     if debug and plot:
         if fig:
             plt.figure(fig.number)
@@ -531,8 +533,6 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
             plt.subplot(3,3,p)
             plt.semilogy(parammin[p],epsmin,'ro',ms=4,mew=2,mec='r')
      
-    (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset) = parammin
-    
     if config.VERBOSITY >= config.INFO_LOW:
         print("total time needed for fit: %.2fsec" %(time.time()-t0))
         print("fitted parameters: epsilon: %10.4e (%d,%s) " %(epsmin,fitmin.info,repr(fitmin.stopreason)))
