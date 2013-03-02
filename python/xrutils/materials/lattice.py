@@ -219,12 +219,11 @@ class Lattice(object):
 
     def ApplyStrain(self,eps):
         """
-        ApplyStrain(eps):
         Applies a certain strain on a lattice. The result is a change
         in the base vectors.
 
         requiered input arguments:
-        eps .............. a 3x3 matrix independent strain components
+         eps .............. a 3x3 matrix independent strain components
         """
 
         if isinstance(eps,list):
@@ -255,7 +254,17 @@ class Lattice(object):
 
     def GetPoint(self,*args):
         """
-        determine lattice points with indices given in *args
+        determine lattice points with indices given in the argument
+
+        Examples
+        --------
+        >>> xu.materials.Si.lattice.GetPoint(0,0,4)
+        array([  0.     ,   0.     ,  21.72416])
+
+        or
+
+        >>> xu.materials.Si.lattice.GetPoint((1,1,1))
+        array([ 5.43104,  5.43104,  5.43104])
         """
         if len(args)<3:
             args = args[0]
@@ -282,14 +291,13 @@ class Lattice(object):
 
 def CubicLattice(a):
     """
-    CubicLattice(a):
     Returns a Lattice object representing a simple cubic lattice.
 
     required input arguments:
-    a ................ lattice parameter
+     a ................ lattice parameter
 
     return value:
-    an instance of  Lattice class
+     an instance of  Lattice class
     """
 
     return Lattice([a,0,0],[0,a,0],[0,0,a])

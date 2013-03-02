@@ -40,13 +40,12 @@ class DataBase(object):
 
     def Create(self,dbname,dbdesc):
         """
-        Create(dbname,dbdesc):
         Creates a new database. If the database file already exists
         its content is delete.
 
         required input arguments:
-        dbname .............. name of the database
-        dbdesc .............. a short description of the database
+         dbname .............. name of the database
+         dbdesc .............. a short description of the database
         """
         if self.h5file!=None:
             print("database already opened - close first to create new database")
@@ -67,7 +66,6 @@ class DataBase(object):
 
     def Open(self,mode="r"):
         """
-        Open():
         Open an existing database file.
         """
         if self.h5file!=None:
@@ -82,7 +80,6 @@ class DataBase(object):
 
     def Close(self):
         """
-        Close():
         Close an opend database file.
         """
         if self.h5file == None:
@@ -94,13 +91,12 @@ class DataBase(object):
 
     def CreateMaterial(self,name,description):
         """
-        CreateMaterial(name,description):
         This method creates a new material. If the material group already exists
         the procedure is aborted.
 
         required input arguments:
-        name ................... a string with the name of the material
-        description ............ a string with a description of the material
+         name ................... a string with the name of the material
+         description ............ a string with a description of the material
         """
         if self.h5file == None:
             print("no database file opened!")
@@ -119,11 +115,10 @@ class DataBase(object):
 
     def SetWeight(self,weight):
         """
-        SetWeight(weight):
         Save weight of the element as float
 
         required input argument:
-        weight .......... atomic standard weight of the element (float)
+         weight .......... atomic standard weight of the element (float)
         """
         if not isinstance(weight,float):
             raise TypeError("weight parameter must be a float!")
@@ -134,13 +129,12 @@ class DataBase(object):
 
     def SetF0(self,parameters):
         """
-        SetF0(parameters):
         Save f0 fit parameters for the set material. The fit parameters
         are stored in the following order:
         c,a1,b1,.......,a4,b4
 
         required input argument:
-        parameters ............... list or numpy array with the fit parameters
+         parameters ............... list or numpy array with the fit parameters
         """
         if isinstance(parameters,list):
             p = numpy.array(parameters,dtype=numpy.float32)
@@ -162,12 +156,11 @@ class DataBase(object):
 
     def SetF1(self,en,f1):
         """
-        SetF1(en,f1):
         Set f1 tabels values  for the active material.
 
         required input arguments:
-        en ...................... list or numpy array with energy in (eV)
-        f1 ...................... list or numpy array with f1 values
+         en ...................... list or numpy array with energy in (eV)
+         f1 ...................... list or numpy array with f1 values
         """
         if isinstance(en,list):
             end = numpy.array(en,dtype=numpy.float32)
@@ -205,12 +198,11 @@ class DataBase(object):
 
     def SetF2(self,en,f2):
         """
-        SetF2(en,f2):
         Set f2 tabels values  for the active material.
 
         required input arguments:
-        en ...................... list or numpy array with energy in (eV)
-        f2 ...................... list or numpy array with f2 values
+         en ...................... list or numpy array with energy in (eV)
+         f2 ...................... list or numpy array with f2 values
         """
         if isinstance(en,list):
             end = numpy.array(en,dtype=numpy.float32)
@@ -248,13 +240,12 @@ class DataBase(object):
 
     def SetMaterial(self,name):
         """
-        SetMaterial(name):
         Set a particular material in the database as the actual material.
         All operations like setting and getting optical constants are done for
         this particular material.
 
         requiered input arguments:
-        name ............... string with the name of the material
+         name ............... string with the name of the material
         """
         try:
             self.h5group = self.h5file.getNode("/",name)
@@ -278,12 +269,11 @@ class DataBase(object):
 
     def GetF0(self,q):
         """
-        GetF0(q):
         Obtain the f0 scattering factor component for a particular
         momentum transfer q.
 
         required input argument:
-        q ......... single float value or numpy array
+         q ......... single float value or numpy array
         """
         #get parameters
         f0_params = self.f0_params.read()
@@ -300,12 +290,11 @@ class DataBase(object):
 
     def GetF1(self,en):
         """
-        GetF1(self,en):
         Return the second, energy dependent, real part of the scattering
         factor for a certain energy en.
 
         required input arguments:
-        en ............. float or numpy array with the energy
+         en ............. float or numpy array with the energy
         """
         #check if energy is coverd by database data
         endb = self.f1_en.read()
@@ -318,12 +307,11 @@ class DataBase(object):
 
     def GetF2(self,en):
         """
-        GetF2(self,en):
         Return the imaginary part of the scattering
         factor for a certain energy en.
 
         required input arguments:
-        en ............. float or numpy array with the energy
+         en ............. float or numpy array with the energy
         """
         #check if energy is coverd by database data
         endb = self.f2_en.read()
@@ -434,7 +422,6 @@ def init_material_db(db):
 #functions to read database files
 def add_f0_from_intertab(db,itabfile):
     """
-    add_f0_from_intertab(db,itabfile):
     Read f0 data from international tables of crystallography and add
     it to the database.
     """
@@ -488,7 +475,6 @@ def add_f0_from_intertab(db,itabfile):
 
 def add_f0_from_xop(db,xopfile):
     """
-    add_f0_from_xop(db,xopfile):
     Read f0 data from f0_xop.dat and add
     it to the database.
     """

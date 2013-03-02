@@ -40,8 +40,6 @@ map_ij2ijkl = {"0":[0,0],"1":[1,1],"2":[2,2],
         "3":[1,2],"4":[2,0],"5":[0,1],
         "6":[2,1],"7":[0,2],"8":[1,0]}
 
-_epsilon = 1e-7 # small number (should be saved somewhere more global but is needed)
-
 def index_map_ijkl2ij(i,j):
     return map_ijkl2ij["%i%i" %(i,j)]
 
@@ -51,15 +49,14 @@ def index_map_ij2ijkl(ij):
 
 def Cij2Cijkl(cij):
     """
-    Cij2Cijkl(cij):
     Converts the elastic constants matrix (tensor of rank 2) to
     the full rank 4 cijkl tensor.
 
     required input arguments:
-    cij ................ (6,6) cij matrix as a numpy array
+     cij ................ (6,6) cij matrix as a numpy array
 
     return value:
-    cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
     """
 
     #first have to build a 9x9 matrix from the 6x6 one
@@ -83,15 +80,14 @@ def Cij2Cijkl(cij):
 
 def Cijkl2Cij(cijkl):
     """
-    Cijkl2Cij(cijkl):
     Converts the full rank 4 tensor of the elastic constants to
     the (6,6) matrix of elastic constants.
 
     required input arguments:
-    cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
 
     return value:
-    cij ................ (6,6) cij matrix as a numpy array
+     cij ................ (6,6) cij matrix as a numpy array
     """
 
     #build the temporary 9x9 matrix
@@ -191,12 +187,11 @@ class Material(object):
 
     def Q(self,*hkl):
         """
-        Q(hkl):
         Return the Q-space position for a certain material.
 
         required input arguments:
-        hkl ............. list or numpy array with the Miller indices
-                          ( or Q(h,k,l) is also possible)
+         hkl ............. list or numpy array with the Miller indices
+                           ( or Q(h,k,l) is also possible)
 
         """
         if len(hkl)<3:
@@ -571,7 +566,7 @@ class Material(object):
          q:     vectorial momentum transfers;
                 list of vectores (list, tuple or array) of length 3
                 e.g.: (Si.Q(0,0,4),Si.Q(0,0,4.1),...) or
-                 numpy.array([Si.Q(0,0,4),Si.Q(0,0,4.1)])
+                numpy.array([Si.Q(0,0,4),Si.Q(0,0,4.1)])
          en0:   energy value in eV,
                 if omitted the value from the xrutils configuration is used
          temp:  temperature used for Debye-Waller-factor calculation
@@ -709,6 +704,19 @@ def HexagonalElasticTensor(c11,c12,c13,c33,c44):
 
 # define general material usefull for peak position calculations
 def GeneralUC(a=4,b=4,c=4,alpha=90,beta=90,gamma=90,name="General"):
+    """
+    general material with primitive unit cell but possibility for different
+    a,b,c and alpha,beta,gamma
+
+    Parameters
+    ----------
+     a,b,c      unit cell extenstions (Angstrom)
+     alpha      angle between unit cell vectors b,c
+     beta       angle between unit cell vectors a,c
+     gamma      angle between unit cell vectors a,b
+
+    returns a Material object with the specified properties
+    """
     return Material(name,lattice.GeneralPrimitiveLattice(a,b,c,alpha,beta,gamma))  
 
 #calculate some predefined materials
@@ -797,13 +805,13 @@ class Alloy(Material):
 
         Parameter
         ---------
-        hkl : Miller Indices
-        sub : substrate material or lattice constant (Instance of Material class or float)
-        exp : Experiment class from which the Transformation object and ndir are needed
+         hkl : Miller Indices
+         sub : substrate material or lattice constant (Instance of Material class or float)
+         exp : Experiment class from which the Transformation object and ndir are needed
 
         Returns
         -------
-        qy,qz : reciprocal space coordinates of the corners of the relaxation triangle
+         qy,qz : reciprocal space coordinates of the corners of the relaxation triangle
 
         """
         if isinstance(hkl,(list,tuple,numpy.ndarray)):
@@ -824,7 +832,7 @@ class Alloy(Material):
 
         # test if inplane direction of hkl is the same as the one for the experiment otherwise warn the user
         hklinplane = numpy.cross(numpy.cross(exp.ndir,hkl),exp.ndir)
-        if (numpy.linalg.norm(numpy.cross(hklinplane,exp.idir)) > _epsilon):
+        if (numpy.linalg.norm(numpy.cross(hklinplane,exp.idir)) > config.EPSILON):
             warnings.warn("Alloy: given hkl differs from the geometry of the Experiment instance in the azimuthal direction")
 
         # calculate relaxed points for matA and matB as general as possible:
@@ -873,18 +881,18 @@ class CubicAlloy(Alloy):
 
         Parameter
         ---------
-        q_perp : perpendicular peak position of the reflection
-                 hkl of the alloy in reciprocal space
-        hkl : Miller indices of the measured symmetric reflection (also defines the
-              surface normal
-        inpr : Miller indices of a Bragg peak defining the inplane reference direction
-        asub:   substrate lattice constant
-        relax:  degree of relaxation (needed to obtain the content from
-                symmetric reciprocal space position)
+         q_perp : perpendicular peak position of the reflection
+                  hkl of the alloy in reciprocal space
+         hkl : Miller indices of the measured symmetric reflection (also defines the
+               surface normal
+         inpr : Miller indices of a Bragg peak defining the inplane reference direction
+         asub:   substrate lattice constant
+         relax:  degree of relaxation (needed to obtain the content from
+                 symmetric reciprocal space position)
 
         Returns
         -------
-        content : the content of B in the alloy determined from the input variables
+         content : the content of B in the alloy determined from the input variables
 
         """
 
@@ -960,21 +968,21 @@ class CubicAlloy(Alloy):
 
         Parameter
         ---------
-        q_inp : inplane peak position of reflection hkl of
-                the alloy in reciprocal space
-        q_perp : perpendicular peak position of the reflection
-                 hkl of the alloy in reciprocal space
-        hkl : Miller indices of the measured asymmetric reflection
-        sur : Miller indices of the surface (determines the perpendicular
-              direction)
-
+         q_inp : inplane peak position of reflection hkl of
+                 the alloy in reciprocal space
+         q_perp : perpendicular peak position of the reflection
+                  hkl of the alloy in reciprocal space
+         hkl : Miller indices of the measured asymmetric reflection
+         sur : Miller indices of the surface (determines the perpendicular
+               direction)
+ 
         Returns
         -------
-        content,[a_inplane,a_perp,a_bulk_perp(x), eps_inplane, eps_perp] :
-                the content of B in the alloy determined from the input
-                variables and the lattice constants calculated from the
-                reciprocal space positions as well as the strain (eps) of
-                the layer
+         content,[a_inplane,a_perp,a_bulk_perp(x), eps_inplane, eps_perp] :
+                 the content of B in the alloy determined from the input
+                 variables and the lattice constants calculated from the
+                 reciprocal space positions as well as the strain (eps) of
+                 the layer
         """
 
         # check input parameters
@@ -1064,18 +1072,17 @@ class SiGe(CubicAlloy):
 
 def PseudomorphicMaterial(submat,layermat):
     """
-    PseudomprohicMaterial(submat,layermat):
     This function returns a material whos lattice is pseudomorphic on a
     particular substrate material.
     This function works meanwhile only for cubic materials.
 
     required input arguments:
-    submat .................... substrate material
-    layermat .................. bulk material of the layer
+     submat .................... substrate material
+     layermat .................. bulk material of the layer
 
     return value:
-    An instance of Material holding the new pseudomorphically strained
-    material.
+     An instance of Material holding the new pseudomorphically strained
+     material.
     """
 
     a1 = submat.lattice.a1
