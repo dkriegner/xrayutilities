@@ -54,7 +54,7 @@ first to a HDF5 file.
 import tables
 import re
 import os
-from scipy.io import read_array
+import numpy
 
 filedate = re.compile(r"^#fdt")
 file_extract = re.compile(r"\S+")
@@ -120,7 +120,7 @@ def read_tascom_dat(fileobject,**keyargs):
             break
 
     #now read the data columns
-    data = read_array(filename)
+    data = numpy.loadtxt(filename)
 
     #finally we have to sort the data to the column dict
     for i in range(len(namelist)):
@@ -148,7 +148,7 @@ def read_tascom_dat(fileobject,**keyargs):
                 filetemp = dar_template + filenostr + ".dar"
 
             #finally we have to read the data
-            dardata = read_array(filetemp)
+            dardata = numpy.loadtxt(filetemp)
 
             if "MCA" not in coldict:
                 coldict["MCA"] = Numeric.array(filenos.shape[0],dardata.shape[1])
@@ -401,7 +401,7 @@ def det2hdf5(filename,h5file,**keyargs):
 
     #open the file for reading
     try:
-        data = rio.read_array(filename,"r")
+        data = numpy.loadtxt(filename)
     except:
         print("XU.io.tascom.det2hdf5: error reading file %s !" %filename)
         return None
