@@ -28,14 +28,12 @@ def getindex3d(x,y,z,xgrid,ygrid,zgrid):
 
     Parameters
     ----------
-     x,y,z: coordinates of the point of interest (float)
-     xgrid,
-     ygrid,
-     zgrid: grid coordinates in x,y,z direction (array)
+     x,y,z:     coordinates of the point of interest (float)
+     xgrid,ygrid,zgrid:     grid coordinates in x,y,z direction (array)
 
     Returns
     -------
-     ix,iy,iz: index of the closest gridpoint (lower left) of the point (x,y,z)
+     ix,iy,iz:  index of the closest gridpoint (lower left) of the point (x,y,z)
     """
 
     dx = xgrid[1]-xgrid[0]
@@ -62,16 +60,17 @@ def get_qx_scan3d(gridder,qypos,qzpos,**kwargs):
 
     Parameters
     ----------
-    gridder: 3d xrutils.Gridder3D object containing the data
-    qypos,qzpos: position at which the line scan should be extracted
+     gridder:       3d xrutils.Gridder3D object containing the data
+     qypos,qzpos:   position at which the line scan should be extracted
 
-    **kwargs: possible keyword arguments:
-        qrange: integration range perpendicular to scan direction
-        qmin,qmax: minimum and maximum value of extracted scan axis
+    **kwargs:       possible keyword arguments:
+      qrange:       integration range perpendicular to scan direction
+      qmin,qmax:    minimum and maximum value of extracted scan axis
 
     Returns
     -------
-    qx,qxint: qx scan coordinates and intensities
+     qx,qxint: qx scan coordinates and intensities
+    
     Example
     -------
     >>> qxcut,qxcut_int = get_qx_scan3d(gridder,0,0,qrange=0.03)
@@ -120,16 +119,17 @@ def get_qy_scan3d(gridder,qxpos,qzpos,**kwargs):
 
     Parameters
     ----------
-    gridder: 3d xrutils.Gridder3D object containing the data
-    qxpos,qzpos: position at which the line scan should be extracted
+     gridder:       3d xrutils.Gridder3D object containing the data
+     qxpos,qzpos:   position at which the line scan should be extracted
 
-    **kwargs: possible keyword arguments:
-        qrange: integration range perpendicular to scan direction
-        qmin,qmax: minimum and maximum value of extracted scan axis
+    **kwargs:       possible keyword arguments:
+     qrange:        integration range perpendicular to scan direction
+     qmin,qmax:     minimum and maximum value of extracted scan axis
 
     Returns
     -------
-    qy,qyint: qy scan coordinates and intensities
+     qy,qyint: qy scan coordinates and intensities
+    
     Example
     -------
     >>> qycut,qycut_int = get_qy_scan3d(gridder,0,0,qrange=0.03)
@@ -177,16 +177,17 @@ def get_qz_scan3d(gridder,qxpos,qypos,**kwargs):
 
     Parameters
     ----------
-    gridder: 3d xrutils.Gridder3D object containing the data
-    qxpos,qypos: position at which the line scan should be extracted
+     gridder:       3d xrutils.Gridder3D object containing the data
+     qxpos,qypos:   position at which the line scan should be extracted
 
-    **kwargs: possible keyword arguments:
-        qrange: integration range perpendicular to scan direction
-        qmin,qmax: minimum and maximum value of extracted scan axis
+    **kwargs:       possible keyword arguments:
+     qrange:        integration range perpendicular to scan direction
+     qmin,qmax:     minimum and maximum value of extracted scan axis
 
     Returns
     -------
-    qz,qzint: qz scan coordinates and intensities
+     qz,qzint: qz scan coordinates and intensities
+    
     Example
     -------
     >>> qzcut,qzcut_int = get_qz_scan3d(gridder,0,0,qrange=0.03)

@@ -60,21 +60,24 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
      angles:    detector angles for which the position of the beam was
                 measured
      channels:  detector channels where the beam was found
-     keyword arguments:
-      stdev     standard deviation of the beam position
-      plot:     flag to specify if a visualization of the fit should be done
-      usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: False)
+     
+    keyword arguments:
+     stdev     standard deviation of the beam position
+     plot:     flag to specify if a visualization of the fit should be done
+     usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: False)
 
-    Returns:
-     (L/w_pix*pi/180 ,centerch[,tilt])
-        L/w_pix*pi/180 ~= channel/degree for large detector distance
-            with L sample detector disctance
-            w_pix the width of one detector channel
-        centerch: center channel of the detector
-        tilt: tilt of the detector from perpendicular to the beam
+    Returns: 
+     (L/pixelwidth*pi/180 ,centerch[,tilt]):
+     
+    L/pixelwidth*pi/180 = channel/degree for large detector distance
+    with L sample detector disctance, and
+    pixelwidth the width of one detector channel
     
+    centerch: center channel of the detector
+    tilt: tilt of the detector from perpendicular to the beam
+
     Note:
-    distance is given by: channel_width*channelperdegree/tan(radians(1))
+     distance of the detector is given by: channelwidth*channelperdegree/tan(radians(1))
     """
 
     if stdev == None:
@@ -90,8 +93,8 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         Parameters
         ----------
          p ... [L/w_pix*pi/180 ~= channel/degree, center_channel, detector_tilt] 
-                with L sample detector disctance
-                w_pix the width of one detector channel
+               with L sample detector disctance
+               w_pix the width of one detector channel
          x ... independent variable of the model: detector angle (degree)
         """
         rad = numpy.radians(x)
@@ -219,18 +222,20 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
      angle ........ array of angles in degree of measured detector spectra
      mca_spectra .. corresponding detector spectra 
                     (shape: (len(angle),Nchannels) 
-     **keyargs passed to psd_chdeg function used for the modelling
-        additional options:
-        r_i ....... primary beam direction as vector [xyz][+-]
-                    default: 'y+'
-        detaxis ... detector rotation axis [xyz][+-] e.g. 'x+'
-                    default: 'x+'
+
+    **keyargs passed to psd_chdeg function used for the modelling additional options:
+     r_i .......... primary beam direction as vector [xyz][+-]; default: 'y+'
+     detaxis ...... detector rotation axis [xyz][+-] e.g. 'x+'; default: 'x+'
      
     returns
     -------
-     L/w_pix*pi/180 ~= channel/degree, center_channel[, detector_tilt]
+     L/pixelwidth*pi/180 ~= channel/degree, center_channel[, detector_tilt]
 
-     distance is given by: channel_width*channelperdegree/tan(radians(1))
+    The function also prints out how a linear detector can be initialized using the results
+    obtained from this calibration.
+
+    Note:
+     distance of the detector is given by: channel_width*channelperdegree/tan(radians(1))
     """
 
     if "detaxis" in keyargs:
@@ -328,25 +333,20 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
      r_i ........ primary beam direction [xyz][+-]
                   default 'x+'
 
-     keyword_arguments:
+    keyword_arguments:
         plot .... flag to determine if results and intermediate results should be plotted
                   default: True
         cut_off . cut off intensity to decide if image is used for the determination or not
                   default: 0.7 = 70%
         start ... sequence of start values of the fit for parameters, 
                   which can not be estimated automatically
-               these are:
-                tiltazimuth
-                tilt
-                detector_rotation
-                outerangle_offset
-                 default: (0,0,0,0)
-        fix .... fix parameters of start (default: (False,False,False,False))
+                  these are:
+                  tiltazimuth,tilt,detector_rotation,outerangle_offset. By default (0,0,0,0) is used.
+        fix ..... fix parameters of start (default: (False,False,False,False))
         fig ..... matplotlib figure used for plotting the error
                   default: None (creates own figure)
         wl ...... wavelength of the experiment in Angstrom (default: config.WAVELENGTH)
                   value does not matter here and does only affect the scaling of the error
-
     """
 
     debug=True
@@ -744,17 +744,14 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
      r_i ........ primary beam direction [xyz][+-]
                   default 'x+'
 
-     keyword_arguments:
+    keyword_arguments:
         start ... sequence of start values of the fit for parameters, 
                   which can not be estimated automatically
-               these are:
-                tiltazimuth
-                tilt
-                detector_rotation
-                outerangle_offset
-                 default: (0,0,0,0)
-        fix .... fix parameters of start (default: (False,False,False,False))
-        full_output  flag to tell if to return fit object with final parameters and detector directions
+                  these are:
+                  tiltazimuth,tilt,detector_rotation,outerangle_offset.
+                  By default: (0,0,0,0)
+        fix ..... fix parameters of start (default: (False,False,False,False))
+        full_output   flag to tell if to return fit object with final parameters and detector directions
         wl ...... wavelength of the experiment in Angstrom (default: 1)
                   value does not matter here and does only affect the scaling of the error
 
@@ -762,8 +759,8 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
     -------
         eps   final epsilon of the fit
 
-        if full_output:
-            eps,param,fit
+    if full_output:
+        eps,param,fit
     """
 
     debug=False
@@ -962,24 +959,24 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
 
         parameters
         ----------
-        param           fit parameters
-                        (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)
-        x               independent variables (contains angle1, angle2, n1, n2)
-                        shape is (4,Npoints)
- 
-        detectorDir1:   direction of the detector (along the pixel direction 1); 
-                        e.g. 'z+' means higher pixel numbers at larger z positions
-        detectorDir2:   direction of the detector (along the pixel direction 2); e.g. 'x+'
-        
-        r_i:            primary beam direction e.g. 'x+'
-        detectorAxis:   list or tuple of detector circles
-                        e.g. ['z+','y-'] would mean a detector arm with a two rotations
-        wl:             wavelength of the experiment in Angstroem
+         param           fit parameters
+                         (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)
+         x               independent variables (contains angle1, angle2, n1, n2)
+                         shape is (4,Npoints)
+  
+         detectorDir1:   direction of the detector (along the pixel direction 1); 
+                         e.g. 'z+' means higher pixel numbers at larger z positions
+         detectorDir2:   direction of the detector (along the pixel direction 2); e.g. 'x+'
+         
+         r_i:            primary beam direction e.g. 'x+'
+         detectorAxis:   list or tuple of detector circles
+                         e.g. ['z+','y-'] would mean a detector arm with a two rotations
+         wl:             wavelength of the experiment in Angstroem
      
         Returns
         -------
-        reciprocal space position of detector pixels n1,n2 in a numpy.ndarray of shape
-        ( 3, x.shape[1] )
+         reciprocal space position of detector pixels n1,n2 in a numpy.ndarray of shape
+         ( 3, x.shape[1] )
         """
         
         angle1 = x[0,:]
@@ -1093,20 +1090,19 @@ def psd_refl_align(primarybeam,angles,channels,plot=True):
 
     Parameters
     ----------
-    primarybeam :   primary beam channel number
-    angles :        list or numpy.array with angles
-    channels :      list or numpy.array with corresponding detector channels
-    plot:           flag to specify if a visualization of the fit is wanted
-                    default: True
+     primarybeam :   primary beam channel number
+     angles :        list or numpy.array with angles
+     channels :      list or numpy.array with corresponding detector channels
+     plot:           flag to specify if a visualization of the fit is wanted
+                     default: True
 
     Returns
     -------
-    omega : angle at which the sample is parallel to the beam
+     omega : angle at which the sample is parallel to the beam
 
     Example
     -------
     >>> psd_refl_align(500,[0,0.1,0.2,0.3],[550,600,640,700])
-
     """
 
     (a_s,b_s,r,tt,stderr)=scipy.stats.linregress(channels,angles)
@@ -1174,7 +1170,6 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
                 the nominal one
      phi0:      the azimuth in which the primary beam looks upstairs
      miscut:    amplitude of the sinusoidal variation == miscut angle
-
     """
 
     if zeros != None:
@@ -1292,5 +1287,4 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
         plt.title("plot shows only coarse data! fit used raw data!")
     
     return omfit,ttfit,params,covariance
-
 
