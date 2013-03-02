@@ -18,8 +18,10 @@
 
 """
 a threaded class for observing a SPEC data file
+
 Motivation:
- SPEC files can become quite large. Therefore, subsequently reading
+
+SPEC files can become quite large. Therefore, subsequently reading
 the entire file to extract a single scan is a quite cumbersome procedure.
 This module is a proof of concept code to write a file observer starting
 a reread of the file starting from a stored offset (last known scan position)
@@ -70,7 +72,6 @@ class SPECMCA(object):
     SPECMCA - represents an MCA object in a SPEC file.
     This class is an abstract class not itended for being used directly.
     Instead use one of the derived classes SPECMCAFile or SPECMCAInline.
-
     """
     def __init__(self,nchan,roistart,roistop):
         self.n_channels = nchan
@@ -93,7 +94,6 @@ class SPECMCAInline(SPECMCA):
 
 class SPECScan(object):
     """
-    class SPECScan:
     Represents a single SPEC scan.
     """
     def __init__(self,name,scannr,command,date,time,itime,colnames,hoffset,
@@ -102,19 +102,18 @@ class SPECScan(object):
         Constructor for the SPECScan class.
 
         required arguments:
-        name ............. name of the scan
-        scannr ........... Number of the scan in the specfile
-        command .......... command used to write the scan
-        date ............. starting date of the scan
-        time ............. starting time of the scan
-        itime ............ integration time
-        hoffset .......... file byte offset to the header of the scan
-        doffset .......... file byte offset to the data section of the scan
-        fid .............. file ID of the SPEC file the scan belongs to
-        imopnames ........ motor names for the initial motor positions array
-        imopvalues ....... intial motor positions array
-        scan_status ...... is one of the values
-
+         name ............. name of the scan
+         scannr ........... Number of the scan in the specfile
+         command .......... command used to write the scan
+         date ............. starting date of the scan
+         time ............. starting time of the scan
+         itime ............ integration time
+         hoffset .......... file byte offset to the header of the scan
+         doffset .......... file byte offset to the data section of the scan
+         fid .............. file ID of the SPEC file the scan belongs to
+         imopnames ........ motor names for the initial motor positions array
+         imopvalues ....... intial motor positions array
+         scan_status ...... is one of the values
         """
         self.name = name            #name of the scan
         self.nr = scannr            #number of the scan
@@ -177,17 +176,15 @@ class SPECScan(object):
 
     def SetMCAParams(self,mca_column_format,mca_channels,mca_start,mca_stop):
         """
-        SetMCAParams(mca_column_format,mca_channels):
         Set the parameters used to save the MCA data to the file. This method
         calculates the number of lines used to store the MCA data from the
         number of columns and the
 
         required input aguments:
-        mca_column_format ....................... number of columns used to save the data
-        mca_channels ............................ number of MCA channels stored
-        mca_start ............................... first channel that is stored
-        mca_stop ................................ last channel that is stored
-
+         mca_column_format ....................... number of columns used to save the data
+         mca_channels ............................ number of MCA channels stored
+         mca_start ............................... first channel that is stored
+         mca_stop ................................ last channel that is stored
         """
         self.has_mca = True
         self.mca_column_format = mca_column_format
@@ -219,7 +216,6 @@ class SPECScan(object):
 
     def ClearData(self):
         """
-        ClearData():
         Delete the data stored in a scan after it is no longer
         used.
         """
@@ -229,7 +225,6 @@ class SPECScan(object):
 
     def ReadData(self):
         """
-        GetData():
         Set the data attribute of the scan class.
         """
 
@@ -341,7 +336,6 @@ class SPECScan(object):
 
     def plot(self,*args,**keyargs):
         """
-        plot(*args,newfig=True,logy=False):
         Plot scan data to a matplotlib figure. If newfig=True a new
         figure instance will be created. If logy=True (default is False)
         the y-axis will be plotted with a logarithmic scale.
@@ -405,7 +399,6 @@ class SPECScan(object):
 
     def Save2HDF5(self,h5f,**keyargs):
         """
-        Save2HDF5(h5f,**keyargs):
         Save a SPEC scan to an HDF5 file. The method creates a group with the name of the
         scan and stores the data there as a table object with name "data". By default the
         scan group is created under the root group of the HDF5 file.
@@ -414,14 +407,14 @@ class SPECScan(object):
         group can be passed as a dictionary via the optattrs keyword argument.
 
         input arguments:
-        h5f ..................... a HDF5 file object or its filename
+         h5f ..................... a HDF5 file object or its filename
 
         optional keyword arguments:
-        group ...................... name or group object of the HDF5 group where to store the data
-        title ............... a string with the title for the data
-        desc ................ a string with the description of the data
-        optattrs ............ a dictionary with optional attributes to store for the data
-        comp ................ activate compression - true by default
+         group ...................... name or group object of the HDF5 group where to store the data
+         title ............... a string with the title for the data
+         desc ................ a string with the description of the data
+         optattrs ............ a dictionary with optional attributes to store for the data
+         comp ................ activate compression - true by default
         """
         
         closeFile=False
@@ -538,11 +531,9 @@ class SPECScan(object):
 
 class SPECFile(object):
     """
-    class SPECFile:
     This class represents a single SPEC file. The class provides
     methodes for updateing an already opened file which makes it particular
     interesting for interactive use.
-
     """
     def __init__(self,filename,**keyargs):
         self.filename = filename
@@ -587,18 +578,17 @@ class SPECFile(object):
 
     def Save2HDF5(self,h5f,**keyargs):
         """
-        Save2HDF5(h5f):
         Save the entire file in an HDF5 file. For that purpose a group is set up in the root
         group of the file with the name of the file without extension and leading path.
         If the method is called after an previous update only the scans not written to the file meanwhile are
         saved.
 
         required arguments:
-        h5f .................... a HDF5 file object or its filename
+         h5f .................... a HDF5 file object or its filename
 
         optional keyword arguments:
-        comp .................. activate compression - true by default
-        name .................. optional name for the file group
+         comp .................. activate compression - true by default
+         name .................. optional name for the file group
         """
 
         closeFile=False
@@ -636,7 +626,6 @@ class SPECFile(object):
 
     def Update(self):
         """
-        Update():
         reread the file and add newly added files. The parsing starts at the
         data offset of the last scan gathered during the last parsing run.
         """
@@ -667,7 +656,6 @@ class SPECFile(object):
 
     def Parse(self):
         """
-        method parse_file():
         Parses the file from the starting at last_offset and adding found scans
         to the scan list.
         """
@@ -939,13 +927,14 @@ def geth5_scan(h5f,scans,*args,**kwargs):
     ----------
      h5f:     file object of a HDF5 file opened using pytables or its filename
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
+     
      *args:   names of the motors (optional) (strings)
-        to read reciprocal space maps measured in coplanar diffraction give:
-        omname:  e.g. name of the omega motor (or its equivalent)
-        ttname:  e.g. name of the two theta motor (or its equivalent)
+     to read reciprocal space maps measured in coplanar diffraction give:
+     omname:  e.g. name of the omega motor (or its equivalent)
+     ttname:  e.g. name of the two theta motor (or its equivalent)
 
      **kwargs (optional):
-        samplename: string with the hdf5-group containing the scan data
+       samplename: string with the hdf5-group containing the scan data
                     if ommited the first child node of h5f.root will be used
 
     Returns
@@ -959,6 +948,10 @@ def geth5_scan(h5f,scans,*args,**kwargs):
                 sensitive detector (numpy.ndarray 1D) together with all the
                 data values as stored in the data file (includes the
                 intensities e.g. MAP['MCA']).
+
+    Example
+    -------
+    >>> [om,tt],MAP = xu.io.geth5_scan(h5file,36,'omega','gamma')
     """
     
     closeFile=False

@@ -20,38 +20,46 @@
 this module provides routines to insert the data of a Bruker Apex CCD
 detector into a HDF5 format
 
- GENERAL NOTES ON THE BRUKER CCD FILE FORMAT:
+GENERAL NOTES ON THE BRUKER CCD FILE FORMAT
+-------------------------------------------
+
 Several version of the Bruker CCDF file format exist. This module supports
 actually two versions. The version of the CCD file is determined by two values
 stored in the files header:
- -) FORMAT  ....... determining the data format
- -) VERSION ....... determining the version of a certain format
 
-Format values:
+* FORMAT    determining the data format
+* VERSION   determining the version of a certain format
+
+Format values
 -------------
- FORMAT=86 ...... the file uses a frame compression format as described in
-                  appendix A3 of the APEX CCD manual
- FORMAT=100 ..... the file uses the new image compression format as described
-                  in appendix A2 of the Bruker APEX CCD manual
+* FORMAT=86     the file uses a frame compression format as described in
+                appendix A3 of the APEX CCD manual
+* FORMAT=100    the file uses the new image compression format as described
+                in appendix A2 of the Bruker APEX CCD manual
+
 The format determines mainly how the data is stored in the file.
 
-Version values:
+Version values
 --------------
 The version value describes the version of the file header format.
 There, the following values can appear:
- VERSION=11 ...... fixed-format/free-line header, only valid with Format 100
- VERSION=101 ..... new free-format header
+
+- VERSION=11    fixed-format/free-line header, only valid with Format 100
+- VERSION=101   new free-format header
 
 This module supports actually two Bruker CCD formats:
- -) fixed-format/free line (Format=100, Version=11)
- -) fixed-format frame image (Format=86, Version=101)
 
-The aim of this module:
+- fixed-format/free line (Format=100, Version=11)
+- fixed-format frame image (Format=86, Version=101)
+
+The aim of this module
 ======================
 Unlike many other modules this one should not be treated as a 'data importer' in a
 common sense. To work with the CCD data two steps have to be done.
-1.)convert the data files to a HDF5 file
-2.)do some data correction and manipulate the data
+
+1. convert the data files to a HDF5 file
+2. do some data correction and manipulate the data
+
 For a better understanding one can take the term 'conversion' in its very strict
 sense. In the first step the data is converted from Brukers own file format
 to a HDF5 file by means of representing the storage structures of a HDF5 file
@@ -62,44 +70,49 @@ HDF5 structures. The motivation for this that it is much easier and faster to wo
 on a bulk of HDF5 objects in one file than to work on a huge bulk of single
 files on a physical file system.
 
-Data abstraction:
+Data abstraction
 ----------------
- Bruker uses an overflow/underflow concept for file compressions. Every data file
- consists in fact of something between 3 and 5 objects:
- -> a header
- -> the raw 1b image data
- -> a single 1byte overflow table
- -> a 1Byte and a 2Byte overflow table
- -> an underflow table
- Bruker is using a overflow underflow table for doing file compression.
- Since HDF5 provides the possibilities to do inline compression of an array I will
- do the overflow underflow correction within the code and store the data in an EArray
- including compression with zlib.
- The detector images are assumed to be stored somewhere in a group of a HDF5 file.
- In addition into every of such groups a seperate table is generated to hold the header data
- of the data files. The header table is called "BRUKER_CCD_V11_HEADERS"
+Bruker uses an overflow/underflow concept for file compressions. Every data file
+consists in fact of something between 3 and 5 objects:
 
- Filename convention:
- ===================
- Since CCD data is usually stored during a scan of something the module provides
- the feature of reading a whole set of data files.
- In this case some naming convention for the filenames is used:
- pattern+_filenumber_framenumber.sfrm
- In such a case the user has to provide the following information to automatically
- read the data:
- filepattern ............... the general pattern for the filename
- scanrange ................. range of filenumbers to read
- framerange ................ range of frames to read
- The filepattern is given in the form of a format string like: "patter__%5i_%3%i.sfrm"
- where the first integer is the scan number and the second one the frame number.
+- a header
+- the raw 1b image data
+- a single 1byte overflow table
+- a 1Byte and a 2Byte overflow table
+- an underflow table
 
- User functions:
- ===============
- The module provides the following user functions (everything else is low level and
- therfore hardly usefull for the common user):
- ccd2hdf5 .......................... reads a single CCD file and stores it to HDF5
- ccdf2hdf5 ......................... reads a single HDF5 file with all frames
- ccds2hdf5 ......................... reads an entire collection of CCD files
+Bruker is using a overflow underflow table for doing file compression.
+Since HDF5 provides the possibilities to do inline compression of an array I will
+do the overflow underflow correction within the code and store the data in an EArray
+including compression with zlib.
+The detector images are assumed to be stored somewhere in a group of a HDF5 file.
+In addition into every of such groups a seperate table is generated to hold the header data
+of the data files. The header table is called "BRUKER_CCD_V11_HEADERS"
+
+Filename convention
+===================
+Since CCD data is usually stored during a scan of something the module provides
+the feature of reading a whole set of data files.
+In this case some naming convention for the filenames is used:
+pattern+_filenumber_framenumber.sfrm
+In such a case the user has to provide the following information to automatically
+read the data:
+
+filepattern :  the general pattern for the filename.
+scanrange :    range of filenumbers to read.
+framerange :   range of frames to read.
+
+The filepattern is given in the form of a format string like: "patter__%5i_%3%i.sfrm"
+where the first integer is the scan number and the second one the frame number.
+
+User functions
+==============
+The module provides the following user functions (everything else is low level and
+therfore hardly usefull for the common user):
+
+ ccd2hdf5 :   reads a single CCD file and stores it to HDF5
+ ccdf2hdf5 :  reads a single HDF5 file with all frames
+ ccds2hdf5 :  reads an entire collection of CCD files
 """
 
 import tables
@@ -126,16 +139,18 @@ be_verbose = 0   # this flag determines if the module should print status inform
 
 def ccds2hdf5(h5file,pattern,sn_list,fn_list,**optargs):
     """
-    ccds2hdf5(h5file,pattern,sn_list,fn_list,**optargs):
     Stores an entire collection of Bruker CCD files to a HDF5 file.
-    Required input arguments:
-        h5file ............................... HDF5 file object
-        pattern ............................ file pattern as a format string (two numbers are included describing the scan and the frame number)
-        sn_list .............................. list of scan_numbers to read
-        fn_list ............................... list of frame numbers to read
+    
+    Parameters
+    ----------
+     h5file :    HDF5 file object
+     pattern :   file pattern as a format string (two numbers are included describing the scan and the frame number)
+     sn_list :   list of scan_numbers to read
+     fn_list :   list of frame numbers to read
+
     optional arguments:
-        path ................................. data path where to read the data
-        group ............................... HDF5 group where to store the data
+     path :      data path where to read the data
+     group :     HDF5 group where to store the data
     """
 
     #check for optional arguments:
@@ -171,12 +186,14 @@ def ccd2hdf5(h5file,filename,**optargs):
     ccd2hdf5(filename,h5file,h5group)
     Converts the content of a Bruker CCD file to a HDF5 object and stores it in
     a HDF5 file.
+    
     Input arguments:
-        h5file ................... HDF5 file object
-        filename .............. name of the CCD data file
+     h5file :       HDF5 file object
+     filename :  name of the CCD data file
+    
     optional input arguments:
-        path ..................... path to the
-        group ................... the HDF5 group where to store the data
+     path :      path to the
+     group :     the HDF5 group where to store the data
     """
 
     #set the default filter for compression fo the picture data
@@ -319,21 +336,16 @@ def ccd2hdf5(h5file,filename,**optargs):
     tmparray = numpy.reshape(tmparray,(nrows,ncols))
     h5_earray.append([tmparray])
 
-
-
-
-
-
 def load_data(hdr,fid):
     """
-    load_data(hdr,fid):
     Load the raw data from the file (without under- and overflow correction).
+    
     Required input arguments:
-    hdr ............... the header class of the CCD file
-    fid ............... file object to the CCD file
+     hdr ............... the header class of the CCD file
+     fid ............... file object to the CCD file
 
     return values:
-    data .............. an array of size (n,n) with the raw 1byte data
+     data .............. an array of size (n,n) with the raw 1byte data
     """
 
     #load the datasize and shape from the header
@@ -472,15 +484,14 @@ def load_overflow(hdr,fid):
 
 def load(filename,h5file,h5group):
     """
-    load(filename):
     Load the data from a CCD data file given by 'filename'. The function takes
     the following required input arguments:
-    filename ............ filename of the CCD data file
-
+     
+     filename ............ filename of the CCD data file
 
     return values:
-    data ................ an array of size (n,n) of type int with the CCD data
-    hdf ................. the header class of the file
+     data ................ an array of size (n,n) of type int with the CCD data
+     hdf ................. the header class of the file
     """
 
     try:
@@ -528,9 +539,3 @@ def load(filename,h5file,h5group):
                 ov_2b_counter = ov_2b_counter + 1
 
     return [raw_data,hdr]
-
-
-
-
-
-

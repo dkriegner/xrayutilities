@@ -43,18 +43,16 @@ blank_extract = re.compile(r"\S+") #extract all columns seperated by single blan
 
 def rad2hdf5(h5,rdcfile,**keyargs):
     """
-    rad2hdf5(h5,rdcfile,**keyargs):
     Converts a RDC file to an HDF5 file.
 
     Required input arguments:
-    h5 .................. HDF5 object where to store the data
-    rdcfile ............. name of the RDC file
+     h5 .................. HDF5 object where to store the data
+     rdcfile ............. name of the RDC file
 
     optional (named) input arguments:
-    h5path .............. Path in the HDF5 file where to store the data
-    rdcpath ............. path where the RDC file is located (default
-                          is the current working directory)
-
+     h5path .............. Path in the HDF5 file where to store the data
+     rdcpath ............. path where the RDC file is located (default
+                           is the current working directory)
     """
 
     if "rdcpath" in keyargs:
@@ -170,18 +168,13 @@ def rad2hdf5(h5,rdcfile,**keyargs):
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.io.rad2hdf5: scan finished")
 
-
-
-
     #flush the last table (for sure)
     table.flush()
     rdcfid.close()
 
 
-
 def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
     """
-    hst2hdf5(h5,hstfile,**keyargs):
     Converts a HST file to an HDF5 file.
 
     Required input arguments:
@@ -273,18 +266,17 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
 
 def selecthst(et_limit,mca_info,mca_array):
     """
-    selecthst(et_limit,mca_info,mca_array):
     Select historgrams form the complete set of recorded MCA data
     and stores it into a new numpy array. The selection is done due to a
     exposure time limit. Spectra below this limit are ignored.
 
     required input arguments:
-    et_limit .............. exposure time limit
-    mca_info .............. pytables table with the exposure data
-    mca_array ............. array with all the MCA spectra
+     et_limit .............. exposure time limit
+     mca_info .............. pytables table with the exposure data
+     mca_array ............. array with all the MCA spectra
 
     return value:
-    a numpy array with the selected mca spectra of shape (hstnr,channels).
+     a numpy array with the selected mca spectra of shape (hstnr,channels).
     """
 
     #read the exposure time

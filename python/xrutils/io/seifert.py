@@ -20,8 +20,9 @@
 a set of  routines to convert Seifert ASCII files to HDF5
 in fact there exist two posibilities how the data is stored (depending on the
 use detector):
- 1.) as a simple line scan (using the point detector)
- 2.) as a map using the PSD
+
+ 1. as a simple line scan (using the point detector)
+ 2. as a map using the PSD
 
 In the first case the data ist stored
 """
@@ -57,7 +58,6 @@ re_absorber = re.compile(r"^&Axis=A6")
 
 def repair_key(key):
     """
-    repair_key(key):
     Repair a key string in the sense that the string is changed in a way that
     it can be used as a valid Python identifier. For that purpose all blanks
     within the string will be replaced by _ and leading numbers get an
@@ -100,9 +100,9 @@ class SeifertMultiScan(object):
         Parse data from a multiscan Seifert file.
 
         required input arguments:
-        filename ................... name of the NJA file
-        m_scan ..................... name of the scan axis
-        m2 ......................... name of the second moving motor
+         filename ................... name of the NJA file
+         m_scan ..................... name of the scan axis
+         m2 ......................... name of the second moving motor
         """
 
         self.Filename =filename
@@ -184,22 +184,21 @@ class SeifertMultiScan(object):
 
     def dump2hdf5(self,h5,*args,**keyargs):
         """
-        dump2hdf5(h5,*args,**keyargs):
         Saves the content of a multi-scan file to a HDF5 file. By default the
         data is stored in the root group of the file. To save data somewhere
         else the keyword argument "group" must be used.
 
         required arguments:
-        h5 ................. a HDF5 file object
+         h5 ................. a HDF5 file object
 
         optional positional arguments:
-        name for the intensity matrix
-        name for the scan motor
-        name for the second motor
-        more then three parameters are ignored.
+         name for the intensity matrix
+         name for the scan motor
+         name for the second motor
+         more then three parameters are ignored.
 
         optional keyword arguments:
-        group ............... path to the HDF5 group where to store the data
+         group ............... path to the HDF5 group where to store the data
         """
 
         try:
@@ -238,15 +237,11 @@ class SeifertMultiScan(object):
         c[...] = self.m2_pos[...]
         h5.flush()
 
-
-
     def dump2mlab(self,fname,*args):
         """
-        dump2malb(fname,*args):
         Store the data in a matlab file.
         """
         pass
-
 
 
 class SeifertScan(object):
@@ -255,8 +250,7 @@ class SeifertScan(object):
         Constructor for a SeifertScan object.
 
         required input arguments:
-        filename ................... a string with the name of the file to read
-
+         filename ................... a string with the name of the file to read
         """
         self.Filename = filename
         try:
@@ -319,20 +313,19 @@ class SeifertScan(object):
 
     def dump2h5(self,h5,*args,**keyargs):
         """
-        dump2h5(h5,**keyargs):
         Save the data stored in the Seifert ASCII file to a HDF5 file.
 
-
         required input arguments:
-        h5 ............. HDF5 file object
+         h5 ............. HDF5 file object
 
         optional arguments:
+        
         names to use to store the motors. The first must be the name
         for the intensity array. The number of names must be equal to the second
         element of the shape of the data object.
 
         optional keyword arguments:
-        group .......... HDF5 group object where to store the data.
+         group .......... HDF5 group object where to store the data.
         """
 
         #handle optional arguments:
@@ -368,18 +361,15 @@ class SeifertScan(object):
 
     def dump2mlab(self,fname,*args):
         """
-        dump2mlab(fname):
         Save the data from a Seifert scan to a matlab file.
 
         required input arugments:
-        fname .................. name of the matlab file
+         fname .................. name of the matlab file
 
         optional position arguments:
+        
         names to use to store the motors. The first must be the name
         for the intensity array. The number of names must be equal to the second
         element of the shape of the data object.
-
         """
         pass
-
-

@@ -60,7 +60,6 @@ _absorber_factors = None
 
 class SPECTRAFileComments(dict):
     """
-    class SPECTRAFileComments:
     Class that describes the comments in the header of a SPECTRA file.
     The different comments are accessible via the comment keys.
     """
@@ -191,21 +190,20 @@ class SPECTRAFileData(object):
 
 class SPECTRAFile(object):
     """
-    class SPECTRAFile:
     Represents a SPECTRA data file. The file is read during the
     Constructor call. This class should work for data stored at
     beamlines P08 and BW2 at HASYLAB.
 
     Required constructor arguments:
     ------------------------------
-    filename ................ a string with the name of the SPECTRA file
+     filename ................ a string with the name of the SPECTRA file
 
     Optional keyword arguments:
     --------------------------
-    mcatmp .................. template for the MCA files
-    mcastart,mcastop ........ start and stop index for the MCA files, if
-                              not given, the class tries to determine the
-                              start and stop index automatically.
+     mcatmp .................. template for the MCA files
+     mcastart,mcastop ........ start and stop index for the MCA files, if
+                               not given, the class tries to determine the
+                               start and stop index automatically.
     """
     def __init__(self,filename,mcatmp=None,mcastart=None,mcastop=None):
         self.filename = filename
@@ -238,8 +236,6 @@ class SPECTRAFile(object):
 
     def Save2HDF5(self,h5file,name,group="/",description="SPECTRA scan",mcaname="MCA"):
         """
-        Save2HDF5(h5file,group="/",name="",description="SPECTRA scan",
-                  mcaname="MCA"):
         Saves the scan to an HDF5 file. The scan is saved to a
         seperate group of name "name". h5file is either a string
         for the file name or a HDF5 file object.
@@ -247,17 +243,16 @@ class SPECTRAFile(object):
         chunked array of with name mcaname.
 
         required input arguments:
-        h5file .............. string or HDF5 file object
-        name ................ name of the group where to store the data
+         h5file .............. string or HDF5 file object
+         name ................ name of the group where to store the data
 
         optional keyword arguments:
-        group ............... root group where to store the data
-        description ......... string with a description of the scan
+         group ............... root group where to store the data
+         description ......... string with a description of the scan
 
         Return value:
         The method returns None in the case of everything went fine, True
         otherwise.
-
         """
         if isinstance(h5file,str):
             try:
@@ -372,7 +367,6 @@ class SPECTRAFile(object):
 
     def Read(self):
         """
-        Read():
         Read the data from the file.
         """
         try:
@@ -542,10 +536,7 @@ class Spectra(object):
 
     def set_abs_factors(self,ff):
         """
-        set_abs_factors(ff):
         Set the global absorber factors in the module.
-
-
         """
         if isinstance(ff,list):
             self.abs_factors = numpy.array(ff,dtype=numpy.double)
@@ -556,20 +547,19 @@ class Spectra(object):
 
     def recarray2hdf5(self,h5g,rec,name,desc,**keyargs):
         """
-        recarray2hdf5(h5,g,rec,**keyargs):
         Save a record array in an HDF5 file. A pytables table
         object is used to store the data.
 
         required input arguments:
-        h5g ................. HDF5 group object or path
-        rec ................ record array
-        name ............... name of the table in the file
-        desc ............... description of the table in the file
+         h5g ................. HDF5 group object or path
+         rec ................ record array
+         name ............... name of the table in the file
+         desc ............... description of the table in the file
 
         optional keyword arguments:
 
         return value:
-        tab ................. a HDF5 table object
+         tab ................. a HDF5 table object
         """
 
         #to build the table data types and names must be extracted
@@ -600,17 +590,16 @@ class Spectra(object):
 
     def spectra2hdf5(self,dir,fname,mcatemp,**keyargs):
         """
-        sepctra2hdf5(h5,name,desc,dir,scanname,mcatemp):
         Convert SPECTRA scan data to a HDF5 format.
 
         required input arguments:
-        dir ............... directory where the scan is stored
-        fname ............. name of the SPECTRA data file
-        mcatemp ........... template for the MCA file names
+         dir ............... directory where the scan is stored
+         fname ............. name of the SPECTRA data file
+         mcatemp ........... template for the MCA file names
 
         optional keyword arguments:
-        name .............. optional name under which to save the data
-        desc .............. optional description of the scan
+         name .............. optional name under which to save the data
+         desc .............. optional description of the scan
         """
 
         (name,ext) = os.path.splitext(fname)
@@ -670,7 +659,6 @@ class Spectra(object):
 
     def abs_corr(self,data,f,**keyargs):
         """
-        abs_corr(data,f,**keyargs):
         Perform absorber correction. Data can be either a 1 dimensional data (point
         detector) or a 2D MCA array. In the case of an array the data array should
         be of shape (N,NChannels) where N is the number of points in the scan an
@@ -682,14 +670,14 @@ class Spectra(object):
         passed via optional keyword arguments.
 
         required input arguments:
-        mca ............... matrix with the MCA data
-        f ................. filter values along the scan
+         mca ............... matrix with the MCA data
+         f ................. filter values along the scan
 
         optional keyword arguments:
-        ff ................ custome filter factors
+         ff ................ custome filter factors
 
         return value:
-        Array with the same shape as mca with the corrected MCA data.
+         Array with the same shape as mca with the corrected MCA data.
         """
 
         mcan = numpy.zeros(data.shape,dtype=numpy.double)
@@ -709,14 +697,13 @@ class Spectra(object):
 
 def get_spectra_files(dirname):
     """
-    get_spectra_files(dirname):
     Return a list of spectra files within a directory.
 
     required input arguments:
-    dirname .............. name of the directory to search
+     dirname .............. name of the directory to search
 
     return values:
-    list with filenames
+     list with filenames
     """
 
     fnlist = os.listdir(dirname)
@@ -732,7 +719,6 @@ def get_spectra_files(dirname):
 
 def read_mca_dir(dirname,filetemp,**keyargs):
     """
-    read_mca_dir(dirname):
     Read all MCA files within a directory
     """
 
@@ -766,14 +752,13 @@ def read_mca_dir(dirname,filetemp,**keyargs):
 
 def read_mca(fname):
     """
-    read_mca(fname):
     Read a single SPECTRA MCA file.
 
     required input arguments:
-    fname ............... name of the file to read
+     fname ............... name of the file to read
 
     return value:
-    data ................ a numpy array witht the MCA data
+     data ................ a numpy array witht the MCA data
     """
 
     try:
@@ -802,7 +787,6 @@ def read_mca(fname):
 
 def read_mcas(ftemp,cntstart,cntstop):
     """
-    read_mcas(ftemp,cntstart,cntstop):
     Read MCA data from a SPECTRA MCA directory. The filename is passed as a
     generic
     """
@@ -820,16 +804,14 @@ def read_mcas(ftemp,cntstart,cntstop):
 
 def read_data(fname):
     """
-    read_data(fname):
     Read a spectra data file (a file with now MCA data).
 
     required input arguments:
-    fname .................... name of the file to read
+     fname .................... name of the file to read
 
-    return values:
-    (data,hdr)
-    data .......... numpy record array where the keys are the column names
-    hdr ........... a dictionary with header information
+    return values: (data,hdr)
+     data .......... numpy record array where the keys are the column names
+     hdr ........... a dictionary with header information
     """
 
     try:
@@ -909,13 +891,14 @@ def geth5_spectra_map(h5file,scans,*args,**kwargs):
     ----------
      h5f:     file object of a HDF5 file opened using pytables
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
-     *args:   names of the motors (strings)
-        omname:  name of the omega motor (or its equivalent)
-        ttname:  name of the two theta motor (or its equivalent)
+    
+    *args:   names of the motors (strings)
+     omname:  name of the omega motor (or its equivalent)
+     ttname:  name of the two theta motor (or its equivalent)
 
-     **kwargs (optional):
-        mca:        name of the mca data (if available) otherwise None (default: "MCA")
-        samplename: string with the hdf5-group containing the scan data
+    **kwargs (optional):
+     mca:        name of the mca data (if available) otherwise None (default: "MCA")
+     samplename: string with the hdf5-group containing the scan data
                     if ommited the first child node of h5f.root will be used
                     to determine the sample name
 

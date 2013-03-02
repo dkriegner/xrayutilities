@@ -39,7 +39,6 @@ class DataFile(object):
 
     def open(self):
         """
-        open():
         Open the file in the file object.
         """
         try:

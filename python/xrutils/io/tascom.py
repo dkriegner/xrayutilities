@@ -26,11 +26,13 @@ Depending on what has been measured this module provides the user some controll 
 how the measurements are imported (this is especially important for PSD data where
 TASCOM stores a single file for every single measurement with the MCA, this causes
 usually the production of a huge amount of files).
+
 Both file types are stored in a different way:
- -> dat files are stored as tables where the header information is appended as
-    HDF5 attributes
- -> det files are stored as arrays where the header information is appended as
-    HDF5 attributes
+ - dat files are stored as tables where the header information is appended as
+   HDF5 attributes
+ - det files are stored as arrays where the header information is appended as
+   HDF5 attributes
+
 Tascom is useing a template approach to generate a filename with
 temp+number.dat/det
 The pure filename without path and suffix is used as name for the HDF5 storage
@@ -39,6 +41,7 @@ object.
 To make the module more user-friendly not only import functions are provided
 but also functions to import a bulk of files into a HDF5 group. This is implemented
 in the following functions:
+
  dat2hdf5 ............ imports a single dat file
  det2hdf5 ............ imports a single det file
  dats2hdf5 ........... imports several dat files
@@ -165,8 +168,8 @@ def read_tascom_dar():
 
 def read_dat(fid,h5file,h5group,tabname,comment):
     """
-    read_dat(fid,h5file,h5group):
     Read a HDF5 data file and returns the result as a table.
+    
     input arguments:
       fid .......... python file object
       h5file ....... HDF5 file where the data should be stored
@@ -314,12 +317,13 @@ def read_dat(fid,h5file,h5group,tabname,comment):
 
 def dat2hdf5(filename,h5file,h5group,**optargs):
     """
-    tas2hdf5(filename):
     Converts a Tascom ASCII datafile into an HDF5 file structure.
+    
     Input arguments:
        filename .................. full name of the file
        h5file .................... HDF5 file where the data should be stored
        h5group ................... the HDF5 group where to put the scan
+    
     optional input arguments:
        path ...................... the path to the file if it is not in the
                                    current directory
@@ -348,13 +352,12 @@ def dat2hdf5(filename,h5file,h5group,**optargs):
 
 def dats2hdf5(filepattern,h5file,h5group,scanrange,**optargs):
     """
-    dats2hdf5(filepattern,h5file,h5group,scanrange)
     Import a complete range of dat files to HDF5. The required input arguments are:
        filepattern ................. pattern for the filename
        h5file ...................... HDF5 file object
        h5group ..................... group where the data should be stored
-    scanrange ................... range of integers determining which scan numbers
-                          should be stored.
+       scanrange ................... range of integers determining which scan numbers
+                                     should be stored.
     optional input arguments:
        path .................. path to the filenames
     """
@@ -374,16 +377,15 @@ def dats2hdf5(filepattern,h5file,h5group,scanrange,**optargs):
 
 def det2hdf5(filename,h5file,**keyargs):
     """
-    det2hdf5(filename,h5file,**keyargs):
     Read a single TASCOM detector file and convert it to an HDF5 file.
 
     required input arguments:
-    filename ............. the TASCOM detector filename
-    h5file ............... an hdf5 file object
+     filename ............. the TASCOM detector filename
+     h5file ............... an hdf5 file object
 
     optional keyword arguments:
-    group ................ HDF5 group object where to store the file
-    path ................. path where to read the file from
+     group ................ HDF5 group object where to store the file
+     path ................. path where to read the file from
     """
 
 
@@ -412,7 +414,6 @@ def det2hdf5(filename,h5file,**keyargs):
 
 def dets2hdf5():
     """
-    dets2hdf5():
     Import a set of Tascom MCA files an store them into a HDF5 group.
     """
     pass
