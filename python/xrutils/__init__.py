@@ -20,6 +20,8 @@
 xrutils is a package for assisting with x-ray diffraction experiments
 
 It helps with planning experiments as well as analyzing the data.
+
+Authors: Dominik Kriegner and Eugen Wintersberger
 """
 
 # load configuration

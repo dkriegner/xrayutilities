@@ -23,10 +23,11 @@ for PSD and CCD measurements
 and
 
 provide functions for normalizing intensities for
- * count time
- * absorber (user-defined function)
- * monitor
- * flatfield correction
+
+* count time
+* absorber (user-defined function)
+* monitor
+* flatfield correction
 """
 
 import numpy
@@ -44,8 +45,8 @@ def blockAverage1D(data,Nav):
 
     Parameter
     ---------
-    data:   data which should be contracted (length N)
-    Nav:    number of values which should be averaged
+     data:   data which should be contracted (length N)
+     Nav:    number of values which should be averaged
 
     Returns
     -------
@@ -72,10 +73,11 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
 
     Parameter
     ---------
-    data2d:     array of 2D data shape (N,M)
-    Nav1,2:     a field of (Nav1 x Nav2) values is contracted
+     data2d:    array of 2D data shape (N,M)
+     Nav1,2:    a field of (Nav1 x Nav2) values is contracted
+    
     **kwargs:   optional keyword argument
-        roi:    region of interest for the 2D array. e.g. [20,980,40,960]
+      roi:      region of interest for the 2D array. e.g. [20,980,40,960]
                 N = 980-20; M = 960-40
 
     Returns
@@ -119,11 +121,12 @@ def blockAveragePSD(psddata,Nav,**kwargs):
 
     Parameter
     ---------
-    psddata:     array of 2D data shape (Nspectra,Nchannels)
-    Nav:         number of channels which should be averaged
-    **kwargs:    optional keyword argument
-        roi:     region of interest for the 2D array. e.g. [20,980]
-                 Nchannels = 980-20
+     psddata:   array of 2D data shape (Nspectra,Nchannels)
+     Nav:       number of channels which should be averaged
+
+    **kwargs:   optional keyword argument
+      roi:      region of interest for the 2D array. e.g. [20,980]
+                Nchannels = 980-20
 
     Returns
     -------
@@ -169,20 +172,21 @@ class IntensityNormalizer(object):
 
         Parameter
         ---------
-        det : detector field name of the data structure
+         det : detector field name of the data structure
+        
         **keyargs:
-            mon : monitor field name
-            time: count time field name or count time as float
-            av_mon: average monitor value (default: data[mon].mean())
-            absfun: absorber correction function to be used as in
-                    absorber_corrected_intensity = data[det]*absfun(data)
-            flatfield: flatfield of the detector; shape must be the same as
-                       data[det], and is only applied for MCA detectors
-            darkfield: darkfield of the detector; shape must be the same as
-                       data[det], and is only applied for MCA detectors
+          mon : monitor field name
+          time: count time field name or count time as float
+          av_mon: average monitor value (default: data[mon].mean())
+          absfun: absorber correction function to be used as in
+                  absorber_corrected_intensity = data[det]*absfun(data)
+          flatfield: flatfield of the detector; shape must be the same as
+                     data[det], and is only applied for MCA detectors
+          darkfield: darkfield of the detector; shape must be the same as
+                     data[det], and is only applied for MCA detectors
 
-        Examples
-        --------
+        Example
+        -------
         >>> detcorr = IntensityNormalizer(det="MCA",time="Seconds",absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
         """
 

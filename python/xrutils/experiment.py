@@ -21,10 +21,11 @@
 module helping with planning and analyzing experiments
 
 various classes are provided for
- * describing experiments
- * calculating angular coordinates of Bragg reflections
- * converting angular coordinates to Q-space and vice versa
- * simulating powder diffraction patterns for materials
+
+* describing experiments
+* calculating angular coordinates of Bragg reflections
+* converting angular coordinates to Q-space and vice versa
+* simulating powder diffraction patterns for materials
 """
 
 import numpy
@@ -53,9 +54,9 @@ class QConversion(object):
     the class is configured with the initialization and does provide three
     distinct routines for conversion to momentum space for
 
-      * point detector:     point(...) or __call__()
-      * linear detector:    linear(...)
-      * area detector:      area(...)
+    * point detector:     point(...) or __call__()
+    * linear detector:    linear(...)
+    * area detector:      area(...)
 
     linear() and area() can only be used after the init_linear()
     or init_area() routines were called
@@ -79,6 +80,7 @@ class QConversion(object):
                         
         r_i:            vector giving the direction of the primary beam
                         (length is irrelevant)
+
         **kwargs:       optional keyword arguments
             wl:         wavelength of the x-rays in Angstroem
             en:         energy of the x-rays in electronvolt
@@ -141,12 +143,11 @@ class QConversion(object):
     def _set_sampleAxis(self,sampleAxis):
         """
         property handler for _sampleAxis
-
         checks if a syntactically correct list of sample circles is given
 
         Parameter
         ---------
-        sampleAxis:     list or tuple of sample circles, e.g. ['x+','z+']
+         sampleAxis:     list or tuple of sample circles, e.g. ['x+','z+']
         """
 
         if isinstance(sampleAxis,(str,list,tuple)):
@@ -218,14 +219,13 @@ class QConversion(object):
     def _set_detectorAxis(self,detectorAxis,detrot=False):
         """
         property handler for _detectorAxis_
-
         checks if a syntactically correct list of detector circles is given
 
         Parameter
         ---------
-        detectorAxis:     list or tuple of detector circles, e.g. ['x+']
-        detrot:           flag to tell that the detector rotation is going to be added
-                          (used internally to avoid double adding of detector rotation axis)
+         detectorAxis:     list or tuple of detector circles, e.g. ['x+']
+         detrot:           flag to tell that the detector rotation is going to be added
+                           (used internally to avoid double adding of detector rotation axis)
         """
         if isinstance(detectorAxis,(str,list,tuple)):
             if isinstance(detectorAxis,str):
@@ -319,29 +319,28 @@ class QConversion(object):
 
         Parameters
         ----------
-        *args:          sample and detector angles as numpy array, lists
-                        or Scalars
-                        in total len(self.sampleAxis)+len(detectorAxis)
-                        must be given
-                        always starting with the outer most circle
-                        all arguments must have the same shape or length
-            sAngles:    sample circle angles, number of arguments must
-                        correspond to len(self.sampleAxis)
-            dAngles:    detector circle angles, number of arguments must
-                        correspond to len(self.detectorAxis)
+        *args:           sample and detector angles as numpy array, lists
+                         or Scalars in total len(self.sampleAxis)+len(detectorAxis)
+                         must be given, always starting with the outer most circle.
+                         all arguments must have the same shape or length
 
-        **kwargs:       optional keyword arguments
-            delta:      giving delta angles to correct the given ones for
-                        misalignment delta must be an numpy array or list
-                        of len(*args)
-                        used angles are than *args - delta
-            UB:         matrix for conversion from (hkl) coordinates to Q of sample
-                        used to determine not Q but (hkl)
-                        (default: self.UB)
-            wl:         x-ray wavelength in angstroem (default: self._wl)
-            deg:        flag to tell if angles are passed as degree
-                        (default: True)
-
+             sAngles:    sample circle angles, number of arguments must
+                         correspond to len(self.sampleAxis)
+             dAngles:    detector circle angles, number of arguments must
+                         correspond to len(self.detectorAxis)
+ 
+         **kwargs:       optional keyword arguments
+             delta:      giving delta angles to correct the given ones for
+                         misalignment delta must be an numpy array or list
+                         of len(*args)
+                         used angles are than *args - delta
+             UB:         matrix for conversion from (hkl) coordinates to Q of sample
+                         used to determine not Q but (hkl)
+                         (default: self.UB)
+             wl:         x-ray wavelength in angstroem (default: self._wl)
+             deg:        flag to tell if angles are passed as degree
+                         (default: True)
+ 
         Returns
         -------
         reciprocal space positions as numpy.ndarray with shape ( * , 3 )
@@ -449,21 +448,21 @@ class QConversion(object):
 
         Parameters
         ----------
-        detectorDir:     direction of the detector (along the pixel array); e.g. 'z+'
-        cch:             center channel, in direction of self.r_i at zero
-                         detectorAngles
-        Nchannel:        total number of detector channels
-        distance:        distance of center channel from center of rotation
-        pixelwidth:      width of one pixel (same unit as distance)
-        chpdeg:          channels per degree (only absolute value is relevant) sign
-                         determined through detectorDir
-
-                         !! Either distance and pixelwidth or chpdeg must be given !!
-        tilt:            tilt of the detector axis from the detectorDir (in degree)
+         detectorDir:     direction of the detector (along the pixel array); e.g. 'z+'
+         cch:             center channel, in direction of self.r_i at zero
+                          detectorAngles
+         Nchannel:        total number of detector channels
+         distance:        distance of center channel from center of rotation
+         pixelwidth:      width of one pixel (same unit as distance)
+         chpdeg:          channels per degree (only absolute value is relevant) sign
+                          determined through detectorDir
+ 
+                          !! Either distance and pixelwidth or chpdeg must be given !!
+         tilt:            tilt of the detector axis from the detectorDir (in degree)
 
         **kwargs:        optional keyword arguments
-            Nav:         number of channels to average to reduce data size (default: 1)
-            roi:         region of interest for the detector pixels; e.g. [100,900]
+          Nav:           number of channels to average to reduce data size (default: 1)
+          roi:           region of interest for the detector pixels; e.g. [100,900]
         """
 
         # detectorDir
@@ -514,6 +513,7 @@ class QConversion(object):
                         in total len(self.sampleAxis)+len(detectorAxis) must be given
                         always starting with the outer most circle
                         all arguments must have the same shape or length
+
             sAngles:    sample circle angles, number of arguments must correspond to
                         len(self.sampleAxis)
             dAngles:    detector circle angles, number of arguments must correspond to
@@ -665,28 +665,27 @@ class QConversion(object):
 
         Parameters
         ----------
-        detectorDir1:    direction of the detector (along the pixel direction 1); 
-                         e.g. 'z+' means higher pixel numbers at larger z positions
-        detectorDir2:    direction of the detector (along the pixel direction 2); e.g. 'x+'
-        cch1,2:          center pixel, in direction of self.r_i at zero
-                         detectorAngles
-        Nch1:            number of detector pixels along direction 1
-        Nch2:            number of detector pixels along direction 2
-        distance:        distance of center pixel from center of rotation
-        pwidth1,2:       width of one pixel (same unit as distance)
-        chpdeg1,2:       channels per degree (only absolute value is relevant) sign
-                         determined through detectorDir1,2
+         detectorDir1:    direction of the detector (along the pixel direction 1); 
+                          e.g. 'z+' means higher pixel numbers at larger z positions
+         detectorDir2:    direction of the detector (along the pixel direction 2); e.g. 'x+'
+         cch1,2:          center pixel, in direction of self.r_i at zero
+                          detectorAngles
+         Nch1:            number of detector pixels along direction 1
+         Nch2:            number of detector pixels along direction 2
+         distance:        distance of center pixel from center of rotation
+         pwidth1,2:       width of one pixel (same unit as distance)
+         chpdeg1,2:       channels per degree (only absolute value is relevant) sign
+                          determined through detectorDir1,2 
+         detrot:          detector rotation around primary beam direction 
+         tiltazimuth:     direction of the tilt vector in the detector plane (in degree)
+         tilt:            tilt of the detector plane around an axis normal to the direction
+                          given by the tiltazimuth
 
-                         !! Either distance and pwidth1,2 or chpdeg1,2 must be given !!
+           Note: Either distance and pwidth1,2 or chpdeg1,2 must be given !!
 
-        detrot:          detector rotation around primary beam direction 
-        tiltazimuth:     direction of the tilt vector in the detector plane (in degree)
-        tilt:            tilt of the detector plane around an axis normal to the direction
-                         given by the tiltazimuth
-
-        **kwargs:        optional keyword arguments
-            Nav:         number of channels to average to reduce data size (default: [1,1])
-            roi:         region of interest for the detector pixels; e.g. [100,900,200,800]
+        **kwargs:         optional keyword arguments
+          Nav:            number of channels to average to reduce data size (default: [1,1])
+          roi:            region of interest for the detector pixels; e.g. [100,900,200,800]
         """
 
         # detectorDir
@@ -757,6 +756,7 @@ class QConversion(object):
                         in total len(self.sampleAxis)+len(detectorAxis) must be given
                         always starting with the outer most circle
                         all arguments must have the same shape or length
+
             sAngles:    sample circle angles, number of arguments must correspond to
                         len(self.sampleAxis)
             dAngles:    detector circle angles, number of arguments must correspond to
@@ -930,15 +930,16 @@ class Experiment(object):
 
         Parameters
         ----------
-        ipdir:      inplane reference direction (ipdir points into the primary beam
-                    direction at zero angles)
-        ndir:       surface normal of your sample (ndir points in a direction perpendicular
-                    to the primary beam and the innermost detector rotation axis)
-        keyargs:    optional keyword arguments
-            qconv:  QConversion object to use for the Ang2Q conversion
-            wl:     wavelength of the x-rays in Angstroem (default: 1.5406A)
-            en:     energy of the x-rays in eV (default: 8048eV == 1.5406A )
-                    the en keyword overrulls the wl keyword
+         ipdir:      inplane reference direction (ipdir points into the primary beam
+                     direction at zero angles)
+         ndir:       surface normal of your sample (ndir points in a direction perpendicular
+                     to the primary beam and the innermost detector rotation axis)
+
+        keyargs:     optional keyword arguments
+          qconv:     QConversion object to use for the Ang2Q conversion
+          wl:        wavelength of the x-rays in Angstroem (default: 1.5406A)
+          en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
+                     the en keyword overrulls the wl keyword
         """
         if isinstance(ipdir,list):
             self.idir = math.VecUnit(numpy.array(ipdir,dtype=numpy.double))
@@ -1150,11 +1151,11 @@ class Experiment(object):
 
         Parameters
         ----------
-        q:          list or numpy array with the reciprocal space position
+         q:          list or numpy array with the reciprocal space position
 
         optional keyword arguments:
-        deg:        True/False whether the return value should be in degree or radians
-                    (default: True)
+         deg:        True/False whether the return value should be in degree or radians
+                     (default: True)
         """
 
         if isinstance(q,list):
@@ -1187,7 +1188,7 @@ class HXRD(Experiment):
         Experiment.__init__ for more details
         +
         keyargs         additional optional keyword argument
-            geometry:   determines the scattering geometry:
+          geometry:     determines the scattering geometry:
                         "hi_lo" (default) high incidence-low exit
                         "lo_hi" low incidence - high exit
                         "real" general geometry - q-coordinates determine
@@ -1218,19 +1219,19 @@ class HXRD(Experiment):
 
         Parameters
         ----------
-        om,tt:      sample and detector angles as numpy array, lists or Scalars
-                    must be given. all arguments must have the same shape or
-                    length
+         om,tt:      sample and detector angles as numpy array, lists or Scalars
+                     must be given. all arguments must have the same shape or
+                     length
 
-        **kwargs:   optional keyword arguments
-            delta:  giving delta angles to correct the given ones for misalignment
-                    delta must be an numpy array or list of length 2.
-                    used angles are than om,tt - delta
-            UB:     matrix for conversion from (hkl) coordinates to Q of sample
-                    used to determine not Q but (hkl)
-                    (default: identity matrix)
-            wl:     x-ray wavelength in angstroem (default: self._wl)
-            deg:    flag to tell if angles are passed as degree (default: True)
+        **kwargs:    optional keyword arguments
+             delta:  giving delta angles to correct the given ones for misalignment
+                     delta must be an numpy array or list of length 2.
+                     used angles are than om,tt - delta
+             UB:     matrix for conversion from (hkl) coordinates to Q of sample
+                     used to determine not Q but (hkl)
+                     (default: identity matrix)
+             wl:     x-ray wavelength in angstroem (default: self._wl)
+             deg:    flag to tell if angles are passed as degree (default: True)
 
         Returns
         -------
@@ -1250,48 +1251,51 @@ class HXRD(Experiment):
 
         Parameters
         ----------
-        Q:          a list, tuple or numpy array of shape (3) with
-                    q-space vector components
-                    or 3 separate lists with qx,qy,qz
+         Q:          a list, tuple or numpy array of shape (3) with
+                     q-space vector components
+                     or 3 separate lists with qx,qy,qz
 
         optional keyword arguments:
-        trans:      True/False apply coordinate transformation on Q (default True)
-        deg:        True/Flase (default True) determines if the
-                    angles are returned in radians or degrees
-        geometry:   determines the scattering geometry:
-                    "hi_lo" high incidence-low exit
-                    "lo_hi" low incidence - high exit
-                    "real" general geometry - angles determined by q-coordinates (azimuth)
-                        upper geometries return [omega,0,phi,twotheta]
-				    "realTilt" general geometry - angles determined by q-coordinates (tilt)
-                        returns [omega,chi,phi,twotheta]
-                    default: self.geometry
-        refrac:     boolean to determine if refraction is taken into account
-                    default: False
-                    if True then also a material must be given
-        mat:        Material object; needed to obtain its optical properties for
-                    refraction correction, otherwise not used
-        full_output:boolean to determine if additional output is given to determine
-                    scattering angles more accurately in case refraction is set to True
-                    default: False
-        fi,fd:      if refraction correction is applied one can optionally specify
-                    the facet through which the beam enters (fi) and exits (fd)
-                    fi, fd must be the surface normal vectors (not transformed &
-                    not necessarily normalized). If omitted the normal direction
-                    of the experiment is used.
+         trans:      True/False apply coordinate transformation on Q (default True)
+         deg:        True/Flase (default True) determines if the
+                     angles are returned in radians or degrees
+         geometry:   determines the scattering geometry:
+
+                     - "hi_lo" high incidence and low exit
+                     - "lo_hi" low incidence and high exit
+                     - "real" general geometry with angles determined by q-coordinates (azimuth); this and upper geometries return [omega,0,phi,twotheta]
+ 				     - "realTilt" general geometry with angles determined by q-coordinates (tilt); returns [omega,chi,phi,twotheta]
+
+                     default: self.geometry
+
+         refrac:     boolean to determine if refraction is taken into account
+                     default: False
+                     if True then also a material must be given
+         mat:        Material object; needed to obtain its optical properties for
+                     refraction correction, otherwise not used
+         full_output:boolean to determine if additional output is given to determine
+                     scattering angles more accurately in case refraction is set to True
+                     default: False
+         fi,fd:      if refraction correction is applied one can optionally specify
+                     the facet through which the beam enters (fi) and exits (fd)
+                     fi, fd must be the surface normal vectors (not transformed &
+                     not necessarily normalized). If omitted the normal direction
+                     of the experiment is used.
 
         Returns
         -------
         a numpy array of shape (4) with four scattering angles which are
         [omega,chi,phi,twotheta]
-        omega:      incidence angle with respect to surface
-        chi:        sample tilt for the case of non-coplanar geometry
-        phi:        sample azimuth with respect to inplane reference direction
-        twotheta:   scattering angle
+
+         omega:      incidence angle with respect to surface
+         chi:        sample tilt for the case of non-coplanar geometry
+         phi:        sample azimuth with respect to inplane reference direction
+         twotheta:   scattering angle
 
         if full_output:
-            a numpy array of shape (6) with five angles which are
-          [omega,chi,phi,twotheta,psi_i,psi_d]
+        a numpy array of shape (6) with five angles which are
+        [omega,chi,phi,twotheta,psi_i,psi_d]
+         
          psi_i: offset of the incidence beam from the scattering plane due to refraction
          pdi_d: offset ot the diffracted beam from the scattering plane due to refraction
         """
@@ -1500,9 +1504,9 @@ class NonCOP(Experiment):
 
         Parameters
         ----------
-        om,chi,phi,tt: sample and detector angles as numpy array, lists or Scalars
-                       must be given. all arguments must have the same shape or
-                       length
+         om,chi,phi,tt: sample and detector angles as numpy array, lists or Scalars
+                        must be given. all arguments must have the same shape or
+                        length
 
         **kwargs:   optional keyword arguments
             delta:  giving delta angles to correct the given ones for misalignment
@@ -1532,23 +1536,24 @@ class NonCOP(Experiment):
 
         Parameters
         ----------
-        Q:          a list, tuple or numpy array of shape (3) with
-                    q-space vector components
-                    or 3 separate lists with qx,qy,qz
+         Q:          a list, tuple or numpy array of shape (3) with
+                     q-space vector components
+                     or 3 separate lists with qx,qy,qz
 
         optional keyword arguments:
-        trans:      True/False apply coordinate transformation on Q (default True)
-        deg:        True/Flase (default True) determines if the
-                    angles are returned in radians or degree
+         trans:      True/False apply coordinate transformation on Q (default True)
+         deg:        True/Flase (default True) determines if the
+                     angles are returned in radians or degree
 
         Returns
         -------
         a numpy array of shape (4) with four scattering angles which are
         [omega,chi,phi,twotheta]
-        omega:      sample rocking angle
-        chi:        sample tilt
-        phi:        sample azimuth
-        twotheta:   scattering angle (detector)
+        
+         omega:      sample rocking angle
+         chi:        sample tilt
+         phi:        sample azimuth
+         twotheta:   scattering angle (detector)
         """
 
         # collect the q-space input
@@ -1643,7 +1648,6 @@ class GID(Experiment):
         Parameters
         ----------
         same as for the Experiment base class
-
         """
         Experiment.__init__(self,idir,ndir,**keyargs)
 
@@ -1675,22 +1679,23 @@ class GID(Experiment):
 
         Parameters
         ----------
-        Q:          a list or numpy array of shape (3) with
-                    q-space vector components
+         Q:          a list or numpy array of shape (3) with
+                     q-space vector components
 
         optional keyword arguments:
-        trans:      True/False apply coordinate transformation on Q
-        deg:        True/Flase (default True) determines if the
-                    angles are returned in radians or degrees
+         trans:      True/False apply coordinate transformation on Q
+         deg:        True/Flase (default True) determines if the
+                     angles are returned in radians or degrees
 
         Returns
         -------
         a numpy array of shape (4) with the four GID scattering angles which are
         [alpha_i,azimuth,twotheta,beta]
-        alpha_i:    incidence angle to surface (at the moment always 0)
-        azimuth:    sample rotation with respect to the inplane reference direction
-        twotheta:   scattering angle
-        beta:       exit angle from surface (at the moment always 0)
+
+         alpha_i:    incidence angle to surface (at the moment always 0)
+         azimuth:    sample rotation with respect to the inplane reference direction
+         twotheta:   scattering angle
+         beta:       exit angle from surface (at the moment always 0)
         """
 
         if isinstance(Q,list):
@@ -1740,9 +1745,9 @@ class GID(Experiment):
 
         Parameters
         ----------
-        ai,phi,tt,beta: sample and detector angles as numpy array, lists or Scalars
-                       must be given. all arguments must have the same shape or
-                       length
+         ai,phi,tt,beta: sample and detector angles as numpy array, lists or Scalars
+                        must be given. all arguments must have the same shape or
+                        length
 
         **kwargs:   optional keyword arguments
             delta:  giving delta angles to correct the given ones for misalignment
@@ -1758,7 +1763,6 @@ class GID(Experiment):
         -------
         reciprocal space positions as numpy.ndarray with shape ( * , 3 )
         where * corresponds to the number of points given in the input
-
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
@@ -1800,9 +1804,9 @@ class GID_ID10B(GID):
 
         Parameters
         ----------
-        th,om,delta,gamma: sample and detector angles as numpy array, lists or Scalars
-                       must be given. all arguments must have the same shape or
-                       length
+         th,om,delta,gamma: sample and detector angles as numpy array, lists or Scalars
+                        must be given. all arguments must have the same shape or
+                        length
 
         **kwargs:   optional keyword arguments
             delta:  giving delta angles to correct the given ones for misalignment
@@ -1818,7 +1822,6 @@ class GID_ID10B(GID):
         -------
         reciprocal space positions as numpy.ndarray with shape ( * , 3 )
         where * corresponds to the number of points given in the input
-
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
@@ -1833,22 +1836,23 @@ class GID_ID10B(GID):
 
         Parameters
         ----------
-        Q:          a list or numpy array of shape (3) with
-                    q-space vector components
+         Q:          a list or numpy array of shape (3) with
+                     q-space vector components
 
         optional keyword arguments:
-        trans:      True/False apply coordinate transformation on Q
-        deg:        True/Flase (default True) determines if the
-                    angles are returned in radians or degrees
+         trans:      True/False apply coordinate transformation on Q
+         deg:        True/Flase (default True) determines if the
+                     angles are returned in radians or degrees
 
         Returns
         -------
         a numpy array of shape (4) with the four GID scattering angles which are
         (theta,omega,delta,gamma)
-        theta:    incidence angle to surface (at the moment always 0)
-        omega:    sample rotation with respect to the inplane reference direction
-        delta:    exit angle from surface (at the moment always 0)
-        gamma:    scattering angle
+
+         theta:    incidence angle to surface (at the moment always 0)
+         omega:    sample rotation with respect to the inplane reference direction
+         delta:    exit angle from surface (at the moment always 0)
+         gamma:    scattering angle
         """
 
         [ai,azi,tt,beta] = GID.Q2Ang(self, Q, trans,deg, **kwargs)
@@ -1896,9 +1900,9 @@ class GISAXS(Experiment):
 
         Parameters
         ----------
-        ai,tt,beta: sample and detector angles as numpy array, lists or Scalars
-                       must be given. all arguments must have the same shape or
-                       length
+         ai,tt,beta: sample and detector angles as numpy array, lists or Scalars
+                        must be given. all arguments must have the same shape or
+                        length
 
         **kwargs:   optional keyword arguments
             delta:  giving delta angles to correct the given ones for misalignment
@@ -1914,7 +1918,6 @@ class GISAXS(Experiment):
         -------
         reciprocal space positions as numpy.ndarray with shape ( * , 3 )
         where * corresponds to the number of points given in the input
-
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
@@ -1931,10 +1934,10 @@ class Powder(Experiment):
 
         Parameters
         ----------
-        mat:        xrutils.material.Material instance
-                    giving the material for the experimental class
-        keyargs:    optional keyword arguments
-                    same as for the Experiment base class
+         mat:        xrutils.material.Material instance
+                     giving the material for the experimental class
+         keyargs:    optional keyword arguments
+                     same as for the Experiment base class
         """
         Experiment.__init__(self,[0,1,0],[0,0,1],**keyargs)
         if isinstance(mat,materials.Material):
@@ -1948,6 +1951,7 @@ class Powder(Experiment):
         """
         Calculates the powder intensity and positions up to an angle of tt_cutoff (deg)
         and stores the result in:
+
             data .... array with intensities
             ang ..... angular position of intensities
             qpos .... reciprocal space position of intensities
@@ -2018,6 +2022,7 @@ class Powder(Experiment):
         """
         Convolutes the intensity positions with Gaussians with width in momentum space
         of "width". returns array of angular positions with corresponding intensity
+
             theta ... array with angular positions
             int ..... intensity at the positions ttheta
         """
