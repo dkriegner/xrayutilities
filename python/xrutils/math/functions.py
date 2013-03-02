@@ -32,9 +32,8 @@ def Gauss1d(x,*p):
     ----------
      p:     list of parameters of the Gaussian
             [XCEN,SIGMA,AMP,BACKGROUND]
-            for information:
-                SIGMA = FWHM / (2*sqrt(2*log(2)))
-     x:     coordinate(s) where the function should be evoluated
+            for information: SIGMA = FWHM / (2*sqrt(2*log(2)))
+     x:     coordinate(s) where the function should be evaluated
     
     Returns
     -------
@@ -80,7 +79,7 @@ def Gauss2d(x,y,*p):
     Parameters
     ----------
      p:     list of parameters of the Gauss-function
-            [XCEN,YCEN,SIGMAX,SIGMAY,AMP,BACKGROUND,ANGLE]
+                [XCEN,YCEN,SIGMAX,SIGMAY,AMP,BACKGROUND,ANGLE]
                 SIGMA = FWHM / (2*sqrt(2*log(2)))
                 ANGLE = rotation of the X,Y direction of the Gaussian    
      x,y:   coordinate(s) where the function should be evaluated
@@ -108,12 +107,12 @@ def TwoGauss2d(x,y,*p):
     ----------
      p:     list of parameters of the Gauss-function
             [XCEN1,YCEN1,SIGMAX1,SIGMAY1,AMP1,ANGLE1,XCEN2,YCEN2,SIGMAX2,SIGMAY2,AMP2,ANGLE2,BACKGROUND]
-                SIGMA = FWHM / (2*sqrt(2*log(2)))
-                ANGLE = rotation of the X,Y direction of the Gaussian    
+            SIGMA = FWHM / (2*sqrt(2*log(2)))
+            ANGLE = rotation of the X,Y direction of the Gaussian    
      x,y:   coordinate(s) where the function should be evaluated
     
-    Returns
-    -------
+    Return
+    ------
     the value of the Gaussian described by the parameters p 
     at position (x,y)
     """
@@ -155,14 +154,13 @@ def Lorentz2d(x,y,*p):
     ----------
      p:     list of parameters of the Lorentz-function
             [XCEN,YCEN,FWHMX,FWHMY,AMP,BACKGROUND,ANGLE]
-                ANGLE = rotation of the X,Y direction of the Lorentzian    
+            ANGLE = rotation of the X,Y direction of the Lorentzian    
      x,y:   coordinate(s) where the function should be evaluated
     
     Returns
     -------
     the value of the Lorentian described by the parameters p 
-    at position (x,y)
-    
+    at position (x,y) 
     """
 
     rcen_x = p[0] * numpy.cos(p[6]) - p[1] * numpy.sin(p[6])
@@ -185,13 +183,13 @@ def Debye1(x):
 
     D1(x) = (1/x) \int_0^x t/(exp(t)-1) dt
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
      x ... argument of the Debye function (float)
 
-    Returns:
-    --------
-     D1(x) float value of the Debye function
+    Returns
+    -------
+     D1(x)  float value of the Debye function
      """
 
     def __int_kernel(t):
@@ -209,6 +207,6 @@ def Debye1(x):
         d1 = 1.
 
     if (config.VERBOSITY >= config.DEBUG):
-        print("XU.math.Debye1: debye integral value/error estimate: %g %g"%(integral[0],integral[1]))
+        print("XU.math.Debye1: Debye integral value/error estimate: %g %g"%(integral[0],integral[1]))
 
     return d1

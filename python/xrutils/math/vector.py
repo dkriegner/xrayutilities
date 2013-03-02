@@ -31,14 +31,13 @@ circleSyntax = re.compile("[xyz][+-]")
 
 def VecNorm(v):
     """
-    VecNorm(v):
     Calculate the norm of a vector.
 
     required input arguments:
-    v .......... vector as list or numpy array
+     v .......... vector as list or numpy array
 
     return value:
-    float holding the vector norm
+     float holding the vector norm
     """
     if isinstance(v,list):
         vtmp = numpy.array(v,dtype=numpy.double)
@@ -54,14 +53,13 @@ def VecNorm(v):
 
 def VecUnit(v):
     """
-    VecUnit(v):
     Calculate the unit vector of v.
 
     required input arguments:
-    v ........... vector as list or numpy array
+     v ........... vector as list or numpy array
 
     return value:
-    numpy array with the unit vector
+     numpy array with the unit vector
     """
     if isinstance(v,list):
         vtmp = numpy.array(v,dtype=numpy.double)
@@ -74,15 +72,14 @@ def VecUnit(v):
 
 def VecDot(v1,v2):
     """
-    VecDot(v1,v2):
     Calculate the vector dot product.
 
     required input arguments:
-    v1 .............. vector as numpy array or list
-    v2 .............. vector as numpy array or list
+     v1 .............. vector as numpy array or list
+     v2 .............. vector as numpy array or list
 
     return value:
-    float value
+     float value
     """
     if isinstance(v1,list):
         v1tmp = numpy.array(v1,dtype=numpy.double)
@@ -106,23 +103,22 @@ def VecDot(v1,v2):
 
 def VecAngle(v1,v2,deg=False):
     """
-    VecAngle(v1,v2,deg=false):
     calculate the angle between two vectors. The following
     formula is used
-    v1.v2 = |v1||v2|cos(alpha)
+    v1.v2 = norm(v1)*norm(v2)*cos(alpha)
 
-    alpha = acos((v1.v2)/|v1|/|v2|)
+    alpha = acos((v1.v2)/(norm(v1)*norm(v2)))
 
     required input arguments:
-    v1 .............. vector as numpy array or list
-    v2 .............. vector as numpy array or list
+     v1 .............. vector as numpy array or list
+     v2 .............. vector as numpy array or list
 
     optional keyword arguments:
-    deg ............. (default: false) return result in degree
-                      otherwise in radiants
+     deg ............. (default: false) return result in degree
+                       otherwise in radiants
 
     return value:
-    float value with the angle inclined by the two vectors
+     float value with the angle inclined by the two vectors
     """
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)

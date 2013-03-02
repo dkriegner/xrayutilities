@@ -38,15 +38,14 @@ def index_map_ij2ijkl(ij):
 
 def Cij2Cijkl(cij):
     """
-    Cij2Cijkl(cij):
     Converts the elastic constants matrix (tensor of rank 2) to
     the full rank 4 cijkl tensor.
 
     required input arguments:
-    cij ................ (6,6) cij matrix as a numpy array
+     cij ................ (6,6) cij matrix as a numpy array
 
     return value:
-    cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
     """
 
     #first have to build a 9x9 matrix from the 6x6 one
@@ -70,15 +69,14 @@ def Cij2Cijkl(cij):
 
 def Cijkl2Cij(cijkl):
     """
-    Cijkl2Cij(cijkl):
     Converts the full rank 4 tensor of the elastic constants to
     the (6,6) matrix of elastic constants.
 
     required input arguments:
-    cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
 
     return value:
-    cij ................ (6,6) cij matrix as a numpy array
+     cij ................ (6,6) cij matrix as a numpy array
     """
 
     #build the temporary 9x9 matrix
@@ -115,7 +113,7 @@ class Transform(object):
                     (n,) (n,n), (n,n,n,n) where n is the rank of the
                     transformation matrix
          **keyargs: optional keyword arguments:
-          inverse:  flag telling if the inverse transformation should be applied
+         inverse:   flag telling if the inverse transformation should be applied
                     (default: False)
         """
 
@@ -193,7 +191,6 @@ class Transform(object):
 
 class CoordinateTransform(Transform):
     """
-    CoordinateTransform(v1,v2,v3):
     Create a Transformation object which transforms a point into a new
     coordinate frame. The new frame is determined by the three vectors
     v1/norm(v1), v2/norm(v2) and v3/norm(v3), which need to be orthogonal!
@@ -293,7 +290,6 @@ class AxisToZ(CoordinateTransform):
 
 def XRotation(alpha,deg=True):
     """
-    XRotation(alpha,deg=True):
     Returns a transform that represents a rotation about the x-axis
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
@@ -311,7 +307,6 @@ def XRotation(alpha,deg=True):
 
 def YRotation(alpha,deg=True):
     """
-    YRotation(alpha,deg=True):
     Returns a transform that represents a rotation about the y-axis
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
@@ -329,7 +324,6 @@ def YRotation(alpha,deg=True):
 
 def ZRotation(alpha,deg=True):
     """
-    ZRotation(alpha,deg=True):
     Returns a transform that represents a rotation about the z-axis
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
@@ -349,7 +343,7 @@ def ZRotation(alpha,deg=True):
 # helper scripts for rotations around arbitrary axis
 def tensorprod(vec1,vec2):
     """
-    function implements a "getrennt von"
+    function implements an elementwise multiplication of two vectors 
     """
     return vec1[:,numpy.newaxis]*numpy.ones((3,3))*vec2[numpy.newaxis,:]
 
@@ -365,8 +359,7 @@ def mycross(vec,mat):
 def rotarb(vec,axis,ang,deg=True):
     """
     function implements the rotation around an arbitrary axis by an angle ang
-    positive rotation is anti-clockwise when looking from positive end of axis vec
-tor
+    positive rotation is anti-clockwise when looking from positive end of axis vector
 
     Parameter
     ---------
@@ -379,7 +372,8 @@ tor
     -------
      rotvec:  rotated vector as numpy.array
 
-    Examples:
+    Example
+    -------
     >>> rotarb([1,0,0],[0,0,1],90)
     array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
     """
