@@ -74,7 +74,7 @@ ttalign = 86.0733
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(InP.Q(3,3,3)) # nominal values of the substrate peak
 
 # read the data from the HDF5 file (scan number:36, names of motors in spec file: omega= sample rocking, gamma = twotheta)
-[om,tt],MAP = xu.io.geth5_map(h5file,36,'omega','gamma')
+[om,tt],MAP = xu.io.geth5_scan(h5file,36,'omega','gamma')
 # normalize the intensity values (absorber and count time corrections)                                                       
 psdraw = normalizer_detcorr(MAP)
 # remove unusable detector channels/regions (no averaging of detector channels)
@@ -109,7 +109,7 @@ ttalign = 80.099
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(InP.Q(2,2,4)) # nominal values of the substrate peak
 
 # read the data from the HDF5 file (scan number:36, names of motors in spec file: omega= sample rocking, gamma = twotheta)
-[om,tt],MAP = xu.io.geth5_map(h5file,(33,34,35),'omega','gamma')
+[om,tt],MAP = xu.io.geth5_scan(h5file,(33,34,35),'omega','gamma')
 # normalize the intensity values (absorber and count time corrections)                                                       
 psdraw = normalizer_detcorr(MAP)
 # remove unusable detector channels/regions (no averaging of detector channels)
