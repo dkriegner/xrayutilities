@@ -891,7 +891,7 @@ def geth5_spectra_map(h5file,scans,*args,**kwargs):
     ----------
      h5f:     file object of a HDF5 file opened using pytables
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
-    
+
     *args:   names of the motors (strings)
      omname:  name of the omega motor (or its equivalent)
      ttname:  name of the two theta motor (or its equivalent)

@@ -158,7 +158,7 @@ def getVector(string):
         v = [0,0,1.]
     else:
         raise InputError("wrong first character of string given (needs to be one of x,y,z)")
-    
+
     if string[1] == '+':
         v = numpy.array(v)*(+1)
     elif string[1] == '-':

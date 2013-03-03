@@ -717,7 +717,7 @@ def GeneralUC(a=4,b=4,c=4,alpha=90,beta=90,gamma=90,name="General"):
 
     returns a Material object with the specified properties
     """
-    return Material(name,lattice.GeneralPrimitiveLattice(a,b,c,alpha,beta,gamma))  
+    return Material(name,lattice.GeneralPrimitiveLattice(a,b,c,alpha,beta,gamma))
 
 #calculate some predefined materials
 # PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa)
@@ -975,7 +975,7 @@ class CubicAlloy(Alloy):
          hkl : Miller indices of the measured asymmetric reflection
          sur : Miller indices of the surface (determines the perpendicular
                direction)
- 
+
         Returns
         -------
          content,[a_inplane,a_perp,a_bulk_perp(x), eps_inplane, eps_perp] :

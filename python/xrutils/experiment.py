@@ -69,15 +69,15 @@ class QConversion(object):
 
         Parameters
         ----------
-        sampleAxis:     list or tuple of sample circles, 
+        sampleAxis:     list or tuple of sample circles,
                         e.g. ['x+','z+'] would mean two sample circles whereas
                         the outer one turns righthanded around the x axis and the inner
                         one turns righthanded around z.
-                        
+
         detectorAxis:   list or tuple of detector circles
                         e.g. ['x-'] would mean a detector arm with a single motor turning
                         lefthanded around the x-axis.
-                        
+
         r_i:            vector giving the direction of the primary beam
                         (length is irrelevant)
 
@@ -91,7 +91,7 @@ class QConversion(object):
 
         #initialize some needed variables
         self._kappa_dir = numpy.array((numpy.nan,numpy.nan,numpy.nan))
-        
+
         # set/check sample and detector axis geometry
         self._set_sampleAxis(sampleAxis)
         self._set_detectorAxis(detectorAxis)
@@ -125,7 +125,7 @@ class QConversion(object):
         self._area_init = False
         self._area_detrotaxis_set = False
 
-    
+
     def _set_energy(self,energy):
         self._en = utilities.energy(energy)
         self._wl = utilities.lam2en(self._en)
@@ -133,7 +133,7 @@ class QConversion(object):
     def _set_wavelength(self,wl):
         self._wl = utilities.wavelength(wl)
         self._en = utilities.lam2en(self._wl)
-    
+
     def _get_energy(self):
         return self._en
 
@@ -191,11 +191,11 @@ class QConversion(object):
                             raise TypeError("Qconverision init: invalid kappa_plane in config!")
                     else:
                         raise TypeError("Qconverision init: invalid kappa_plane in config!")
-                    
+
                     # rotation sense
                     if circ[1]=='-':
                         self._kappa_dir = -self._kappa_dir
-                    
+
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)" % tuple(self._kappa_dir))
 
@@ -284,7 +284,7 @@ class QConversion(object):
         pstr += '---------------------------\n'
         pstr += 'sample geometry(%d): ' %len(self._sampleAxis) + self._sampleAxis_str + '\n'
         if self._sampleAxis_str.find('k') != -1:
-            pstr += 'kappa rotation axis (%5.3f %5.3f %5.3f)\n' % tuple(self._kappa_dir) 
+            pstr += 'kappa rotation axis (%5.3f %5.3f %5.3f)\n' % tuple(self._kappa_dir)
         pstr += 'detector geometry(%d): ' %len(self._detectorAxis) + self._detectorAxis_str + '\n'
         pstr += 'primary beam direction: (%5.2f %5.2f %5.2f) \n' %(self.r_i[0],self.r_i[1],self.r_i[2])
 
@@ -328,7 +328,7 @@ class QConversion(object):
                          correspond to len(self.sampleAxis)
              dAngles:    detector circle angles, number of arguments must
                          correspond to len(self.detectorAxis)
- 
+
          **kwargs:       optional keyword arguments
              delta:      giving delta angles to correct the given ones for
                          misalignment delta must be an numpy array or list
@@ -340,7 +340,7 @@ class QConversion(object):
              wl:         x-ray wavelength in angstroem (default: self._wl)
              deg:        flag to tell if angles are passed as degree
                          (default: True)
- 
+
         Returns
         -------
         reciprocal space positions as numpy.ndarray with shape ( * , 3 )
@@ -456,7 +456,7 @@ class QConversion(object):
          pixelwidth:      width of one pixel (same unit as distance)
          chpdeg:          channels per degree (only absolute value is relevant) sign
                           determined through detectorDir
- 
+
                           !! Either distance and pixelwidth or chpdeg must be given !!
          tilt:            tilt of the detector axis from the detectorDir (in degree)
 
@@ -665,7 +665,7 @@ class QConversion(object):
 
         Parameters
         ----------
-         detectorDir1:    direction of the detector (along the pixel direction 1); 
+         detectorDir1:    direction of the detector (along the pixel direction 1);
                           e.g. 'z+' means higher pixel numbers at larger z positions
          detectorDir2:    direction of the detector (along the pixel direction 2); e.g. 'x+'
          cch1,2:          center pixel, in direction of self.r_i at zero
@@ -675,8 +675,8 @@ class QConversion(object):
          distance:        distance of center pixel from center of rotation
          pwidth1,2:       width of one pixel (same unit as distance)
          chpdeg1,2:       channels per degree (only absolute value is relevant) sign
-                          determined through detectorDir1,2 
-         detrot:          detector rotation around primary beam direction 
+                          determined through detectorDir1,2
+         detrot:          detector rotation around primary beam direction
          tiltazimuth:     direction of the tilt vector in the detector plane (in degree)
          tilt:            tilt of the detector plane around an axis normal to the direction
                           given by the tiltazimuth
@@ -1012,7 +1012,7 @@ class Experiment(object):
         zi = math.VecUnit(numpy.cross(xi,yi))
         # turn r_i to Y and Z define by detector rotation plane
         self._t2 = math.CoordinateTransform(xi,yi,zi)
-        
+
         self._transform = math.Transform(numpy.dot(self._t2.imatrix,self._t1.matrix))
 
     def _set_energy(self,energy):
@@ -1069,7 +1069,7 @@ class Experiment(object):
 
     def Ang2HKL(self,*args,**kwargs):
         """
-        angular to (h,k,l) space conversion. 
+        angular to (h,k,l) space conversion.
         It will set the UB argument to Ang2Q and pass all other parameters unchanged.
         See Ang2Q for description of the rest of the arguments.
 
@@ -1095,9 +1095,9 @@ class Experiment(object):
         -------
         H K L coordinates as numpy.ndarray with shape ( * , 3 )
         where * corresponds to the number of points given in the input (*args)
-        
+
         """
-        
+
         if "B" in kwargs:
             B = numpy.array(B)
         elif "mat" in kwargs:
@@ -1119,7 +1119,7 @@ class Experiment(object):
                 raise InputError("wrong dettype given: needs to be one of 'point', 'linear', 'area'")
         else:
             typ = 'point'
-        
+
         if typ=='linear':
             return self.Ang2Q.linear(*args,**kwargs)
         elif typ=='area':
@@ -1295,7 +1295,7 @@ class HXRD(Experiment):
         if full_output:
         a numpy array of shape (6) with five angles which are
         [omega,chi,phi,twotheta,psi_i,psi_d]
-         
+
          psi_i: offset of the incidence beam from the scattering plane due to refraction
          pdi_d: offset ot the diffracted beam from the scattering plane due to refraction
         """
@@ -1549,7 +1549,7 @@ class NonCOP(Experiment):
         -------
         a numpy array of shape (4) with four scattering angles which are
         [omega,chi,phi,twotheta]
-        
+
          omega:      sample rocking angle
          chi:        sample tilt
          phi:        sample azimuth
@@ -1667,7 +1667,7 @@ class GID(Experiment):
         xi = math.VecUnit(numpy.cross(yi,zi))
         # turn r_i to Y and Z define by detector rotation plane
         self._t2 = math.CoordinateTransform(xi,yi,zi)
-        
+
         self._transform = math.Transform(numpy.dot(self._t2.imatrix,self._t1.matrix))
 
     def Q2Ang(self,Q,trans=True,deg=True,**kwargs):

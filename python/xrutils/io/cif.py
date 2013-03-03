@@ -90,7 +90,7 @@ class CIFFile(object):
         atom_loop = False
 
         def floatconv(string):
-            """ 
+            """
             helper function to convert string with possible error
             given in brackets to float
             """

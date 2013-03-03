@@ -305,7 +305,7 @@ def CubicLattice(a):
 
 def GeneralPrimitiveLattice(a,b,c,alpha,beta,gamma):
 
-    #create lattice vectors 
+    #create lattice vectors
     ca = numpy.cos(numpy.radians(alpha))
     cb = numpy.cos(numpy.radians(beta))
     cg = numpy.cos(numpy.radians(gamma))
@@ -378,7 +378,7 @@ def BCCLattice(aa,a):
     l = Lattice(a1,a2,a3,base=lb)
 
     return l
-    
+
 def HCPLattice(aa,a,c):
     #create lattice base
     lb = LatticeBase()
@@ -389,7 +389,7 @@ def HCPLattice(aa,a,c):
     a1 = numpy.array([a,0.,0.],dtype=numpy.double)
     a2 = numpy.array([-a/2.,numpy.sqrt(3)*a/2.,0.],dtype=numpy.double)
     a3 = numpy.array([0.,0.,c],dtype=numpy.double)
-    
+
     l = Lattice(a1,a2,a3,base=lb)
 
     return l

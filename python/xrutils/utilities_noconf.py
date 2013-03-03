@@ -26,7 +26,7 @@ import scipy.constants
 from .exception import InputError
 
 energies = {'CuKa1': 8047.82310, 'CuKa2': 8027.9117, 'CuKa12': 8905.337, 'MoKa1': 17479.374 }
-# wavelength values from International Tables of Crystallography: 
+# wavelength values from International Tables of Crystallography:
 # Vol C, 2nd Ed. page 203
 # CuKa1: 1.54059292(45) the value in bracket is the uncertainty
 # CuKa2: 1.5444140(19)
@@ -67,7 +67,7 @@ def energy(en):
     Parameter
     ---------
 
-     en: energy (scalar ( energy in eV will be returned unchanged) 
+     en: energy (scalar ( energy in eV will be returned unchanged)
                  or string with name of emission line)
 
     Returns
@@ -88,11 +88,11 @@ def wavelength(wl):
     convert common energy names to energies in eV
 
     so far this works with CuKa1, CuKa2, CuKa12, CuKb, MoKa1
-    
+
     Parameter
     ---------
 
-     wl: wavelength (scalar ( wavelength in Angstrom will be returned unchanged) 
+     wl: wavelength (scalar ( wavelength in Angstrom will be returned unchanged)
                      or string with name of emission line)
 
     Returns

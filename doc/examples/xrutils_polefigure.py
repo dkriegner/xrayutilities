@@ -23,7 +23,7 @@ datadir = "data"
 basename = sample
 
 eps = 0.01
-# plot settings 
+# plot settings
 mpl.rcParams['font.size'] = 18.0
 mpl.rcParams['axes.labelsize'] = 'large'
 mpl.rcParams['legend.fancybox'] = True
@@ -98,7 +98,7 @@ phi = phi-dphi
 if (chi >= -eps):
     x,y = m(phi,chi)
     m.plot(numpy.array([x]),numpy.array([y]),ls='None',marker='s',color='k',ms=12.)
-    
+
 # plot Ge {113} Bragg peaks
 for i in range(len(tup113)):
     dir = tup113[i]

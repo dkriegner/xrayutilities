@@ -25,7 +25,7 @@ def fwhm_exp(pos,data):
     """
     function to determine the full width at half maximum value of experimental
     data. Please check the obtained value visually (noise influences the result)
-    
+
     Parameter
     ---------
      pos:  position of the data points
@@ -53,7 +53,7 @@ def fwhm_exp(pos,data):
             print("XU.analysis.fwhm_exp: warning: left side half value could not be determined -> returns 2*hwhm")
         pl=0
 
-    # determine right side half value position  
+    # determine right side half value position
     try:
         prs = pos[p0:][datar<m/2.][0]
         prl = pos[p0:][datar>m/2.][-1]
@@ -166,11 +166,11 @@ def get_qx_scan(qx,qz,intensity,qzpos,**kwargs):
             return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin],qxbounds
         else:
             return qx[ixmin:ixmax+1],intensity[ixmin:ixmax+1,izmin]
-            
-            
+
+
 def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
     """
-    extracts a qz scan from a gridded reciprocal space map with integration along 
+    extracts a qz scan from a gridded reciprocal space map with integration along
     omega (sample rocking angle) or 2theta direction
 
     Parameters
@@ -186,7 +186,7 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
       bounds:   flag to specify if the scan bounds of the extracted scan should be returned (default:False)
       intdir:   integration direction
                 'omega': sample rocking angle (default)
-                '2theta': scattering angle 
+                '2theta': scattering angle
 
     Returns
     -------
@@ -203,46 +203,46 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
         exp = experiment.HXRD([1,0,0],[0,0,1],wl=lam,geometry='real')
     else:
         exp = experiment.HXRD([1,0,0],[0,0,1])
-        
+
     if 'angrange' in kwargs:
         angrange = kwargs['angrange']
     else:
         angrange = 0.
-    
+
     if 'qmin' in kwargs:
         qzmin = max(qz.min(),kwargs['qmin'])
     else: qzmin = qz.min()
 
     if 'qmax' in kwargs:
         qzmax = min(qz.max(),kwargs['qmax'])
-    else: qzmax = qz.max()    
-        
+    else: qzmax = qz.max()
+
     if 'bounds' in kwargs:
         bounds = kwargs['bounds']
     else: bounds = False
-    
+
     if 'intdir' in kwargs:
         if kwargs['intdir'] in ['omega','2theta']:
             intdir = kwargs['intdir']
-        else: 
+        else:
             print("XU:analysis.get_qz_scan_int: invalid intdir given; using 'omega'")
             intdir = 'omega'
     else: intdir = 'omega'
-    
+
     # find line corresponding to qxpos
     ixpos,izmax = getindex(qxpos,qzmax,qx,qz)
     ixpos,izmin = getindex(qxpos,qzmin,qx,qz)
     if ('qmin' not in kwargs) and ('qmax' not in kwargs):
         izmin = 0; izmax = qz.size
-            
+
     dom_m = angrange/2.
     dom_p = angrange/2.
     dtt = angrange/2.
-    
+
     qxp = qx[ixpos]
     qzcenter = qz[izmin:izmax]
     intscan = numpy.zeros(numpy.abs(izmax-izmin))
-    
+
     # integration for omega direction
     if intdir=='omega':
         for i in range(len(qzcenter)):
@@ -255,7 +255,7 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
                 ixmax,dummy = getindex(rxmax,rzmax,qx,qz)
                 nsubscans = numpy.abs(ixmax-ixmin)
                 if nsubscans <= 1: nsubscans=2
-            
+
             omscan = numpy.linspace(omc-dom_m,omc+dom_p,nsubscans)
             ns = 0
             for om in omscan:
@@ -278,7 +278,7 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
                 ixmax,izmax = getindex(rxmax,rzmax,qx,qz)
                 nsubscans = int(numpy.sqrt((numpy.abs(ixmax-ixmin)**2 + numpy.abs(izmax-izmin)**2)))
                 if nsubscans <= 1: nsubscans=2
-            
+
             ttscan = numpy.linspace(ttc-dtt,ttc+dtt,nsubscans)
             ns = 0
             for tt in ttscan:
@@ -288,7 +288,7 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
                     intscan[i] += intensity[ix,iz]
                     ns+=1
             intscan[i] /= float(ns)
-        
+
     # bounds
     qxb = numpy.zeros(0)
     qzb = numpy.zeros(0)
@@ -319,10 +319,10 @@ def get_qz_scan_int(qx,qz,intensity,qxpos,**kwargs):
     qzb = numpy.append(qzb,qzbp)
     qxb = numpy.append(qxb,qend[0])
     qzb = numpy.append(qzb,qend[1])
-    
+
     if bounds:
         return qzcenter,intscan,(qxb,qzb)
-    else: 
+    else:
         return qzcenter,intscan
 
 def get_qz_scan(qx,qz,intensity,qxpos,**kwargs):
@@ -591,7 +591,7 @@ def get_radial_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
      om,tt,radint: omega,two theta scan coordinates and intensities (bounds=False)
      om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
                         reciprocal space bounds of the extraced scan (bounds=True)
-    
+
     Example
     -------
     >>> omc,ttc,cut_int = get_radial_scan_q(qx,qz,intensity,0.0,5.0,1.0,100,omrange=0.01)
@@ -714,7 +714,7 @@ def get_radial_scan_bounds_ang(omcenter,ttcenter,ttrange,npoints,**kwargs):
      ttcenter:  tt-position at which the radial scan should be extracted
      ttrange:   two theta range of the radial scan to extract
      npoints:   number of points of the radial scan
- 
+
     **kwargs:   possible keyword arguments:
       omrange:  integration range perpendicular to scan direction
       lam:      wavelength for use in the conversion to angular coordinates
@@ -780,7 +780,7 @@ def get_ttheta_scan_q(qx,qz,intensity,qxcenter,qzcenter,ttrange,npoints,**kwargs
      qzcenter:  qz-position at which the 2theta scan should be extracted
      ttrange:   two theta range of the scan to extract
      npoints:   number of points of the radial scan
-    
+
     **kwargs:   possible keyword arguments:
       omrange:  integration range in omega direction
       Nint:     number of subscans used for the integration (optionally)
@@ -824,7 +824,7 @@ def get_ttheta_scan_ang(qx,qz,intensity,omcenter,ttcenter,ttrange,npoints,**kwar
      ttcenter:  tt-position at which the 2theta scan should be extracted
      ttrange:   two theta range of the scan to extract
      npoints:   number of points of the radial scan
-    
+
     **kwargs:   possible keyword arguments:
       omrange:  integration range in omega direction
       Nint:     number of subscans used for the integration (optionally)

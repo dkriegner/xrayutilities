@@ -75,7 +75,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
     ---------
      data2d:    array of 2D data shape (N,M)
      Nav1,2:    a field of (Nav1 x Nav2) values is contracted
-    
+
     **kwargs:   optional keyword argument
       roi:      region of interest for the 2D array. e.g. [20,980,40,960]
                 N = 980-20; M = 960-40
@@ -160,7 +160,7 @@ def blockAveragePSD(psddata,Nav,**kwargs):
 ######################################
 class IntensityNormalizer(object):
     """
-    generic class for correction of intensity (point detector,or MCA, 
+    generic class for correction of intensity (point detector,or MCA,
     single CCD frames) for count time and absorber factors
     the class must be supplied with a absorber correction function
     and works with data structures provided by xrutils.io classes or the
@@ -173,7 +173,7 @@ class IntensityNormalizer(object):
         Parameter
         ---------
          det : detector field name of the data structure
-        
+
         **keyargs:
           mon : monitor field name
           time: count time field name or count time as float
@@ -446,11 +446,11 @@ class IntensityNormalizer(object):
                 if self._flatfield.shape[0] != data[self._det].shape[1]:
                     raise InputError("data[det] second dimension must have the same length as flatfield")
                 corrint = corrint/self._flatfield[numpy.newaxis,:]*self._flatfieldav #flatfield correction
-        
+
         elif len(data[self._det].shape) == 2 and isinstance(c,numpy.float):
-            # single 2D detector frame 
+            # single 2D detector frame
             corrint = data[self._det]*c
-        
+
         else:
             raise InputError("data[det] must be an array of dimension one or two")
 

@@ -32,23 +32,23 @@ from .functions import Gauss1d,Gauss1d_der_x,Gauss1d_der_p
 
 def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     """
-    Gauss fit function using odr-pack wrapper in scipy similar to 
+    Gauss fit function using odr-pack wrapper in scipy similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
-    
+
 
     """
 
     gfunc = lambda param,x: Gauss1d(x, *param)
     gfunc_dx = lambda param,x: Gauss1d_der_x(x, *param)
     gfunc_dp = lambda param,x: Gauss1d_der_p(x, *param)
-    
+
     if not any(iparams):
         cen = numpy.sum(xdata*ydata)/numpy.sum(ydata)
         iparams = numpy.array([cen,\
             numpy.sqrt(numpy.abs(numpy.sum((xdata-cen)**2*ydata)/numpy.sum(ydata))),\
             numpy.max(ydata),\
             0.])
-        
+
     if config.VERBOSITY >= config.DEBUG:
         print("XU.math.gauss_fit: iparams: [%f %f %f %f]" %tuple(iparams))
 
@@ -96,9 +96,9 @@ def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
      start:   set of starting parameters for the fit
               used as first parameter of function fit_function
      drange:  limits for the data ranges used in the fitting algorithm
-              e.g. it is clever to use only a small region around the peak which 
+              e.g. it is clever to use only a small region around the peak which
               should be fitted: [xmin,xmax,ymin,ymax]
-     fit_function:  function which should be fitted 
+     fit_function:  function which should be fitted
                     must accept the parameters (x,y,*params)
 
     Returns
@@ -123,7 +123,7 @@ def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
     if config.VERBOSITY >= config.INFO_ALL:
         print("finished in %8.2f sec, (data length used %d)"%(s,ldata.size))
         print("XU.math.fit: %s"%errmsg)
-        
+
     # calculate correct variance covariance matrix
     if cov != None:
         s_sq = (errfunc(p,lx,ly,ldata)**2).sum()/(len(ldata)-len(start))

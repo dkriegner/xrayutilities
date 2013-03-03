@@ -46,7 +46,7 @@ hxrd = xu.HXRD(Si.Q(1,1,0),Si.Q(0,0,1))
 #################################
 # Si/SiGe (004) reciprocal space map
 omalign = 34.3046 # experimental aligned values
-ttalign = 69.1283 
+ttalign = 69.1283
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(Si.Q(0,0,4)) # nominal values of the substrate peak
 
 # read the data from the xrdml files

@@ -24,7 +24,7 @@ import numpy
 xu.config.KAPPA_PLANE = 'zy'
 xu.config.KAPPA_ANGLE = -60
 
-# kappa goniometer as shown in 
+# kappa goniometer as shown in
 # http://en.wikipedia.org/wiki/File:Kappa_goniometer_animation.ogg
 qconv = xu.experiment.QConversion(['z+','k+','z+'],['z+'],(1,0,0))
 

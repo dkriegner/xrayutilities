@@ -416,7 +416,7 @@ class SPECScan(object):
          optattrs ............ a dictionary with optional attributes to store for the data
          comp ................ activate compression - true by default
         """
-        
+
         closeFile=False
         if isinstance(h5f,tables.file.File):
             h5 = h5f
@@ -428,7 +428,7 @@ class SPECScan(object):
             closeFile=True
         else:
             raise InputError("h5f argument of wrong type was passed")
-        
+
         #check if data object has been already written
         if self.data == None:
             raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read so far - call ReadData method of the scan")
@@ -602,7 +602,7 @@ class SPECFile(object):
             closeFile=True
         else:
             raise InputError("h5f argument of wrong type was passed")
-        
+
         try:
             g = h5.createGroup("/",os.path.splitext(self.filename)[0],"Data of SPEC - File %s" %(self.filename))
         except:
@@ -927,7 +927,7 @@ def geth5_scan(h5f,scans,*args,**kwargs):
     ----------
      h5f:     file object of a HDF5 file opened using pytables or its filename
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
-     
+
      *args:   names of the motors (optional) (strings)
      to read reciprocal space maps measured in coplanar diffraction give:
      omname:  e.g. name of the omega motor (or its equivalent)
@@ -941,7 +941,7 @@ def geth5_scan(h5f,scans,*args,**kwargs):
     -------
      MAP
 
-     or 
+     or
 
      [ang1,ang2,...],MAP:
                 angular positions of the center channel of the position
@@ -953,7 +953,7 @@ def geth5_scan(h5f,scans,*args,**kwargs):
     -------
     >>> [om,tt],MAP = xu.io.geth5_scan(h5file,36,'omega','gamma')
     """
-    
+
     closeFile=False
     if isinstance(h5f,tables.file.File):
         h5 = h5f
@@ -1015,7 +1015,7 @@ def geth5_scan(h5f,scans,*args,**kwargs):
 
     if closeFile:
         h5.close()
-    
+
     if len(args)==0:
         return MAP
     else: return retval,MAP

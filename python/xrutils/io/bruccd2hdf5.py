@@ -140,7 +140,7 @@ be_verbose = 0   # this flag determines if the module should print status inform
 def ccds2hdf5(h5file,pattern,sn_list,fn_list,**optargs):
     """
     Stores an entire collection of Bruker CCD files to a HDF5 file.
-    
+
     Parameters
     ----------
      h5file :    HDF5 file object
@@ -186,11 +186,11 @@ def ccd2hdf5(h5file,filename,**optargs):
     ccd2hdf5(filename,h5file,h5group)
     Converts the content of a Bruker CCD file to a HDF5 object and stores it in
     a HDF5 file.
-    
+
     Input arguments:
      h5file :       HDF5 file object
      filename :  name of the CCD data file
-    
+
     optional input arguments:
      path :      path to the
      group :     the HDF5 group where to store the data
@@ -339,7 +339,7 @@ def ccd2hdf5(h5file,filename,**optargs):
 def load_data(hdr,fid):
     """
     Load the raw data from the file (without under- and overflow correction).
-    
+
     Required input arguments:
      hdr ............... the header class of the CCD file
      fid ............... file object to the CCD file
@@ -486,7 +486,7 @@ def load(filename,h5file,h5group):
     """
     Load the data from a CCD data file given by 'filename'. The function takes
     the following required input arguments:
-     
+
      filename ............ filename of the CCD data file
 
     return values:

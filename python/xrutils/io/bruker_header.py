@@ -120,10 +120,10 @@ def GetIntArray(string):
     """
     extracts a list of integer values from a string and converts
     it to a integer numpy array.
-    
+
     input arguments:
         string .............. the string
-    
+
     return value:
         ia .................. a list with integer values
     """
@@ -140,10 +140,10 @@ def GetFloatArray(string):
     """
     extracts a list of float values from a string and converts
     it to a float numpy array.
-    
+
     input arguments:
         string .............. the string
-    
+
     return value:
         fa .................. a list with integer values
     """
@@ -162,10 +162,10 @@ def GetFloatMatrix(strlist):
     The matrix is represented by a numpy array of shape (nxm)
     where n is the number of strings in the list and m is the number
     of values in the strings (it has to be the same for all strings).
-    
+
     input arguments:
         strlist .................. list with strings
-    
+
     return value:
         fm ....................... matrix with float values
     """
@@ -189,10 +189,10 @@ def GetIntMatrix(strlist):
     The matrix is represented by a numpy array of shape (nxm)
     where n is the number of strings in the list and m is the number
     of values in the strings (it has to be the same for all strings).
-    
+
     input arguments:
         strlist .................. list with strings
-    
+
     return value:
         fi ....................... matrix with integer values
     """
@@ -214,7 +214,7 @@ def read_header(fid,h5table,name):
     """
     Read the header information of a frame from the CCD file and store it
     to a HDF5 table.
-    
+
     Input arguments:
         fid .................. Python file object to the CCD file
         h5table .............. HDF5 table for the data.

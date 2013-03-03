@@ -169,7 +169,7 @@ def read_tascom_dar():
 def read_dat(fid,h5file,h5group,tabname,comment):
     """
     Read a HDF5 data file and returns the result as a table.
-    
+
     input arguments:
       fid .......... python file object
       h5file ....... HDF5 file where the data should be stored
@@ -318,12 +318,12 @@ def read_dat(fid,h5file,h5group,tabname,comment):
 def dat2hdf5(filename,h5file,h5group,**optargs):
     """
     Converts a Tascom ASCII datafile into an HDF5 file structure.
-    
+
     Input arguments:
        filename .................. full name of the file
        h5file .................... HDF5 file where the data should be stored
        h5group ................... the HDF5 group where to put the scan
-    
+
     optional input arguments:
        path ...................... the path to the file if it is not in the
                                    current directory

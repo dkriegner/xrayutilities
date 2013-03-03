@@ -190,7 +190,7 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
     Parameter
     ---------
      filetemplate: template string for the file names, can contain
-                   a %d which is replaced by the scan number or be a 
+                   a %d which is replaced by the scan number or be a
                    list of filenames
      scannrs:      int or list of scan numbers
      path:         common path to the filenames

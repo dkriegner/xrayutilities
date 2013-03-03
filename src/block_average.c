@@ -98,7 +98,7 @@ int block_average2d(double *block_av, double *ccd, int Nav2, int Nav1, int Nch2,
 
     int i=0,j=0,k=0,l=0; //loop indices
     double buf;
-    int Nout1; 
+    int Nout1;
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically

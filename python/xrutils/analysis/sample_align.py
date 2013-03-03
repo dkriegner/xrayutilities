@@ -60,19 +60,19 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
      angles:    detector angles for which the position of the beam was
                 measured
      channels:  detector channels where the beam was found
-     
+
     keyword arguments:
      stdev     standard deviation of the beam position
      plot:     flag to specify if a visualization of the fit should be done
      usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: False)
 
-    Returns: 
+    Returns:
      (L/pixelwidth*pi/180 ,centerch[,tilt]):
-     
+
     L/pixelwidth*pi/180 = channel/degree for large detector distance
     with L sample detector disctance, and
     pixelwidth the width of one detector channel
-    
+
     centerch: center channel of the detector
     tilt: tilt of the detector from perpendicular to the beam
 
@@ -88,11 +88,11 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
     # define detector model and other functions needed for the tilt
     def straight_tilt(p, x):
         """
-        model for straight-linear detectors including tilt 
-        
+        model for straight-linear detectors including tilt
+
         Parameters
         ----------
-         p ... [L/w_pix*pi/180 ~= channel/degree, center_channel, detector_tilt] 
+         p ... [L/w_pix*pi/180 ~= channel/degree, center_channel, detector_tilt]
                with L sample detector disctance
                w_pix the width of one detector channel
          x ... independent variable of the model: detector angle (degree)
@@ -100,7 +100,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         rad = numpy.radians(x)
         r = numpy.degrees(p[0])*numpy.sin(rad)/numpy.cos(rad-numpy.radians(p[2])) + p[1]
         return r
-            
+
     def straight_tilt_der_x(p, x):
         """
         derivative of straight-linear detector model with respect to the angle
@@ -110,7 +110,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         p2 = numpy.radians(p[2])
         r = numpy.degrees(p[0])*(numpy.cos(rad)/numpy.cos(rad-p2) + numpy.sin(rad)/numpy.cos(rad-p2)**2*numpy.sin(rad-p2))
         return r
-        
+
     def straight_tilt_der_p(p, x):
         """
         derivative of straight-linear detector model with respect to the paramters
@@ -147,7 +147,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         my_odr = odr.ODR(data,model,beta0=[fittan.beta[0],fittan.beta[1],0])
         # fit type 2 for least squares
         my_odr.set_job(fit_type=2)
-        fittilt = my_odr.run()        
+        fittilt = my_odr.run()
 
     try: plt.__name__
     except NameError:
@@ -175,7 +175,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         leg.get_frame().set_alpha(0.5)
 
         plt.ylabel("channel number")
-        
+
         # lower plot to show deviations from linear model
         ax2 = plt.subplot(212,sharex=ax1)
         if stdev == None:
@@ -189,20 +189,20 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
         plt.ylabel("ch. num. - linear trend")
         plt.grid(True)
         plt.hlines(0,angp.min(),angp.max())
-        
+
         if usetilt:
             plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
         else:
             plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f"%(fittan.beta[0],fittan.beta[1]))
-    
-    if usetilt: 
+
+    if usetilt:
         fit = fittilt
-    else: 
+    else:
         fit = fittan
 
     if config.VERBOSITY >= config.INFO_LOW:
         if usetilt:
-            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel / tilt: %8.2f / %8.2f / %5.2fdeg" % (fit.beta[0],fit.beta[1],fit.beta[2]))            
+            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel / tilt: %8.2f / %8.2f / %5.2fdeg" % (fit.beta[0],fit.beta[1],fit.beta[2]))
         else:
             print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
 
@@ -216,17 +216,17 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
     """
     function to calibrate the detector distance/channel per degrees
     for a straigt linear detector mounted on a detector arm
-    
+
     parameters
     ----------
      angle ........ array of angles in degree of measured detector spectra
-     mca_spectra .. corresponding detector spectra 
-                    (shape: (len(angle),Nchannels) 
+     mca_spectra .. corresponding detector spectra
+                    (shape: (len(angle),Nchannels)
 
     **keyargs passed to psd_chdeg function used for the modelling additional options:
      r_i .......... primary beam direction as vector [xyz][+-]; default: 'y+'
      detaxis ...... detector rotation axis [xyz][+-] e.g. 'x+'; default: 'x+'
-     
+
     returns
     -------
      L/pixelwidth*pi/180 ~= channel/degree, center_channel[, detector_tilt]
@@ -268,7 +268,7 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
                 print("XU.analysis.det_dist: spectrum #%d out of intensity range -> ignored" %i)
             nignored += 1
             continue
-            
+
         maxp = numpy.argmax(row)
         fwhm = fwhm_exp(numpy.arange(row.size),row)
         N = int(7*numpy.ceil(fwhm))//2*2
@@ -282,7 +282,7 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
         pos.append(param[0])
         posstd.append(perr[0])
         ang.append(angle[i])
-        
+
     ang = numpy.array(ang)
     pos = numpy.array(pos)
     posstd = numpy.array(posstd)
@@ -292,9 +292,9 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
         sign = '-'
     else:
         sign = '+'
-    
+
     detaxis='  '
-    detd = numpy.cross(math.getVector(detrotaxis),math.getVector(r_i)) 
+    detd = numpy.cross(math.getVector(detrotaxis),math.getVector(r_i))
     if detd.argmax() == 0:
         detaxis = 'x'+sign
     elif detd.argmax() == 1:
@@ -338,7 +338,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
                   default: True
         cut_off . cut off intensity to decide if image is used for the determination or not
                   default: 0.7 = 70%
-        start ... sequence of start values of the fit for parameters, 
+        start ... sequence of start values of the fit for parameters,
                   which can not be estimated automatically
                   these are:
                   tiltazimuth,tilt,detector_rotation,outerangle_offset. By default (0,0,0,0) is used.
@@ -479,7 +479,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
     epsmin = 1.
     fitmin = None
 
-    #find optimal detector rotation (however keep other parameters free) 
+    #find optimal detector rotation (however keep other parameters free)
     if not fix[2]:
         eps,param,fit = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = start, fix = fix, full_output=True,wl = wl)
         detrot = param[6]
@@ -532,7 +532,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
         for p in range(8):
             plt.subplot(3,3,p)
             plt.semilogy(parammin[p],epsmin,'ro',ms=4,mew=2,mec='r')
-     
+
     if config.VERBOSITY >= config.INFO_LOW:
         print("total time needed for fit: %.2fsec" %(time.time()-t0))
         print("fitted parameters: epsilon: %10.4e (%d,%s) " %(epsmin,fitmin.info,repr(fitmin.stopreason)))
@@ -572,7 +572,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
 #                  default: True
 #        cut_off . cut off intensity to decide if image is used for the determination or not
 #                  default: 0.7 = 70%
-#        start ... sequence of start values of the fit for parameters, 
+#        start ... sequence of start values of the fit for parameters,
 #                  which can not be estimated automatically
 #               these are:
 #                tiltazimuth
@@ -700,23 +700,23 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
 #            else:
 #                detdir2 += '-'
 #
-#    #find optimal detector rotation (however keep other parameters free) 
+#    #find optimal detector rotation (however keep other parameters free)
 #    eps,param,fit = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = start, fix = (False,False,False,False), full_output=True)
 #    detrot = param[6]
 #
 #    def efunc(args,ang1,ang2,n1,n2,detaxis,r_i,detdir1,detdir2):
 #        eps,param,fit = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = args,full_output=True,fix = (True,True,True,True))
 #        return numpy.ravel(fit.eps)
-#   
+#
 #    start = list(start)
 #    start[2] = detrot
 #    paramminlq,covx,idict,mesg,ier = optimize.leastsq(efunc,start,args=(ang1,ang2,n1,n2,detaxis,r_i,detdir1,detdir2), ftol=1.49012e-012, xtol=1.49012e-012, full_output=1)
-#    
+#
 #    print(mesg)
 #    epsmin,parammin,fitmin = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = paramminlq, fix = (False,False,False,False), full_output=True)
-#  
+#
 #    (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset) = parammin
-#    
+#
 #    if config.VERBOSITY >= config.INFO_LOW:
 #        print("total time needed for fit: %.2fsec" %(time.time()-t0))
 #        print("fitted parameters: epsilon: %10.4e (%d,%s) " %(epsmin,fitmin.info,repr(fitmin.stopreason)))
@@ -745,7 +745,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
                   default 'x+'
 
     keyword_arguments:
-        start ... sequence of start values of the fit for parameters, 
+        start ... sequence of start values of the fit for parameters,
                   which can not be estimated automatically
                   these are:
                   tiltazimuth,tilt,detector_rotation,outerangle_offset.
@@ -767,7 +767,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
 
     def areapixel(params,detectorDir1,detectorDir2,r_i,detectorAxis,*args,**kwargs):
         """
-        angular to momentum space conversion for pixels of an area detector 
+        angular to momentum space conversion for pixels of an area detector
         the center pixel is in direction of self.r_i when detector angles are zero
 
         the detector geometry must be given to the routine
@@ -776,7 +776,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         ----------
         *args:          detector angles and channel numbers
                 dAngles as numpy array, lists or Scalars
-                        in total len(detectorAxis) must be given starting with 
+                        in total len(detectorAxis) must be given starting with
                         the outer most circle all arguments must have the same shape or length
                 channel numbers n1 and n2 where the primary beam hits the detector
                         same length as the detector values
@@ -790,15 +790,15 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
                 tilt: tilt of the detector plane around an axis normal to the direction
                       given by the tiltazimuth
                 detrot: detector rotation around the primary beam direction as given by r_i
- 
-        detectorDir1:   direction of the detector (along the pixel direction 1); 
+
+        detectorDir1:   direction of the detector (along the pixel direction 1);
                         e.g. 'z+' means higher pixel numbers at larger z positions
         detectorDir2:   direction of the detector (along the pixel direction 2); e.g. 'x+'
-        
+
         r_i:            primary beam direction e.g. 'x+'
         detectorAxis:   list or tuple of detector circles
                         e.g. ['z+','y-'] would mean a detector arm with a two rotations
-     
+
         **kwargs:       possible keyword arguments
             delta:      giving delta angles to correct the given ones for misalignment
                         delta must be an numpy array or list of len(*dAngles)
@@ -812,7 +812,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         reciprocal space position of detector pixels n1,n2 in a numpy.ndarray of shape
         ( len(args) , 3 )
         """
-        
+
         # check detector circle argument
         if isinstance(detectorAxis,(str,list,tuple)):
             if isinstance(detectorAxis,str):
@@ -827,7 +827,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         else:
             raise TypeError("Qconversion error: invalid type for detectorAxis, must be str, list or tuple")
         # add detector rotation around primary beam
-        dAxis += [r_i] 
+        dAxis += [r_i]
         _detectorAxis_str = ''
         for circ in dAxis:
             _detectorAxis_str += circ
@@ -944,8 +944,8 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         qpos = numpy.empty(Npoints*3,dtype=numpy.double,order='C')
         qpos = numpy.require(qpos,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-        libxrayutils.cang2q_areapixel( dAngles, qpos, n1, n2 ,_area_ri, Nd, Npoints, _detectorAxis_str, 
-                     _area_cch1, _area_cch2, _area_pwidth1/_area_distance, _area_pwidth2/_area_distance, 
+        libxrayutils.cang2q_areapixel( dAngles, qpos, n1, n2 ,_area_ri, Nd, Npoints, _detectorAxis_str,
+                     _area_cch1, _area_cch2, _area_pwidth1/_area_distance, _area_pwidth2/_area_distance,
                      _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, wl)
 
         #reshape output
@@ -963,22 +963,22 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
                          (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)
          x               independent variables (contains angle1, angle2, n1, n2)
                          shape is (4,Npoints)
-  
-         detectorDir1:   direction of the detector (along the pixel direction 1); 
+
+         detectorDir1:   direction of the detector (along the pixel direction 1);
                          e.g. 'z+' means higher pixel numbers at larger z positions
          detectorDir2:   direction of the detector (along the pixel direction 2); e.g. 'x+'
-         
+
          r_i:            primary beam direction e.g. 'x+'
          detectorAxis:   list or tuple of detector circles
                          e.g. ['z+','y-'] would mean a detector arm with a two rotations
          wl:             wavelength of the experiment in Angstroem
-     
+
         Returns
         -------
          reciprocal space position of detector pixels n1,n2 in a numpy.ndarray of shape
          ( 3, x.shape[1] )
         """
-        
+
         angle1 = x[0,:]
         angle2 = x[1,:]
         n1 = x[2,:]
@@ -988,7 +988,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         param[4] = numpy.abs(param[4])
 
         (qx,qy,qz) = areapixel(param[:-1],detectorDir1,detectorDir2,r_i,detectorAxis,angle1,angle2,n1,n2,delta=[param[-1],0.],distance=1.,wl=wl)
-        
+
         return qx**2+qy**2+qz**2
 
     Npoints = len(ang1)
@@ -1015,7 +1015,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         cch2 = i2
         pwidth1 = 2/numpy.abs(float(s3))*numpy.tan(numpy.radians(0.5))
         pwidth2 = 2/numpy.abs(float(s2))*numpy.tan(numpy.radians(0.5))
-    
+
     tilt = numpy.abs(start[1])
     tiltazimuth = start[0]
     detrot = start[2]
@@ -1031,14 +1031,14 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
 
     # set data
     x = numpy.empty((4,Npoints),dtype=numpy.double)
-    x[0,:] = ang1 
-    x[1,:] = ang2 
+    x[0,:] = ang1
+    x[1,:] = ang2
     x[2,:] = n1
     x[3,:] = n2
     data = odr.Data(x,y=1)
     # define model for fitting
     model = odr.Model(afunc, extra_args=(detdir1,detdir2,r_i,detaxis,wl), implicit=True)
-    # check if parameters need to be fixed 
+    # check if parameters need to be fixed
     ifixb = ()
     for i in range(len(fix)):
         ifixb += (int(not fix[i]),)
@@ -1048,8 +1048,8 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         my_odr.set_iprint(final=1)
         my_odr.set_iprint(iter=2)
 
-    fit = my_odr.run() 
-    
+    fit = my_odr.run()
+
     (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset) = fit.beta
     # fix things in parameters
     tiltazimuth = tiltazimuth%360.
@@ -1062,7 +1062,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
             plt.figure("CCD Calib fit")
         plt.grid(True)
         plt.xlabel("Image number")
-        plt.ylabel(r"|$\Delta$Q|") 
+        plt.ylabel(r"|$\Delta$Q|")
         errp1, = plt.semilogy(afunc(my_odr.beta0,x,detdir1,detdir2,r_i,detaxis,wl),'x-',label='initial param')
         errp2, = plt.semilogy(afunc(fit.beta,x,detdir1,detdir2,r_i,detaxis,wl),'x-',label='param: %.1f %.1f %5.2g %5.2g %.1f %.2f %.3f %.3f'%(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset))
 
@@ -1220,16 +1220,16 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
     return ret
 
 #################################################
-#  correct substrate Bragg peak position in 
+#  correct substrate Bragg peak position in
 #  reciprocal space maps
 #################################################
 def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=True):
     """
-    helper function to determine the Bragg peak position in a reciprocal 
+    helper function to determine the Bragg peak position in a reciprocal
     space map used to obtain the position needed for correction of the data.
-    the determination is done by fitting a two dimensional Gaussian 
+    the determination is done by fitting a two dimensional Gaussian
     (xrutils.math.Gauss2d)
-    
+
     PLEASE ALWAYS CHECK THE RESULT CAREFULLY!
 
     Parameter
@@ -1241,18 +1241,18 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
      ttalign: aligned two theta values used as first guess in the fit
               these values are also used to set the range for the fit:
               the peak should be within +/-frange\AA^{-1} of those values
-     exphxrd: experiment class used for the conversion between angular and 
+     exphxrd: experiment class used for the conversion between angular and
               reciprocal space.
      frange:  data range used for the fit in both directions
               (see above for details default:(0.03,0.03) unit: \AA^{-1})
      plot:  if True (default) function will plot the result of the fit in comparison
             with the measurement.
-    
+
     Returns
     -------
     omfit,ttfit,params,covariance: fitted angular values, and the fit
             parameters (of the Gaussian) as well as their errors
-    """ 
+    """
     if om.size != psd.size:
         [qx,qy,qz] = exphxrd.Ang2Q.linear(om,tt)
     else:
@@ -1267,7 +1267,7 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
     [omfit,dummy,dummy,ttfit] = exphxrd.Q2Ang((0,params[0],params[1]),trans=False,geometry="real")
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.fit_bragg_peak:fitted substrate angles: \n\tom =%8.4f \n\ttt =%8.4f" %(omfit,ttfit))
-    
+
     if plot:
         plt.figure(); plt.clf()
         from .. import gridder
@@ -1285,6 +1285,6 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
         #plt.legend() # for some reason not working?
         plt.colorbar(extend='min')
         plt.title("plot shows only coarse data! fit used raw data!")
-    
+
     return omfit,ttfit,params,covariance
 

@@ -343,7 +343,7 @@ def ZRotation(alpha,deg=True):
 # helper scripts for rotations around arbitrary axis
 def tensorprod(vec1,vec2):
     """
-    function implements an elementwise multiplication of two vectors 
+    function implements an elementwise multiplication of two vectors
     """
     return vec1[:,numpy.newaxis]*numpy.ones((3,3))*vec2[numpy.newaxis,:]
 

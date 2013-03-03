@@ -70,7 +70,7 @@ def get_qx_scan3d(gridder,qypos,qzpos,**kwargs):
     Returns
     -------
      qx,qxint: qx scan coordinates and intensities
-    
+
     Example
     -------
     >>> qxcut,qxcut_int = get_qx_scan3d(gridder,0,0,qrange=0.03)
@@ -129,7 +129,7 @@ def get_qy_scan3d(gridder,qxpos,qzpos,**kwargs):
     Returns
     -------
      qy,qyint: qy scan coordinates and intensities
-    
+
     Example
     -------
     >>> qycut,qycut_int = get_qy_scan3d(gridder,0,0,qrange=0.03)
@@ -187,7 +187,7 @@ def get_qz_scan3d(gridder,qxpos,qypos,**kwargs):
     Returns
     -------
      qz,qzint: qz scan coordinates and intensities
-    
+
     Example
     -------
     >>> qzcut,qzcut_int = get_qz_scan3d(gridder,0,0,qrange=0.03)

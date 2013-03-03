@@ -59,7 +59,7 @@ hxrd = xu.HXRD(InP.Q(1,1,-2),InP.Q(1,1,1),en=en)
 # configure linear detector
 hxrd.Ang2Q.init_linear('z-',center_ch,1500.,chpdeg=chpdeg,roi=roi)
 
-# read spec file and save to HDF5-file 
+# read spec file and save to HDF5-file
 # since reading is much faster from HDF5 once the data are transformed
 h5file = os.path.join("data",sample+".h5")
 try: s  # try if spec file object already exist from a previous run of the script ("run -i" in ipython)
@@ -70,12 +70,12 @@ s.Save2HDF5(h5file)
 #################################
 # InP (333) reciprocal space map
 omalign = 43.0529 # experimental aligned values
-ttalign = 86.0733 
+ttalign = 86.0733
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(InP.Q(3,3,3)) # nominal values of the substrate peak
 
 # read the data from the HDF5 file (scan number:36, names of motors in spec file: omega= sample rocking, gamma = twotheta)
 [om,tt],MAP = xu.io.geth5_scan(h5file,36,'omega','gamma')
-# normalize the intensity values (absorber and count time corrections)                                                       
+# normalize the intensity values (absorber and count time corrections)
 psdraw = normalizer_detcorr(MAP)
 # remove unusable detector channels/regions (no averaging of detector channels)
 psd = xu.blockAveragePSD(psdraw, 1, roi=roi)
@@ -110,7 +110,7 @@ ttalign = 80.099
 
 # read the data from the HDF5 file (scan number:36, names of motors in spec file: omega= sample rocking, gamma = twotheta)
 [om,tt],MAP = xu.io.geth5_scan(h5file,(33,34,35),'omega','gamma')
-# normalize the intensity values (absorber and count time corrections)                                                       
+# normalize the intensity values (absorber and count time corrections)
 psdraw = normalizer_detcorr(MAP)
 # remove unusable detector channels/regions (no averaging of detector channels)
 psd = xu.blockAveragePSD(psdraw, 1, roi=roi)
@@ -129,7 +129,7 @@ INT = xu.maplog(gridder.gdata.transpose(),8.5,0)
 
 # plot the intensity as contour plot
 plt.figure(); plt.clf()
-cf = plt.contourf(gridder.xaxis, gridder.yaxis,INT,100,extend='min')  
+cf = plt.contourf(gridder.xaxis, gridder.yaxis,INT,100,extend='min')
 # levels = numpy.logspace(numpy.log10(INT[INT>0].min()/2.),numpy.log10(INT.max()),num=100)
 # norm = mpl.colors.LogNorm() should be used in future (not yet working in matplotlib)
 plt.xlabel(r'$Q_{[11\bar2]}$ ($\AA^{-1}$)')

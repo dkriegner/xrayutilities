@@ -671,7 +671,7 @@ def add_f1f2_from_ascii_file(db,asciifile,element):
     f2 = af[:,2]
     db.SetF1(en,f1)
     db.SetF2(en,f2)
-    
+
 
 def add_mass_from_NIST(db,nistfile):
     """

@@ -203,7 +203,7 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
             mtemp2[0] = kappadir[0]; mtemp2[1] = kappadir[1]; mtemp2[2] = kappadir[2];
             sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
             matmul(mtemp,mtemp2);
-        }        
+        }
         // apply rotation of orientation matrix
         matmul(mtemp,UB);
         // determine inverse matrix
@@ -391,7 +391,7 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
 int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Nd, int Npoints, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
    /* conversion of Npoints of detector positions to Q
     * for a area detector with a given pixel size mounted along one of
-    * the coordinate axis. This function only calculates the q-position for the 
+    * the coordinate axis. This function only calculates the q-position for the
     * pairs of pixel numbers (n1,n2) given in the input and should therefore be
     * used only for detector calibration purposes.
     *

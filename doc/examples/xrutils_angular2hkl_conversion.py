@@ -18,13 +18,13 @@
 
 """
 This example shows the use of the Ang2HKL function
-used to convert angles to HKL coordinates of a certain material 
+used to convert angles to HKL coordinates of a certain material
 
-The orientation of the crystal is specified by the two directions given to the 
+The orientation of the crystal is specified by the two directions given to the
 HXRD class.
 
-The same example is shown twice using different goniometer definitions with different 
-incidence beam directions. The different definition changes the momentum transfer Q 
+The same example is shown twice using different goniometer definitions with different
+incidence beam directions. The different definition changes the momentum transfer Q
 (only its orientation), however both yields the same HKL upon back and force conversion
 to angular and HKL-space.
 """

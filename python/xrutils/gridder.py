@@ -122,15 +122,15 @@ class Gridder1D(Gridder):
         data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         dx = (self.xmax-self.xmin)/(self.nx) # no -1 here to be consistent with numpy.histogram
-        
+
         # use only non-NaN data values
         mask = numpy.invert(numpy.isnan(data))
         ldata = data[mask]
         lx = x[mask]
-        
+
         self.xmin = lx.min()
         self.xmax = lx.max()
-        
+
         # grid the data using numpy histogram
         self.gdata,bins = numpy.histogram(lx,weights=ldata,bins=self.nx)
         self.gnorm,bins = numpy.histogram(lx,bins=self.nx)
