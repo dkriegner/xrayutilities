@@ -1009,6 +1009,10 @@ class Experiment(object):
         yi = self._A2QConversion.r_i
         idc = self._A2QConversion.detectorAxis[-1]
         xi = math.getVector(idc)
+        if numpy.linalg.norm(numpy.cross(xi,yi)) < config.EPSILON:
+            # this is the case when a detector rotation around the primary beam dir. is installed
+            idc = self._A2QConversion.detectorAxis[-2]
+            xi = math.getVector(idc)
         zi = math.VecUnit(numpy.cross(xi,yi))
         # turn r_i to Y and Z define by detector rotation plane
         self._t2 = math.CoordinateTransform(xi,yi,zi)
