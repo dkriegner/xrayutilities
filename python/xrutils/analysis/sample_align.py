@@ -1043,7 +1043,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
     for i in range(len(fix)):
         ifixb += (int(not fix[i]),)
 
-    my_odr = odr.ODR(data,model,beta0=param,ifixb=(1,1,1,1)+ifixb , ifixx =(0,0,0,0) ,stpb=(1,1,pwidth1/50.,pwidth2/50.,2,0.2,0.01,0.01), sclb=(1/cch1,1/cch2,1/pwidth1,1/pwidth2,1/90.,1/0.2,1/0.2,1/0.2) ,maxit=1000,ndigit=12, sstol=1e-11, partol=1e-11)
+    my_odr = odr.ODR(data,model,beta0=param,ifixb=(1,1,1,1)+ifixb , ifixx =(0,0,0,0) ,stpb=(0.4,0.4,pwidth1/50.,pwidth2/50.,2,0.125,0.01,0.01), sclb=(1/numpy.abs(cch1),1/numpy.abs(cch2),1/pwidth1,1/pwidth2,1/90.,1/0.2,1/0.2,1/0.2) ,maxit=1000,ndigit=12, sstol=1e-11, partol=1e-11)
     if debug:
         my_odr.set_iprint(final=1)
         my_odr.set_iprint(iter=2)
