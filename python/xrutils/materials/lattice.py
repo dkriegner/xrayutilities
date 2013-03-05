@@ -214,7 +214,7 @@ class Lattice(object):
         else:
             self.base = None
 
-        m = numpy.array([self.a1,self.a2,self.a3])
+        m = numpy.transpose(numpy.array([self.a1,self.a2,self.a3]))
         self.transform = math.Transform(m)
 
     def ApplyStrain(self,eps):
