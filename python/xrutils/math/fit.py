@@ -35,7 +35,22 @@ def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     Gauss fit function using odr-pack wrapper in scipy similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
 
+    Parameters
+    ----------
+     xdata:     xcoordinates of the data to be fitted
+     ydata:     ycoordinates of the data which should be fit
 
+    keyword parameters:
+     iparams:   initial paramters for the fit (determined automatically if nothing is given
+     maxit:     maximal iteration number of the fit
+    
+    Returns
+    -------
+     params,sd_params,itlim
+
+    the Gauss parameters as defined in function Gauss1d(x, *param)
+    and their errors of the fit, as well as a boolean flag which is false in the case of a 
+    successful fit
     """
 
     gfunc = lambda param,x: Gauss1d(x, *param)
