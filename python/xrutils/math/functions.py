@@ -79,9 +79,9 @@ def Gauss2d(x,y,*p):
     Parameters
     ----------
      p:     list of parameters of the Gauss-function
-                [XCEN,YCEN,SIGMAX,SIGMAY,AMP,BACKGROUND,ANGLE]
-                SIGMA = FWHM / (2*sqrt(2*log(2)))
-                ANGLE = rotation of the X,Y direction of the Gaussian
+            [XCEN,YCEN,SIGMAX,SIGMAY,AMP,BACKGROUND,ANGLE]
+            SIGMA = FWHM / (2*sqrt(2*log(2)))
+            ANGLE = rotation of the X,Y direction of the Gaussian
      x,y:   coordinate(s) where the function should be evaluated
 
     Returns
