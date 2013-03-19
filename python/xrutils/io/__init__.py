@@ -14,26 +14,17 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .radicon import rad2hdf5
 from .radicon import hst2hdf5
 from .radicon import selecthst
-
-#from spe import spe2hdf5
-#from spe import spes2hdf5
 
 from .seifert import SeifertScan
 from .seifert import SeifertMultiScan
 
 from .spectra import SPECTRAFile
 from .spectra import geth5_spectra_map
-
-# DK: tascom importer used deprecated and removed scipy code
-#     port to numpy functions should be possible
-#     as long as no port is done the functions are not included
-#from tascom import dat2hdf5
-#from tascom import dats2hdf5
 
 from .imagereader import RoperCCD
 from .imagereader import PerkinElmer
