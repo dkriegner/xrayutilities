@@ -349,7 +349,8 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
                   value does not matter here and does only affect the scaling of the error
     """
 
-    debug=True
+    debug=False
+    plotlog=False
     if plot:
         try: plt.__name__
         except NameError:
@@ -493,6 +494,8 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
     Ntilt = 1 if fix[1] else 6
     Noffset = 1 if fix[3] else 100
 
+    print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
+    print("------------------------------------------------------------")
     for tiltazimuth in numpy.linspace(start[0] if fix[0] else 0,360,Ntiltaz,endpoint=False):
         for tilt in numpy.linspace(start[1] if fix[1] else 0,4,Ntilt):
             for offset in numpy.linspace(start[3] if fix[3] else -2,2,Noffset):
@@ -502,7 +505,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
                 epslist.append(eps)
                 paramlist.append(param)
                 t2 = time.time()
-                print("\n%.1f %.2f %.3f %.3f: %10.4e (%.2f) (%.2fsec)" %(start+(epslist[-1],epslist[-1]/epsmin,t2-t1)))
+                print("%6.1f %6.2f %8.3f %8.3f: %10.4e (%4.2f) (%5.2fsec)" %(start+(epslist[-1],epslist[-1]/epsmin,t2-t1)))
 
                 if epslist[-1]<epsmin:
                     print("************************")
@@ -515,23 +518,33 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
 
     (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset) = parammin
 
-    if debug and plot:
+    if plot:
         if fig:
             plt.figure(fig.number)
         else:
             plt.figure("CCD Calib fit")
         nparams = numpy.array(paramlist)
         neps = numpy.array(epslist)
-        labels = ('cch1','cch2','pwidth1','pwidth2','tiltazimuth','tilt','detrot','outerangle_offset')
-        plt.title("best fit: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset))
+        labels = ('cch1 (1)','cch2 (1)',r'pwidth1 ($\mu$m@1m)','pwidth2 ($\mu$m@1m)','tiltazimuth (deg)','tilt (deg)','detrot (deg)','outerangle_offset (deg)')
+        xscale = (1., 1., 1.e6, 1.e6, 1., 1., 1., 1.)
+        #plt.suptitle("best fit: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset))
         for p in range(8):
-            plt.subplot(3,3,p)
-            plt.semilogy(nparams[:,p],neps,'k.')
+            plt.subplot(3,3,p+1)
+            if plotlog:
+                plt.semilogy(nparams[:,p]*xscale[p],neps,'k.')
+            else:
+                plt.plot(nparams[:,p]*xscale[p],neps,'k.')
             plt.xlabel(labels[p])
 
         for p in range(8):
-            plt.subplot(3,3,p)
-            plt.semilogy(parammin[p],epsmin,'ro',ms=4,mew=2,mec='r')
+            plt.subplot(3,3,p+1)
+            if plotlog:
+                plt.semilogy(parammin[p]*xscale[p],epsmin,'ro',ms=4,mew=2,mec='r')
+            else:
+                plt.plot(parammin[p]*xscale[p],epsmin,'ro',ms=4,mew=2,mec='r')
+                plt.ylim(epsmin*0.7,epsmin*2.)
+            plt.locator_params(nbins=4,axis='x')
+        plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("total time needed for fit: %.2fsec" %(time.time()-t0))
