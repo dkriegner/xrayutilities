@@ -2,15 +2,13 @@
 xrayutilities - a package with useful scripts for X-ray diffraction
 ===================================================================
 
- Copyright (C) 2009-2012 Eugen Wintersberger <eugen.wintersberger@desy.de>
- Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+ Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
+ Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Directories:
-doc ........ directory for documentation
 examples ... directory with example scripts and configurations
 python ..... holds an installable python module 
 src ........ source directory for the C-library used by the python module
-tools ...... sources and binaries for tools (executable programs)
 
 
 INSTALLATION
@@ -128,8 +126,8 @@ to install the updated package.
 DOCUMENTATION
 =============
 
-Documention for xrayutilities is found in the doc folder. The manual can be
-rebuilt by LaTeX (pdflatex) using scons
+Documention for xrayutilities is found in the xrayutilities.pdf file. The manual can be
+rebuilt by sphinx (using pdflatex) using scons
 
   $> scons doc
  
@@ -137,13 +135,14 @@ The API-documentation can be browsed by
 
   $> pydoc -p PORT
  
-in any web-browser, after the installation is finished.
+in any web-browser, after the installation is finished or found online at
+sourceforge.
 
 
 PACKAGING
 =========
 
-create a tarball for redistribution of xrayutilities without the use of SVN
+create a tarball for redistribution of xrayutilities without the use of git
 
   $>scons dist
 
