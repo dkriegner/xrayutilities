@@ -480,22 +480,29 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
     epsmin = 1.
     fitmin = None
 
+    print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
+    print("------------------------------------------------------------")
     #find optimal detector rotation (however keep other parameters free)
+    detrot = start[2]
     if not fix[2]:
-        eps,param,fit = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = start, fix = fix, full_output=True,wl = wl)
-        detrot = param[6]
-        if debug:
-            print("single fit")
-            print(param)
-    else:
-        detrot = start[2]
+        for detrotstart in numpy.linspace(start[2]-1,start[2]+1,20):
+            start = start[:2] + (detrotstart,) + (start[3],)
+            eps,param,fit = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = start, fix = fix, full_output=True,wl = wl)
+            epslist.append(eps)
+            paramlist.append(param)
+            if epslist[-1]<epsmin:
+                epsmin = epslist[-1]
+                parammin = param
+                fitmin = fit
+                detrot = param[6]
+            if debug:
+                print("single fit")
+                print(param)
 
     Ntiltaz = 1 if fix[0] else 5
     Ntilt = 1 if fix[1] else 6
     Noffset = 1 if fix[3] else 100
 
-    print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
-    print("------------------------------------------------------------")
     for tiltazimuth in numpy.linspace(start[0] if fix[0] else 0,360,Ntiltaz,endpoint=False):
         for tilt in numpy.linspace(start[1] if fix[1] else 0,4,Ntilt):
             for offset in numpy.linspace(start[3] if fix[3] else -2,2,Noffset):
@@ -525,7 +532,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
             plt.figure("CCD Calib fit")
         nparams = numpy.array(paramlist)
         neps = numpy.array(epslist)
-        labels = ('cch1 (1)','cch2 (1)',r'pwidth1 ($\mu$m@1m)','pwidth2 ($\mu$m@1m)','tiltazimuth (deg)','tilt (deg)','detrot (deg)','outerangle_offset (deg)')
+        labels = ('cch1 (1)','cch2 (1)',r'pwidth1 ($\mu$m@1m)','pwidth2 ($\mu$m@1m)','tiltazimuth (deg)','tilt (deg)','detrot (deg)','outerangle offset (deg)')
         xscale = (1., 1., 1.e6, 1.e6, 1., 1., 1., 1.)
         #plt.suptitle("best fit: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset))
         for p in range(8):
