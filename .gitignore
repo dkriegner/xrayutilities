@@ -7,3 +7,5 @@ config.log
 # build files and tarball directory
 dist/
 build/
+doc/html
+doc/latex
