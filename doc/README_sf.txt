@@ -2,8 +2,8 @@
 xrayutilities - a package with useful scripts for X-ray diffraction
 ===================================================================
 
- Copyright (C) 2009-2012 Eugen Wintersberger <eugen.wintersberger@desy.de>
- Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+ Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
+ Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 Obtaining the source code
@@ -22,7 +22,7 @@ INSTALLATION
 ============
 Installing xrayutilities is a two step process. A few notes on how to install
 on the various can be found in the README shipped with the package's sources.
-For installation on Windows have a look to the documentation.
+For installation on Windows have a look to the documentation or webpage.
 
 1.) installing required third party software
     requirements are:
