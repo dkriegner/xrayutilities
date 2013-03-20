@@ -20,7 +20,7 @@ from distutils.core import setup
 import os.path
 
 setup(name="xrutils",
-      version="0.6",
+      version="0.99",
       author="Eugen Wintersberger",
       description="package for x-ray diffraction data evaluation",
       author_email="eugen.wintersberger@desy.de",
