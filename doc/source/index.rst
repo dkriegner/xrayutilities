@@ -97,7 +97,7 @@ Installation
 Express instructions
 --------------------
 
- * install the dependencies (Windows: `pythonxy <http://www.pythonxy.com>`_,`SCons <http://www.scons.org>`_; Linux/Unix: see below for dependencies).
+ * install the dependencies (Windows: `pythonxy <http://www.pythonxy.com>`_, `SCons <http://www.scons.org>`_; Linux/Unix: see below for dependencies).
  * download *xrayutilities* from `here <https://sourceforge.net/projects/xrayutilities>`_ or use git to check out the `latest <https://sourceforge.net/p/xrayutilities/code/>`_ version.
  * open a command line and navigate to the downloaded sources and execute:
 
