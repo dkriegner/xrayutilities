@@ -17,11 +17,14 @@
 # Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-xrutils is a package for assisting with x-ray diffraction experiments
+xrutils is a package for assisting with x-ray diffraction experiments. Its the
+python package included in *xrayutilities*.
 
 It helps with planning experiments as well as analyzing the data.
 
-Authors: Dominik Kriegner and Eugen Wintersberger
+Authors: 
+ Dominik Kriegner <dominik.kriegner@gmail.com> and
+ Eugen Wintersberger <eugen.wintersberger@desy.de>
 """
 
 # load configuration

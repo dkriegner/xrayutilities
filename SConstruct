@@ -54,9 +54,20 @@ elif "win" in os.sys.platform:
 
 env.Alias("install",installpaths)
 
-#add aliases for documentation target
-env.Alias("doc",[os.path.join("doc","manual","xrayutilities.pdf")])
+#add aliases for documentation target and code for installation
+manual = "xrayutilities.pdf"
 
+env.Alias("doc",["xrayutilities.pdf"])
+
+# Install user manual
+if os.sys.platform in ["darwin","linux2"]:
+    Command("dummy","dummy",[Mkdir(os.path.join(env['DESTDIRPREFIX'],"share","doc","xrayutilities"))])
+    Alias("install",env.Install(os.path.join(env['DESTDIRPREFIX'],"share","doc","xrayutilities"),manual))
+elif "win" in os.sys.platform:
+    Command("dummy","dummy",[Mkdir(os.path.join(env['PREFIX'],"share","doc","xrayutilities"))])
+    Alias("install",env.Install(os.path.join(env['PREFIX'],"share","doc","xrayutilities"),manual))
+
+# set debug flags if requested
 debug = ARGUMENTS.get('debug', 0)
 if int(debug):
     env.Append(CCFLAGS=["-g","-O0"])
@@ -146,7 +157,7 @@ if not env.GetOption('clean') or not env.GetOption('help'):
 env['DISTTAR_FORMAT']='gz'
 env.Append(
     DISTTAR_EXCLUDEEXTS=['.o','.os','.so','.a','.dll','.dylib','.cache','.dblite','.pyc','.log','.out','.aux','.fls','.toc'],
-    DISTTAR_EXCLUDEDIRS=['.git','.sconf_temp', 'dist', 'build'],
+    DISTTAR_EXCLUDEDIRS=['.git','.sconf_temp', 'dist', 'build','doc'],
     DISTTAR_EXCLUDERES=[r'clib_path.conf','.gitignore'])
 
 env.DistTar(os.path.join("dist","xrayutilities_"+datetime.date.today().isoformat()), [env.Dir(".")])
@@ -160,7 +171,7 @@ Export("env")
 
 #add subdirectories
 if "doc" in COMMAND_LINE_TARGETS:
-    SConscript(["src/SConscript","doc/manual/SConscriptBuild"])
+    SConscript(["src/SConscript","doc/SConscript"])
 else:
-    SConscript(["src/SConscript","doc/manual/SConscript"])
+    SConscript(["src/SConscript"])
 
