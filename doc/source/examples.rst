@@ -175,7 +175,8 @@ There exists also a powder diffraction class, which is able to convert powder sc
     # plot the convoluted signal
     plt.plot(In_th*2,In_int/In_int.max(),'k-',label="Indium powder convolution")
     # plot each peak in a bar plot
-    plt.bar(In_powder.ang*2, In_powder.data/In_powder.data.max(), width=0.3, bottom=0, linewidth=0, color='r',align='center', orientation='vertical',label="Indium powder bar plot")
+    plt.bar(In_powder.ang*2, In_powder.data/In_powder.data.max(), width=0.3, bottom=0, 
+            linewidth=0, color='r',align='center', orientation='vertical',label="Indium bar plot")
     
     plt.legend(); plt.set_xlim(15,100); plt.grid()
 

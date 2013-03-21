@@ -15,13 +15,14 @@ import os
 # global setting for the experiment
 sample = "test" # sample name used also as file name for the data file
 energy = 8042.5 # x-ray energy in eV
-center_ch = 715.9 # center channel of the linear detector used in the experiment
-chpdeg = 345.28 # channels per degree of the linear detector (mounted along z direction, which corresponds to twotheta)
+center_ch = 715.9 # center channel of the linear detector
+chpdeg = 345.28 # channels per degree of the linear detector 
 roi=[100,1340] # region of interest of the detector
 nchannel = 1500 # number of channels of the detector
 
 # intensity normalizer function responsible for count time and absorber correction
-normalizer_detcorr = xu.IntensityNormalizer("MCA",mon="Monitor",time="Seconds",absfun=lambda d: d["detcorr"]/d["psd2"].astype(numpy.float))
+absfun = lambda d: d["detcorr"]/d["psd2"].astype(numpy.float)
+normalizer_detcorr = xu.IntensityNormalizer("MCA",mon="Monitor",time="Seconds",absfun=absfun)
 
 # substrate material used for Bragg peak calculation to correct for experimental offsets
 InP = xu.materials.InP
@@ -33,12 +34,13 @@ hxrd = xu.HXRD(InP.Q(1,1,-2),InP.Q(1,1,1),en=energy)
 
 # configure linear detector
 # detector direction + parameters need to be given
+# mounted along z direction, which corresponds to twotheta
 hxrd.Ang2Q.init_linear('z-',center_ch,nchannel,chpdeg=chpdeg,roi=roi)
 
 # read spec file and save to HDF5-file
 # since reading is much faster from HDF5 once the data are transformed
 h5file = os.path.join("data",sample+".h5")
-try: s  # try if spec file object already exist from a previous run of the script ("run -i" in ipython)
+try: s  # try if spec file object already exist ("run -i" in ipython)
 except NameError: s = xu.io.SPECFile(sample+".spec",path="data")
 else: s.Update()
 s.Save2HDF5(h5file)
@@ -49,7 +51,8 @@ omalign = 43.0529 # experimental aligned values
 ttalign = 86.0733
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(InP.Q(3,3,3)) # nominal values of the substrate peak
 
-# read the data from the HDF5 file (scan number:36, names of motors in spec file: omega= sample rocking, gamma = twotheta)
+# read the data from the HDF5 file 
+#(scan number:36, names of motors in spec file: omega= sample rocking, gamma = twotheta)
 [om,tt],MAP = xu.io.geth5_scan(h5file,36,'omega','gamma')
 # normalize the intensity values (absorber and count time corrections)
 psdraw = normalizer_detcorr(MAP)

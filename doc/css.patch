@@ -1,0 +1,24 @@
+--- html/_static/nature_orig.css	2013-03-21 20:48:56.356454000 +0100
++++ html/_static/nature.css	2013-03-21 20:49:42.250793453 +0100
+@@ -20,6 +20,14 @@
+     color: #555;
+     margin: 0;
+     padding: 0;
++    margin-left:auto;
++    margin-right:auto;
++    width: 1200px;
++}
++
++p.logo {
++    margin-left: -20px;
++    margin-top: -20px;
+ }
+ 
+ div.documentwrapper {
+@@ -242,4 +250,4 @@
+     background-color: #f4debf;
+     border-top: 1px solid #ac9;
+     border-bottom: 1px solid #ac9;
+-}
+\ No newline at end of file
++}
