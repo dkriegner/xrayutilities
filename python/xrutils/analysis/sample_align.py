@@ -503,8 +503,8 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
     Ntilt = 1 if fix[1] else 6
     Noffset = 1 if fix[3] else 100
     if fix[3]:
-        Ntilt *= 5
-        Ntiltaz *= 5
+        Ntilt = Ntilt*5 if not fix[1] else Ntilt
+        Ntiltaz = Ntiltaz*5 if not fix[0] else Ntiltaz
 
     startparam = start[:2] + (detrot,) + (start[3],)
 
