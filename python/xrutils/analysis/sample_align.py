@@ -502,10 +502,15 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
     Ntiltaz = 1 if fix[0] else 5
     Ntilt = 1 if fix[1] else 6
     Noffset = 1 if fix[3] else 100
+    if fix[3]:
+        Ntilt *= 5
+        Ntiltaz *= 5
 
-    for tiltazimuth in numpy.linspace(start[0] if fix[0] else 0,360,Ntiltaz,endpoint=False):
-        for tilt in numpy.linspace(start[1] if fix[1] else 0,4,Ntilt):
-            for offset in numpy.linspace(start[3] if fix[3] else -2,2,Noffset):
+    startparam = start[:2] + (detrot,) + (start[3],)
+
+    for tiltazimuth in numpy.linspace(startparam[0] if fix[0] else 0,360,Ntiltaz,endpoint=False):
+        for tilt in numpy.linspace(startparam[1] if fix[1] else 0,4,Ntilt):
+            for offset in numpy.linspace(startparam[3] if fix[3] else -2+startparam[3],2+startparam[3],Noffset):
                 t1 = time.time()
                 start = (tiltazimuth,tilt,detrot,offset)
                 eps,param,fit = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = start, fix = fix, full_output=True,wl = wl)
@@ -828,7 +833,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         n2 = x[3,:]
 
         # use only positive tilt
-        param[4] = numpy.abs(param[4])
+        param[5] = numpy.abs(param[5])
 
         (qx,qy,qz) = areapixel(param[:-1],detectorDir1,detectorDir2,r_i,detectorAxis,angle1,angle2,n1,n2,delta=[param[-1],0.],distance=1.,wl=wl)
 
@@ -898,6 +903,9 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
     tiltazimuth = tiltazimuth%360.
     tilt = numpy.abs(tilt)
 
+    final_q = afunc([cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset],x,detdir1,detdir2,r_i,detaxis,wl)
+    final_error = numpy.mean(final_q)
+
     if False: # inactive code path
         if fig:
             plt.figure(fig.number)
@@ -916,9 +924,9 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         print("param: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset))
 
     if full_output:
-        return numpy.sum(fit.eps)/float(Npoints),(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset),fit
+        return final_error,(cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset),fit
     else:
-        return numpy.sum(fit.eps)/float(Npoints)
+        return final_error
 
 #################################################
 ## equivalent to PSD_refl_align MATLAB script
