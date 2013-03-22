@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2010,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a set of  routines to convert Seifert ASCII files to HDF5
@@ -144,7 +144,7 @@ class SeifertMultiScan(object):
             if not lb: break
             lb = lb.strip()
 
-            #the first thing needed is the number of scans in the fiel
+            #the first thing needed is the number of scans in the file
             if nscans_re.match(lb):
                 t = lb.split("=")[1]
                 self.nscans = int(t)
@@ -261,10 +261,17 @@ class SeifertScan(object):
 
         self.hdr = SeifertHeader()
         self.data = []
-
+        self.axispos = {}
 
         if self.fid:
             self.parse()
+
+        try:
+            if self.hdr.NumScans != 1:
+                self.data.shape = (int(self.hdr.NumScans),int(self.hdr.NoValues),2)
+        except:
+            pass
+
 
     def parse(self):
         if config.VERBOSITY >= config.INFO_ALL:
@@ -279,6 +286,7 @@ class SeifertScan(object):
             #every line is broken into its content
             llist = re_multiblank.split(lb)
             tmplist = []
+            axes = ""
             for e in llist:
                 #if the entry is a key value pair
                 if re_keyvalue.match(e):
@@ -297,6 +305,15 @@ class SeifertScan(object):
                     except:
                         pass
 
+                    if key=="Axis":
+                        axes = value
+                        try: 
+                            self.axispos[value]
+                        except:
+                            self.axispos[value] = []
+                    elif key=="Pos":
+                        self.axispos[axes] += [value,] 
+                        
                     self.hdr.__setattr__(key,value)
                 else:
                     try:
@@ -309,7 +326,8 @@ class SeifertScan(object):
 
         #in the end we convert the data list to a numeric array
         self.data = numpy.array(self.data,dtype=numpy.float)
-
+        for key in self.axispos:
+            self.axispos[key] = numpy.array(self.axispos[key])
 
     def dump2h5(self,h5,*args,**keyargs):
         """
