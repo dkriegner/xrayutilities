@@ -49,7 +49,7 @@ circleSyntax = re.compile("[xyz][+-]")
 #################################################
 ## channel per degree calculation
 #################################################
-def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
+def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True,datap="kx",modelline="r--",modeltilt="b-",fignum=None,mlabel="fit",mtiltlabel="fit w/tilt",dlabel="data"):
     """
     function to determine the channels per degree using a linear
     fit of the function nchannel = center_ch+chdeg*tan(angles)
@@ -155,36 +155,40 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
             plot = False
 
     if plot:
-        markersize = 5.5
+        markersize = 6.0
         markeredgewidth = 1.5
-        plt.figure()
+        linewidth = 2.0
+        if fignum==None:
+            plt.figure()
+        else:    
+            plt.figure(fignum)
         # first plot to show linear model
         ax1 = plt.subplot(211)
-        if stdev == None:
-            plt.plot(angles,channels,'kx', ms=markersize, mew=markeredgewidth ,label='data')
+        if stdev == None: 
+            plt.plot(angles,channels,datap, ms=markersize, mew=markeredgewidth ,label=dlabel)
         else:
-            plt.errorbar(angles,channels,fmt='kx',yerr=stdevu, ms=markersize, mew=markeredgewidth ,label='data')
+            plt.errorbar(angles,channels,fmt=datap,yerr=stdevu, ms=markersize, mew=markeredgewidth ,label=dlabel,ecolor='0.5')
         angr = angles.max()-angles.min()
         angp = numpy.linspace(angles.min()-angr*0.1,angles.max()+angr*.1,1000)
-        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))),'r-',label='fit')
+        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))),modelline,label=mlabel,lw=linewidth)
         plt.plot(angp,models._unilin(fitlin.beta,angp),'k-',label='')
         plt.grid(True)
         if usetilt:
-            plt.plot(angp,straight_tilt(fittilt.beta,angp),'b-', label='fit w/tilt')
+            plt.plot(angp,straight_tilt(fittilt.beta,angp),modeltilt, label=mtiltlabel,lw=linewidth)
         leg = plt.legend(numpoints=1)
-        leg.get_frame().set_alpha(0.5)
+        leg.get_frame().set_alpha(0.8)
 
         plt.ylabel("channel number")
 
         # lower plot to show deviations from linear model
         ax2 = plt.subplot(212,sharex=ax1)
         if stdev == None:
-            plt.plot(angles,channels - models._unilin(fitlin.beta,angles),'kx', ms=markersize, mew=markeredgewidth ,label='data')
+            plt.plot(angles,channels - models._unilin(fitlin.beta,angles),datap, ms=markersize, mew=markeredgewidth ,label=dlabel)
         else:
-            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt='kx',yerr=stdevu, ms=markersize, mew=markeredgewidth ,label='data')
-        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))) - models._unilin(fitlin.beta,angp),'r-',label='fit')
+            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt=datap,yerr=stdevu, ms=markersize, mew=markeredgewidth ,label=dlabel,ecolor='0.5')
+        plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))) - models._unilin(fitlin.beta,angp),modelline,label=mlabel,lw=linewidth)
         if usetilt:
-            plt.plot(angp,straight_tilt(fittilt.beta,angp) - models._unilin(fitlin.beta,angp),'b-',label='fit w/tilt')
+            plt.plot(angp,straight_tilt(fittilt.beta,angp) - models._unilin(fitlin.beta,angp),modeltilt,label=mtiltlabel,lw=linewidth)
         plt.xlabel("detector angle (deg)")
         plt.ylabel("ch. num. - linear trend")
         plt.grid(True)
@@ -202,9 +206,12 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
 
     if config.VERBOSITY >= config.INFO_LOW:
         if usetilt:
-            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel / tilt: %8.2f / %8.2f / %5.2fdeg" % (fit.beta[0],fit.beta[1],fit.beta[2]))
+            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel / tilt: %8.2f / %8.2f / %6.3fdeg" % (fit.beta[0],fit.beta[1],fit.beta[2]))
+            print("XU.analysis.psd_chdeg:     errors of channel per degree / center channel / tilt: %8.3f / %8.3f / %6.3fdeg" % (fit.sd_beta[0],fit.sd_beta[1],fit.sd_beta[2]))
         else:
             print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
+            print("XU.analysis.psd_chdeg:     errors of channel per degree / center channel: %8.3f / %8.3f" % (fit.sd_beta[0],fit.sd_beta[1]))
+
 
     return fit.beta
 
@@ -215,7 +222,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True):
 def linear_detector_calib(angle,mca_spectra,**keyargs):
     """
     function to calibrate the detector distance/channel per degrees
-    for a straigt linear detector mounted on a detector arm
+    for a straight linear detector mounted on a detector arm
 
     parameters
     ----------
@@ -225,14 +232,14 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
 
     **keyargs passed to psd_chdeg function used for the modelling additional options:
      r_i .......... primary beam direction as vector [xyz][+-]; default: 'y+'
-     detaxis ...... detector rotation axis [xyz][+-] e.g. 'x+'; default: 'x+'
+     detaxis ...... detector arm rotation axis [xyz][+-] e.g. 'x+'; default: 'x+'
 
     returns
     -------
      L/pixelwidth*pi/180 ~= channel/degree, center_channel[, detector_tilt]
 
     The function also prints out how a linear detector can be initialized using the results
-    obtained from this calibration.
+    obtained from this calibration. Carefully check the results
 
     Note:
      distance of the detector is given by: channel_width*channelperdegree/tan(radians(1))
@@ -265,7 +272,7 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
         #print(row_int)
         if (numpy.abs(row_int-mca_avg) > 3*mca_std) or (row_int-mca_rowmax*0.7 < 0):
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.analysis.det_dist: spectrum #%d out of intensity range -> ignored" %i)
+                print("XU.analysis.linear_detector_calib: spectrum #%d out of intensity range -> ignored" %i)
             nignored += 1
             continue
 
