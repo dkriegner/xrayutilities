@@ -16,12 +16,9 @@
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
-import numpy
-import tables
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import xrutils as xu
-import os
 
 # plot settings for matplotlib
 mpl.rcParams['font.family'] = 'serif'
@@ -50,7 +47,7 @@ ttalign = 69.1283
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(Si.Q(0,0,4)) # nominal values of the substrate peak
 
 # read the data from the xrdml files
-om,tt,psd = xu.io.getxrdml_map(os.path.join('data',sample+'_%d.xrdml'),[1,2,3,4,5])
+om,tt,psd = xu.io.getxrdml_map(sample+'_%d.xrdml',[1,2,3,4,5],path='data')
 
 # determine offset of substrate peak from experimental values (optional)
 omalign,ttalign,p,cov = xu.analysis.fit_bragg_peak(om,tt,psd,omalign,ttalign,hxrd,plot=False)
