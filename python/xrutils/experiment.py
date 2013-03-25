@@ -941,14 +941,14 @@ class Experiment(object):
           en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
                      the en keyword overrulls the wl keyword
         """
-        if isinstance(ipdir,list):
+        if isinstance(ipdir,(list,tuple)):
             self.idir = math.VecUnit(numpy.array(ipdir,dtype=numpy.double))
         elif isinstance(ipdir,numpy.ndarray):
             self.idir = math.VecUnit(ipdir)
         else:
             raise TypeError("Inplane direction must be list or numpy array")
 
-        if isinstance(ndir,list):
+        if isinstance(ndir,(list,tuple)):
             self.ndir = math.VecUnit(numpy.array(ndir,dtype=numpy.double))
         elif isinstance(ndir,numpy.ndarray):
             self.ndir = math.VecUnit(ndir)
