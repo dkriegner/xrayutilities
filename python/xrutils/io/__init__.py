@@ -22,6 +22,7 @@ from .radicon import selecthst
 
 from .seifert import SeifertScan
 from .seifert import SeifertMultiScan
+from .seifert import getSeifert_map
 
 from .spectra import SPECTRAFile
 from .spectra import geth5_spectra_map

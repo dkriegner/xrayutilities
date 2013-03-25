@@ -30,6 +30,8 @@ In the first case the data ist stored
 import re
 import tables
 import numpy
+import os
+import itertools
 
 from .. import config
 
@@ -122,33 +124,33 @@ class SeifertMultiScan(object):
 
         self.m2_pos = []
         self.sm_pos = []
-        self.int = []
+        self.data = []
         self.n_sm_pos = 0
-        self.n_m2_pos = 0
 
         if self.fid:
+            if config.VERBOSITY >= config.INFO_LOW:
+                print("XU.io.SeifertScan: parsing file: %s"%self.Filename)
             self.parse()
 
     def parse(self):
         self.data = []
-        m2_tmppos = 0
-        self.int = []
-        self.sm_pos = None
+        m2_tmppos = None
+        self.sm_pos = []
         self.m2_pos = []
-        s = 0
-        e = 0
-        d = 0
+        
+        # flag to check if all header information was parsed
+        header_complete = False
 
         while True:
-            lb = self.fid.readline()
-            if not lb: break
-            lb = lb.strip()
+            lb = list(itertools.islice(self.fid, 1))
+            if not lb:
+                break
+            lb = lb[0].strip()
 
-            #the first thing needed is the number of scans in the file
+            # the first thing needed is the number of scans in the file (in file header)
             if nscans_re.match(lb):
                 t = lb.split("=")[1]
                 self.nscans = int(t)
-                self.n_m2_pos = int(t)
 
             if self.re_m2.match(lb):
                 t = re_position.findall(lb)[0]
@@ -158,28 +160,28 @@ class SeifertMultiScan(object):
             if novalues_re.match(lb):
                 t = lb.split("=")[1]
                 self.n_sm_pos = int(t)
-                self.m2_pos.append(m2_tmppos)
+                header_complete=True
 
-            if re_stepscan.match(lb):
-                t = re_start.findall(lb)[0]
-                t = t.split("=")[1]
-                s = float(t)
-                t = re_end.findall(lb)[0]
-                t = t.split("=")[1]
-                e = float(t)
-                t = re_step.findall(lb)[0]
-                t = t.split("=")[1]
-                d = float(t)
+            if header_complete:
+                # append motor positions of second motor
+                self.m2_pos.append([[m2_tmppos]*self.n_sm_pos])
 
-            if re_dataline.match(lb):
-                t = re_multiblank.split(lb)[1]
-                self.int.append(float(t))
+                # reset header flag
+                header_complete=False
+                # read data lines (number of lines determined by number of values)
+                datalines = itertools.islice(self.fid, self.n_sm_pos)
+                t = numpy.loadtxt(datalines)
+                self.data.append(t[:,1])
+                self.sm_pos.append(t[:,0])
 
         #after reading all the data
         self.m2_pos = numpy.array(self.m2_pos,dtype=numpy.double)
-        self.sm_pos = numpy.arange(s,e+0.5*d,d,dtype=numpy.double)
-        self.int = numpy.array(self.int,dtype=numpy.double)
-        self.int = self.int.reshape((self.n_m2_pos,self.n_sm_pos))
+        self.sm_pos = numpy.array(self.sm_pos,dtype=numpy.double)
+        self.data = numpy.array(self.data,dtype=numpy.double)
+
+        self.data.shape = (self.nscans,self.n_sm_pos)
+        self.m2_pos.shape = (self.nscans,self.n_sm_pos)
+        self.sm_pos.shape = (self.nscans,self.n_sm_pos)
 
 
     def dump2hdf5(self,h5,*args,**keyargs):
@@ -264,6 +266,8 @@ class SeifertScan(object):
         self.axispos = {}
 
         if self.fid:
+            if config.VERBOSITY >= config.INFO_LOW:
+                print("XU.io.SeifertScan: parsing file: %s"%self.Filename)
             self.parse()
 
         try:
@@ -391,3 +395,51 @@ class SeifertScan(object):
         element of the shape of the data object.
         """
         pass
+
+
+def getSeifert_map(filetemplate,scannrs=None,path="."):
+    """
+    parses multiple Seifert *.nja files and concatenates the results.
+    for parsing the xrutils.io.SeifertMultiScan class is used. The function can
+    be used for parsing maps measured with the Meteor1D and point detector.
+
+    Parameter
+    ---------
+     filetemplate: template string for the file names, can contain
+                   a %d which is replaced by the scan number or be a
+                   list of filenames
+     scannrs:      int or list of scan numbers
+     path:         common path to the filenames
+
+    Returns
+    -------
+     om,tt,psd: as flattened numpy arrays
+
+    Example
+    -------
+     >>> om,tt,psd = xrutils.io.getSeifert_map("samplename_%d.xrdml",[1,2],path="./data")
+    """
+    # read raw data and convert to reciprocal space
+    om = numpy.zeros(0)
+    tt = numpy.zeros(0)
+    psd = numpy.zeros(0)
+    # create scan names
+    if scannrs==None:
+        files = [filetemplate]
+    else:
+        files = list()
+        if not getattr(scannrs,'__iter__',False):
+            scannrs = [scannrs]
+        for nr in scannrs:
+            files.append(filetemplate %nr)
+
+    # parse files
+    for f in files:
+        d = SeifertMultiScan(os.path.join(path,f),'T','O')
+
+        om = numpy.concatenate((om,d.m2_pos.flatten()))
+        tt = numpy.concatenate((tt,d.sm_pos.flatten()))
+        psd = numpy.concatenate((psd,d.data.flatten()))
+
+    return om,tt,psd
+        
