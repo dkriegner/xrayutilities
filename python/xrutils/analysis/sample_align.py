@@ -302,12 +302,23 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
 
     detaxis='  '
     detd = numpy.cross(math.getVector(detrotaxis),math.getVector(r_i))
-    if detd.argmax() == 0:
-        detaxis = 'x'+sign
-    elif detd.argmax() == 1:
-        detaxis = 'y'+sign
-    elif detd.argmax() == 2:
-        detaxis = 'z'+sign
+    argm = numpy.abs(detd).argmax()
+
+    def flipsign(char,val):
+        if numpy.sign(val)<0:
+            if char=='+':
+                return '-'
+            else:
+                return '+'
+        else:
+            return char
+
+    if argm == 0:
+        detaxis = 'x'+flipsign(sign,detd[argm])
+    elif argm == 1:
+        detaxis = 'y'+flipsign(sign,detd[argm])
+    elif argm == 2:
+        detaxis = 'z'+flipsign(sign,detd[argm])
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.linear_detector_calib:\n\tused/total spectra: %d/%d" %(mca_spectra.shape[0]-nignored,mca_spectra.shape[0]))
@@ -316,7 +327,7 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
             tilt = detparam[2]
         else:
             tilt = 0
-        print("\tdetector initialization with: init_linear('%s',%.1f,%d,chpdeg=%.1f,tilt=%.2f)" %(detaxis,detparam[1],mca_spectra.shape[1],detparam[0],tilt))
+        print("\tdetector initialization with: init_linear('%s',%.1f,%d,chpdeg=%.1f,tilt=%.2f)" %(detaxis,detparam[1],mca_spectra.shape[1],numpy.abs(detparam[0]),tilt))
 
     return detparam
 
