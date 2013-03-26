@@ -97,7 +97,7 @@ class SeifertHeader(object):
 
 
 class SeifertMultiScan(object):
-    def __init__(self,filename,m_scan,m2):
+    def __init__(self,filename,m_scan,m2,path=None):
         """
         Parse data from a multiscan Seifert file.
 
@@ -105,14 +105,18 @@ class SeifertMultiScan(object):
          filename ................... name of the NJA file
          m_scan ..................... name of the scan axis
          m2 ......................... name of the second moving motor
+         path ....................... common path to datafile
         """
-
-        self.Filename =filename
+        if path:
+            self.Filename = os.path.join(path,filename)
+        else:    
+            self.Filename = filename
+        
         try:
-            self.fid = open(filename,"r")
+            self.fid = open(self.Filename,"r")
         except:
             self.fid = None
-            raise IOError("error opening Seifert datafile %s" %(filename))
+            raise IOError("error opening Seifert datafile %s" %(self.Filename))
 
         self.nscans = 0   #total number of scans
         self.npscan = 0   #number of points per scan
@@ -247,19 +251,25 @@ class SeifertMultiScan(object):
 
 
 class SeifertScan(object):
-    def __init__(self,filename):
+    def __init__(self,filename,path=None):
         """
         Constructor for a SeifertScan object.
 
         required input arguments:
-         filename ................... a string with the name of the file to read
+         filename:  a string with the name of the file to read
+         path:      common path to the filenames
+
         """
-        self.Filename = filename
+        if path:
+            self.Filename = os.path.join(path,filename)
+        else:    
+            self.Filename = filename
+        
         try:
-            self.fid = open(filename,"r")
+            self.fid = open(self.Filename,"r")
         except:
             self.fid = None
-            raise IOError("error opening Seifert datafile %s" %(filename))
+            raise IOError("error opening Seifert datafile %s" %(self.Filename))
 
         self.hdr = SeifertHeader()
         self.data = []
@@ -397,7 +407,7 @@ class SeifertScan(object):
         pass
 
 
-def getSeifert_map(filetemplate,scannrs=None,path="."):
+def getSeifert_map(filetemplate,scannrs=None,path=".",scantype="map",Nchannels=1280):
     """
     parses multiple Seifert *.nja files and concatenates the results.
     for parsing the xrutils.io.SeifertMultiScan class is used. The function can
@@ -405,11 +415,15 @@ def getSeifert_map(filetemplate,scannrs=None,path="."):
 
     Parameter
     ---------
-     filetemplate: template string for the file names, can contain
-                   a %d which is replaced by the scan number or be a
-                   list of filenames
-     scannrs:      int or list of scan numbers
-     path:         common path to the filenames
+     filetemplate:  template string for the file names, can contain
+                    a %d which is replaced by the scan number or be a
+                    list of filenames
+     scannrs:       int or list of scan numbers
+     path:          common path to the filenames
+     scantype:      type of datafile: 
+                        "map": reciprocal space map measured with a regular Seifert job
+                        "tsk": MCA spectra measured using the TaskInterpreter
+     Nchannels:     number of channels of the MCA (needed for "tsk" measurements)
 
     Returns
     -------
@@ -422,7 +436,10 @@ def getSeifert_map(filetemplate,scannrs=None,path="."):
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)
     tt = numpy.zeros(0)
-    psd = numpy.zeros(0)
+    if scantype=="map":
+        psd = numpy.zeros(0)
+    else:
+        psd = numpy.zeros((0,Nchannels))
     # create scan names
     if scannrs==None:
         files = [filetemplate]
@@ -435,11 +452,19 @@ def getSeifert_map(filetemplate,scannrs=None,path="."):
 
     # parse files
     for f in files:
-        d = SeifertMultiScan(os.path.join(path,f),'T','O')
+        if scantype == "map":
+            d = SeifertMultiScan(os.path.join(path,f),'T','O')
 
-        om = numpy.concatenate((om,d.m2_pos.flatten()))
-        tt = numpy.concatenate((tt,d.sm_pos.flatten()))
-        psd = numpy.concatenate((psd,d.data.flatten()))
+            om = numpy.concatenate((om,d.m2_pos.flatten()))
+            tt = numpy.concatenate((tt,d.sm_pos.flatten()))
+            psd = numpy.concatenate((psd,d.data.flatten()))
+        else: # scantype == "tsk":
+            d = SeifertScan(os.path.join(path,f))
+
+            om = numpy.concatenate((om,d.axispos['O'].flatten()))
+            tt = numpy.concatenate((tt,d.axispos['T'].flatten()))
+            psd = numpy.concatenate((psd,d.data[:,:,1]))
+
 
     return om,tt,psd
         
