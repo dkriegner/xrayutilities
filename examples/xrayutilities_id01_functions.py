@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-# ALSO LOOK AT THE FILE xrutils_example_plot_3D_ESRF_ID01.py
+# ALSO LOOK AT THE FILE xrayutilities_example_plot_3D_ESRF_ID01.py
 
 import numpy
 import xrayutilities as xu
