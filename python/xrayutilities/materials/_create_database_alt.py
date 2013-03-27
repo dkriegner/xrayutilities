@@ -19,8 +19,9 @@ script to create the HDF5 database from the raw data of XOP
 this file is only needed for administration
 """
 
-import database as db
 import os
+
+from . import database as db
 
 filename = os.path.join("data","elements_alt.db")
 
