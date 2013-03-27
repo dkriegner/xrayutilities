@@ -21,7 +21,7 @@ import os
 import subprocess
 import gzip
 
-# relative imports from xrutils
+# relative imports from xrayutilities
 from .. import config
 from ..exception import InputError
 

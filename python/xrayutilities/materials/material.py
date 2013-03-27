@@ -211,7 +211,7 @@ class Material(object):
         Parameter
         ---------
          en:    x-ray energy eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
 
         Returns
         -------
@@ -241,7 +241,7 @@ class Material(object):
         Parameter
         ---------
          en:    x-ray energy eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
 
         Returns
         -------
@@ -272,7 +272,7 @@ class Material(object):
         ---------
          q:     momentum transfer in (1/A)
          en:    xray energy in eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
          temp:  temperature used for Debye-Waller-factor calculation
          polarization:  either 'S' (default) sigma or 'P' pi polarization
 
@@ -351,7 +351,7 @@ class Material(object):
         Parameter
         ---------
          en:    energy of the x-rays,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
 
         Returns
         -------
@@ -367,7 +367,7 @@ class Material(object):
         Parameter
         ---------
          en:    energy of the x-rays,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
          deg:   return angle in degree if True otherwise radians (default:True)
 
         Returns
@@ -391,7 +391,7 @@ class Material(object):
         ---------
          Q:     momentum transfer (1/A)
          en:    x-ray energy (eV),
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
 
         Returns
         -------
@@ -431,7 +431,7 @@ class Material(object):
          q:     vectorial momentum transfer (vectors as list,tuple
                 or numpy array are valid)
          en:    energy in eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
          temp:  temperature used for Debye-Waller-factor calculation
 
         Returns
@@ -568,7 +568,7 @@ class Material(object):
                 e.g.: (Si.Q(0,0,4),Si.Q(0,0,4.1),...) or
                 numpy.array([Si.Q(0,0,4),Si.Q(0,0,4.1)])
          en0:   energy value in eV,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
          temp:  temperature used for Debye-Waller-factor calculation
 
         Returns
@@ -818,8 +818,8 @@ class Alloy(Material):
             hkl = numpy.array(hkl,dtype=numpy.double)
         else:
             raise TypeError("First argument (hkl) must be of type list, tuple or numpy.ndarray")
-        #if not isinstance(exp,xrutils.Experiment):
-        #    raise TypeError("Third argument (exp) must be an instance of xrutils.Experiment")
+        #if not isinstance(exp,xrayutilities.Experiment):
+        #    raise TypeError("Third argument (exp) must be an instance of xrayutilities.Experiment")
         transform =exp.Transform
         ndir =exp.ndir/numpy.linalg.norm(exp.ndir)
 
@@ -828,7 +828,7 @@ class Alloy(Material):
         elif isinstance(sub,float):
             asub = sub
         else:
-            raise TypeError("Second argument (sub) must be of type float or an instance of xrutils.materials.Material")
+            raise TypeError("Second argument (sub) must be of type float or an instance of xrayutilities.materials.Material")
 
         # test if inplane direction of hkl is the same as the one for the experiment otherwise warn the user
         hklinplane = numpy.cross(numpy.cross(exp.ndir,hkl),exp.ndir)

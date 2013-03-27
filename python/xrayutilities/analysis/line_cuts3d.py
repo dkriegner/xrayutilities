@@ -60,7 +60,7 @@ def get_qx_scan3d(gridder,qypos,qzpos,**kwargs):
 
     Parameters
     ----------
-     gridder:       3d xrutils.Gridder3D object containing the data
+     gridder:       3d xrayutilities.Gridder3D object containing the data
      qypos,qzpos:   position at which the line scan should be extracted
 
     **kwargs:       possible keyword arguments:
@@ -119,7 +119,7 @@ def get_qy_scan3d(gridder,qxpos,qzpos,**kwargs):
 
     Parameters
     ----------
-     gridder:       3d xrutils.Gridder3D object containing the data
+     gridder:       3d xrayutilities.Gridder3D object containing the data
      qxpos,qzpos:   position at which the line scan should be extracted
 
     **kwargs:       possible keyword arguments:
@@ -177,7 +177,7 @@ def get_qz_scan3d(gridder,qxpos,qypos,**kwargs):
 
     Parameters
     ----------
-     gridder:       3d xrutils.Gridder3D object containing the data
+     gridder:       3d xrayutilities.Gridder3D object containing the data
      qxpos,qypos:   position at which the line scan should be extracted
 
     **kwargs:       possible keyword arguments:

@@ -177,14 +177,14 @@ class XRDMLFile(object):
 def getOmPixcel(omraw,ttraw):
     """
     function to reshape the Omega values into a form needed for
-    further treatment with xrutils
+    further treatment with xrayutilities
     """
     return (omraw[:,numpy.newaxis]*numpy.ones(ttraw.shape)).flatten()
 
 def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
     """
     parses multiple XRDML file and concatenates the results
-    for parsing the xrutils.io.XRDMLFile class is used. The function can
+    for parsing the xrayutilities.io.XRDMLFile class is used. The function can
     be used for parsing maps measured with the PIXCel and point detector.
 
     Parameter
@@ -203,7 +203,7 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
 
     Example
     -------
-     >>> om,tt,psd = xrutils.io.getxrdml_map("samplename_%d.xrdml",[1,2],path="./data")
+     >>> om,tt,psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",[1,2],path="./data")
     """
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)

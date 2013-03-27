@@ -1097,7 +1097,7 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
     helper function to determine the Bragg peak position in a reciprocal
     space map used to obtain the position needed for correction of the data.
     the determination is done by fitting a two dimensional Gaussian
-    (xrutils.math.Gauss2d)
+    (xrayutilities.math.Gauss2d)
 
     PLEASE ALWAYS CHECK THE RESULT CAREFULLY!
 

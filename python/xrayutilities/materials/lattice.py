@@ -97,7 +97,7 @@ class Atom(object):
         ---------
          q:     momentum transfer
          en:    energy for which F should be calculated,
-                if omitted the value from the xrutils configuration is used
+                if omitted the value from the xrayutilities configuration is used
 
         Returns
         -------
@@ -137,7 +137,7 @@ class LatticeBase(list):
                  and chi calculation)
         """
         if not isinstance(atom,Atom):
-            raise TypeError("atom must be an instance of class xrutils.materials.Atom")
+            raise TypeError("atom must be an instance of class xrayutilities.materials.Atom")
 
         if isinstance(pos,list):
             pos = numpy.array(pos,dtype=numpy.double)
@@ -152,7 +152,7 @@ class LatticeBase(list):
     def __setitem__(self,key,data):
         (atom,pos,occ,b) = data
         if not isinstance(atom,Atom):
-            raise TypeError("atom must be an instance of class xrutils.materials.Atom!")
+            raise TypeError("atom must be an instance of class xrayutilities.materials.Atom!")
 
         if isinstance(pos,list):
             p = numpy.array(pos,dtype=numpy.double)
@@ -208,7 +208,7 @@ class Lattice(object):
 
         if base!=None:
             if not isinstance(base,LatticeBase):
-                raise TypeError("lattice base must be an instance of class xrutils.materials.LatticeBase")
+                raise TypeError("lattice base must be an instance of class xrayutilities.materials.LatticeBase")
             else:
                 self.base = base
         else:

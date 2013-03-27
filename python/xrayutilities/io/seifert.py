@@ -410,7 +410,7 @@ class SeifertScan(object):
 def getSeifert_map(filetemplate,scannrs=None,path=".",scantype="map",Nchannels=1280):
     """
     parses multiple Seifert *.nja files and concatenates the results.
-    for parsing the xrutils.io.SeifertMultiScan class is used. The function can
+    for parsing the xrayutilities.io.SeifertMultiScan class is used. The function can
     be used for parsing maps measured with the Meteor1D and point detector.
 
     Parameter
@@ -431,7 +431,7 @@ def getSeifert_map(filetemplate,scannrs=None,path=".",scantype="map",Nchannels=1
 
     Example
     -------
-     >>> om,tt,psd = xrutils.io.getSeifert_map("samplename_%d.xrdml",[1,2],path="./data")
+     >>> om,tt,psd = xrayutilities.io.getSeifert_map("samplename_%d.xrdml",[1,2],path="./data")
     """
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)

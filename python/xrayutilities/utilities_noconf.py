@@ -16,7 +16,7 @@
 # Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-xrutils utilities contains a conglomeration of useful functions
+xrayutilities utilities contains a conglomeration of useful functions
 this part of utilities does not need the config class
 """
 

@@ -16,7 +16,7 @@
 # Copyright (C) 2011-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-xrutils.analysis is a package for assisting with the analysis of
+xrayutilities.analysis is a package for assisting with the analysis of
 x-ray diffraction data, mainly reciprocal space maps
 
 Routines for obtaining line cuts from gridded reciprocal space maps are

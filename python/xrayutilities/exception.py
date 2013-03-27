@@ -16,8 +16,8 @@
 # Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-xrutils derives its own exceptions which are raised
-upon wrong input when calling one of xrutils functions.
+xrayutilities derives its own exceptions which are raised
+upon wrong input when calling one of xrayutilities functions.
 none of the pre-defined exceptions is made for that purpose.
 """
 

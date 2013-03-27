@@ -29,7 +29,9 @@ unit_dict = {"kb":1024,"mb":1024**2,"gb":1024**3}
 class Gridder(object):
     def __init__(self,**keyargs):
         """
-        Basis class for gridders in xrutils
+        Basis class for gridders in xrayutilities. A gridder is a function mapping
+        irregular spaced data onto a regular grid by binning the data into equally 
+        sized elements
 
         Parameters:
         -----------

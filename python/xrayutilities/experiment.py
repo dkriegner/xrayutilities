@@ -1934,11 +1934,11 @@ class Powder(Experiment):
     """
     def __init__(self,mat,**keyargs):
         """
-        the class is initialized with xrutils.materials.Material instance
+        the class is initialized with xrayutilities.materials.Material instance
 
         Parameters
         ----------
-         mat:        xrutils.material.Material instance
+         mat:        xrayutilities.material.Material instance
                      giving the material for the experimental class
          keyargs:    optional keyword arguments
                      same as for the Experiment base class
@@ -1947,7 +1947,7 @@ class Powder(Experiment):
         if isinstance(mat,materials.Material):
             self.mat = mat
         else:
-            raise TypeError("mat must be an instance of class xrutils.materials.Material")
+            raise TypeError("mat must be an instance of class xrayutilities.materials.Material")
 
         self.digits = 5 # number of significant digits, needed to identify equal floats
 

@@ -163,7 +163,7 @@ class IntensityNormalizer(object):
     generic class for correction of intensity (point detector,or MCA,
     single CCD frames) for count time and absorber factors
     the class must be supplied with a absorber correction function
-    and works with data structures provided by xrutils.io classes or the
+    and works with data structures provided by xrayutilities.io classes or the
     corresponding objects from hdf5 files read by pytables
     """
     def __init__(self,det,**keyargs):
@@ -380,7 +380,7 @@ class IntensityNormalizer(object):
 
         Parameter
         ---------
-         data: data object from xrutils.io classes (numpy.recarray)
+         data: data object from xrayutilities.io classes (numpy.recarray)
 
         Returns
         -------

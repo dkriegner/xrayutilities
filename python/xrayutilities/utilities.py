@@ -16,7 +16,7 @@
 # Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-xrutils utilities contains a conglomeration of useful functions
+xrayutilities utilities contains a conglomeration of useful functions
 which do not fit into one of the other files
 """
 
