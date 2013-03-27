@@ -5,7 +5,7 @@ API-documentation
 =================
 
 :mod:`xrayutilities` Package
-======================
+============================
 
 .. automodule:: xrayutilities
     :members:

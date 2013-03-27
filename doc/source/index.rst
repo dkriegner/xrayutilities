@@ -82,7 +82,7 @@ the result as reciprocal space map using matplotlib.
 More such examples can be found on the :ref:`examplespage` page.
 
 xrayutilities Python package
-======================
+============================
 
 .. automodule:: xrayutilities
    :members:
