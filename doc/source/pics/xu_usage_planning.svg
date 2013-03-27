@@ -14,8 +14,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="xrutils_usage_planning.svg"
-   inkscape:export-filename="/home/dk/devel/xrutils/doc/source/pics/xrutils_usage_planning.png"
+   sodipodi:docname="xu_usage_planning.svg"
+   inkscape:export-filename="/home/dk/devel/xrutils/doc/source/pics/xu_usage_planning.png"
    inkscape:export-xdpi="100.01665"
    inkscape:export-ydpi="100.01665">
   <defs
@@ -172,10 +172,10 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1600"
-     inkscape:window-height="1141"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-width="1366"
+     inkscape:window-height="709"
+     inkscape:window-x="1920"
+     inkscape:window-y="459"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -209,15 +209,20 @@
       <text
          sodipodi:linespacing="125%"
          id="text2882-1"
-         y="190.606"
-         x="137.41344"
+         y="182.606"
+         x="200.36266"
          style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Tymes;-inkscape-font-specification:Tymes"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
-           y="190.606"
-           x="137.41344"
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="182.606"
+           x="200.36266"
            id="tspan2884-2"
-           sodipodi:role="line">xrutils.Materials</tspan></text>
+           sodipodi:role="line">xrayutilities.</tspan><tspan
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="202.606"
+           x="200.36266"
+           sodipodi:role="line"
+           id="tspan3033">Materials</tspan></text>
     </g>
     <g
        id="g3885"
@@ -234,15 +239,20 @@
       <text
          sodipodi:linespacing="125%"
          id="text2882-5"
-         y="278.48926"
-         x="138.4236"
+         y="268.48926"
+         x="211.37282"
          style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Tymes;-inkscape-font-specification:Tymes"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
-           y="278.48926"
-           x="138.4236"
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="268.48926"
+           x="211.37282"
            id="tspan2884-5"
-           sodipodi:role="line">xrutils.Experiment</tspan></text>
+           sodipodi:role="line">xrayutilities.</tspan><tspan
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="288.48926"
+           x="211.37282"
+           sodipodi:role="line"
+           id="tspan3035">Experiment</tspan></text>
     </g>
     <text
        xml:space="preserve"
@@ -285,23 +295,28 @@
          ry="19.192898"
          rx="19.192898"
          y="356.87216"
-         x="133.92711"
+         x="157.16061"
          height="59.59903"
-         width="247.32359"
+         width="202.87688"
          id="rect2858-1-2"
          style="color:#000000;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <text
          sodipodi:linespacing="125%"
          id="text2882-5-5"
-         y="392.63651"
-         x="154.08096"
+         y="382.63651"
+         x="259.43643"
          style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Tymes;-inkscape-font-specification:Tymes"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
-           y="392.63651"
-           x="154.08096"
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="382.63651"
+           x="259.43643"
            id="tspan2884-5-1"
-           sodipodi:role="line">xrutils.Experiment.Q2Ang</tspan></text>
+           sodipodi:role="line">xrayutilities.</tspan><tspan
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="402.63651"
+           x="259.43643"
+           sodipodi:role="line"
+           id="tspan3039">Experiment.Q2Ang</tspan></text>
     </g>
     <text
        xml:space="preserve"
@@ -335,15 +350,20 @@
       <text
          sodipodi:linespacing="125%"
          id="text2882-1-8"
-         y="190.606"
-         x="137.41344"
+         y="180.606"
+         x="210.36266"
          style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Tymes;-inkscape-font-specification:Tymes"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
-           y="190.606"
-           x="137.41344"
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="180.606"
+           x="210.36266"
            id="tspan2884-2-3"
-           sodipodi:role="line">xrutils.Materials.Q</tspan></text>
+           sodipodi:role="line">xrayutilities.</tspan><tspan
+           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           y="200.606"
+           x="210.36266"
+           sodipodi:role="line"
+           id="tspan3037">Materials.Q</tspan></text>
     </g>
     <text
        xml:space="preserve"
