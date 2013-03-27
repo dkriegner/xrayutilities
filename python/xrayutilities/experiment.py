@@ -101,7 +101,7 @@ class QConversion(object):
             self.r_i = numpy.array(r_i,dtype=numpy.double)
             self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
             if self.r_i.size != 3:
-                print "XU.QConversion: warning invalid primary beam direction given -> using [0,1,0]"
+                print("XU.QConversion: warning invalid primary beam direction given -> using [0,1,0]")
                 self.r_i = numpy.array([0,1,0],dtype=numpy.double,order='C')
                 self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         else:
