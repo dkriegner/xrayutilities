@@ -18,7 +18,7 @@
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import xrutils as xu
+import xrayutilities as xu
 
 # plot settings for matplotlib
 mpl.rcParams['font.family'] = 'serif'

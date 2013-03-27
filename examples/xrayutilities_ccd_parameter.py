@@ -1,4 +1,4 @@
-import xrutils as xu
+import xrayutilities as xu
 import os
 
 en=10300.0 #eV

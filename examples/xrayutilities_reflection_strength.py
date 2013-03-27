@@ -15,15 +15,16 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-# f = f0(|Q|) + f1(en) + j * f2(en)
-import xrutils as xu
+import xrayutilities as xu
 import numpy
 
-Fe = xu.materials.elements.Fe # iron atom
-Q = numpy.array([0,0,1.9],dtype=numpy.double)
-en = 10000 # energy in eV
+# defining material and experimental setup
+InAs = xu.materials.InAs
+energy= 8048 # eV
 
-print("Iron (Fe): E: %9.1f eV" % en)
-print("f0: %8.4g" % Fe.f0(numpy.linalg.norm(Q)))
-print("f1: %8.4g" % Fe.f1(en))
-print("f2: %8.4g" % Fe.f2(en))
+# calculate the structure factor for InAs (111) (222) (333)
+hkllist = [[1,1,1],[2,2,2],[3,3,3]]
+for hkl in hkllist:
+    qvec = InAs.Q(hkl)
+    F = InAs.StructureFactor(qvec,energy)
+    print((" |F| = %8.3f" %numpy.abs(F)))

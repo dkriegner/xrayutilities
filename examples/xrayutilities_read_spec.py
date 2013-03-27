@@ -28,7 +28,7 @@ import numpy
 import tables
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import xrutils as xu
+import xrayutilities as xu
 import os
 
 # plot settings for matplotlib

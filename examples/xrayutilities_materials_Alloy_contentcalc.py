@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrutils as xu
+import xrayutilities as xu
 import matplotlib.pyplot as plt
 import numpy
 

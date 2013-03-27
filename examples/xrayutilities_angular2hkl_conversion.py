@@ -29,7 +29,7 @@ incidence beam directions. The different definition changes the momentum transfe
 to angular and HKL-space.
 """
 
-import xrutils as xu
+import xrayutilities as xu
 
 # material used in this example
 mat = xu.materials.Si

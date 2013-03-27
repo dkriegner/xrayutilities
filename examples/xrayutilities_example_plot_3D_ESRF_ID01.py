@@ -18,7 +18,7 @@
 # ALSO LOOK AT THE FILE xrutils_id01_functions.py
 
 import numpy
-import xrutils as xu
+import xrayutilities as xu
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mayavi import mlab

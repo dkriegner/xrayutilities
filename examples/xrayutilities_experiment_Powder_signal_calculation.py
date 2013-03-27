@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrutils as xu
+import xrayutilities as xu
 import matplotlib.pyplot as plt
 
 energy = (2*8048 + 8028)/3. # copper k alpha 1,2

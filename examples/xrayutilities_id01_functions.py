@@ -18,7 +18,7 @@
 # ALSO LOOK AT THE FILE xrutils_example_plot_3D_ESRF_ID01.py
 
 import numpy
-import xrutils as xu
+import xrayutilities as xu
 import os
 
 default_en=10330.0 # x-ray energy in eV

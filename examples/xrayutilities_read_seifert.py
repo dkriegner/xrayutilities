@@ -16,7 +16,7 @@
 # Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import matplotlib.pyplot as plt
-import xrutils as xu
+import xrayutilities as xu
 import os
 
 # global setting for the experiment
