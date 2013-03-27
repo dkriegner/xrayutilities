@@ -4,10 +4,10 @@
 API-documentation
 =================
 
-:mod:`xrutils` Package
+:mod:`xrayutilities` Package
 ======================
 
-.. automodule:: xrutils
+.. automodule:: xrayutilities
     :members:
     :undoc-members:
     :show-inheritance:
@@ -15,7 +15,7 @@ API-documentation
 :mod:`config` Module
 --------------------
 
-.. automodule:: xrutils.config
+.. automodule:: xrayutilities.config
     :members:
     :undoc-members:
     :show-inheritance:
@@ -23,7 +23,7 @@ API-documentation
 :mod:`exception` Module
 -----------------------
 
-.. automodule:: xrutils.exception
+.. automodule:: xrayutilities.exception
     :members:
     :undoc-members:
     :show-inheritance:
@@ -33,7 +33,7 @@ API-documentation
 :mod:`experiment` Module
 ------------------------
 
-.. automodule:: xrutils.experiment
+.. automodule:: xrayutilities.experiment
     :members:
     :undoc-members:
     :show-inheritance:
@@ -43,7 +43,7 @@ API-documentation
 :mod:`gridder` Module
 ---------------------
 
-.. automodule:: xrutils.gridder
+.. automodule:: xrayutilities.gridder
     :members:
     :undoc-members:
     :show-inheritance:
@@ -51,7 +51,7 @@ API-documentation
 :mod:`libxrayutils` Module
 --------------------------
 
-.. automodule:: xrutils.libxrayutils
+.. automodule:: xrayutilities.libxrayutils
     :members:
     :undoc-members:
     :show-inheritance:
@@ -59,7 +59,7 @@ API-documentation
 :mod:`normalize` Module
 -----------------------
 
-.. automodule:: xrutils.normalize
+.. automodule:: xrayutilities.normalize
     :members:
     :undoc-members:
     :show-inheritance:
@@ -67,7 +67,7 @@ API-documentation
 :mod:`utilities` Module
 -----------------------
 
-.. automodule:: xrutils.utilities
+.. automodule:: xrayutilities.utilities
     :members:
     :undoc-members:
     :show-inheritance:
@@ -75,7 +75,7 @@ API-documentation
 :mod:`utilities_noconf` Module
 ------------------------------
 
-.. automodule:: xrutils.utilities_noconf
+.. automodule:: xrayutilities.utilities_noconf
     :members:
     :undoc-members:
     :show-inheritance:
@@ -85,8 +85,8 @@ Subpackages
 
 .. toctree::
 
-    xrutils.analysis
-    xrutils.io
-    xrutils.materials
-    xrutils.math
+    xrayutilities.analysis
+    xrayutilities.io
+    xrayutilities.materials
+    xrayutilities.math
 

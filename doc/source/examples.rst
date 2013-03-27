@@ -29,7 +29,7 @@ Both methods work incremental, so they do not start at the beginning of the file
 An working example for both methods is given in the following.::
 
     import tables
-    import xrutils as xu
+    import xrayutilities as xu
     import os
     
     # open spec file or use open SPECfile instance
@@ -75,7 +75,7 @@ Reading EDF files
 EDF files are mostly used to store CCD frames at ESRF recorded from various different detectors. This format is therefore used in combination with SPEC files. In an example the EDFFile class is used to parse the data from EDF files and store them to an HDF5 file. HDF5 if perfectly suited because it can handle large amount of data and compression.::
 
     import tables 
-    import xrutils as xu
+    import xrayutilities as xu
     import numpy
     
     specfile = "specfile.spec"
@@ -119,7 +119,7 @@ Methods for high angle x-ray diffraction experiments. Mostly for experiments per
 
 ::
 
-    import xrutils as xu
+    import xrayutilities as xu
     Si = xu.materials.Si  # load material from materials submodule
     
     # initialize experimental class with directions from experiment
@@ -155,7 +155,7 @@ There exists also a powder diffraction class, which is able to convert powder sc
 
 ::
 
-    import xrutils as xu
+    import xrayutilities as xu
     import matplotlib.pyplot as plt
     
     energy = (2*8048 + 8028)/3. # copper k alpha 1,2
@@ -215,7 +215,7 @@ Examples show how to define a new material by defining its lattice and deriving 
 
 First defining a new material from scratch is shown. This consists of an lattice with base and the type of atoms with elastic constants of the material::
 
-    import xrutils as xu
+    import xrayutilities as xu
     
     # defining a ZincBlendeLattice with two types of atoms and lattice constant a
     def ZincBlendeLattice(aa,ab,a):
@@ -254,7 +254,7 @@ like many other materials.
 
 Using the material properties the calculation of the reflection strength of a Bragg reflection can be done as follows::
 
-    import xrutils as xu
+    import xrayutilities as xu
     import numpy
     
     # defining material and experimental setup
@@ -286,7 +286,7 @@ Similar also the energy dependence of the structure factor can be determined::
 It is also possible to calculate the components of the structure factor of atoms, which may be needed for input into XRD simulations.::
 
     # f = f0(|Q|) + f1(en) + j * f2(en)
-    import xrutils as xu
+    import xrayutilities as xu
     import numpy
     
     Fe = xu.materials.elements.Fe # iron atom
