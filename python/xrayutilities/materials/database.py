@@ -125,7 +125,7 @@ class DataBase(object):
 
         self.h5group._v_attrs.atomic_standard_weight = weight
         self.h5file.flush()
-        print self.h5group
+        #print(self.h5group)
 
     def SetF0(self,parameters):
         """
