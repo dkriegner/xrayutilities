@@ -282,7 +282,7 @@ class SeifertScan(object):
 
         try:
             if self.hdr.NumScans != 1:
-                self.data.shape = (int(self.hdr.NumScans),int(self.hdr.NoValues),2)
+                self.data.shape = (int(self.data.shape[0]/self.hdr.NoValues),int(self.hdr.NoValues),2)
         except:
             pass
 
