@@ -8,9 +8,9 @@ sources = ["gridder.c","qconversion.c","block_average.c"]
 objects_env = env.SharedObject(sources)
 
 if os.sys.platform == "linux2":
-    env.Append(SHLINKFLAGS=['-Wl,-soname,%s'%'libxrutils.so' ] )
+    env.Append(SHLINKFLAGS=['-Wl,-soname,%s'%'libxrayutilities.so' ] )
 
-lib = env.SharedLibrary("xrutils",objects_env)
+lib = env.SharedLibrary("xrayutilities",objects_env)
 Default(lib)
 
 #install the library
