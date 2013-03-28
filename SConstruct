@@ -82,7 +82,7 @@ else:
 if "install" in COMMAND_LINE_TARGETS:
     env.InstallFiles(os.path.join(env['PREFIX'],'share','doc','xrayutilities','examples'), '#doc/examples', glob=['*.py', '*.cif'])
     #write the clib_path.conf file
-    conffilename = os.path.join(".","python","xrutils","clib_path.conf")
+    conffilename = os.path.join(".","python","xrayutilities","clib_path.conf")
     fid = open(conffilename,"w")
     if os.sys.platform == "darwin":
         libpath = os.path.join(env['PREFIX'],"lib","libxrutils.dylib")
@@ -90,7 +90,7 @@ if "install" in COMMAND_LINE_TARGETS:
         libpath = os.path.join(env['PREFIX'],"lib","libxrutils.so")
     elif "win" in os.sys.platform:
         libpath = os.path.join(env['PREFIX'],"Lib","xrutils.dll")
-    fid.write("[xrutils]\n")
+    fid.write("[xrayutilities]\n")
     fid.write("clib_path = %s\n" %libpath)
     fid.close()
     print("create clib_path.conf file (libfile: %s)"%(libpath))

@@ -23,10 +23,10 @@ After that the concept of how angular coordinates of Bragg reflections are calcu
 Concept of usage
 ----------------
 
-.. image:: pics/xrutils_usage.png
+.. image:: pics/xu_usage.png
     :width: 400px
     :align: right
-    :alt: Flow diagram showing how to analyze x-ray diffraction data using xrutils
+    :alt: Flow diagram showing how to analyze x-ray diffraction data using xrayutilities
 
 *xrayutilities* provides a set of functions to read experimental data from various data file formats.
 All of them are gathered in the :ref:`io-subpackage`.
@@ -52,10 +52,10 @@ A practical example showing the usage is given below.
 Angle calculation using the material classes
 --------------------------------------------
 
-.. image:: pics/xrutils_usage_planning.png
+.. image:: pics/xu_usage_planning.png
     :width: 400px
     :align: right
-    :alt: Flow diagram showing how to calculate angular positions of Bragg reflection using xrutils
+    :alt: Flow diagram showing how to calculate angular positions of Bragg reflection using xrayutilities
 
 Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the :ref:`material-package`.
 This package provides a set of classes to describe crystal lattices and materials.
@@ -74,17 +74,17 @@ A first example with step by step explanation is shown in the following.
 It showcases the use of *xrayutilities* to calculate angles and read a scan recorded with a linear detector from `spec <http://www.certif.com>`_-file and plots
 the result as reciprocal space map using matplotlib.
 
-.. literalinclude:: example_xrutils_read_spec_easy.py
+.. literalinclude:: example_xu_read_spec_easy.py
     :linenos:
     :language: python
 
 
 More such examples can be found on the :ref:`examplespage` page.
 
-xrutils Python package
-======================
+xrayutilities Python package
+============================
 
-.. automodule:: xrutils
+.. automodule:: xrayutilities
    :members:
    :undoc-members:
    :show-inheritance:
@@ -105,9 +105,9 @@ Express instructions
     
  > scons install
 
-which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrutils*) from now on in python scripts. 
+which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in python scripts. 
 
-.. note:: The python package of *xrayutilities* is called ''xrutils''
+.. note:: The python package of *xrayutilities* was formerly called ''xrutils''
 
 Detailed instructions
 ---------------------
@@ -229,11 +229,11 @@ Examples and API-documentation
    :maxdepth: 2
     
    examples 
-   xrutils
-   xrutils.analysis
-   xrutils.io
-   xrutils.materials
-   xrutils.math
+   xrayutilities
+   xrayutilities.analysis
+   xrayutilities.io
+   xrayutilities.materials
+   xrayutilities.math
    modules
    
    

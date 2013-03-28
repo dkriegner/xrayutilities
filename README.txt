@@ -27,7 +27,7 @@ Installing xrayutilities is a two step process
     those packages. On Microsoft Windows refer to the Documentation for the 
     easiest way of the installation (python(x,y) + scons).
 2.) build and install the C-library libxrutils.so/xrutils.dll, as well as the 
-    python package (xrutils)
+    python package (xrayutilities)
 
 Obtaining the source code
 =========================
@@ -88,14 +88,14 @@ ways how to do this:
    directory.
 
    import sys
-   sys.path.append("path to the xrutils package")
+   sys.path.append("path to the xrayutilities package")
 
 -) simply apply the previous method in every script where you want to 
-   use the xrutils package before importing the package:
+   use the xrayutilities package before importing the package:
 
    import sys
-   sys.path.append("path to the xrutils package")
-   import xrutils
+   sys.path.append("path to the xrayutilities package")
+   import xrayutilities
 
 
 UPDATE
@@ -111,10 +111,10 @@ if any code changed during the update you need to reinstall the libary and
 python package.
 To determine the path in which xrayutilities where installed previously use:
 
-  $> python -c "import xrutils as xu; print xu.__file__"
-  /usr/local/lib64/python2.7/site-packages/xrutils/__init__.pyc
+  $> python -c "import xrayutilities as xu; print xu.__file__"
+  /usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.pyc
 
-if the output is e.g.: "/usr/local/lib64/python2.7/site-packages/xrutils/__init__.py"
+if the output is e.g.: "/usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.py"
 you previously installed xrayutilities in "/usr/local", which should be used
 again as install path. Use:
 

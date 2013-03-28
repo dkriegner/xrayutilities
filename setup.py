@@ -14,12 +14,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from distutils.core import setup
 import os.path
 
-setup(name="xrutils",
+setup(name="xrayutilities",
       version="0.99",
       author="Eugen Wintersberger",
       description="package for x-ray diffraction data evaluation",
@@ -27,11 +27,11 @@ setup(name="xrutils",
       maintainer="Dominik Kriegner",
       maintainer_email="dominik.kriegner@gmail.com",
       package_dir={'':'python'},
-      packages=["xrutils","xrutils.math","xrutils.io","xrutils.materials",
-                "xrutils.analysis"],
+      packages=["xrayutilities","xrayutilities.math","xrayutilities.io","xrayutilities.materials",
+                "xrayutilities.analysis"],
       package_data={
-          "xrutils":["*.conf"],
-          "xrutils.materials":[os.path.join("data","*.db")]},
+          "xrayutilities":["*.conf"],
+          "xrayutilities.materials":[os.path.join("data","*.db")]},
       requires=['numpy','scipy','tables'],
       license="GPLv2"
       )
