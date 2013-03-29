@@ -68,14 +68,18 @@ def hotpixelkill(ccd):
     ccd[414,283] = 0
     return ccd
 
-def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=default_en,cch=default_cch,chpdeg=default_chpdeg,nav=default_nav):
+def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=default_en,cch=default_cch,chpdeg=default_chpdeg,nav=default_nav,ccdframes=None):
     """
     read ccd frames and and convert them in reciprocal space
     angular coordinates are taken from the spec file
+    or read from the edf file header when no scan number is given (scannr=None)
     """
-
-    [mu,eta,phi,nu,delta],sdata = xu.io.geth5_scan(h5file,scannr,'Mu','Eta','Phi','Nu','Delta')
-    ccdn = sdata['ccd_n']
+    
+    if scannr: # read image numbers from spec scan, get angles from spec
+        [mu,eta,phi,nu,delta],sdata = xu.io.geth5_scan(h5file,scannr,'Mu','Eta','Phi','Nu','Delta')
+        ccdn = sdata['ccd_n']
+    else: # get image number from input
+        ccdn = ccdframes
 
     qconv = xu.experiment.QConversion(['z+','y-','z-'],['z+','y-'],[1,0,0]) # 3S+2D goniometer (simplified ID01 goniometer, sample mu,eta,phi detector nu,del
 # convention for coordinate system: x downstream; z upwards; y to the "outside" (righthanded)
@@ -90,6 +94,14 @@ def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=defa
 
     hxrd = xu.HXRD([1,0,0],[0,0,1],en=en,qconv=qconv) # define experimental class for angle conversion
 hxrd.Ang2Q.init_area('z-','y+',cch1=cch[0],cch2=cch[1],Nch1=516,Nch2=516, chpdeg1=chpdeg[0],chpdeg2=chpdeg[1],Nav=nav,roi=roi) # initialize area detector properties
+
+    if ccdframes:
+        mu = []
+        eta = []
+        phi = []
+        delta = []
+        nu = []
+
 
     for idx in range(len(ccdn)):
         i = ccdn[idx]
@@ -110,6 +122,12 @@ hxrd.Ang2Q.init_area('z-','y+',cch1=cch[0],cch2=cch[1],Nch1=516,Nch2=516, chpdeg
             intensity = numpy.zeros( (len(ccdn),) + CCD.shape )
 
         intensity[i-ccdn[0],:,:] = CCD
+        if ccdframes: # if angles not read from spec file read them from the edf file header
+            mu.append(float(e.header['ESRF_ID01_PSIC_NANO_MU']))
+            eta.append(float(e.header['ESRF_ID01_PSIC_NANO_ETA']))
+            phi.append(float(e.header['ESRF_ID01_PSIC_NANO_PHI']))
+            nu.append(float(e.header['ESRF_ID01_PSIC_NANO_NU']))
+            delta.append(float(e.header['ESRF_ID01_PSIC_NANO_DELTA']))
 
     # transform scan angles to reciprocal space coordinates for all detector pixels
     qx,qy,qz = hxrd.Ang2Q.area(mu,eta,phi,nu,delta,delta=angdelta)
@@ -121,7 +139,7 @@ def gridmap(h5file,scannr,ccdfiletmp,nx,ny,nz,**kwargs):
     read ccd frames and grid them in reciprocal space
     angular coordinates are taken from the spec file
 
-    *kwargs are passed to the rawmap function
+    **kwargs are passed to the rawmap function
     """
 
     qx,qy,qz,intensity = rawmap(h5file,scannr,ccdfiletmp,**kwargs)
