@@ -46,58 +46,58 @@ from . import utilities_noconf
 # database filename for atomic structure factors
 # kappa_plane and kappa_angle
 
-xrutilsParser = configparser.ConfigParser()
+xuParser = configparser.ConfigParser()
 
 #read global default values for configuration variables
 with open(os.path.join(__path__[0],"xrayutilities_default.conf")) as gconffile:
-    xrutilsParser.readfp(gconffile)
+    xuParser.readfp(gconffile)
 
 # read user configuration and local configuration if available
-cfiles = xrutilsParser.read([os.path.join(__path__[0],"clib_path.conf"), \
+cfiles = xuParser.read([os.path.join(__path__[0],"clib_path.conf"), \
               os.path.expanduser(os.path.join("~",".xrayutilities.conf")), \
               "xrayutilities.conf"])
 
 # set global variables according to configuration
-INFO_LOW = xrutilsParser.getint("xrayutilities","info_low")
-INFO_ALL = xrutilsParser.getint("xrayutilities","info_all")
-DEBUG = xrutilsParser.getint("xrayutilities","debug")
+INFO_LOW = xuParser.getint("xrayutilities","info_low")
+INFO_ALL = xuParser.getint("xrayutilities","info_all")
+DEBUG = xuParser.getint("xrayutilities","debug")
 
-VERBOSITY = xrutilsParser.getint("xrayutilities","verbosity")
-try: WAVELENGTH = xrutilsParser.getfloat("xrayutilities","wavelength")
+VERBOSITY = xuParser.getint("xrayutilities","verbosity")
+try: WAVELENGTH = xuParser.getfloat("xrayutilities","wavelength")
 except: WAVELENGTH = numpy.nan
 if numpy.isnan(WAVELENGTH):
-    WAVELENGTH = xrutilsParser.get("xrayutilities","wavelength")
+    WAVELENGTH = xuParser.get("xrayutilities","wavelength")
 
-try: ENERGY = xrutilsParser.getfloat("xrayutilities","energy")
+try: ENERGY = xuParser.getfloat("xrayutilities","energy")
 except: ENERGY=numpy.nan
 if numpy.isnan(ENERGY):
-    ENERGY = xrutilsParser.get("xrayutilities","energy")
+    ENERGY = xuParser.get("xrayutilities","energy")
 if ENERGY=='NaN':
     ENERGY = utilities_noconf.lam2en(utilities_noconf.wavelength(WAVELENGTH))
 else: # energy was given and wavelength is calculated from given energy
     WAVELENGTH = utilities_noconf.lam2en(utilities_noconf.energy(ENERGY))
 
-DYNLOW = xrutilsParser.getfloat("xrayutilities","dynlow")
-DYNHIGH = xrutilsParser.getfloat("xrayutilities","dynhigh")
+DYNLOW = xuParser.getfloat("xrayutilities","dynlow")
+DYNHIGH = xuParser.getfloat("xrayutilities","dynhigh")
 
 # small number needed for error checks
-EPSILON = xrutilsParser.getfloat("xrayutilities","epsilon")
+EPSILON = xuParser.getfloat("xrayutilities","epsilon")
 
 # name of the database with atomic scattering factors
-DBNAME = xrutilsParser.get("xrayutilities","dbname")
+DBNAME = xuParser.get("xrayutilities","dbname")
 
 # kappa goniometer specific config parameters
-KAPPA_PLANE = xrutilsParser.get("xrayutilities","kappa_plane")
-KAPPA_ANGLE = xrutilsParser.getfloat("xrayutilities","kappa_angle")
+KAPPA_PLANE = xuParser.get("xrayutilities","kappa_plane")
+KAPPA_ANGLE = xuParser.getfloat("xrayutilities","kappa_angle")
 
 try:
-    CLIB_PATH = xrutilsParser.get("xrayutilities","clib_path")
+    CLIB_PATH = xuParser.get("xrayutilities","clib_path")
 except NoOptionError:
     print("Config option clib_path not found indicating that you did not proper install xrayutilities!\n Look at the README.txt file for installation instructions")
 
 if VERBOSITY >= DEBUG:
     print("XU.config: xrayutilities configuration files: %s" %repr(cfiles))
     print("xrayutilities configuration:")
-    for (name, value) in xrutilsParser.items("xrayutilities"):
+    for (name, value) in xuParser.items("xrayutilities"):
         print("%s: %s" %(name,value))
     print ("---")
