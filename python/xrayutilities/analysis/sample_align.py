@@ -528,7 +528,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
 
     for tiltazimuth in numpy.linspace(startparam[0] if fix[0] else 0,360,Ntiltaz,endpoint=False):
         for tilt in numpy.linspace(startparam[1] if fix[1] else 0,4,Ntilt):
-            for offset in numpy.linspace(startparam[3] if fix[3] else -2+startparam[3],2+startparam[3],Noffset):
+            for offset in numpy.linspace(startparam[3] if fix[3] else -3+startparam[3],3+startparam[3],Noffset):
                 t1 = time.time()
                 start = (tiltazimuth,tilt,detrot,offset)
                 eps,param,fit = _area_detector_calib_fit(ang1,ang2,n1,n2,detaxis,r_i,detdir1, detdir2,start = start, fix = fix, full_output=True,wl = wl)
@@ -563,15 +563,16 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
             if plotlog:
                 plt.semilogy(nparams[:,p]*xscale[p],neps,'k.')
             else:
-                plt.plot(nparams[:,p]*xscale[p],neps,'k.')
+                plt.scatter(nparams[:,p]*xscale[p],neps,c=nparams[:,-1],
+                            s=10,marker='o',cmap=plt.cm.gnuplot,edgecolor='none')
             plt.xlabel(labels[p])
 
         for p in range(8):
             plt.subplot(3,3,p+1)
             if plotlog:
-                plt.semilogy(parammin[p]*xscale[p],epsmin,'ro',ms=4,mew=2,mec='r')
+                plt.semilogy(parammin[p]*xscale[p],epsmin,'ko',ms=8,mew=2.5,mec='k',mfc='w')
             else:
-                plt.plot(parammin[p]*xscale[p],epsmin,'ro',ms=4,mew=2,mec='r')
+                plt.plot(parammin[p]*xscale[p],epsmin,'ko',ms=8,mew=2.5,mec='k',mfc='w')
                 plt.ylim(epsmin*0.7,epsmin*2.)
             plt.locator_params(nbins=4,axis='x')
         plt.tight_layout()
