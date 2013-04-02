@@ -349,6 +349,8 @@ class QConversion(object):
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
+        if self._area_detrotaxis_set:
+            Nd-=1 # do not consider detector rotation for point detector
         Ncirc = Ns + Nd
 
         # kwargs
@@ -427,6 +429,11 @@ class QConversion(object):
 
         sAxis=ctypes.c_char_p(self._sampleAxis_str)
         dAxis=ctypes.c_char_p(self._detectorAxis_str)
+        if self._area_detrotaxis_set:
+            dAxis=ctypes.c_char_p(self._detectorAxis_str[:-2]) # do not consider detector rotation for point detector
+        else:
+            dAxis=ctypes.c_char_p(self._detectorAxis_str)
+
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns,Nd))
@@ -971,7 +978,7 @@ class Experiment(object):
         self.Ang2Q = self._A2QConversion
 
         #set the coordinate transform for the azimuth used in the experiment
-        self.scatplane = math.VecUnit(numpy.cross(self.ndir,self.idir))
+        self.scatplane = math.VecUnit(numpy.cross(self.idir,self.ndir))
         self._set_transform( self.scatplane, self.idir, self.ndir)
 
         #calculate the energy from the wavelength
@@ -991,7 +998,7 @@ class Experiment(object):
         ostr += "inplane azimuth: (%f %f %f)\n" %(self.idir[0],
                                                  self.idir[1],
                                                  self.idir[2])
-        ostr += "surface normal: (%f %f %f)\n" %(self.ndir[0],
+        ostr += "second refercence direction: (%f %f %f)\n" %(self.ndir[0],
                                                  self.ndir[1],
                                                  self.ndir[2])
         ostr += "energy: %f (eV)\n" %self._en
@@ -1014,7 +1021,7 @@ class Experiment(object):
             idc = self._A2QConversion.detectorAxis[-2]
             xi = math.getVector(idc)
         zi = math.VecUnit(numpy.cross(xi,yi))
-        # turn r_i to Y and Z define by detector rotation plane
+        # turn r_i to Y and Z defined by detector rotation plane
         self._t2 = math.CoordinateTransform(xi,yi,zi)
 
         self._transform = math.Transform(numpy.dot(self._t2.imatrix,self._t1.matrix))
