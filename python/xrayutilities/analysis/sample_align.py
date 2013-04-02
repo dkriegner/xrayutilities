@@ -164,17 +164,17 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True,datap="kx",mode
             plt.figure(fignum)
         # first plot to show linear model
         ax1 = plt.subplot(211)
-        if stdev == None: 
-            plt.plot(angles,channels,datap, ms=markersize, mew=markeredgewidth ,label=dlabel)
-        else:
-            plt.errorbar(angles,channels,fmt=datap,yerr=stdevu, ms=markersize, mew=markeredgewidth ,label=dlabel,ecolor='0.5')
         angr = angles.max()-angles.min()
         angp = numpy.linspace(angles.min()-angr*0.1,angles.max()+angr*.1,1000)
         plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))),modelline,label=mlabel,lw=linewidth)
         plt.plot(angp,models._unilin(fitlin.beta,angp),'k-',label='')
-        plt.grid(True)
         if usetilt:
             plt.plot(angp,straight_tilt(fittilt.beta,angp),modeltilt, label=mtiltlabel,lw=linewidth)
+        if stdev == None: 
+            plt.plot(angles,channels,datap, ms=markersize, mew=markeredgewidth, mec=datap[0], mfc='none', label=dlabel)
+        else:
+            plt.errorbar(angles,channels,fmt=datap,yerr=stdevu, ms=markersize, mew=markeredgewidth, mec=datap[0], mfc='none', label=dlabel, ecolor='0.5')
+        plt.grid(True)
         leg = plt.legend(numpoints=1)
         leg.get_frame().set_alpha(0.8)
 
@@ -182,13 +182,13 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True,datap="kx",mode
 
         # lower plot to show deviations from linear model
         ax2 = plt.subplot(212,sharex=ax1)
-        if stdev == None:
-            plt.plot(angles,channels - models._unilin(fitlin.beta,angles),datap, ms=markersize, mew=markeredgewidth ,label=dlabel)
-        else:
-            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt=datap,yerr=stdevu, ms=markersize, mew=markeredgewidth ,label=dlabel,ecolor='0.5')
         plt.plot(angp,models._unilin(fittan.beta,numpy.degrees(numpy.tan(numpy.radians(angp)))) - models._unilin(fitlin.beta,angp),modelline,label=mlabel,lw=linewidth)
         if usetilt:
             plt.plot(angp,straight_tilt(fittilt.beta,angp) - models._unilin(fitlin.beta,angp),modeltilt,label=mtiltlabel,lw=linewidth)
+        if stdev == None:
+            plt.plot(angles,channels - models._unilin(fitlin.beta,angles),datap, ms=markersize, mew=markeredgewidth, mec=datap[0], mfc='none', label=dlabel)
+        else:
+            plt.errorbar(angles,channels - models._unilin(fitlin.beta,angles),fmt=datap,yerr=stdevu, ms=markersize, mew=markeredgewidth, mec=datap[0], mfc='none', label=dlabel,ecolor='0.5')
         plt.xlabel("detector angle (deg)")
         plt.ylabel("ch. num. - linear trend")
         plt.grid(True)
