@@ -1301,7 +1301,7 @@ class HXRD(Experiment):
          omega:      incidence angle with respect to surface
          chi:        sample tilt for the case of non-coplanar geometry
          phi:        sample azimuth with respect to inplane reference direction
-         twotheta:   scattering angle
+         twotheta:   scattering angle/detector angle
 
         if full_output:
         a numpy array of shape (6) with five angles which are
@@ -1406,8 +1406,9 @@ class HXRD(Experiment):
             #calculation of the sample azimuth phi (scattering plane spanned by qvec[1] and qvec[2] directions)
 
             chi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(z,qvec))
-            if numpy.isnan(chi):
-                chi = 0
+            if (chi - numpy.pi/2.) < config.EPSILON:
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.HXRD: Given peak is perpendicular to ndir-reference direction (might be inplane/unreachable)")
 
             if geom == 'hi_lo':
                 om = tth/2. + math.VecAngle(z,qvec) # +: high incidence geometry
@@ -1616,8 +1617,6 @@ class NonCOP(Experiment):
 
             #calculation of the sample azimuth
             phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec)) - numpy.pi/2. # the sign depends on the phi movement direction
-            if numpy.isnan(phi):
-                phi = 0
 
             chi = math.VecAngle(z,qvec)
 
