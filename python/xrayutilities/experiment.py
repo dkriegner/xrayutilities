@@ -1406,7 +1406,7 @@ class HXRD(Experiment):
             #calculation of the sample azimuth phi (scattering plane spanned by qvec[1] and qvec[2] directions)
 
             chi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(z,qvec))
-            if (chi - numpy.pi/2.) < config.EPSILON:
+            if numpy.abs(chi - numpy.pi/2.) < config.EPSILON:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print("XU.HXRD: Given peak is perpendicular to ndir-reference direction (might be inplane/unreachable)")
 
