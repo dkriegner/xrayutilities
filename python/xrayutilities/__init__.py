@@ -42,6 +42,7 @@ from .experiment import GID
 from .experiment import GID_ID10B
 from .experiment import GISAXS
 from .experiment import Powder
+from .experiment import QConversion
 
 from .normalize import blockAverage1D
 from .normalize import blockAverage2D
