@@ -49,7 +49,7 @@ circleSyntax = re.compile("[xyz][+-]")
 #################################################
 ## channel per degree calculation
 #################################################
-def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True,datap="kx",modelline="r--",modeltilt="b-",fignum=None,mlabel="fit",mtiltlabel="fit w/tilt",dlabel="data"):
+def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",modelline="r--",modeltilt="b-",fignum=None,mlabel="fit",mtiltlabel="fit w/tilt",dlabel="data"):
     """
     function to determine the channels per degree using a linear
     fit of the function nchannel = center_ch+chdeg*tan(angles)
@@ -64,17 +64,17 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True,datap="kx",mode
     keyword arguments:
      stdev     standard deviation of the beam position
      plot:     flag to specify if a visualization of the fit should be done
-     usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: False)
+     usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: True)
 
     Returns:
-     (L/pixelwidth*pi/180 ,centerch[,tilt]):
+     (pixelwidth,centerch,tilt):
 
+    pixelwidth:  the width of one detector channel @ 1m distance, which is negative in case the hit channel number decreases upon an increase of the detector angle.
     L/pixelwidth*pi/180 = channel/degree for large detector distance
-    with L sample detector disctance, and
-    pixelwidth the width of one detector channel
-
+    with L sample detector disctance
+    
     centerch: center channel of the detector
-    tilt: tilt of the detector from perpendicular to the beam
+    tilt: tilt of the detector from perpendicular to the beam (will be zero in case of usetilt=False)
 
     Note:
      distance of the detector is given by: channelwidth*channelperdegree/tan(radians(1))
@@ -206,14 +206,17 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=False,plot=True,datap="kx",mode
 
     if config.VERBOSITY >= config.INFO_LOW:
         if usetilt:
-            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel / tilt: %8.2f / %8.2f / %6.3fdeg" % (fit.beta[0],fit.beta[1],fit.beta[2]))
-            print("XU.analysis.psd_chdeg:     errors of channel per degree / center channel / tilt: %8.3f / %8.3f / %6.3fdeg" % (fit.sd_beta[0],fit.sd_beta[1],fit.sd_beta[2]))
+            print("XU.analysis.psd_chdeg:  channelwidth@1m / center channel / tilt: %8.4e / %8.2f / %6.3fdeg" % (numpy.abs(1/numpy.degrees(fit.beta[0])),fit.beta[1],fit.beta[2]))
+            print("XU.analysis.psd_chdeg:  error of channelwidth / center channel / tilt: %8.4e / %8.3f / %6.3fdeg" % (numpy.radians(fit.sd_beta[0]/fit.beta[0]**2),fit.sd_beta[1],fit.sd_beta[2]))
         else:
-            print("XU.analysis.psd_chdeg: L/w*pi/180 ~= channel per degree / center channel: %8.2f / %8.2f" % (fit.beta[0],fit.beta[1]))
-            print("XU.analysis.psd_chdeg:     errors of channel per degree / center channel: %8.3f / %8.3f" % (fit.sd_beta[0],fit.sd_beta[1]))
+            print("XU.analysis.psd_chdeg:  channelwidth@1m / center channel: %8.4e / %8.2f" % (1/numpy.degrees(fit.beta[0]),fit.beta[1]))
+            print("XU.analysis.psd_chdeg:  error of channelwidth / center channel: %8.4e / %8.3f" % (numpy.radians(fit.sd_beta[0]/fit.beta[0]**2),fit.sd_beta[1]))
 
+    if usetilt:
+        return (1./numpy.degrees(fit.beta[0]),fit.beta[1],fit.beta[2])
+    else:
+        return (1./numpy.degrees(fit.beta[0]),fit.beta[1],0.)
 
-    return fit.beta
 
 #################################################
 ## channel per degree calculation from scan with
@@ -236,8 +239,11 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
 
     returns
     -------
-     L/pixelwidth*pi/180 ~= channel/degree, center_channel[, detector_tilt]
+     pixelwidth (at one meter distance) , center_channel[, detector_tilt]
+      
+    Note:  L/pixelwidth*pi/180 ~= channel/degree
 
+    pixelwidth is negative in case the hit channel number decreases upon an increase of the detector angle
     The function also prints out how a linear detector can be initialized using the results
     obtained from this calibration. Carefully check the results
 
@@ -322,12 +328,12 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.linear_detector_calib:\n\tused/total spectra: %d/%d" %(mca_spectra.shape[0]-nignored,mca_spectra.shape[0]))
-        print("\tdetector rotation axis (given by user): %s" %detrotaxis)
+        print("\tdetector rotation axis (given by user/default input): %s" %detrotaxis)
         if len(detparam)==3:
             tilt = detparam[2]
         else:
             tilt = 0
-        print("\tdetector initialization with: init_linear('%s',%.1f,%d,chpdeg=%.1f,tilt=%.2f)" %(detaxis,detparam[1],mca_spectra.shape[1],numpy.abs(detparam[0]),tilt))
+        print("\tdetector initialization with: init_linear('%s',%.2f,%d,pixelwidth=%.4e,distance=1.,tilt=%.2f)" %(detaxis,numpy.abs(detparam[1]),mca_spectra.shape[1],numpy.abs(detparam[0]),tilt))
 
     return detparam
 
