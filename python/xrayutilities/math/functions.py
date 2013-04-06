@@ -81,7 +81,7 @@ def Gauss2d(x,y,*p):
      p:     list of parameters of the Gauss-function
             [XCEN,YCEN,SIGMAX,SIGMAY,AMP,BACKGROUND,ANGLE]
             SIGMA = FWHM / (2*sqrt(2*log(2)))
-            ANGLE = rotation of the X,Y direction of the Gaussian
+            ANGLE = rotation of the X,Y direction of the Gaussian in radians
      x,y:   coordinate(s) where the function should be evaluated
 
     Returns
@@ -108,7 +108,7 @@ def TwoGauss2d(x,y,*p):
      p:     list of parameters of the Gauss-function
             [XCEN1,YCEN1,SIGMAX1,SIGMAY1,AMP1,ANGLE1,XCEN2,YCEN2,SIGMAX2,SIGMAY2,AMP2,ANGLE2,BACKGROUND]
             SIGMA = FWHM / (2*sqrt(2*log(2)))
-            ANGLE = rotation of the X,Y direction of the Gaussian
+            ANGLE = rotation of the X,Y direction of the Gaussian in radians
      x,y:   coordinate(s) where the function should be evaluated
 
     Return
@@ -154,7 +154,7 @@ def Lorentz2d(x,y,*p):
     ----------
      p:     list of parameters of the Lorentz-function
             [XCEN,YCEN,FWHMX,FWHMY,AMP,BACKGROUND,ANGLE]
-            ANGLE = rotation of the X,Y direction of the Lorentzian
+            ANGLE = rotation of the X,Y direction of the Lorentzian in radians
      x,y:   coordinate(s) where the function should be evaluated
 
     Returns
