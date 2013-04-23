@@ -25,7 +25,7 @@ import scipy.constants
 
 from .exception import InputError
 
-energies = {'CuKa1': 8047.82310, 'CuKa2': 8027.9117, 'CuKa12': 8905.337, 'MoKa1': 17479.374 }
+energies = {'CuKa1': 8047.82310, 'CuKa2': 8027.9117, 'CuKa12': 8041.18, 'CuKb': 8905.337, 'MoKa1': 17479.374 }
 # wavelength values from International Tables of Crystallography:
 # Vol C, 2nd Ed. page 203
 # CuKa1: 1.54059292(45) the value in bracket is the uncertainty
@@ -54,6 +54,7 @@ def lam2en(inp):
     """
     #  E(eV) = h*c/(e * lambda(A)) *1e10
     #  lambda(A) = h*c/(e * E(eV)) *1e10
+    inp = energy(inp)
     out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
 
     return out

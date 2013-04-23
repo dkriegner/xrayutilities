@@ -68,11 +68,11 @@ class Atom(object):
         if isinstance(en,numpy.ndarray) or isinstance(en,list):
             d = numpy.zeros((len(en)),dtype=numpy.double)
             for i in range(len(en)):
-                d[i] = _db.GetF1(en[i])
+                d[i] = _db.GetF1(utilities.energy(en[i]))
 
             return d
         else:
-            return _db.GetF1(en)
+            return _db.GetF1(utilities.energy(en))
 
     def f2(self,en="config"):
         if en=="config":
@@ -83,11 +83,11 @@ class Atom(object):
         if isinstance(en,numpy.ndarray) or isinstance(en,list):
             d = numpy.zeros((len(en)),dtype=numpy.double)
             for i in range(len(en)):
-                d[i] = _db.GetF2(en[i])
+                d[i] = _db.GetF2(utilities.energy(en[i]))
 
             return d
         else:
-            return _db.GetF2(en)
+            return _db.GetF2(utilities.energy(en))
 
     def f(self,q,en="config"):
         """
@@ -103,8 +103,6 @@ class Atom(object):
         -------
          f (float)
         """
-        if en=="config":
-            en = utilities.energy(config.ENERGY)
         f = self.f0(norm(q))+self.f1(en)+1.j*self.f2(en)
         return f
 
