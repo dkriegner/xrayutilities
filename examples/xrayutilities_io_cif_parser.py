@@ -21,12 +21,12 @@ import os
 #import matplotlib.pyplot as plt
 
 # parse cif file to get unit cell structure
-cif_cal = xu.io.CIFFile(os.path.join("data","Calcite.cif"))
+cif_cal = xu.materials.CIFFile(os.path.join("data","Calcite.cif"))
 
 #create material
 Calcite = xu.materials.Material("Calcite",cif_cal.Lattice())
 
-#experiment class according to Nina
+#experiment class with some weird directions
 expcal = xu.HXRD(Calcite.Q(-2,1,9),Calcite.Q(1,-1,4))
 
 powder_cal = xu.Powder(Calcite)

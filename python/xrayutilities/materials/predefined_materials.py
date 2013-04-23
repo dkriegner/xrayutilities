@@ -18,10 +18,11 @@
 import os
 
 from . import __path__
-from .material import Material,CubicElasticTensor,HexagonalElasticTensor
+from .material import Material,CubicElasticTensor,HexagonalElasticTensor,CubicAlloy
 from . import lattice
 from . import elements
 from .cif import CIFFile
+from .. import config
 
 # some predefined materials
 # PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 = 0.1 N/m^2 = 0.1 GPa)
@@ -78,3 +79,22 @@ try:
 except:
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.materials: Warning: import of CIF file based material failed")
+
+# Alloys with special properties
+class SiGe(CubicAlloy):
+    def __init__(self,x):
+        CubicAlloy.__init__(self,Si,Ge,x)
+
+    def lattice_const_AB(self, latA, latB, x):
+        return latA+ (0.2*x+0.027*x**2)*latA/numpy.linalg.norm(latA)
+
+    def _setxb(self,x):
+        if config.VERBOSITY >= config.DEBUG: print("XU.materials.SiGe._setxb: jump to base class")
+        CubicAlloy._setxb(self,x)
+        if config.VERBOSITY >= config.DEBUG: print("back from base class")
+        #the lattice parameters need to be done in a different way
+        a = self.lattice_const_AB(self.matA.lattice.a1[0], self.matB.lattice.a1[0], x)
+        self.lattice = lattice.CubicLattice(a)
+        self.rlattice = self.lattice.ReciprocalLattice()
+
+    x = property(CubicAlloy._getxb,_setxb)
