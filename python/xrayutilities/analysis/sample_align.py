@@ -1148,7 +1148,7 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
         plt.figure(); plt.clf()
         from .. import gridder
         from .. import utilities
-        gridder = gridder.Gridder2D(200,200)
+        gridder = gridder.Gridder2D(400,400)
         gridder(qy,qz,psd)
         # calculate intensity which should be plotted
         INT = utilities.maplog(gridder.gdata.transpose(),4,0)

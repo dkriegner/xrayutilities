@@ -13,13 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import re
 import numpy
 import shlex
 
-from .. import materials
+from .lattice import LatticeBase,Lattice
+from .material import Material
+from . import elements
 from .. import config
 
 re_loop = re.compile(r"^loop_")
@@ -179,7 +181,7 @@ class CIFFile(object):
                         unique = False
                 if unique:
                     unique_pos.append(pos)
-            exec("element = materials.elements."+el)
+            exec("element = elements."+el)
             self.unique_positions.append((element, unique_pos))
 
     def Lattice(self):
@@ -187,7 +189,7 @@ class CIFFile(object):
         returns a lattice object with the structure from the CIF file
         """
 
-        lb = materials.LatticeBase()
+        lb = LatticeBase()
         for atom in self.unique_positions:
             element = atom[0]
             for pos in atom[1]:
@@ -205,7 +207,7 @@ class CIFFile(object):
         a2 = self.lattice_const[1]*numpy.array([cg,sg,0],dtype=numpy.double)
         a3 = self.lattice_const[2]*numpy.array([cb , (ca-cb*cg)/sg , numpy.sqrt(1-ca**2-  cb**2-cg**2+2*ca*cb*cg)/sg],dtype=numpy.double)
         # create lattice
-        l = materials.Lattice(a1,a2,a3,base=lb)
+        l = Lattice(a1,a2,a3,base=lb)
 
         return l
 
