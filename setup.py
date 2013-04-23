@@ -31,7 +31,7 @@ setup(name="xrayutilities",
                 "xrayutilities.analysis"],
       package_data={
           "xrayutilities":["*.conf"],
-          "xrayutilities.materials":[os.path.join("data","*.db")]},
+          "xrayutilities.materials":[os.path.join("data","*.db"),os.path.join("data","*.cif")]},
       requires=['numpy','scipy','tables'],
       license="GPLv2"
       )
