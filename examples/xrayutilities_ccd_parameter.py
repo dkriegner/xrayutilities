@@ -32,7 +32,7 @@ ang2 = []
 
 # read images and angular positions from the data file
 for imgnr in imagenrs:
-    filename = os.path.join(datadir,filetmp%imgnr)
+    filename = filetmp%imgnr
     edf = xu.io.EDFFile(filename)
     images.append(edf.data)
     ang1.append(float(edf.header['ESRF_ID01_PSIC_NANO_NU']))
