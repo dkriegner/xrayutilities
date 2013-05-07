@@ -62,7 +62,7 @@ def gauss_fit(xdata,ydata,iparams=[],maxit=200):
         iparams = numpy.array([cen,\
             numpy.sqrt(numpy.abs(numpy.sum((xdata-cen)**2*ydata)/numpy.sum(ydata))),\
             numpy.max(ydata),\
-            0.])
+            numpy.min(ydata)])
 
     if config.VERBOSITY >= config.DEBUG:
         print("XU.math.gauss_fit: iparams: [%f %f %f %f]" %tuple(iparams))
@@ -78,12 +78,13 @@ def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     # use least-square fit
     myodr.set_job(fit_type=2)
 
-    if config.VERBOSITY >= config.DEBUG:
-        myodr.set_iprint(final=1)
+#    # DK comment out because this command triggers a synthax error with new scipy version 2013/5/7
+#    if config.VERBOSITY >= config.DEBUG:
+#        myodr.set_iprint(final=1)
 
     fit = myodr.run()
 
-    #fit.pprint()
+    #fit.pprint() # prints final message from odrpack
 
     if config.VERBOSITY >= config.DEBUG:
         print("XU.math.gauss_fit: params: [%f %f %f %f]" %tuple(fit.beta))
