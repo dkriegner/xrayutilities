@@ -49,7 +49,7 @@ circleSyntax = re.compile("[xyz][+-]")
 #################################################
 ## channel per degree calculation
 #################################################
-def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",modelline="r--",modeltilt="b-",fignum=None,mlabel="fit",mtiltlabel="fit w/tilt",dlabel="data"):
+def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",modelline="r--",modeltilt="b-",fignum=None,mlabel="fit",mtiltlabel="fit w/tilt",dlabel="data",figtitle=True):
     """
     function to determine the channels per degree using a linear
     fit of the function nchannel = center_ch+chdeg*tan(angles)
@@ -65,6 +65,13 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",model
      stdev     standard deviation of the beam position
      plot:     flag to specify if a visualization of the fit should be done
      usetilt   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: True)
+     datap:    plot format of data points
+     modelline:  plot format of modelline
+     modeltilt:  plot format of modeltilt
+     fignum:     figure number to use for the plot
+     mlabel,mtiltlabel:  label of the model lines to be used for the plot
+     dlabel:    label of the data line to be used for the plot
+     figtitle:  boolean to tell if the figure title should show the fit parameters
 
     Returns:
      (pixelwidth,centerch,tilt):
@@ -193,11 +200,12 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",model
         plt.ylabel("ch. num. - linear trend")
         plt.grid(True)
         plt.hlines(0,angp.min(),angp.max())
-
-        if usetilt:
-            plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
-        else:
-            plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f"%(fittan.beta[0],fittan.beta[1]))
+        
+        if figtitle:
+            if usetilt:
+                plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
+            else:
+                plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f"%(fittan.beta[0],fittan.beta[1]))
 
     if usetilt:
         fit = fittilt
