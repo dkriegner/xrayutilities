@@ -8,6 +8,14 @@
     :undoc-members:
     :show-inheritance:
 
+:mod:`cif` Module
+-----------------
+
+.. automodule:: xrayutilities.materials.cif
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
 :mod:`_create_database` Module
 ------------------------------
 

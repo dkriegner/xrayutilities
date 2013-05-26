@@ -69,8 +69,9 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",model
      modelline:  plot format of modelline
      modeltilt:  plot format of modeltilt
      fignum:     figure number to use for the plot
-     mlabel,mtiltlabel:  label of the model lines to be used for the plot
-     dlabel:    label of the data line to be used for the plot
+     mlabel:     label of the model w/o tilt to be used in the plot
+     mtiltlabel:  label of the model with tilt to be used in the plot
+     dlabel:    label of the data line to be used in the plot
      figtitle:  boolean to tell if the figure title should show the fit parameters
 
     Returns:

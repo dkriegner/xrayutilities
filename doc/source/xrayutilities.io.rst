@@ -8,14 +8,6 @@
     :undoc-members:
     :show-inheritance:
 
-:mod:`cif` Module
------------------
-
-.. automodule:: xrayutilities.io.cif
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`edf` Module
 -----------------
 
