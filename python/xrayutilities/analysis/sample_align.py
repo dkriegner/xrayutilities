@@ -74,18 +74,16 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",model
      dlabel:    label of the data line to be used in the plot
      figtitle:  boolean to tell if the figure title should show the fit parameters
 
-    Returns:
-     (pixelwidth,centerch,tilt):
+    Returns
+    -------
+     (pixelwidth,centerch,tilt)
 
     pixelwidth:  the width of one detector channel @ 1m distance, which is negative in case the hit channel number decreases upon an increase of the detector angle.
-    L/pixelwidth*pi/180 = channel/degree for large detector distance
-    with L sample detector disctance
-    
     centerch: center channel of the detector
     tilt: tilt of the detector from perpendicular to the beam (will be zero in case of usetilt=False)
 
     Note:
-     distance of the detector is given by: channelwidth*channelperdegree/tan(radians(1))
+     L/pixelwidth*pi/180 = channel/degree for large detector distance with the sample detector disctance L
     """
 
     if stdev == None:
@@ -250,14 +248,11 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
     -------
      pixelwidth (at one meter distance) , center_channel[, detector_tilt]
       
-    Note:  L/pixelwidth*pi/180 ~= channel/degree
+    Note:  L/pixelwidth*pi/180 ~= channel/degree, with the sample detector distance L
 
     pixelwidth is negative in case the hit channel number decreases upon an increase of the detector angle
     The function also prints out how a linear detector can be initialized using the results
     obtained from this calibration. Carefully check the results
-
-    Note:
-     distance of the detector is given by: channel_width*channelperdegree/tan(radians(1))
     """
 
     if "detaxis" in keyargs:
