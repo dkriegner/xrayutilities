@@ -130,7 +130,7 @@ class Transform(object):
             elif isinstance(a,numpy.ndarray):
                 p = a
             else:
-                    raise TypeError("Argument must be a list or numpy array!")
+                    raise TypeError("Argument must be a list, tuple or numpy array!")
 
             #matrix product in pure array notation
             if len(p.shape)==1:
@@ -267,12 +267,12 @@ class AxisToZ(CoordinateTransform):
          newzaxis:  list or numpy array with new z-axis
         """
 
-        if isinstance(newzaxis,list):
+        if isinstance(newzaxis,(list,tuple)):
             newz = numpy.array(newzaxis,dtype=numpy.double)
         elif isinstance(newzaxis,numpy.ndarray):
             newz = newzaxis
         else:
-            raise TypeError("vector must be a list or numpy array")
+            raise TypeError("vector must be a list, tuple or numpy array")
 
         if vector.VecAngle([0,0,1],newz) < config.EPSILON:
             newx = [1,0,0]
