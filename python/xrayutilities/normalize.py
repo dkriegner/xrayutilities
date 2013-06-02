@@ -32,6 +32,7 @@ provide functions for normalizing intensities for
 
 import numpy
 import ctypes
+import cxrayutilities
 
 from . import libxrayutils
 from .exception import InputError
@@ -59,10 +60,8 @@ def blockAverage1D(data,Nav):
 
     data = numpy.array(data,dtype=numpy.double)
     data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-    block_av = numpy.empty(numpy.ceil(data.size/float(Nav)),dtype=numpy.double,order='C')
-    block_av = numpy.require(block_av,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-    libxrayutils.cblockav_1d(block_av,data,Nav,data.size)
+    block_av = cxrayutilities.block_average1d(data,Nav)
 
     return block_av
 
