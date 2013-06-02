@@ -16,8 +16,12 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from distutils.core import setup
+from distutils.core import setup, Extension
 import os.path
+import numpy
+
+extmodul = Extension('cxrayutilities',
+                     sources = [os.path.join('src','cxrayutilities.c')])
 
 setup(name="xrayutilities",
       version="0.99",
@@ -33,5 +37,7 @@ setup(name="xrayutilities",
           "xrayutilities":["*.conf"],
           "xrayutilities.materials":[os.path.join("data","*.db"),os.path.join("data","*.cif")]},
       requires=['numpy','scipy','tables'],
+      include_dirs = [numpy.get_include()],
+      ext_modules = [extmodul],
       license="GPLv2"
       )
