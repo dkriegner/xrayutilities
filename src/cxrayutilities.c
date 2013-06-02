@@ -42,50 +42,36 @@ static PyObject* block_average1d(PyObject *self, PyObject *args) {
      *    N:            total number of input values
      */
 
-    int i,j,Nav,N;
-    PyObject *output=NULL, *input=NULL;
-    PyArrayObject *inarr=NULL, *outarr=NULL;
+    int i,j,stride,Nav,N;
+    PyArrayObject *input=NULL, *outarr=NULL;
     double *cin,*cout;
     double buf;
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "Oi", &input, &Nav)) return NULL;
+    if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL;
     
-    inarr = (PyArrayObject *) PyArray_FROM_OTF(input, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
-    if (inarr == NULL) return NULL;
-    if (PyArray_NDIM(inarr) != 1) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional");
+    if (PyArray_NDIM(input) != 1 || PyArray_TYPE(input) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double");
         return NULL; }
-    N = PyArray_SHAPE(inarr)[0];
-    
-    cin = PyArray_DATA(inarr);
-    
+    N = PyArray_SHAPE(input)[0];
+    cin = PyArray_DATA(input);
+
     // create output ndarray
     npy_intp *nout;
     *nout = ((int)ceil(N/(float)Nav));
     outarr = (PyArrayObject *) PyArray_SimpleNew(1, nout, NPY_DOUBLE);
     cout = (double *) PyArray_DATA(outarr);
     
-    printf("%d %d\n",N,Nav);
-    
     // c-code following is performing the block averaging
     for(i=0; i<N; i=i+Nav) {
-        printf("i %d\n",i);
         buf=0;
         //perform one block average (j-i serves as counter -> last bin is therefore correct)
         for(j=i; j<i+Nav && j<N; ++j) {
-            printf("%d %d\n",i,j);
             buf += cin[j];
         }
         cout[i/Nav] = buf/(float)(j-i); //save average to output array
-        printf("cout %f\n",cout[i/Nav]);
     }
-    
-    //PyErr_SetString(PyExc_ValueError,"dummy error");
-    //return NULL;
-    
-    Py_DECREF(inarr);
-    Py_DECREF(outarr);
+     
     // return output array
     return PyArray_Return(outarr);
 }
