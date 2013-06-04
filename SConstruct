@@ -36,7 +36,7 @@ vars = Variables()
 vars.Add(PathVariable("DESTDIR",'Destination variable (prepended to prefix)',None,PathVariable.PathAccept))
 vars.Update(env)
 
-if "win" in os.sys.platform:
+if "win" in os.sys.platform and os.sys.platform!="darwin":
     Tool('mingw')(env)
 
 # create correct destdir install prefix
