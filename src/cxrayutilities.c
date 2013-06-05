@@ -42,7 +42,7 @@ static PyObject* block_average1d(PyObject *self, PyObject *args) {
      *    N:            total number of input values
      */
 
-    int i,j,stride,Nav,N;
+    int i,j,Nav,N;
     PyArrayObject *input=NULL, *outarr=NULL;
     double *cin,*cout;
     double buf;
@@ -53,11 +53,11 @@ static PyObject* block_average1d(PyObject *self, PyObject *args) {
     if (PyArray_NDIM(input) != 1 || PyArray_TYPE(input) != NPY_DOUBLE) {
         PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double");
         return NULL; }
-    N = PyArray_SHAPE(input)[0];
+    N = PyArray_DIMS(input)[0];
     cin = PyArray_DATA(input);
 
     // create output ndarray
-    npy_intp *nout;
+    npy_intp *nout=NULL;
     *nout = ((int)ceil(N/(float)Nav));
     outarr = (PyArrayObject *) PyArray_SimpleNew(1, nout, NPY_DOUBLE);
     cout = (double *) PyArray_DATA(outarr);
