@@ -3,6 +3,7 @@
 config.log
 .sconf_temp/
 .sconsign.dblite
+*.swp
 
 # build files and tarball directory
 dist/
