@@ -82,18 +82,18 @@ def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=defa
         ccdn = ccdframes
 
     qconv = xu.experiment.QConversion(['z+','y-','z-'],['z+','y-'],[1,0,0]) # 3S+2D goniometer (simplified ID01 goniometer, sample mu,eta,phi detector nu,del
-# convention for coordinate system: x downstream; z upwards; y to the "outside" (righthanded)
-# QConversion will set up the goniometer geometry. So the first argument describes the sample rotations, the second the detector rotations and the third the primary beam direction.
-# For this consider the following coordinate system (at least this is what i use at ID01, feel free to use your conventions):
-# x: downstream (direction of primary beam)
-# y: out of the ring
-# z: upwards
-# these three axis form a right handed coordinate system.
-# The outer most sample rotation (so the one mounted on the floor) is one which turns righthanded (+) around the z-direction -> z+ (at the moment this rotation is called 'mu' in the spec-session)
-# The second sample rotation ('eta') is lefthanded (-) around y -> y-
+    # convention for coordinate system: x downstream; z upwards; y to the "outside" (righthanded)
+    # QConversion will set up the goniometer geometry. So the first argument describes the sample rotations, the second the detector rotations and the third the primary beam direction.
+    # For this consider the following coordinate system (at least this is what i use at ID01, feel free to use your conventions):
+    # x: downstream (direction of primary beam)
+    # y: out of the ring
+    # z: upwards
+    # these three axis form a right handed coordinate system.
+    # The outer most sample rotation (so the one mounted on the floor) is one which turns righthanded (+) around the z-direction -> z+ (at the moment this rotation is called 'mu' in the spec-session)
+    # The second sample rotation ('eta') is lefthanded (-) around y -> y-
 
     hxrd = xu.HXRD([1,0,0],[0,0,1],en=en,qconv=qconv) # define experimental class for angle conversion
-hxrd.Ang2Q.init_area('z-','y+',cch1=cch[0],cch2=cch[1],Nch1=516,Nch2=516, chpdeg1=chpdeg[0],chpdeg2=chpdeg[1],Nav=nav,roi=roi) # initialize area detector properties
+    hxrd.Ang2Q.init_area('z-','y+',cch1=cch[0],cch2=cch[1],Nch1=516,Nch2=516, chpdeg1=chpdeg[0],chpdeg2=chpdeg[1],Nav=nav,roi=roi) # initialize area detector properties
 
     if ccdframes:
         mu = []
