@@ -29,7 +29,11 @@
 #define deg2rad(ang) (ang*cdeg2rad)
 #define rad2deg(rad) (rad*crad2deg)
 
-#define INLINE extern inline
+/* 'extern inline' seems to work only on newer version of gcc (>4.6 tested) 
+ * gcc 4.1 seems to need this empty, i am not sure if there is a speed gain
+ * by inlining since the calls to those functions are anyhow built dynamically
+ * for compatibility keep this empty unless you can test with several compilers */
+#define INLINE   
 #define RESTRICT restrict
 
 /* ###################################
@@ -38,39 +42,39 @@
  * 3
  * ################################### */
 
-INLINE void ident(double *m) __attribute__((always_inline));
+INLINE void ident(double *m);
 
-INLINE void sumvec(double *RESTRICT v1,double *RESTRICT v2) __attribute__((always_inline));
+INLINE void sumvec(double *RESTRICT v1,double *RESTRICT v2);
 
-INLINE void diffvec(double *RESTRICT v1,double *RESTRICT v2) __attribute__((always_inline));
+INLINE void diffvec(double *RESTRICT v1,double *RESTRICT v2);
 
-INLINE double norm(double *v) __attribute__((always_inline));
+INLINE double norm(double *v);
 
-INLINE void normalize(double *v) __attribute__((always_inline));
+INLINE void normalize(double *v);
 
-INLINE void veccopy(double *RESTRICT v1, double *RESTRICT v2) __attribute__((always_inline));
+INLINE void veccopy(double *RESTRICT v1, double *RESTRICT v2);
 
-INLINE void vecmul(double *RESTRICT r, double a) __attribute__((always_inline));
+INLINE void vecmul(double *RESTRICT r, double a);
 
-INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT r) __attribute__((always_inline));
+INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT r);
 
-INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m, double *RESTRICT mr) __attribute__((always_inline));
+INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m, double *RESTRICT mr);
 
-INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2) __attribute__((always_inline));
+INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2);
 
-INLINE void matmulc(double *RESTRICT m, double c) __attribute__((always_inline));
+INLINE void matmulc(double *RESTRICT m, double c);
 
-INLINE void matvec(double *RESTRICT m, double *RESTRICT v, double *RESTRICT r) __attribute__((always_inline));
+INLINE void matvec(double *RESTRICT m, double *RESTRICT v, double *RESTRICT r);
 
-INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT m) __attribute__((always_inline));
+INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT m);
 
-INLINE void summat(double *RESTRICT m1,double *RESTRICT m2) __attribute__((always_inline));
+INLINE void summat(double *RESTRICT m1,double *RESTRICT m2);
 
-INLINE void diffmat(double *RESTRICT m1,double *RESTRICT m2) __attribute__((always_inline));
+INLINE void diffmat(double *RESTRICT m1,double *RESTRICT m2);
 
-INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) __attribute__((always_inline));
+INLINE void inversemat(double *RESTRICT m, double *RESTRICT i);
 
-INLINE double determinant(double *RESTRICT m) __attribute__((always_inline));
+INLINE double determinant(double *RESTRICT m);
 
 
 /*##############################################
@@ -85,17 +89,17 @@ INLINE double determinant(double *RESTRICT m) __attribute__((always_inline));
 
 typedef void (*fp_rot)(double,double *);
 
-INLINE void rotation_xp(double a,double *mat) __attribute__((always_inline));
-INLINE void rotation_yp(double a,double *mat) __attribute__((always_inline));
-INLINE void rotation_zp(double a,double *mat) __attribute__((always_inline));
+INLINE void rotation_xp(double a,double *mat);
+INLINE void rotation_yp(double a,double *mat);
+INLINE void rotation_zp(double a,double *mat);
 
-INLINE void rotation_xm(double a,double *mat) __attribute__((always_inline));
-INLINE void rotation_ym(double a,double *mat) __attribute__((always_inline));
-INLINE void rotation_zm(double a,double *mat) __attribute__((always_inline));
+INLINE void rotation_xm(double a,double *mat);
+INLINE void rotation_ym(double a,double *mat);
+INLINE void rotation_zm(double a,double *mat);
 
-INLINE void rotation_kappa(double a, double *mat) __attribute__((always_inline));
+INLINE void rotation_kappa(double a, double *mat);
 
-INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) __attribute__((always_inline));
+INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat);
 
 
 /*##############################################
