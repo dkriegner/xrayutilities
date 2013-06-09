@@ -104,7 +104,7 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!ii",&PyArray_Type, &input, &Nav2,&Nav1)) return NULL;
     
     if (PyArray_NDIM(input) != 2 || PyArray_TYPE(input) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double");
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
         return NULL; }
     Nch2 = PyArray_DIMS(input)[0];
     Nch1 = PyArray_DIMS(input)[1];
@@ -163,7 +163,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL;
     
     if (PyArray_NDIM(input) != 2 || PyArray_TYPE(input) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double");
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
         return NULL; }
     Nspec = PyArray_DIMS(input)[0];
     Nch = PyArray_DIMS(input)[1];
