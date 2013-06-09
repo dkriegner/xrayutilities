@@ -15,6 +15,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
+ *
 */
 
 #include <Python.h>
@@ -27,6 +29,8 @@
 extern PyObject* block_average1d(PyObject *self, PyObject *args);
 extern PyObject* block_average2d(PyObject *self, PyObject *args);
 extern PyObject* block_average_PSD(PyObject *self, PyObject *args);
+
+/* functions from gridder2d.c */
 extern PyObject* pygridder2d(PyObject *self,PyObject *args);
 
 /* functions from qconversion.c */
@@ -56,6 +60,14 @@ static PyMethodDef XRU_Methods[] = {
      "  ymax ... minimum y-value of the grid\n"
      "  out .... output data\n"
     },
+    {"ang2q_conversion", ang2q_conversion, METH_VARARGS,
+     "reciprocal space conversion for apoint detectors"},
+    {"ang2q_conversion_linear", ang2q_conversion_linear, METH_VARARGS,
+     "reciprocal space conversion for a linear detectors"},
+    {"ang2q_conversion_area", ang2q_conversion_area, METH_VARARGS,
+     "reciprocal space conversion for an area detectors"},
+    {"ang2q_conversion_area_pixel", ang2q_conversion_area_pixel, METH_VARARGS,
+     "reciprocal space conversion for certain pixels of an area detectors"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -64,7 +76,9 @@ PyMODINIT_FUNC
 initcxrayutilities(void) {
     PyObject *m;
 
-    m = Py_InitModule("cxrayutilities", XRU_Methods);
+    m = Py_InitModule3("cxrayutilities", XRU_Methods, 
+        "Python C extension including performance critical parts\n"
+        "of xrayutilities (gridder, qconversion, block-averageing\n");
     if (m == NULL)
         return;
 

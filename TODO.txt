@@ -1,6 +1,12 @@
 To Do
 -----
 
+10.6.2013
+
+* remove files created by build checks
+* adapt changes of c-code in python calls (qconversion, gridder?)
+* create test scripts 
+
 27.3.2012
 
 implement alternative call of line_cut function with Gridder2D object instead

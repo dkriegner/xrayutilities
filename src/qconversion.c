@@ -450,8 +450,8 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     char *sampleAxis,*detectorAxis; // string with sample and detector axis
     double *sampleAngles,*detectorAngles, *ri, *kappadir, *UB, *qpos; // c-arrays for further usage
     
-    PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *riArr=NULL,
-                  *kappadirArr=NULL, UBArr=NULL, qposArr=NULL; // numpy arrays
+    PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *riArr=NULL, *kappadirArr=NULL, 
+                  *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!d",&PyArray_Type, &sampleAnglesArr, 
@@ -605,7 +605,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     int *roi; //  region of interest integer array
     
     PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *rcchArr=NULL,
-                  *kappadirArr=NULL, *roiArr=NULL, UBArr=NULL, qposArr=NULL; // numpy arrays
+                  *kappadirArr=NULL, *roiArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddO!sdO!d",&PyArray_Type, &sampleAnglesArr, 
@@ -613,7 +613,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
                                       &PyArray_Type, &rcchArr,
                                       sampleAxis, detectorAxis,
                                       &PyArray_Type, &kappadirArr,
-                                      &cch, &dpixel, &PyArray_Type, &roi, 
+                                      &cch, &dpixel, &PyArray_Type, &roiArr, 
                                       dir, &tilt,
                                       &PyArray_Type, &UBArr,
                                       &lambda)) { 
@@ -652,7 +652,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     if (PyArray_NDIM(roiArr) != 1 || PyArray_TYPE(roiArr) != NPY_INT || PyArray_DIMS(roiArr)[0] != 2) {
         PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type int and size 2");
         return NULL; }
-    roi = (int *) PyArray_DATA(roi);
+    roi = (int *) PyArray_DATA(roiArr);
     
     // derived values from input parameters
     Nch = roi[1]-roi[0]; // number of channels
@@ -787,7 +787,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     int *roi; //  region of interest integer array
     
     PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *rcchArr=NULL,
-                  *kappadirArr=NULL, *roiArr=NULL, UBArr=NULL, qposArr=NULL; // numpy arrays
+                  *kappadirArr=NULL, *roiArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddddO!ssddO!d",&PyArray_Type, &sampleAnglesArr, 
@@ -796,7 +796,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
                                       sampleAxis, detectorAxis,
                                       &PyArray_Type, &kappadirArr,
                                       &cch1, &cch2, &dpixel1, &dpixel2, 
-                                      &PyArray_Type, &roi, 
+                                      &PyArray_Type, &roiArr, 
                                       dir1, dir2, &tiltazimuth, &tilt,
                                       &PyArray_Type, &UBArr,
                                       &lambda)) { 
@@ -835,7 +835,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     if (PyArray_NDIM(roiArr) != 1 || PyArray_TYPE(roiArr) != NPY_INT || PyArray_DIMS(roiArr)[0] != 4) {
         PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type int and size 2");
         return NULL; }
-    roi = (int *) PyArray_DATA(roi);
+    roi = (int *) PyArray_DATA(roiArr);
     
     // derived values from input parameters
     f=M_2PI/lambda;
@@ -999,17 +999,16 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     double r_i[3],rtemp[3],rtemp2[3]; //r_i: center channel direction
     int i,j,k; // loop indices
     int Nd; // number of detector circles
-    double n1,n2; // pixel numbers for q calculation
     int Npoints; // number of angular positions
     double f,lambda,cch1,cch2,dpixel1,dpixel2,tilt,tiltazimuth; // x-ray wavelength, f=M_2PI/lambda and detector parameters
     char *sampleAxis,*detectorAxis,*dir1,*dir2; // string with sample and detector axis, and detector direction
-    double *detectorAngles, *rcch, *qpos; // c-arrays for further usage
+    double *detectorAngles, *n1, *n2, *rcch, *qpos; // c-arrays for further usage
     
-    PyArrayObject *detectorAnglesArr=NULL, *rcchArr=NULL, qposArr=NULL; // numpy arrays
+    PyArrayObject *detectorAnglesArr=NULL, *n1Arr=NULL, *n2Arr=NULL, *rcchArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!ddO!sddddssddd", &PyArray_Type, &detectorAnglesArr,
-                                      &n1, &n2, &PyArray_Type, &rcchArr,
+    if (!PyArg_ParseTuple(args, "O!O!O!O!sddddssddd", &PyArray_Type, &detectorAnglesArr,
+                                      &PyArray_Type, &n1, &PyArray_Type, &n2, &PyArray_Type, &rcchArr,
                                       detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2, 
                                       dir1, dir2, &tiltazimuth, &tilt,
                                       &lambda)) { 
@@ -1023,6 +1022,16 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(detectorAnglesArr)[0];
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    
+    if (PyArray_NDIM(n1Arr) != 1 || PyArray_TYPE(n1Arr) != NPY_DOUBLE || PyArray_DIMS(n1Arr)[0] != Npoints) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length Npoints");
+        return NULL; }
+    n1 = (double *) PyArray_DATA(n1Arr); 
+    
+    if (PyArray_NDIM(n2Arr) != 1 || PyArray_TYPE(n2Arr) != NPY_DOUBLE || PyArray_DIMS(n2Arr)[0] != Npoints) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length Npoints");
+        return NULL; }
+    n2 = (double *) PyArray_DATA(n2Arr); 
 
     if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
         PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");

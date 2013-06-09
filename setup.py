@@ -35,12 +35,12 @@ if compiler.has_function('omp_set_dynamic',libraries=('gomp',)):
 else:
     print('Warning: did not find openmp + header files -> using serial code')
 
-
 extmodul = Extension('xrayutilities.cxrayutilities',
                      sources = [os.path.join('src','cxrayutilities.c'),
                                 os.path.join('src','gridder_utils.c'),
                                 os.path.join('src','gridder2d.c'),
-                                os.path.join('src','block_average.c')],
+                                os.path.join('src','block_average.c'),
+                                os.path.join('src','qconversion.c')],
                      define_macros = user_macros,
                      libraries = libraries,
                      extra_compile_args=cflags)

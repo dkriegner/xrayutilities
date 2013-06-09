@@ -4,7 +4,7 @@ import os
 Import("env")
 
 #compile the shared library - default behavior
-sources = ["gridder.c","qconversion.c"]
+sources = ["gridder.c"]
 objects_env = env.SharedObject(sources)
 
 if os.sys.platform == "linux2":
