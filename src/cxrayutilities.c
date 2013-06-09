@@ -1,25 +1,46 @@
+/*
+ * This file is part of xrayutilities.
+ *
+ * xrayutilities is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+*/
 
 #include <Python.h>
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
 #include <numpy/arrayobject.h>
-#include <math.h>
-#ifdef __OPENMP__
-#include <omp.h>
-#endif
 
-static PyObject* block_average1d(PyObject *self, PyObject *args);
+/* functions from block_average.c */
+extern PyObject* block_average1d(PyObject *self, PyObject *args);
+extern PyObject* block_average2d(PyObject *self, PyObject *args);
+extern PyObject* block_average_PSD(PyObject *self, PyObject *args);
 
 static PyMethodDef XRU_Methods[] = {
-    {"block_average1d",  block_average1d, METH_VARARGS,
+    {"block_average1d",  (PyCFunction)block_average1d, METH_VARARGS,
      "block average for one-dimensional numpy array"},
+    {"block_average2d",  block_average2d, METH_VARARGS,
+     "two dimensional block average for two-dimensional numpy array"},
+    {"block_average_PSD",  block_average_PSD, METH_VARARGS,
+     "one dimensional block average for two-dimensional numpy array (PSD spectra)"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
 
 PyMODINIT_FUNC
-initcxrayutilities(void)
-{
+initcxrayutilities(void) {
     PyObject *m;
 
     m = Py_InitModule("cxrayutilities", XRU_Methods);
@@ -27,51 +48,4 @@ initcxrayutilities(void)
         return;
 
     import_array();
-}
-
-static PyObject* block_average1d(PyObject *self, PyObject *args) {
-//int block_average1d(double *block_av, double *input, int Nav, int N) {
-    /*    block average for one-dimensional double array
-     *
-     *    Parameters
-     *    ----------
-     *    block_av:     block averaged output array
-     *                  size = ceil(N/Nav) (out)
-     *    input:        input array of double (in)
-     *    Nav:          number of double to average
-     *    N:            total number of input values
-     */
-
-    int i,j,Nav,N;
-    PyArrayObject *input=NULL, *outarr=NULL;
-    double *cin,*cout;
-    double buf;
-
-    // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL;
-    
-    if (PyArray_NDIM(input) != 1 || PyArray_TYPE(input) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double");
-        return NULL; }
-    N = PyArray_DIMS(input)[0];
-    cin = PyArray_DATA(input);
-
-    // create output ndarray
-    npy_intp *nout=NULL;
-    *nout = ((int)ceil(N/(float)Nav));
-    outarr = (PyArrayObject *) PyArray_SimpleNew(1, nout, NPY_DOUBLE);
-    cout = (double *) PyArray_DATA(outarr);
-    
-    // c-code following is performing the block averaging
-    for(i=0; i<N; i=i+Nav) {
-        buf=0;
-        //perform one block average (j-i serves as counter -> last bin is therefore correct)
-        for(j=i; j<i+Nav && j<N; ++j) {
-            buf += cin[j];
-        }
-        cout[i/Nav] = buf/(float)(j-i); //save average to output array
-    }
-     
-    // return output array
-    return PyArray_Return(outarr);
 }

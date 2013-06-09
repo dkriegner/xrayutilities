@@ -95,21 +95,15 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
         roi = [0,data2d.shape[0],0,data2d.shape[1]]
 
     data = numpy.array(data2d[roi[0]:roi[1],roi[2]:roi[3]],dtype=numpy.double)
-    (N,M) = data.shape
-    data = data.flatten()
     data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-    block_av = numpy.empty(numpy.ceil(N/float(Nav1))*numpy.ceil(M/float(Nav2)),dtype=numpy.double,order='C')
-    block_av = block_av.flatten()
-    block_av = numpy.require(block_av,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
     if config.VERBOSITY >= config.DEBUG:
         print("xu.normalize.blockAverage2D: roi: %s" %(str(roi)))
         print("xu.normalize.blockAverage2D: Nav1,2: %d,%d" %(Nav1,Nav2))
-        print("xu.normalize.blockAverage2D: number of points: (%d,%d) %d" %(numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2)),block_av.size))
+        print("xu.normalize.blockAverage2D: number of points: (%d,%d)" %(numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2))))
 
-    libxrayutils.cblockav_ccd(block_av,data,Nav1,Nav2,N,M)
+    block_av = cxrayutilities.block_average2d(data,Nav1,Nav2)
 
-    block_av.shape = (numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2)))
     return block_av
 
 def blockAveragePSD(psddata,Nav,**kwargs):
@@ -143,15 +137,10 @@ def blockAveragePSD(psddata,Nav,**kwargs):
         roi = [0,psddata.shape[1]]
 
     data = numpy.array(psddata[:,roi[0]:roi[1]],dtype=numpy.double)
-    (Nspectra,Nchannels) = data.shape
-    data = data.flatten()
     data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-    block_av = numpy.empty((Nspectra*numpy.ceil(Nchannels/float(Nav))),dtype=numpy.double,order='C')
-    block_av = numpy.require(block_av,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-    libxrayutils.cblockav_psd(block_av,data,Nav,Nchannels,Nspectra)
+    block_av = cxrayutilities.block_average_PSD(data,Nav)
 
-    block_av.shape = (Nspectra,numpy.ceil(Nchannels/float(Nav)))
     return block_av
 
 ######################################

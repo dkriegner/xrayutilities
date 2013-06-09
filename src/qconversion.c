@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2010-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
 /* ######################################
@@ -25,18 +25,390 @@
  *   and detectors
  * ######################################*/
 
-#include "rot_matrix.h"
-#include "vecmat3.h"
+#include "qconversion.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <math.h>
 #ifdef __OPENMP__
 #include <omp.h>
 #endif
 
-int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n);
-int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt);
-int print_matrix(double *m);
-int print_vector(double *m);
+/* ###################################
+ * matrix vector operations for
+ * 3x3 matrices and vectors of length
+ * 3
+ * ################################### */
+
+INLINE void ident(double *m) {
+    m[0] = 1.; m[1] = 0.; m[2] =0.;
+    m[3] = 0.; m[4] = 1.; m[5] =0.;
+    m[6] = 0.; m[7] = 0.; m[8] =1.;
+}
+
+INLINE void sumvec(double *RESTRICT v1,double *RESTRICT v2) {
+    for(int i=0; i<3; ++i)
+        v1[i] += v2[i];
+}
+
+INLINE void diffvec(double *RESTRICT v1,double *RESTRICT v2) {
+    for(int i=0; i<3; ++i)
+        v1[i] -= v2[i];
+}
+
+INLINE double norm(double *v) {
+    double n=0.;
+    for(int i=0; i<3; ++i)
+        n += v[i]*v[i];
+    return sqrt(n);
+}
+
+INLINE void normalize(double *v) {
+    double n=norm(v);
+    for(int i=0; i<3; ++i)
+        v[i] /= n;
+}
+
+INLINE void veccopy(double *RESTRICT v1, double *RESTRICT v2) {
+    for(int i=0; i<3; ++i)
+        v1[i] = v2[i];
+}
+
+INLINE void vecmul(double *RESTRICT r, double a) {
+    for(int i=0; i<3; ++i)
+        r[i] *= a;
+}
+
+INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT r) {
+    r[0] =  v1[1]*v2[2] - v1[2]*v2[1];
+    r[1] = -v1[0]*v2[2] + v1[2]*v2[0];
+    r[2] =  v1[0]*v2[1] - v1[1]*v2[0];
+}
+
+INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m, double *RESTRICT mr) {
+    for (int i=0; i<9; i=i+3) {
+        mr[0+i] =  v[1]*m[2+i] - v[2]*m[1+i];
+        mr[1+i] = -v[0]*m[2+i] + v[2]*m[0+i];
+        mr[2+i] =  v[0]*m[1+i] - v[1]*m[0+i];
+    }
+}
+
+INLINE void matmulc(double *RESTRICT m, double c) {
+    for (int i=0; i<9; i=i+1) {
+        m[i] *= c;
+    }
+}
+
+INLINE void matvec(double *RESTRICT m, double *RESTRICT v, double *RESTRICT r) {
+    r[0] = m[0]*v[0] + m[1]*v[1] + m[2]*v[2];
+    r[1] = m[3]*v[0] + m[4]*v[1] + m[5]*v[2];
+    r[2] = m[6]*v[0] + m[7]*v[1] + m[8]*v[2];
+}
+
+INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2) {
+    double a,b,c;
+    for(int i=0; i<9; i=i+3) {
+        a = m1[i]*m2[0] + m1[i+1]*m2[3] + m1[i+2]*m2[6];
+        b = m1[i]*m2[1] + m1[i+1]*m2[4] + m1[i+2]*m2[7];
+        c = m1[i]*m2[2] + m1[i+1]*m2[5] + m1[i+2]*m2[8];
+        m1[i] = a;
+        m1[i+1] = b;
+        m1[i+2] = c;
+    }
+}
+
+INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT m) {
+    for(int i=0; i<3; i=i+1) {
+        for(int j=0; j<3; j=j+1) {
+            m[i*3+j] = v1[i]*v2[j];
+        }
+    }
+}
+
+INLINE void summat(double *RESTRICT m1,double *RESTRICT m2) {
+    for(int i=0; i<9; ++i)
+        m1[i] += m2[i];
+}
+
+INLINE void diffmat(double *RESTRICT m1,double *RESTRICT m2) {
+    for(int i=0; i<9; ++i)
+        m1[i] -= m2[i];
+}
+
+INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) {
+    double det;
+    double h1,h2,h3,h4,h5,h6;
+
+    h1 = m[4]*m[8]; // m11*m22
+    h2 = m[5]*m[6]; // m12*m20
+    h3 = m[3]*m[7]; // m10*m21
+    h4 = m[4]*m[6]; // m11*m20
+    h5 = m[3]*m[8]; // m10*m22
+    h6 = m[5]*m[7]; // m12*m21
+    det = m[0]*h1 + m[1]*h2 + m[2]*h3 - m[2]*h4 - m[1]*h5 - m[0]*h6;
+
+    i[0] = (h1 - h6);
+    i[1] = (m[2]*m[7] - m[1]*m[8]);
+    i[2] = (m[1]*m[5] - m[2]*m[4]);
+    i[3] = (h2 - h5);
+    i[4] = (m[0]*m[8] - m[2]*m[6]);
+    i[5] = (m[2]*m[3] - m[0]*m[5]);
+    i[6] = (h3 - h4);
+    i[7] = (m[1]*m[6] - m[0]*m[7]);
+    i[8] = (m[0]*m[4] - m[1]*m[3]);
+
+    for(int j=0; j<9; ++j)
+        i[j] /= det;
+}
+
+INLINE double determinant(double *RESTRICT m) {
+    double h1,h2,h3,h4,h5,h6;
+    double det=0;
+
+    h1 = m[4]*m[8]; // m11*m22
+    h2 = m[5]*m[6]; // m12*m20
+    h3 = m[3]*m[7]; // m10*m21
+    h4 = m[4]*m[6]; // m11*m20
+    h5 = m[3]*m[8]; // m10*m22
+    h6 = m[5]*m[7]; // m12*m21
+
+    det = m[0]*h1 + m[1]*h2 + m[2]*h3 - m[2]*h4 - m[1]*h5 - m[0]*h6;
+    return det;
+}
+
+
+/*##############################################
+#   functions which implement rotation matrices
+#   for all coordinate axes and rotation senses
+#
+#   the routines expect angles in radians
+#   for conversion from degrees to radians
+#   the functions and2rad and rad2ang are
+#   supplied
+################################################*/
+
+INLINE void rotation_xp(double a,double *mat){
+    double sa=sin(a), ca=cos(a);
+    mat[0] = 1.; mat[1] = 0.; mat[2] = 0.;
+    mat[3] = 0.; mat[4] = ca; mat[5] = -sa;
+    mat[6] = 0.; mat[7] = sa; mat[8] = ca;
+}
+
+INLINE void rotation_xm(double a,double *mat){
+    double sa=sin(a), ca=cos(a);
+    mat[0] = 1.; mat[1] = 0.; mat[2] = 0.;
+    mat[3] = 0.; mat[4] = ca; mat[5] = sa;
+    mat[6] = 0.; mat[7] = -sa; mat[8] = ca;
+}
+
+INLINE void rotation_yp(double a,double *mat){
+    double sa=sin(a), ca=cos(a);
+    mat[0] = ca; mat[1] = 0.; mat[2] = sa;
+    mat[3] = 0.; mat[4] = 1.; mat[5] = 0.;
+    mat[6] = -sa; mat[7] = 0.; mat[8] = ca;
+}
+
+INLINE void rotation_ym(double a,double *mat){
+    double sa=sin(a), ca=cos(a);
+    mat[0] = ca; mat[1] = 0.; mat[2] = -sa;
+    mat[3] = 0.; mat[4] = 1.; mat[5] = 0.;
+    mat[6] = sa; mat[7] = 0.; mat[8] = ca;
+}
+
+INLINE void rotation_zp(double a,double *mat){
+    double sa=sin(a), ca=cos(a);
+    mat[0] = ca; mat[1] = -sa; mat[2] = 0.;
+    mat[3] = sa; mat[4] = ca; mat[5] = 0.;
+    mat[6] = 0.; mat[7] = 0.; mat[8] = 1.;
+}
+
+INLINE void rotation_zm(double a,double *mat){
+    double sa=sin(a), ca=cos(a);
+    mat[0] = ca; mat[1] = sa; mat[2] = 0.;
+    mat[3] = -sa; mat[4] = ca; mat[5] = 0.;
+    mat[6] = 0.; mat[7] = 0.; mat[8] = 1.;
+}
+
+INLINE void rotation_kappa(double a, double *mat){
+    double e[3];
+    e[0] = mat[0]; e[1] = mat[1]; e[2] = mat[2];
+    rotation_arb(a,e,mat);
+}
+
+INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) {
+    double sa = sin(a), ca=cos(a);
+    double mtemp[9],mtemp2[9];
+
+    /* e must be normalized */
+
+    /* ca*(ident(3) - vec(e) o vec(e))*/
+    ident(mat);
+    tensorprod(e,e,mtemp);
+    diffmat(mat,mtemp);
+    matmulc(mat,ca);
+
+    /* tensorprod(vec(e),vec(e)) */
+    summat(mat,mtemp);
+
+    /* sa*(vec(e) cross ident(3)) */
+    ident(mtemp2);
+    vecmatcross(e,mtemp2,mtemp);
+    matmulc(mtemp,sa);
+    summat(mat,mtemp);
+}
+
+
+/* #######################################
+ *  conversion helper functions
+ * #######################################*/
+
+int print_matrix(double *m) {
+    for(int i=0;i<9;i+=3) {
+        printf("%8.5g %8.5g %8.5g\n",m[i],m[i+1],m[i+2]);
+    }
+    printf("\n");
+    return 0;
+}
+
+int print_vector(double *m) {
+    printf("\n%8.5g %8.5g %8.5g\n",m[0],m[1],m[2]);
+    return 0;
+}
+
+int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt) {
+    /* determine the direction of linear direction or one of the directions
+     * of an area detector.
+     * the function returns the vector containing the distance from one to
+     * the next pixel
+     * a tilt of the detector axis with respect to the coordinate axis can
+     * be considered as well! rotation of pixel direction around the
+     * crossproduct of primary beam and detector axis.
+     * this is mainly usefull for linear detectors, since the tilt of area
+     * detectors is handled different.
+     * */
+
+    double tiltaxis[3], tiltmat[9];
+
+    for(int i=0; i<3; ++i)
+        rpixel[i] = 0.;
+
+    switch(tolower(dir[0])) {
+        case 'x':
+            switch(dir[1]) {
+                case '+':
+                    rpixel[0] = dpixel;
+                break;
+                case '-':
+                    rpixel[0] = -dpixel;
+                break;
+                default:
+                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
+                    return 1;
+            }
+        break;
+        case 'y':
+            switch(dir[1]) {
+                case '+':
+                    rpixel[1] = dpixel;
+                break;
+                case '-':
+                    rpixel[1] = -dpixel;
+                break;
+                default:
+                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
+                    return 1;
+            }
+        break;
+        case 'z':
+            switch(dir[1]) {
+                case '+':
+                    rpixel[2] = dpixel;
+                break;
+                case '-':
+                    rpixel[2] = -dpixel;
+                break;
+                default:
+                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
+                    return 1;
+            }
+        break;
+        default:
+            printf("XU.Qconversion(c): detector determination: no valid detector direction given\n");
+            return 2;
+    }
+
+    /* include possible tilt of detector axis with respect to its direction */
+    cross(r_i,rpixel,tiltaxis);
+    normalize(tiltaxis);
+    //print_vector(tiltaxis);
+    /* create needed rotation matrix */
+    rotation_arb(tilt,tiltaxis,tiltmat);
+    //print_matrix(tiltmat);
+    /* rotate rpixel */
+    matvec(tiltmat,rpixel,tiltaxis);
+    //print_vector(rpixel);
+    veccopy(rpixel,tiltaxis);
+    //print_vector(rpixel);
+    return 0;
+}
+
+int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
+    /* feed the function pointer array with the correct
+     * rotation matrix generating functions
+     * */
+
+    for(int i=0; i<n; ++i) {
+        switch(tolower(stringAxis[2*i])) {
+            case 'x':
+                switch(stringAxis[2*i+1]) {
+                    case '+':
+                        fp_circles[i] = &rotation_xp;
+                    break;
+                    case '-':
+                        fp_circles[i] = &rotation_xm;
+                    break;
+                    default:
+                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
+                        return 1;
+                }
+            break;
+            case 'y':
+                switch(stringAxis[2*i+1]) {
+                    case '+':
+                        fp_circles[i] = &rotation_yp;
+                    break;
+                    case '-':
+                        fp_circles[i] = &rotation_ym;
+                    break;
+                    default:
+                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
+                        return 1;
+                }
+            break;
+            case 'z':
+                switch(stringAxis[2*i+1]) {
+                    case '+':
+                        fp_circles[i] = &rotation_zp;
+                    break;
+                    case '-':
+                        fp_circles[i] = &rotation_zm;
+                    break;
+                    default:
+                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
+                        return 1;
+                }
+            break;
+            case 'k':
+                fp_circles[i] = &rotation_kappa;
+            break;
+            default:
+                printf("XU.Qconversion(c): axis determination: no valid axis direction found!\n");
+                return 2;
+        }
+    }
+
+    return 0;
+}
+
 
 /* #######################################
  *  conversion functions
@@ -501,154 +873,3 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
     return 0;
 }
 
-/* #######################################
- *  conversion functions
- * #######################################*/
-
-int print_matrix(double *m) {
-    for(int i=0;i<9;i+=3) {
-        printf("%8.5g %8.5g %8.5g\n",m[i],m[i+1],m[i+2]);
-    }
-    printf("\n");
-    return 0;
-}
-
-int print_vector(double *m) {
-    printf("\n%8.5g %8.5g %8.5g\n",m[0],m[1],m[2]);
-    return 0;
-}
-
-int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt) {
-    /* determine the direction of linear direction or one of the directions
-     * of an area detector.
-     * the function returns the vector containing the distance from one to
-     * the next pixel
-     * a tilt of the detector axis with respect to the coordinate axis can
-     * be considered as well! rotation of pixel direction around the
-     * crossproduct of primary beam and detector axis.
-     * this is mainly usefull for linear detectors, since the tilt of area
-     * detectors is handled different.
-     * */
-
-    double tiltaxis[3], tiltmat[9];
-
-    for(int i=0; i<3; ++i)
-        rpixel[i] = 0.;
-
-    switch(tolower(dir[0])) {
-        case 'x':
-            switch(dir[1]) {
-                case '+':
-                    rpixel[0] = dpixel;
-                break;
-                case '-':
-                    rpixel[0] = -dpixel;
-                break;
-                default:
-                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
-                    return 1;
-            }
-        break;
-        case 'y':
-            switch(dir[1]) {
-                case '+':
-                    rpixel[1] = dpixel;
-                break;
-                case '-':
-                    rpixel[1] = -dpixel;
-                break;
-                default:
-                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
-                    return 1;
-            }
-        break;
-        case 'z':
-            switch(dir[1]) {
-                case '+':
-                    rpixel[2] = dpixel;
-                break;
-                case '-':
-                    rpixel[2] = -dpixel;
-                break;
-                default:
-                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
-                    return 1;
-            }
-        break;
-        default:
-            printf("XU.Qconversion(c): detector determination: no valid detector direction given\n");
-            return 2;
-    }
-
-    /* include possible tilt of detector axis with respect to its direction */
-    cross(r_i,rpixel,tiltaxis);
-    normalize(tiltaxis);
-    //print_vector(tiltaxis);
-    /* create needed rotation matrix */
-    rotation_arb(tilt,tiltaxis,tiltmat);
-    //print_matrix(tiltmat);
-    /* rotate rpixel */
-    matvec(tiltmat,rpixel,tiltaxis);
-    //print_vector(rpixel);
-    veccopy(rpixel,tiltaxis);
-    //print_vector(rpixel);
-    return 0;
-}
-
-int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
-    /* feed the function pointer array with the correct
-     * rotation matrix generating functions
-     * */
-
-    for(int i=0; i<n; ++i) {
-        switch(tolower(stringAxis[2*i])) {
-            case 'x':
-                switch(stringAxis[2*i+1]) {
-                    case '+':
-                        fp_circles[i] = &rotation_xp;
-                    break;
-                    case '-':
-                        fp_circles[i] = &rotation_xm;
-                    break;
-                    default:
-                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
-                        return 1;
-                }
-            break;
-            case 'y':
-                switch(stringAxis[2*i+1]) {
-                    case '+':
-                        fp_circles[i] = &rotation_yp;
-                    break;
-                    case '-':
-                        fp_circles[i] = &rotation_ym;
-                    break;
-                    default:
-                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
-                        return 1;
-                }
-            break;
-            case 'z':
-                switch(stringAxis[2*i+1]) {
-                    case '+':
-                        fp_circles[i] = &rotation_zp;
-                    break;
-                    case '-':
-                        fp_circles[i] = &rotation_zm;
-                    break;
-                    default:
-                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
-                        return 1;
-                }
-            break;
-            case 'k':
-                fp_circles[i] = &rotation_kappa;
-            break;
-            default:
-                printf("XU.Qconversion(c): axis determination: no valid axis direction found!\n");
-                return 2;
-        }
-    }
-
-    return 0;
-}
