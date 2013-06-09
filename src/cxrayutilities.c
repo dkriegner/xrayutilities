@@ -78,7 +78,7 @@ initcxrayutilities(void) {
 
     m = Py_InitModule3("cxrayutilities", XRU_Methods, 
         "Python C extension including performance critical parts\n"
-        "of xrayutilities (gridder, qconversion, block-averageing\n");
+        "of xrayutilities (gridder, qconversion, block-averageing)\n");
     if (m == NULL)
         return;
 
