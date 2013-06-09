@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
 
@@ -21,7 +21,6 @@ import numpy
 import xrayutilities as xu
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mayavi import mlab
 import os
 import xrayutilities_id01_functions as id01
 
@@ -45,15 +44,27 @@ nx, ny, nz = 200,201,202
 
 qx,qy,qz,gint,gridder = id01.gridmap(h5file,SCANNR,ccdfiletmp,nx,ny,nz)
 
-# plot 3D map using mayavi mlab
-QX,QY,QZ = numpy.mgrid[qx.min():qx.max():1j*nx,qy.min():qy.max():1j*ny,qz.min():qz.max():1j*nz]
-INT = xu.maplog(gint,4.5,0)
-
-mlab.figure()
-mlab.contour3d(QX,QY,QZ,INT,contours=15,opacity=0.5)
-mlab.colorbar(title="log(int)",orientation="vertical")
-mlab.axes(nb_labels=5,xlabel='Qx',ylabel='Qy',zlabel='Qz')
-#mlab.close(all=True)
+#################################################
+# for a 3D plot using python function i sugggest
+# to use mayavi's mlab package. the basic usage
+# is shown below. otherwise have a look at the 
+# file xrayutilities_export_data2vtk.py in order learn 
+# how you can get your data to a vtk file for further 
+# processing.
+######
+## one of the following import statements is needed
+## depending on the system/distribution you use
+#from mayavi import mlab
+#from enthough.mayavi import mlab
+## plot 3D map using mayavi mlab
+#QX,QY,QZ = numpy.mgrid[qx.min():qx.max():1j*nx,qy.min():qy.max():1j*ny,qz.min():qz.max():1j*nz]
+#INT = xu.maplog(gint,4.5,0)
+#mlab.figure()
+#mlab.contour3d(QX,QY,QZ,INT,contours=15,opacity=0.5)
+#mlab.colorbar(title="log(int)",orientation="vertical")
+#mlab.axes(nb_labels=5,xlabel='Qx',ylabel='Qy',zlabel='Qz')
+##mlab.close(all=True)
+############################################
 
 # plot 2D sums using matplotlib
 plt.figure()
