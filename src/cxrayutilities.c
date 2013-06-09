@@ -28,6 +28,12 @@ extern PyObject* block_average1d(PyObject *self, PyObject *args);
 extern PyObject* block_average2d(PyObject *self, PyObject *args);
 extern PyObject* block_average_PSD(PyObject *self, PyObject *args);
 
+/* functions from qconversion.c */
+extern PyObject* ang2q_conversion(PyObject *self, PyObject *args);
+extern PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args);
+extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
+extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
+
 static PyMethodDef XRU_Methods[] = {
     {"block_average1d",  (PyCFunction)block_average1d, METH_VARARGS,
      "block average for one-dimensional numpy array"},
