@@ -16,18 +16,39 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+from distutils import ccompiler
 from distutils.core import setup, Extension
 import os.path
 import numpy
 
+# check existence of libraries for extension module
+cflags = []
+user_macros = []
+libraries = []
+compiler=ccompiler.new_compiler()
+
+# check for OpenMP
+if compiler.has_function('omp_set_dynamic',libraries=('gomp',)):
+      cflags.append('-fopenmp')
+      user_macros.append(('__OPENMP__','1'))
+      libraries.append('gomp')
+else:
+    print('Warning: did not find openmp + header files -> using serial code')
+
+
 extmodul = Extension('cxrayutilities',
-                     sources = [os.path.join('src','cxrayutilities.c')])
+                     sources = [os.path.join('src','cxrayutilities.c'),
+                                os.path.join('src','block_average.c')],
+                     define_macros = user_macros,
+                     libraries = libraries,
+                     extra_compile_args=cflags)
+
 
 setup(name="xrayutilities",
       version="0.99",
-      author="Eugen Wintersberger",
+      author="Eugen Wintersberger, Dominik Kriegner",
       description="package for x-ray diffraction data evaluation",
-      author_email="eugen.wintersberger@desy.de",
+      author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
       maintainer="Dominik Kriegner",
       maintainer_email="dominik.kriegner@gmail.com",
       package_dir={'':'python'},
@@ -39,5 +60,6 @@ setup(name="xrayutilities",
       requires=['numpy','scipy','tables'],
       include_dirs = [numpy.get_include()],
       ext_modules = [extmodul],
+      url="http://xrayutilities.sourceforge.net",
       license="GPLv2"
       )
