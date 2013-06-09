@@ -21,7 +21,10 @@ import os.path
 import numpy
 
 extmodul = Extension('cxrayutilities',
-                     sources = [os.path.join('src','cxrayutilities.c')])
+                     extra_compile_args=['-std=c99'],
+                     sources = [os.path.join('src','cxrayutilities.c'),
+                                os.path.join('src','gridder_utils.c'),
+                                os.path.join('src','gridder2d.c')])
 
 setup(name="xrayutilities",
       version="0.99",

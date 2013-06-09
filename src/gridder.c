@@ -27,74 +27,8 @@
 
 #include "gridder.h"
 
-int gridder2d(double *x,double *y,double *data,unsigned int n,
-              unsigned int nx,unsigned int ny,
-              double xmin,double xmax,double ymin,double ymax,
-              double *odata,double *norm,int flags)
-{
-    double dx;
-    double dy;
-    double *gnorm;
-    unsigned int i;
-    unsigned int offset;
-    int x_index,y_index;
-    double tmpx,tmpy;
 
-    dx = fabs(xmax-xmin)/(double)(nx-1);
-    dy = fabs(ymax-ymin)/(double)(ny-1);
-
-    /*check if normalization array is passed*/
-    if(norm==NULL){
-        gnorm = malloc(sizeof(double)*(nx*ny));
-        if(gnorm==NULL){
-            fprintf(stderr,"XU.Gridder2D(c): Cannot allocate memory for normalization buffer!\n");
-            return(-1);
-        }
-        /*initialize memory for norm*/
-        for(i=0;i<nx*ny;i++) gnorm[i] = 0.;
-    }else{
-        if(flags&VERBOSE) {
-            fprintf(stdout,"XU.Gridder2D(c): use user provided buffer for normalization data\n");
-        }
-        gnorm = norm;
-    }
-
-    /*the master loop over all data points*/
-    for(i=0;i<n;i++){
-        tmpx = x[i];
-        tmpy = y[i];
-        if ((tmpx<xmin)||(tmpx>xmax)) continue;
-        if ((tmpy<ymin)||(tmpy>ymax)) continue;
-
-        x_index = (unsigned int)rint((tmpx-xmin)/dx);
-        y_index = (unsigned int)rint((tmpy-ymin)/dy);
-
-        offset = x_index*ny+y_index;
-        odata[offset] += data[i];
-        gnorm[offset] += 1.;
-    }
-
-    /*perform normalization*/
-    if(!(flags&NO_NORMALIZATION)){
-        if(flags&VERBOSE) {
-            fprintf(stdout,"XU.Gridder2D(c): perform normalization ...\n");
-        }
-        for(i=0;i<nx*ny;i++){
-            if(gnorm[i]>1.e-16){
-                odata[i] = odata[i]/gnorm[i];
-            }
-        }
-    }
-
-    if(norm==NULL){
-        /*free the norm buffer if it has been locally allocated*/
-        free(gnorm);
-    }
-
-    return(0);
-}
-
-
+//-----------------------------------------------------------------------------
 int gridder2d_th(unsigned int nth,
                  double *x,double *y,double *data,unsigned int n,
                  unsigned int nx,unsigned int ny,
@@ -168,7 +102,7 @@ int gridder2d_th(unsigned int nth,
         thargs[i].xmax = xmax;
         thargs[i].ymin = ymin;
         thargs[i].ymax = ymax;
-        thargs[i].dx = dx;
+j       thargs[i].dx = dx;
         thargs[i].dy = dy;
         thargs[i].nx = nx;
         thargs[i].ny = ny;
@@ -586,36 +520,5 @@ void *gridder3d_th_worker(void *arg)
     }else{
         pthread_exit(NULL);
     }
-}
-
-/* folling functions shouldn't be needed anymore
- * -> replaced by numpy code */
-double get_min(double *a,unsigned int n)
-{
-    double m;
-    unsigned int i;
-
-    m = a[0];
-    for(i=0;i<n;i++){
-        if(m<a[i]){
-            m = a[i];
-        }
-    }
-    return(m);
-}
-
-double get_max(double *a,unsigned int n)
-{
-    double m;
-    unsigned int i;
-
-    m=a[0];
-    for(i=0;i<n;i++){
-        if(m>a[i]){
-            m = a[i];
-        }
-    }
-
-    return(m);
 }
 
