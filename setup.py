@@ -57,7 +57,7 @@ setup(name="xrayutilities",
       package_data={
           "xrayutilities":["*.conf"],
           "xrayutilities.materials":[os.path.join("data","*.db"),os.path.join("data","*.cif")]},
-      requires=['numpy','scipy','tables'],
+      requires=['numpy','scipy','matplotlib','tables'],
       include_dirs = [numpy.get_include()],
       ext_modules = [extmodul],
       url="http://xrayutilities.sourceforge.net",
