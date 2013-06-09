@@ -22,7 +22,7 @@ import os.path
 import numpy
 
 # check existence of libraries for extension module
-cflags = []
+cflags = ['-std=c99']
 user_macros = []
 libraries = []
 compiler=ccompiler.new_compiler()
@@ -36,13 +36,14 @@ else:
     print('Warning: did not find openmp + header files -> using serial code')
 
 
-extmodul = Extension('cxrayutilities',
+extmodul = Extension('xrayutilities.cxrayutilities',
                      sources = [os.path.join('src','cxrayutilities.c'),
+                                os.path.join('src','gridder_utils.c'),
+                                os.path.join('src','gridder2d.c'),
                                 os.path.join('src','block_average.c')],
                      define_macros = user_macros,
                      libraries = libraries,
                      extra_compile_args=cflags)
-
 
 setup(name="xrayutilities",
       version="0.99",
