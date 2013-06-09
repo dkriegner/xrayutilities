@@ -25,8 +25,13 @@
  *   and detectors
  * ######################################*/
 
+#include <Python.h>
+
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
+#include <numpy/arrayobject.h>
+
 #include "qconversion.h"
-#include <stdio.h>
 #include <ctype.h>
 #include <math.h>
 #ifdef __OPENMP__
@@ -414,28 +419,86 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
  *  conversion functions
  * #######################################*/
 
-int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double *UB, double lambda)
+PyObject* ang2q_conversion(PyObject *self, PyObject *args)
+//int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a setup with point detector
     *
-    * Interface:
-    *   sampleAngles .. angular positions of the sample goniometer (Npoints,Ns) (in)
-    *   detectorAngles. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   qpos .......... momentum transfer (Npoints,3) (out)
-    *   ri ............ direction of primary beam (length irrelevant) (angles zero) (in)
-    *   Ns ............ number of sample circles (in)
-    *   Nd ............ number of detector circles (in)
-    *   Npoints ....... number of goniometer positions (in)
-    *   sampleAxis .... string with sample axis directions (in)
-    *   detectorAxis .. string with detector axis directions (in)
-    *   kappadir ...... rotation axis of a possible kappa circle (in)
-    *   UB ............ orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
-    *   lambda ........ wavelength of the used x-rays (Angstreom) (in)
+    *   Parameters
+    *   ----------
+    *    sampleAngles .. angular positions of the sample goniometer (Npoints,Ns) (in)
+    *    detectorAngles. angular positions of the detector goniometer (Npoints,Nd) (in)
+    *    ri ............ direction of primary beam (length irrelevant) (angles zero) (in)
+    *    sampleAxis .... string with sample axis directions (in)
+    *    detectorAxis .. string with detector axis directions (in)
+    *    kappadir ...... rotation axis of a possible kappa circle (in)
+    *    UB ............ orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
+    *    lambda ........ wavelength of the used x-rays (Angstreom) (in)
+    *
+    *   Returns
+    *   -------
+    *    qpos .......... momentum transfer (Npoints,3) (out)
+    *    
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
     double local_ri[3]; // copy of primary beam direction
     int i,j; // needed indices
+    int Ns,Nd; // number of sample and detector circles
+    int Npoints; // number of angular positions
+    double lambda; // x-ray wavelength
+    char *sampleAxis,*detectorAxis; // string with sample and detector axis
+    double *sampleAngles,*detectorAngles, *ri, *kappadir, *UB, *qpos; // c-arrays for further usage
+    
+    PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *riArr=NULL,
+                  *kappadirArr=NULL, UBArr=NULL, qposArr=NULL; // numpy arrays
+
+    // Python argument conversion code
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!d",&PyArray_Type, &sampleAnglesArr, 
+                                      &PyArray_Type, &detectorAnglesArr,
+                                      &PyArray_Type, &riArr,
+                                      sampleAxis, detectorAxis,
+                                      &PyArray_Type, &kappadirArr,
+                                      &PyArray_Type, &UBArr,
+                                      &lambda)) { 
+        return NULL;
+    }
+    
+    // check Python array dimensions and types
+    if (PyArray_NDIM(sampleAnglesArr) != 2 || PyArray_TYPE(sampleAnglesArr) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+        return NULL; }
+    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = PyArray_DIMS(sampleAnglesArr)[1];
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
+    
+    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+        return NULL; }
+    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+
+    if (PyArray_NDIM(riArr) != 1 || PyArray_TYPE(riArr) != NPY_DOUBLE || PyArray_DIMS(riArr)[0] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
+        return NULL; }
+    ri = (double *) PyArray_DATA(riArr);
+    
+    if (PyArray_NDIM(kappadirArr) != 1 || PyArray_TYPE(kappadirArr) != NPY_DOUBLE || PyArray_DIMS(kappadirArr)[0] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
+        return NULL; }
+    kappadir = (double *) PyArray_DATA(kappadirArr);
+
+    if (PyArray_NDIM(UBArr) != 2 || PyArray_TYPE(UBArr) != NPY_DOUBLE || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double and shape (3,3)");
+        return NULL; }
+    UB = (double *) PyArray_DATA(UBArr);
+
+    // create output ndarray
+    npy_intp nout[2];
+    nout[0] = Npoints;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr); 
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
@@ -449,12 +512,12 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
     //printf("general conversion ang2q\n");
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        printf("XU.Qconversion(c): sample axes determination failed\n");
-        return 1;
+        PyErr_SetString(PyExc_ValueError,"sampleRotation axis could not be identified");
+        return NULL;
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        printf("XU.Qconversion(c): detector axes determination failed\n");
-        return 1;
+        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
+        return NULL;
     }
 
     // give ri correct length
@@ -498,22 +561,21 @@ int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, 
         matvec(ms, local_ri, &qpos[3*i]);
     }
 
-    return 0;
+    // return output array
+    return PyArray_Return(qposArr);
 }
 
-int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double *UB, double lambda)
+PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
+//int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a linear detector with a given pixel size mounted along one of
     * the coordinate axis
     *
-    * Interface:
+    *   Parameters
+    *   ----------
     *   sampleAngles .... angular positions of the goniometer (Npoints,Ns) (in)
     *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   qpos ............ momentum transfer (Npoints*Nch,3) (out)
     *   rcch ............ direction + distance of center channel (angles zero) (in)
-    *   Ns .............. number of sample circles (in)
-    *   Nd .............. number of detector circles (in)
-    *   Npoints ......... number of goniometer positions (in)
     *   sampleAxis ...... string with sample axis directions (in)
     *   detectorAxis .... string with detector axis directions (in)
     *   kappadir ........ rotation axis of a possible kappa circle (in)
@@ -524,14 +586,85 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     *   tilt ............ tilt of the detector direction from dir (in)
     *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
     *   lambda .......... wavelength of the used x-rays in Angstroem (in)
+    *   
+    *   Returns
+    *   -------
+    *   qpos ............ momentum transfer (Npoints*Nch,3) (out)
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
     double rd[3],rpixel[3],rcchp[3]; // detector position
     double r_i[3],rtemp[3]; //center channel direction
-    double f = M_2PI/lambda;
-    int i,j,k; // loop indices
-    int Nch = roi[1]-roi[0]; // number of channels
+    int i,j,k; // needed indices
+    int Ns,Nd; // number of sample and detector circles
+    int Npoints; // number of angular positions
+    int Nch; // number of channels in region of interest
+    double f,lambda,cch,dpixel,tilt; // x-ray wavelength, f=M_2PI/lambda and detector parameters
+    char *sampleAxis,*detectorAxis,*dir; // string with sample and detector axis, and detector direction
+    double *sampleAngles,*detectorAngles, *rcch, *kappadir, *UB, *qpos; // c-arrays for further usage
+    int *roi; //  region of interest integer array
+    
+    PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *rcchArr=NULL,
+                  *kappadirArr=NULL, *roiArr=NULL, UBArr=NULL, qposArr=NULL; // numpy arrays
+
+    // Python argument conversion code
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddO!sdO!d",&PyArray_Type, &sampleAnglesArr, 
+                                      &PyArray_Type, &detectorAnglesArr,
+                                      &PyArray_Type, &rcchArr,
+                                      sampleAxis, detectorAxis,
+                                      &PyArray_Type, &kappadirArr,
+                                      &cch, &dpixel, &PyArray_Type, &roi, 
+                                      dir, &tilt,
+                                      &PyArray_Type, &UBArr,
+                                      &lambda)) { 
+        return NULL;
+    }
+    
+    // check Python array dimensions and types
+    if (PyArray_NDIM(sampleAnglesArr) != 2 || PyArray_TYPE(sampleAnglesArr) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+        return NULL; }
+    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = PyArray_DIMS(sampleAnglesArr)[1];
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
+    
+    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+        return NULL; }
+    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+
+    if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
+        return NULL; }
+    rcch = (double *) PyArray_DATA(rcchArr);
+    
+    if (PyArray_NDIM(kappadirArr) != 1 || PyArray_TYPE(kappadirArr) != NPY_DOUBLE || PyArray_DIMS(kappadirArr)[0] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
+        return NULL; }
+    kappadir = (double *) PyArray_DATA(kappadirArr);
+
+    if (PyArray_NDIM(UBArr) != 2 || PyArray_TYPE(UBArr) != NPY_DOUBLE || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double and shape (3,3)");
+        return NULL; }
+    UB = (double *) PyArray_DATA(UBArr);
+
+    if (PyArray_NDIM(roiArr) != 1 || PyArray_TYPE(roiArr) != NPY_INT || PyArray_DIMS(roiArr)[0] != 2) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type int and size 2");
+        return NULL; }
+    roi = (int *) PyArray_DATA(roi);
+    
+    // derived values from input parameters
+    Nch = roi[1]-roi[0]; // number of channels
+    f=M_2PI/lambda;
+    
+    // create output ndarray
+    npy_intp nout[2];
+    nout[0] = Npoints*Nch;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr); 
+
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
@@ -545,21 +678,21 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
     //printf("general conversion ang2q (linear detector)\n");
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        printf("XU.Qconversion(c): sample axes determination failed\n");
-        return 1;
+        PyErr_SetString(PyExc_ValueError,"sampleRotation axis could not be identified");
+        return NULL;
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        printf("XU.Qconversion(c): detector axes determination failed\n");
-        return 1;
+        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
+        return NULL;
     }
 
     veccopy(r_i,rcch);
     normalize(r_i);
     // determine detector pixel vector
     if(determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) {
-        printf("XU.Qconversion(c): detector direction determination failed\n");
-        return 1;
-    };
+        PyErr_SetString(PyExc_ValueError,"detector direction could not be identified");
+        return NULL;
+    }
     for(int k=0; k<3; ++k)
         rcchp[k] = rpixel[k]*cch;
 
@@ -605,22 +738,21 @@ int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double
         }
     }
 
-    return 0;
+    // return output array
+    return PyArray_Return(qposArr);
 }
 
-int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
+PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
+//int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis
     *
-    * Interface:
+    *   Parameters
+    *   ----------
     *   sampleAngles .... angular positions of the sample goniometer (Npoints,Ns) (in)
     *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   qpos ............ momentum transfer (Npoints*Npix1*Npix2,3) (out)
     *   rcch ............ direction + distance of center pixel (angles zero) (in)
-    *   Ns .............. number of sample circles (in)
-    *   Nd .............. number of detector circles (in)
-    *   Npoints ......... number of goniometer positions (in)
     *   sampleAxis ...... string with sample axis directions (in)
     *   detectorAxis .... string with detector axis directions (in)
     *   kappadir ...... rotation axis of a possible kappa circle (in)
@@ -636,15 +768,89 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     *                     given by the tiltazimuth (in)
     *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
     *   lambda .......... wavelength of the used x-rays (in)
+    *
+    *   Returns
+    *   -------
+    *   qpos ............ momentum transfer (Npoints*Npix1*Npix2,3) (out)
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
     double rd[3],rpixel1[3],rpixel2[3],rcchp[3]; // detector position
     double r_i[3],rtemp[3],rtemp2[3]; //r_i: center channel direction
-    double f = M_2PI/lambda;
     int i,j,j1,j2,k; // loop indices
     int idxh1,idxh2; // temporary index helper
+    int Ns,Nd; // number of sample and detector circles
+    int Npoints; // number of angular positions
+    double f,lambda,cch1,cch2,dpixel1,dpixel2,tilt,tiltazimuth; // x-ray wavelength, f=M_2PI/lambda and detector parameters
+    char *sampleAxis,*detectorAxis,*dir1,*dir2; // string with sample and detector axis, and detector direction
+    double *sampleAngles,*detectorAngles, *rcch, *kappadir, *UB, *qpos; // c-arrays for further usage
+    int *roi; //  region of interest integer array
+    
+    PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *rcchArr=NULL,
+                  *kappadirArr=NULL, *roiArr=NULL, UBArr=NULL, qposArr=NULL; // numpy arrays
 
+    // Python argument conversion code
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddddO!ssddO!d",&PyArray_Type, &sampleAnglesArr, 
+                                      &PyArray_Type, &detectorAnglesArr,
+                                      &PyArray_Type, &rcchArr,
+                                      sampleAxis, detectorAxis,
+                                      &PyArray_Type, &kappadirArr,
+                                      &cch1, &cch2, &dpixel1, &dpixel2, 
+                                      &PyArray_Type, &roi, 
+                                      dir1, dir2, &tiltazimuth, &tilt,
+                                      &PyArray_Type, &UBArr,
+                                      &lambda)) { 
+        return NULL;
+    }
+    
+    // check Python array dimensions and types
+    if (PyArray_NDIM(sampleAnglesArr) != 2 || PyArray_TYPE(sampleAnglesArr) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+        return NULL; }
+    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = PyArray_DIMS(sampleAnglesArr)[1];
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
+    
+    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+        return NULL; }
+    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+
+    if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
+        return NULL; }
+    rcch = (double *) PyArray_DATA(rcchArr);
+    
+    if (PyArray_NDIM(kappadirArr) != 1 || PyArray_TYPE(kappadirArr) != NPY_DOUBLE || PyArray_DIMS(kappadirArr)[0] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
+        return NULL; }
+    kappadir = (double *) PyArray_DATA(kappadirArr);
+
+    if (PyArray_NDIM(UBArr) != 2 || PyArray_TYPE(UBArr) != NPY_DOUBLE || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double and shape (3,3)");
+        return NULL; }
+    UB = (double *) PyArray_DATA(UBArr);
+
+    if (PyArray_NDIM(roiArr) != 1 || PyArray_TYPE(roiArr) != NPY_INT || PyArray_DIMS(roiArr)[0] != 4) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type int and size 2");
+        return NULL; }
+    roi = (int *) PyArray_DATA(roi);
+    
+    // derived values from input parameters
+    f=M_2PI/lambda;
+    // calculate some index shortcuts
+    idxh1 = (roi[1]-roi[0])*(roi[3]-roi[2]);
+    idxh2 = roi[3]-roi[2];
+    
+    // create output ndarray
+    npy_intp nout[2];
+    nout[0] = Npoints*idxh1;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr); 
+
+    
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
     omp_set_dynamic(1);
@@ -657,12 +863,12 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        printf("XU.Qconversion(c): sample axes determination failed\n");
-        return 1;
+        PyErr_SetString(PyExc_ValueError,"sampleRotation axis could not be identified");
+        return NULL;
     }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        printf("XU.Qconversion(c): detector axes determination failed\n");
-        return 1;
+        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
+        return NULL;
     }
 
     veccopy(r_i,rcch);
@@ -670,13 +876,13 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
 
     // determine detector pixel vector
     if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
-        printf("XU.Qconversion(c): detector direction determination failed\n");
-        return 1;
-    };
+        PyErr_SetString(PyExc_ValueError,"first detector direction could not be identified");
+        return NULL;
+    }
     if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
-        printf("XU.Qconversion(c): detector direction determination failed\n");
-        return 1;
-    };
+        PyErr_SetString(PyExc_ValueError,"second detector direction could not be identified");
+        return NULL;
+    }
 
     /*print_vector(rpixel1);
     print_vector(rpixel2);*/
@@ -705,10 +911,6 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
     // calculate center channel position in detector plane
     for(int k=0; k<3; ++k)
         rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
-
-    // calculate some index shortcuts
-    idxh1 = (roi[1]-roi[0])*(roi[3]-roi[2]);
-    idxh2 = roi[3]-roi[2];
 
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
@@ -757,24 +959,24 @@ int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *
         }
     }
 
-    return 0;
+    // return output array
+    return PyArray_Return(qposArr);
 }
 
-int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Nd, int Npoints, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
+PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
+//int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Nd, int Npoints, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
    /* conversion of Npoints of detector positions to Q
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis. This function only calculates the q-position for the
     * pairs of pixel numbers (n1,n2) given in the input and should therefore be
     * used only for detector calibration purposes.
     *
-    * Interface:
+    *  Parameters
+    *  ----------
     *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   qpos ............ momentum transfer (Npoints*Npix1*Npix2,3) (out)
     *   n1 .............. detector pixel numbers dim1 (Npoints) (in)
     *   n2 .............. detector pixel numbers dim2 (Npoints) (in)
     *   rcch ............ direction + distance of center pixel (angles zero) (in)
-    *   Nd .............. number of detector circles (in)
-    *   Npoints ......... number of goniometer positions (in)
     *   detectorAxis .... string with detector axis directions (in)
     *   cch1 ............ center channel of the detector (in)
     *   cch2 ............ center channel of the detector (in)
@@ -786,13 +988,56 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
     *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction
     *                     given by the tiltazimuth (in)
     *   lambda .......... wavelength of the used x-rays (in)
+    *
+    *   Returns
+    *   -------
+    *   qpos ............ momentum transfer (Npoints,3) (out)
     *   */
 {
     double mtemp[9], md[9]; //matrices
     double rd[3],rpixel1[3],rpixel2[3],rcchp[3]; // detector position
     double r_i[3],rtemp[3],rtemp2[3]; //r_i: center channel direction
-    double f = M_2PI/lambda;
     int i,j,k; // loop indices
+    int Nd; // number of detector circles
+    double n1,n2; // pixel numbers for q calculation
+    int Npoints; // number of angular positions
+    double f,lambda,cch1,cch2,dpixel1,dpixel2,tilt,tiltazimuth; // x-ray wavelength, f=M_2PI/lambda and detector parameters
+    char *sampleAxis,*detectorAxis,*dir1,*dir2; // string with sample and detector axis, and detector direction
+    double *detectorAngles, *rcch, *qpos; // c-arrays for further usage
+    
+    PyArrayObject *detectorAnglesArr=NULL, *rcchArr=NULL, qposArr=NULL; // numpy arrays
+
+    // Python argument conversion code
+    if (!PyArg_ParseTuple(args, "O!ddO!sddddssddd", &PyArray_Type, &detectorAnglesArr,
+                                      &n1, &n2, &PyArray_Type, &rcchArr,
+                                      detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2, 
+                                      dir1, dir2, &tiltazimuth, &tilt,
+                                      &lambda)) { 
+        return NULL;
+    }
+    
+    // check Python array dimensions and types 
+    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
+        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+        return NULL; }
+    Npoints = PyArray_DIMS(detectorAnglesArr)[0];
+    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+
+    if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
+        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
+        return NULL; }
+    rcch = (double *) PyArray_DATA(rcchArr); 
+    
+    // derived values from input parameters
+    f=M_2PI/lambda;
+    
+    // create output ndarray
+    npy_intp nout[2];
+    nout[0] = Npoints;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr); 
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
@@ -805,8 +1050,8 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
     //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        printf("XU.Qconversion(c): detector axes determination failed\n");
-        return 1;
+        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
+        return NULL;
     }
 
     veccopy(r_i,rcch);
@@ -814,13 +1059,13 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
 
     // determine detector pixel vector
     if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
-        printf("XU.Qconversion(c): detector direction determination failed\n");
-        return 1;
-    };
+        PyErr_SetString(PyExc_ValueError,"first detector direction could not be identified");
+        return NULL;
+    }
     if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
-        printf("XU.Qconversion(c): detector direction determination failed\n");
-        return 1;
-    };
+        PyErr_SetString(PyExc_ValueError,"second detector direction could not be identified");
+        return NULL;
+    }
 
     // rotate detector pixel vectors according to tilt
     veccopy(rtemp,rpixel1);
@@ -870,6 +1115,7 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
         veccopy(&qpos[3*i], rtemp);
     }
 
-    return 0;
+    // return output array
+    return PyArray_Return(qposArr);
 }
 
