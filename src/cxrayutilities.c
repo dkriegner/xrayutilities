@@ -36,7 +36,20 @@ static PyMethodDef XRU_Methods[] = {
      "two dimensional block average for two-dimensional numpy array"},
     {"block_average_PSD",  block_average_PSD, METH_VARARGS,
      "one dimensional block average for two-dimensional numpy array (PSD spectra)"},
-    {"gridder2d",pygridder2d,METH_VARARGS, "2D gridder function"},
+    {"gridder2d",pygridder2d,METH_VARARGS, 
+     "Function performs 2D gridding on 1D input data. \n" 
+     "Input arguments: \n"
+     "  x ...... input x-values (1D numpy array - float64)\n"
+     "  y ...... input y-values (1D numpy array - float64)\n"
+     "  data ... input data (1D numpy array - float64)\n"
+     "  nx ..... number of grid points in x-direction\n"
+     "  ny ..... number of grid points in y-direction\n"
+     "  xmin ... minimum x-value of the grid\n"
+     "  xmax ... maximum x-value of the grid\n"
+     "  ymin ... minimum y-value of the grid\n"
+     "  ymax ... minimum y-value of the grid\n"
+     "  out .... output data\n"
+    },
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

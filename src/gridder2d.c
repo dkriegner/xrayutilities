@@ -23,6 +23,7 @@
  * author: Eugen Wintersberger
 */
 
+#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
 #include "gridder.h"
 #include "gridder_utils.h"
 
@@ -48,7 +49,7 @@ PyObject* pygridder2d(PyObject *self,PyObject *args)
     unsigned int nx,ny;
     int flags;
 
-    if(!PyArg_ParseTuple(args,"O!O!O!IIddddO!O!i",
+    if(!PyArg_ParseTuple(args,"O!O!O!IIddddO!|O!i",
                          &PyArray_Type,&py_x,
                          &PyArray_Type,&py_y,
                          &PyArray_Type,&py_data,
@@ -63,20 +64,22 @@ PyObject* pygridder2d(PyObject *self,PyObject *args)
     PYARRAY_CHECK(py_y,1,NPY_DOUBLE,"y-axis must be a 1D double array!");
     PYARRAY_CHECK(py_data,1,NPY_DOUBLE,"input data must be a 1D double array!");
     PYARRAY_CHECK(py_output,2,NPY_DOUBLE,"ouput data must be a 2D double array!");
-    PYARRAY_CHECK(py_norm,2,NPY_DOUBLE,"norm data must be a 2D double array!");
+    if(py_norm!=NULL)
+        PYARRAY_CHECK(py_norm,2,NPY_DOUBLE,"norm data must be a 2D double array!");
 
     //get data
     x = (double *)PyArray_DATA(py_x);
     y = (double *)PyArray_DATA(py_y);
     data = (double *)PyArray_DATA(py_data);
     odata = (double *)PyArray_DATA(py_output);
-    norm = (double *)PyArray_DATA(py_norm);
+    if(norm!=NULL) norm = (double *)PyArray_DATA(py_norm);
 
     //get the total number of points
     int n =  PyArray_SIZE(py_x);
 
     //call the actual gridder routine
-    gridder2d(x,y,data,n,nx,ny,xmin,xmax,ymin,ymax,odata,norm,flags);
+    int result = gridder2d(x,y,data,n,nx,ny,xmin,xmax,ymin,ymax,odata,norm,flags);
+    return Py_BuildValue("i",&result);
 
 }
 
