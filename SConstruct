@@ -128,21 +128,21 @@ if not env.GetOption('clean') or not env.GetOption('help'):
         Exit(1)
 
     if not conf.CheckHeader(['stdlib.h','stdio.h','math.h','time.h']):
-        print 'Error: did not find one of the needed headers!'
+        print('Error: did not find one of the needed headers!')
         Exit(1)
 
     if not conf.CheckLibWithHeader('gomp','omp.h','c'):
-        print 'Warning: did not find openmp + header files -> using serial code'
+        print('Warning: did not find openmp + header files -> using serial code')
     else:
         env.Append(CCFLAGS=['-fopenmp','-D__OPENMP__'],LIBS=['gomp'])
 
     if not conf.CheckLibWithHeader('pthread','pthread.h','c'):
-        print 'Error: did not find pthread + header files!'
+        print('Error: did not find pthread + header files!')
     else:
         env.Append(LIBS=['pthread'])
 
     if not conf.CheckLib(['m']):
-        print 'Warning: did not find one of the needed libraries!'
+        print('Warning: did not find one of the needed libraries!')
         if "win" not in os.sys.platform:
             Exit(1)
 
