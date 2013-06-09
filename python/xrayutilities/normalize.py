@@ -31,10 +31,8 @@ provide functions for normalizing intensities for
 """
 
 import numpy
-import ctypes
-import cxrayutilities
 
-from . import libxrayutils
+from . import cxrayutilities
 from .exception import InputError
 from . import config
 
