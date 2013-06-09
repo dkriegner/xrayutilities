@@ -82,7 +82,7 @@ the Python related stuff to run gridder2d function.
 \param args function arguments
 \return return value of the function
 */
-static PyObject* pygridder2d(PyObject *self,PyObject *args);
+PyObject* pygridder2d(PyObject *self,PyObject *args);
 
 //-----------------------------------------------------------------------------
 /*!

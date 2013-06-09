@@ -36,7 +36,7 @@ else:
     print('Warning: did not find openmp + header files -> using serial code')
 
 
-extmodul = Extension('cxrayutilities',
+extmodul = Extension('xrayutilities.cxrayutilities',
                      sources = [os.path.join('src','cxrayutilities.c'),
                                 os.path.join('src','gridder_utils.c'),
                                 os.path.join('src','gridder2d.c'),

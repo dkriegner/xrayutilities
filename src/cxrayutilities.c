@@ -27,6 +27,7 @@
 extern PyObject* block_average1d(PyObject *self, PyObject *args);
 extern PyObject* block_average2d(PyObject *self, PyObject *args);
 extern PyObject* block_average_PSD(PyObject *self, PyObject *args);
+extern PyObject* pygridder2d(PyObject *self,PyObject *args);
 
 static PyMethodDef XRU_Methods[] = {
     {"block_average1d",  (PyCFunction)block_average1d, METH_VARARGS,
@@ -35,6 +36,7 @@ static PyMethodDef XRU_Methods[] = {
      "two dimensional block average for two-dimensional numpy array"},
     {"block_average_PSD",  block_average_PSD, METH_VARARGS,
      "one dimensional block average for two-dimensional numpy array (PSD spectra)"},
+    {"gridder2d",pygridder2d,METH_VARARGS, "2D gridder function"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
