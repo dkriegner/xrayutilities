@@ -18,9 +18,9 @@
 # Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
-import ctypes
+#import ctypes
 
-from . import libxrayutils
+#from . import libxrayutils
 from . import exception
 from . import config
 
@@ -233,20 +233,20 @@ class Gridder2D(Gridder):
             #use threaded code
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Gridder2D: using threaded code ...i (flags: %d)" %self.flags)
-            libxrayutils._gridder2d_th(ctypes.c_uint(self.nthreads),x,y,data,ctypes.c_uint(x.size),
-                                      ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
-                                      ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-                                      ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-                                      self.gdata,self.gnorm,self.flags)
+#            libxrayutils._gridder2d_th(ctypes.c_uint(self.nthreads),x,y,data,ctypes.c_uint(x.size),
+#                                      ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
+#                                      ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
+#                                      ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
+#                                      self.gdata,self.gnorm,self.flags)
         else:
             #use sequential code - good for small data
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Gridder2D: using sequential code ... (flags: %s)" %self.flags)
-            libxrayutils._gridder2d(x,y,data,ctypes.c_uint(x.size),
-                                   ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
-                                   ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-                                   ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-                                   self.gdata,self.gnorm,ctypes.c_int(self.flags))
+#            libxrayutils._gridder2d(x,y,data,ctypes.c_uint(x.size),
+#                                   ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
+#                                   ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
+#                                   ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
+#                                   self.gdata,self.gnorm,ctypes.c_int(self.flags))
 
 
 class Gridder3D(Gridder2D):
@@ -322,23 +322,23 @@ class Gridder3D(Gridder2D):
             #use threaded code
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Gridder3D: using threaded code ... (flags: %d)" %self.flags)
-            libxrayutils._gridder3d_th(ctypes.c_uint(self.nthreads),x,y,z,data,ctypes.c_uint(x.size),
-                                      ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
-                                      ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-                                      ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-                                      ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
-                                      self.gdata,self.gnorm,self.flags)
+#            libxrayutils._gridder3d_th(ctypes.c_uint(self.nthreads),x,y,z,data,ctypes.c_uint(x.size),
+#                                      ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
+#                                      ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
+#                                      ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
+#                                      ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
+#                                      self.gdata,self.gnorm,self.flags)
         else:
             #use sequential code - good for small data
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Gridder3D: using sequential code ... (flags: %d)" %self.flags)
             if config.VERBOSITY >= config.DEBUG:
                 print("XU.Gridder3D: shapes x,y,z,data (%d,%d,%d,%d)" %(x.size,y.size,z.size,data.size))
-            libxrayutils._gridder3d(x,y,z,data,ctypes.c_uint(x.size),
-                                   ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
-                                   ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-                                   ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-                                   ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
-                                   self.gdata,self.gnorm,self.flags)
+#            libxrayutils._gridder3d(x,y,z,data,ctypes.c_uint(x.size),
+#                                   ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
+#                                   ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
+#                                   ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
+#                                   ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
+#                                   self.gdata,self.gnorm,self.flags)
 
 
