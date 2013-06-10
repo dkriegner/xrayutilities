@@ -3,8 +3,7 @@ To Do
 
 10.6.2013
 
-* remove files created by build checks
-* adapt changes of c-code in python calls (qconversion, gridder?)
+* adapt changes of c-code in python calls (gridder?)
 * create test scripts 
 
 27.3.2012
