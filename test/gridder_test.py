@@ -1,4 +1,4 @@
-import cxrayutilities as cu
+import xrayutilities.cxrayutilities as cu
 import numpy
 
 #2D gridder parameters
