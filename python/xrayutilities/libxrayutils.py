@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2010,2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2010,2012-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 this module uses the ctypes package to provide access to the
@@ -78,102 +78,3 @@ _gridder3d.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="alig
 
 _gridder3d_th = _library.gridder3d
 
-# c library qconversion functions
-######################################
-#     point conversion function
-######################################
-cang2q_point = _library.ang2q_conversion
-# c declaration: int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double *UB, double lambda)
-#define argument types
-cang2q_point.restype = ctypes.c_int
-cang2q_point.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_int,
-                   ctypes.c_int,
-                   ctypes.c_int,
-                   ctypes.c_char_p,
-                   ctypes.c_char_p,
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_double ]
-
-######################################
-# linear detector conversion function
-######################################
-cang2q_linear = _library.ang2q_conversion_linear
-# c declaration: int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double *UB, double lambda)
-#define argument types
-cang2q_linear.restype = ctypes.c_int
-cang2q_linear.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_int,
-                   ctypes.c_int,
-                   ctypes.c_int,
-                   ctypes.c_char_p,
-                   ctypes.c_char_p,
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   numpy.ctypeslib.ndpointer(numpy.int32,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_char_p,
-                   ctypes.c_double,
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_double ]
-
-#######################################
-# area detector conversion function
-#######################################
-cang2q_area = _library.ang2q_conversion_area
-# c declaration: int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
-#define argument types
-cang2q_area.restype = ctypes.c_int
-cang2q_area.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_int,
-                   ctypes.c_int,
-                   ctypes.c_int,
-                   ctypes.c_char_p,
-                   ctypes.c_char_p,
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   numpy.ctypeslib.ndpointer(numpy.int32,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_char_p,
-                   ctypes.c_char_p,
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_double ]
-
-####################################################
-# area detector conversion function for calibration
-####################################################
-cang2q_areapixel = _library.ang2q_conversion_area_pixel
-# c declaration: int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Nd, int Npoints, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
-#define argument types
-cang2q_areapixel.restype = ctypes.c_int
-cang2q_areapixel.argtypes = [numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   numpy.ctypeslib.ndpointer(numpy.double,ndim=1,flags="aligned, contiguous"),
-                   ctypes.c_int,
-                   ctypes.c_int,
-                   ctypes.c_char_p,
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   ctypes.c_char_p,
-                   ctypes.c_char_p,
-                   ctypes.c_double,
-                   ctypes.c_double,
-                   ctypes.c_double ]

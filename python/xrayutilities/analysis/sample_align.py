@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially for
@@ -35,7 +35,7 @@ from .. import math
 from .. import utilities
 from .line_cuts import fwhm_exp
 from ..exception import InputError
-from .. import libxrayutils
+from .. import cxrayutilities
 
 try:
     from matplotlib import pyplot as plt
@@ -817,16 +817,10 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         n1 = numpy.require(n1,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         n2 = numpy.require(n2,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-        # initialize return value (qposition) array
-        qpos = numpy.empty(Npoints*3,dtype=numpy.double,order='C')
-        qpos = numpy.require(qpos,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-
-        libxrayutils.cang2q_areapixel( dAngles, qpos, n1, n2 ,_area_ri, Nd, Npoints, _detectorAxis_str,
+        qpos = cxrayutilities.ang2q_conversion_area_pixel( dAngles, n1, n2 , _area_ri, _detectorAxis_str,
                      _area_cch1, _area_cch2, _area_pwidth1/_area_distance, _area_pwidth2/_area_distance,
                      _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, wl)
 
-        #reshape output
-        qpos.shape = (Npoints,3)
         return qpos[:,0],qpos[:,1],qpos[:,2]
 
     def afunc(param,x,detectorDir1,detectorDir2,r_i,detectorAxis,wl):

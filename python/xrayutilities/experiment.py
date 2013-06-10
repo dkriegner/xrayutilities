@@ -32,13 +32,12 @@ import numpy
 from numpy.linalg import norm
 import warnings
 import re
-import ctypes
 
 # package internal imports
 from . import math
 from . import materials
 from . import utilities
-from . import libxrayutils
+from . import cxrayutilities
 from . import config
 from .exception import InputError
 
@@ -196,6 +195,8 @@ class QConversion(object):
                     if circ[1]=='-':
                         self._kappa_dir = -self._kappa_dir
 
+                    self._kappa_dir = numpy.require(self._kappa_dir,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)" % tuple(self._kappa_dir))
 
@@ -268,7 +269,7 @@ class QConversion(object):
         """
         tmp = numpy.array(UB)
         if tmp.shape==(3,3):
-            self._UB = tmp
+            self._UB = numpy.require(tmp,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         else:
             raise InputError("QConversion: incorrect shape of UB matrix (shape: %s)" %str(tmp.shape))
 
@@ -410,11 +411,10 @@ class QConversion(object):
             arg = arg - delta[i]
             dAngles = numpy.concatenate((dAngles,arg))
 
-        if Npoints > 1:
-            sAngles.shape = (Ns,Npoints)
-            sAngles = numpy.ravel(sAngles.transpose())
-            dAngles.shape = (Nd,Npoints)
-            dAngles = numpy.ravel(dAngles.transpose())
+        sAngles.shape = (Ns,Npoints)
+        sAngles = sAngles.transpose()
+        dAngles.shape = (Nd,Npoints)
+        dAngles = dAngles.transpose()
 
         if deg:
             sAngles = numpy.radians(sAngles)
@@ -423,27 +423,20 @@ class QConversion(object):
         sAngles = numpy.require(sAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         dAngles = numpy.require(dAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-        # initialize return value (qposition) array
-        qpos = numpy.empty(Npoints*3,dtype=numpy.double,order='C')
-        qpos = numpy.require(qpos,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        sAxis=self._sampleAxis_str
+        dAxis=self._detectorAxis_str
 
-        sAxis=ctypes.c_char_p(self._sampleAxis_str)
-        dAxis=ctypes.c_char_p(self._detectorAxis_str)
         if self._area_detrotaxis_set:
-            dAxis=ctypes.c_char_p(self._detectorAxis_str[:-2]) # do not consider detector rotation for point detector
+            dAxis=self._detectorAxis_str[:-2] # do not consider detector rotation for point detector
         else:
-            dAxis=ctypes.c_char_p(self._detectorAxis_str)
+            dAxis=self._detectorAxis_str
 
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns,Nd))
             print("XU.QConversion: sAngles / dAngles %s / %s" %(str(sAngles),str(dAngles)))
 
-        libxrayutils.cang2q_point(sAngles, dAngles, qpos, self.r_i,Ns,
-                     Nd,Npoints,sAxis,dAxis,self._kappa_dir,UB,wl)
-
-        #reshape output
-        qpos.shape = (Npoints,3)
+        qpos = cxrayutilities.ang2q_conversion(sAngles, dAngles, self.r_i,sAxis,dAxis,self._kappa_dir,UB,wl)
 
         return qpos[:,0],qpos[:,1],qpos[:,2]
 
@@ -618,12 +611,10 @@ class QConversion(object):
             arg = arg - delta[i]
             dAngles = numpy.concatenate((dAngles,arg))
 
-        # flatten angular arrays for passing them to C subprogram
-        if Npoints > 1:
-            sAngles.shape = (Ns,Npoints)
-            sAngles = numpy.ravel(sAngles.transpose())
-            dAngles.shape = (Nd,Npoints)
-            dAngles = numpy.ravel(dAngles.transpose())
+        sAngles.shape = (Ns,Npoints)
+        sAngles = sAngles.transpose()
+        dAngles.shape = (Nd,Npoints)
+        dAngles = dAngles.transpose()
 
         if deg:
             sAngles = numpy.radians(sAngles)
@@ -642,17 +633,11 @@ class QConversion(object):
         roi[1] = numpy.ceil((oroi[1]-oroi[0])/float(nav)) + roi[0]
         roi = roi.astype(numpy.int32)
 
-        # initialize return value (qposition) array
-        shape = Npoints*(roi[1]-roi[0])*3
-        qpos = numpy.empty(shape,dtype=numpy.double,order='C')
-        qpos = numpy.require(qpos,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        sAxis=self._sampleAxis_str
+        dAxis=self._detectorAxis_str
 
-        sAxis=ctypes.c_char_p(self._sampleAxis_str)
-        dAxis=ctypes.c_char_p(self._detectorAxis_str)
-
-        libxrayutils.cang2q_linear(sAngles, dAngles, qpos, self.r_i,Ns,
-                     Nd,Npoints,sAxis,dAxis,self._kappa_dir,cch, pwidth,roi,
-                     self._linear_detdir, self._linear_tilt,UB, wl)
+        qpos = cxrayutilities.cang2q_conversion_linear(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
+                     cch, pwidth, roi, self._linear_detdir, self._linear_tilt, UB, wl)
 
         #reshape output
         if Npoints==1:
@@ -872,12 +857,10 @@ class QConversion(object):
             else:
                 dAngles = numpy.concatenate((dAngles,numpy.ones(Npoints)*self._area_detrot))
 
-        # flatten arrays with angles for passing to C routine
-        if Npoints > 1:
-            sAngles.shape = (Ns,Npoints)
-            sAngles = numpy.ravel(sAngles.transpose())
-            dAngles.shape = (Nd,Npoints)
-            dAngles = numpy.ravel(dAngles.transpose())
+        sAngles.shape = (Ns,Npoints)
+        sAngles = sAngles.transpose()
+        dAngles.shape = (Nd,Npoints)
+        dAngles = dAngles.transpose()
 
         if deg:
             sAngles = numpy.radians(sAngles)
@@ -902,18 +885,12 @@ class QConversion(object):
             print("QConversion.area: roi, number of points per frame: %s, %d" %(str(roi),(roi[1]-roi[0])*(roi[3]-roi[2])))
             print("QConversion.area: cch1,cch2: %5.2f %5.2f" %(cch1,cch2))
 
-        # initialize return value (qposition) array
-        qpos = numpy.empty(Npoints*(roi[1]-roi[0])*(roi[3]-roi[2])*3,
-                                    dtype=numpy.double,order='C')
-        qpos = numpy.require(qpos,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        sAxis=self._sampleAxis_str
+        dAxis=self._detectorAxis_str
 
-        sAxis=ctypes.c_char_p(self._sampleAxis_str)
-        dAxis=ctypes.c_char_p(self._detectorAxis_str)
-
-        libxrayutils.cang2q_area(sAngles, dAngles, qpos, self.r_i,Ns,
-                     Nd,Npoints,sAxis,dAxis, self._kappa_dir, cch1, cch2, pwidth1, pwidth2,
-                     roi,self._area_detdir1,self._area_detdir2,
-                     self._area_tiltazimuth, self._area_tilt,UB,wl)
+        qpos = cxrayutils.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
+                     cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1, self._area_detdir2,
+                     self._area_tiltazimuth, self._area_tilt, UB, wl)
 
         #reshape output
         if Npoints==1:
