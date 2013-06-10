@@ -2,15 +2,16 @@ import xrayutilities.cxrayutilities as cu
 import numpy
 
 #2D gridder parameters
-nx = 10
-ny = 10
 xmin = 0
 xmax = 10
-ymin = 0
-ymax = 10
+ymin = xmin
+ymax = xmax
 
-x = numpy.arange(0,10,dtype="float64")
+x = numpy.arange(xmin,xmax,dtype="float64")
 y = x
+nx = x.size
+ny = y.size
+
 data = numpy.random.random_sample(x.size)
 out = numpy.zeros((nx,ny),dtype="float64")
 
