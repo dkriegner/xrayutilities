@@ -4,11 +4,9 @@ config.log
 .sconf_temp/
 .sconsign.dblite
 *.swp
-a.out
 
 # build files and tarball directory
 dist/
 build/
-tmp/
 doc/html
 doc/latex
