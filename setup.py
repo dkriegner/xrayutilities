@@ -20,12 +20,14 @@ from distutils import ccompiler
 from distutils.core import setup, Extension
 import os.path
 import numpy
+import shutil
 
 # check existence of libraries for extension module
 cflags = ['-std=c99']
 user_macros = []
 libraries = []
 compiler=ccompiler.new_compiler()
+compiler.output_dir = '_config_tmp'
 
 # check for OpenMP
 if compiler.has_function('omp_set_dynamic',libraries=('gomp',)):
@@ -34,6 +36,9 @@ if compiler.has_function('omp_set_dynamic',libraries=('gomp',)):
       libraries.append('gomp')
 else:
     print('Warning: did not find openmp + header files -> using serial code')
+# remove temporary directory
+try: shutil.rmtree(compiler.output_dir)
+except: pass
 
 extmodul = Extension('xrayutilities.cxrayutilities',
                      sources = [os.path.join('src','cxrayutilities.c'),
