@@ -873,3 +873,143 @@ int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1
     return 0;
 }
 
+int ang2q_conversion_area_pixel2(double *sampleAngles, double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
+   /* conversion of Npoints of detector positions to Q
+    * for a area detector with a given pixel size mounted along one of
+    * the coordinate axis. This function only calculates the q-position for the
+    * pairs of pixel numbers (n1,n2) given in the input and should therefore be
+    * used only for detector calibration purposes.
+    *
+    * This variant of this function also takes a sample orientation matrix as well as the sample goniometer
+    * as input to allow for a simultaneous fit of reference samples orientation
+    *
+    * Interface:
+    *   sampleAngles .... angular positions of the sample goniometer (Npoints,Ns) (in)
+    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
+    *   qpos ............ momentum transfer (Npoints*Npix1*Npix2,3) (out)
+    *   n1 .............. detector pixel numbers dim1 (Npoints) (in)
+    *   n2 .............. detector pixel numbers dim2 (Npoints) (in)
+    *   rcch ............ direction + distance of center pixel (angles zero) (in)
+    *   Ns .............. number of sample circles (in)
+    *   Nd .............. number of detector circles (in)
+    *   Npoints ......... number of goniometer positions (in)
+    *   sampleAxis ...... string with sample axis directions (in)
+    *   detectorAxis .... string with detector axis directions (in)
+    *   cch1 ............ center channel of the detector (in)
+    *   cch2 ............ center channel of the detector (in)
+    *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch (in)
+    *   dpixel2 ......... width of one pixel in second direction, same unit as distance rcch (in)
+    *   dir1 ............ first direction of the detector, e.g.: "x+" (in)
+    *   dir2 ............ second direction of the detector, e.g.: "z+" (in)
+    *   tiltazimuth ..... azimuth of the tilt (in)
+    *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction
+    *                     given by the tiltazimuth (in)
+    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
+    *   lambda .......... wavelength of the used x-rays (in)
+    *   */
+{
+    double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
+    double rd[3],rpixel1[3],rpixel2[3],rcchp[3]; // detector position
+    double r_i[3],rtemp[3],rtemp2[3]; //r_i: center channel direction
+    double f = M_2PI/lambda;
+    int i,j,j1,j2,k; // loop indices
+
+    #ifdef __OPENMP__
+    //set openmp thread numbers dynamically
+    omp_set_dynamic(1);
+    #endif
+
+    // arrays with function pointers to rotation matrix functions
+    fp_rot sampleRotation[Ns];
+    fp_rot detectorRotation[Nd];
+
+    //printf("general conversion ang2q (area detector)\n");
+    // determine axes directions
+    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
+        printf("XU.Qconversion(c): sample axes determination failed\n");
+        return 1;
+    }
+    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
+        printf("XU.Qconversion(c): detector axes determination failed\n");
+        return 1;
+    }
+
+    veccopy(r_i,rcch);
+    normalize(r_i);
+
+    // determine detector pixel vector
+    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
+        printf("XU.Qconversion(c): detector direction determination failed\n");
+        return 1;
+    };
+    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
+        printf("XU.Qconversion(c): detector direction determination failed\n");
+        return 1;
+    };
+
+    // rotate detector pixel vectors according to tilt
+    veccopy(rtemp,rpixel1);
+    normalize(rtemp);
+    vecmul(rtemp,cos(tiltazimuth+M_PI/2.));
+
+    veccopy(rtemp2,rpixel2);
+    normalize(rtemp2);
+    vecmul(rtemp2,sin(tiltazimuth+M_PI/2.));
+
+    sumvec(rtemp,rtemp2); // tiltaxis (rotation axis) now stored in rtemp
+
+    rotation_arb(tilt,rtemp,mtemp); // rotation matrix now in mtemp
+
+    // rotate detector pixel directions
+    veccopy(rtemp,rpixel1);
+    matvec(mtemp,rtemp,rpixel1);
+    veccopy(rtemp,rpixel2);
+    matvec(mtemp,rtemp,rpixel2);
+
+    // calculate center channel position in detector plane
+    for(int k=0; k<3; ++k)
+        rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
+
+    // calculate rotation matices and perform rotations
+    #pragma omp parallel for default(shared) \
+            private(i,j,k,mtemp,mtemp2,ms,md,rd,rtemp) \
+            schedule(static)
+    for(i=0; i<Npoints; ++i) {
+        // determine sample rotations
+        ident(mtemp);
+        for(j=0; j<Ns; ++j) {
+            // load kappa direction into matrix (just needed for kappa goniometer)
+            mtemp2[0] = kappadir[0]; mtemp2[1] = kappadir[1]; mtemp2[2] = kappadir[2];
+            sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
+            matmul(mtemp,mtemp2);
+        }
+        // apply rotation of orientation matrix
+        matmul(mtemp,UB);
+        // determine inverse matrix
+        inversemat(mtemp,ms);
+
+        // determine detector rotations
+        ident(md);
+        for (j=0; j<Nd; ++j) {
+            detectorRotation[j](detectorAngles[Nd*i+j],mtemp);
+            matmul(md,mtemp);
+        }
+
+        // ms contains now the inverse rotation matrix for the sample circles
+        // md contains the detector rotation matrix
+        // calculate the momentum transfer for a certain detector pixel
+        for (k=0; k<3; ++k)
+            rd[k] = n1[i]*rpixel1[k] + n2[i]*rpixel2[k] - rcchp[k];
+        sumvec(rd,rcch);
+        normalize(rd);
+        // rd contains detector pixel direction, r_i contains primary beam direction
+        matvec(md,rd,rtemp);
+        diffvec(rtemp,r_i);
+        vecmul(rtemp,f);
+        // determine momentum transfer
+        matvec(ms, rtemp, &qpos[3*i]);
+    }
+
+    return 0;
+}
+
