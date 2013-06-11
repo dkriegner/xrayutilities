@@ -426,82 +426,8 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
     if debug:
         print("Nused / Npoints: %d / %d" %(Nused,Npoints))
 
-    # guess initial parameters
-    # center channel and detector pixel direction and pixel size
-    (s1,i1,r1,dummy,dummy)=scipy.stats.linregress(ang1-start[3],n1)
-    (s2,i2,r2,dummy,dummy)=scipy.stats.linregress(ang1-start[3],n2)
-    (s3,i3,r3,dummy,dummy)=scipy.stats.linregress(ang2,n1)
-    (s4,i4,r4,dummy,dummy)=scipy.stats.linregress(ang2,n2)
-    if debug:
-        print("%.2f %.2f %.2f %.2f"%(s1,s2,s3,s4))
-        print("%.2f %.2f %.2f %.2f"%(r1,r2,r3,r4))
-        if plot:
-            plt.figure()
-            plt.subplot(211)
-            plt.plot(ang1-start[3],n1,'bx',label='channel 1')
-            plt.plot(ang1-start[3],n2,'rx',label='channel 2')
-            plt.legend()
-            plt.xlabel('angle 1')
-            plt.subplot(212)
-            plt.plot(ang2,n1,'bx',label='channel 1')
-            plt.plot(ang2,n2,'rx',label='channel 2')
-            plt.legend()
-            plt.xlabel('angle 2')
-
     # determine detector directions
-    s = ord('x') + ord('y') + ord('z')
-    c1 = ord(detaxis[0][0]) + ord(r_i[0])
-    c2 = ord(detaxis[1][0]) + ord(r_i[0])
-    sign1 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[0]),math.getVector(r_i))))
-    sign2 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[1]),math.getVector(r_i))))
-    if r1**2>r2**2:
-        detdir1 = chr(s-c1)
-        detdir2 = chr(s-c2)
-        if numpy.sign(s1) > 0:
-            if sign1 > 0:
-                detdir1 += '-'
-            else:
-                detdir1 += '+'
-        else:
-            if sign1 > 0:
-                detdir1 += '+'
-            else:
-                detdir1 += '-'
-
-        if numpy.sign(s4) > 0:
-            if sign2 > 0:
-                detdir2 += '-'
-            else:
-                detdir2 += '+'
-        else:
-            if sign2 > 0:
-                detdir2 += '+'
-            else:
-                detdir2 += '-'
-    else:
-        detdir1 = chr(s-c2)
-        detdir2 = chr(s-c1)
-        if numpy.sign(s3) > 0:
-            if sign2 > 0:
-                detdir1 += '-'
-            else:
-                detdir1 += '+'
-        else:
-            if sign2 > 0:
-                detdir1 += '+'
-            else:
-                detdir1 += '-'
-
-        if numpy.sign(s2) > 0:
-            if sign1 > 0:
-                detdir2 += '-'
-            else:
-                detdir2 += '+'
-        else:
-            if sign1 > 0:
-                detdir2 += '+'
-            else:
-                detdir2 += '-'
+    detdir1,detdir2 = _determine_detdir(ang1-start[3],ang2,n1,n2,detaxis,r_i)
 
     epslist = []
     paramlist = []
@@ -602,6 +528,90 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
 
     return (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset),eps
 
+
+def _determine_detdir(ang1,ang2,n1,n2,detaxis,r_i):
+    """
+    determines detector pixel direction from correlation analysis of linear fits to the observed
+    pixel numbers of the primary beam.
+    """
+    debug=False
+    # center channel and detector pixel direction and pixel size
+    (s1,i1,r1,dummy,dummy)=scipy.stats.linregress(ang1,n1)
+    (s2,i2,r2,dummy,dummy)=scipy.stats.linregress(ang1,n2)
+    (s3,i3,r3,dummy,dummy)=scipy.stats.linregress(ang2,n1)
+    (s4,i4,r4,dummy,dummy)=scipy.stats.linregress(ang2,n2)
+    if debug:
+        print("%.2f %.2f %.2f %.2f"%(s1,s2,s3,s4))
+        print("%.2f %.2f %.2f %.2f"%(r1,r2,r3,r4))
+        if plot:
+            plt.figure()
+            plt.subplot(211)
+            plt.plot(ang1,n1,'bx',label='channel 1')
+            plt.plot(ang1,n2,'rx',label='channel 2')
+            plt.legend()
+            plt.xlabel('angle 1')
+            plt.subplot(212)
+            plt.plot(ang2,n1,'bx',label='channel 1')
+            plt.plot(ang2,n2,'rx',label='channel 2')
+            plt.legend()
+            plt.xlabel('angle 2')
+
+    # determine detector directions
+    s = ord('x') + ord('y') + ord('z')
+    c1 = ord(detaxis[0][0]) + ord(r_i[0])
+    c2 = ord(detaxis[1][0]) + ord(r_i[0])
+    sign1 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[0]),math.getVector(r_i))))
+    sign2 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[1]),math.getVector(r_i))))
+    if r1**2>r2**2:
+        detdir1 = chr(s-c1)
+        detdir2 = chr(s-c2)
+        if numpy.sign(s1) > 0:
+            if sign1 > 0:
+                detdir1 += '-'
+            else:
+                detdir1 += '+'
+        else:
+            if sign1 > 0:
+                detdir1 += '+'
+            else:
+                detdir1 += '-'
+
+        if numpy.sign(s4) > 0:
+            if sign2 > 0:
+                detdir2 += '-'
+            else:
+                detdir2 += '+'
+        else:
+            if sign2 > 0:
+                detdir2 += '+'
+            else:
+                detdir2 += '-'
+    else:
+        detdir1 = chr(s-c2)
+        detdir2 = chr(s-c1)
+        if numpy.sign(s3) > 0:
+            if sign2 > 0:
+                detdir1 += '-'
+            else:
+                detdir1 += '+'
+        else:
+            if sign2 > 0:
+                detdir1 += '+'
+            else:
+                detdir1 += '-'
+
+        if numpy.sign(s2) > 0:
+            if sign1 > 0:
+                detdir2 += '-'
+            else:
+                detdir2 += '+'
+        else:
+            if sign1 > 0:
+                detdir2 += '+'
+            else:
+                detdir2 += '-'
+
+    return detdir1,detdir2
 
 def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, start = (0,0,0,0), fix = (False,False,False,False),full_output=False,wl=1.):
     """
@@ -1062,81 +1072,7 @@ def area_detector_calib2(sampleang,angle1,angle2,ccdimages,hkls,material,detaxis
             ang10 = numpy.append(ang10,ang1[i])
             ang20 = numpy.append(ang20,ang2[i])
 
-    # center channel and detector pixel direction and pixel size
-    (s1,i1,r1,dummy,dummy)=scipy.stats.linregress(ang10-start[3],n10)
-    (s2,i2,r2,dummy,dummy)=scipy.stats.linregress(ang10-start[3],n20)
-    (s3,i3,r3,dummy,dummy)=scipy.stats.linregress(ang20,n10)
-    (s4,i4,r4,dummy,dummy)=scipy.stats.linregress(ang20,n20)
-    if debug:
-        print("%.2f %.2f %.2f %.2f"%(s1,s2,s3,s4))
-        print("%.2f %.2f %.2f %.2f"%(r1,r2,r3,r4))
-        if plot:
-            plt.figure()
-            plt.subplot(211)
-            plt.plot(ang10-start[3],n10,'bx',label='channel 1')
-            plt.plot(ang10-start[3],n20,'rx',label='channel 2')
-            plt.legend()
-            plt.xlabel('angle 1')
-            plt.subplot(212)
-            plt.plot(ang20,n10,'bx',label='channel 1')
-            plt.plot(ang20,n20,'rx',label='channel 2')
-            plt.legend()
-            plt.xlabel('angle 2')
-
-    # determine detector directions
-    s = ord('x') + ord('y') + ord('z')
-    c1 = ord(detaxis[0][0]) + ord(r_i[0])
-    c2 = ord(detaxis[1][0]) + ord(r_i[0])
-    sign1 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[0]),math.getVector(r_i))))
-    sign2 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[1]),math.getVector(r_i))))
-    if r1**2>r2**2:
-        detdir1 = chr(s-c1)
-        detdir2 = chr(s-c2)
-        if numpy.sign(s1) > 0:
-            if sign1 > 0:
-                detdir1 += '-'
-            else:
-                detdir1 += '+'
-        else:
-            if sign1 > 0:
-                detdir1 += '+'
-            else:
-                detdir1 += '-'
-
-        if numpy.sign(s4) > 0:
-            if sign2 > 0:
-                detdir2 += '-'
-            else:
-                detdir2 += '+'
-        else:
-            if sign2 > 0:
-                detdir2 += '+'
-            else:
-                detdir2 += '-'
-    else:
-        detdir1 = chr(s-c2)
-        detdir2 = chr(s-c1)
-        if numpy.sign(s3) > 0:
-            if sign2 > 0:
-                detdir1 += '-'
-            else:
-                detdir1 += '+'
-        else:
-            if sign2 > 0:
-                detdir1 += '+'
-            else:
-                detdir1 += '-'
-
-        if numpy.sign(s2) > 0:
-            if sign1 > 0:
-                detdir2 += '-'
-            else:
-                detdir2 += '+'
-        else:
-            if sign1 > 0:
-                detdir2 += '+'
-            else:
-                detdir2 += '-'
+    detdir1,detdir2 = _determine_detdir(ang10-start[3],ang20,n10,n20,detaxis)
 
     epslist = []
     paramlist = []
