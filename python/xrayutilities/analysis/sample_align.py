@@ -1315,7 +1315,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         if 'UB' in kwargs:
             UB = numpy.ravel(kwargs['UB'])
         else:
-            UB = numpy.identity(3)
+            UB = numpy.ravel(numpy.identity(3))
         
         if 'deg' in kwargs:
             deg = kwargs['deg']
@@ -1458,7 +1458,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         B = material.B
         ubmat = numpy.dot(U,B)
 
-        (qx,qy,qz) = areapixel2(param[:-4],detectorDir1,detectorDir2,r_i,detectorAxis,sang,angle1,angle2,n1,n2,delta=[0,param[-1],0.],distance=1.,UB=ubmat,wl=wl)
+        (qx,qy,qz) = areapixel2(param[:-4],detectorDir1,detectorDir2,r_i,detectorAxis,sang,angle1,angle2,n1,n2,delta=[0,param[7],0.],distance=1.,UB=ubmat,wl=wl)
 
 #        f= plt.figure("afunc")
 #        plt.ion()
@@ -1480,12 +1480,24 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
     n20 = n10
     ang10 = n10
     ang20 = n10
+    n1s = numpy.zeros(0,dtype=numpy.double)
+    n2s = n1s
+    ang1s = n1s
+    ang2s = n1s
+    sangs = n1s
+
     for i in range(Npoints):
         if numpy.all(hkls[i] == (0,0,0)):
             n10 = numpy.append(n10,n1[i])
             n20 = numpy.append(n20,n2[i])
             ang10 = numpy.append(ang10,ang1[i])
             ang20 = numpy.append(ang20,ang2[i])
+        else:
+            n1s = numpy.append(n1s,n1[i])
+            n2s = numpy.append(n2s,n2[i])
+            ang1s = numpy.append(ang1s,ang1[i])
+            ang2s = numpy.append(ang2s,ang2[i])
+            sangs = numpy.append(sangs,sang[i])
 
     # center channel and detector pixel direction and pixel size
     (s1,i1,r1,dummy,dummy)=scipy.stats.linregress(ang10-start[3],n10)
@@ -1513,6 +1525,19 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
     wavelength = start[6]
     # parameters for the fitting
     param = (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset,sampletilt,stazimuth,wavelength)
+
+    # determine better start values for sample tilt and azimuth
+    (qx,qy,qz) = areapixel2(param[:-4],detdir1,detdir2,r_i,detaxis,sangs,ang1s,ang2s,n1s,n2s,delta=[0,param[7],0.],distance=1.,wl=wavelength)
+    
+    sampletilt = numpy.degrees(numpy.arctan2(numpy.sqrt(numpy.average(qx)**2+ numpy.average(qy)**2),numpy.average(qz)))
+    stazimuth = numpy.degrees(numpy.arctan2(numpy.average(qy),numpy.average(qx)))
+    param = (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset,sampletilt,stazimuth,wavelength)
+
+    if debug: 
+        print("average qx: %.3f(%.3f)"%(numpy.average(qx),numpy.std(qx)))
+        print("average qy: %.3f(%.3f)"%(numpy.average(qy),numpy.std(qy)))
+        print("average qz: %.3f(%.3f)"%(numpy.average(qz),numpy.std(qz)))
+
     if debug:
         print("initial parameters: ")
         print("primary beam / detector pixel directions / distance: %s / %s %s / %e" %(r_i,detdir1,detdir2,1.))
@@ -1539,7 +1564,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
     for i in range(len(fix)):
         ifixb += (int(not fix[i]),)
 
-    my_odr = odr.ODR(data,model,beta0=param,ifixb=(1,1,1,1)+ifixb , ifixx =(0,0,0,0,0,0,0,0) ,stpb=(0.4,0.4,pwidth1/50.,pwidth2/50.,2,0.125,0.01,0.01,0.01,0.5,0.0001), sclb=(1/numpy.abs(cch1),1/numpy.abs(cch2),1/pwidth1,1/pwidth2,1/90.,1/0.2,1/0.2,1/0.2,1/0.1,1/90.,1.) ,maxit=1000,ndigit=12, sstol=1e-11, partol=1e-11)
+    my_odr = odr.ODR(data,model,beta0=param,ifixb=(1,1,1,1)+ifixb , ifixx =(0,0,0,0,0,0,0,0) ,stpb=(0.4,0.4,pwidth1/50.,pwidth2/50.,2,0.125,0.01,0.01,0.01,1.,0.0001), sclb=(1/numpy.abs(cch1),1/numpy.abs(cch2),1/pwidth1,1/pwidth2,1/90.,1/0.2,1/0.2,1/0.2,1/0.1,1/90.,1.) ,maxit=1000,ndigit=12, sstol=1e-11, partol=1e-11)
     #if debug:
     #    my_odr.set_iprint(final=1)
     #    my_odr.set_iprint(iter=2)
