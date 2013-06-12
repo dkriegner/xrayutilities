@@ -1046,13 +1046,13 @@ def area_detector_calib2(sampleang,angle1,angle2,ccdimages,hkls,material,detaxis
         img = ccdimages[i]
         if numpy.sum(img) > cut_off*avg:
             [cen1,cen2] = center_of_mass(img)
-            if debug:
-                plt.figure("_ccd")
-                plt.imshow(utilities.maplog(img),origin='low')
-                plt.plot(cen2,cen1,"wo",mfc='none')
-                #plt.axis([cen1-25,cen1+25,cen2-25,cen2+25])
-                plt.savefig("_ccd/img%d.png"%i)
-                plt.close("_ccd")
+#            if debug:
+#                plt.figure("_ccd")
+#                plt.imshow(utilities.maplog(img),origin='low')
+#                plt.plot(cen2,cen1,"wo",mfc='none')
+#                #plt.axis([cen1-25,cen1+25,cen2-25,cen2+25])
+#                plt.savefig("_ccd/img%d.png"%i)
+#                plt.close("_ccd")
             n1 = numpy.append(n1,cen1)
             n2 = numpy.append(n2,cen2)
             ang1 = numpy.append(ang1,angle1[i])
@@ -1064,8 +1064,8 @@ def area_detector_calib2(sampleang,angle1,angle2,ccdimages,hkls,material,detaxis
     Nused = len(ang1)
     usedhkls = numpy.array(usedhkls)
 
-    #if debug:
-    print("Nused / Npoints: %d / %d" %(Nused,Npoints))
+    if debug:
+        print("Nused / Npoints: %d / %d" %(Nused,Npoints))
 
     # guess initial parameters
     n10 = numpy.zeros(0,dtype=numpy.double)
@@ -1272,18 +1272,10 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         """
 
         # check detector circle argument
-        if isinstance(detectorAxis,(str,list,tuple)):
-            if isinstance(detectorAxis,str):
-                dAxis = list([detectorAxis])
-            else:
-                dAxis = list(detectorAxis)
-            for circ in dAxis:
-                if not isinstance(circ,str) or len(circ)!=2:
-                    raise InputError("QConversionPixel: incorrect detector circle type or syntax (%s)" %repr(circ))
-                if not circleSyntax.search(circ):
-                    raise InputError("QConversionPixel: incorrect detector circle syntax (%s)" %circ)
+        if isinstance(detectorAxis,str):
+            dAxis = list([detectorAxis])
         else:
-            raise TypeError("Qconversion error: invalid type for detectorAxis, must be str, list or tuple")
+            dAxis = list(detectorAxis)
 
         _sampleAxis_str = dAxis[-1]
         # add detector rotation around primary beam
@@ -1296,15 +1288,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         Nargs = Nd + 2 -1 +1 
 
         # check detectorDir
-        if not isinstance(detectorDir1,str) or len(detectorDir1)!=2:
-            raise InputError("QConversionPixel: incorrect detector direction1 type or syntax (%s)" %repr(detectorDir1))
-        if not circleSyntax.search(detectorDir1):
-            raise InputError("QConversionPixel: incorrect detector direction1 syntax (%s)" %detectorDir1)
         _area_detdir1 = detectorDir1
-        if not isinstance(detectorDir2,str) or len(detectorDir2)!=2:
-            raise InputError("QConversionPixel: incorrect detector direction2 type or syntax (%s)" %repr(detectorDir2))
-        if not circleSyntax.search(detectorDir2):
-            raise InputError("QConversionPixel: incorrect detector direction2 syntax (%s)" %detectorDir2)
         _area_detdir2 = detectorDir2
 
         # parse parameter arguments
@@ -1331,7 +1315,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         if 'UB' in kwargs:
             UB = numpy.ravel(kwargs['UB'])
         else:
-            raise ValueError("no UB matrix given!")
+            UB = numpy.identity(3)
         
         if 'deg' in kwargs:
             deg = kwargs['deg']
@@ -1357,9 +1341,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         sAngles = numpy.array((),dtype=numpy.double)
         for i in range(1):
             arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
+            if isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
                 arg = numpy.array(arg,dtype=numpy.double)
@@ -1369,9 +1351,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         dAngles = numpy.array((),dtype=numpy.double)
         for i in range(1,Nd):
             arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
+            if isinstance(arg,numpy.ScalarType):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
                 arg = numpy.array(arg,dtype=numpy.double)
@@ -1385,18 +1365,14 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         n2 = numpy.array((),dtype=numpy.double)
 
         arg = args[Nd]
-        if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-            raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
-        elif isinstance(arg,numpy.ScalarType):
+        if isinstance(arg,numpy.ScalarType):
             arg = numpy.array([arg],dtype=numpy.double)
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
         n1 = arg
 
         arg = args[Nd+1]
-        if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-            raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
-        elif isinstance(arg,numpy.ScalarType):
+        if isinstance(arg,numpy.ScalarType):
             arg = numpy.array([arg],dtype=numpy.double)
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
@@ -1478,7 +1454,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         sc = numpy.sin(numpy.radians(param[8]))
 
         # UB matrix due to tilt at symmetric peak
-        U = numpy.array(((cp,sp,0),(-cc*sp, cp*cc, sc),(sc*sp, -sc*cp, cc)),dtype=numpy.double)
+        U = numpy.array(((cp,-sp,0),(cc*sp, cp*cc, -sc),(sc*sp, sc*cp, cc)),dtype=numpy.double)
         B = material.B
         ubmat = numpy.dot(U,B)
 
