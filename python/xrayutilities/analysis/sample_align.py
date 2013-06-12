@@ -873,7 +873,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
 
         # use only positive tilt
         param[5] = numpy.abs(param[5])
-
+        
         (qx,qy,qz) = areapixel(param[:-1],detectorDir1,detectorDir2,r_i,detectorAxis,angle1,angle2,n1,n2,delta=[param[-1],0.],distance=1.,wl=wl)
 
         return qx**2+qy**2+qz**2
@@ -1046,6 +1046,13 @@ def area_detector_calib2(sampleang,angle1,angle2,ccdimages,hkls,material,detaxis
         img = ccdimages[i]
         if numpy.sum(img) > cut_off*avg:
             [cen1,cen2] = center_of_mass(img)
+            if debug:
+                plt.figure("_ccd")
+                plt.imshow(utilities.maplog(img),origin='low')
+                plt.plot(cen2,cen1,"wo",mfc='none')
+                #plt.axis([cen1-25,cen1+25,cen2-25,cen2+25])
+                plt.savefig("_ccd/img%d.png"%i)
+                plt.close("_ccd")
             n1 = numpy.append(n1,cen1)
             n2 = numpy.append(n2,cen2)
             ang1 = numpy.append(ang1,angle1[i])
@@ -1072,7 +1079,7 @@ def area_detector_calib2(sampleang,angle1,angle2,ccdimages,hkls,material,detaxis
             ang10 = numpy.append(ang10,ang1[i])
             ang20 = numpy.append(ang20,ang2[i])
 
-    detdir1,detdir2 = _determine_detdir(ang10-start[3],ang20,n10,n20,detaxis)
+    detdir1,detdir2 = _determine_detdir(ang10-start[3],ang20,n10,n20,detaxis,r_i)
 
     epslist = []
     paramlist = []
@@ -1377,7 +1384,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         n1 = numpy.array((),dtype=numpy.double)
         n2 = numpy.array((),dtype=numpy.double)
 
-        arg = args[Nd-1]
+        arg = args[Nd]
         if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
             raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
         elif isinstance(arg,numpy.ScalarType):
@@ -1386,7 +1393,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
             arg = numpy.array(arg,dtype=numpy.double)
         n1 = arg
 
-        arg = args[Nd]
+        arg = args[Nd+1]
         if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
             raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
         elif isinstance(arg,numpy.ScalarType):
@@ -1464,7 +1471,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
 
         # use only positive tilt
         param[5] = numpy.abs(param[5])
-        wl = param[-1]
+        wl = param[10]
         cp = numpy.cos(numpy.radians(param[9]))
         sp = numpy.sin(numpy.radians(param[9]))
         cc = numpy.cos(numpy.radians(param[8]))
@@ -1476,10 +1483,16 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         ubmat = numpy.dot(U,B)
 
         (qx,qy,qz) = areapixel2(param[:-4],detectorDir1,detectorDir2,r_i,detectorAxis,sang,angle1,angle2,n1,n2,delta=[0,param[-1],0.],distance=1.,UB=ubmat,wl=wl)
-#        plt.figure()
-#        plt.plot(qx,'k-')
-#        plt.plot(qy,'r-')
-#        plt.plot(qz,'g-')
+
+#        f= plt.figure("afunc")
+#        plt.ion()
+#        f.clear()
+#        plt.plot(qx-h,'k-')
+#        plt.plot(qy-k,'r-')
+#        plt.plot(qz-l,'g-')
+#        print("param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)")
+#        print(param)
+#        plt.draw()
 #        plt.waitforbuttonpress()
 
         return (qx-h)**2+(qy-k)**2+(qz-l)**2
@@ -1527,8 +1540,8 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
     if debug:
         print("initial parameters: ")
         print("primary beam / detector pixel directions / distance: %s / %s %s / %e" %(r_i,detdir1,detdir2,1.))
-        print("param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)")
-        print("param: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f" %param)
+        print("param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset,sampletilt,stazimuth,wavelength)")
+        print("param: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f %.3f %.2f %.4f" %param)
 
 
     # set data
@@ -1551,9 +1564,9 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, material, detaxis, r_i
         ifixb += (int(not fix[i]),)
 
     my_odr = odr.ODR(data,model,beta0=param,ifixb=(1,1,1,1)+ifixb , ifixx =(0,0,0,0,0,0,0,0) ,stpb=(0.4,0.4,pwidth1/50.,pwidth2/50.,2,0.125,0.01,0.01,0.01,0.5,0.0001), sclb=(1/numpy.abs(cch1),1/numpy.abs(cch2),1/pwidth1,1/pwidth2,1/90.,1/0.2,1/0.2,1/0.2,1/0.1,1/90.,1.) ,maxit=1000,ndigit=12, sstol=1e-11, partol=1e-11)
-    if debug:
-        my_odr.set_iprint(final=1)
-        my_odr.set_iprint(iter=2)
+    #if debug:
+    #    my_odr.set_iprint(final=1)
+    #    my_odr.set_iprint(iter=2)
 
     fit = my_odr.run()
 
