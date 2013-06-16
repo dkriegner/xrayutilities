@@ -668,7 +668,7 @@ class QConversion(object):
          pwidth1,2:       width of one pixel (same unit as distance)
          chpdeg1,2:       channels per degree (only absolute value is relevant) sign
                           determined through detectorDir1,2
-         detrot:          detector rotation around primary beam direction
+         detrot:          angle of the detector rotation around primary beam direction (used to correct misalignments)
          tiltazimuth:     direction of the tilt vector in the detector plane (in degree)
          tilt:            tilt of the detector plane around an axis normal to the direction
                           given by the tiltazimuth
