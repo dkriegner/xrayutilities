@@ -811,13 +811,9 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
         n2 = arg
-
-        # flatten arrays with angles for passing to C routine
-        if Npoints > 1:
-            dAngles.shape = (Nd,Npoints)
-            dAngles = numpy.ravel(dAngles.transpose())
-            n1 = numpy.ravel(n1)
-            n2 = numpy.ravel(n2)
+   
+        dAngles.shape = (Nd,Npoints)
+        dAngles = dAngles.transpose()
 
         if deg:
             dAngles = numpy.radians(dAngles)
@@ -1307,9 +1303,9 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
             raise ValueError("no wavelength given!")
 
         if 'UB' in kwargs:
-            UB = numpy.ravel(kwargs['UB'])
+            UB = kwargs['UB']
         else:
-            UB = numpy.ravel(numpy.identity(3))
+            UB = numpy.identity(3)
         
         if 'deg' in kwargs:
             deg = kwargs['deg']
@@ -1372,14 +1368,10 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
             arg = numpy.array(arg,dtype=numpy.double)
         n2 = arg
 
-        # flatten arrays with angles for passing to C routine
-        if Npoints > 1:
-            sAngles.shape = (1,Npoints)
-            sAngles = numpy.ravel(sAngles.transpose())
-            dAngles.shape = (Nd,Npoints)
-            dAngles = numpy.ravel(dAngles.transpose())
-            n1 = numpy.ravel(n1)
-            n2 = numpy.ravel(n2)
+        sAngles.shape = (1,Npoints)
+        sAngles = sAngles.transpose()
+        dAngles.shape = (Nd,Npoints)
+        dAngles = dAngles.transpose()
 
         if deg:
             sAngles = numpy.radians(sAngles)
@@ -1391,14 +1383,10 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
         n1 = numpy.require(n1,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         n2 = numpy.require(n2,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-        # initialize return value (qposition) array
-        qpos = numpy.empty(Npoints*3,dtype=numpy.double,order='C')
-        qpos = numpy.require(qpos,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-
-        libxrayutils.cang2q_areapixel2(sAngles, dAngles, qpos, n1, n2 ,_area_ri, 1, Nd, Npoints, _sampleAxis_str,
-                    _detectorAxis_str, numpy.array((numpy.nan,numpy.nan,numpy.nan)),_area_cch1, _area_cch2,
-                    _area_pwidth1/_area_distance, _area_pwidth2/_area_distance,
-                    _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, UB, wl)
+        qpos = cxrayutilities.ang2q_conversion_area_pixel2(sAngles, dAngles, n1, n2 , _area_ri, 
+                     _sampleAxis_str, _detectorAxis_str, _area_cch1, _area_cch2, 
+                     _area_pwidth1/_area_distance, _area_pwidth2/_area_distance,
+                     _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, UB, wl)
 
         #reshape output
         qpos.shape = (Npoints,3)

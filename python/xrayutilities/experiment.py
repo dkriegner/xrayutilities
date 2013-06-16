@@ -373,9 +373,9 @@ class QConversion(object):
             delta = numpy.zeros(Ncirc)
 
         if 'UB' in kwargs:
-            UB = numpy.ravel(numpy.array(kwargs['UB']))
+            UB = numpy.array(kwargs['UB'])
         else:
-            UB = numpy.ravel(self.UB)
+            UB = self.UB
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
@@ -573,9 +573,9 @@ class QConversion(object):
             delta = numpy.zeros(Ncirc)
 
         if 'UB' in kwargs:
-            UB = numpy.ravel(numpy.array(kwargs['UB']))
+            UB = numpy.array(kwargs['UB'])
         else:
-            UB = numpy.ravel(self.UB)
+            UB = self.UB
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
@@ -636,7 +636,7 @@ class QConversion(object):
         sAxis=self._sampleAxis_str
         dAxis=self._detectorAxis_str
 
-        qpos = cxrayutilities.cang2q_conversion_linear(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
+        qpos = cxrayutilities.ang2q_conversion_linear(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                      cch, pwidth, roi, self._linear_detdir, self._linear_tilt, UB, wl)
 
         #reshape output
@@ -813,9 +813,9 @@ class QConversion(object):
             delta = numpy.zeros(Ncirc)
 
         if 'UB' in kwargs:
-            UB = numpy.ravel(numpy.array(kwargs['UB']))
+            UB = numpy.array(kwargs['UB'])
         else:
-            UB = numpy.ravel(self.UB)
+            UB = self.UB
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
@@ -888,7 +888,7 @@ class QConversion(object):
         sAxis=self._sampleAxis_str
         dAxis=self._detectorAxis_str
 
-        qpos = cxrayutils.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
+        qpos = cxrayutilities.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
                      cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1, self._area_detdir2,
                      self._area_tiltazimuth, self._area_tilt, UB, wl)
 

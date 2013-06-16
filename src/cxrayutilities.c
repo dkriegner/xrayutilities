@@ -38,6 +38,7 @@ extern PyObject* ang2q_conversion(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
+extern PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args);
 
 static PyMethodDef XRU_Methods[] = {
     {"block_average1d",  (PyCFunction)block_average1d, METH_VARARGS,
@@ -68,6 +69,8 @@ static PyMethodDef XRU_Methods[] = {
      "reciprocal space conversion for an area detectors"},
     {"ang2q_conversion_area_pixel", ang2q_conversion_area_pixel, METH_VARARGS,
      "reciprocal space conversion for certain pixels of an area detectors"},
+    {"ang2q_conversion_area_pixel2", ang2q_conversion_area_pixel2, METH_VARARGS,
+     "reciprocal space conversion for certain pixels of an area detectors (variant 2)"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
