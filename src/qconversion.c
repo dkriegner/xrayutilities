@@ -1008,7 +1008,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!O!O!O!sddddssddd", &PyArray_Type, &detectorAnglesArr,
-                                      &PyArray_Type, &n1, &PyArray_Type, &n2, &PyArray_Type, &rcchArr,
+                                      &PyArray_Type, &n1Arr, &PyArray_Type, &n2Arr, &PyArray_Type, &rcchArr,
                                       &detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2, 
                                       &dir1, &dir2, &tiltazimuth, &tilt,
                                       &lambda)) { 
@@ -1179,7 +1179,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     printf("test");
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!O!O!O!O!ssddddssddO!d", &PyArray_Type, &sampleAnglesArr, &PyArray_Type, &detectorAnglesArr,
-                                      &PyArray_Type, &n1, &PyArray_Type, &n2, &PyArray_Type, &rcchArr,
+                                      &PyArray_Type, &n1Arr, &PyArray_Type, &n2Arr, &PyArray_Type, &rcchArr,
                                       &sampleAxis, &detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2, 
                                       &dir1, &dir2, &tiltazimuth, &tilt, &PyArray_Type, &UB,
                                       &lambda)) { 
