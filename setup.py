@@ -41,11 +41,11 @@ try: shutil.rmtree(compiler.output_dir)
 except: pass
 
 extmodul = Extension('xrayutilities.cxrayutilities',
-                     sources = [os.path.join('src','cxrayutilities.c'),
-                                os.path.join('src','gridder_utils.c'),
-                                os.path.join('src','gridder2d.c'),
-                                os.path.join('src','block_average.c'),
-                                os.path.join('src','qconversion.c')],
+                     sources = [os.path.join('xrayutilities','src','cxrayutilities.c'),
+                                os.path.join('xrayutilities','src','gridder_utils.c'),
+                                os.path.join('xrayutilities','src','gridder2d.c'),
+                                os.path.join('xrayutilities','src','block_average.c'),
+                                os.path.join('xrayutilities','src','qconversion.c')],
                      define_macros = user_macros,
                      libraries = libraries,
                      extra_compile_args=cflags)
@@ -57,7 +57,6 @@ setup(name="xrayutilities",
       author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
       maintainer="Dominik Kriegner",
       maintainer_email="dominik.kriegner@gmail.com",
-      package_dir={'':'python'},
       packages=["xrayutilities","xrayutilities.math","xrayutilities.io","xrayutilities.materials",
                 "xrayutilities.analysis"],
       package_data={
