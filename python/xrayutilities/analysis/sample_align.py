@@ -1388,8 +1388,6 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
                      _area_pwidth1/_area_distance, _area_pwidth2/_area_distance,
                      _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, UB, wl)
 
-        #reshape output
-        qpos.shape = (Npoints,3)
         return qpos[:,0],qpos[:,1],qpos[:,2]
 
     def afunc(param,x,detectorDir1,detectorDir2,r_i,detectorAxis):

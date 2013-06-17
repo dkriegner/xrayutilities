@@ -306,7 +306,7 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_
                     rpixel[0] = -dpixel;
                 break;
                 default:
-                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
+                    PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): detector determination: no valid direction sign given");
                     return 1;
             }
         break;
@@ -319,7 +319,7 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_
                     rpixel[1] = -dpixel;
                 break;
                 default:
-                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
+                    PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): detector determination: no valid direction sign given");
                     return 1;
             }
         break;
@@ -332,12 +332,12 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_
                     rpixel[2] = -dpixel;
                 break;
                 default:
-                    printf("XU.Qconversion(c): detector determination: no valid direction sign given\n");
+                    PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): detector determination: no valid direction sign given");
                     return 1;
             }
         break;
         default:
-            printf("XU.Qconversion(c): detector determination: no valid detector direction given\n");
+            PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): detector determination: no valid direction direction given");
             return 2;
     }
 
@@ -372,7 +372,7 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                         fp_circles[i] = &rotation_xm;
                     break;
                     default:
-                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
+                        PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): axis determination: no valid rotation sense given");
                         return 1;
                 }
             break;
@@ -385,7 +385,7 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                         fp_circles[i] = &rotation_ym;
                     break;
                     default:
-                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
+                        PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): axis determination: no valid rotation sense given");
                         return 1;
                 }
             break;
@@ -398,7 +398,7 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                         fp_circles[i] = &rotation_zm;
                     break;
                     default:
-                        printf("XU.Qconversion(c): axis determination: no valid rotation sense found\n");
+                        PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): axis determination: no valid rotation sense given");
                         return 1;
                 }
             break;
@@ -406,7 +406,7 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
                 fp_circles[i] = &rotation_kappa;
             break;
             default:
-                printf("XU.Qconversion(c): axis determination: no valid axis direction found!\n");
+                PyErr_SetString(PyExc_ValueError,"XU.Qconversion(c): axis determination: no valid axis direction given");
                 return 2;
         }
     }
@@ -511,14 +511,8 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
 
     //printf("general conversion ang2q\n");
     // determine axes directions
-    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        PyErr_SetString(PyExc_ValueError,"sampleRotation axis could not be identified");
-        return NULL;
-    }
-    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
-        return NULL;
-    }
+    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
+    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
 
     // give ri correct length
     veccopy(local_ri,ri);
@@ -677,22 +671,13 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
 
     //printf("general conversion ang2q (linear detector)\n");
     // determine axes directions
-    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        PyErr_SetString(PyExc_ValueError,"sampleRotation axis could not be identified");
-        return NULL;
-    }
-    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
-        return NULL;
-    }
+    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
+    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
 
     veccopy(r_i,rcch);
     normalize(r_i);
     // determine detector pixel vector
-    if(determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) {
-        PyErr_SetString(PyExc_ValueError,"detector direction could not be identified");
-        return NULL;
-    }
+    if(determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) { return NULL; }
     for(int k=0; k<3; ++k)
         rcchp[k] = rpixel[k]*cch;
 
@@ -862,27 +847,15 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
 
     //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
-    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        PyErr_SetString(PyExc_ValueError,"sampleRotation axis could not be identified");
-        return NULL;
-    }
-    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
-        return NULL;
-    }
+    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
+    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
 
     veccopy(r_i,rcch);
     normalize(r_i);
 
     // determine detector pixel vector
-    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
-        PyErr_SetString(PyExc_ValueError,"first detector direction could not be identified");
-        return NULL;
-    }
-    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
-        PyErr_SetString(PyExc_ValueError,"second detector direction could not be identified");
-        return NULL;
-    }
+    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) { return NULL; }
+    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) { return NULL; }
 
     /*print_vector(rpixel1);
     print_vector(rpixel2);*/
@@ -1058,23 +1031,14 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 
     //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
-    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
-        return NULL;
-    }
+    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
 
     veccopy(r_i,rcch);
     normalize(r_i);
 
     // determine detector pixel vector
-    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
-        PyErr_SetString(PyExc_ValueError,"first detector direction could not be identified");
-        return NULL;
-    }
-    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
-        PyErr_SetString(PyExc_ValueError,"second detector direction could not be identified");
-        return NULL;
-    }
+    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) { return NULL; }
+    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) { return NULL; }
 
     // rotate detector pixel vectors according to tilt
     veccopy(rtemp,rpixel1);
@@ -1176,12 +1140,11 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
 
     PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *n1Arr=NULL, *n2Arr=NULL, *rcchArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
-    printf("test");
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!O!O!O!O!ssddddssddO!d", &PyArray_Type, &sampleAnglesArr, &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &n1Arr, &PyArray_Type, &n2Arr, &PyArray_Type, &rcchArr,
                                       &sampleAxis, &detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2, 
-                                      &dir1, &dir2, &tiltazimuth, &tilt, &PyArray_Type, &UB,
+                                      &dir1, &dir2, &tiltazimuth, &tilt, &PyArray_Type, &UBArr,
                                       &lambda)) { 
         return NULL;
     }
@@ -1193,7 +1156,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
-
+    
     if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
         PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
         return NULL; }
@@ -1241,27 +1204,15 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
 
     //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
-    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) {
-        PyErr_SetString(PyExc_ValueError,"sampleRotation axis could not be identified");
-        return NULL;
-    }
-    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) {
-        PyErr_SetString(PyExc_ValueError,"detectorRotation axis could not be identified");
-        return NULL;
-    }
+    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
+    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
 
     veccopy(r_i,rcch);
     normalize(r_i);
 
     // determine detector pixel vector
-    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
-        PyErr_SetString(PyExc_ValueError,"first detector direction could not be identified");
-        return NULL;
-    }
-    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
-        PyErr_SetString(PyExc_ValueError,"second detector direction could not be identified");
-        return NULL;
-    }
+    if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) { return NULL; }
+    if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) { return NULL; }
 
     // rotate detector pixel vectors according to tilt
     veccopy(rtemp,rpixel1);
