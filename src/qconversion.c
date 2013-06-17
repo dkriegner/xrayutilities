@@ -509,7 +509,6 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     fp_rot sampleRotation[Ns];
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q\n");
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
@@ -669,7 +668,6 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     fp_rot sampleRotation[Ns];
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q (linear detector)\n");
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
@@ -845,7 +843,6 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     fp_rot sampleRotation[Ns];
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
@@ -1029,7 +1026,6 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     // arrays with function pointers to rotation matrix functions
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
 
@@ -1202,7 +1198,6 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     fp_rot sampleRotation[Ns];
     fp_rot detectorRotation[Nd];
 
-    //printf("general conversion ang2q (area detector)\n");
     // determine axes directions
     if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
     if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
