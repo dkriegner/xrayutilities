@@ -28,23 +28,25 @@ Concept of usage
     :align: right
     :alt: Flow diagram showing how to analyze x-ray diffraction data using xrayutilities
 
-*xrayutilities* provides a set of functions to read experimental data from various data file formats.
+*xrayutilities* provides a set of functions to read experimental data from various data file formats. 
 All of them are gathered in the :ref:`io-subpackage`.
-After reading data with a function from the io-submodule the data might be need to be corrected for monitor counts and or absorber corrected.
-A special set of functions is provided to perform this for point and linear detectors.
+After reading data with a function from the io-submodule the data might be corrected for monitor counts and/or absorption factor of a beam attenuator.  
+A special set of functions is provided to perform this for point, linear and area detectors.
 
-Since the amount of data taken with modern detectors often is too large to be able to work with them properly a function for reducing the data from linear and are detectors are provided. They use block-averaging to reduce the amount of data. Use those carefully not to loose the featured you are interested in your measurements.
+Since the amount of data taken with modern detectors often is too large to be able to work with them properly, a functions for reducing the data from linear and area detectors are provided. 
+They use block-averaging to reduce the amount of data. 
+Use those carefully not to loose the features you are interested in in your measurements.
 
-After the pre-treatment of the data the core part of the package is the transformation of the angular data to reciprocal space. This is done as described in more detail below using the :ref:`experiment-module`. 
-The classes provided within the experiment module provide routines to help performing
-X-ray diffraction experiments. This includes methods to calculate the diffraction
-angles (described below) needed to align samples and to convert data between angular and recip-
-rocal space. The conversion from angular to reciprocal space is implemented
-very general for various goniometer geometries. It is especially useful in combination with linear and area detectors as described in (arxiv link)
-Users should in normal cases only need the initialized routines, which predefine a certain goniometer geometry like the popular four-cirlce and six-circle geometry.
+After the pre-treatment of the data, the core part of the package is the transformation of the angular data to reciprocal space. 
+This is done as described in more detail below using the :ref:`experiment-module`. 
+The classes provided within the experiment module provide routines to help performing X-ray diffraction experiments.
+This includes methods to calculate the diffraction angles (described below) needed to align crystalline samples and to convert data between angular and reciprocal space.
+The conversion from angular to reciprocal space is implemented very general for various goniometer geometries. 
+It is especially useful in combination with linear and area detectors as described in this `article http://arxiv.org/abs/1304.1732`_. 
+In standard cases, Users will only need the initialized routines, which predefine a certain goniometer geometry like the popular four-cirlce and six-circle geometries.
 
-After the conversion to reciprocal space in order to visualize the data it is convenient to transform them to a regular grid in reciprocal space. 
-For this purpose in *xrayutilities* the :ref:`gridder-module` is included.
+After the conversion to reciprocal space, it is convenient to transform the data to a regular grid for visualization. 
+For this purpose the :ref:`gridder-module` has been included into *xrayutilities*. 
 For the visualization of the data in reciprocal space the usage of `matplotlib <http://matplotlib.org>`_ is recommended.
 
 A practical example showing the usage is given below.
