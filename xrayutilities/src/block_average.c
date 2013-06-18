@@ -32,13 +32,13 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
      *
      *    Parameters
      *    ----------
-     *    input:        input array of datatype double (in)
+     *    input:        input array of datatype double
      *    Nav:          number of items to average
      *
      *    Returns
      *    -------
      *    block_av:     block averaged output array
-     *                  size = ceil(N/Nav) (out)
+     *                  size = ceil(N/Nav)
      *
      */
 
@@ -82,15 +82,15 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
      *    Parameters
      *    ----------
      *    ccd:          input array/CCD frame
-     *                  size = (Nch2, Nch1) (in)
-     *                  Nch1 is the fast variing index
+     *                  size = (Nch2, Nch1) 
+     *                  Nch1 is the fast varying index
      *    Nav1,2:       number of channels to average in each dimension
      *                  in total a block of Nav1 x Nav2 is averaged
      *
      *    Returns
      *    -------
      *    block_av:     block averaged output array
-     *                  size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1)) (out)
+     *                  size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1)) 
      *
      */
 

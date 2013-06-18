@@ -420,7 +420,6 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
  * #######################################*/
 
 PyObject* ang2q_conversion(PyObject *self, PyObject *args)
-//int ang2q_conversion(double *sampleAngles,double *detectorAngles, double *qpos, double *ri, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a setup with point detector
     *
@@ -559,7 +558,6 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
 }
 
 PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
-//int ang2q_conversion_linear(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch, double dpixel, int *roi, char *dir, double tilt, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a linear detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -726,7 +724,6 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
 }
 
 PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
-//int ang2q_conversion_area(double *sampleAngles, double *detectorAngles, double *qpos, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, int *roi, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis
@@ -934,7 +931,6 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
 }
 
 PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
-//int ang2q_conversion_area_pixel(double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Nd, int Npoints, char *detectorAxis, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double lambda)
    /* conversion of Npoints of detector positions to Q
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis. This function only calculates the q-position for the
@@ -1089,7 +1085,6 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 }
 
 PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
-//int ang2q_conversion_area_pixel2(double *sampleAngles, double *detectorAngles, double *qpos, double *n1, double *n2, double *rcch, int Ns, int Nd, int Npoints, char *sampleAxis, char *detectorAxis, double *kappadir, double cch1, double cch2, double dpixel1, double dpixel2, char *dir1, char *dir2, double tiltazimuth, double tilt, double *UB, double lambda)
    /* conversion of Npoints of detector positions to Q
     * for a area detector with a given pixel size mounted along one of
     * the coordinate axis. This function only calculates the q-position for the
