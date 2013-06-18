@@ -17,8 +17,7 @@
  * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
-#ifndef _qconversion_h_
-#define _qconversion_h_
+#pragma once
 
 #define M_PI 3.14159265358979323846
 #define M_2PI (2*M_PI)
@@ -110,6 +109,4 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n);
 int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt);
 int print_matrix(double *m);
 int print_vector(double *m);
-
-#endif
 

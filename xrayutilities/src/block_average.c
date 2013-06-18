@@ -27,6 +27,15 @@
 #include <omp.h>
 #endif
 
+#define PYARRAY_CHECK(array,dims,type,msg) \
+    if(PyArray_NDIM(array) != dims ||  \
+       PyArray_TYPE(array) != type) \
+    {\
+        PyErr_SetString(PyExc_ValueError,\
+                msg); \
+        return NULL; \
+    }
+
 PyObject* block_average1d(PyObject *self, PyObject *args) {
     /*    block average for one-dimensional double array
      *
@@ -49,11 +58,9 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
 
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL; 
-    if (PyArray_NDIM(input) != 1 || PyArray_TYPE(input) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double");
-        return NULL; 
-    }
-    N = PyArray_DIMS(input)[0];
+    
+    PYARRAY_CHECK(input,1,NPY_DOUBLE,"input must be a 1D double array!");
+    N = PyArray_SIZE(input);
     cin = (double *) PyArray_DATA(input);
 
     // create output ndarray
@@ -104,9 +111,7 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!ii",&PyArray_Type, &input, &Nav2,&Nav1)) return NULL;
     
-    if (PyArray_NDIM(input) != 2 || PyArray_TYPE(input) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
-        return NULL; }
+    PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
     Nch2 = PyArray_DIMS(input)[0];
     Nch1 = PyArray_DIMS(input)[1];
     cin = (double *) PyArray_DATA(input);
@@ -163,9 +168,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL;
     
-    if (PyArray_NDIM(input) != 2 || PyArray_TYPE(input) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
-        return NULL; }
+    PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
     Nspec = PyArray_DIMS(input)[0];
     Nch = PyArray_DIMS(input)[1];
     cin = (double *) PyArray_DATA(input);

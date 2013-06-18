@@ -38,6 +38,15 @@
 #include <omp.h>
 #endif
 
+#define PYARRAY_CHECK(array,dims,type,msg) \
+    if(PyArray_NDIM(array) != dims ||  \
+       PyArray_TYPE(array) != type) \
+    {\
+        PyErr_SetString(PyExc_ValueError,\
+                msg); \
+        return NULL; \
+    }
+
 /* ###################################
  * matrix vector operations for
  * 3x3 matrices and vectors of length
@@ -464,32 +473,26 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     }
     
     // check Python array dimensions and types
-    if (PyArray_NDIM(sampleAnglesArr) != 2 || PyArray_TYPE(sampleAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+    PYARRAY_CHECK(sampleAnglesArr,2,NPY_DOUBLE,"sampleAngles must be a 2D double array");
+    PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(riArr,1,NPY_DOUBLE,"r_i must be a 1D double array");
+    if (PyArray_SIZE(riArr) != 3) { PyErr_SetString(PyExc_ValueError,"r_i needs to be of length 3"); 
         return NULL; }
+    PYARRAY_CHECK(kappadirArr,1,NPY_DOUBLE,"kappa_dir must be a 1D double array");
+    if (PyArray_SIZE(kappadirArr) != 3) { PyErr_SetString(PyExc_ValueError,"kappa_dir needs to be of length 3"); 
+        return NULL; }
+    PYARRAY_CHECK(UBArr,2,NPY_DOUBLE,"UB must be a 2D double array");
+    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
+    
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
-    
-    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
-        return NULL; }
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-
-    if (PyArray_NDIM(riArr) != 1 || PyArray_TYPE(riArr) != NPY_DOUBLE || PyArray_DIMS(riArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
     ri = (double *) PyArray_DATA(riArr);
-    
-    if (PyArray_NDIM(kappadirArr) != 1 || PyArray_TYPE(kappadirArr) != NPY_DOUBLE || PyArray_DIMS(kappadirArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
     kappadir = (double *) PyArray_DATA(kappadirArr);
-
-    if (PyArray_NDIM(UBArr) != 2 || PyArray_TYPE(UBArr) != NPY_DOUBLE || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double and shape (3,3)");
-        return NULL; }
     UB = (double *) PyArray_DATA(UBArr);
 
     // create output ndarray
@@ -610,39 +613,32 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
                                       &lambda)) { 
         return NULL;
     }
-    
+ 
     // check Python array dimensions and types
-    if (PyArray_NDIM(sampleAnglesArr) != 2 || PyArray_TYPE(sampleAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+    PYARRAY_CHECK(sampleAnglesArr,2,NPY_DOUBLE,"sampleAngles must be a 2D double array");
+    PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(rcchArr,1,NPY_DOUBLE,"rcch must be a 1D double array");
+    if (PyArray_SIZE(rcchArr) != 3) { PyErr_SetString(PyExc_ValueError,"rcch needs to be of length 3"); 
         return NULL; }
+    PYARRAY_CHECK(kappadirArr,1,NPY_DOUBLE,"kappa_dir must be a 1D double array");
+    if (PyArray_SIZE(kappadirArr) != 3) { PyErr_SetString(PyExc_ValueError,"kappa_dir needs to be of length 3"); 
+        return NULL; }
+    PYARRAY_CHECK(UBArr,2,NPY_DOUBLE,"UB must be a 2D double array");
+    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
+    PYARRAY_CHECK(roiArr,1,NPY_INT,"roi must be a 1D int array");
+    if (PyArray_SIZE(roiArr) != 2) { 
+        PyErr_SetString(PyExc_ValueError,"roi must be of length 2"); return NULL; }
+    
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
-    
-    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
-        return NULL; }
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-
-    if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
     rcch = (double *) PyArray_DATA(rcchArr);
-    
-    if (PyArray_NDIM(kappadirArr) != 1 || PyArray_TYPE(kappadirArr) != NPY_DOUBLE || PyArray_DIMS(kappadirArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
     kappadir = (double *) PyArray_DATA(kappadirArr);
-
-    if (PyArray_NDIM(UBArr) != 2 || PyArray_TYPE(UBArr) != NPY_DOUBLE || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double and shape (3,3)");
-        return NULL; }
     UB = (double *) PyArray_DATA(UBArr);
-
-    if (PyArray_NDIM(roiArr) != 1 || PyArray_TYPE(roiArr) != NPY_INT || PyArray_DIMS(roiArr)[0] != 2) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type int and size 2");
-        return NULL; }
     roi = (int *) PyArray_DATA(roiArr);
     
     // derived values from input parameters
@@ -655,7 +651,6 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     nout[1] = 3;
     qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
     qpos = (double *) PyArray_DATA(qposArr); 
-
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
@@ -784,37 +779,30 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     }
     
     // check Python array dimensions and types
-    if (PyArray_NDIM(sampleAnglesArr) != 2 || PyArray_TYPE(sampleAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+    PYARRAY_CHECK(sampleAnglesArr,2,NPY_DOUBLE,"sampleAngles must be a 2D double array");
+    PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(rcchArr,1,NPY_DOUBLE,"rcch must be a 1D double array");
+    if (PyArray_SIZE(rcchArr) != 3) { PyErr_SetString(PyExc_ValueError,"rcch needs to be of length 3"); 
         return NULL; }
+    PYARRAY_CHECK(kappadirArr,1,NPY_DOUBLE,"kappa_dir must be a 1D double array");
+    if (PyArray_SIZE(kappadirArr) != 3) { PyErr_SetString(PyExc_ValueError,"kappa_dir needs to be of length 3"); 
+        return NULL; }
+    PYARRAY_CHECK(UBArr,2,NPY_DOUBLE,"UB must be a 2D double array");
+    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
+    PYARRAY_CHECK(roiArr,1,NPY_INT,"roi must be a 1D int array");
+    if (PyArray_SIZE(roiArr) != 4) { 
+        PyErr_SetString(PyExc_ValueError,"roi must be of length 4"); return NULL; }
+    
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
-    
-    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
-        return NULL; }
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-
-    if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
     rcch = (double *) PyArray_DATA(rcchArr);
-    
-    if (PyArray_NDIM(kappadirArr) != 1 || PyArray_TYPE(kappadirArr) != NPY_DOUBLE || PyArray_DIMS(kappadirArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
     kappadir = (double *) PyArray_DATA(kappadirArr);
-
-    if (PyArray_NDIM(UBArr) != 2 || PyArray_TYPE(UBArr) != NPY_DOUBLE || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double and shape (3,3)");
-        return NULL; }
     UB = (double *) PyArray_DATA(UBArr);
-
-    if (PyArray_NDIM(roiArr) != 1 || PyArray_TYPE(roiArr) != NPY_INT || PyArray_DIMS(roiArr)[0] != 4) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type int and size 2");
-        return NULL; }
     roi = (int *) PyArray_DATA(roiArr);
     
     // derived values from input parameters
@@ -981,28 +969,24 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
         return NULL;
     }
     
-    // check Python array dimensions and types 
-    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+    // check Python array dimensions and types
+    PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(rcchArr,1,NPY_DOUBLE,"rcch must be a 1D double array");
+    if (PyArray_SIZE(rcchArr) != 3) { PyErr_SetString(PyExc_ValueError,"rcch needs to be of length 3"); 
         return NULL; }
+    PYARRAY_CHECK(n1Arr,1,NPY_DOUBLE,"n1 must be a 1D double array");
+    PYARRAY_CHECK(n2Arr,1,NPY_DOUBLE,"n2 must be a 1D double array");
+    
     Npoints = PyArray_DIMS(detectorAnglesArr)[0];
+    if (PyArray_SIZE(n1Arr) != Npoints || PyArray_SIZE(n2Arr) != Npoints) {
+        PyErr_SetString(PyExc_ValueError,"n1,n2 must be of length Npoints");
+        return NULL; }
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
-    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-    
-    if (PyArray_NDIM(n1Arr) != 1 || PyArray_TYPE(n1Arr) != NPY_DOUBLE || PyArray_DIMS(n1Arr)[0] != Npoints) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length Npoints");
-        return NULL; }
-    n1 = (double *) PyArray_DATA(n1Arr); 
-    
-    if (PyArray_NDIM(n2Arr) != 1 || PyArray_TYPE(n2Arr) != NPY_DOUBLE || PyArray_DIMS(n2Arr)[0] != Npoints) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length Npoints");
-        return NULL; }
-    n2 = (double *) PyArray_DATA(n2Arr); 
 
-    if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
-    rcch = (double *) PyArray_DATA(rcchArr); 
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    rcch = (double *) PyArray_DATA(rcchArr);
+    n1 = (double *) PyArray_DATA(n1Arr); 
+    n2 = (double *) PyArray_DATA(n2Arr); 
     
     // derived values from input parameters
     f=M_2PI/lambda;
@@ -1140,40 +1124,32 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    // check Python array dimensions and types 
-    if (PyArray_NDIM(sampleAnglesArr) != 2 || PyArray_TYPE(sampleAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+    // check Python array dimensions and types
+    PYARRAY_CHECK(sampleAnglesArr,2,NPY_DOUBLE,"sampleAngles must be a 2D double array");
+    PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(rcchArr,1,NPY_DOUBLE,"rcch must be a 1D double array");
+    if (PyArray_SIZE(rcchArr) != 3) { PyErr_SetString(PyExc_ValueError,"rcch needs to be of length 3"); 
         return NULL; }
-    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
+    PYARRAY_CHECK(UBArr,2,NPY_DOUBLE,"UB must be a 2D double array");
+    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
+    PYARRAY_CHECK(n1Arr,1,NPY_DOUBLE,"n1 must be a 1D double array");
+    PYARRAY_CHECK(n2Arr,1,NPY_DOUBLE,"n2 must be a 1D double array");
     
-    if (PyArray_NDIM(detectorAnglesArr) != 2 || PyArray_TYPE(detectorAnglesArr) != NPY_DOUBLE) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double");
+    Npoints = PyArray_DIMS(detectorAnglesArr)[0];
+    if (PyArray_SIZE(n1Arr) != Npoints || PyArray_SIZE(n2Arr) != Npoints) {
+        PyErr_SetString(PyExc_ValueError,"n1,n2 must be of length Npoints");
         return NULL; }
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Ns = PyArray_DIMS(sampleAnglesArr)[1];
+
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-    
-    if (PyArray_NDIM(n1Arr) != 1 || PyArray_TYPE(n1Arr) != NPY_DOUBLE || PyArray_DIMS(n1Arr)[0] != Npoints) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length Npoints");
-        return NULL; }
-    n1 = (double *) PyArray_DATA(n1Arr); 
-    
-    if (PyArray_NDIM(n2Arr) != 1 || PyArray_TYPE(n2Arr) != NPY_DOUBLE || PyArray_DIMS(n2Arr)[0] != Npoints) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length Npoints");
-        return NULL; }
-    n2 = (double *) PyArray_DATA(n2Arr); 
-
-    if (PyArray_NDIM(rcchArr) != 1 || PyArray_TYPE(rcchArr) != NPY_DOUBLE || PyArray_DIMS(rcchArr)[0] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be one-dimensional and of type double and length 3");
-        return NULL; }
-    rcch = (double *) PyArray_DATA(rcchArr); 
-    
-    if (PyArray_NDIM(UBArr) != 2 || PyArray_TYPE(UBArr) != NPY_DOUBLE || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
-        PyErr_SetString(PyExc_ValueError,"array must be two-dimensional and of type double and shape (3,3)");
-        return NULL; }
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
+    rcch = (double *) PyArray_DATA(rcchArr);
     UB = (double *) PyArray_DATA(UBArr);
-
+    n1 = (double *) PyArray_DATA(n1Arr); 
+    n2 = (double *) PyArray_DATA(n2Arr); 
+    
     // derived values from input parameters
     f=M_2PI/lambda;
 
