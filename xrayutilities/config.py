@@ -53,8 +53,7 @@ with open(os.path.join(__path__[0],"xrayutilities_default.conf")) as gconffile:
     xuParser.readfp(gconffile)
 
 # read user configuration and local configuration if available
-cfiles = xuParser.read([os.path.join(__path__[0],"clib_path.conf"), \
-              os.path.expanduser(os.path.join("~",".xrayutilities.conf")), \
+cfiles = xuParser.read([os.path.expanduser(os.path.join("~",".xrayutilities.conf")), \
               "xrayutilities.conf"])
 
 # set global variables according to configuration
@@ -89,11 +88,6 @@ DBNAME = xuParser.get("xrayutilities","dbname")
 # kappa goniometer specific config parameters
 KAPPA_PLANE = xuParser.get("xrayutilities","kappa_plane")
 KAPPA_ANGLE = xuParser.getfloat("xrayutilities","kappa_angle")
-
-try:
-    CLIB_PATH = xuParser.get("xrayutilities","clib_path")
-except NoOptionError:
-    print("Config option clib_path not found indicating that you did not proper install xrayutilities!\n Look at the README.txt file for installation instructions")
 
 if VERBOSITY >= DEBUG:
     print("XU.config: xrayutilities configuration files: %s" %repr(cfiles))
