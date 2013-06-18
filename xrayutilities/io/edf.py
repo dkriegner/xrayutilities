@@ -56,13 +56,13 @@ DataTypeDict = {"SignedByte":"b",
 # UnsignedLong is only 4byte, on my 64bit machine using UnsignedLong:"L" caused troubles
 
 class EDFFile(object):
-    def __init__(self,fname,**keyargs):
+    def __init__(self,fname,nxkey="Dim_1",nykey="Dim_2",dtkey="DataType",path="",header=True):
         """
 
         required arguments:
         fname ................ name of the EDF file of type .edf or .edf.gz
 
-        optional keyword arguments:
+        keyword arguments:
         nxkey ................ name of the header key that holds the number of points in x-direction
         nykey ................ name of the header key that holds the number of points in y-direction
         dtkey ................ name of the header key that holds the datatype for the binary data
@@ -71,10 +71,7 @@ class EDFFile(object):
         """
 
         self.filename = fname
-        if "path" in keyargs:
-            self.full_filename = os.path.join(keyargs["path"],fname)
-        else:
-            self.full_filename = fname
+        self.full_filename = os.path.join(path,fname)
 
         try:
             if os.path.splitext(self.full_filename)[-1] == '.gz':
@@ -85,25 +82,10 @@ class EDFFile(object):
             raise IOError("cannot open file %s" %(self.full_filename))
 
         #evaluate keyword arguments
-        if "nxkey" in keyargs:
-            self.nxkey = keyargs["nxkey"]
-        else:
-            self.nxkey = "Dim_1"
-
-        if "nykey" in keyargs:
-            self.nykey = keyargs["nykey"]
-        else:
-            self.nykey = "Dim_2"
-
-        if "dtkey" in keyargs:
-            self.dtkey = keyargs["dtkey"]
-        else:
-            self.dtkey = "DataType"
-
-        if "header" in keyargs:
-            self.headerflag = keyargs["header"]
-        else:
-            self.headerflag = True
+        self.nxkey = nxkey
+        self.nykey = nykey
+        self.dtkey = dtkey
+        self.headerflag = header
 
         #create attributes for holding data
         self.header = {}
@@ -247,9 +229,8 @@ class EDFFile(object):
         #return with file pointer to 0
         self.fid.seek(0)
 
-    def Save2HDF5(self,h5,**keyargs):
+    def Save2HDF5(self,h5,group="/",comp=True):
         """
-        Save2HDF5(h5,**keyargs):
         Saves the data stored in the EDF file in a HDF5 file as a HDF5 array.
         By default the data is stored in the root group of the HDF5 file - this
         can be changed by passing the name of a target group or a path to the
@@ -259,22 +240,14 @@ class EDFFile(object):
         h5 ................... a HDF5 file object
 
         optional keyword arguments:
-        group ................ group where to store the data
+        group ................ group where to store the data (default to the root of the file)
         comp ................. activate compression - true by default
         """
 
-        if "group" in keyargs:
-            if isinstance(keyargs["group"],str):
-                g = h5.getNode(keyargs["group"])
-            else:
-                g = keyargs["group"]
+        if isinstance(group,str):
+            g = h5.getNode(group)
         else:
-            g = "/"
-
-        if "comp" in keyargs:
-            compflag = keyargs["comp"]
-        else:
-            compflag = True
+            g = group
 
         #create the array name
         ca_name = os.path.split(self.filename)[-1]
@@ -293,7 +266,7 @@ class EDFFile(object):
         #create the Atom for the array
         a = tables.Atom.from_dtype(self.data.dtype)
         f = tables.Filters(complevel=7,complib="zlib",fletcher32=True)
-        if compflag:
+        if comp:
             try:
                 ca = h5.createCArray(g,ca_name,a,self.data.shape,ca_desc,filters=f)
             except:
@@ -319,7 +292,7 @@ class EDFDirectory(object):
     """
     Parses a directory for EDF files, which can be stored to a HDF5 file for further usage
     """
-    def __init__(self,datapath,**keyargs):
+    def __init__(self,datapath,ext="edf",**keyargs):
         """
 
         required arguments:
@@ -331,12 +304,8 @@ class EDFDirectory(object):
         further keyword arguments are passed to EDFFile
         """
 
-
         self.datapath = os.path.normpath(datapath)
-        if "ext" in keyargs:
-            self.extension = keyargs["ext"]
-        else:
-            self.extension = "edf"
+        self.extension = ext
 
         #create list of files to read
         self.files = glob.glob( os.path.join(self.datapath, '*.%s' %(self.extension)))
@@ -351,9 +320,8 @@ class EDFDirectory(object):
         self.init_keyargs = keyargs
 
 
-    def Save2HDF5(self,h5,**keyargs):
+    def Save2HDF5(self,h5,group="",comp=True):
         """
-        Save2HDF5(h5,**keyargs):
         Saves the data stored in the EDF files in the specified directory
         in a HDF5 file as a HDF5 arrays in a subgroup.
         By default the data is stored in a group given by the foldername - this
@@ -364,22 +332,19 @@ class EDFDirectory(object):
         h5 ................... a HDF5 file object
 
         optional keyword arguments:
-        group ................ group where to store the data (default: pathname)
+        group ................ group where to store the data (defaults to pathname if group is empty string)
         comp ................. activate compression - true by default
         """
 
-        if "group" in keyargs:
-            if isinstance(keyargs["group"],str):
-                g = h5.getNode(keyargs["group"])
-            else:
-                g = keyargs["group"]
-        else:
-            # create common subgroup
-            defaultg = os.path.split(self.datapath)[1]
-            try:
-                g = h5.getNode(h5.root,defaultg)
+        if isinstance(group,str):
+            if group == "":
+                group = os.path.split(self.datapath)[1]
+            try: 
+                g = h5.getNode(h5.root,group)
             except:
-                g = h5.createGroup(h5.root,defaultg)
+                g = h5.createGroup(h5.root,group)
+        else:
+            g = group
 
         if "comp" in keyargs:
             compflag = keyargs["comp"]

@@ -41,7 +41,7 @@ rdc_data_line = re.compile(r"(\s*[0-9\.]\s*)+")
 rem_blank = re.compile(r"\s+")  #remove all multiple blanks in a line
 blank_extract = re.compile(r"\S+") #extract all columns seperated by single blanks
 
-def rad2hdf5(h5,rdcfile,**keyargs):
+def rad2hdf5(h5,rdcfile,h5path="/",rdcpath="."):
     """
     Converts a RDC file to an HDF5 file.
 
@@ -49,23 +49,13 @@ def rad2hdf5(h5,rdcfile,**keyargs):
      h5 .................. HDF5 object where to store the data
      rdcfile ............. name of the RDC file
 
-    optional (named) input arguments:
-     h5path .............. Path in the HDF5 file where to store the data
+    optional input arguments:
+     h5path .............. Path in the HDF5 file where to store the data (default to root)
      rdcpath ............. path where the RDC file is located (default
                            is the current working directory)
     """
 
-    if "rdcpath" in keyargs:
-        rdcpath = keyargs["rdcpath"]
-    else:
-        rdcpath = "."
-
     rdcfilename = os.path.join(rdcpath,rdcfile)
-
-    if "h5path" in keyargs:
-        h5path = keyargs["h5path"]
-    else:
-        h5path = h5.root
 
     try:
         rdcfid = open(rdcfilename,mode="r")
@@ -173,7 +163,7 @@ def rad2hdf5(h5,rdcfile,**keyargs):
     rdcfid.close()
 
 
-def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
+def hst2hdf5(h5,hstfile,nofchannels,h5path="/",hstpath="."):
     """
     Converts a HST file to an HDF5 file.
 
@@ -182,26 +172,16 @@ def hst2hdf5(h5,hstfile,nofchannels,**keyargs):
       hstfile ............. name of the HST file
       nofchannels ......... number of channels
 
-    optional (named) input arguments:
+    optional input arguments:
       h5path .............. Path in the HDF5 file where to store the data
       hstpath ............. path where the HST file is located (default
                             is the current working directory)
     """
-    if "hstpath" in keyargs:
-        hstpath = keyargs["hstpath"]
-    else:
-        hstpath = "."
 
     hstfilename = os.path.join(hstpath,hstfile)
 
-    if "h5path" in keyargs:
-        h5path = keyargs["h5path"]
-    else:
-        h5path = h5.root
-
     try:
         hstfid = open(hstfilename,mode="r")
-
     except:
         raise IOError("XU.io.hst2hdf5: error opening HST file %s !" %hstfilename)
 

@@ -545,7 +545,7 @@ class Spectra(object):
 
 
 
-    def recarray2hdf5(self,h5g,rec,name,desc,**keyargs):
+    def recarray2hdf5(self,h5g,rec,name,desc):
         """
         Save a record array in an HDF5 file. A pytables table
         object is used to store the data.
@@ -555,8 +555,6 @@ class Spectra(object):
          rec ................ record array
          name ............... name of the table in the file
          desc ............... description of the table in the file
-
-        optional keyword arguments:
 
         return value:
          tab ................. a HDF5 table object
@@ -588,7 +586,7 @@ class Spectra(object):
         tab.flush()
         self.h5_file.flush()
 
-    def spectra2hdf5(self,dir,fname,mcatemp,**keyargs):
+    def spectra2hdf5(self,dir,fname,mcatemp,name="",desc="SPECTRA data"):
         """
         Convert SPECTRA scan data to a HDF5 format.
 
@@ -599,22 +597,20 @@ class Spectra(object):
 
         optional keyword arguments:
          name .............. optional name under which to save the data
+                             if empty the basename of the filename will be used
          desc .............. optional description of the scan
         """
 
-        (name,ext) = os.path.splitext(fname)
+        (basename,ext) = os.path.splitext(fname)
         mcadir = os.path.join(dir,name)
 
         #evaluate keyword arguments
-        if "name" in keyargs:
-            sg_name = keyargs["name"]
+        if name == "":
+            sg_name = basename
         else:
             sg_name = name
 
-        if "desc" in keyargs:
-            sg_desc = keyargs["desc"]
-        else:
-            sg_desc = "SPECTRA data"
+        sg_desc = desc
 
         #check wether an MCA directory exists or not
         if os.path.exists(mcadir):
@@ -717,17 +713,12 @@ def get_spectra_files(dirname):
     onlist.sort()
     return onlist
 
-def read_mca_dir(dirname,filetemp,**keyargs):
+def read_mca_dir(dirname,filetemp,sort=True):
     """
     Read all MCA files within a directory
     """
 
     flist = get_spectra_files(dirname)
-
-    if "sort" in keyargs:
-        sort_flag = keyargs["sort"]
-    else:
-        sort_flag = True
 
     #create a list with the numbers of the files
     nlist = []
@@ -736,7 +727,7 @@ def read_mca_dir(dirname,filetemp,**keyargs):
         name = name.replace(filetemp,"")
         nlist.append(int(name))
 
-    if sort_flag:
+    if sort:
         nlist.sort()
 
     dlist = []
@@ -892,7 +883,7 @@ def geth5_spectra_map(h5file,scans,*args,**kwargs):
      h5f:     file object of a HDF5 file opened using pytables
      scans:   number of the scans of the reciprocal space map (int,tuple or list)
 
-    *args:   names of the motors (strings)
+    *args:   arbitrary number of motor names (strings)
      omname:  name of the omega motor (or its equivalent)
      ttname:  name of the two theta motor (or its equivalent)
 

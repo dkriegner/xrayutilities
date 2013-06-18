@@ -339,6 +339,16 @@ class SPECScan(object):
         Plot scan data to a matplotlib figure. If newfig=True a new
         figure instance will be created. If logy=True (default is False)
         the y-axis will be plotted with a logarithmic scale.
+
+        Parameters
+        ----------
+         *args:  arguments for the plot: first argument is the name of x-value column
+                 the following pairs of arguments are the y-value names and plot styles
+                 allowed are 3,5,7,... number of arguments
+
+         **keyargs:
+          newfig:  if True a new figure instance will be created otherwise an existing one will be used
+          logy:    if True a semilogy plot will be done
         """
 
         try: pylab.__version__
@@ -395,9 +405,7 @@ class SPECScan(object):
         pylab.axis([xdata.min(),xdata.max(),lim[2],lim[3]])
 
 
-
-
-    def Save2HDF5(self,h5f,**keyargs):
+    def Save2HDF5(self,h5f,group="/",title="",desc="",optattrs={},comp=True):
         """
         Save a SPEC scan to an HDF5 file. The method creates a group with the name of the
         scan and stores the data there as a table object with name "data". By default the
@@ -407,14 +415,14 @@ class SPECScan(object):
         group can be passed as a dictionary via the optattrs keyword argument.
 
         input arguments:
-         h5f ..................... a HDF5 file object or its filename
+         h5f ............ a HDF5 file object or its filename
 
         optional keyword arguments:
-         group ...................... name or group object of the HDF5 group where to store the data
-         title ............... a string with the title for the data
-         desc ................ a string with the description of the data
-         optattrs ............ a dictionary with optional attributes to store for the data
-         comp ................ activate compression - true by default
+         group .......... name or group object of the HDF5 group where to store the data
+         title .......... a string with the title for the data, defaults to the name of scan if empty
+         desc ........... a string with the description of the data, defaults to the scan command if empty
+         optattrs ....... a dictionary with optional attributes to store for the data
+         comp ........... activate compression - true by default
         """
 
         closeFile=False
@@ -435,27 +443,19 @@ class SPECScan(object):
             return None
 
         #parse keyword arguments:
-        if "group" in keyargs:
-            if isinstance(keyargs["group"],str):
-                rootgroup = h5.getNode(keyargs["group"])
-            else:
-                rootgroup = keyargs["group"]
+        if isinstance(group,str):
+            rootgroup = h5.getNode(group)
         else:
-            rootgroup = "/"
+            rootgroup = group
 
-        if "comp" in keyargs:
-            compflag = keyargs["comp"]
-        else:
-            compflag = True
-
-        if "title" in keyargs:
-            group_title = keyargs["title"]
+        if title != "":
+            group_title = title
         else:
             group_title = self.name
         group_title  = group_title.replace(".","_")
 
-        if "desc" in keyargs:
-            group_desc = keyargs["desc"]
+        if desc != "":
+            group_desc = desc
         else:
             group_desc = self.command
 
@@ -491,7 +491,7 @@ class SPECScan(object):
                     group_title = group_title + "_%i" %(copy_count)
                     copy_count = copy_count + 1
 
-        if compflag:
+        if comp:
             tab = h5.createTable(g,"data",tab_desc_dict,"scan data",filters=f)
         else:
             tab = h5.createTable(g,"data",tab_desc_dict,"scan data")
@@ -519,10 +519,8 @@ class SPECScan(object):
         g._v_attrs.mca_stop_channel = numpy.uint(self.mca_stop_channel)
         g._v_attrs.mca_nof_channels = numpy.uint(self.mca_channels)
 
-        if "optattrs" in keyargs:
-            optattrs = keyargs["optattrs"]
-            for k in optattrs.keys():
-                g._v_attrs.__setattr__(k,opattrs[k])
+        for k in optattrs.keys():
+            g._v_attrs.__setattr__(k,opattrs[k])
 
         h5.flush()
 
@@ -535,13 +533,17 @@ class SPECFile(object):
     methodes for updateing an already opened file which makes it particular
     interesting for interactive use.
     """
-    def __init__(self,filename,**keyargs):
-        self.filename = filename
+    def __init__(self,filename,path=""):
+        """
+        SPECFile init routine
 
-        if "path" in keyargs:
-            self.full_filename = os.path.join(keyargs["path"],filename)
-        else:
-            self.full_filename = filename
+        Parameters
+        ----------
+         filename:  filename of the spec file
+         path:      path to the specfile (optional)
+        """
+        self.filename = filename
+        self.full_filename = os.path.join(path,filename)
 
         self.filename = os.path.basename(self.full_filename)
 
@@ -576,7 +578,7 @@ class SPECFile(object):
 
         return ostr
 
-    def Save2HDF5(self,h5f,**keyargs):
+    def Save2HDF5(self,h5f,comp=True):
         """
         Save the entire file in an HDF5 file. For that purpose a group is set up in the root
         group of the file with the name of the file without extension and leading path.
@@ -588,7 +590,6 @@ class SPECFile(object):
 
         optional keyword arguments:
          comp .................. activate compression - true by default
-         name .................. optional name for the file group
         """
 
         closeFile=False
@@ -608,16 +609,11 @@ class SPECFile(object):
         except:
             g = h5.getNode("/"+os.path.splitext(self.filename)[0])
 
-        if "comp" in keyargs:
-            compflag = keyargs["comp"]
-        else:
-            compflag = True
-
         for s in self.scan_list:
             if (((not g.__contains__(s.name)) or s.ischanged) and s.scan_status!="NODATA"):
                 s.ReadData()
                 if s.data != None:
-                    s.Save2HDF5(h5,group=g,comp=compflag)
+                    s.Save2HDF5(h5,group=g,comp=comp)
                     s.ClearData()
                     s.ischanged = False
 
@@ -868,12 +864,12 @@ class SPECCmdLine(object):
         pass
 
 class SPECLog(object):
-    def __init__(self,filename,prompt,**keyargs):
+    def __init__(self,filename,prompt,path=""):
+        """
+        init routine for a class to read a SPEC log file
+        """
         self.filename = filename
-        if "path" in keyargs:
-            self.full_filename = os.path.join(keyargs["path"],self.filename)
-        else:
-            self.full_filename = self.filename
+        self.full_filename = os.path.join(path,self.filename)
 
         try:
             self.fid = open(self.full_filename,"r")
@@ -934,7 +930,7 @@ def geth5_scan(h5f,scans,*args,**kwargs):
      ttname:  e.g. name of the two theta motor (or its equivalent)
 
      **kwargs (optional):
-       samplename: string with the hdf5-group containing the scan data
+       samplename:  string with the hdf5-group containing the scan data
                     if ommited the first child node of h5f.root will be used
 
     Returns

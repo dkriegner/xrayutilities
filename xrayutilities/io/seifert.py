@@ -188,45 +188,25 @@ class SeifertMultiScan(object):
         self.sm_pos.shape = (self.nscans,self.n_sm_pos)
 
 
-    def dump2hdf5(self,h5,*args,**keyargs):
+    def dump2hdf5(self,h5,iname="INT",group="/"):
         """
         Saves the content of a multi-scan file to a HDF5 file. By default the
         data is stored in the root group of the file. To save data somewhere
         else the keyword argument "group" must be used.
 
         required arguments:
-         h5 ................. a HDF5 file object
-
-        optional positional arguments:
-         name for the intensity matrix
-         name for the scan motor
-         name for the second motor
-         more then three parameters are ignored.
+         h5 .............. a HDF5 file object
 
         optional keyword arguments:
-         group ............... path to the HDF5 group where to store the data
+         iname ........... name for the intensity matrix
+         group ........... path to the HDF5 group where to store the data
         """
 
-        try:
-            iname = args[0]
-        except:
-            iname = "INT"
+        iname = args[0]
+        smname = self.scan_motor_name
+        m2name = self.sec_motor_name
 
-        try:
-            smname = args[1]
-        except:
-            smname = self.scan_motor_name
-
-        try:
-            m2name = args[2]
-        except:
-            m2name = self.sec_motor_name
-
-        if "group" in keyargs:
-            g = keyargs["group"]
-        else:
-            g = h5.root
-
+        g = group
 
         a = tables.Float32Atom()
         f = tables.Filters(complevel=9,complib="zlib",fletcher32=True)

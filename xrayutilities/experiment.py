@@ -88,6 +88,10 @@ class QConversion(object):
                         (default: identity matrix)
         """
 
+        for k in kwargs.keys():
+            if k not in ['wl','en','UB']:
+                raise Exception("unknown keyword argument given: allowed are 'en': for x-ray energy, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix")
+        
         #initialize some needed variables
         self._kappa_dir = numpy.array((numpy.nan,numpy.nan,numpy.nan))
 
@@ -348,6 +352,10 @@ class QConversion(object):
         where * corresponds to the number of points given in the input
         """
 
+        for k in kwargs.keys():
+            if k not in ['wl','deg','UB','delta']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees")
+        
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
@@ -465,6 +473,10 @@ class QConversion(object):
           roi:           region of interest for the detector pixels; e.g. [100,900]
         """
 
+        for k in kwargs.keys():
+            if k not in ['Nav','roi']:
+                raise Exception("unknown keyword argument given: allowed are 'Nav': number of channels for block-average, 'roi': region of interest")
+        
         # detectorDir
         if not isinstance(detectorDir,str) or len(detectorDir)!=2:
             raise InputError("QConversion: incorrect detector direction type or syntax (%s)" %repr(detectorDir))
@@ -539,6 +551,10 @@ class QConversion(object):
 
         if not self._linear_init:
             raise Exception("QConversion: linear detector not initialized -> call Ang2Q.init_linear(...)")
+        
+        for k in kwargs.keys():
+            if k not in ['wl','deg','UB','delta','Nav','roi']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest")
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -680,6 +696,10 @@ class QConversion(object):
           roi:            region of interest for the detector pixels; e.g. [100,900,200,800]
         """
 
+        for k in kwargs.keys():
+            if k not in ['Nav','roi']:
+                raise Exception("unknown keyword argument given: allowed are 'Nav': number of channels for block-average, 'roi': region of interest")
+        
         # detectorDir
         if not isinstance(detectorDir1,str) or len(detectorDir1)!=2:
             raise InputError("QConversion: incorrect detector direction1 type or syntax (%s)" %repr(detectorDir1))
@@ -777,6 +797,10 @@ class QConversion(object):
 
         if not self._area_init:
             raise Exception("QConversion: area detector not initialized -> call Ang2Q.init_area(...)")
+        
+        for k in kwargs.keys():
+            if k not in ['wl','deg','UB','delta','Nav','roi']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest")
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -925,6 +949,11 @@ class Experiment(object):
           en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
                      the en keyword overrulls the wl keyword
         """
+
+        for k in keyargs.keys():
+            if k not in ['qconv','wl','en']:
+                raise Exception("unknown keyword argument given: allowed are 'en': for x-ray energy, 'wl': x-ray wavelength, 'qconv': reciprocal space conversion.")
+
         if isinstance(ipdir,(list,tuple)):
             self.idir = math.VecUnit(numpy.array(ipdir,dtype=numpy.double))
         elif isinstance(ipdir,numpy.ndarray):
@@ -1086,16 +1115,23 @@ class Experiment(object):
 
         """
 
+        for k in kwargs.keys():
+            if k not in ['U','B','mat','dettype']:
+                raise Exception("unknown keyword argument given: allowed are 'B': orthonormalization matrix, 'U': orientation matrix, 'mat': material object, 'dettype': string with detector type")
+        
         if "B" in kwargs:
             B = numpy.array(B)
+            kwargs.pop("B")
         elif "mat" in kwargs:
             mat = kwargs['mat']
             B = mat.B
+            kwargs.pop("mat")
         else:
             B = numpy.identity(3)
 
         if "U" in kwargs:
             U = numpy.array(U)
+            kwargs.pop("U")
         else:
             U = self._transform.matrix
 
@@ -1105,6 +1141,7 @@ class Experiment(object):
             typ = kwargs['dettype']
             if typ not in ('point', 'linear', 'area'):
                 raise InputError("wrong dettype given: needs to be one of 'point', 'linear', 'area'")
+            kwargs.pop("dettype")
         else:
             typ = 'point'
 
@@ -1115,7 +1152,7 @@ class Experiment(object):
         else:
             return self.Ang2Q(*args,**kwargs)
 
-    def Transform(self,v,**kwargs):
+    def Transform(self,v):
         """
         transforms a vector, matrix or tensor of rank 4 (e.g. elasticity tensor)
         to the coordinate frame of the Experiment class.
@@ -1130,7 +1167,7 @@ class Experiment(object):
         -------
          transformed object of the same shape as v
         """
-        return self._transform(v,**kwargs)
+        return self._transform(v)
 
     def TiltAngle(self,q,deg=True):
         """
@@ -1166,7 +1203,7 @@ class HXRD(Experiment):
     can be treated with the use of linear and area detectors.
     see help self.Ang2Q
     """
-    def __init__(self,idir,ndir,**keyargs):
+    def __init__(self,idir,ndir,geometry='hi_lo',**keyargs):
         """
         initialization routine for the HXRD Experiment class
 
@@ -1184,13 +1221,10 @@ class HXRD(Experiment):
         """
         Experiment.__init__(self,idir,ndir,**keyargs)
 
-        if 'geometry' in keyargs:
-            if keyargs['geometry'] in ["hi_lo","lo_hi","real"]:
-                self.geometry = keyargs['geometry']
-            else:
-                raise InputError("HXRD: invalid value for the geometry argument given")
+        if geometry in ["hi_lo","lo_hi","real"]:
+            self.geometry = geometry
         else:
-            self.geometry = "hi_lo"
+            raise InputError("HXRD: invalid value for the geometry argument given")
 
         # initialize Ang2Q conversion
         if "qconv" not in keyargs:
@@ -1288,6 +1322,10 @@ class HXRD(Experiment):
          pdi_d: offset ot the diffracted beam from the scattering plane due to refraction
         """
 
+        for k in keyargs.keys():
+            if k not in ['trans','deg','geometry','refrac','mat','fi','fd','full_output']:
+                raise Exception("unknown keyword argument given: see documentation for details")
+        
         # collect the q-space input
         if len(Q)<3:
             Q = Q[0]
@@ -1545,6 +1583,10 @@ class NonCOP(Experiment):
          twotheta:   scattering angle (detector)
         """
 
+        for k in keyargs.keys():
+            if k not in ['trans','deg']:
+                raise Exception("unknown keyword argument given: allowed are 'trans': coordinate transformation flag, 'deg': degree-flag")
+        
         # collect the q-space input
         if len(Q)<3:
             Q = Q[0]
@@ -1685,6 +1727,10 @@ class GID(Experiment):
          beta:       exit angle from surface (at the moment always 0)
         """
 
+        for k in kwargs.keys():
+            if k not in ['trans','deg']:
+                raise Exception("unknown keyword argument given: allowed are 'trans': coordinate transformation flag, 'deg': degree-flag")
+        
         if isinstance(Q,list):
             q = numpy.array(Q,dtype=numpy.double)
         elif isinstance(Q,numpy.ndarray):
@@ -1842,6 +1888,10 @@ class GID_ID10B(GID):
          gamma:    scattering angle
         """
 
+        for k in kwargs.keys():
+            if k not in ['trans','deg']:
+                raise Exception("unknown keyword argument given: allowed are 'trans': coordinate transformation flag, 'deg': degree-flag")
+        
         [ai,azi,tt,beta] = GID.Q2Ang(self, Q, trans,deg, **kwargs)
 
         return [0,azi,0,tt]

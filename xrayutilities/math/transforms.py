@@ -103,7 +103,24 @@ class Transform(object):
                 print("XU.math.Transform.__init__: matrix cannot be inverted - seems to be singular")
             self.imatrix = None
 
-    def __call__(self,*args,**keyargs):
+    def inverse(self,*args):
+        """ 
+        performs inverse transformation a vector, matrix or tensor of rank 4
+
+        Parameters
+        ----------
+         *args:     object to transform, list or numpy array of shape
+                    (n,) (n,n), (n,n,n,n) where n is the rank of the
+                    transformation matrix
+        """
+
+        if self.imatrix==None:
+            raise Exception("XU.math.Transform: matrix cannot be inverted - seems to be singular")
+        
+        it = Transform(self.imatrix)
+        return it(args)
+
+    def __call__(self,*args):
         """
         transforms a vector, matrix or tensor of rank 4 (e.g. elasticity tensor)
 
@@ -112,16 +129,9 @@ class Transform(object):
          *args:     object to transform, list or numpy array of shape
                     (n,) (n,n), (n,n,n,n) where n is the rank of the
                     transformation matrix
-         **keyargs: optional keyword arguments:
-         inverse:   flag telling if the inverse transformation should be applied
-                    (default: False)
         """
 
         m = self.matrix
-        # parse keyword arguments
-        if "inverse" in keyargs:
-            if keyargs["inverse"]:
-                m = self.imatrix
 
         olist = []
         for a in args:
