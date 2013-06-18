@@ -77,4 +77,4 @@ double delta(double min,double max,unsigned int n);
 \brief compute grid index
 
 */
-unsigned int index(double x,double min,double d);
+unsigned int gindex(double x,double min,double d);

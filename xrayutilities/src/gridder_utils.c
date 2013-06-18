@@ -54,11 +54,11 @@ void set_array(double *a,unsigned int n,double value)
 //-----------------------------------------------------------------------------
 double delta(double min,double max,unsigned int n)
 {
-    return fabs(max-min)/(double)(n-1);
+    return fabs(max-min)/(double)(n);
 }
 
 //-----------------------------------------------------------------------------
-unsigned int index(double x,double min,double d)
+unsigned int gindex(double x,double min,double d)
 {
     return (unsigned int)rint((x-min)/d);
 }

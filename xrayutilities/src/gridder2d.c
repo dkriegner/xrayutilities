@@ -95,7 +95,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
 
     double dx = delta(xmin,xmax,nx);
     double dy = delta(ymin,ymax,ny);
-
+    
     /*check if normalization array is passed*/
     if(norm==NULL)
     {
@@ -126,7 +126,8 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
         if ((y[i]<ymin)||(y[i]>ymax)) continue;
 
         //compute the linear offset and set the data
-        offset = index(x[i],xmin,dx)*ny+index(y[i],ymin,dy);
+        offset = gindex(x[i],xmin,dx)*ny+gindex(y[i],ymin,dy);
+
         odata[offset] += data[i];
         gnorm[offset] += 1.;
     }
