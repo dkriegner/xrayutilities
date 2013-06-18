@@ -13,14 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
+# Copyright (C) 2009-2010,2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
-#import ctypes
 
-#from . import libxrayutils
+from . import cxrayutilities
 from . import exception
 from . import config
 
@@ -86,6 +85,11 @@ class Gridder1D(Gridder):
         self.gnorm = numpy.zeros(nx,dtype=numpy.double)
 
     def __get_xaxis(self):
+        """
+        Returns the xaxis of the gridder
+        the returned values correspond to the center of the data bins used by
+        the numpy.histogram function
+        """
         dx = (self.xmax-self.xmin)/(self.nx)
         ax = self.xmin+dx*numpy.arange(0,self.nx) + dx/2.
         return ax
@@ -99,7 +103,6 @@ class Gridder1D(Gridder):
     def Clear(self):
         self.gdata[...] = 0
         self.gnorm[...] = 0
-
 
     def __call__(self,*args):
         """
@@ -145,30 +148,37 @@ class Gridder2D(Gridder):
     def __init__(self,nx,ny,**keyargs):
         Gridder.__init__(self,**keyargs)
 
-        self.nx = nx
-        self.ny = ny
         self.xmin = 0
         self.ymin = 0
         self.xmax = 0
         self.ymax = 0
 
-        self.gdata = numpy.zeros((nx,ny),dtype=numpy.double)
-        self.gnorm = numpy.zeros((nx,ny),dtype=numpy.double)
+        self.SetResolution(nx,ny)
 
     def SetResolution(self,nx,ny):
         self.nx = nx
         self.ny = ny
         self.gdata = numpy.zeros((nx,ny),dtype=numpy.double)
+        self.gdata = numpy.require(self.gdata,requirements=["ALIGNED","C_CONTIGUOUS"])
         self.gnorm = numpy.zeros((nx,ny),dtype=numpy.double)
+        self.gnorm = numpy.require(self.gnorm,requirements=["ALIGNED","C_CONTIGUOUS"])
 
     def __get_xaxis(self):
+        """
+        Returns the xaxis of the 2D gridder
+        the returned values correspond to the center of the data bins
+        """
         dx = (self.xmax-self.xmin)/(self.nx-1)
-        ax = self.xmin+dx*numpy.arange(0,self.nx)+dx/2.
+        ax = self.xmin+dx*numpy.arange(0,self.nx)
         return ax
 
     def __get_yaxis(self):
+        """
+        Returns the yaxis of the 2D gridder
+        the returned values correspond to the center of the data bins
+        """
         dy = (self.ymax-self.ymin)/(self.ny-1)
-        ax = self.ymin + dy*numpy.arange(0,self.ny)+dy/2.
+        ax = self.ymin + dy*numpy.arange(0,self.ny)
         return ax
 
     def __get_xmatrix(self):
@@ -229,36 +239,18 @@ class Gridder2D(Gridder):
         self.ymin = y.min()
         self.ymax = y.max()
 
-        if self.nthreads != 0:
-            #use threaded code
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.Gridder2D: using threaded code ...i (flags: %d)" %self.flags)
-#            libxrayutils._gridder2d_th(ctypes.c_uint(self.nthreads),x,y,data,ctypes.c_uint(x.size),
-#                                      ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
-#                                      ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-#                                      ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-#                                      self.gdata,self.gnorm,self.flags)
-        else:
-            #use sequential code - good for small data
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.Gridder2D: using sequential code ... (flags: %s)" %self.flags)
-#            libxrayutils._gridder2d(x,y,data,ctypes.c_uint(x.size),
-#                                   ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),
-#                                   ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-#                                   ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-#                                   self.gdata,self.gnorm,ctypes.c_int(self.flags))
+        cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,self.xmin,self.xmax,
+                                 self.ymin,self.ymax,self.gdata,self.gnorm,self.flags)            
 
 
 class Gridder3D(Gridder2D):
     def __init__(self,nx,ny,nz,**keyargs):
         Gridder2D.__init__(self,nx,ny,**keyargs)
 
-        self.nz = nz
-        self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-        self.gnorm = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-
         self.zmin = 0
         self.zmax = 0
+
+        self.SetResolution(nx,ny,nz)
 
     def SetResolution(self,nx,ny,nz):
         self.nx = nx
@@ -266,16 +258,29 @@ class Gridder3D(Gridder2D):
         self.nz = nz
 
         self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
+        self.gdata = numpy.require(self.gdata,requirements=["ALIGNED","C_CONTIGUOUS"])
         self.gnorm = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-
+        self.gnorm = numpy.require(self.gnorm,requirements=["ALIGNED","C_CONTIGUOUS"])
 
     def __get_zaxis(self):
         dz = (self.zmax-self.zmin)/(self.nz-1)
-        az = self.zmin + dz*numpy.arange(0,self.nz) + dz/2.
+        az = self.zmin + dz*numpy.arange(0,self.nz)
         return az
 
+    def __get_xmatrix(self):
+        a = self.xaxis()
+        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
+
+        return m*a[:,numpy.newaxis,numpy.newaxis]
+
+    def __get_ymatrix(self):
+        a = self.yaxis()
+        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
+
+        return m*a[numpy.newaxis,:,numpy.newaxis]
+
     def __get_zmatrix(self):
-        a = self.GetZAxis()
+        a = self.zaxis()
         m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
 
         return m*a[numpy.newaxis,numpy.newaxis,:]

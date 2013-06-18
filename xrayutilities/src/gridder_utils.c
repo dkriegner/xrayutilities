@@ -54,7 +54,7 @@ void set_array(double *a,unsigned int n,double value)
 //-----------------------------------------------------------------------------
 double delta(double min,double max,unsigned int n)
 {
-    return fabs(max-min)/(double)(n);
+    return fabs(max-min)/(double)(n-1);
 }
 
 //-----------------------------------------------------------------------------
