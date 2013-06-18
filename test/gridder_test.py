@@ -2,12 +2,13 @@ import xrayutilities.cxrayutilities as cu
 import numpy
 
 #2D gridder parameters
-xmin = 0
+xmin = 1
 xmax = 10
+n = 10
 ymin = xmin
 ymax = xmax
 
-x = numpy.arange(xmin,xmax,dtype="float64")
+x = numpy.linspace(xmin,xmax,num=n).astype(numpy.double)
 y = x
 nx = x.size
 ny = y.size
