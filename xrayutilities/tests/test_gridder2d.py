@@ -35,8 +35,12 @@ class TestGridder1D(unittest.TestCase):
         self.assertEqual(self.gridder.gdata.shape[0], self.nx) 
         self.assertEqual(self.gridder.gdata.shape[1], self.ny) 
         # test values of data
-        for i in range(self.nx):
-            self.assertAlmostEqual(self.gridder.gdata[i,2*i], self.data[i], places=12)
+        aj,ak = numpy.indices((self.nx,self.ny))
+        aj,ak = numpy.ravel(aj),numpy.ravel(ak) 
+        for i in range(self.nx*self.ny):
+            j,k = (aj[i],ak[i])
+            if k==2*j: self.assertAlmostEqual(self.gridder.gdata[j,2*j], self.data[j], places=12)
+            else: self.assertEqual(self.gridder.gdata[j,k], 0.)
 
 if __name__ == '__main__':
         unittest.main()
