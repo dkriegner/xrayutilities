@@ -16,6 +16,7 @@
 # Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
+import numpy
 
 from . import __path__
 from .material import Material,CubicElasticTensor,HexagonalElasticTensor,CubicAlloy

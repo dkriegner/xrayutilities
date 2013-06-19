@@ -20,17 +20,19 @@ import numpy
 #import matplotlib.pyplot as plt
 
 #en = (2*8048 + 8028)/3.
-en = 8048
+en = 'CuKa1'
 peak_width = 2*numpy.pi/100.
 resolution = peak_width/10.
 
 # create Fe BCC with a=2.87Angstrom
-FeBCC = xu.materials.Material("Fe", xu.materials.BCCLattice(xu.materials.elements.Fe,2.87),numpy.zeros((6,6), dtype=numpy.double))
+FeBCC = xu.materials.Material("Fe", xu.materials.BCCLattice(xu.materials.elements.Fe,2.87))
 
 print("Creating Fe powder ...")
 Fe_powder = xu.Powder(FeBCC,en=en)
 Fe_powder.PowderIntensity()
 Fe_th,Fe_int = Fe_powder.Convolute(resolution,peak_width)
+
+print(Fe_powder)
 
 #plt.figure(1)
 #plt.clf()
