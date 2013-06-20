@@ -5,68 +5,38 @@ xrayutilities - a package with useful scripts for X-ray diffraction
  Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
  Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-Directories:
-examples ... directory with example scripts and configurations
-python ..... holds an installable python module 
-src ........ source directory for the C-library used by the python module
-
+Contents:
+examples .......... directory with example scripts and configurations
+python ............ directory with the sources for the python package
+setup.py .......... distutils install script used for the package installation
+xrayutilities.pdf . pdf with documentation of the package
 
 INSTALLATION
 ============
-Installing xrayutilities is a two step process
-1.) installing required third party software
-    requirements are:
-     scons (pythonic build system)
+Installing xrayutilities is an easy process done by executing
+
+  python setup.py install
+
+or 
+
+  python setup.py install --prefix=INSTALLPATH
+
+in the source folder of xrayutilities on the command line/terminal.
+The first command installs in the systems default directories, whereas in the second command you can manually specify the installation path.
+
+For the installation the following requirements need to be installed on your system
+
+     Python
      C-compiler
      HDF5
      pytables
      scipy
      numpy
      matplotlib (optionally)
-    refer to your operating system documentation to find out how to install
-    those packages. On Microsoft Windows refer to the Documentation for the 
-    easiest way of the installation (python(x,y) + scons).
-2.) build and install the C-library libxrutils.so/xrutils.dll, as well as the 
-    python package (xrayutilities)
 
-Obtaining the source code
-=========================
-
-The sources are hosted on sourceforge in git repository.
-Use:
- $> git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
-to clone the git repository. If you would like to have commit rights 
-contact one of the administrators.
-
-Building and installing the C library and python package
-========================================================
-
-Open a terminal and navigate to the source folder of xrayutilities.
-xrayutilities use SCons to build and install C code. Installation
-of libxrutils.so and the python package requires two steps
--> compile the library by simply typing 
-    $>scons
-   or
-    $>scons debug=1
-   to build with "-g -O0"
--> install the library and python package, either system wide 
-    $>scons install
-   , which means in /usr/lib/ on Unix systems.
-   or locally in the user directory
-    $>scons install --prefix=<path to install directory>
--> the documentation can be built with
-    $>scons doc
-
-The --prefix option sets the root directory for the installation.
-Tools are installed under <prefix>/bin the library under
-<prefix>/lib. 
-If you use a package manager the SConstruct file includes support for DESTDIR.
-To use this feature call
-
-    $>scons DESTDIR=/destdir_path install 
-
-instead of the command given above. This can be used in combination with the
-prefix flag. 
+refer to your operating system documentation to find out how to install
+those packages. On Microsoft Windows refer to the Documentation for the 
+easiest way of the installation (python(x,y)).
 
 The python package configuration
 ================================
@@ -97,6 +67,14 @@ ways how to do this:
    sys.path.append("path to the xrayutilities package")
    import xrayutilities
 
+Obtaining the source code
+=========================
+
+The sources are hosted on sourceforge in git repository.
+Use:
+ $> git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
+to clone the git repository. If you would like to have commit rights 
+contact one of the administrators.
 
 UPDATE
 ======
@@ -107,8 +85,7 @@ its source folder and obtain the new sources by
   $> git pull
  
 or download the new tarball from sourceforge (http://sf.net/projects/xrayutilities)
-if any code changed during the update you need to reinstall the libary and
-python package.
+if any code changed during the update you need to reinstall the python package.
 To determine the path in which xrayutilities where installed previously use:
 
   $> python -c "import xrayutilities as xu; print xu.__file__"
@@ -118,7 +95,7 @@ if the output is e.g.: "/usr/local/lib64/python2.7/site-packages/xrayutilities/_
 you previously installed xrayutilities in "/usr/local", which should be used
 again as install path. Use:
 
-  $> scons install --prefix=<path to install directory>
+  $> python setup.py install --prefix=<path to install directory>
 
 to install the updated package.
 
@@ -144,7 +121,7 @@ PACKAGING
 
 create a tarball for redistribution of xrayutilities without the use of git
 
-  $>scons dist
+  $>python setup.py sdist
 
 creates a tarball in the directory dist, which contains everything needed for
 the installation of xrayutilities

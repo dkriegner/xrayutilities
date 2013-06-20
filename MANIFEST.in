@@ -1,0 +1,2 @@
+include xrayutilities.pdf
+recursive-include examples *
