@@ -1,7 +1,8 @@
-.. _math_subpackage:
+math Package
+============
 
 :mod:`math` Package
-===================
+-------------------
 
 .. automodule:: xrayutilities.math
     :members:

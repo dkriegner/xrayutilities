@@ -1,7 +1,8 @@
-.. _io-subpackage:
+io Package
+==========
 
 :mod:`io` Package
-=================
+-----------------
 
 .. automodule:: xrayutilities.io
     :members:

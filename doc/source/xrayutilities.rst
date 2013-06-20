@@ -1,13 +1,10 @@
-.. _API-documentation:
-
-=================
-API-documentation
-=================
+xrayutilities Package
+=====================
 
 :mod:`xrayutilities` Package
-============================
+----------------------------
 
-.. automodule:: xrayutilities
+.. automodule:: xrayutilities.__init__
     :members:
     :undoc-members:
     :show-inheritance:
@@ -28,8 +25,6 @@ API-documentation
     :undoc-members:
     :show-inheritance:
 
-.. _experiment-module:
-
 :mod:`experiment` Module
 ------------------------
 
@@ -38,20 +33,10 @@ API-documentation
     :undoc-members:
     :show-inheritance:
 
-.. _gridder-module:
-
 :mod:`gridder` Module
 ---------------------
 
 .. automodule:: xrayutilities.gridder
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`libxrayutils` Module
---------------------------
-
-.. automodule:: xrayutilities.libxrayutils
     :members:
     :undoc-members:
     :show-inheritance:

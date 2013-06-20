@@ -1,5 +1,8 @@
+analysis Package
+================
+
 :mod:`analysis` Package
-=======================
+-----------------------
 
 .. automodule:: xrayutilities.analysis
     :members:

@@ -29,7 +29,7 @@ Concept of usage
     :alt: Flow diagram showing how to analyze x-ray diffraction data using xrayutilities
 
 *xrayutilities* provides a set of functions to read experimental data from various data file formats. 
-All of them are gathered in the :ref:`io-subpackage`.
+All of them are gathered in the :mod:`io`-subpackage.
 After reading data with a function from the io-submodule the data might be corrected for monitor counts and/or absorption factor of a beam attenuator.  
 A special set of functions is provided to perform this for point, linear and area detectors.
 
@@ -38,15 +38,15 @@ They use block-averaging to reduce the amount of data.
 Use those carefully not to loose the features you are interested in in your measurements.
 
 After the pre-treatment of the data, the core part of the package is the transformation of the angular data to reciprocal space. 
-This is done as described in more detail below using the :ref:`experiment-module`. 
+This is done as described in more detail below using the :mod:`experiment`-module`. 
 The classes provided within the experiment module provide routines to help performing X-ray diffraction experiments.
 This includes methods to calculate the diffraction angles (described below) needed to align crystalline samples and to convert data between angular and reciprocal space.
 The conversion from angular to reciprocal space is implemented very general for various goniometer geometries. 
-It is especially useful in combination with linear and area detectors as described in this `article http://arxiv.org/abs/1304.1732`_. 
+It is especially useful in combination with linear and area detectors as described in this `article <http://arxiv.org/abs/1304.1732>`_. 
 In standard cases, Users will only need the initialized routines, which predefine a certain goniometer geometry like the popular four-cirlce and six-circle geometries.
 
 After the conversion to reciprocal space, it is convenient to transform the data to a regular grid for visualization. 
-For this purpose the :ref:`gridder-module` has been included into *xrayutilities*. 
+For this purpose the :mod:`gridder`-module has been included into *xrayutilities*. 
 For the visualization of the data in reciprocal space the usage of `matplotlib <http://matplotlib.org>`_ is recommended.
 
 A practical example showing the usage is given below.
@@ -59,13 +59,13 @@ Angle calculation using the material classes
     :align: right
     :alt: Flow diagram showing how to calculate angular positions of Bragg reflection using xrayutilities
 
-Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the :ref:`material-package`.
+Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the :mod:`materials`-package.
 This package provides a set of classes to describe crystal lattices and materials.
 Once such a material is properly defined one can calculate its properties, which includes the reciprocal lattice points, optical properties like 
 the refractive index, the structure factor (including the atomic scattering factor) and the complex polarizability.
 These atomic properties are extracted from a database included in *xrayutilities*.
 
-Using such a material and an experimental class from the :ref:`experiment-module` describing the experimental setup the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries.
+Using such a material and an experimental class from the :mod:`experiment`-module describing the experimental setup the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries.
 
 .. _helloworld:
 
@@ -91,7 +91,7 @@ xrayutilities Python package
    :undoc-members:
    :show-inheritance:
 
-for more details see the full :ref:`API-documentation`
+for more details see the full API documentation of :mod:`xrayutilities` found here: :ref:`expapi`.
 
 Installation
 ============
@@ -223,6 +223,8 @@ In case you want to do it the hard way install all of the following (versions in
 
 It is suggested to add the MinGW binary directory, as well as the Python and Python-scripts directory
 to the Path environment variable as described above! Installation is done as described above. 
+
+.. _expapi:
 
 Examples and API-documentation
 ==============================
