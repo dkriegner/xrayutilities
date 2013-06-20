@@ -47,6 +47,10 @@
         return NULL; \
     }
 
+#define OMPSETNUMTHREADS(nth) \
+    if(nth==0) omp_set_num_threads(omp_get_max_threads());\
+    else omp_set_num_threads(nth);
+    
 /* ###################################
  * matrix vector operations for
  * 3x3 matrices and vectors of length
@@ -434,18 +438,19 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     *
     *   Parameters
     *   ----------
-    *    sampleAngles .. angular positions of the sample goniometer (Npoints,Ns) (in)
-    *    detectorAngles. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *    ri ............ direction of primary beam (length irrelevant) (angles zero) (in)
-    *    sampleAxis .... string with sample axis directions (in)
-    *    detectorAxis .. string with detector axis directions (in)
-    *    kappadir ...... rotation axis of a possible kappa circle (in)
-    *    UB ............ orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
-    *    lambda ........ wavelength of the used x-rays (Angstreom) (in)
+    *    sampleAngles .. angular positions of the sample goniometer (Npoints,Ns) 
+    *    detectorAngles. angular positions of the detector goniometer (Npoints,Nd) 
+    *    ri ............ direction of primary beam (length irrelevant) (angles zero) 
+    *    sampleAxis .... string with sample axis directions 
+    *    detectorAxis .. string with detector axis directions 
+    *    kappadir ...... rotation axis of a possible kappa circle 
+    *    UB ............ orientation matrix and reciprocal space conversion of investigated crystal (3,3) 
+    *    lambda ........ wavelength of the used x-rays (Angstreom) 
+    *    nthreads ...... number of threads to use in parallel section of the code
     *
     *   Returns
     *   -------
-    *    qpos .......... momentum transfer (Npoints,3) (out)
+    *    qpos .......... momentum transfer (Npoints,3) 
     *    
     *   */
 {
@@ -454,6 +459,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     int i,j; // needed indices
     int Ns,Nd; // number of sample and detector circles
     int Npoints; // number of angular positions
+    unsigned int nthreads; // number of threads to use
     double lambda; // x-ray wavelength
     char *sampleAxis,*detectorAxis; // string with sample and detector axis
     double *sampleAngles,*detectorAngles, *ri, *kappadir, *UB, *qpos; // c-arrays for further usage
@@ -462,13 +468,13 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
                   *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!d",&PyArray_Type, &sampleAnglesArr, 
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!dI",&PyArray_Type, &sampleAnglesArr, 
                                       &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &riArr,
                                       &sampleAxis, &detectorAxis,
                                       &PyArray_Type, &kappadirArr,
                                       &PyArray_Type, &UBArr,
-                                      &lambda)) { 
+                                      &lambda, &nthreads)) { 
         return NULL;
     }
     
@@ -504,7 +510,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
-    omp_set_dynamic(1);
+    OMPSETNUMTHREADS(nthreads);
     #endif
 
     // arrays with function pointers to rotation matrix functions
@@ -567,23 +573,24 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     *
     *   Parameters
     *   ----------
-    *   sampleAngles .... angular positions of the goniometer (Npoints,Ns) (in)
-    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   rcch ............ direction + distance of center channel (angles zero) (in)
-    *   sampleAxis ...... string with sample axis directions (in)
-    *   detectorAxis .... string with detector axis directions (in)
-    *   kappadir ........ rotation axis of a possible kappa circle (in)
-    *   cch ............. center channel of the detector (in)
-    *   dpixel .......... width of one pixel, same unit as distance rcch (in)
-    *   roi ............. region of interest of the detector (in)
-    *   dir ............. direction of the detector, e.g.: "x+" (in)
-    *   tilt ............ tilt of the detector direction from dir (in)
-    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
-    *   lambda .......... wavelength of the used x-rays in Angstroem (in)
+    *   sampleAngles .... angular positions of the goniometer (Npoints,Ns) 
+    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) 
+    *   rcch ............ direction + distance of center channel (angles zero) 
+    *   sampleAxis ...... string with sample axis directions 
+    *   detectorAxis .... string with detector axis directions 
+    *   kappadir ........ rotation axis of a possible kappa circle 
+    *   cch ............. center channel of the detector 
+    *   dpixel .......... width of one pixel, same unit as distance rcch 
+    *   roi ............. region of interest of the detector 
+    *   dir ............. direction of the detector, e.g.: "x+" 
+    *   tilt ............ tilt of the detector direction from dir 
+    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (3,3) 
+    *   lambda .......... wavelength of the used x-rays in Angstroem 
+    *   nthreads ........ number of threads to use in parallel section of the code
     *   
     *   Returns
     *   -------
-    *   qpos ............ momentum transfer (Npoints*Nch,3) (out)
+    *   qpos ............ momentum transfer (Npoints*Nch,3) 
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
@@ -593,6 +600,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     int Ns,Nd; // number of sample and detector circles
     int Npoints; // number of angular positions
     int Nch; // number of channels in region of interest
+    unsigned int nthreads; // number of threads to use
     double f,lambda,cch,dpixel,tilt; // x-ray wavelength, f=M_2PI/lambda and detector parameters
     char *sampleAxis,*detectorAxis,*dir; // string with sample and detector axis, and detector direction
     double *sampleAngles,*detectorAngles, *rcch, *kappadir, *UB, *qpos; // c-arrays for further usage
@@ -602,7 +610,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
                   *kappadirArr=NULL, *roiArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddO!sdO!d",&PyArray_Type, &sampleAnglesArr, 
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddO!sdO!dI",&PyArray_Type, &sampleAnglesArr, 
                                       &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &rcchArr,
                                       &sampleAxis, &detectorAxis,
@@ -610,7 +618,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
                                       &cch, &dpixel, &PyArray_Type, &roiArr, 
                                       &dir, &tilt,
                                       &PyArray_Type, &UBArr,
-                                      &lambda)) { 
+                                      &lambda, &nthreads)) { 
         return NULL;
     }
  
@@ -654,7 +662,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
-    omp_set_dynamic(1);
+    OMPSETNUMTHREADS(nthreads);
     #endif
 
     // arrays with function pointers to rotation matrix functions
@@ -725,28 +733,29 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     *
     *   Parameters
     *   ----------
-    *   sampleAngles .... angular positions of the sample goniometer (Npoints,Ns) (in)
-    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   rcch ............ direction + distance of center pixel (angles zero) (in)
-    *   sampleAxis ...... string with sample axis directions (in)
-    *   detectorAxis .... string with detector axis directions (in)
-    *   kappadir ...... rotation axis of a possible kappa circle (in)
-    *   cch1 ............ center channel of the detector (in)
-    *   cch2 ............ center channel of the detector (in)
-    *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch (in)
-    *   dpixel2 ......... width of one pixel in second direction, same unit as distance rcch (in)
+    *   sampleAngles .... angular positions of the sample goniometer (Npoints,Ns) 
+    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) 
+    *   rcch ............ direction + distance of center pixel (angles zero) 
+    *   sampleAxis ...... string with sample axis directions 
+    *   detectorAxis .... string with detector axis directions 
+    *   kappadir ...... rotation axis of a possible kappa circle 
+    *   cch1 ............ center channel of the detector 
+    *   cch2 ............ center channel of the detector 
+    *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch 
+    *   dpixel2 ......... width of one pixel in second direction, same unit as distance rcch 
     *   roi ............. region of interest for the area detector [dir1min,dir1max,dir2min,dir2max]
-    *   dir1 ............ first direction of the detector, e.g.: "x+" (in)
-    *   dir2 ............ second direction of the detector, e.g.: "z+" (in)
-    *   tiltazimuth ..... azimuth of the tilt (in)
+    *   dir1 ............ first direction of the detector, e.g.: "x+" 
+    *   dir2 ............ second direction of the detector, e.g.: "z+" 
+    *   tiltazimuth ..... azimuth of the tilt 
     *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction
-    *                     given by the tiltazimuth (in)
-    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
-    *   lambda .......... wavelength of the used x-rays (in)
+    *                     given by the tiltazimuth 
+    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (3,3) 
+    *   lambda .......... wavelength of the used x-rays 
+    *   nthreads ........ number of threads to use in parallelization
     *
     *   Returns
     *   -------
-    *   qpos ............ momentum transfer (Npoints*Npix1*Npix2,3) (out)
+    *   qpos ............ momentum transfer (Npoints*Npix1*Npix2,3) 
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
@@ -756,6 +765,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     int idxh1,idxh2; // temporary index helper
     int Ns,Nd; // number of sample and detector circles
     int Npoints; // number of angular positions
+    unsigned int nthreads; // number threads for OpenMP
     double f,lambda,cch1,cch2,dpixel1,dpixel2,tilt,tiltazimuth; // x-ray wavelength, f=M_2PI/lambda and detector parameters
     char *sampleAxis,*detectorAxis,*dir1,*dir2; // string with sample and detector axis, and detector direction
     double *sampleAngles,*detectorAngles, *rcch, *kappadir, *UB, *qpos; // c-arrays for further usage
@@ -765,7 +775,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
                   *kappadirArr=NULL, *roiArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddddO!ssddO!d",&PyArray_Type, &sampleAnglesArr, 
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddddO!ssddO!dI",&PyArray_Type, &sampleAnglesArr, 
                                       &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &rcchArr,
                                       &sampleAxis, &detectorAxis,
@@ -774,7 +784,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
                                       &PyArray_Type, &roiArr, 
                                       &dir1, &dir2, &tiltazimuth, &tilt,
                                       &PyArray_Type, &UBArr,
-                                      &lambda)) { 
+                                      &lambda, &nthreads)) { 
         return NULL;
     }
     
@@ -818,10 +828,9 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
     qpos = (double *) PyArray_DATA(qposArr); 
 
-    
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
-    omp_set_dynamic(1);
+    OMPSETNUMTHREADS(nthreads);
     #endif
 
     // arrays with function pointers to rotation matrix functions
@@ -927,25 +936,26 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     *
     *  Parameters
     *  ----------
-    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   n1 .............. detector pixel numbers dim1 (Npoints) (in)
-    *   n2 .............. detector pixel numbers dim2 (Npoints) (in)
-    *   rcch ............ direction + distance of center pixel (angles zero) (in)
-    *   detectorAxis .... string with detector axis directions (in)
-    *   cch1 ............ center channel of the detector (in)
-    *   cch2 ............ center channel of the detector (in)
-    *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch (in)
-    *   dpixel2 ......... width of one pixel in second direction, same unit as distance rcch (in)
-    *   dir1 ............ first direction of the detector, e.g.: "x+" (in)
-    *   dir2 ............ second direction of the detector, e.g.: "z+" (in)
-    *   tiltazimuth ..... azimuth of the tilt (in)
+    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) 
+    *   n1 .............. detector pixel numbers dim1 (Npoints)
+    *   n2 .............. detector pixel numbers dim2 (Npoints) 
+    *   rcch ............ direction + distance of center pixel (angles zero) 
+    *   detectorAxis .... string with detector axis directions 
+    *   cch1 ............ center channel of the detector
+    *   cch2 ............ center channel of the detector 
+    *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch 
+    *   dpixel2 ......... width of one pixel in second direction, same unit as distance rcch 
+    *   dir1 ............ first direction of the detector, e.g.: "x+" 
+    *   dir2 ............ second direction of the detector, e.g.: "z+" 
+    *   tiltazimuth ..... azimuth of the tilt 
     *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction
-    *                     given by the tiltazimuth (in)
-    *   lambda .......... wavelength of the used x-rays (in)
+    *                     given by the tiltazimuth 
+    *   lambda .......... wavelength of the used x-rays 
+    *   nthreads ........ number of threads to use in parallel section of the code
     *
     *   Returns
     *   -------
-    *   qpos ............ momentum transfer (Npoints,3) (out)
+    *   qpos ............ momentum transfer (Npoints,3) 
     *   */
 {
     double mtemp[9], md[9]; //matrices
@@ -954,6 +964,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     int i,j,k; // loop indices
     int Nd; // number of detector circles
     int Npoints; // number of angular positions
+    unsigned int nthreads; // number of threads to use
     double f,lambda,cch1,cch2,dpixel1,dpixel2,tilt,tiltazimuth; // x-ray wavelength, f=M_2PI/lambda and detector parameters
     char *sampleAxis,*detectorAxis,*dir1,*dir2; // string with sample and detector axis, and detector direction
     double *detectorAngles, *n1, *n2, *rcch, *qpos; // c-arrays for further usage
@@ -961,11 +972,11 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     PyArrayObject *detectorAnglesArr=NULL, *n1Arr=NULL, *n2Arr=NULL, *rcchArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!O!O!O!sddddssddd", &PyArray_Type, &detectorAnglesArr,
+    if (!PyArg_ParseTuple(args, "O!O!O!O!sddddssdddI", &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &n1Arr, &PyArray_Type, &n2Arr, &PyArray_Type, &rcchArr,
                                       &detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2, 
                                       &dir1, &dir2, &tiltazimuth, &tilt,
-                                      &lambda)) { 
+                                      &lambda, &nthreads)) { 
         return NULL;
     }
     
@@ -1000,7 +1011,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
-    omp_set_dynamic(1);
+    OMPSETNUMTHREADS(nthreads);
     #endif
 
     // arrays with function pointers to rotation matrix functions
@@ -1079,28 +1090,29 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     * as input to allow for a simultaneous fit of reference samples orientation
     *
     * Interface:
-    *   sampleAngles .... angular positions of the sample goniometer (Npoints,Ns) (in)
-    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) (in)
-    *   n1 .............. detector pixel numbers dim1 (Npoints) (in)
-    *   n2 .............. detector pixel numbers dim2 (Npoints) (in)
-    *   rcch ............ direction + distance of center pixel (angles zero) (in)
-    *   sampleAxis ...... string with sample axis directions (in)
-    *   detectorAxis .... string with detector axis directions (in)
-    *   cch1 ............ center channel of the detector (in)
-    *   cch2 ............ center channel of the detector (in)
-    *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch (in)
-    *   dpixel2 ......... width of one pixel in second direction, same unit as distance rcch (in)
-    *   dir1 ............ first direction of the detector, e.g.: "x+" (in)
-    *   dir2 ............ second direction of the detector, e.g.: "z+" (in)
-    *   tiltazimuth ..... azimuth of the tilt (in)
+    *   sampleAngles .... angular positions of the sample goniometer (Npoints,Ns) 
+    *   detectorAngles .. angular positions of the detector goniometer (Npoints,Nd) 
+    *   n1 .............. detector pixel numbers dim1 (Npoints) 
+    *   n2 .............. detector pixel numbers dim2 (Npoints) 
+    *   rcch ............ direction + distance of center pixel (angles zero) 
+    *   sampleAxis ...... string with sample axis directions 
+    *   detectorAxis .... string with detector axis directions 
+    *   cch1 ............ center channel of the detector 
+    *   cch2 ............ center channel of the detector 
+    *   dpixel1 ......... width of one pixel in first direction, same unit as distance rcch 
+    *   dpixel2 ......... width of one pixel in second direction, same unit as distance rcch 
+    *   dir1 ............ first direction of the detector, e.g.: "x+" 
+    *   dir2 ............ second direction of the detector, e.g.: "z+" 
+    *   tiltazimuth ..... azimuth of the tilt 
     *   tilt ............ tilt of the detector plane (rotation around axis normal to the direction
-    *                     given by the tiltazimuth (in)
-    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9) (in)
-    *   lambda .......... wavelength of the used x-rays (in)
+    *                     given by the tiltazimuth 
+    *   UB .............. orientation matrix and reciprocal space conversion of investigated crystal (3,3) 
+    *   lambda .......... wavelength of the used x-rays 
+    *   nthreads ........ number of threads to use in parallel section of the code
     *
     *   Returns
     *   -------
-    *   qpos ............ momentum transfer (Npoints,3) (out)
+    *   qpos ............ momentum transfer (Npoints,3) 
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
@@ -1109,6 +1121,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     int i,j,j1,j2,k; // loop indices
     int Ns,Nd; // number of sample/detector circles
     int Npoints; // number of angular positions
+    unsigned int nthreads; // number of threads to use
     double f,lambda,cch1,cch2,dpixel1,dpixel2,tilt,tiltazimuth; // x-ray wavelength, f=M_2PI/lambda and detector parameters
     char *sampleAxis,*detectorAxis,*dir1,*dir2; // string with sample and detector axis, and detector direction
     double *sampleAngles, *detectorAngles, *n1, *n2, *rcch, *UB, *qpos; // c-arrays for further usage
@@ -1116,11 +1129,11 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *n1Arr=NULL, *n2Arr=NULL, *rcchArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!O!O!O!O!ssddddssddO!d", &PyArray_Type, &sampleAnglesArr, &PyArray_Type, &detectorAnglesArr,
+    if (!PyArg_ParseTuple(args, "O!O!O!O!O!ssddddssddO!dI", &PyArray_Type, &sampleAnglesArr, &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &n1Arr, &PyArray_Type, &n2Arr, &PyArray_Type, &rcchArr,
                                       &sampleAxis, &detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2, 
                                       &dir1, &dir2, &tiltazimuth, &tilt, &PyArray_Type, &UBArr,
-                                      &lambda)) { 
+                                      &lambda, &nthreads)) { 
         return NULL;
     }
 
@@ -1162,7 +1175,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
-    omp_set_dynamic(1);
+    OMPSETNUMTHREADS(nthreads);
     #endif
 
     // arrays with function pointers to rotation matrix functions

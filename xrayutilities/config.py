@@ -39,6 +39,7 @@ from . import utilities_noconf
 # wavelength
 # energy
 # verbosity
+# nthreads
 # dynlow
 # dynhigh
 # epsilon
@@ -76,6 +77,10 @@ if ENERGY=='NaN':
 else: # energy was given and wavelength is calculated from given energy
     WAVELENGTH = utilities_noconf.lam2en(utilities_noconf.energy(ENERGY))
 
+# number of threads in parallel section of c-code 
+NTHREADS = xuParser.getint("xrayutilities","nthreads")
+
+# default parameters for the maplog function
 DYNLOW = xuParser.getfloat("xrayutilities","dynlow")
 DYNHIGH = xuParser.getfloat("xrayutilities","dynhigh")
 
