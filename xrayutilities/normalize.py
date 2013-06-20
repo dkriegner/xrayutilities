@@ -100,7 +100,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
         print("xu.normalize.blockAverage2D: Nav1,2: %d,%d" %(Nav1,Nav2))
         print("xu.normalize.blockAverage2D: number of points: (%d,%d)" %(numpy.ceil(N/float(Nav1)),numpy.ceil(M/float(Nav2))))
 
-    block_av = cxrayutilities.block_average2d(data,Nav1,Nav2)
+    block_av = cxrayutilities.block_average2d(data,Nav1,Nav2,config.NTHREADS)
 
     return block_av
 
@@ -137,7 +137,7 @@ def blockAveragePSD(psddata,Nav,**kwargs):
     data = numpy.array(psddata[:,roi[0]:roi[1]],dtype=numpy.double)
     data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
-    block_av = cxrayutilities.block_average_PSD(data,Nav)
+    block_av = cxrayutilities.block_average_PSD(data,Nav,config.NTHREADS)
 
     return block_av
 

@@ -36,6 +36,10 @@
         return NULL; \
     }
 
+#define OMPSETNUMTHREADS(nth) \
+    if(nth==0) omp_set_num_threads(omp_get_max_threads());\
+    else omp_set_num_threads(nth);
+
 PyObject* block_average1d(PyObject *self, PyObject *args) {
     /*    block average for one-dimensional double array
      *
@@ -93,6 +97,7 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
      *                  Nch1 is the fast varying index
      *    Nav1,2:       number of channels to average in each dimension
      *                  in total a block of Nav1 x Nav2 is averaged
+     *    nthreads:     number of threads to use in parallel section
      *
      *    Returns
      *    -------
@@ -104,12 +109,13 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
     int i=0,j=0,k=0,l=0; //loop indices
     int Nch1,Nch2;  //number of values in input array
     int Nav1,Nav2;  //number of items to average
+    unsigned int nthreads; //number of threads to use
     PyArrayObject *input=NULL, *outarr=NULL;
     double *cin,*cout;
     double buf;
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!ii",&PyArray_Type, &input, &Nav2,&Nav1)) return NULL;
+    if (!PyArg_ParseTuple(args, "O!iiI",&PyArray_Type, &input, &Nav2, &Nav1, &nthreads)) return NULL;
     
     PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
     Nch2 = PyArray_DIMS(input)[0];
@@ -125,7 +131,7 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
 
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
-    omp_set_dynamic(1);
+    OMPSETNUMTHREADS(nthreads);
     #endif
 
     #pragma omp parallel for default(shared) private(i,j,k,l,buf) schedule(static)
@@ -152,6 +158,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
      *    psd:          input array of PSD values
      *                  size = (Nspec, Nch) (in)
      *    Nav:          number of channels to average
+     *    nthreads:     number of threads to use in parallel section
      *
      *    Returns
      *    -------
@@ -161,12 +168,13 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     int i,j,k; //loop indices
     int Nspec, Nch;  //number of items in input
     int Nav;  //number of items to average
+    unsigned int nthreads; //number of threads to use
     PyArrayObject *input=NULL, *outarr=NULL;
     double *cin,*cout;
     double buf; 
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL;
+    if (!PyArg_ParseTuple(args, "O!iI",&PyArray_Type, &input, &Nav, &nthreads)) return NULL;
     
     PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
     Nspec = PyArray_DIMS(input)[0];
@@ -182,7 +190,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
-    omp_set_dynamic(1);
+    OMPSETNUMTHREADS(nthreads);
     #endif
 
     // c-code following is performing the block averaging
