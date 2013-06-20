@@ -23,7 +23,7 @@ matA = xu.materials.InAs
 matB = xu.materials.InP
 substrate = xu.materials.Si
 
-alloy = xu.materials.Alloy(matA,matB,0)
+alloy = xu.materials.CubicAlloy(matA,matB,0)
 
 hxrd001 = xu.HXRD([1,1,0],[0,0,1])
 

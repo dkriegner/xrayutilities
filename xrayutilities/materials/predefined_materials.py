@@ -87,9 +87,16 @@ class SiGe(CubicAlloy):
         CubicAlloy.__init__(self,Si,Ge,x)
 
     def lattice_const_AB(self, latA, latB, x):
-        return latA+ (0.2*x+0.027*x**2)*latA/numpy.linalg.norm(latA)
+        """
+        method to calculate the lattice parameter of the SiGe alloy with composition
+        Si_{1-x}Ge_x
+        """
+        return latA+ (0.2*x+0.027*x**2)*latA/numpy.abs(latA)
 
     def _setxb(self,x):
+        """
+        method to set the composition of SiGe to Si_{1-x}Ge_x
+        """
         if config.VERBOSITY >= config.DEBUG: print("XU.materials.SiGe._setxb: jump to base class")
         CubicAlloy._setxb(self,x)
         if config.VERBOSITY >= config.DEBUG: print("back from base class")

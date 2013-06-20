@@ -729,6 +729,10 @@ class Alloy(Material):
         self._setxb(x)
 
     def lattice_const_AB(self, latA, latB, x):
+        """
+        method to set the composition of the Alloy.
+        x is the atomic fraction of the component B
+        """
         return (latB-latA)*x + latA
 
     def _getxb(self):
@@ -821,8 +825,9 @@ class Alloy(Material):
 
 class CubicAlloy(Alloy):
 
-#    def __init__(self,matA,matB,x):
-#            #check if material is really cubic!!
+    def __init__(self,matA,matB,x):
+        #here one could check if material is really cubic!!
+        pass
 
     def ContentBsym(self,q_perp,hkl,inpr,asub,relax):
         """
