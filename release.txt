@@ -1,4 +1,15 @@
 
+CHECK EVERYTHING
+================
+
+Is everything running fine? perform the tests and run the examples
+
+  cd xrayutilities/tests
+  python -m unittest discover
+
+run the examples
+
+
 PACKAGING
 =========
 
