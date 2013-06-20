@@ -1,0 +1,42 @@
+
+PACKAGING
+=========
+
+create a tarball for redistribution of xrayutilities without the use of git
+
+  $>python setup.py sdist
+
+creates a tarball in the directory dist, which contains everything needed for
+the installation of xrayutilities
+
+UPDATE DOCUMENTATION
+====================
+
+to build the documentation perform first a fresh installation since the documentation is built from the installed version of xrayutilities (uses only system python directories?)
+
+  python setup.py install --prefix=INSTALLPATH
+
+first one needs to rebuild the api documentation sources
+
+  sphinx-apidoc -f -o doc/source xrayutilities  
+
+In the root directory of the sources execute the following to rebuild the documentation pdf
+
+  sphinx-build -b latex doc/source doc/latex
+  cd doc/latex; mv xrayutilities.pdf ../..; cd ../..
+
+UPDATE WEBPAGE
+==============
+
+rebuild the html documents and upload them to the sourceforge webserver
+to have the correct style the style file needs to patched
+
+  sphinx-build -b html doc/source doc/html
+  cd doc; patch -p0 < css.patch; cd .. 
+
+to upload new web-documentation connect to the sourceforge server via:
+
+  sftp://USERNAME@web.sourceforge.net
+  /home/project-web/xrayutilities/htdocs
+
+
