@@ -240,9 +240,15 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
      mca_spectra .. corresponding detector spectra
                     (shape: (len(angle),Nchannels)
 
-    **keyargs passed to psd_chdeg function used for the modelling additional options:
+    **keyargs passed to psd_chdeg function used for the modelling, additional options are:
      r_i .......... primary beam direction as vector [xyz][+-]; default: 'y+'
      detaxis ...... detector arm rotation axis [xyz][+-] e.g. 'x+'; default: 'x+'
+
+    selected options from psd_chdeg:
+     plot:     flag to specify if a visualization of the fit should be done
+     usetilt:   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: True)
+    
+    Note:  see help of psd_chdeg for more options 
 
     returns
     -------
@@ -254,13 +260,15 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
     The function also prints out how a linear detector can be initialized using the results
     obtained from this calibration. Carefully check the results
     """
-
+                                                   
     if "detaxis" in keyargs:
         detrotaxis = keyargs["detaxis"]
+        keyargs.pop("detaxis")
     else: # use default
         detrotaxis = 'x+'
     if "r_i" in keyargs:
         r_i = keyargs["r_i"]
+        keyargs.pop("r_i")
     else: # use default
         r_i = 'y+'
 
