@@ -28,6 +28,15 @@
 #include <math.h>
 #include <stdio.h>
 
+#define PYARRAY_CHECK(array,dims,type,msg) \
+    if(PyArray_NDIM(array) != dims ||  \
+       PyArray_TYPE(array) != type) \
+    {\
+        PyErr_SetString(PyExc_ValueError,\
+                msg); \
+        return NULL; \
+    }
+
 /*!
 \brief find minimum 
 

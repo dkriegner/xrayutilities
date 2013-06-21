@@ -23,10 +23,62 @@
  * author: Eugen Wintersberger
 */
 
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
 #include "gridder.h"
 #include "gridder_utils.h"
+#include <numpy/arrayobject.h>
 
+PyObject* pygridder3d(PyObject *self,PyObject *args)
+{
+    PyArrayObject *py_x=NULL,*py_y=NULL,*py_z=NULL,*py_data=NULL,
+                  *py_output=NULL,*py_norm=NULL;
 
+    double *x=NULL,*y=NULL,*z=NULL,*data=NULL,*odata=NULL,*norm=NULL;
+    double xmin,xmax,ymin,ymax,zmin,zmax;
+    unsigned int nx,ny,nz;
+    int flags;
+
+    if(!PyArg_ParseTuple(args,"O!O!O!O!IIddddddO!|O!i",
+                         &PyArray_Type,&py_x,
+                         &PyArray_Type,&py_y,
+                         &PyArray_Type,&py_z,
+                         &PyArray_Type,&py_data,
+                         &nx,&ny,&nz,
+                         &xmin,&xmax,&ymin,&ymax,&zmin,&zmax,
+                         &PyArray_Type,&py_output,
+                         &PyArray_Type,&py_norm,
+                         &flags))
+        return NULL;
+
+    //have to check input variables
+    PYARRAY_CHECK(py_x,1,NPY_DOUBLE,"x-axis must be a 1D double array!");
+    PYARRAY_CHECK(py_y,1,NPY_DOUBLE,"y-axis must be a 1D double array!");
+    PYARRAY_CHECK(py_z,1,NPY_DOUBLE,"z-axis must be a 1D double array!");
+    PYARRAY_CHECK(py_data,1,NPY_DOUBLE,"input data must be a 1D double array!");
+    PYARRAY_CHECK(py_output,2,NPY_DOUBLE,"ouput data must be a 2D double array!");
+    if(py_norm!=NULL)
+        PYARRAY_CHECK(py_norm,2,NPY_DOUBLE,"norm data must be a 2D double array!");
+
+    //get data
+    x = (double *)PyArray_DATA(py_x);
+    y = (double *)PyArray_DATA(py_y);
+    z = (double *)PyArray_DATA(py_z);
+    data = (double *)PyArray_DATA(py_data);
+    odata = (double *)PyArray_DATA(py_output);
+    if(norm!=NULL) norm = (double *)PyArray_DATA(py_norm);
+
+    //get the total number of points
+    int n =  PyArray_SIZE(py_x);
+
+    //call the actual gridder routine
+    int result = gridder3d(x,y,z,data,n,nx,ny,nz,
+                           xmin,xmax,ymin,ymax,zmin,zmax,odata,norm,flags);
+    return Py_BuildValue("i",&result);
+
+}
+
+//-----------------------------------------------------------------------------
 int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
               unsigned int nx,unsigned int ny,unsigned int nz,
               double xmin, double xmax, double ymin, double ymax,
