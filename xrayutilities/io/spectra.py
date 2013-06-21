@@ -269,7 +269,8 @@ class SPECTRAFile(object):
             g = h5.createGroup(group,name,title=description,createparents=True)
         except:
             print("XU.io.spectra.Save2HDF5: cannot create group %s for writing data!" %name)
-            h5.close()
+            if isinstance(h5file,str):
+                h5.close()
             return True
 
 
