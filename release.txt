@@ -1,4 +1,7 @@
 
+This document describes the process of making a new release of xrayutilities.
+this procedure is intended for use on a Unix operating system.
+
 CHECK EVERYTHING
 ================
 
@@ -6,6 +9,7 @@ Is everything running fine? perform the tests and run the examples
 
   cd xrayutilities/tests
   python -m unittest discover
+  cd ../..
 
 run the examples
 
@@ -19,6 +23,8 @@ create a tarball for redistribution of xrayutilities without the use of git
 
 creates a tarball in the directory dist, which contains everything needed for
 the installation of xrayutilities
+
+This tarball should be uploaded to sourceforge and PyPI.
 
 UPDATE DOCUMENTATION
 ====================
@@ -34,7 +40,7 @@ first one needs to rebuild the api documentation sources
 In the root directory of the sources execute the following to rebuild the documentation pdf
 
   sphinx-build -b latex doc/source doc/latex
-  cd doc/latex; mv xrayutilities.pdf ../..; cd ../..
+  cd doc/latex; make && mv xrayutilities.pdf ../..; cd ../..
 
 UPDATE WEBPAGE
 ==============
