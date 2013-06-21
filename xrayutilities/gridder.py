@@ -25,6 +25,20 @@ from . import config
 
 unit_dict = {"kb":1024,"mb":1024**2,"gb":1024**3}
 
+def check_array(a,dtype):
+    """
+    check_array(a,dtype):
+    Check if an array fits the requirements for the C-code and returns it 
+    back to the callee. Such arrays must be aligned and C_CONTIGUOUS which
+    means that they have to follow C-ordering.
+
+    rquired input arguments:
+    a ............ array to check
+    dtype ........ numpy data type
+    """
+
+    return numpy.require(a,dtype=dtype,requirements=["ALIGNED","C_CONTIGUOUS"])
+
 class Gridder(object):
     def __init__(self,**keyargs):
         """
@@ -159,9 +173,9 @@ class Gridder2D(Gridder):
         self.nx = nx
         self.ny = ny
         self.gdata = numpy.zeros((nx,ny),dtype=numpy.double)
-        self.gdata = numpy.require(self.gdata,requirements=["ALIGNED","C_CONTIGUOUS"])
+        self.gdata = check_array(self.gdata,numpy.double)
         self.gnorm = numpy.zeros((nx,ny),dtype=numpy.double)
-        self.gnorm = numpy.require(self.gnorm,requirements=["ALIGNED","C_CONTIGUOUS"])
+        self.gnorm = check_array(self.gnorm,numpy.double)
 
     def __get_xaxis(self):
         """
@@ -230,17 +244,19 @@ class Gridder2D(Gridder):
             raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,data) is not equal!")
 
         # require correct aligned memory for input arrays
-        x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        y = numpy.require(y,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        x = check_array(x,numpy.double)
+        y = check_array(y,numpy.double)
+        data = check_array(data,numpy.double)
 
         self.xmin = x.min()
         self.xmax = x.max()
         self.ymin = y.min()
         self.ymax = y.max()
 
-        cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,self.xmin,self.xmax,
-                                 self.ymin,self.ymax,self.gdata,self.gnorm,self.flags)            
+        cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,
+                                 self.xmin,self.xmax,
+                                 self.ymin,self.ymax,
+                                 self.gdata,self.gnorm,self.flags)            
 
 
 class Gridder3D(Gridder2D):
@@ -258,9 +274,9 @@ class Gridder3D(Gridder2D):
         self.nz = nz
 
         self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-        self.gdata = numpy.require(self.gdata,requirements=["ALIGNED","C_CONTIGUOUS"])
+        self.gdata = check_array(self.gdata,numpy.double)
         self.gnorm = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-        self.gnorm = numpy.require(self.gnorm,requirements=["ALIGNED","C_CONTIGUOUS"])
+        self.gnorm = check_array(self.gnorm,numpy.double)
 
     def __get_zaxis(self):
         dz = (self.zmax-self.zmin)/(self.nz-1)
@@ -311,10 +327,10 @@ class Gridder3D(Gridder2D):
             raise exception.InputError("XU.Gridder3D: size of given datasets (x,y,z,data) is not equal!")
 
         # require correct aligned memory for input arrays
-        x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        y = numpy.require(y,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        z = numpy.require(z,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        x = check_array(x,numpy.double)
+        y = check_array(y,numpy.double)
+        z = check_array(z,numpy.double)
+        data = check_array(data,numpy.double)
 
         self.xmin = x.min()
         self.xmax = x.max()
@@ -323,27 +339,10 @@ class Gridder3D(Gridder2D):
         self.zmin = z.min()
         self.zmax = z.max()
 
-        if self.nthreads != 0:
-            #use threaded code
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.Gridder3D: using threaded code ... (flags: %d)" %self.flags)
-#            libxrayutils._gridder3d_th(ctypes.c_uint(self.nthreads),x,y,z,data,ctypes.c_uint(x.size),
-#                                      ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
-#                                      ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-#                                      ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-#                                      ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
-#                                      self.gdata,self.gnorm,self.flags)
-        else:
-            #use sequential code - good for small data
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.Gridder3D: using sequential code ... (flags: %d)" %self.flags)
-            if config.VERBOSITY >= config.DEBUG:
-                print("XU.Gridder3D: shapes x,y,z,data (%d,%d,%d,%d)" %(x.size,y.size,z.size,data.size))
-#            libxrayutils._gridder3d(x,y,z,data,ctypes.c_uint(x.size),
-#                                   ctypes.c_uint(self.nx),ctypes.c_uint(self.ny),ctypes.c_uint(self.nz),
-#                                   ctypes.c_double(self.xmin),ctypes.c_double(self.xmax),
-#                                   ctypes.c_double(self.ymin),ctypes.c_double(self.ymax),
-#                                   ctypes.c_double(self.zmin),ctypes.c_double(self.zmax),
-#                                   self.gdata,self.gnorm,self.flags)
+        cxrayutilities.gridder3d(x,y,z,data,self.nx,self.ny,self.ny,
+                                 self.xmin,self.xmax,
+                                 self.ymin,self.ymax,
+                                 self.zmin,self.zmax,
+                                 self.gdata,self.gnorm,self.flags)            
 
 
