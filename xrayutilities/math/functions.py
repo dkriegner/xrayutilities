@@ -39,8 +39,8 @@ def smooth(x,n):
     """
     if x.ndim != 1:
         raise ValueError("smooth only accepts 1 dimension arrays.")
-    if x.size < window_len:
-        raise ValueError("Input vector needs to be bigger than window size.")
+    if x.size < n:
+        raise ValueError("Input vector needs to be bigger than n.")
     if n<2:
         return x
     # avoid boundary effects by adding mirrored signal at the boundaries
