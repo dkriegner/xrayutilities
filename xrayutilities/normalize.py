@@ -179,7 +179,7 @@ class IntensityNormalizer(object):
         """
 
         for k in keyargs.keys():
-            if k not in ['mon','smoothmon','av_mon','absfun','flatfield','darkfield']:
+            if k not in ['mon','time','smoothmon','av_mon','absfun','flatfield','darkfield']:
                 raise Exception("unknown keyword argument given: allowed are 'mon', 'smoothmon', 'av_mon', 'absfun', 'flatfield' and 'darkfield'")
         
         #check input arguments
