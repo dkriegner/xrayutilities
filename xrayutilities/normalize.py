@@ -388,7 +388,10 @@ class IntensityNormalizer(object):
         # set needed variables
         # monitor intensity
         if self._mon:
-            mon = math.smooth(data[self._mon],self.smoothmon)
+            if self.smoothmon==1:
+                mon = data[self._mon]
+            else:
+                mon = math.smooth(data[self._mon],self.smoothmon)
         else:
             mon = 1.
         # count time

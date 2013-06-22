@@ -44,7 +44,7 @@ def smooth(x,n):
     if n<2:
         return x
     # avoid boundary effects by adding mirrored signal at the boundaries
-    s=numpy.r_[x[n-1:0:-1],x,x[-1:-n:-1]]
+    s=numpy.r_[x[n-1:0:-1],x,x[-1:-n-1:-1]]
     w=numpy.ones(n,'d')
     y=numpy.convolve(w/w.sum(),s,mode='same')
     return y[n:-n+1]
