@@ -22,11 +22,9 @@ INSTALLATION
 ============
 Installing xrayutilities is a two step process. A few notes on how to install
 on the various can be found in the README shipped with the package's sources.
-For installation on Windows have a look to the documentation or webpage.
 
 1.) installing required third party software
     requirements are:
-     scons (pythonic build system)
      C-compiler
      HDF5
      pytables
@@ -34,12 +32,15 @@ For installation on Windows have a look to the documentation or webpage.
      numpy
      matplotlib (optionally)
     refer to your operating system documentation to find out how to install
-    those packages. 
+    those packages. On Windows we suggest to use Python(x,y)
     
-2.) build and install the C-library libxrutils.so/xrutils.dll, as well as the 
-    python package (xrutils)
+2.) install *xrayutilities* using distutils by executing
+
+.. code-block:: bash
+
+ >python setup.py install
 
 
-
-
+For details of how to setup your Python installation to find xrayutilities
+after the installation please refer to the documention.
 

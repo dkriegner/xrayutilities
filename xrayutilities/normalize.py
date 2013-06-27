@@ -33,6 +33,7 @@ provide functions for normalizing intensities for
 import numpy
 
 from . import cxrayutilities
+from . import math
 from .exception import InputError
 from . import config
 
@@ -164,6 +165,7 @@ class IntensityNormalizer(object):
           mon : monitor field name
           time: count time field name or count time as float
           av_mon: average monitor value (default: data[mon].mean())
+          smoothmon: number of monitor values used to get a smooth monitor signal
           absfun: absorber correction function to be used as in
                   absorber_corrected_intensity = data[det]*absfun(data)
           flatfield: flatfield of the detector; shape must be the same as
@@ -176,6 +178,10 @@ class IntensityNormalizer(object):
         >>> detcorr = IntensityNormalizer(det="MCA",time="Seconds",absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
         """
 
+        for k in keyargs.keys():
+            if k not in ['mon','time','smoothmon','av_mon','absfun','flatfield','darkfield']:
+                raise Exception("unknown keyword argument given: allowed are 'mon', 'smoothmon', 'av_mon', 'absfun', 'flatfield' and 'darkfield'")
+        
         #check input arguments
         self._setdet(det)
 
@@ -208,6 +214,11 @@ class IntensityNormalizer(object):
             self._setdarkfield(keyargs['darkfield'])
         else:
             self._darkfield = None
+        
+        if 'smoothmon' in keyargs:
+            self.smoothmon = keyargs['smoothmon']
+        else:
+            self.smoothmon = 1
 
     def _getdet(self):
         """
@@ -377,7 +388,10 @@ class IntensityNormalizer(object):
         # set needed variables
         # monitor intensity
         if self._mon:
-            mon = data[self._mon]
+            if self.smoothmon==1:
+                mon = data[self._mon]
+            else:
+                mon = math.smooth(data[self._mon],self.smoothmon)
         else:
             mon = 1.
         # count time

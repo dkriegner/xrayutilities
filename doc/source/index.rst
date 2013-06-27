@@ -99,13 +99,13 @@ Installation
 Express instructions
 --------------------
 
- * install the dependencies (Windows: `pythonxy <http://www.pythonxy.com>`_, `SCons <http://www.scons.org>`_; Linux/Unix: see below for dependencies).
+ * install the dependencies (Windows: `pythonxy <http://www.pythonxy.com>`_; Linux/Unix: see below for dependencies).
  * download *xrayutilities* from `here <https://sourceforge.net/projects/xrayutilities>`_ or use git to check out the `latest <https://sourceforge.net/p/xrayutilities/code/>`_ version.
  * open a command line and navigate to the downloaded sources and execute:
 
 .. code-block:: bash
     
- > scons install
+ > python setup.py install
 
 which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in python scripts. 
 
@@ -114,11 +114,8 @@ which will install *xrayutilities* to the default directory. It should be possib
 Detailed instructions
 ---------------------
 
-Installing *xrayutilities* is a two steps process
- * install required C libraries and Python modules
- * build and install the *xrayutilities* C library and Python module
+Installing *xrayutilities* is done using Python's distutils
 
-All steps are described in detail below and are performed by the SCons installer. 
 The package can be installed on Linux, Mac OS X and Microsoft Windows, however it is mostly tested on Linux/Unix platforms. 
 Please inform one of the authors in case the installation fails!
 
@@ -134,7 +131,6 @@ The needed dependencies are:
    Although the library is not called directly, it is needed by the pytables Python
    module (see below).
  * **Python** the scripting language in which most of *xrayutilities* code is written in.
- * **Scons** a pythonic autotools/make replacement used for building the C library.
  * **git** a version control system used to keep track on the *xrayutilities* development. (only needed for development)
 
 Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
@@ -150,27 +146,20 @@ building the C library.
 Building and installing the library and python package
 ------------------------------------------------------
 
-*xrayutilities* uses the SCons build system to compile the C components of the
-system. You can build the library simply by typing 
+*xrayutilities* uses the distutils packaging system to build and install all of its components. You can perform the installation by executing 
 
 .. code-block:: bash
  
- >scons
+ >python setup.py install
 
-in the root directory of the source distribution. To build using debug flags ({\tt -g -O0}) type
-
-.. code-block:: bash
- 
- >scons debug=1
-
-instead. After building, the library and python package are installed by
+or
 
 .. code-block:: bash
 
- >scons install --prefix=<install path>
+ >python setup.py install --prefix=INSTALLPATH
 
-The library is installed in *<install path>/lib*. Installation of the Python module 
-is done via the *distutils* package (called by SCons automatically).
+in the root directory of the source distribution. 
+
 The *--prefix* option sets the root directory for the installation. If it is omitted
 the libary is installed under /usr/lib/ on Unix systems or in the Python installation directory on Windows.
 
@@ -203,17 +192,14 @@ Notes for installing on Windows
 Since there is no packages manager on Windows the packages need to be installed manual 
 (including all the dependecies) or a pre-packed solution needs to be used. We strongly suggest to
 use the `pyhton(x,y) <https://code.google.com/p/pythonxy/>`_ python distribution, 
-which includes already most of the needed dependencies for installing *xrayutilities*.
+which includes already all of the needed dependencies for installing *xrayutilities*.
 
-When using python(x,y) you only have to install SCons in addition (download the latest version from `www.scons.org <http://www.scons.org>`_). 
-All other dependencies are available as plugins to python(x,y) 
-and are installed by default anyhow. The setup of the environment variables is also done by the python(x,y) installation.
+The setup of the environment variables is also done by the python(x,y) installation.
 One can proceed with the installation of *xrayutilities* directly!
 
 In case you want to do it the hard way install all of the following (versions in brackets indicate the tested set of versions by the author (2.3.2012)):
  * MinGW (0.4alpha)
  * Python (2.7.2)
- * scons (2.1.0)
  * numpy (1.6.1)
  * scipy (0.10.1)
  * numexpr (1.4.2) needed for pytables

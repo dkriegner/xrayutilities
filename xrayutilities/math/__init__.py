@@ -33,6 +33,7 @@ from .vector import VecAngle
 from .vector import getVector
 from .vector import getSyntax
 
+from .functions import smooth
 from .functions import Debye1
 from .functions import Gauss1d
 from .functions import Gauss1d_der_x

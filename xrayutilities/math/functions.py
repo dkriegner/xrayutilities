@@ -24,6 +24,31 @@ import scipy.integrate
 
 from .. import config
 
+def smooth(x,n):
+    """
+    function to smooth an array of data by averaging N adjacent data points
+
+    Parameters
+    ----------
+     x:  1D data array
+     n:  number of data points to average
+
+    Returns
+    -------
+     xsmooth:  smoothed array with same length as x
+    """
+    if x.ndim != 1:
+        raise ValueError("smooth only accepts 1 dimension arrays.")
+    if x.size < n:
+        raise ValueError("Input vector needs to be bigger than n.")
+    if n<2:
+        return x
+    # avoid boundary effects by adding mirrored signal at the boundaries
+    s=numpy.r_[x[n-1:0:-1],x,x[-1:-n-1:-1]]
+    w=numpy.ones(n,'d')
+    y=numpy.convolve(w/w.sum(),s,mode='same')
+    return y[n:-n+1]
+
 def Gauss1d(x,*p):
     """
     function to calculate a general one dimensional Gaussian
