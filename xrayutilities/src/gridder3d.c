@@ -39,7 +39,7 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     unsigned int nx,ny,nz;
     int flags;
 
-    if(!PyArg_ParseTuple(args,"O!O!O!O!IIddddddO!|O!i",
+    if(!PyArg_ParseTuple(args,"O!O!O!O!IIIddddddO!|O!i",
                          &PyArray_Type,&py_x,
                          &PyArray_Type,&py_y,
                          &PyArray_Type,&py_z,
@@ -56,9 +56,9 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     PYARRAY_CHECK(py_y,1,NPY_DOUBLE,"y-axis must be a 1D double array!");
     PYARRAY_CHECK(py_z,1,NPY_DOUBLE,"z-axis must be a 1D double array!");
     PYARRAY_CHECK(py_data,1,NPY_DOUBLE,"input data must be a 1D double array!");
-    PYARRAY_CHECK(py_output,2,NPY_DOUBLE,"ouput data must be a 2D double array!");
+    PYARRAY_CHECK(py_output,3,NPY_DOUBLE,"ouput data must be a 2D double array!");
     if(py_norm!=NULL)
-        PYARRAY_CHECK(py_norm,2,NPY_DOUBLE,"norm data must be a 2D double array!");
+        PYARRAY_CHECK(py_norm,3,NPY_DOUBLE,"norm data must be a 2D double array!");
 
     //get data
     x = (double *)PyArray_DATA(py_x);

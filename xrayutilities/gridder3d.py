@@ -127,7 +127,7 @@ class Gridder3D(Gridder):
         self.zmin = z.min()
         self.zmax = z.max()
 
-        cxrayutilities.gridder3d(x,y,z,data,self.nx,self.ny,self.ny,
+        cxrayutilities.gridder3d(x,y,z,data,self.nx,self.ny,self.nz,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
                                  self.zmin,self.zmax,
