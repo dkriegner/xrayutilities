@@ -39,6 +39,45 @@ def check_array(a,dtype):
 
     return numpy.require(a,dtype=dtype,requirements=["ALIGNED","C_CONTIGUOUS"])
 
+def delta(min_value,max_value,n):
+    """
+    delta(min_value,max_value,n):
+    Compute the stepsize along an axis of a grid. 
+
+    required input arguments:
+    min_value ........... axis minimum value
+    max_value ........... axis maximum value
+    n ................... number of steps
+    """
+
+    return (max_value-min_value)/(n-1)
+
+def axis(min_value,max_value,n):
+    """
+    axis(min_value,max_value,n):
+    Compute the a grid axis. 
+
+    required input arguments:
+    min_value ........... axis minimum value
+    max_value ........... axis maximum value
+    n ................... number of steps
+    """
+
+    d = delta(min_value,max_value,n)
+    a = min_value + d*numpy.arange(0,n)
+
+    return a
+
+def ones(*args):
+    """
+    matrix(*args):
+
+    Compute ones for matrix generation. The shape is determined by the number of
+    input arguments.
+    """
+    return numpy.ones(args,dtype=numpy.double)
+
+
 class Gridder(object):
     def __init__(self,**keyargs):
         """
@@ -65,7 +104,16 @@ class Gridder(object):
         if config.VERBOSITY >= config.INFO_ALL:
             self.flags = self.flags|16 # set verbosity flag
 
+
     def SetThreads(self,n):
+        """
+        SetThreads(n)
+
+        Set the number of threads that should be used for gridding.
+
+        required input arguments:
+        n .............. number of threads
+        """
         self.nthreads = n
 
     def SetChunkSize(self,n):
@@ -158,191 +206,5 @@ class Gridder1D(Gridder):
             self.gdata[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
 
 
-class Gridder2D(Gridder):
-    def __init__(self,nx,ny,**keyargs):
-        Gridder.__init__(self,**keyargs)
-
-        self.xmin = 0
-        self.ymin = 0
-        self.xmax = 0
-        self.ymax = 0
-
-        self.SetResolution(nx,ny)
-
-    def SetResolution(self,nx,ny):
-        self.nx = nx
-        self.ny = ny
-        self.gdata = numpy.zeros((nx,ny),dtype=numpy.double)
-        self.gdata = check_array(self.gdata,numpy.double)
-        self.gnorm = numpy.zeros((nx,ny),dtype=numpy.double)
-        self.gnorm = check_array(self.gnorm,numpy.double)
-
-    def __get_xaxis(self):
-        """
-        Returns the xaxis of the 2D gridder
-        the returned values correspond to the center of the data bins
-        """
-        dx = (self.xmax-self.xmin)/(self.nx-1)
-        ax = self.xmin+dx*numpy.arange(0,self.nx)
-        return ax
-
-    def __get_yaxis(self):
-        """
-        Returns the yaxis of the 2D gridder
-        the returned values correspond to the center of the data bins
-        """
-        dy = (self.ymax-self.ymin)/(self.ny-1)
-        ax = self.ymin + dy*numpy.arange(0,self.ny)
-        return ax
-
-    def __get_xmatrix(self):
-        m = numpy.ones((self.nx,self.ny),dtype=numpy.double)
-        a = self.xaxis
-
-        return m*a[:,numpy.newaxis]
-
-    def __get_ymatrix(self):
-        a = self.yaxis
-        m = numpy.ones((self.nx,self.ny),dtype=numpy.double)
-
-        return m*a[numpy.newaxis,:]
-
-    def __get_data(self):
-        return self.gdata.copy()
-
-    yaxis = property(__get_yaxis)
-    xaxis = property(__get_xaxis)
-    xmatrix = property(__get_xmatrix)
-    ymatrix = property(__get_ymatrix)
-    data = property(__get_data)
-
-
-    def Clear(self):
-        self.gdata[...] = 0
-        self.gnorm[...] = 0
-
-
-    def __call__(self,*args):
-        """
-        GridData(x,y,data):
-        Perform gridding on a set of data.
-
-        required input argument:
-        x ............... numpy array of arbitrary shape with x positions
-        y ............... numpy array of arbitrary shape with y positions
-        data ............ numpy array of arbitrary shape with data values
-        """
-
-        x = args[0]
-        y = args[1]
-        data = args[2]
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-        data = data.reshape(data.size)
-
-        if x.size != y.size or y.size!=data.size:
-            raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,data) is not equal!")
-
-        # require correct aligned memory for input arrays
-        x = check_array(x,numpy.double)
-        y = check_array(y,numpy.double)
-        data = check_array(data,numpy.double)
-
-        self.xmin = x.min()
-        self.xmax = x.max()
-        self.ymin = y.min()
-        self.ymax = y.max()
-
-        cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,
-                                 self.xmin,self.xmax,
-                                 self.ymin,self.ymax,
-                                 self.gdata,self.gnorm,self.flags)            
-
-
-class Gridder3D(Gridder2D):
-    def __init__(self,nx,ny,nz,**keyargs):
-        Gridder2D.__init__(self,nx,ny,**keyargs)
-
-        self.zmin = 0
-        self.zmax = 0
-
-        self.SetResolution(nx,ny,nz)
-
-    def SetResolution(self,nx,ny,nz):
-        self.nx = nx
-        self.ny = ny
-        self.nz = nz
-
-        self.gdata = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-        self.gdata = check_array(self.gdata,numpy.double)
-        self.gnorm = numpy.zeros((nx,ny,nz),dtype=numpy.double)
-        self.gnorm = check_array(self.gnorm,numpy.double)
-
-    def __get_zaxis(self):
-        dz = (self.zmax-self.zmin)/(self.nz-1)
-        az = self.zmin + dz*numpy.arange(0,self.nz)
-        return az
-
-    def __get_xmatrix(self):
-        a = self.xaxis()
-        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
-
-        return m*a[:,numpy.newaxis,numpy.newaxis]
-
-    def __get_ymatrix(self):
-        a = self.yaxis()
-        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
-
-        return m*a[numpy.newaxis,:,numpy.newaxis]
-
-    def __get_zmatrix(self):
-        a = self.zaxis()
-        m = numpy.ones((self.nx,self.ny,self.nz),dtype=numpy.double)
-
-        return m*a[numpy.newaxis,numpy.newaxis,:]
-
-    zaxis = property(__get_zaxis)
-    zmatrix = property(__get_zmatrix)
-
-
-    def __call__(self,x,y,z,data):
-        """
-        GridData(x,y,data):
-        Perform gridding on a set of data. After running the gridder
-        the gdata object in the class is holding the gridded data.
-
-        required input argument:
-        x ............... numpy array of arbitrary shape with x positions
-        y ............... numpy array of arbitrary shape with y positions
-        z ............... numpy array fo arbitrary shape with z positions
-        data ............ numpy array of arbitrary shape with data values
-        """
-
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-        z = z.reshape(z.size)
-        data = data.reshape(data.size)
-
-        if x.size != y.size or y.size!=z.size or z.size!=data.size:
-            raise exception.InputError("XU.Gridder3D: size of given datasets (x,y,z,data) is not equal!")
-
-        # require correct aligned memory for input arrays
-        x = check_array(x,numpy.double)
-        y = check_array(y,numpy.double)
-        z = check_array(z,numpy.double)
-        data = check_array(data,numpy.double)
-
-        self.xmin = x.min()
-        self.xmax = x.max()
-        self.ymin = y.min()
-        self.ymax = y.max()
-        self.zmin = z.min()
-        self.zmax = z.max()
-
-        cxrayutilities.gridder3d(x,y,z,data,self.nx,self.ny,self.ny,
-                                 self.xmin,self.xmax,
-                                 self.ymin,self.ymax,
-                                 self.zmin,self.zmax,
-                                 self.gdata,self.gnorm,self.flags)            
 
 

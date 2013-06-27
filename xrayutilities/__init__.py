@@ -50,8 +50,8 @@ from .normalize import blockAveragePSD
 from .normalize import IntensityNormalizer
 
 from .gridder import Gridder1D
-from .gridder import Gridder2D
-from .gridder import Gridder3D
+from .gridder2d import Gridder2D
+from .gridder3d import Gridder3D
 
 from .utilities import maplog
 from .utilities import lam2en
