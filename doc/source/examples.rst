@@ -299,3 +299,38 @@ It is also possible to calculate the components of the structure factor of atoms
     print "f2: %8.4g" % Fe.f2(en)
 
 
+User-specific config file
+------------------------
+
+Several options of *xrayutilities* can be changed by options in a config file. This includes the default x-ray energy as well as parameters to set the number of threads used by the parallel code and the verbosity of the output.
+
+The default options are stored inside the installad Python module and should not be changed. Instead it is suggested to use a user-specific config file
+'~/.xrayutilities.conf' or a 'xrayutilities.conf' file in the working directory. 
+
+An example of such a user config file is shown below:
+
+.. code-block:: python
+
+    # begin of xrayutilities configuration
+    [xrayutilities]
+
+    # verbosity level of information and debugging outputs
+    #   0: no output
+    #   1: very import notes for users
+    #   2: less import notes for users (e.g. intermediate results)
+    #   3: debuging output (e.g. print everything, which could be interesing)
+    #   levels can be changed in the config file as well
+    verbosity = 1
+
+    # default wavelength in Angstrom, 
+    wavelength = MoKa1 # Molybdenum K alpha1 radiation (17479.374eV)
+
+    # default energy in eV
+    # if energy is given wavelength settings will be ignored
+    #energy = 10000 #eV
+
+    # number of threads to use in parallel sections of the code
+    nthreads = 1
+    #   0: the maximum number of available threads will be used (as returned by omp_get_max_threads())
+    #   n: n-threads will be used 
+
