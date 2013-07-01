@@ -966,7 +966,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     int Npoints; // number of angular positions
     unsigned int nthreads; // number of threads to use
     double f,lambda,cch1,cch2,dpixel1,dpixel2,tilt,tiltazimuth; // x-ray wavelength, f=M_2PI/lambda and detector parameters
-    char *sampleAxis,*detectorAxis,*dir1,*dir2; // string with sample and detector axis, and detector direction
+    char *detectorAxis,*dir1,*dir2; // string with detector axis, and detector direction
     double *detectorAngles, *n1, *n2, *rcch, *qpos; // c-arrays for further usage
     
     PyArrayObject *detectorAnglesArr=NULL, *n1Arr=NULL, *n2Arr=NULL, *rcchArr=NULL, *qposArr=NULL; // numpy arrays
@@ -1118,7 +1118,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
     double rd[3],rpixel1[3],rpixel2[3],rcchp[3]; // detector position
     double r_i[3],rtemp[3],rtemp2[3]; //r_i: center channel direction
-    int i,j,j1,j2,k; // loop indices
+    int i,j,k; // loop indices
     int Ns,Nd; // number of sample/detector circles
     int Npoints; // number of angular positions
     unsigned int nthreads; // number of threads to use
