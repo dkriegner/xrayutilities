@@ -103,17 +103,14 @@ to install the updated package.
 DOCUMENTATION
 =============
 
-Documention for xrayutilities is found in the xrayutilities.pdf file. The manual can be
-rebuilt by sphinx (using pdflatex) using scons
+Documention for xrayutilities is found in the xrayutilities.pdf file or on the
+webpage http://xrayutilities.sourceforge.net 
 
-  $> scons doc
- 
-The API-documentation can be browsed by 
+The API-documentation can also be browsed by 
 
   $> pydoc -p PORT
  
-in any web-browser, after the installation is finished or found online at
-sourceforge.
+in any web-browser, after the installation is finished.
 
 
 PACKAGING
