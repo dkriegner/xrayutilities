@@ -1,8 +1,7 @@
 
-# temporary scons files
-config.log
-.sconf_temp/
-.sconsign.dblite
+*.swp
+*.pyc
+MANIFEST
 
 # build files and tarball directory
 dist/

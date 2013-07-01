@@ -28,23 +28,25 @@ Concept of usage
     :align: right
     :alt: Flow diagram showing how to analyze x-ray diffraction data using xrayutilities
 
-*xrayutilities* provides a set of functions to read experimental data from various data file formats.
-All of them are gathered in the :ref:`io-subpackage`.
-After reading data with a function from the io-submodule the data might be need to be corrected for monitor counts and or absorber corrected.
-A special set of functions is provided to perform this for point and linear detectors.
+*xrayutilities* provides a set of functions to read experimental data from various data file formats. 
+All of them are gathered in the :mod:`io`-subpackage.
+After reading data with a function from the io-submodule the data might be corrected for monitor counts and/or absorption factor of a beam attenuator.  
+A special set of functions is provided to perform this for point, linear and area detectors.
 
-Since the amount of data taken with modern detectors often is too large to be able to work with them properly a function for reducing the data from linear and are detectors are provided. They use block-averaging to reduce the amount of data. Use those carefully not to loose the featured you are interested in your measurements.
+Since the amount of data taken with modern detectors often is too large to be able to work with them properly, a functions for reducing the data from linear and area detectors are provided. 
+They use block-averaging to reduce the amount of data. 
+Use those carefully not to loose the features you are interested in in your measurements.
 
-After the pre-treatment of the data the core part of the package is the transformation of the angular data to reciprocal space. This is done as described in more detail below using the :ref:`experiment-module`. 
-The classes provided within the experiment module provide routines to help performing
-X-ray diffraction experiments. This includes methods to calculate the diffraction
-angles (described below) needed to align samples and to convert data between angular and recip-
-rocal space. The conversion from angular to reciprocal space is implemented
-very general for various goniometer geometries. It is especially useful in combination with linear and area detectors as described in (arxiv link)
-Users should in normal cases only need the initialized routines, which predefine a certain goniometer geometry like the popular four-cirlce and six-circle geometry.
+After the pre-treatment of the data, the core part of the package is the transformation of the angular data to reciprocal space. 
+This is done as described in more detail below using the :mod:`experiment`-module`. 
+The classes provided within the experiment module provide routines to help performing X-ray diffraction experiments.
+This includes methods to calculate the diffraction angles (described below) needed to align crystalline samples and to convert data between angular and reciprocal space.
+The conversion from angular to reciprocal space is implemented very general for various goniometer geometries. 
+It is especially useful in combination with linear and area detectors as described in this `article <http://arxiv.org/abs/1304.1732>`_. 
+In standard cases, Users will only need the initialized routines, which predefine a certain goniometer geometry like the popular four-cirlce and six-circle geometries.
 
-After the conversion to reciprocal space in order to visualize the data it is convenient to transform them to a regular grid in reciprocal space. 
-For this purpose in *xrayutilities* the :ref:`gridder-module` is included.
+After the conversion to reciprocal space, it is convenient to transform the data to a regular grid for visualization. 
+For this purpose the :mod:`gridder`-module has been included into *xrayutilities*. 
 For the visualization of the data in reciprocal space the usage of `matplotlib <http://matplotlib.org>`_ is recommended.
 
 A practical example showing the usage is given below.
@@ -57,13 +59,13 @@ Angle calculation using the material classes
     :align: right
     :alt: Flow diagram showing how to calculate angular positions of Bragg reflection using xrayutilities
 
-Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the :ref:`material-package`.
+Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the :mod:`materials`-package.
 This package provides a set of classes to describe crystal lattices and materials.
 Once such a material is properly defined one can calculate its properties, which includes the reciprocal lattice points, optical properties like 
 the refractive index, the structure factor (including the atomic scattering factor) and the complex polarizability.
 These atomic properties are extracted from a database included in *xrayutilities*.
 
-Using such a material and an experimental class from the :ref:`experiment-module` describing the experimental setup the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries.
+Using such a material and an experimental class from the :mod:`experiment`-module describing the experimental setup the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries.
 
 .. _helloworld:
 
@@ -89,7 +91,7 @@ xrayutilities Python package
    :undoc-members:
    :show-inheritance:
 
-for more details see the full :ref:`API-documentation`
+for more details see the full API documentation of :mod:`xrayutilities` found here: :ref:`expapi`.
 
 Installation
 ============
@@ -97,13 +99,13 @@ Installation
 Express instructions
 --------------------
 
- * install the dependencies (Windows: `pythonxy <http://www.pythonxy.com>`_, `SCons <http://www.scons.org>`_; Linux/Unix: see below for dependencies).
+ * install the dependencies (Windows: `pythonxy <http://www.pythonxy.com>`_; Linux/Unix: see below for dependencies).
  * download *xrayutilities* from `here <https://sourceforge.net/projects/xrayutilities>`_ or use git to check out the `latest <https://sourceforge.net/p/xrayutilities/code/>`_ version.
  * open a command line and navigate to the downloaded sources and execute:
 
 .. code-block:: bash
     
- > scons install
+ > python setup.py install
 
 which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in python scripts. 
 
@@ -112,11 +114,8 @@ which will install *xrayutilities* to the default directory. It should be possib
 Detailed instructions
 ---------------------
 
-Installing *xrayutilities* is a two steps process
- * install required C libraries and Python modules
- * build and install the *xrayutilities* C library and Python module
+Installing *xrayutilities* is done using Python's distutils
 
-All steps are described in detail below and are performed by the SCons installer. 
 The package can be installed on Linux, Mac OS X and Microsoft Windows, however it is mostly tested on Linux/Unix platforms. 
 Please inform one of the authors in case the installation fails!
 
@@ -132,7 +131,6 @@ The needed dependencies are:
    Although the library is not called directly, it is needed by the pytables Python
    module (see below).
  * **Python** the scripting language in which most of *xrayutilities* code is written in.
- * **Scons** a pythonic autotools/make replacement used for building the C library.
  * **git** a version control system used to keep track on the *xrayutilities* development. (only needed for development)
 
 Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
@@ -148,27 +146,20 @@ building the C library.
 Building and installing the library and python package
 ------------------------------------------------------
 
-*xrayutilities* uses the SCons build system to compile the C components of the
-system. You can build the library simply by typing 
+*xrayutilities* uses the distutils packaging system to build and install all of its components. You can perform the installation by executing 
 
 .. code-block:: bash
  
- >scons
+ >python setup.py install
 
-in the root directory of the source distribution. To build using debug flags ({\tt -g -O0}) type
-
-.. code-block:: bash
- 
- >scons debug=1
-
-instead. After building, the library and python package are installed by
+or
 
 .. code-block:: bash
 
- >scons install --prefix=<install path>
+ >python setup.py install --prefix=INSTALLPATH
 
-The library is installed in *<install path>/lib*. Installation of the Python module 
-is done via the *distutils* package (called by SCons automatically).
+in the root directory of the source distribution. 
+
 The *--prefix* option sets the root directory for the installation. If it is omitted
 the libary is installed under /usr/lib/ on Unix systems or in the Python installation directory on Windows.
 
@@ -201,17 +192,14 @@ Notes for installing on Windows
 Since there is no packages manager on Windows the packages need to be installed manual 
 (including all the dependecies) or a pre-packed solution needs to be used. We strongly suggest to
 use the `pyhton(x,y) <https://code.google.com/p/pythonxy/>`_ python distribution, 
-which includes already most of the needed dependencies for installing *xrayutilities*.
+which includes already all of the needed dependencies for installing *xrayutilities*.
 
-When using python(x,y) you only have to install SCons in addition (download the latest version from `www.scons.org <http://www.scons.org>`_). 
-All other dependencies are available as plugins to python(x,y) 
-and are installed by default anyhow. The setup of the environment variables is also done by the python(x,y) installation.
+The setup of the environment variables is also done by the python(x,y) installation.
 One can proceed with the installation of *xrayutilities* directly!
 
 In case you want to do it the hard way install all of the following (versions in brackets indicate the tested set of versions by the author (2.3.2012)):
  * MinGW (0.4alpha)
  * Python (2.7.2)
- * scons (2.1.0)
  * numpy (1.6.1)
  * scipy (0.10.1)
  * numexpr (1.4.2) needed for pytables
@@ -221,6 +209,8 @@ In case you want to do it the hard way install all of the following (versions in
 
 It is suggested to add the MinGW binary directory, as well as the Python and Python-scripts directory
 to the Path environment variable as described above! Installation is done as described above. 
+
+.. _expapi:
 
 Examples and API-documentation
 ==============================

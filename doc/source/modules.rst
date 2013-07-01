@@ -1,5 +1,5 @@
-Modules
-=======
+xrayutilities
+=============
 
 .. toctree::
    :maxdepth: 4

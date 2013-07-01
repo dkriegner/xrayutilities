@@ -1,72 +1,61 @@
 
-xrayutilities - a package with useful scripts for X-ray diffraction
-===================================================================
+=============
+xrayutilities
+=============
 
- Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
- Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
-
-Directories:
-examples ... directory with example scripts and configurations
-python ..... holds an installable python module 
-src ........ source directory for the C-library used by the python module
+xrayutilities is a collection of scripts used to analyze x-ray diffraction data. 
+It consists of a python package and several routines coded in C. It especially 
+useful for the reciprocal space conversion of diffraction data taken with linear 
+and area detectors.
 
 
-INSTALLATION
+Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+
+Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
+
+
+
+Contents
+--------
+
+* examples:           directory with example scripts and configurations
+* python:             directory with the sources for the python package
+* setup.py:           distutils install script used for the package installation
+* xrayutilities.pdf:  pdf-file with documentation of the package
+
+Installation
 ============
-Installing xrayutilities is a two step process
-1.) installing required third party software
-    requirements are:
-     scons (pythonic build system)
-     C-compiler
-     HDF5
-     pytables
-     scipy
-     numpy
-     matplotlib (optionally)
-    refer to your operating system documentation to find out how to install
-    those packages. On Microsoft Windows refer to the Documentation for the 
-    easiest way of the installation (python(x,y) + scons).
-2.) build and install the C-library libxrutils.so/xrutils.dll, as well as the 
-    python package (xrayutilities)
+Installing xrayutilities is an easy process done by executing ::
 
-Obtaining the source code
-=========================
+  $> python setup.py install
 
-The sources are hosted on sourceforge in git repository.
-Use:
- $> git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
-to clone the git repository. If you would like to have commit rights 
-contact one of the administrators.
+or ::
 
-Building and installing the C library and python package
-========================================================
+  $> python setup.py install --prefix=<install_path>
 
-Open a terminal and navigate to the source folder of xrayutilities.
-xrayutilities use SCons to build and install C code. Installation
-of libxrutils.so and the python package requires two steps
--> compile the library by simply typing 
-    $>scons
-   or
-    $>scons debug=1
-   to build with "-g -O0"
--> install the library and python package, either system wide 
-    $>scons install
-   , which means in /usr/lib/ on Unix systems.
-   or locally in the user directory
-    $>scons install --prefix=<path to install directory>
--> the documentation can be built with
-    $>scons doc
+in the source folder of xrayutilities on the command line/terminal.  The first
+command installs in the systems default directories, whereas in the second
+command you can manually specify the installation path.
 
-The --prefix option sets the root directory for the installation.
-Tools are installed under <prefix>/bin the library under
-<prefix>/lib. 
-If you use a package manager the SConstruct file includes support for DESTDIR.
-To use this feature call
+By default the setup.py script tries to use OpenMP. If you do not want to use
+OpenMP use --without-openmp option for the installation ::
 
-    $>scons DESTDIR=/destdir_path install 
+  $> python setup.py --without-openmp install --prefix=<install_path>
 
-instead of the command given above. This can be used in combination with the
-prefix flag. 
+For the installation the following requirements need to be installed on your
+system
+
+- Python
+- C-compiler (preferential with OpenMP support)
+- HDF5
+- pytables
+- scipy
+- numpy
+- matplotlib (optionally)
+
+refer to your operating system documentation to find out how to install
+those packages. On Microsoft Windows refer to the Documentation for the 
+easiest way of the installation (python(x,y)).
 
 The python package configuration
 ================================
@@ -77,48 +66,58 @@ In this case the module is installed under
 <prefix>/lib[64]/python?.?/site-packages on Unix systems and
 <prefix>/Lib/site-packages on Windows systems. 
 
-If you have installed the Python package in a directory unknown to your 
-local Python distribution, you have to tell Python where to look for the Package. There are several 
-ways how to do this:
+If you have installed the Python package in a directory unknown to your local
+Python distribution, you have to tell Python where to look for the Package.
+There are several ways how to do this:
 
--) add the directory where the package is installed to your 
-   PYTHONPATH environment variable.
+- add the directory where the package is installed to your 
+  *PYTHONPATH* environment variable.
 
--) add the path to sys.path in the .pythonrc file placed in your home 
-   directory.
+- add the path to sys.path in the .pythonrc file placed in your home 
+  directory ::
 
-   import sys
-   sys.path.append("path to the xrayutilities package")
+    import sys
+    sys.path.append("path to the xrayutilities package")
 
--) simply apply the previous method in every script where you want to 
-   use the xrayutilities package before importing the package:
+- simply apply the previous method in every script where you want to 
+  use the xrayutilities package before importing the package ::
 
-   import sys
-   sys.path.append("path to the xrayutilities package")
-   import xrayutilities
+    import sys
+    sys.path.append("path to the xrayutilities package")
+    import xrayutilities
 
+Obtaining the source code
+=========================
+
+The sources are hosted on sourceforge in git repository.
+Use ::
+
+  $> git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
+
+to clone the git repository. If you would like to have commit rights 
+contact one of the administrators.
 
 UPDATE
 ======
 
 if you already installed xrayutilities you can update it by navigating into
-its source folder and obtain the new sources by
+its source folder and obtain the new sources by ::
 
   $> git pull
  
-or download the new tarball from sourceforge (http://sf.net/projects/xrayutilities)
-if any code changed during the update you need to reinstall the libary and
-python package.
-To determine the path in which xrayutilities where installed previously use:
+or download the new tarball from sourceforge
+(http://sf.net/projects/xrayutilities) if any code changed during the update you
+need to reinstall the python package.  To determine the path in which
+xrayutilities where installed previously use ::
 
   $> python -c "import xrayutilities as xu; print xu.__file__"
   /usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.pyc
 
 if the output is e.g.: "/usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.py"
 you previously installed xrayutilities in "/usr/local", which should be used
-again as install path. Use:
+again as install path. Use ::
 
-  $> scons install --prefix=<path to install directory>
+  $> python setup.py install --prefix=<path to install directory>
 
 to install the updated package.
 
@@ -126,25 +125,24 @@ to install the updated package.
 DOCUMENTATION
 =============
 
-Documention for xrayutilities is found in the xrayutilities.pdf file. The manual can be
-rebuilt by sphinx (using pdflatex) using scons
+Documention for xrayutilities is found in the xrayutilities.pdf file or on the
+webpage http://xrayutilities.sourceforge.net 
 
-  $> scons doc
- 
-The API-documentation can be browsed by 
+The API-documentation can also be browsed by ::
 
   $> pydoc -p PORT
  
-in any web-browser, after the installation is finished or found online at
-sourceforge.
+in any web-browser, after the installation is finished.
 
 
 PACKAGING
 =========
 
-create a tarball for redistribution of xrayutilities without the use of git
+create a tarball for redistribution of xrayutilities without the use of git ::
 
-  $>scons dist
+  $> python setup.py sdist
 
 creates a tarball in the directory dist, which contains everything needed for
 the installation of xrayutilities
+
+

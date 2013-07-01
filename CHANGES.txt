@@ -1,0 +1,1 @@
+v0.99, 2013-07-01 -- planned to be the initial release on PyPI
