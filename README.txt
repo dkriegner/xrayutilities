@@ -27,7 +27,7 @@ The first command installs in the systems default directories, whereas in the se
 For the installation the following requirements need to be installed on your system
 
      Python
-     C-compiler
+     C-compiler (preferential with OpenMP support)
      HDF5
      pytables
      scipy

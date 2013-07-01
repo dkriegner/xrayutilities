@@ -26,6 +26,17 @@ the installation of xrayutilities
 
 This tarball should be uploaded to sourceforge and PyPI.
 
+To build a executable installer for Microsoft windows run
+
+   >python setup.py bdist_msi
+
+on a windows machine.
+If not done previously you need to build the extenstion modules using
+
+   >python setup.py build -c <compiler_name>
+
+The compiler name can be omitted if the default is working. Using Python(x,y) you want to specify "mingw32".
+
 UPDATE DOCUMENTATION
 ====================
 
