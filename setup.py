@@ -64,6 +64,9 @@ class build_ext_subclass( build_ext ):
                 e.extra_link_args = lopt[ c ]
         build_ext.build_extensions(self)
 
+with open('README.txt') as f:
+    long_description = f.read()
+
 extmodul = Extension('xrayutilities.cxrayutilities',
                      sources = [os.path.join('xrayutilities','src','cxrayutilities.c'),
                                 os.path.join('xrayutilities','src','gridder_utils.c'),
@@ -77,6 +80,7 @@ setup(name="xrayutilities",
       version="0.99",
       author="Eugen Wintersberger, Dominik Kriegner",
       description="package for x-ray diffraction data evaluation",
+      long_description=long_description,
       author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
       maintainer="Dominik Kriegner",
       maintainer_email="dominik.kriegner@gmail.com",
