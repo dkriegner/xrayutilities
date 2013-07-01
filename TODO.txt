@@ -1,24 +1,9 @@
 To Do
 -----
 
-10.6.2013
-
-* adapt changes of c-code in python calls (gridder?)
-* create test scripts 
-
 27.3.2012
 
 implement alternative call of line_cut function with Gridder2D object instead
 of data... basically overload the function if this is possible in python?
 
-9.2.2012
 
-make the use of pthreads optional
-nthreads (number of threads used by the gridder) should be in the config
-
-17.08.2010
-discussion Eugen, Dominik
-
-pyunit tests could be implemented to test the core functionality of the
-xrutils package. 
-Therefore example files for each io module should be included.
