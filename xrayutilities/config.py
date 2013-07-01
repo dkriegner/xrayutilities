@@ -43,7 +43,6 @@ from . import utilities_noconf
 # dynlow
 # dynhigh
 # epsilon
-# clib_path
 # database filename for atomic structure factors
 # kappa_plane and kappa_angle
 
