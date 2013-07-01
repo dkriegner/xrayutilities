@@ -459,7 +459,6 @@ class QConversion(object):
         ----------
          detectorDir:     direction of the detector (along the pixel array); e.g. 'z+'
          cch:             center channel, in direction of self.r_i at zero detectorAngles
-                          Note: the channel numbers run from 0 .. Nchannel-1
          Nchannel:        total number of detector channels
          distance:        distance of center channel from center of rotation
          pixelwidth:      width of one pixel (same unit as distance)
@@ -469,6 +468,8 @@ class QConversion(object):
                           !! Either distance and pixelwidth or chpdeg must be given !!
          tilt:            tilt of the detector axis from the detectorDir (in degree)
 
+            Note: the channel numbers run from 0 .. Nchannel-1
+        
         **kwargs:        optional keyword arguments
           Nav:           number of channels to average to reduce data size (default: 1)
           roi:           region of interest for the detector pixels; e.g. [100,900]
@@ -678,7 +679,6 @@ class QConversion(object):
                           e.g. 'z+' means higher pixel numbers at larger z positions
          detectorDir2:    direction of the detector (along the pixel direction 2); e.g. 'x+'
          cch1,2:          center pixel, in direction of self.r_i at zero detectorAngles
-                          Note: the channel numbers run from 0 .. Nchannel-1
          Nch1:            number of detector pixels along direction 1
          Nch2:            number of detector pixels along direction 2
          distance:        distance of center pixel from center of rotation
@@ -692,6 +692,8 @@ class QConversion(object):
 
            Note: Either distance and pwidth1,2 or chpdeg1,2 must be given !!
 
+           Note: the channel numbers run from 0 .. NchX-1
+       
         **kwargs:         optional keyword arguments
           Nav:            number of channels to average to reduce data size (default: [1,1])
           roi:            region of interest for the detector pixels; e.g. [100,900,200,800]

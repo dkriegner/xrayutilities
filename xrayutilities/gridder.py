@@ -23,16 +23,14 @@ from . import cxrayutilities
 from . import exception
 from . import config
 
-unit_dict = {"kb":1024,"mb":1024**2,"gb":1024**3}
-
 def check_array(a,dtype):
     """
-    check_array(a,dtype):
     Check if an array fits the requirements for the C-code and returns it 
     back to the callee. Such arrays must be aligned and C_CONTIGUOUS which
     means that they have to follow C-ordering.
 
-    rquired input arguments:
+    Parameters
+    ----------
     a ............ array to check
     dtype ........ numpy data type
     """
@@ -41,10 +39,10 @@ def check_array(a,dtype):
 
 def delta(min_value,max_value,n):
     """
-    delta(min_value,max_value,n):
     Compute the stepsize along an axis of a grid. 
 
-    required input arguments:
+    Parameters
+    ----------
     min_value ........... axis minimum value
     max_value ........... axis maximum value
     n ................... number of steps
@@ -54,10 +52,10 @@ def delta(min_value,max_value,n):
 
 def axis(min_value,max_value,n):
     """
-    axis(min_value,max_value,n):
     Compute the a grid axis. 
 
-    required input arguments:
+    Parameters
+    ----------
     min_value ........... axis minimum value
     max_value ........... axis maximum value
     n ................... number of steps
@@ -70,8 +68,6 @@ def axis(min_value,max_value,n):
 
 def ones(*args):
     """
-    matrix(*args):
-
     Compute ones for matrix generation. The shape is determined by the number of
     input arguments.
     """
@@ -79,51 +75,16 @@ def ones(*args):
 
 
 class Gridder(object):
-    def __init__(self,**keyargs):
+    def __init__(self):
         """
         Basis class for gridders in xrayutilities. A gridder is a function mapping
         irregular spaced data onto a regular grid by binning the data into equally 
         sized elements
-
-        Parameters:
-        -----------
-
-         **keyargs (optional):
-            nthreads:   number of threads used in the gridding procedure
-                        default: 0 -> sequential code is used
         """
 
-        if 'nthreads' in keyargs:
-            self.nthreads = keyargs['nthreads']
-        else:
-            self.nthreads = 0
-
-        self.csize = 0
-        self.cunit = 1024**2
         self.flags = 0
         if config.VERBOSITY >= config.INFO_ALL:
             self.flags = self.flags|16 # set verbosity flag
-
-
-    def SetThreads(self,n):
-        """
-        SetThreads(n)
-
-        Set the number of threads that should be used for gridding.
-
-        required input arguments:
-        n .............. number of threads
-        """
-        self.nthreads = n
-
-    def SetChunkSize(self,n):
-        self.csize = n
-
-    def SetChunkUnit(self,u):
-        if u in unit_dict.keys():
-            self.cunit = unit_dict[u]
-        else:
-            raise InputError("Chunk size unit must be one of: kb, mb or gb")
 
     def Normalize(self,bool):
         self.flags = self.flags^4
@@ -136,8 +97,8 @@ class Gridder(object):
 
 
 class Gridder1D(Gridder):
-    def __init__(self,nx,**keyargs):
-        Gridder.__init__(self,**keyargs)
+    def __init__(self,nx):
+        Gridder.__init__(self)
 
         self.nx = nx
         self.xmin = 0
@@ -168,12 +129,12 @@ class Gridder1D(Gridder):
 
     def __call__(self,*args):
         """
-        GridData(x,data):
         Perform gridding on a set of data.
 
-        required input argument:
-        x ............... numpy array of arbitrary shape with x positions
-        data ............ numpy array of arbitrary shape with data values
+        Parameters
+        ----------
+         x ............... numpy array of arbitrary shape with x positions
+         data ............ numpy array of arbitrary shape with data values
         """
 
         x = args[0]

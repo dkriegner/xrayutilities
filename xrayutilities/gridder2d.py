@@ -30,8 +30,8 @@ from .gridder import axis
 from .gridder import ones
 
 class Gridder2D(Gridder):
-    def __init__(self,nx,ny,**keyargs):
-        Gridder.__init__(self,**keyargs)
+    def __init__(self,nx,ny):
+        Gridder.__init__(self)
 
         self.xmin = 0
         self.ymin = 0
@@ -45,7 +45,6 @@ class Gridder2D(Gridder):
 
     def _allocate_memory(self):
         """
-        _allocate_memory(self):
         Class method to allocate memory for the gridder based on the nx,ny 
         class attributes.
         """
@@ -58,11 +57,11 @@ class Gridder2D(Gridder):
 
     def SetResolution(self,nx,ny):
         """
-        SetResolution(nx,ny):
         Reset the resolution of the gridder. In this case the original data
         stored in the object will be deleted. 
 
-        required input argument:
+        Parameters
+        ----------
         nx ............ number of points in x-direction
         ny ............ number of points in y-direction
         """
@@ -100,10 +99,10 @@ class Gridder2D(Gridder):
 
     def __call__(self,*args):
         """
-        GridData(x,y,data):
         Perform gridding on a set of data.
 
-        required input argument:
+        Parameters
+        ----------
         x ............... numpy array of arbitrary shape with x positions
         y ............... numpy array of arbitrary shape with y positions
         data ............ numpy array of arbitrary shape with data values

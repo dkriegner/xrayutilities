@@ -29,8 +29,8 @@ from .gridder import delta
 from .gridder import axis
 
 class Gridder3D(Gridder):
-    def __init__(self,nx,ny,nz,**keyargs):
-        Gridder.__init__(self,**keyargs)
+    def __init__(self,nx,ny,nz):
+        Gridder.__init__(self)
 
         self.xmin = 0
         self.xmax = 0
@@ -48,7 +48,6 @@ class Gridder3D(Gridder):
 
     def _allocate_memory(self):
         """
-        _allocate_memory(self):
         Class method to allocate memory for the gridder based on the nx,ny 
         class attributes.
         """
@@ -95,11 +94,11 @@ class Gridder3D(Gridder):
 
     def __call__(self,x,y,z,data):
         """
-        GridData(x,y,data):
         Perform gridding on a set of data. After running the gridder
         the gdata object in the class is holding the gridded data.
 
-        required input argument:
+        Parameters
+        ----------
         x ............... numpy array of arbitrary shape with x positions
         y ............... numpy array of arbitrary shape with y positions
         z ............... numpy array fo arbitrary shape with z positions
