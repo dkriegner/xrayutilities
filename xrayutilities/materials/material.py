@@ -827,7 +827,7 @@ class CubicAlloy(Alloy):
 
     def __init__(self,matA,matB,x):
         #here one could check if material is really cubic!!
-        pass
+        Alloy.__init__(self,matA,matB,x)
 
     def ContentBsym(self,q_perp,hkl,inpr,asub,relax):
         """
