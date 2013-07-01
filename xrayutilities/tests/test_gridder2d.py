@@ -37,8 +37,8 @@ class TestGridder1D(unittest.TestCase):
         # test values of data
         aj,ak = numpy.indices((self.nx,self.ny))
         aj,ak = numpy.ravel(aj),numpy.ravel(ak) 
-        print self.data
-        print self.gridder.gdata
+        #print self.data
+        #print self.gridder.gdata
         for i in range(self.nx*self.ny):
             j,k = (aj[i],ak[i])
             if k==2*j: self.assertAlmostEqual(self.gridder.gdata[j,2*j], self.data[j], places=12)
