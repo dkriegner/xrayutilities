@@ -21,10 +21,17 @@ or
 
   python setup.py install --prefix=INSTALLPATH
 
-in the source folder of xrayutilities on the command line/terminal.
-The first command installs in the systems default directories, whereas in the second command you can manually specify the installation path.
+in the source folder of xrayutilities on the command line/terminal.  The first
+command installs in the systems default directories, whereas in the second
+command you can manually specify the installation path.
 
-For the installation the following requirements need to be installed on your system
+By default the setup.py script tries to use OpenMP. If you do not want to use
+OpenMP use --without-openmp option for the installation
+
+ python setup.py --without-openmp install --prefix=INSTALLPATH
+
+For the installation the following requirements need to be installed on your
+system
 
      Python
      C-compiler (preferential with OpenMP support)
@@ -47,9 +54,9 @@ In this case the module is installed under
 <prefix>/lib[64]/python?.?/site-packages on Unix systems and
 <prefix>/Lib/site-packages on Windows systems. 
 
-If you have installed the Python package in a directory unknown to your 
-local Python distribution, you have to tell Python where to look for the Package. There are several 
-ways how to do this:
+If you have installed the Python package in a directory unknown to your local
+Python distribution, you have to tell Python where to look for the Package.
+There are several ways how to do this:
 
 -) add the directory where the package is installed to your 
    PYTHONPATH environment variable.
@@ -84,9 +91,10 @@ its source folder and obtain the new sources by
 
   $> git pull
  
-or download the new tarball from sourceforge (http://sf.net/projects/xrayutilities)
-if any code changed during the update you need to reinstall the python package.
-To determine the path in which xrayutilities where installed previously use:
+or download the new tarball from sourceforge
+(http://sf.net/projects/xrayutilities) if any code changed during the update you
+need to reinstall the python package.  To determine the path in which
+xrayutilities where installed previously use:
 
   $> python -c "import xrayutilities as xu; print xu.__file__"
   /usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.pyc

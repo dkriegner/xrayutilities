@@ -18,15 +18,39 @@
 
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
+from distutils.fancy_getopt import FancyGetopt
 import os.path
 import numpy
 
-copt =  {'msvc' : ['/openmp',],
-         'mingw32' : ['-fopenmp','-std=c99'],
-         'unix' : ['-fopenmp','-std=c99','-Wall'] }
-lopt =  {'mingw32' : ['-fopenmp'],
-         'unix' : ['-lgomp'] }
-user_macros = [('__OPENMP__',None)]
+cliopts = []
+cliopts.append(("without-openmp",None,"build without OpenMP support"))
+
+options = FancyGetopt(option_table = cliopts)
+args,opts = options.getopt()
+
+#set default flags
+without_openmp = False
+
+for opts,values in options.get_option_order():
+    if opts == "without-openmp":
+        without_openmp = True
+
+
+copt =  {'msvc' : [],
+         'mingw32' : ['-std=c99'],
+         'unix' : ['-std=c99','-Wall'] }
+lopt =  {'mingw32' : [],
+         'unix' : [] }
+
+user_macros = []
+if not without_openmp:
+    user_macros = [('__OPENMP__',None)]
+    copt["msvc"].append('/openmp')
+    copt["mingw32"].append("-fopenmp")
+    copt["unix"].append("-fopenmp")
+    lopt["mingw32"].append("-fopenmp")
+    lopt["unix"].append("-lgomp")
+
 
 class build_ext_subclass( build_ext ):
     def build_extensions(self):
@@ -66,5 +90,6 @@ setup(name="xrayutilities",
       ext_modules = [extmodul],
       cmdclass = {'build_ext': build_ext_subclass },
       url="http://xrayutilities.sourceforge.net",
-      license="GPLv2"
+      license="GPLv2",
+      script_args = args
       )
