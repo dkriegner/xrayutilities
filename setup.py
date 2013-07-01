@@ -38,7 +38,7 @@ for opts,values in options.get_option_order():
 
 copt =  {'msvc' : [],
          'mingw32' : ['-std=c99'],
-         'unix' : ['-std=c99','-Wall'] }
+         'unix' : ['-std=c99'] }
 lopt =  {'mingw32' : [],
          'unix' : [] }
 
@@ -83,7 +83,7 @@ setup(name="xrayutilities",
       classifiers=["Topic :: Scientific/Engineering :: Physics",
                    "Intended Audience :: Science/Research",
                    "Development Status :: 4 - Beta",
-                   "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)"]
+                   "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)"],
       long_description=long_description,
       author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
       maintainer="Dominik Kriegner",
