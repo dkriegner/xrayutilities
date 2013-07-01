@@ -16,29 +16,29 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from distutils import ccompiler
 from distutils.core import setup, Extension
+from distutils.command.build_ext import build_ext
 import os.path
 import numpy
-import shutil
 
-# check existence of libraries for extension module
-cflags = ['-std=c99']
-user_macros = []
-libraries = []
-compiler=ccompiler.new_compiler()
-compiler.output_dir = '_config_tmp'
+copt =  {'msvc' : ['/openmp',],
+         'mingw32' : ['-fopenmp','-std=c99'],
+         'unix' : ['-fopenmp','-std=c99','-Wall'] }
+lopt =  {'mingw32' : ['-fopenmp'],
+         'unix' : ['-lgomp'] }
+user_macros = [('__OPENMP__',None)]
 
-# check for OpenMP
-if compiler.has_function('omp_set_dynamic',libraries=('gomp',)):
-      cflags.append('-fopenmp')
-      user_macros.append(('__OPENMP__','1'))
-      libraries.append('gomp')
-else:
-    print('Warning: did not find openmp + header files -> using serial code')
-# remove temporary directory
-try: shutil.rmtree(compiler.output_dir)
-except: pass
+class build_ext_subclass( build_ext ):
+    def build_extensions(self):
+        c = self.compiler.compiler_type
+        # set custom compiler options
+        if copt.has_key(c):
+            for e in self.extensions:
+                e.extra_compile_args = copt[ c ]
+        if lopt.has_key(c):
+            for e in self.extensions:
+                e.extra_link_args = lopt[ c ]
+        build_ext.build_extensions(self)
 
 extmodul = Extension('xrayutilities.cxrayutilities',
                      sources = [os.path.join('xrayutilities','src','cxrayutilities.c'),
@@ -47,9 +47,7 @@ extmodul = Extension('xrayutilities.cxrayutilities',
                                 os.path.join('xrayutilities','src','block_average.c'),
                                 os.path.join('xrayutilities','src','qconversion.c'),
                                 os.path.join('xrayutilities','src','gridder3d.c')],
-                     define_macros = user_macros,
-                     libraries = libraries,
-                     extra_compile_args=cflags)
+                     define_macros = user_macros)
 
 setup(name="xrayutilities",
       version="0.99",
@@ -66,6 +64,7 @@ setup(name="xrayutilities",
       requires=['numpy','scipy','matplotlib','tables'],
       include_dirs = [numpy.get_include()],
       ext_modules = [extmodul],
+      cmdclass = {'build_ext': build_ext_subclass },
       url="http://xrayutilities.sourceforge.net",
       license="GPLv2"
       )
