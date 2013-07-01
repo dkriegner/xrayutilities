@@ -458,8 +458,8 @@ class QConversion(object):
         Parameters
         ----------
          detectorDir:     direction of the detector (along the pixel array); e.g. 'z+'
-         cch:             center channel, in direction of self.r_i at zero
-                          detectorAngles
+         cch:             center channel, in direction of self.r_i at zero detectorAngles
+                          Note: the channel numbers run from 0 .. Nchannel-1
          Nchannel:        total number of detector channels
          distance:        distance of center channel from center of rotation
          pixelwidth:      width of one pixel (same unit as distance)
@@ -677,8 +677,8 @@ class QConversion(object):
          detectorDir1:    direction of the detector (along the pixel direction 1);
                           e.g. 'z+' means higher pixel numbers at larger z positions
          detectorDir2:    direction of the detector (along the pixel direction 2); e.g. 'x+'
-         cch1,2:          center pixel, in direction of self.r_i at zero
-                          detectorAngles
+         cch1,2:          center pixel, in direction of self.r_i at zero detectorAngles
+                          Note: the channel numbers run from 0 .. Nchannel-1
          Nch1:            number of detector pixels along direction 1
          Nch2:            number of detector pixels along direction 2
          distance:        distance of center pixel from center of rotation
