@@ -41,6 +41,22 @@ xrayutilities Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`gridder2d` Module
+-----------------------
+
+.. automodule:: xrayutilities.gridder2d
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`gridder3d` Module
+-----------------------
+
+.. automodule:: xrayutilities.gridder3d
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`normalize` Module
 -----------------------
 

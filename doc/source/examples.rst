@@ -300,7 +300,7 @@ It is also possible to calculate the components of the structure factor of atoms
 
 
 User-specific config file
-------------------------
+-------------------------
 
 Several options of *xrayutilities* can be changed by options in a config file. This includes the default x-ray energy as well as parameters to set the number of threads used by the parallel code and the verbosity of the output.
 
