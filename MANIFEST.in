@@ -2,3 +2,4 @@ include LICENSE.txt
 include CHANGES.txt
 include xrayutilities.pdf
 recursive-include examples *
+graft xrayutilities/src
