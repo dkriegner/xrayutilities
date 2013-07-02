@@ -31,47 +31,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <Python.h>
 
 /*define flags for the gridder functions*/
 #define NO_DATA_INIT 1
 #define NO_NORMALIZATION 4
 #define VERBOSE 16
-
-/*parameters thread workers*/
-typedef struct{
-    unsigned int nth;    //total number of threads
-    unsigned int thid;   //id of a thread
-    unsigned int npth;   //number of points per thread
-    unsigned int npres;  //residual points
-
-    //input data
-    double *x;           //pointer to x-values
-    double *y;           //pointer to y-values
-    double *z;           //pointer to z-values
-    double *data;        //pointer to the input data
-    unsigned int n;      //number of input values
-
-    //grid parameters
-    double xmax;        //maximum along x
-    double dx;          //step width along x
-    double ymin;        //minimum in y-direction
-    double ymax;        //maximum in y-direction
-    double dy;          //step width along y
-    double zmin;        //minimum along z
-    double zmax;        //maximum along z
-    double dz;          //step width along z
-    unsigned int nx;    //number of steps in x-direction
-    unsigned int ny;    //number of steps in y-direction
-    unsigned int nz;    //number of steps in z-direction
-    double *odata;      //output data
-    double *norm;       //array with normalization data
-    int flags;          //control flag
-}_ThGridderArgs;
-
-//global gridder mutex
-pthread_mutex_t gridder_mutex;
 
 /*!
 \brief python interface function
@@ -107,24 +72,6 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
               double xmin,double xmax,
               double ymin,double ymax,
               double *odata,double *norm,int flags);
-
-//-----------------------------------------------------------------------------
-/*!
-\brief multithreaded 2D gridder
-
-*/
-int gridder2d_th(unsigned int nth,
-                 double *x,double *y,double *data,unsigned int n,
-                 unsigned int nx,unsigned int ny,
-                 double xmin,double xmax,double ymin,double ymax,
-                 double *odata,double *norm,int flags);
-
-//-----------------------------------------------------------------------------
-/*!
-\brief 2D gridder workder function
-
-*/
-void *gridder2d_th_worker(void *arg);
 
 //-----------------------------------------------------------------------------
 /*!
@@ -167,23 +114,4 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
               double xmin, double xmax, double ymin, double ymax,
               double zmin, double zmax,
               double *odata,double *norm,int flags);
-
-//-----------------------------------------------------------------------------
-/*!
-\brief multithreaded 3d gridder
-
-*/
-int gridder3d_th(unsigned int nth,
-                 double *x,double *y,double *z,double *data,unsigned int n,
-                 unsigned int nx,unsigned int ny,unsigned int nz,
-                 double xmin, double xmax, double ymin, double ymax,
-                 double zmin, double zmax,
-                 double *odata,double *norm,int flags);
-
-//----------------------------------------------------------------------------
-/*!
-\brief multithreaded 3d gridder worker
-
-*/
-void *gridder3d_th_worker(void *arg);
 
