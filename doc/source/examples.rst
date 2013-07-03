@@ -334,3 +334,67 @@ An example of such a user config file is shown below:
     #   0: the maximum number of available threads will be used (as returned by omp_get_max_threads())
     #   n: n-threads will be used 
 
+
+
+Determining detector parameters
+-------------------------------
+
+In the following three examples of how to determine the detector parameters for linear and area detectors is given.
+The procedure we use is in more detail described in this `article <http://arxiv.org/abs/1304.1732>`_.
+
+Linear detectors
+^^^^^^^^^^^^^^^^
+
+To determine the detector parameters of a linear detector one needs to perform a scan with the detector angle through the primary beam and aquire a detector spectrum at any point.
+
+Using the following script determines the parameters necessary for the detector initialization, which are:
+
+* pixelwidth of one channel
+* the center channel
+* and the detector tilt (optional)
+
+.. literalinclude:: example_xu_linear_detector_parameters.py
+    :linenos:
+    :language: python
+
+
+Area detector (Variant 1)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To determine the detector parameters of a area detector one needs to perform scans with the detector angles through the primary beam and aquire a detector images at any position.
+For the area detector at least two scans (one with the outer detector and and one with the inner detector angle) are required.
+
+Using the following script determines the parameters necessary for the detector initialization from such scans in the primary beam only. Further down we discuss an other variant which is also able to use additionally detector images recorded at the Bragg reflection of a known reference crystal.
+
+The determined detector parameters are:
+
+* pixelwidth of the channels in both directions (2 parameters)
+* center channels: position of the primary beam at the true zero position of the goniometer (considering the outer angle offset) (2 parameters)
+* detector tilt azimuth in degree from 0 to 360
+* detector tilt angle in degree (>0deg)
+* detector rotation around the primary beam in degree
+* outer angle offset, which describes a offset of the outer detector angle from its true zero position
+
+The misalignment parameters can be fixed during the fitting.
+
+.. literalinclude:: example_xu_ccd_parameter.py
+    :linenos:
+    :language: python
+
+Area detector (Variant 2)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to scans in the primary beam this variant enables also the use of detector images recorded in scans at Bragg reflections of a known reference materials. However this also required that the sample orientation and x-ray wavelength need to be fit.
+To keep the additional parameters as small as possible we only implemented this for symmetric coplanar diffractions. 
+
+The advantage of this method is that it is more sensitive to the outer angle offset also at large detector distances.
+The additional parameters are:
+
+* sample tilt angle in degree
+* sample tilt azimuth in degree
+* and the x-ray wavelength in Angstrom
+
+.. literalinclude:: example_xu_ccd_parameter_hkl.py
+    :linenos:
+    :language: python
+
