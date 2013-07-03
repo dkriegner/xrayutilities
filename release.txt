@@ -13,13 +13,15 @@ Is everything running fine? perform the tests and run the examples
 
 run the examples
 
+change the version in the doc/conf.py file and in setup.py
+
 
 PACKAGING
 =========
 
 create a tarball for redistribution of xrayutilities without the use of git
 
-  $>python setup.py sdist
+  python setup.py sdist
 
 creates a tarball in the directory dist, which contains everything needed for
 the installation of xrayutilities
@@ -28,12 +30,12 @@ This tarball should be uploaded to sourceforge and PyPI.
 
 To build a executable installer for Microsoft windows run
 
-   >python setup.py bdist_msi
+  python setup.py bdist_msi
 
 on a windows machine.
 If not done previously you need to build the extenstion modules using
 
-   >python setup.py build -c <compiler_name>
+  python setup.py build -c <compiler_name>
 
 The compiler name can be omitted if the default is working. Using Python(x,y) you want to specify "mingw32".
 
@@ -67,4 +69,13 @@ to upload new web-documentation connect to the sourceforge server via:
   sftp://USERNAME@web.sourceforge.net
   /home/project-web/xrayutilities/htdocs
 
+UPDATE PyPI PACKAGE
+===================
 
+Upload new version to the python package index by
+
+  python setup.py sdist upload
+  
+On a windows machine run 
+
+  python setup.py bdist_msi upload
