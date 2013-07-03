@@ -966,7 +966,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
 ## detector parameter calculation from scan with
 ## area detector (determine maximum by center of mass)
 ######################################################
-def area_detector_calib2(sampleang,angle1,angle2,ccdimages,hkls,experiment,material,detaxis,r_i,plot=True,cut_off = 0.1,start = (0,0,0,0,0,0,'config'), fix = (False,False,False,False,False,False,False), fig=None):
+def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,material,detaxis,r_i,plot=True,cut_off = 0.1,start = (0,0,0,0,0,0,'config'), fix = (False,False,False,False,False,False,False), fig=None):
     """
     function to calibrate the detector parameters of an area detector
     it determines the detector tilt possible rotations and offsets in the
