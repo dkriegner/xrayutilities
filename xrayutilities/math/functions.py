@@ -49,6 +49,40 @@ def smooth(x,n):
     y=numpy.convolve(w/w.sum(),s,mode='same')
     return y[n:-n+1]
 
+
+def kill_spike(data,threshold=2.):
+    """
+    function to smooth **single** data points which differ from the average of the neighboring data 
+    points by more than the threshold factor. Such spikes will be replaced by the mean value of the 
+    next neighbors.
+
+    .. warning:: Use this function carefully not to manipulate your data!
+
+    Parameters
+    ----------
+     data:          1d numpy array with experimental data
+     threshold:     threshold factor to identify strange data points
+
+    Returns
+    -------
+     1d data-array with spikes removed 
+    """
+
+    dataout = data.copy()
+
+    mean = (data[:-2] + data[2:])/2.
+    mask = numpy.logical_or( numpy.abs(data[1:-1]*threshold) < numpy.abs(mean) , numpy.abs(data[1:-1]/threshold) > numpy.abs(mean) )
+    #ensure that only single value are corrected and neighboring are ignored
+    for i in range(1,len(mask)-1):
+        if mask[i-1] and mask[i] and mask[i+1]:
+            mask[i-1]=False
+            mask[i+1]=False
+
+    dataout[1:-1][mask] = (numpy.abs(mean))[mask]
+
+    return dataout
+
+
 def Gauss1d(x,*p):
     """
     function to calculate a general one dimensional Gaussian
