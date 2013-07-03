@@ -1,5 +1,6 @@
-v1.0, 
+v0.99.1, 2013-07-03
 
+* documentation updates
 * function analysis.area_detector_calib2 renamed to area_detector_calib_hkl
 * added function to remove spikes from 1d data arrays 
 
