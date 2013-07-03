@@ -3,3 +3,4 @@ include CHANGES.txt
 include xrayutilities.pdf
 recursive-include examples *
 graft xrayutilities/src
+graft xrayutilities/tests
