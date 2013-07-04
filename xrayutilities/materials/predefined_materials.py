@@ -68,6 +68,7 @@ SiO2 = Material("SiO_2",lattice.QuartzLattice(elements.Si,elements.O,4.916,4.916
 In = Material("In",lattice.TetragonalIndiumLattice(elements.In,3.2523,4.9461))
 Sb = Material("Sb",lattice.TrigonalR3mh(elements.Sb,4.307,11.273))
 Sn = Material("Sn",lattice.TetragonalTinLattice(elements.Sn,5.8197,3.17488))
+Ag = Material("Ag",lattice.FCCLattice(elements.Ag,4.0853))
 SnAlpha = Material("Sn-alpha",lattice.DiamondLattice(elements.Sn,6.4912))
 Cu = Material("Cu",lattice.FCCLattice(elements.Cu,3.61496))
 CuMnAs = Material("CuMnAs",lattice.CuMnAsLattice(elements.Cu,elements.Mn,elements.As,3.82,3.82,6.30))
