@@ -158,6 +158,26 @@ def Gauss2d(x,y,*p):
                                      ((rcen_y-yp)/p[3])**2)/2.)
     return g
 
+def Gauss3d(x,y,z,*p):
+    """
+    function to calculate a general three dimensional Gaussian
+
+    Parameters
+    ----------
+     p:     list of parameters of the Gauss-function
+            [XCEN,YCEN,ZCEN,SIGMAX,SIGMAY,SIGMAZ,AMP,BACKGROUND]
+            SIGMA = FWHM / (2*sqrt(2*log(2)))
+     x,y,z:   coordinate(s) where the function should be evaluated
+
+    Returns
+    -------
+    the value of the Gaussian described by the parameters p
+    at positions (x,y,z)
+    """
+
+    g = p[7]+p[6]*numpy.exp(-(((x-p[0])/p[3])**2+((y-p[1])/p[4])**2+((z-p[2])/p[5])**2)/2.)
+    return g
+
 def TwoGauss2d(x,y,*p):
     """
     function to calculate two general two dimensional Gaussians
