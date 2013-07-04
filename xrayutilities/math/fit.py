@@ -30,6 +30,12 @@ from scipy.odr import models
 from .. import config
 from .functions import Gauss1d,Gauss1d_der_x,Gauss1d_der_p
 
+try:
+    from matplotlib import pyplot as plt
+except RuntimeError:
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU.analysis.sample_align: warning; plotting functionality not available")
+
 def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     """
     Gauss fit function using odr-pack wrapper in scipy similar to
@@ -149,3 +155,201 @@ def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
     if success not in [1,2,3,4]:
         print("XU.math.fit: Could not obtain fit!")
     return p,pcov
+
+
+def multGaussFit(x,data,peakpos,peakwidth,dranges=None):
+    """
+    function to fit multiple Gaussian peaks with linear background to a set of data
+
+    Parameters
+    ----------
+     x:  x-coordinate of the data
+     data:  data array with same length as x
+     peakpos:  initial parameters for the peak positions
+     peakwidth:  initial values for the peak width
+     dranges:  list of tuples with (min,max) value of the data ranges to use.
+               does not need to have the same number of entries as peakpos
+
+    Returns
+    -------
+     pos,sigma,amp,background
+
+    pos:  list of peak positions derived by the fit
+    sigma:  list of peak width derived by the fit
+    amp:  list of amplitudes of the peaks derived by the fit
+    background:  array of background values at positions x
+    """
+    def deriv_x(p, x):
+        """
+        function to calculate the derivative of the signal of multiple peaks and background w.r.t. the x-coordinate
+
+        p: list of parameters, for every peak there needs to be position, sigma, amplitude and at the end
+           two values for the linear background function (b0,b1)
+        x: x-coordinate
+        """
+        derx = numpy.zeros(x.size)
+
+        # sum up peak functions contributions
+        for i in range(len(p)//3):
+            ldx = Gauss1d_der_x(x,p[3*i],p[3*i+1],p[3*i+2],0)
+            derx += ldx
+
+        # background contribution
+        k = p[-2]; d = p[-1]
+        b = numpy.ones(x.size)*k
+
+        return derx+b
+        
+    def deriv_p(p, x):
+        """
+        function to calculate the derivative of the signal of multiple peaks and background w.r.t. the parameters
+
+        p: list of parameters, for every peak there needs to be position, sigma, amplitude and at the end
+           two values for the linear background function (b0,b1)
+        x: x-coordinate
+
+        returns derivative w.r.t. all the parameters with shape (len(p),x.size)
+        """
+
+        derp = numpy.empty(0)
+        # peak functions contributions
+        for i in range(len(p)//3):
+            lp = (p[3*i],p[3*i+1],p[3*i+2],0)
+            derp = numpy.append(derp,-2*(lp[0]-x)*Gauss1d(x,*lp))
+            derp = numpy.append(derp,(lp[0]-x)**2/(2*lp[1]**3)*Gauss1d(x,*lp))
+            derp = numpy.append(derp,Gauss1d(x,*lp)/lp[2])
+        
+        # background contributions
+        derp = numpy.append(derp,x)
+        derp = numpy.append(derp,numpy.ones(x.size))
+        
+        # reshape output
+        derp.shape = (len(p),) + x.shape
+        return derp
+
+    def fsignal(p, x):
+        """
+        function to calculate the signal of multiple peaks and background
+
+        p: list of parameters, for every peak there needs to be position, sigma, amplitude and at the end
+           two values for the linear background function (k,d)
+        x: x-coordinate
+        """
+        f = numpy.zeros(x.size)
+
+        # sum up peak functions
+        for i in range(len(p)//3):
+            lf = Gauss1d(x,p[3*i],p[3*i+1],p[3*i+2],0)
+            f += lf
+
+        # background
+        k = p[-2]; d = p[-1]
+        b = numpy.polyval((k,d),x)
+
+        return f+b
+
+    ##########################
+    # create local data set (extract data ranges)
+    if dranges:
+        mask = numpy.array([False]*x.size)
+        for i in range(len(dranges)):
+            lrange = dranges[i]
+            lmask = numpy.logical_and(x>lrange[0],x<lrange[1])
+            mask = numpy.logical_or(mask,lmask)
+        lx = x[mask]
+        ldata = data[mask]
+    else: 
+        lx = x
+        ldata = data
+
+    # create initial parameter list
+    p = []
+    
+    # background
+    k,d = numpy.polyfit(lx, ldata, 1)
+    
+    # peak parameters
+    for i in range(len(peakpos)):
+        amp = ldata[(lx-peakpos[i])>=0][0] - numpy.polyval((k,d),lx)[(lx-peakpos[i])>=0][0]
+        p += [peakpos[i],peakwidth[i],amp]
+
+    # background parameters
+    p += [k,d]
+
+    if(config.VERBOSITY >= config.DEBUG):
+        print("XU.math.multGaussFit: intial parameters")
+        print(p)
+
+    
+    ##########################
+    # fit with odrpack
+    model =  odr.Model(fsignal, fjacd=deriv_x, fjacb=deriv_p)
+    odata = odr.RealData(lx,ldata)
+    my_odr = odr.ODR(odata,model,beta0=p)
+    # fit type 2 for least squares
+    my_odr.set_job(fit_type=2)
+    fit = my_odr.run()
+
+    if(config.VERBOSITY >= config.DEBUG):
+        print("XU.math.multGaussFit: fitted parameters")
+        print(fit.beta)
+    try:
+        if fit.stopreason[0] not in ['Sum of squares convergence']:
+            print("XU.math.multGaussFit: fit NOT converged (%s)" %fit.stopreason[0])
+            return None,None,None,None
+    except:
+        print("XU.math.multGaussFit: fit most probably NOT converged (%s)" %str(fit.stopreason))
+        return None,None,None,None
+    # prepare return values
+    fpos = fit.beta[:-2:3]
+    fwidth = fit.beta[1:-2:3]
+    famp = fit.beta[2::3]
+    background = numpy.polyval((fit.beta[-2],fit.beta[-1]),x)
+
+    return fpos,fwidth,famp,background
+
+def multGaussPlot(x,fpos,fwidth,famp,background,dranges=None,fig="xu_plot",fact=1.):
+    """
+    function to plot multiple Gaussian peaks with linear background 
+
+    Parameters
+    ----------
+     x:  x-coordinate of the data
+     fpos:  list of positions of the peaks
+     fwidth:  list of width of the peaks
+     famp:  list of amplitudes of the peaks
+     background:  array with background values
+     dranges:  list of tuples with (min,max) value of the data ranges to use.
+               does not need to have the same number of entries as fpos
+     fig:  matplotlib figure number or name
+     fact: factor to use as multiplicator in the plot
+    """
+
+    try: plt.__name__
+    except NameError:
+        print("XU.math.multGaussPlot: Warning: plot functionality not available")
+        return
+    
+    plt.figure(fig)
+    # plot single peaks
+    if dranges:
+        mask = numpy.array([False]*x.size)
+        for i in range(len(dranges)):
+            lrange = dranges[i]
+            lmask = numpy.logical_and(x>lrange[0],x<lrange[1])
+            mask = numpy.logical_or(mask,lmask)
+        lx = x[mask]
+        lb = background[mask]
+    else: 
+        lx = x
+        lb = background
+
+    f = numpy.zeros(lx.size)
+    for i in range(len(fpos)):
+        lf = Gauss1d(lx,fpos[i],fwidth[i],famp[i],0)
+        f += lf
+        plt.plot(lx,(lf+lb)*fact,'k:')
+
+    # plot summed signal
+    plt.plot(lx,(f+lb)*fact,'r-',lw=1.5)
+

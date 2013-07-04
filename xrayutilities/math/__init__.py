@@ -46,3 +46,5 @@ from .functions import Lorentz2d
 
 from .fit import fit_peak2d
 from .fit import gauss_fit
+from .fit import multGaussFit
+from .fit import multGaussPlot 
