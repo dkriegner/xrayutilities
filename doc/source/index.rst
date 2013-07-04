@@ -6,7 +6,7 @@
 Welcome to xrayutilities's documentation!
 =========================================
 
-If you look for downloading the package go `here <https://sourceforge.net/projects/xrayutilities>`_.
+If you look for downloading the package go to `Sourceforge <https://sourceforge.net/projects/xrayutilities>`_ (source distribution) or the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ (MS Windows binary).
 Installation instructions you find further down `Installation`_.
 
   
@@ -196,6 +196,15 @@ which includes already all of the needed dependencies for installing *xrayutilit
 
 The setup of the environment variables is also done by the python(x,y) installation.
 One can proceed with the installation of *xrayutilities* directly!
+The easiest way to do this on windows is to use the binaries distributed on the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_, otherwise one can follow the general installation instructions. 
+Depending on your compiler on Microsoft Windows it might be necessary to perform the building of the Python extension separately and specify the compiler manually. 
+This is done by
+
+.. code-block:: bash
+
+  python setup.py build -c <compiler_name>
+
+Using Python(x,y) you want to specify "mingw32" as compiler name.
 
 In case you want to do it the hard way install all of the following (versions in brackets indicate the tested set of versions by the author (2.3.2012)):
  * MinGW (0.4alpha)
