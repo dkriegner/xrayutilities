@@ -513,6 +513,26 @@ def WurtziteLattice(aa,ab,a,c,u=3/8.,biso=0.):
 
     return l
 
+
+def NiAsLattice(aa,ab,a,c,biso=0.):
+    #create lattice base: hexagonal NiAs
+    # P63mc; aa=2a,ab=2c
+    lb = LatticeBase()
+    lb.append(aa,[0.,0.,0.],b=biso)
+    lb.append(aa,[0.,0.,0.5],b=biso)
+
+    lb.append(ab,[1/3.,2/3.,0.25],b=biso)
+    lb.append(ab,[2/3.,1/3.,0.75],b=biso)
+
+    #create lattice vectors
+    a1 = numpy.array([a,0.,0.],dtype=numpy.double)
+    a2 = numpy.array([-a/2.,numpy.sqrt(3)*a/2.,0.],dtype=numpy.double)
+    a3 = numpy.array([0.,0.,c],dtype=numpy.double)
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+
+
 def Hexagonal4HLattice(aa,ab,a,c,u=3/16.,v1=1/4.,v2=7/16.):
     #create lattice base: data from laue atlas (hexagonal ZnS) + brainwork by B. Mandl and D. Kriegner
     # ABAC
