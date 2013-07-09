@@ -34,6 +34,7 @@ from .lattice import RockSalt_Cubic_Lattice
 from .lattice import RutileLattice
 from .lattice import BaddeleyiteLattice
 from .lattice import WurtziteLattice
+from .lattice import NiAsLattice
 from .lattice import Hexagonal3CLattice
 from .lattice import Hexagonal4HLattice
 from .lattice import Hexagonal6HLattice
