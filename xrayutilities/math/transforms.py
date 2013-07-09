@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2010,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -118,7 +118,7 @@ class Transform(object):
             raise Exception("XU.math.Transform: matrix cannot be inverted - seems to be singular")
         
         it = Transform(self.imatrix)
-        return it(args)
+        return it(*args)
 
     def __call__(self,*args):
         """
