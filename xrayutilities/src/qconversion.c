@@ -634,7 +634,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     PYARRAY_CHECK(UBArr,2,NPY_DOUBLE,"UB must be a 2D double array");
     if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
         PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
-    PYARRAY_CHECK(roiArr,1,NPY_INT,"roi must be a 1D int array");
+    PYARRAY_CHECK(roiArr,1,NPY_INT32,"roi must be a 1D int array");
     if (PyArray_SIZE(roiArr) != 2) { 
         PyErr_SetString(PyExc_ValueError,"roi must be of length 2"); return NULL; }
     
@@ -800,7 +800,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     PYARRAY_CHECK(UBArr,2,NPY_DOUBLE,"UB must be a 2D double array");
     if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
         PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
-    PYARRAY_CHECK(roiArr,1,NPY_INT,"roi must be a 1D int array");
+    PYARRAY_CHECK(roiArr,1,NPY_INT32,"roi must be a 1D int array");
     if (PyArray_SIZE(roiArr) != 4) { 
         PyErr_SetString(PyExc_ValueError,"roi must be of length 4"); return NULL; }
     
