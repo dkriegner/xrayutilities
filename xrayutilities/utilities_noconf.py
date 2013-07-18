@@ -78,7 +78,7 @@ def energy(en):
 
     if numpy.isreal(en):
         return numpy.double(en)
-    elif isinstance(en,str):
+    elif isinstance(en,basestring):
         return energies[en]
     else:
         raise InputError("wrong type for argument en")
@@ -104,7 +104,7 @@ def wavelength(wl):
 
     if numpy.isreal(wl):
         return numpy.double(wl)
-    elif isinstance(wl,str):
+    elif isinstance(wl,basestring):
         return lam2en(energies[wl])
     else:
         raise InputError("wrong type for argument wavelength")

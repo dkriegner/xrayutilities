@@ -232,7 +232,7 @@ class IntensityNormalizer(object):
         det  property handler
         sets the detector field name
         """
-        if isinstance(det,str):
+        if isinstance(det,basestring):
             self._det = det
         else:
             self._det = None
@@ -251,7 +251,7 @@ class IntensityNormalizer(object):
         time property handler
         sets the count time field or value
         """
-        if isinstance(time,str):
+        if isinstance(time,basestring):
             self._time = time
         elif isinstance(time,(float,int)):
             self._time = float(time)
@@ -272,7 +272,7 @@ class IntensityNormalizer(object):
         mon property handler
         sets the monitor field name
         """
-        if isinstance(mon,str):
+        if isinstance(mon,basestring):
             self._mon = mon
         elif isinstance(mon,type(None)):
             self._mon = None
@@ -395,7 +395,7 @@ class IntensityNormalizer(object):
         else:
             mon = 1.
         # count time
-        if isinstance(self._time,str):
+        if isinstance(self._time,basestring):
             time = data[self._time]
         elif isinstance(self._time,float):
             time = self._time

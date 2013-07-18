@@ -153,13 +153,13 @@ class QConversion(object):
          sampleAxis:     list or tuple of sample circles, e.g. ['x+','z+']
         """
 
-        if isinstance(sampleAxis,(str,list,tuple)):
-            if isinstance(sampleAxis,str):
+        if isinstance(sampleAxis,(basestring,list,tuple)):
+            if isinstance(sampleAxis,basestring):
                 sAxis = list([sampleAxis])
             else:
                 sAxis = list(sampleAxis)
             for circ in sAxis:
-                if not isinstance(circ,str) or len(circ)!=2:
+                if not isinstance(circ,basestring) or len(circ)!=2:
                     raise InputError("QConversion: incorrect sample circle type or syntax (%s)" %repr(circ))
                 if not circleSyntaxSample.search(circ):
                     raise InputError("QConversion: incorrect sample circle syntax (%s)" %circ)
@@ -232,13 +232,13 @@ class QConversion(object):
          detrot:           flag to tell that the detector rotation is going to be added
                            (used internally to avoid double adding of detector rotation axis)
         """
-        if isinstance(detectorAxis,(str,list,tuple)):
-            if isinstance(detectorAxis,str):
+        if isinstance(detectorAxis,(basestring,list,tuple)):
+            if isinstance(detectorAxis,basestring):
                 dAxis = list([detectorAxis])
             else:
                 dAxis = list(detectorAxis)
             for circ in dAxis:
-                if not isinstance(circ,str) or len(circ)!=2:
+                if not isinstance(circ,basestring) or len(circ)!=2:
                     raise InputError("QConversion: incorrect detector circle type or syntax (%s)" %repr(circ))
                 if not circleSyntax.search(circ):
                     raise InputError("QConversion: incorrect detector circle syntax (%s)" %circ)
@@ -480,7 +480,7 @@ class QConversion(object):
                 raise Exception("unknown keyword argument given: allowed are 'Nav': number of channels for block-average, 'roi': region of interest")
         
         # detectorDir
-        if not isinstance(detectorDir,str) or len(detectorDir)!=2:
+        if not isinstance(detectorDir,basestring) or len(detectorDir)!=2:
             raise InputError("QConversion: incorrect detector direction type or syntax (%s)" %repr(detectorDir))
         if not circleSyntax.search(detectorDir):
             raise InputError("QConversion: incorrect detector direction syntax (%s)" %detectorDir)
@@ -704,12 +704,12 @@ class QConversion(object):
                 raise Exception("unknown keyword argument given: allowed are 'Nav': number of channels for block-average, 'roi': region of interest")
         
         # detectorDir
-        if not isinstance(detectorDir1,str) or len(detectorDir1)!=2:
+        if not isinstance(detectorDir1,basestring) or len(detectorDir1)!=2:
             raise InputError("QConversion: incorrect detector direction1 type or syntax (%s)" %repr(detectorDir1))
         if not circleSyntax.search(detectorDir1):
             raise InputError("QConversion: incorrect detector direction1 syntax (%s)" %detectorDir1)
         self._area_detdir1 = detectorDir1
-        if not isinstance(detectorDir2,str) or len(detectorDir2)!=2:
+        if not isinstance(detectorDir2,basestring) or len(detectorDir2)!=2:
             raise InputError("QConversion: incorrect detector direction2 type or syntax (%s)" %repr(detectorDir2))
         if not circleSyntax.search(detectorDir2):
             raise InputError("QConversion: incorrect detector direction2 syntax (%s)" %detectorDir2)
