@@ -45,7 +45,7 @@ UPDATE DOCUMENTATION
 to build the documentation perform first a fresh installation since the documentation is built from the installed version of xrayutilities (uses only system python directories?)
 
   python setup.py install --prefix=INSTALLPATH
-
+  
 first one needs to rebuild the api documentation sources
 
   sphinx-apidoc -f -o doc/source xrayutilities  
