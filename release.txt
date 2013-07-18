@@ -30,7 +30,7 @@ This tarball should be uploaded to sourceforge and PyPI.
 
 To build a executable installer for Microsoft windows run
 
-  python setup.py bdist_msi
+  python setup.py bdist_wininst
 
 on a windows machine.
 If not done previously you need to build the extenstion modules using
@@ -78,4 +78,4 @@ Upload new version to the python package index by
   
 On a windows machine run 
 
-  python setup.py bdist_msi upload
+  python setup.py bdist_wininst upload
