@@ -9,6 +9,8 @@ Welcome to xrayutilities's documentation!
 If you look for downloading the package go to `Sourceforge <https://sourceforge.net/projects/xrayutilities>`_ (source distribution) or the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ (MS Windows binary).
 Installation instructions you find further down `Installation`_.
 
+Read more about *xrayutilities* below or in `Journal of Applied Crystallography 2013, Volume 46, 1162-1170 <http://dx.doi.org/10.1107/S0021889813017214>`_
+
   
 Introduction
 ============
@@ -42,7 +44,7 @@ This is done as described in more detail below using the :mod:`experiment`-modul
 The classes provided within the experiment module provide routines to help performing X-ray diffraction experiments.
 This includes methods to calculate the diffraction angles (described below) needed to align crystalline samples and to convert data between angular and reciprocal space.
 The conversion from angular to reciprocal space is implemented very general for various goniometer geometries. 
-It is especially useful in combination with linear and area detectors as described in this `article <http://arxiv.org/abs/1304.1732>`_. 
+It is especially useful in combination with linear and area detectors as described in this `article <http://dx.doi.org/10.1107/S0021889813017214>`_. 
 In standard cases, Users will only need the initialized routines, which predefine a certain goniometer geometry like the popular four-cirlce and six-circle geometries.
 
 After the conversion to reciprocal space, it is convenient to transform the data to a regular grid for visualization. 
