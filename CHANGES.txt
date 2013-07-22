@@ -1,4 +1,5 @@
 
+* add new example with hotpixelkill variant
 * fix unicode string errors on Windows
 
 v0.99.2, 2013-07-18
