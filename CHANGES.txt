@@ -1,3 +1,4 @@
+v1.0, 2013-07-22
 
 * add new example with hotpixelkill variant
 * fix unicode string errors on Windows
