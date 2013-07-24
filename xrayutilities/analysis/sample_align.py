@@ -1655,7 +1655,7 @@ def psd_refl_align(primarybeam,angles,channels,plot=True):
 #  miscut calculation from alignment in 2 and
 #  more azimuths
 #################################################
-def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
+def miscut_calc(phi,aomega,zeros=None,omega0=None,plot=True):
     """
     function to calculate the miscut direction and miscut angle of a sample
     by fitting a sinusoidal function to the variation of the aligned
@@ -1670,12 +1670,12 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
      zeros:     (optional) angles at which surface is parallel to
                 the beam (deg). For the analysis the angles
                 (aomega-zeros) are used.
-     plot:      flag to specify if a visualization of the fit is wanted.
-                default: True
      omega0:    if specified the nominal value of the reflection is not
                 included as fit parameter, but is fixed to the specified
                 value. This value is MANDATORY if ONLY TWO AZIMUTHs are
                 given.
+     plot:      flag to specify if a visualization of the fit is wanted.
+                default: True
 
     Returns
     -------
@@ -1709,8 +1709,9 @@ def miscut_calc(phi,aomega,zeros=None,plot=True,omega0=None):
     if config.VERBOSITY >= config.INFO_ALL:
         print("xu.analysis.misfit_calc: leastsq optimization return value: %d" %success)
 
-    try: plt.__name__
-    except NameError:
+    if plot:
+        try: plt.__name__
+        except NameError:
             print("XU.analyis.psd_chdeg: Warning: plot functionality not available")
             plot = False
 
