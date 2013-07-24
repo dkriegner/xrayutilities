@@ -302,7 +302,7 @@ def multGaussFit(x,data,peakpos,peakwidth,dranges=None):
         return None,None,None,None
     # prepare return values
     fpos = fit.beta[:-2:3]
-    fwidth = fit.beta[1:-2:3]
+    fwidth = numpy.abs(fit.beta[1:-2:3])
     famp = fit.beta[2::3]
     background = numpy.polyval((fit.beta[-2],fit.beta[-1]),x)
 
