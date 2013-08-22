@@ -211,35 +211,35 @@ class CoordinateTransform(Transform):
 
         Parameters
         ----------
-         v1:     list or numpy array with new base vector 1
-         v2:     list or numpy array with new base vector 2
-         v2:     list or numpy array with new base vector 3
+         v1:     list, tuple or numpy array with new base vector 1
+         v2:     list, tuple or numpy array with new base vector 2
+         v2:     list, tuple or numpy array with new base vector 3
 
         Returns
         -------
          An instance of a Transform class
         """
 
-        if isinstance(v1,list):
+        if isinstance(v1,(list,tuple)):
             e1 = numpy.array(v1,dtype=numpy.double)
         elif isinstance(v1,numpy.ndarray):
             e1 = v1
         else:
-            raise TypeError("vector must be a list or numpy array")
+            raise TypeError("vector must be a list, tuple or numpy array")
 
-        if isinstance(v2,list):
+        if isinstance(v2,(list,tuple)):
             e2 = numpy.array(v2,dtype=numpy.double)
         elif isinstance(v2,numpy.ndarray):
             e2 = v2
         else:
-            raise TypeError("vector must be a list or numpy array")
+            raise TypeError("vector must be a list, tuple or numpy array")
 
-        if isinstance(v3,list):
+        if isinstance(v3,(list,tuple)):
             e3 = numpy.array(v3,dtype=numpy.double)
         elif isinstance(v3,numpy.ndarray):
             e3 = v3
         else:
-            raise TypeError("vector must be a list or numpy array")
+            raise TypeError("vector must be a list, tuple or numpy array")
 
         #normalize base vectors
         e1 = e1/numpy.linalg.norm(e1)
