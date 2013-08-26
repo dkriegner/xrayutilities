@@ -653,6 +653,63 @@ class Material(object):
         """
         raise NotImplementedError("XU.material.GetMismatch: not implemented yet")
 
+    def distances(self):
+        """
+        function to obtain distances of atoms in the crystal up to the unit cell size (largest value of a,b,c is the cut-off)
+
+        returns a list of tuples with distance d and number of occurence n 
+        [(d1,n1),(d2,n2),...]
+
+        Note: if the base of the material is empty the list will be empty 
+        """
+
+        if not self.lattice.base:
+            return []
+
+        cutoff = numpy.max((numpy.linalg.norm(self.lattice.a1), numpy.linalg.norm(self.lattice.a2), numpy.linalg.norm(self.lattice.a3)))
+
+        tmp_data = []
+
+        for i in range(len(self.lattice.base)):
+            at1 = self.lattice.base[i]
+            for j in range(len(self.lattice.base)):
+                at2 = self.lattice.base[j]
+                dis = numpy.linalg.norm(self.lattice.GetPoint(at1[1] - at2[1]))
+                dis2 = numpy.linalg.norm(self.lattice.GetPoint(at1[1] - at2[1]+numpy.array((1,0,0))))
+                dis3 = numpy.linalg.norm(self.lattice.GetPoint(at1[1] - at2[1]+numpy.array((0,1,0))))
+                dis4 = numpy.linalg.norm(self.lattice.GetPoint(at1[1] - at2[1]+numpy.array((0,0,1))))
+                dis5 = numpy.linalg.norm(self.lattice.GetPoint(at1[1] - at2[1]+numpy.array((-1,0,0))))
+                dis6 = numpy.linalg.norm(self.lattice.GetPoint(at1[1] - at2[1]+numpy.array((0,-1,0))))
+                dis7 = numpy.linalg.norm(self.lattice.GetPoint(at1[1] - at2[1]+numpy.array((0,0,-1))))
+                distances = [dis,dis2,dis3,dis4,dis5,dis6,dis7]
+
+                distances.sort()
+
+                for dis in distances:
+                    if dis < cutoff:
+                        tmp_data.append(dis)
+
+
+        
+        # sort the list and compress equal entries
+        tmp_data.sort()
+
+        self.distances = [0]
+        self.dis_hist = [0]
+        for dis in tmp_data:
+            if numpy.round( dis - self.distances[-1], int(numpy.abs(numpy.log10(config.EPSILON))) ) == 0:
+                self.dis_hist[-1] += 1
+            else:
+                self.distances.append(dis)
+                self.dis_hist.append(1)
+
+        # create return value
+        ret = []
+        for i in range(len(self.distances)):
+            ret.append((self.distances[i],self.dis_hist[i]))
+        
+        return ret
+
 
 def CubicElasticTensor(c11,c12,c44):
     """
