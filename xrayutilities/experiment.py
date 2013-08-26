@@ -1986,6 +1986,7 @@ class Powder(Experiment):
             raise TypeError("mat must be an instance of class xrayutilities.materials.Material")
 
         self.digits = 5 # number of significant digits, needed to identify equal floats
+        self.qpos = None
 
     def PowderIntensity(self,tt_cutoff=180):
         """
