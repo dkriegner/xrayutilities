@@ -694,19 +694,19 @@ class Material(object):
         # sort the list and compress equal entries
         tmp_data.sort()
 
-        self.distances = [0]
-        self.dis_hist = [0]
+        self._distances = [0]
+        self._dis_hist = [0]
         for dis in tmp_data:
             if numpy.round( dis - self.distances[-1], int(numpy.abs(numpy.log10(config.EPSILON))) ) == 0:
-                self.dis_hist[-1] += 1
+                self._dis_hist[-1] += 1
             else:
-                self.distances.append(dis)
-                self.dis_hist.append(1)
+                self._distances.append(dis)
+                self._dis_hist.append(1)
 
         # create return value
         ret = []
-        for i in range(len(self.distances)):
-            ret.append((self.distances[i],self.dis_hist[i]))
+        for i in range(len(self._distances)):
+            ret.append((self._distances[i],self._dis_hist[i]))
         
         return ret
 
