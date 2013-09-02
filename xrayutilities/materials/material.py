@@ -697,7 +697,7 @@ class Material(object):
         self._distances = [0]
         self._dis_hist = [0]
         for dis in tmp_data:
-            if numpy.round( dis - self.distances[-1], int(numpy.abs(numpy.log10(config.EPSILON))) ) == 0:
+            if numpy.round( dis - self._distances[-1], int(numpy.abs(numpy.log10(config.EPSILON))) ) == 0:
                 self._dis_hist[-1] += 1
             else:
                 self._distances.append(dis)
