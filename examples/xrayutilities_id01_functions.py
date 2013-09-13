@@ -76,7 +76,7 @@ def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=defa
     """
     
     if scannr: # read image numbers from spec scan, get angles from spec
-        [mu,eta,phi,nu,delta],sdata = xu.io.geth5_scan(h5file,scannr,'Mu','Eta','Phi','Nu','Delta')
+        [mu,eta,phi,nu,delta,ccdn],sdata = xu.io.geth5_scan(h5file,scannr,'Mu','Eta','Phi','Nu','Delta','ccdn')
         ccdn = sdata['ccd_n']
     else: # get image number from input
         ccdn = ccdframes
@@ -121,7 +121,7 @@ def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=defa
         if i==ccdn[0]:
             intensity = numpy.zeros( (len(ccdn),) + CCD.shape )
 
-        intensity[i-ccdn[0],:,:] = CCD
+        intensity[idx,:,:] = CCD
         if ccdframes: # if angles not read from spec file read them from the edf file header
             mu.append(float(e.header['ESRF_ID01_PSIC_NANO_MU']))
             eta.append(float(e.header['ESRF_ID01_PSIC_NANO_ETA']))
