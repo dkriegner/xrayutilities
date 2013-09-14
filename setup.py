@@ -77,7 +77,7 @@ extmodul = Extension('xrayutilities.cxrayutilities',
                      define_macros = user_macros)
 
 setup(name="xrayutilities",
-      version="1.0",
+      version="1.0.1",
       author="Eugen Wintersberger, Dominik Kriegner",
       description="package for x-ray diffraction data evaluation",
       classifiers=["Topic :: Scientific/Engineering :: Physics",
