@@ -123,11 +123,18 @@ def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=defa
 
         intensity[idx,:,:] = CCD
         if ccdframes: # if angles not read from spec file read them from the edf file header
-            mu.append(float(e.header['ESRF_ID01_PSIC_NANO_MU']))
-            eta.append(float(e.header['ESRF_ID01_PSIC_NANO_ETA']))
-            phi.append(float(e.header['ESRF_ID01_PSIC_NANO_PHI']))
-            nu.append(float(e.header['ESRF_ID01_PSIC_NANO_NU']))
-            delta.append(float(e.header['ESRF_ID01_PSIC_NANO_DELTA']))
+#            # the following lines work for older EDF files only
+#            mu.append(float(e.header['ESRF_ID01_PSIC_NANO_MU']))
+#            eta.append(float(e.header['ESRF_ID01_PSIC_NANO_ETA']))
+#            phi.append(float(e.header['ESRF_ID01_PSIC_NANO_PHI']))
+#            nu.append(float(e.header['ESRF_ID01_PSIC_NANO_NU']))
+#            delta.append(float(e.header['ESRF_ID01_PSIC_NANO_DELTA']))
+            # for new EDF files (recorded in year >~2013) use
+            mu.append(e.motors['mu'])
+            eta.append(e.motors['eta'])
+            phi.append(e.motors['phi'])
+            nu.append(e.motors['nu'])
+            delta.append(e.motors['del'])
 
     # transform scan angles to reciprocal space coordinates for all detector pixels
     qx,qy,qz = hxrd.Ang2Q.area(mu,eta,phi,nu,delta,delta=angdelta)

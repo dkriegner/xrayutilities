@@ -36,8 +36,6 @@ edf_eokv = re.compile(r";") #end of line for a header
 edf_integer_value = re.compile(r"\d+")
 edf_float_value = re.compile(r"[+-]*\d+\.*\d*")
 edf_float_e_value = re.compile(r"[+-]*\d+\.\d*e[+-]*\d*")
-edf_id01_motor_prefix = re.compile(r"ESRF_ID01_.*")
-edf_id01_motor_motor = re.compile(r"PSIC_.*")
 edf_name_start_num=re.compile(r"^\d")
 
 #dictionary mapping EDF data type keywords onto struct data types
@@ -153,6 +151,24 @@ class EDFFile(object):
                         value = value[:-1]
                         value = value.strip()
                         self.header[key] = value
+
+        # try to parse motor positions and counters from header into separate dictionary
+        if self.header.has_key('motor_mne'):
+            tkeys = self.header['motor_mne'].split()
+            try: 
+                tval = numpy.array(self.header['motor_pos'].split(),dtype=numpy.double)
+                self.motors = dict(zip(tkeys,tval))
+            except:
+                print("XU.io.EDFFile.ReadData: Warning: header conversion of motor positions failed")
+
+        if self.header.has_key('counter_mne'):
+            tkeys = self.header['counter_mne'].split()
+            try: 
+                tval = numpy.array(self.header['counter_pos'].split(),dtype=numpy.double)
+                self.counters = dict(zip(tkeys,tval))
+            except:
+                print("XU.io.EDFFile.ReadData: Warning: header conversion of counter values failed")
+
 
         #----------------start to read the data section----------------------
 

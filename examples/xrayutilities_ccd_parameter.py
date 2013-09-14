@@ -37,7 +37,9 @@ for imgnr in imagenrs:
     images.append(edf.data)
     ang1.append(float(edf.header['ESRF_ID01_PSIC_NANO_NU']))
     ang2.append(float(edf.header['ESRF_ID01_PSIC_NANO_DEL']))
-
+    # or for newer EDF files (recorded in year >~2013)
+    # ang1.append(edf.motors['nu'])
+    # ang2.append(edf.motors['del'])
 
 # call the fit for the detector parameters 
 # detector arm rotations and primary beam direction need to be given 
