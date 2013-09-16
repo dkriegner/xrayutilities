@@ -153,7 +153,7 @@ class EDFFile(object):
                         self.header[key] = value
 
         # try to parse motor positions and counters from header into separate dictionary
-        if self.header.has_key('motor_mne'):
+        if 'motor_mne' in self.header.keys():
             tkeys = self.header['motor_mne'].split()
             try: 
                 tval = numpy.array(self.header['motor_pos'].split(),dtype=numpy.double)
@@ -161,7 +161,7 @@ class EDFFile(object):
             except:
                 print("XU.io.EDFFile.ReadData: Warning: header conversion of motor positions failed")
 
-        if self.header.has_key('counter_mne'):
+        if 'counter_mne' in self.header.keys():
             tkeys = self.header['counter_mne'].split()
             try: 
                 tval = numpy.array(self.header['counter_pos'].split(),dtype=numpy.double)

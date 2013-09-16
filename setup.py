@@ -56,10 +56,10 @@ class build_ext_subclass( build_ext ):
     def build_extensions(self):
         c = self.compiler.compiler_type
         # set custom compiler options
-        if copt.has_key(c):
+        if c in list(copt.keys()):
             for e in self.extensions:
                 e.extra_compile_args = copt[ c ]
-        if lopt.has_key(c):
+        if c in list(lopt.keys()):
             for e in self.extensions:
                 e.extra_link_args = lopt[ c ]
         build_ext.build_extensions(self)
@@ -77,7 +77,7 @@ extmodul = Extension('xrayutilities.cxrayutilities',
                      define_macros = user_macros)
 
 setup(name="xrayutilities",
-      version="1.0.1",
+      version="1.0.2",
       author="Eugen Wintersberger, Dominik Kriegner",
       description="package for x-ray diffraction data evaluation",
       classifiers=["Topic :: Scientific/Engineering :: Physics",
