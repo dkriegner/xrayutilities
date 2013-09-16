@@ -141,6 +141,16 @@ The API-documentation can also be browsed by ::
  
 in any web-browser, after the installation is finished.
 
+To build the PDF documentation from the sources use sphinx:
+
+  sphinx-build -b latex doc/source doc/latex
+  cd doc/latex; make 
+  
+or generate a texinfo file using 
+
+  sphinx-build -b texinfo doc/source doc/texinfo
+  cd doc/texinfo; make 
+
 
 PACKAGING
 =========
