@@ -8,3 +8,4 @@ dist/
 build/
 doc/html
 doc/latex
+doc/texinfo
