@@ -782,7 +782,7 @@ class Alloy(Material):
         Material.__init__(self,"None",copy.copy(matA.lattice),matA.cij)
         self.matA = matA
         self.matB = matB
-        self.xb = 0
+        self._xb = 0
         self._setxb(x)
 
     def lattice_const_AB(self, latA, latB, x):
@@ -793,10 +793,10 @@ class Alloy(Material):
         return (latB-latA)*x + latA
 
     def _getxb(self):
-        return self.xb
+        return self._xb
 
     def _setxb(self,x):
-        self.xb = x
+        self._xb = x
         self.name = "%s(%2.2f)%s(%2.2f)" %(self.matA.name,1.-x,self.matB.name,x)
         #modify the lattice
         self.lattice.a1 = self.lattice_const_AB(self.matA.lattice.a1, self.matB.lattice.a1, x)
@@ -1070,7 +1070,7 @@ def PseudomorphicMaterial(submat,layermat):
     """
     This function returns a material whos lattice is pseudomorphic on a
     particular substrate material.
-    This function works meanwhile only for cubic materials.
+    This function works meanwhile only for cubic materials on (001) substrates
 
     required input arguments:
      submat .................... substrate material
