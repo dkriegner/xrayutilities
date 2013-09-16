@@ -261,16 +261,41 @@ static PyMethodDef XRU_Methods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "cxrayutilities", /* m_name */
+    "Python C extension including performance critical parts\n"
+    "of xrayutilities (gridder, qconversion, block-averageing)\n",      /* m_doc */
+    -1,                  /* m_size */
+    XRU_Methods,    /* m_methods */
+    NULL,                /* m_reload */
+    NULL,                /* m_traverse */
+    NULL,                /* m_clear */
+    NULL,                /* m_free */
+};
+#endif
 
 PyMODINIT_FUNC
-initcxrayutilities(void) {
+#if PY_MAJOR_VERSION >= 3
+PyInit_cxrayutilities(void)
+#else
+initcxrayutilities(void) 
+#endif
+{
     PyObject *m;
 
+    #if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&moduledef);
+    #else
     m = Py_InitModule3("cxrayutilities", XRU_Methods, 
         "Python C extension including performance critical parts\n"
         "of xrayutilities (gridder, qconversion, block-averageing)\n");
-    if (m == NULL)
-        return;
+    #endif
 
     import_array();
+
+    #if PY_MAJOR_VERSION >= 3
+    return m;
+    #endif
 }

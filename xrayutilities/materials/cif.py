@@ -171,7 +171,7 @@ class CIFFile(object):
             el = re.sub(r"([1-9])",r"",a[0])
             el = re.sub(r"\(\w*\)",r"",el)
             for symop in self.symops:
-                exec("pos = numpy.array("+ symop+ ")")
+                pos = eval("numpy.array("+ symop+ ")")
                 # check that position is within unit cell
                 pos = pos - pos//1
                 # check if position is unique
@@ -181,7 +181,7 @@ class CIFFile(object):
                         unique = False
                 if unique:
                     unique_pos.append(pos)
-            exec("element = elements."+el)
+            element = eval("elements."+el)
             self.unique_positions.append((element, unique_pos))
 
     def Lattice(self):
