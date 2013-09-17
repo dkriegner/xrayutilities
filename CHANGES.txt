@@ -1,3 +1,11 @@
+v1.0.2, 2013-09-17
+
+* add documentation source to tarball
+* generate info file from documentation
+* make c extension work with python3, and in general make XU more python3
+  friendly
+* fix bug in SiGe materials lattice_const_AB function
+
 v1.0.1, 2013-09-14
 
 * new way of parsing motor positions and counter values from EDF files
