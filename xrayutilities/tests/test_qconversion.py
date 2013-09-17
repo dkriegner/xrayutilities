@@ -14,13 +14,13 @@ class TestQConversion(unittest.TestCase):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))
         qout = self.hxrd.Ang2HKL(ang[0],ang[3],mat=self.mat)
         for i in range(3):
-            self.assertAlmostEqual(qout[i][0], self.hklsym[i], places=10)
+            self.assertAlmostEqual(qout[i], self.hklsym[i], places=10)
 
     def test_qconversion_point_asym(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hklasym))
         qout = self.hxrd.Ang2HKL(ang[0],ang[3],mat=self.mat)
         for i in range(3):
-            self.assertAlmostEqual(qout[i][0], self.hklasym[i], places=10)
+            self.assertAlmostEqual(qout[i], self.hklasym[i], places=10)
     
 if __name__ == '__main__':
         unittest.main()
