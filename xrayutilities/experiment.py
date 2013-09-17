@@ -447,7 +447,10 @@ class QConversion(object):
         qpos = cxrayutilities.ang2q_conversion(sAngles, dAngles, self.r_i,sAxis, dAxis, self._kappa_dir,
                                                UB, wl, config.NTHREADS)
 
-        return qpos[:,0],qpos[:,1],qpos[:,2]
+        if Npoints==1:
+            return ( qpos[0,0], qpos[0,1], qpos[0,2] )
+        else:
+            return qpos[:,0],qpos[:,1],qpos[:,2]
 
     def init_linear(self,detectorDir,cch,Nchannel,distance=None,pixelwidth=None,chpdeg=None,tilt=0,**kwargs):
         """
