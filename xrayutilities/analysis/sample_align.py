@@ -1775,8 +1775,8 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
     else:
         [qx,qy,qz] = exphxrd.Ang2Q(om,tt)
     [qxsub,qysub,qzsub] = exphxrd.Ang2Q(omalign,ttalign)
-    params = [qysub[0],qzsub[0],0.001,0.001,psd.max(),0,0.]
-    params,covariance = math.fit_peak2d(qy.flatten(),qz.flatten(),psd.flatten(),params,[qysub[0]-frange[0],qysub[0]+frange[0],qzsub[0]-frange[1],qzsub[0]+frange[1]],math.Gauss2d,maxfev=10000)
+    params = [qysub,qzsub,0.001,0.001,psd.max(),0,0.]
+    params,covariance = math.fit_peak2d(qy.flatten(),qz.flatten(),psd.flatten(),params,[qysub-frange[0],qysub+frange[0],qzsub-frange[1],qzsub+frange[1]],math.Gauss2d,maxfev=10000)
     # correct params
     params[6] = params[6]%(numpy.pi)
     if params[5]<0 : params[5] = 0
@@ -1787,9 +1787,9 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),plot=Tru
 
     if plot:
         plt.figure(); plt.clf()
-        from .. import gridder
+        from ..gridder2d import Gridder2D
         from .. import utilities
-        gridder = gridder.Gridder2D(400,400)
+        gridder = Gridder2D(400,400)
         gridder(qy,qz,psd)
         # calculate intensity which should be plotted
         INT = utilities.maplog(gridder.gdata.transpose(),4,0)
