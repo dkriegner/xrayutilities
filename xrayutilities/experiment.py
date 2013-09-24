@@ -1126,7 +1126,7 @@ class Experiment(object):
                 raise Exception("unknown keyword argument given: allowed are 'B': orthonormalization matrix, 'U': orientation matrix, 'mat': material object, 'dettype': string with detector type")
         
         if "B" in kwargs:
-            B = numpy.array(B)
+            B = numpy.array(kwargs['B'])
             kwargs.pop("B")
         elif "mat" in kwargs:
             mat = kwargs['mat']
@@ -1136,7 +1136,7 @@ class Experiment(object):
             B = numpy.identity(3)
 
         if "U" in kwargs:
-            U = numpy.array(U)
+            U = numpy.array(kwargs['U'])
             kwargs.pop("U")
         else:
             U = self._transform.matrix
