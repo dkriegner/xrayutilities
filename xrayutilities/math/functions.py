@@ -111,7 +111,9 @@ def Gauss1d_der_x(x,*p):
     for parameter description see Gauss1d
     """
 
-    return 2*(p[0]-x)*Gauss1d(x,*p)
+    lp = numpy.copy(p)
+    lp[3] = 0
+    return 2*(p[0]-x)*Gauss1d(x,*lp)
 
 
 def Gauss1d_der_p(x,*p):
@@ -121,10 +123,11 @@ def Gauss1d_der_p(x,*p):
 
     for parameter description see Gauss1d
     """
-
-    r = numpy.concatenate(( -2*(p[0]-x)*Gauss1d(x,*p),\
-                            (p[0]-x)**2/(2*p[1]**3)*Gauss1d(x,*p),\
-                            Gauss1d(x,*p)/p[2],\
+    lp = numpy.copy(p)
+    lp[3] = 0
+    r = numpy.concatenate(( -2*(p[0]-x)*Gauss1d(x,*lp),\
+                            (p[0]-x)**2/(2*p[1]**3)*Gauss1d(x,*lp),\
+                            Gauss1d(x,*lp)/p[2],\
                             numpy.ones(x.shape,dtype=numpy.float) ))
     r.shape = (4,) + x.shape
 
@@ -224,6 +227,31 @@ def Lorentz1d(x,*p):
     g = p[3]+p[2]/(1+(2*(x-p[0])/p[1])**2)
 
     return g
+
+def Lorentz1d_der_x(x,*p):
+    """
+    function to calculate the derivative of a Gaussian with respect to x
+
+    for parameter description see Lorentz1d
+    """
+
+    return 4*(p[0]-x)* p[2]/p[1]/(1+(2*(x-p[0])/p[1])**2)**2
+
+def Lorentz1d_der_p(x,*p):
+    """
+    function to calculate the derivative of a Gaussian with respect the
+    parameters p
+
+    for parameter description see Lorentz1d
+    """
+
+    r = numpy.concatenate(( 4*(x-p[0])* p[2]/p[1]/(1+(2*(x-p[0])/p[1])**2)**2,\
+                            4*(p[0]-x)* p[2]/p[1]**2/(1+(2*(x-p[0])/p[1])**2)**2,\
+                            1/(1+(2*(x-p[0])/p[1])**2),\
+                            numpy.ones(x.shape,dtype=numpy.float) ))
+    r.shape = (4,) + x.shape
+
+    return r
 
 def Lorentz2d(x,y,*p):
     """
