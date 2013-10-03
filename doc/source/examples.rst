@@ -381,6 +381,24 @@ The misalignment parameters can be fixed during the fitting.
     :linenos:
     :language: python
 
+A possible output of this script could be
+
+.. code-block:: python
+
+    fitted parameters: epsilon: 8.0712e-08 (2,['Parameter convergence'])
+    param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset) 
+    param: 140.07 998.34 4.4545e-05 4.4996e-05 72.0 1.97 -0.792 -1.543
+    please check the resulting data (consider setting plot=True)
+    detector rotation axis / primary beam direction (given by user): ['z+', 'y-'] / x+
+    detector pixel directions / distance: z- y+ / 1
+    detector initialization with: init_area('z-','y+',cch1=140.07,cch2=998.34,Nch1=516,Nch2=516, pwidth1=4.4545e-05,pwidth2=4.4996e-05,distance=1.,detrot=-0.792,tiltazimuth=72.0,tilt=1.543)
+    AND ALWAYS USE an (additional) OFFSET of -1.9741deg in the OUTER DETECTOR ANGLE!
+
+
+The output gives the fitted detector parameters and compiles the python code line one needs to use to initialize the detector.
+Important to note is that the outer angle offset which was determined by the fit (-1.9741 degree in the aboves example) is not included in the initialization of the detector parameters BUT needs to be used in every call to the q-conversion function as offset. 
+This step needs to be performed manually by the user!
+
 Area detector (Variant 2)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
