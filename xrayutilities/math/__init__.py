@@ -46,6 +46,7 @@ from .functions import Lorentz1d
 from .functions import Lorentz1d_der_x
 from .functions import Lorentz1d_der_p
 from .functions import Lorentz2d
+from .functions import PseudoVoigt1d
 
 from .fit import fit_peak2d
 from .fit import gauss_fit

@@ -279,6 +279,29 @@ def Lorentz2d(x,y,*p):
     return g
 
 
+def PseudoVoigt1d(x,*p):
+    """
+    function to calculate a pseudo Voigt function as linear combination of a Gauss and Lorentz peak
+
+    Parameters
+    ----------
+     p:     list of parameters of the Lorentz-function
+            [XCEN,FWHM,AMP,BACKGROUND,ETA]
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
+     x,y:   coordinate(s) where the function should be evaluated
+
+    Returns
+    -------
+    the value of the PseudoVoigt described by the parameters p
+    at position (x,y)
+
+    """
+
+    f = p[3]+p[2] * ( p[4]*(1/(1+(2*(x-p[0])/p[1])**2)) + (1-p[4])*numpy.exp(-numpy.log(2)*((p[0]-x)/p[1])**2) ) 
+
+    return f
+
+
 def Debye1(x):
     """
     function to calculate the first Debye function as needed
