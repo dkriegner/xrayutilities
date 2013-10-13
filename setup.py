@@ -33,7 +33,7 @@ options = FancyGetopt(option_table = cliopts)
 args = sys.argv[1:]
 try:
     #search the arguments for options we would like to use
-    #get new args with the our custom options stripped away
+    #get new args with the custom options stripped away
     args,opts = options.getopt(args)
 except:
     pass
