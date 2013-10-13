@@ -21,12 +21,22 @@ from distutils.command.build_ext import build_ext
 from distutils.fancy_getopt import FancyGetopt
 import os.path
 import numpy
+import sys
 
 cliopts = []
 cliopts.append(("without-openmp",None,"build without OpenMP support"))
 
 options = FancyGetopt(option_table = cliopts)
-args,opts = options.getopt()
+
+#first read all the arguments passed to the script
+#we need to do this otherwise the --help commands would not work
+args = sys.argv[1:]
+try:
+    #search the arguments for options we would like to use
+    #get new args with the our custom options stripped away
+    args,opts = options.getopt(args)
+except:
+    pass
 
 #set default flags
 without_openmp = False
