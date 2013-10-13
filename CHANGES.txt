@@ -1,3 +1,4 @@
+* fix python setup.py --help
 * add PseudoVoigt function in 1D
 * add Lorentzian peak shape in addition to Gaussian in new function
   multPeakFit
