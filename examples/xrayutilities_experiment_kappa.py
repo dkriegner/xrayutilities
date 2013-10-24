@@ -32,13 +32,13 @@ print qconv
 
 print("angles: 0,0,0,90")
 (qx,qy,qz) = qconv(0,0,0,90)
-print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)" %(qx[0],qy[0],qz[0],numpy.linalg.norm((qx,qy,qz))))
+print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)" %(qx,qy,qz,numpy.linalg.norm((qx,qy,qz))))
 
 print("angles: 90,0,0,90")
 (qx,qy,qz) = qconv(90,0,0,90)
-print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)" %(qx[0],qy[0],qz[0],numpy.linalg.norm((qx,qy,qz))))
+print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)" %(qx,qy,qz,numpy.linalg.norm((qx,qy,qz))))
 
 print("angles: 0,90,0,90")
 (qx,qy,qz) = qconv(0,90,0,90)
-print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)" %(qx[0],qy[0],qz[0],numpy.linalg.norm((qx,qy,qz))))
+print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)" %(qx,qy,qz,numpy.linalg.norm((qx,qy,qz))))
 
