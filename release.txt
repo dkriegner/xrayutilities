@@ -19,17 +19,13 @@ change the version in the doc/source/conf.py file and in setup.py
 UPDATE DOCUMENTATION
 ====================
 
-to build the documentation perform first a fresh installation since the documentation is built from the installed version of xrayutilities (uses only system python directories?)
-
-  python setup.py install --prefix=INSTALLPATH
-  
-first one needs to rebuild the api documentation sources
+to build the documentation from scratch first one needs to rebuild the api documentation sources
 
   sphinx-apidoc -f -o doc/source xrayutilities  
 
-In the root directory of the sources execute the following to rebuild the documentation pdf and texinfo
+In the root directory of the package execute the following to rebuild the documentation pdf
 
-  python setup.py build_doc -b latex
+  python setup.py build build_doc -b latex
   cd build/sphinx/latex; make && mv xrayutilities.pdf ../../..; cd ../../..
 
 PACKAGING

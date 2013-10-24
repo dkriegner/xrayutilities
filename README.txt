@@ -156,7 +156,7 @@ The API-documentation can also be browsed by ::
  
 in any web-browser, after the installation is finished.
 
-To build the PDF documentation from the sources use:
+To build the PDF documentation from the docu-sources use:
 
   python setup.py build_doc -b latex
   cd build/sphinx/latex; make 
