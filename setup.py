@@ -74,6 +74,8 @@ class build_ext_subclass( build_ext ):
                 e.extra_link_args = lopt[ c ]
         build_ext.build_extensions(self)
 
+cmdclass = {'build_ext': build_ext_subclass}
+
 with open('README.txt') as f:
     long_description = f.read()
 
@@ -85,6 +87,31 @@ extmodul = Extension('xrayutilities.cxrayutilities',
                                 os.path.join('xrayutilities','src','qconversion.c'),
                                 os.path.join('xrayutilities','src','gridder3d.c')],
                      define_macros = user_macros)
+
+try:
+    import sphinx
+    from sphinx.setup_command import BuildDoc
+
+    class build_doc(BuildDoc):
+        def run(self):
+            # make sure the python path is pointing to the newly built
+            # code so that the documentation is built on this and not a
+            # previously installed version
+            build = self.get_finalized_command('build')
+            sys.path.insert(0, os.path.abspath(build.build_lib))
+            try:
+                sphinx.setup_command.BuildDoc.run(self)
+            except UnicodeDecodeError:
+                print("ERROR: unable to build documentation"
+                      " because Sphinx do not handle"
+                      " source path with non-ASCII characters. Please"
+                      " try to move the source package to another"
+                      " location (path with *only* ASCII characters)")
+            sys.path.pop(0)
+
+    cmdclass['build_doc'] = build_doc
+except ImportError:
+    pass
 
 setup(name="xrayutilities",
       version="1.0.2",
@@ -106,7 +133,7 @@ setup(name="xrayutilities",
       requires=['numpy','scipy','matplotlib','tables'],
       include_dirs = [numpy.get_include()],
       ext_modules = [extmodul],
-      cmdclass = {'build_ext': build_ext_subclass },
+      cmdclass = cmdclass,
       url="http://xrayutilities.sourceforge.net",
       license="GPLv2",
       script_args = args
