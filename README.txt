@@ -156,15 +156,18 @@ The API-documentation can also be browsed by ::
  
 in any web-browser, after the installation is finished.
 
-To build the PDF documentation from the sources use sphinx:
+To build the PDF documentation from the sources use:
 
-  sphinx-build -b latex doc/source doc/latex
-  cd doc/latex; make 
+  python setup.py build_doc -b latex
+  cd build/sphinx/latex; make 
   
-or generate a texinfo file using 
+You will need sphinx and pdflatex including latex-recommended, latex-extra 
+and fonts-recommended.
 
-  sphinx-build -b texinfo doc/source doc/texinfo
-  cd doc/texinfo; make 
+Or generate a texinfo file using 
+
+  python setup.py build_doc -b texinfo
+  cd build/sphinx/texinfo; make 
 
 
 PACKAGING
