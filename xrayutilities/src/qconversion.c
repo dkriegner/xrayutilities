@@ -29,6 +29,7 @@
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
+#define NO_IMPORT_ARRAY
 #include <numpy/arrayobject.h>
 
 #include "qconversion.h"
@@ -1258,3 +1259,4 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     return PyArray_Return(qposArr);
 }
 
+#undef PY_ARRAY_UNIQUE_SYMBOL
