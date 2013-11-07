@@ -59,6 +59,7 @@ NaCl = Material("NaCl",lattice.RockSalt_Cubic_Lattice(elements.Na,elements.Cl,5.
 GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186),
                    HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9),thetaDebye=600)
 BaF2 = Material("BaF2",lattice.CubicFm3mBaF2(elements.Ba,elements.F,6.2001))
+SrF2 = Material("SrF2",lattice.CubicFm3mBaF2(elements.Sr,elements.F,5.8007))
 MnTe = Material("MnTe",lattice.NiAsLattice(elements.Mn,elements.Te,4.1429,6.7031))
 GeTe = Material("GeTe",lattice.GeTeRhombohedral(elements.Ge,elements.Te,5.996,88.18,0.237)) 
 Al = Material("Al",lattice.FCCLattice(elements.Al,4.04958))
