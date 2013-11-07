@@ -19,7 +19,9 @@
 
 #pragma once
 
-#define M_PI 3.14159265358979323846
+#ifndef M_PI
+#   define M_PI 3.14159265358979323846
+#endif
 #define M_2PI (2*M_PI)
 
 #define cdeg2rad (M_PI/180.)

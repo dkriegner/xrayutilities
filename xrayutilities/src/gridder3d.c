@@ -25,6 +25,7 @@
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
+#define NO_IMPORT_ARRAY
 #include "gridder.h"
 #include "gridder_utils.h"
 #include <numpy/arrayobject.h>
@@ -142,3 +143,5 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
 
     return(0);
 }
+
+#undef PY_ARRAY_UNIQUE_SYMBOL
