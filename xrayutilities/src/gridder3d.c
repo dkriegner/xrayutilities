@@ -89,6 +89,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     double *gnorm;                //pointer to normalization data
     unsigned int offset;          //linear offset for the grid data
     unsigned int ntot = nx*ny*nz; //total number of points on the grid
+    unsigned int i;               //loop index variable
 
 
     //compute step width for the grid
@@ -115,7 +116,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
         gnorm = norm;
 
     /*the master loop over all data points*/
-    for(unsigned int i=0;i<n;i++)
+    for(i=0;i<n;i++)
     {
         //check if the current point is within the bounds of the grid
         if((x[i]<xmin)||(x[i]>xmax)) continue;
@@ -134,7 +135,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     /*perform normalization*/
     if(!(flags&NO_NORMALIZATION))
     {
-        for(unsigned int i=0;i<ntot;i++)
+        for(i=0;i<ntot;i++)
             if(gnorm[i]>1.e-16) odata[i] = odata[i]/gnorm[i];
     }
 

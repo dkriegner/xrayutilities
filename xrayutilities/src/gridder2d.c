@@ -87,6 +87,8 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
 
     double dx = delta(xmin,xmax,nx);
     double dy = delta(ymin,ymax,ny);
+
+    unsigned int i; //loop index
     
     /*check if normalization array is passed*/
     if(norm==NULL)
@@ -110,7 +112,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     }
 
     /*the master loop over all data points*/
-    for(unsigned int i=0;i<n;i++)
+    for(i=0;i<n;i++)
     {
         //if the x and y values are outside the grids boundaries continue with
         //the next point
@@ -130,7 +132,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
         if(flags&VERBOSE) 
             fprintf(stdout,"XU.Gridder2D(c): perform normalization ...\n");
 
-        for(unsigned int i=0;i<nx*ny;i++)
+        for(i=0;i<nx*ny;i++)
             if(gnorm[i]>1.e-16) odata[i] = odata[i]/gnorm[i];
 
     }

@@ -65,35 +65,41 @@ INLINE void ident(double *m) {
 }
 
 INLINE void sumvec(double *RESTRICT v1,double *RESTRICT v2) {
-    for(int i=0; i<3; ++i)
+    unsigned int i;
+    for(i=0; i<3; ++i)
         v1[i] += v2[i];
 }
 
 INLINE void diffvec(double *RESTRICT v1,double *RESTRICT v2) {
-    for(int i=0; i<3; ++i)
+    unsigned int i;
+    for(i=0; i<3; ++i)
         v1[i] -= v2[i];
 }
 
 INLINE double norm(double *v) {
     double n=0.;
-    for(int i=0; i<3; ++i)
+    unsigned int i;
+    for(i=0; i<3; ++i)
         n += v[i]*v[i];
     return sqrt(n);
 }
 
 INLINE void normalize(double *v) {
     double n=norm(v);
-    for(int i=0; i<3; ++i)
+    unsigned int i;
+    for(i=0; i<3; ++i)
         v[i] /= n;
 }
 
 INLINE void veccopy(double *RESTRICT v1, double *RESTRICT v2) {
-    for(int i=0; i<3; ++i)
+    unsigned int i;
+    for(i=0; i<3; ++i)
         v1[i] = v2[i];
 }
 
 INLINE void vecmul(double *RESTRICT r, double a) {
-    for(int i=0; i<3; ++i)
+    unsigned int i;
+    for(i=0; i<3; ++i)
         r[i] *= a;
 }
 
@@ -104,7 +110,8 @@ INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT r) 
 }
 
 INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m, double *RESTRICT mr) {
-    for (int i=0; i<9; i=i+3) {
+    unsigned int i;
+    for (i=0; i<9; i=i+3) {
         mr[0+i] =  v[1]*m[2+i] - v[2]*m[1+i];
         mr[1+i] = -v[0]*m[2+i] + v[2]*m[0+i];
         mr[2+i] =  v[0]*m[1+i] - v[1]*m[0+i];
@@ -112,7 +119,8 @@ INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m, double *RESTRICT
 }
 
 INLINE void matmulc(double *RESTRICT m, double c) {
-    for (int i=0; i<9; i=i+1) {
+    unsigned int i;
+    for (i=0; i<9; i=i+1) {
         m[i] *= c;
     }
 }
@@ -125,7 +133,9 @@ INLINE void matvec(double *RESTRICT m, double *RESTRICT v, double *RESTRICT r) {
 
 INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2) {
     double a,b,c;
-    for(int i=0; i<9; i=i+3) {
+
+    unsigned int i;
+    for(i=0; i<9; i=i+3) {
         a = m1[i]*m2[0] + m1[i+1]*m2[3] + m1[i+2]*m2[6];
         b = m1[i]*m2[1] + m1[i+1]*m2[4] + m1[i+2]*m2[7];
         c = m1[i]*m2[2] + m1[i+1]*m2[5] + m1[i+2]*m2[8];
@@ -136,26 +146,30 @@ INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2) {
 }
 
 INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT m) {
-    for(int i=0; i<3; i=i+1) {
-        for(int j=0; j<3; j=j+1) {
+    unsigned int i,j;
+    for(i=0; i<3; i=i+1) {
+        for(j=0; j<3; j=j+1) {
             m[i*3+j] = v1[i]*v2[j];
         }
     }
 }
 
 INLINE void summat(double *RESTRICT m1,double *RESTRICT m2) {
-    for(int i=0; i<9; ++i)
+    unsigned int i;
+    for(i=0; i<9; ++i)
         m1[i] += m2[i];
 }
 
 INLINE void diffmat(double *RESTRICT m1,double *RESTRICT m2) {
-    for(int i=0; i<9; ++i)
+    unsigned int i;
+    for(i=0; i<9; ++i)
         m1[i] -= m2[i];
 }
 
 INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) {
     double det;
     double h1,h2,h3,h4,h5,h6;
+    unsigned int j;
 
     h1 = m[4]*m[8]; // m11*m22
     h2 = m[5]*m[6]; // m12*m20
@@ -175,7 +189,7 @@ INLINE void inversemat(double *RESTRICT m, double *RESTRICT i) {
     i[7] = (m[1]*m[6] - m[0]*m[7]);
     i[8] = (m[0]*m[4] - m[1]*m[3]);
 
-    for(int j=0; j<9; ++j)
+    for(j=0; j<9; ++j)
         i[j] /= det;
 }
 
@@ -281,7 +295,8 @@ INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) {
  * #######################################*/
 
 int print_matrix(double *m) {
-    for(int i=0;i<9;i+=3) {
+    unsigned int i;
+    for(i=0;i<9;i+=3) {
         printf("%8.5g %8.5g %8.5g\n",m[i],m[i+1],m[i+2]);
     }
     printf("\n");
@@ -306,8 +321,9 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_
      * */
 
     double tiltaxis[3], tiltmat[9];
+    unsigned int i;
 
-    for(int i=0; i<3; ++i)
+    for(i=0; i<3; ++i)
         rpixel[i] = 0.;
 
     switch(tolower(dir[0])) {
@@ -374,8 +390,9 @@ int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
     /* feed the function pointer array with the correct
      * rotation matrix generating functions
      * */
+    unsigned int i;
 
-    for(int i=0; i<n; ++i) {
+    for(i=0; i<n; ++i) {
         switch(tolower(stringAxis[2*i])) {
             case 'x':
                 switch(stringAxis[2*i+1]) {
@@ -678,7 +695,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     normalize(r_i);
     // determine detector pixel vector
     if(determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) { return NULL; }
-    for(int k=0; k<3; ++k)
+    for(k=0; k<3; ++k)
         rcchp[k] = rpixel[k]*cch;
 
     // calculate rotation matices and perform rotations
@@ -874,7 +891,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     print_vector(rpixel2);*/
 
     // calculate center channel position in detector plane
-    for(int k=0; k<3; ++k)
+    for(k=0; k<3; ++k)
         rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
 
     // calculate rotation matices and perform rotations
@@ -1048,7 +1065,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     matvec(mtemp,rtemp,rpixel2);
 
     // calculate center channel position in detector plane
-    for(int k=0; k<3; ++k)
+    for(k=0; k<3; ++k)
         rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
 
     // calculate rotation matices and perform rotations
@@ -1214,7 +1231,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     matvec(mtemp,rtemp,rpixel2);
 
     // calculate center channel position in detector plane
-    for(int k=0; k<3; ++k)
+    for(k=0; k<3; ++k)
         rcchp[k] = rpixel1[k]*cch1 + rpixel2[k]*cch2;
 
     // calculate rotation matices and perform rotations
