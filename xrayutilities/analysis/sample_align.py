@@ -984,6 +984,7 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
      angle2 ..... inner detector arm angle
      ccdimages .. images of the ccd taken at the angles given above
      hkls ....... array/list of hkl values for every image
+     experiment . Experiment class object needed to get the UB matrix for the hkl peak treatment
      material ... material used as reference crystal
      detaxis .... detector arm rotation axis
                   default: ['z+','y-']
@@ -1193,6 +1194,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
      angle2 ..... inner detector arm angle
      n1,n2 ...... pixel number at which the beam was observed
      hkls ....... Miller indices of the reflection were the images were taken (use (0,0,0)) for primary beam
+     experiment . Experiment class object needed to get the UB matrix needed for the hkl peak treatment
      material ... material used as reference crystal
      detaxis .... detector arm rotation axis
                   default: ['z+','y-']
