@@ -439,7 +439,7 @@ def area_detector_calib(angle1,angle2,ccdimages,detaxis,r_i,plot=True,cut_off = 
 
     epslist = []
     paramlist = []
-    epsmin = 1.
+    epsmin = numpy.inf
     fitmin = None
 
     print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
@@ -1082,7 +1082,7 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
 
     epslist = []
     paramlist = []
-    epsmin = 1.
+    epsmin = numpy.inf
     fitmin = None
 
     print("tiltaz   tilt   detrot   offset  sampletilt+azimuth wavelength:  error (relative) (fittime)")
