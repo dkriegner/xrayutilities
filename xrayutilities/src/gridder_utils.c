@@ -59,7 +59,7 @@ double get_max(double *a,unsigned int n)
 void set_array(double *a,unsigned int n,double value)
 {
     unsigned int i;
-    
+
     for(i=0;i<n;++i) {
         a[i] = value;
     }
@@ -76,3 +76,10 @@ unsigned int gindex(double x,double min,double d)
 {
     return (unsigned int)rint((x-min)/d);
 }
+//-----------------------------------------------------------------------------
+#ifdef _WIN32
+double rint(double x)
+{
+    return x < 0.0 ? ceil(x-0.5) : floor(x+0.5);
+}
+#endif

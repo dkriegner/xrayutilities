@@ -60,20 +60,20 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
     PyArrayObject *input=NULL, *outarr=NULL;
     double *cin,*cout;
     double buf;
+    npy_intp nout;
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL; 
-    
+    if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL;
+
     PYARRAY_CHECK(input,1,NPY_DOUBLE,"input must be a 1D double array!");
     N = PyArray_SIZE(input);
     cin = (double *) PyArray_DATA(input);
 
     // create output ndarray
-    npy_intp nout;
     nout = ((int)ceil(N/(float)Nav));
     outarr = (PyArrayObject *) PyArray_SimpleNew(1, &nout, NPY_DOUBLE);
     cout = (double *) PyArray_DATA(outarr);
-    
+
     // c-code following is performing the block averaging
     for(i=0; i<N; i=i+Nav) {
         buf=0;
@@ -83,7 +83,7 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
         }
         cout[i/Nav] = buf/(float)(j-i); //save average to output array
     }
-     
+
     // return output array
     return PyArray_Return(outarr);
 }
@@ -94,7 +94,7 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
      *    Parameters
      *    ----------
      *    ccd:          input array/CCD frame
-     *                  size = (Nch2, Nch1) 
+     *                  size = (Nch2, Nch1)
      *                  Nch1 is the fast varying index
      *    Nav1,2:       number of channels to average in each dimension
      *                  in total a block of Nav1 x Nav2 is averaged
@@ -103,7 +103,7 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
      *    Returns
      *    -------
      *    block_av:     block averaged output array
-     *                  size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1)) 
+     *                  size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1))
      *
      */
 
@@ -114,17 +114,17 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
     PyArrayObject *input=NULL, *outarr=NULL;
     double *cin,*cout;
     double buf;
+    npy_intp nout[2];
 
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!iiI",&PyArray_Type, &input, &Nav2, &Nav1, &nthreads)) return NULL;
-    
+
     PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
     Nch2 = PyArray_DIMS(input)[0];
     Nch1 = PyArray_DIMS(input)[1];
     cin = (double *) PyArray_DATA(input);
 
     // create output ndarray
-    npy_intp nout[2];
     nout[0] = ((int)ceil(Nch2/(float)Nav2));
     nout[1] = ((int)ceil(Nch1/(float)Nav1));
     outarr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
@@ -172,23 +172,23 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     unsigned int nthreads; //number of threads to use
     PyArrayObject *input=NULL, *outarr=NULL;
     double *cin,*cout;
-    double buf; 
+    double buf;
+    npy_intp nout[2];
 
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "O!iI",&PyArray_Type, &input, &Nav, &nthreads)) return NULL;
-    
+
     PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
     Nspec = PyArray_DIMS(input)[0];
     Nch = PyArray_DIMS(input)[1];
     cin = (double *) PyArray_DATA(input);
 
     // create output ndarray
-    npy_intp nout[2];
     nout[0] = Nspec;
     nout[1] = ((int)ceil(Nch/(float)Nav));
     outarr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
-    cout = (double *) PyArray_DATA(outarr); 
-    
+    cout = (double *) PyArray_DATA(outarr);
+
     #ifdef __OPENMP__
     //set openmp thread numbers dynamically
     OMPSETNUMTHREADS(nthreads);

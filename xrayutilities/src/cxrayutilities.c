@@ -53,7 +53,7 @@ static PyMethodDef XRU_Methods[] = {
      "Returns\n"
      "-------\n"
      " block_av:   block averaged output array\n"
-     "             size = ceil(N/Nav) \n" 
+     "             size = ceil(N/Nav) \n"
     },
     {"block_average2d",  block_average2d, METH_VARARGS,
      "2D block average for one CCD frame\n\n"
@@ -68,7 +68,7 @@ static PyMethodDef XRU_Methods[] = {
      "Returns\n"
      "-------\n"
      " block_av:     block averaged output array\n"
-     "               size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1))\n"   
+     "               size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1))\n"
     },
     {"block_average_PSD",  block_average_PSD, METH_VARARGS,
      "1D block average for a bunch of PSD spectra in a 2D array\n"
@@ -84,8 +84,8 @@ static PyMethodDef XRU_Methods[] = {
      " block_av:    block averaged output array\n"
      "              size = (Nspec , ceil(Nch/Nav)) (out)\n"
     },
-    {"gridder2d",pygridder2d,METH_VARARGS, 
-     "Function performs 2D gridding on 1D input data. \n\n" 
+    {"gridder2d",pygridder2d,METH_VARARGS,
+     "Function performs 2D gridding on 1D input data. \n\n"
      "Parameters\n"
      "----------\n"
      "  x ...... input x-values (1D numpy array - float64)\n"
@@ -99,8 +99,8 @@ static PyMethodDef XRU_Methods[] = {
      "  ymax ... minimum y-value of the grid\n"
      "  out .... output data\n"
     },
-    {"gridder3d",pygridder3d,METH_VARARGS, 
-     "Function performs 2D gridding on 1D input data. \n\n" 
+    {"gridder3d",pygridder3d,METH_VARARGS,
+     "Function performs 2D gridding on 1D input data. \n\n"
      "Parameters\n"
      "----------\n"
      "  x ...... input x-values (1D numpy array - float64)\n"
@@ -161,7 +161,7 @@ static PyMethodDef XRU_Methods[] = {
      "Returns\n"
      "-------\n"
      " qpos ............ momentum transfer (Npoints*Nch,3)\n"
-     " \n"     
+     " \n"
     },
     {"ang2q_conversion_area", ang2q_conversion_area, METH_VARARGS,
      "conversion of Npoints of goniometer positions to reciprocal space\n"
@@ -192,7 +192,7 @@ static PyMethodDef XRU_Methods[] = {
      "Returns\n"
      "-------\n"
      " qpos ............ momentum transfer (Npoints*Npix1*Npix2,3)\n"
-     "\n"     
+     "\n"
     },
     {"ang2q_conversion_area_pixel", ang2q_conversion_area_pixel, METH_VARARGS,
      "conversion of Npoints of detector positions to Q\n"
@@ -280,7 +280,7 @@ PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
 PyInit_cxrayutilities(void)
 #else
-initcxrayutilities(void) 
+initcxrayutilities(void)
 #endif
 {
     PyObject *m;
@@ -288,7 +288,7 @@ initcxrayutilities(void)
     #if PY_MAJOR_VERSION >= 3
     m = PyModule_Create(&moduledef);
     #else
-    m = Py_InitModule3("cxrayutilities", XRU_Methods, 
+    m = Py_InitModule3("cxrayutilities", XRU_Methods,
         "Python C extension including performance critical parts\n"
         "of xrayutilities (gridder, qconversion, block-averageing)\n");
     #endif

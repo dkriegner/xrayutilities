@@ -42,7 +42,7 @@
 \brief python interface function
 
 Python interface function for gridder2d. This function is virtually doing all
-the Python related stuff to run gridder2d function. 
+the Python related stuff to run gridder2d function.
 \param self reference to the module
 \param args function arguments
 \return return value of the function
@@ -78,7 +78,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
 \brief 3D gridder python interface function
 
 Python interface function for gridder3d. This function is virtually doing all
-the Python related stuff to run gridder2d function. 
+the Python related stuff to run gridder2d function.
 \param self reference to the module
 \param args function arguments
 \return return value of the function

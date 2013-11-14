@@ -39,6 +39,7 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     double xmin,xmax,ymin,ymax,zmin,zmax;
     unsigned int nx,ny,nz;
     int flags;
+    int n,result;
 
     if(!PyArg_ParseTuple(args,"O!O!O!O!IIIddddddO!|O!i",
                          &PyArray_Type,&py_x,
@@ -70,10 +71,10 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     if(norm!=NULL) norm = (double *)PyArray_DATA(py_norm);
 
     //get the total number of points
-    int n =  PyArray_SIZE(py_x);
+    n =  PyArray_SIZE(py_x);
 
     //call the actual gridder routine
-    int result = gridder3d(x,y,z,data,n,nx,ny,nz,
+    result = gridder3d(x,y,z,data,n,nx,ny,nz,
                            xmin,xmax,ymin,ymax,zmin,zmax,odata,norm,flags);
     return Py_BuildValue("i",&result);
 

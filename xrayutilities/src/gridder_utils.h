@@ -38,9 +38,9 @@
     }
 
 /*!
-\brief find minimum 
+\brief find minimum
 
-Finds the minimum in an array. 
+Finds the minimum in an array.
 \param a input data
 \param n number of elements
 \return minimum value
@@ -49,7 +49,7 @@ double get_min(double *a,unsigned int n);
 
 //-----------------------------------------------------------------------------
 /*!
-\brief find maximum 
+\brief find maximum
 
 Finds the maximum value in an array.
 \param a input data
@@ -73,7 +73,7 @@ void set_array(double *a,unsigned int n,double value);
 /*!
 \brief compute step width
 
-Computes the stepwidth of a grid. 
+Computes the stepwidth of a grid.
 \param min minimum value
 \param max maximum value
 \param n number of steps
@@ -87,3 +87,7 @@ double delta(double min,double max,unsigned int n);
 
 */
 unsigned int gindex(double x,double min,double d);
+
+#ifdef _WIN32
+double rint(double x);
+#endif

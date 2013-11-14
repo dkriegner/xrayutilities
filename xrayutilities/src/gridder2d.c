@@ -41,6 +41,7 @@ PyObject* pygridder2d(PyObject *self,PyObject *args)
     double xmin,xmax,ymin,ymax;
     unsigned int nx,ny;
     int flags;
+    int n,result;
 
     if(!PyArg_ParseTuple(args,"O!O!O!IIddddO!|O!i",
                          &PyArray_Type,&py_x,
@@ -68,10 +69,10 @@ PyObject* pygridder2d(PyObject *self,PyObject *args)
     if(norm!=NULL) norm = (double *)PyArray_DATA(py_norm);
 
     //get the total number of points
-    int n =  PyArray_SIZE(py_x);
+    n =  PyArray_SIZE(py_x);
 
     //call the actual gridder routine
-    int result = gridder2d(x,y,data,n,nx,ny,xmin,xmax,ymin,ymax,odata,norm,flags);
+    result = gridder2d(x,y,data,n,nx,ny,xmin,xmax,ymin,ymax,odata,norm,flags);
     return Py_BuildValue("i",&result);
 
 }
@@ -89,7 +90,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     double dy = delta(ymin,ymax,ny);
 
     unsigned int i; //loop index
-    
+
     /*check if normalization array is passed*/
     if(norm==NULL)
     {
@@ -104,7 +105,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     }
     else
     {
-        if(flags&VERBOSE) 
+        if(flags&VERBOSE)
         {
             fprintf(stdout,"XU.Gridder2D(c): use user provided buffer for normalization data\n");
         }
@@ -129,7 +130,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     /*perform normalization*/
     if(!(flags&NO_NORMALIZATION))
     {
-        if(flags&VERBOSE) 
+        if(flags&VERBOSE)
             fprintf(stdout,"XU.Gridder2D(c): perform normalization ...\n");
 
         for(i=0;i<nx*ny;i++)
