@@ -1050,7 +1050,7 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
     
     if imgpbcnt > 0:
         avg /= float(imgpbcnt)
-    else
+    else:
         avg = 0
     (N1,N2) =  ccdimages[0].shape
 
@@ -1059,7 +1059,7 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
 
     for i in range(Npoints):
         img = ccdimages[i]
-        if ((numpy.sum(img) > cut_off*avg) and (numpy.all(hkls[i] == (0,0,0)))):
+        if ((numpy.sum(img) > cut_off*avg) or (numpy.all(hkls[i] != (0,0,0)))):
             [cen1,cen2] = center_of_mass(img)
             if debug:
                 plt.figure("_ccd")
