@@ -43,6 +43,9 @@ extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args);
 
+/* functions from file_io.c */
+extern PyObject* cbfread(PyObject *self, PyObject *args);
+
 static PyMethodDef XRU_Methods[] = {
     {"block_average1d",  (PyCFunction)block_average1d, METH_VARARGS,
      "block average for one-dimensional numpy double array\n\n"
@@ -257,6 +260,16 @@ static PyMethodDef XRU_Methods[] = {
      "Returns\n"
      "-------\n"
      " qpos ............ momentum transfer (Npoints,3)\n"
+    },
+    {"cbfread", cbfread, METH_VARARGS,
+     "parser for cbf data arrays from Pilatus detector images\n\n"
+     " Parameters\n"
+     " ----------\n"
+     "  data:   data stream (character array)\n"
+     "  nx,ny:  number of entries of the two dimensional image\n\n"
+     " Returns\n"
+     " -------\n"
+     "  the parsed data values as float ndarray\n"
     },
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };

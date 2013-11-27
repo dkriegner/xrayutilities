@@ -85,7 +85,8 @@ extmodul = Extension('xrayutilities.cxrayutilities',
                                 os.path.join('xrayutilities','src','gridder2d.c'),
                                 os.path.join('xrayutilities','src','block_average.c'),
                                 os.path.join('xrayutilities','src','qconversion.c'),
-                                os.path.join('xrayutilities','src','gridder3d.c')],
+                                os.path.join('xrayutilities','src','gridder3d.c'),
+                                os.path.join('xrayutilities','src','file_io.c')],
                      define_macros = user_macros)
 
 try:

@@ -38,6 +38,9 @@ from .spec import geth5_scan
 from .spec import geth5_scan as geth5_map
 
 from .edf import EDFFile
+from .edf import EDFDirectory
+from .cbf import CBFFile
+from .cbf import CBFDirectory
 
 from .spectra import Spectra
 
