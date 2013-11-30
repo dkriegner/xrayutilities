@@ -1,3 +1,11 @@
+
+* spec files can now be parsed while gzipped
+* CBF file parser for detector images 
+* compile fixes for Microsoft compilers
+* compile fixes on Mac
+* new predefined materials (NaCl, ...)
+* some minor bug fixes
+
 v1.0.3, 2013-10-25
 
 * build_doc target for setup.py to help build docs (thanks to F. Picca)
