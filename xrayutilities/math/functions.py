@@ -318,7 +318,7 @@ def PseudoVoigt1dArea(*p):
 
     """
 
-    f = p[2] * ( p[4]*numpy.pi/(4/(p[1])) + (1-p[4])*numpy.sqrt(numpy.pi)/(numpy.log(2)*(2./(p[1]))) ) 
+    f = p[2] * ( p[4]*numpy.pi/(4./(p[1])) + (1.-p[4])*numpy.sqrt(numpy.pi)/(numpy.sqrt(numpy.log(2))*2./(p[1])) ) 
 
     return f
 

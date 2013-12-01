@@ -1,4 +1,4 @@
-
+* enhanced fitting routines
 * spec files can now be parsed while gzipped
 * CBF file parser for detector images 
 * compile fixes for Microsoft compilers
