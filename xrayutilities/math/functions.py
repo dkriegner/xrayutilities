@@ -215,7 +215,7 @@ def Lorentz1d(x,*p):
     ----------
      p:     list of parameters of the Lorentz-function
             [XCEN,FWHM,AMP,BACKGROUND]
-     x,y:   coordinate(s) where the function should be evaluated
+     x:     coordinate(s) where the function should be evaluated
 
     Returns
     -------
@@ -288,7 +288,7 @@ def PseudoVoigt1d(x,*p):
      p:     list of parameters of the Lorentz-function
             [XCEN,FWHM,AMP,BACKGROUND,ETA]
             ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
-     x,y:   coordinate(s) where the function should be evaluated
+     x:     coordinate(s) where the function should be evaluated
 
     Returns
     -------
@@ -301,6 +301,26 @@ def PseudoVoigt1d(x,*p):
 
     return f
 
+def PseudoVoigt1dArea(*p):
+    """
+    function to calculate the area of a pseudo Voigt function with neglected background
+
+    Parameters
+    ----------
+     p:     list of parameters of the Lorentz-function
+            [XCEN,FWHM,AMP,BACKGROUND,ETA]
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
+
+    Returns
+    -------
+    the value of the PseudoVoigt described by the parameters p
+    at position (x,y)
+
+    """
+
+    f = p[2] * ( p[4]*numpy.pi/(4/(p[1])) + (1-p[4])*numpy.sqrt(numpy.pi)/(numpy.log(2)*(2./(p[1]))) ) 
+
+    return f
 
 def Debye1(x):
     """

@@ -28,14 +28,100 @@ from scipy.odr import odrpack as odr
 from scipy.odr import models
 
 from .. import config
+from .. exception import InputError
 from .functions import Gauss1d,Gauss1d_der_x,Gauss1d_der_p
 from .functions import Lorentz1d,Lorentz1d_der_x,Lorentz1d_der_p
+from .functions import PseudoVoigt1d
 
 try:
     from matplotlib import pyplot as plt
 except RuntimeError:
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.analysis.sample_align: warning; plotting functionality not available")
+
+def peak_fit(xdata,ydata,iparams=[],peaktype='Gauss',maxit=200):
+    """
+    fit function using odr-pack wrapper in scipy similar to
+    https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
+    for Gauss, Lorentz or Pseudovoigt-functions
+
+    Parameters
+    ----------
+     xdata:     xcoordinates of the data to be fitted
+     ydata:     ycoordinates of the data which should be fit
+
+    keyword parameters:
+     iparams:   initial paramters for the fit (determined automatically if nothing is given)
+     peaktype:  type of peak to fit ('Gauss','Lorentz','PseudoVoigt')
+     maxit:     maximal iteration number of the fit
+    
+    Returns
+    -------
+     params,sd_params,itlim
+
+    the parameters as defined in function Gauss1d/Lorentz1d or PseudoVoigt1d(x, *param)
+    and their errors of the fit, as well as a boolean flag which is false in the case of a 
+    successful fit
+    """
+
+    if peaktype=='Gauss':
+        gfunc = lambda param,x: Gauss1d(x, *param)
+        gfunc_dx = lambda param,x: Gauss1d_der_x(x, *param)
+        gfunc_dp = lambda param,x: Gauss1d_der_p(x, *param)
+    elif peaktype=='Lorentz':
+        gfunc = lambda param,x: Lorentz1d(x, *param)
+        gfunc_dx = lambda param,x: Lorentz1d_der_x(x, *param)
+        gfunc_dp = lambda param,x: Lorentz1d_der_p(x, *param)
+    elif peaktype=='PseudoVoigt':
+        gfunc = lambda param,x: PseudoVoigt1d(x, *param)
+        gfunc_dx = None
+        gfunc_dp = None
+    else:
+        raise InputError("keyword rgument peaktype takes invalid value!")
+
+    if not any(iparams):
+        cen = numpy.sum(xdata*ydata)/numpy.sum(ydata)
+        iparams = [cen,\
+            numpy.sqrt(numpy.abs(numpy.sum((xdata-cen)**2*ydata)/numpy.sum(ydata))),\
+            numpy.max(ydata),\
+            numpy.min(ydata)]
+    if peaktype=='PseudoVoigt':
+        iparams.append(0.5) # set ETA parameter to be between Gauss and Lorentz shape
+
+    if config.VERBOSITY >= config.DEBUG:
+        print("XU.math.peak_fit: iparams: %s"%str(tuple(iparams)))
+
+    peak  = odr.Model(gfunc, fjacd=gfunc_dx, fjacb=gfunc_dp)
+
+    sy = numpy.sqrt(ydata)
+    sy[sy==0] = 1
+    mydata = odr.RealData(xdata, ydata, sy=sy)
+
+    myodr  = odr.ODR(mydata, peak, beta0=iparams,maxit=maxit)
+
+    # use least-square fit
+    myodr.set_job(fit_type=2)
+
+#    # DK commented out because this command triggers a synthax error with new scipy version 2013/5/7
+#    if config.VERBOSITY >= config.DEBUG:
+#        myodr.set_iprint(final=1)
+
+    fit = myodr.run()
+
+    #fit.pprint() # prints final message from odrpack
+
+    if config.VERBOSITY >= config.DEBUG:
+        print("XU.math.peak_fit: params: %s" %str(tuple(fit.beta)))
+        print("XU.math.peak_fit: params std: %s" %str(tuple(fit.sd_beta)))
+        print("XU.math.peak_fit: %s" %fit.stopreason[0])
+
+    itlim = False
+    if fit.stopreason[0] == 'Iteration limit reached':
+        itlim = True
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("XU.math.peak_fit: Iteration limit reached, do not trust the result!")
+
+    return fit.beta, fit.sd_beta, itlim
 
 def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     """
@@ -60,52 +146,7 @@ def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     successful fit
     """
 
-    gfunc = lambda param,x: Gauss1d(x, *param)
-    gfunc_dx = lambda param,x: Gauss1d_der_x(x, *param)
-    gfunc_dp = lambda param,x: Gauss1d_der_p(x, *param)
-
-    if not any(iparams):
-        cen = numpy.sum(xdata*ydata)/numpy.sum(ydata)
-        iparams = numpy.array([cen,\
-            numpy.sqrt(numpy.abs(numpy.sum((xdata-cen)**2*ydata)/numpy.sum(ydata))),\
-            numpy.max(ydata),\
-            numpy.min(ydata)])
-
-    if config.VERBOSITY >= config.DEBUG:
-        print("XU.math.gauss_fit: iparams: [%f %f %f %f]" %tuple(iparams))
-
-    gauss  = odr.Model(gfunc, fjacd=gfunc_dx, fjacb=gfunc_dp)
-
-    sy = numpy.sqrt(ydata)
-    sy[sy==0] = 1
-    mydata = odr.RealData(xdata, ydata, sy=sy)
-
-    myodr  = odr.ODR(mydata, gauss, beta0=iparams,maxit=maxit)
-
-    # use least-square fit
-    myodr.set_job(fit_type=2)
-
-#    # DK commented out because this command triggers a synthax error with new scipy version 2013/5/7
-#    if config.VERBOSITY >= config.DEBUG:
-#        myodr.set_iprint(final=1)
-
-    fit = myodr.run()
-
-    #fit.pprint() # prints final message from odrpack
-
-    if config.VERBOSITY >= config.DEBUG:
-        print("XU.math.gauss_fit: params: [%f %f %f %f]" %tuple(fit.beta))
-        print("XU.math.gauss_fit: params std: [%f %f %f %f]" %tuple(fit.sd_beta))
-        print("XU.math.gauss_fit: %s" %fit.stopreason[0])
-
-    itlim = False
-    if fit.stopreason[0] == 'Iteration limit reached':
-        itlim = True
-        if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.math.gauss_fit: Iteration limit reached, do not trust the result!")
-
-    return fit.beta, fit.sd_beta, itlim
-
+    return peak_fit(xdata,ydata,iparams=iparams,peaktype='Gauss',maxit=maxit)
 
 def fit_peak2d(x,y,data,start,drange,fit_function,maxfev=2000):
     """
