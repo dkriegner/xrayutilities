@@ -53,3 +53,4 @@ from .panalytical_xml import getxrdml_map
 from .rotanode_alignment import RA_Alignment
 
 from .desy_tty08 import tty08File
+from .desy_tty08 import gettty08_scan
