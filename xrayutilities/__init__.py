@@ -39,7 +39,6 @@ from .experiment import Experiment
 from .experiment import HXRD
 from .experiment import NonCOP
 from .experiment import GID
-from .experiment import GID_ID10B
 from .experiment import GISAXS
 from .experiment import Powder
 from .experiment import QConversion
