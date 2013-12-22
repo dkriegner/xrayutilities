@@ -28,6 +28,7 @@ import os.path
 import glob
 import gzip
 
+from .helper import xu_open
 from .. import config
 
 edf_kv_split=re.compile(r"\s*=\s*") #key value sepeartor for header data
@@ -72,10 +73,7 @@ class EDFFile(object):
         self.full_filename = os.path.join(path,fname)
 
         try:
-            if os.path.splitext(self.full_filename)[-1] == '.gz':
-                self.fid = gzip.open(self.full_filename,"r")
-            else :
-                self.fid = open(self.full_filename,"r")
+            self.fid=xu_open(self.full_filename,'rb')
         except:
             raise IOError("cannot open file %s" %(self.full_filename))
 
@@ -173,10 +171,7 @@ class EDFFile(object):
         #----------------start to read the data section----------------------
 
         #to read the data we have to open the file in binary mode
-        if os.path.splitext(self.full_filename)[-1] == '.gz':
-            binfid = gzip.open(self.full_filename,"rb")
-        else :
-            binfid = open(self.full_filename,"rb")
+        binfid = xu_open(self.full_filename,'rb')
 
         if (not self.headerflag): #for fast scan at ID01
             byte_order = 'LowByteFirst'

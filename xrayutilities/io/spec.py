@@ -35,6 +35,7 @@ import tables
 import gzip
 
 # relative imports from xrayutilities
+from .helper import xu_open
 from .. import config
 from ..exception import InputError
 
@@ -552,10 +553,7 @@ class SPECFile(object):
         self.scan_list = []
         #open the file for reading
         try:
-            if os.path.splitext(self.full_filename)[-1] == '.gz':
-                self.fid = gzip.open(self.full_filename,"rb")
-            else :
-                self.fid = open(self.full_filename,"rb")
+            self.fid=xu_open(self.full_filename)
             self.last_offset = self.fid.tell()
         except:
             self.fid = None
@@ -632,10 +630,7 @@ class SPECFile(object):
 
         self.fid.close()
         try:
-            if os.path.splitext(self.full_filename)[-1] == '.gz':
-                self.fid = gzip.open(self.full_filename,"rb")
-            else :
-                self.fid = open(self.full_filename,"rb")
+            self.fid=xu_open(self.full_filename)
         except:
             self.fid = None
             raise IOError("error opening SPEC file %s" %(self.full_filename))
@@ -879,10 +874,7 @@ class SPECLog(object):
         self.full_filename = os.path.join(path,self.filename)
 
         try:
-            if os.path.splitext(self.full_filename)[-1] == '.gz':
-                self.fid = gzip.open(self.full_filename,"r")
-            else :
-                self.fid = open(self.full_filename,"r")
+            self.fid = xu_open(self.full_filename,'r')
         except:
             raise IOError("cannot open log file %s" %(self.full_filename))
 
