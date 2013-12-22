@@ -1527,8 +1527,9 @@ class NonCOP(Experiment):
         Experiment.__init__(self,idir,ndir,**keyargs)
 
         # initialize Ang2Q conversion
-        self._A2QConversion = QConversion(['x+','y+','z-'],'x+',[0,1,0],wl=self._wl) # 3S+1D goniometer (as in the MRD, omega,chi,phi,theta)
-        self.Ang2Q = self._A2QConversion
+        if "qconv" not in keyargs:
+            self._A2QConversion = QConversion(['x+','y+','z-'],'x+',[0,1,0],wl=self._wl) # 3S+1D goniometer (standard four-circle goniometer, omega,chi,phi,theta)
+            self.Ang2Q = self._A2QConversion
 
     def Ang2Q(self,om,chi,phi,tt,**kwargs):
         """
@@ -1687,8 +1688,9 @@ class GID(Experiment):
         Experiment.__init__(self,idir,ndir,**keyargs)
 
         # initialize Ang2Q conversion
-        self._A2QConversion = QConversion(['z-','x+'],['x+','z-'],[0,1,0],wl=self._wl) # 2S+2D goniometer
-        self.Ang2Q = self._A2QConversion
+        if "qconv" not in keyargs:
+            self._A2QConversion = QConversion(['z-','x+'],['x+','z-'],[0,1,0],wl=self._wl) # 2S+2D goniometer
+            self.Ang2Q = self._A2QConversion
 
     def _set_transform(self,v1,v2,v3):
         """
