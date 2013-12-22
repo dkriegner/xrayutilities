@@ -1,3 +1,5 @@
+v1.0.4, 2013-12-22 "the final Linz edition"
+
 * bugfix in GID experimental class: qconv argument so far not used correctly!
 * enhanced fitting routines
 * spec files can now be parsed while gzipped

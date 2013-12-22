@@ -9,10 +9,34 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`cbf` Module
+-----------------
+
+.. automodule:: xrayutilities.io.cbf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`desy_tty08` Module
+------------------------
+
+.. automodule:: xrayutilities.io.desy_tty08
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`edf` Module
 -----------------
 
 .. automodule:: xrayutilities.io.edf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`helper` Module
+--------------------
+
+.. automodule:: xrayutilities.io.helper
     :members:
     :undoc-members:
     :show-inheritance:
