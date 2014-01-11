@@ -607,9 +607,9 @@ class SPECFile(object):
             raise InputError("h5f argument of wrong type was passed")
 
         try:
-            g = h5.createGroup("/",os.path.splitext(self.filename)[0],"Data of SPEC - File %s" %(self.filename))
+            g = h5.createGroup("/",os.path.splitext(os.path.splitext(self.filename)[0])[0],"Data of SPEC - File %s" %(self.filename))
         except:
-            g = h5.getNode("/"+os.path.splitext(self.filename)[0])
+            g = h5.getNode("/"+os.path.splitext(os.path.splitext(self.filename)[0])[0])
 
         for s in self.scan_list:
             if (((not g.__contains__(s.name)) or s.ischanged) and s.scan_status!="NODATA"):

@@ -19,9 +19,9 @@ import numpy
 import time
 import os
 import subprocess
-import gzip
 
 # relative imports from xrayutilities
+from .helper import xu_open
 from .. import config
 from ..exception import InputError
 
@@ -130,10 +130,8 @@ class ImageReader(object):
 
             subprocess.call("xz --decompress --verbose --keep %s" %(filename),shell=True)
             fh = open(filename[:-3], 'rb')
-        elif filename[-2:] == 'gz':
-            fh = gzip.open(filename, 'rb')
         else:
-            fh = open(filename, 'rb')
+            fh = xu_open(filename)
 
         # jump over header
         fh.seek(self.hdrlen)

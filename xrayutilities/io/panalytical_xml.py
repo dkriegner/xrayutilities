@@ -26,6 +26,7 @@ from xml.dom import minidom
 import numpy
 import os
 
+from .helper import xu_open
 from .. import config
 
 class XRDMLMeasurement(object):
@@ -152,7 +153,7 @@ class XRDMLFile(object):
 
         """
         self.filename = fname
-        d = minidom.parse(fname)
+        d = minidom.parse(xu_open(fname))
         root = d.childNodes[0]
 
         slist = root.getElementsByTagName("xrdMeasurement")

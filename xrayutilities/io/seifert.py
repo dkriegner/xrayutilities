@@ -33,6 +33,7 @@ import numpy
 import os
 import itertools
 
+from .helper import xu_open
 from .. import config
 
 #define some regular expressions
@@ -113,7 +114,7 @@ class SeifertMultiScan(object):
             self.Filename = filename
         
         try:
-            self.fid = open(self.Filename,"r")
+            self.fid = xu_open(self.Filename)
         except:
             self.fid = None
             raise IOError("error opening Seifert datafile %s" %(self.Filename))
@@ -246,7 +247,7 @@ class SeifertScan(object):
             self.Filename = filename
         
         try:
-            self.fid = open(self.Filename,"r")
+            self.fid = xu_open(self.Filename)
         except:
             self.fid = None
             raise IOError("error opening Seifert datafile %s" %(self.Filename))
