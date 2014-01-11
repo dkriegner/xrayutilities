@@ -25,7 +25,7 @@ sample = "testnja" # sample name used also as file name for the data file
 hxrd = xu.HXRD((1,1,0),(0,0,1))
 
 #################################
-# read the data from the xrdml files
+# read the data from the Seifert NJA files
 om,tt,psd = xu.io.getSeifert_map(sample+'_%02d.nja',[3,4],path="data")
 
 # convert angular coordinates to reciprocal space + correct for offsets

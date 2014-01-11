@@ -47,7 +47,7 @@ ttalign = 69.1283
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(Si.Q(0,0,4)) # nominal values of the substrate peak
 
 # read the data from the xrdml files
-om,tt,psd = xu.io.getxrdml_map(sample+'_%d.xrdml',[1,2,3,4,5],path='data')
+om,tt,psd = xu.io.getxrdml_map(sample+'_%d.xrdml.bz2',[1,2,3,4,5],path='data')
 
 # determine offset of substrate peak from experimental values (optional)
 omalign,ttalign,p,cov = xu.analysis.fit_bragg_peak(om,tt,psd,omalign,ttalign,hxrd,plot=False)

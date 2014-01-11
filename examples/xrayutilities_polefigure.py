@@ -18,9 +18,7 @@ import matplotlib as mpl
 import os.path
 from mpl_toolkits.basemap import *
 
-sample = "test"
 datadir = "data"
-basename = sample
 
 eps = 0.01
 # plot settings
@@ -61,7 +59,7 @@ label113 = (r'$(113)$',r'$(131)$',r'$(311)$',
           r'$(\bar 1 1\bar 3)$',r'$(\bar 1\bar 3 1)$',r'$(\bar 3 1\bar 1)$',
           r'$(\bar 1\bar 1 3)$',r'$(\bar 1 3\bar 1)$',r'$( 3\bar 1\bar 1)$')
 
-df = xu.io.XRDMLFile(os.path.join(datadir,"polefig_Ge113.xrdml"))
+df = xu.io.XRDMLFile(os.path.join(datadir,"polefig_Ge113.xrdml.bz2"))
 s = df.scan
 
 chi = 90-s['Psi']

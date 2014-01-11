@@ -63,7 +63,7 @@ hxrd.Ang2Q.init_linear('z-',center_ch,1500.,chpdeg=chpdeg,roi=roi)
 # since reading is much faster from HDF5 once the data are transformed
 h5file = os.path.join("data",sample+".h5")
 try: s  # try if spec file object already exist from a previous run of the script ("run -i" in ipython)
-except NameError: s = xu.io.SPECFile(sample+".spec",path="data")
+except NameError: s = xu.io.SPECFile(sample+".spec.bz2",path="data")
 else: s.Update()
 s.Save2HDF5(h5file)
 
