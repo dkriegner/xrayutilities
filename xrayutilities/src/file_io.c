@@ -41,7 +41,7 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
 
     unsigned int i,start=0,nx,ny,len;
     unsigned int parsed = 0;
-    PyArrayObject *input=NULL, *outarr=NULL;
+    PyArrayObject *outarr=NULL;
     unsigned char *cin;
     float *cout;
     npy_intp nout;
