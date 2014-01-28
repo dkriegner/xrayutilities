@@ -453,7 +453,6 @@ def get_omega_scan_ang(qx,qz,intensity,omcenter,ttcenter,omrange,npoints,**kwarg
     else:
         qrange = 0.
     dummy,qxcenter,qzcenter = exp.Ang2Q(omcenter,ttcenter)
-    qxcenter = qxcenter[0]; qzcenter = qzcenter[0]
     dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[0]
     dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0]
 
@@ -535,7 +534,6 @@ def get_omega_scan_bounds_ang(omcenter,ttcenter,omrange,npoints,**kwargs):
     else:
         qrange = 0.
     dummy,qxcenter,qzcenter = exp.Ang2Q(omcenter,ttcenter)
-    qxcenter = qxcenter[0]; qzcenter = qzcenter[0]
     dom_m = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)-qrange/2.,trans=False)[0]
     dom_p = exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2)+qrange/2.,trans=False)[0] - exp.Q2Ang(0.,0.,numpy.sqrt(qxcenter**2+qzcenter**2),trans=False)[0]
 
