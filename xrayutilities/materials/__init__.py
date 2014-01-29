@@ -31,6 +31,7 @@ from .lattice import HCPLattice
 from .lattice import BCTLattice
 from .lattice import RockSaltLattice
 from .lattice import RockSalt_Cubic_Lattice
+from .lattice import CsClLattice
 from .lattice import RutileLattice
 from .lattice import BaddeleyiteLattice
 from .lattice import WurtziteLattice

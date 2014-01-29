@@ -446,6 +446,21 @@ def RockSalt_Cubic_Lattice(aa,ab,a):
 
     return l
 
+def CsClLattice(aa,ab,a):
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0])
+    lb.append(ab,[0.5,0.5,0.5])
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+
 def RutileLattice(aa,ab,a,c,u):
     #create lattice base; data from http://cst-www.nrl.navy.mil/lattice/index.html
     # P4_2/mmm(136) aa=2a,ab=4f; x \approx 0.305 (VO_2)

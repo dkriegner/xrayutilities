@@ -56,6 +56,7 @@ PbTe = Material("PbTe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Te,6.
 PbSe = Material("PbSe",lattice.RockSalt_Cubic_Lattice(elements.Pb,elements.Se,6.128),
                    CubicElasticTensor(123.7,19.3,15.9))
 NaCl = Material("NaCl",lattice.RockSalt_Cubic_Lattice(elements.Na,elements.Cl,5.6402))
+MgO = Material("MgO",lattice.RockSalt_Cubic_Lattice(elements.Mg,elements.O,4.212))
 GaN = Material("GaN",lattice.WurtziteLattice(elements.Ga,elements.N,3.189,5.186),
                    HexagonalElasticTensor(390.e9,145.e9,106.e9,398.e9,105.e9),thetaDebye=600)
 BaF2 = Material("BaF2",lattice.CubicFm3mBaF2(elements.Ba,elements.F,6.2001))
@@ -82,6 +83,7 @@ FeO = Material("FeO",lattice.RockSalt_Cubic_Lattice(elements.Fe,elements.O, 4.33
 CoO = Material("CoO",lattice.RockSalt_Cubic_Lattice(elements.Co,elements.O, 4.214))
 Fe3O4 = Material("Fe3O4",lattice.MagnetiteLattice(elements.Fe,elements.Fe,elements.O, 8.3958))
 Co3O4 = Material("Co3O4",lattice.MagnetiteLattice(elements.Co,elements.Co,elements.O, 8.0821))
+FeRh = Material("FeRh",lattice.CsClLattice(elements.Fe,elements.Rh, 2.993))
 
 # materials defined from cif file
 try:
