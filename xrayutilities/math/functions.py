@@ -98,6 +98,12 @@ def Gauss1d(x,*p):
     -------
     the value of the Gaussian described by the parameters p
     at position x
+    
+    Example
+    -------
+    Calling with a list of parameters needs a call looking as shown below (note the '*') or explicit listing of the parameters:
+    >>> Gauss1d(x,*p)
+    >>> Gauss1d(numpy.linspace(0,10,100), 5, 1, 1e3, 0)
     """
 
     g = p[3]+p[2]*numpy.exp(-((p[0]-x)/p[1])**2/2.)
