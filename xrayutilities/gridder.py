@@ -84,11 +84,25 @@ class Gridder(object):
 
         self.flags = 0
         self.keep_data = False # by default every call to gridder will start a new gridding
+        self.normalize = True
+        self.fixed_range = False # flag to allow for sequential gridding with fixed data range
+
         if config.VERBOSITY >= config.INFO_ALL:
             self.flags = self.flags|16 # set verbosity flag
 
     def Normalize(self,bool):
-        self.flags = self.flags^4
+        """
+        set or unset the normalization flag.
+        Normalization needs to be done to obtain proper gridding but may want to be
+        disabled in certain cases when sequential gridding is performed
+        """
+        if not bool==True or bool==False:
+            raise TypeError("Normalize flag must be a boolan value (True/False)!")
+        self.normalize = bool
+        if not bool:
+            self.flags = self.flags^4
+        else:
+            self.flags = self.flags&(255-4)
 
     def KeepData(self,bool):
         if not bool==True or bool==False:
@@ -97,6 +111,15 @@ class Gridder(object):
         print("XU.Gridder: currently KeepData option is not working and will give random results! Please do not use it.")
         self.keep_data = bool
 
+    def Clear(self):
+        """
+        Clear so far gridded data to reuse this instance of the Gridder
+        """
+        try:
+            self.gdata[...] = 0
+            self.gnorm[...] = 0
+        except:
+            pass
 
 class Gridder1D(Gridder):
     def __init__(self,nx):
@@ -105,7 +128,6 @@ class Gridder1D(Gridder):
         self.nx = nx
         self.xmin = 0
         self.xmax = 0
-
         self.gdata = numpy.zeros(nx,dtype=numpy.double)
         self.gnorm = numpy.zeros(nx,dtype=numpy.double)
 
@@ -120,20 +142,36 @@ class Gridder1D(Gridder):
         return ax
 
     def __get_data(self):
-        return self.gdata.copy()
+        """
+        return gridded data (performs normalization if switched on)
+        """
+        if self.normalize:
+            tmp= numpy.copy(self.gdata)
+            tmp[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
+            return tmp
+        else:
+            return self.gdata.copy()
 
     xaxis = property(__get_xaxis)
     data = property(__get_data)
 
-    def Clear(self):
-        self.gdata[...] = 0
-        self.gnorm[...] = 0
-    
-    def KeepData(self,bool):
+    def dataRange(self,min,max,fixed=True):
         """
-        currently the 1D gridder has no keep_data option!
+        define minimum and maximum data range, usually this is deduced
+        from the given data automatically, however, for sequential 
+        gridding it is usefull to set this before the first call of the
+        gridder. data outside the range are simply ignored
+
+        Parameters
+        ----------
+         min:   minimum value of the gridding range
+         max:   maximum value of the gridding range
+         fixed: flag to turn fixed range gridding on (True (default)) 
+                or of (False)
         """
-        print("XU.Gridder1D: currently KeepData option is not available!")
+        self.fixed_range = fixed
+        self.xmin = float(min)
+        self.xmax = float(max)
 
     def __call__(self,*args):
         """
@@ -162,16 +200,17 @@ class Gridder1D(Gridder):
         ldata = data[mask]
         lx = x[mask]
 
-        self.xmin = lx.min()
-        self.xmax = lx.max()
+        if not self.fixed_range:
+            self.xmin = lx.min()
+            self.xmax = lx.max()
 
         # grid the data using numpy histogram
-        self.gdata,bins = numpy.histogram(lx,weights=ldata,bins=self.nx)
-        self.gnorm,bins = numpy.histogram(lx,bins=self.nx)
-
-        if self.flags != self.flags|4:
-            self.gdata[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
-
-
-
+        tmpgdata,bins = numpy.histogram(lx,weights=ldata,bins=self.nx,range=(self.xmin,self.xmax))
+        tmpgnorm,bins = numpy.histogram(lx,bins=self.nx,range=(self.xmin,self.xmax))
+        if self.keep_data:
+            self.gnorm+= tmpgnorm
+            self.gdata+= tmpgdata
+        else:
+            self.gnorm = tmpgnorm
+            self.gdata = tmpgdata
 
