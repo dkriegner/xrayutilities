@@ -392,7 +392,11 @@ class QConversion(object):
             raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
 
-        try: Npoints = len(args[0])
+        try:
+            if isinstance(args[0],numpy.ndarray):
+                Npoints = args[0].size
+            else:
+                Npoints = len(args[0])
         except (TypeError,IndexError): Npoints = 1
 
         sAngles = numpy.array((),dtype=numpy.double)
@@ -405,7 +409,8 @@ class QConversion(object):
             elif isinstance(arg,list):
                 arg = numpy.array(arg,dtype=numpy.double)
             arg = arg - delta[i]
-            sAngles = numpy.concatenate((sAngles,arg))
+            retshape = arg.shape
+            sAngles = numpy.concatenate((sAngles,numpy.ravel(arg)))
 
         dAngles = numpy.array((),dtype=numpy.double)
         for i in range(Ns,Ncirc):
@@ -417,7 +422,7 @@ class QConversion(object):
             elif isinstance(arg,list):
                 arg = numpy.array(arg,dtype=numpy.double)
             arg = arg - delta[i]
-            dAngles = numpy.concatenate((dAngles,arg))
+            dAngles = numpy.concatenate((dAngles,numpy.ravel(arg)))
 
         sAngles.shape = (Ns,Npoints)
         sAngles = sAngles.transpose()
@@ -450,7 +455,9 @@ class QConversion(object):
         if Npoints==1:
             return ( qpos[0,0], qpos[0,1], qpos[0,2] )
         else:
-            return qpos[:,0],qpos[:,1],qpos[:,2]
+            return numpy.reshape(qpos[:,0],retshape),\
+                   numpy.reshape(qpos[:,1],retshape),\
+                   numpy.reshape(qpos[:,2],retshape)
 
     def init_linear(self,detectorDir,cch,Nchannel,distance=None,pixelwidth=None,chpdeg=None,tilt=0,**kwargs):
         """
