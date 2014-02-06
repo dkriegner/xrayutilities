@@ -62,6 +62,10 @@ class Gridder3D(Gridder):
         self.nz = nz
 
         self._allocate_memory()
+    
+    def Clear(self):
+        self.gdata[...] = 0
+        self.gnorm[...] = 0
 
     def __get_xaxis(self):
         return axis(self.xmin,self.xmax,self.nx)
@@ -91,7 +95,6 @@ class Gridder3D(Gridder):
     yaxis = property(__get_yaxis)
     ymatrix = property(__get_ymatrix)
 
-
     def __call__(self,x,y,z,data):
         """
         Perform gridding on a set of data. After running the gridder
@@ -104,7 +107,10 @@ class Gridder3D(Gridder):
         z ............... numpy array fo arbitrary shape with z positions
         data ............ numpy array of arbitrary shape with data values
         """
-
+        
+        if not self.keep_data:
+            self.Clear()
+        
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         z = z.reshape(z.size)
@@ -131,5 +137,4 @@ class Gridder3D(Gridder):
                                  self.ymin,self.ymax,
                                  self.zmin,self.zmax,
                                  self.gdata,self.gnorm,self.flags)            
-
 

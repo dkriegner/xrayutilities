@@ -107,6 +107,9 @@ class Gridder2D(Gridder):
         y ............... numpy array of arbitrary shape with y positions
         data ............ numpy array of arbitrary shape with data values
         """
+        
+        if not self.keep_data:
+            self.Clear()
 
         x = args[0]
         y = args[1]

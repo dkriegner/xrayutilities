@@ -83,6 +83,7 @@ class Gridder(object):
         """
 
         self.flags = 0
+        self.keep_data = False # by default every call to gridder will start a new gridding
         if config.VERBOSITY >= config.INFO_ALL:
             self.flags = self.flags|16 # set verbosity flag
 
@@ -93,6 +94,7 @@ class Gridder(object):
         if not bool==True or bool==False:
             raise TypeError("Keep Data flag must be a boolan value (True/False)!")
 
+        print("XU.Gridder: currently KeepData option is not working and will give random results! Please do not use it.")
         self.keep_data = bool
 
 
@@ -113,7 +115,7 @@ class Gridder1D(Gridder):
         the returned values correspond to the center of the data bins used by
         the numpy.histogram function
         """
-        dx = (self.xmax-self.xmin)/(self.nx)
+        dx = (self.xmax-self.xmin)/(self.nx) # no -1 here to be consistent with numpy.histogram
         ax = self.xmin+dx*numpy.arange(0,self.nx) + dx/2.
         return ax
 
@@ -126,6 +128,12 @@ class Gridder1D(Gridder):
     def Clear(self):
         self.gdata[...] = 0
         self.gnorm[...] = 0
+    
+    def KeepData(self,bool):
+        """
+        currently the 1D gridder has no keep_data option!
+        """
+        print("XU.Gridder1D: currently KeepData option is not available!")
 
     def __call__(self,*args):
         """
@@ -148,8 +156,6 @@ class Gridder1D(Gridder):
         # require correct aligned memory for input arrays
         x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-
-        dx = (self.xmax-self.xmin)/(self.nx) # no -1 here to be consistent with numpy.histogram
 
         # use only non-NaN data values
         mask = numpy.invert(numpy.isnan(data))
