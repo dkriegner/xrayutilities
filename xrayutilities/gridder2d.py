@@ -83,7 +83,15 @@ class Gridder2D(Gridder):
         return ones(self.nx,self.ny)*self.yaxis[numpy.newaxis,:]
 
     def __get_data(self):
-        return self.gdata.copy()
+        """
+        return gridded data (performs normalization if switched on)
+        """
+        if self.normalize:
+            tmp= numpy.copy(self.gdata)
+            tmp[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
+            return tmp
+        else:
+            return self.gdata.copy()
 
     yaxis = property(__get_yaxis)
     xaxis = property(__get_xaxis)
@@ -91,11 +99,25 @@ class Gridder2D(Gridder):
     ymatrix = property(__get_ymatrix)
     data = property(__get_data)
 
+    def dataRange(self,(xmin,xmax),(ymin,ymax),fixed=True):
+        """
+        define minimum and maximum data range, usually this is deduced
+        from the given data automatically, however, for sequential 
+        gridding it is usefull to set this before the first call of the
+        gridder. data outside the range are simply ignored
 
-    def Clear(self):
-        self.gdata[...] = 0
-        self.gnorm[...] = 0
-
+        Parameters
+        ----------
+         xmin,ymin:   minimum value of the gridding range in x,y
+         xmax,ymax:   maximum value of the gridding range in x,y
+         fixed: flag to turn fixed range gridding on (True (default)) 
+                or of (False)
+        """
+        self.fixed_range = fixed
+        self.xmin = xmin
+        self.xmax = xmax
+        self.ymin = ymin
+        self.ymax = ymax
 
     def __call__(self,*args):
         """
@@ -120,18 +142,28 @@ class Gridder2D(Gridder):
 
         if x.size != y.size or y.size!=data.size:
             raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,data) is not equal!")
-
-        # require correct aligned memory for input arrays
-        x = check_array(x,numpy.double)
-        y = check_array(y,numpy.double)
-        data = check_array(data,numpy.double)
-
-        self.xmin = x.min()
-        self.xmax = x.max()
-        self.ymin = y.min()
-        self.ymax = y.max()
-
-        cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,
+ 
+        if not self.fixed_range:
+            self.xmin = x.min()
+            self.xmax = x.max()
+            self.ymin = y.min()
+            self.ymax = y.max()
+            # require correct aligned memory for input arrays
+            lx = check_array(x,numpy.double)
+            ly = check_array(y,numpy.double)
+            ldata = check_array(data,numpy.double)
+        else:
+            mask = numpy.logical_and(x<=self.xmax,x>=self.xmin)
+            mask = numpy.logical_and(mask,numpy.logical_and(y<=self.ymax,y>=self.ymin))
+            # require correct aligned memory for input arrays
+            lx = check_array(x[mask],numpy.double)
+            ly = check_array(y[mask],numpy.double)
+            ldata = check_array(data[mask],numpy.double)
+                  
+        #remove normalize flag for C-code, normalization is always performed in python
+        flags = self.flags^4
+        cxrayutilities.gridder2d(lx,ly,ldata,self.nx,self.ny,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
-                                 self.gdata,self.gnorm,self.flags)            
+                                 self.gdata,self.gnorm,flags)            
+

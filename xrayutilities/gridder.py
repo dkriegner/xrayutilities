@@ -48,7 +48,7 @@ def delta(min_value,max_value,n):
     n ................... number of steps
     """
 
-    return (max_value-min_value)/(n-1)
+    return (float(max_value)-float(min_value))/float(n-1)
 
 def axis(min_value,max_value,n):
     """
@@ -99,10 +99,10 @@ class Gridder(object):
         if not bool==True or bool==False:
             raise TypeError("Normalize flag must be a boolan value (True/False)!")
         self.normalize = bool
-        if not bool:
-            self.flags = self.flags^4
-        else:
+        if bool:
             self.flags = self.flags&(255-4)
+        else:
+            self.flags = self.flags^4
 
     def KeepData(self,bool):
         if not bool==True or bool==False:
@@ -137,7 +137,7 @@ class Gridder1D(Gridder):
         the returned values correspond to the center of the data bins used by
         the numpy.histogram function
         """
-        dx = (self.xmax-self.xmin)/(self.nx) # no -1 here to be consistent with numpy.histogram
+        dx = (float(self.xmax-self.xmin))/float(self.nx) # no -1 here to be consistent with numpy.histogram
         ax = self.xmin+dx*numpy.arange(0,self.nx) + dx/2.
         return ax
 
@@ -170,8 +170,8 @@ class Gridder1D(Gridder):
                 or of (False)
         """
         self.fixed_range = fixed
-        self.xmin = float(min)
-        self.xmax = float(max)
+        self.xmin = min
+        self.xmax = max
 
     def __call__(self,*args):
         """
