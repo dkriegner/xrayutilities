@@ -1,3 +1,4 @@
+v1.0.5, 2014-02-09
 
 * Documentation updates
 * minor compiler warning fixes and small bug fixes (line cut routines, 
