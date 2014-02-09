@@ -148,7 +148,7 @@ class SPECScan(object):
             # ASSUME ORDER DID NOT CHANGE!! (which might be wrong)
             # in fact this is sign for a broken spec file
             # number of initial motor positions should not change without new file header!
-            for i in range(len(imopnames)):
+            for i in range(min(len(imopnames),len(imopvalues))):
                 self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
             # read the rest of the positions into dummy INIT_MOPO__NONAME__%03d
             for i in range(len(imopnames),len(imopvalues)):
@@ -717,8 +717,10 @@ class SPECFile(object):
                 line_buffer = SPEC_initmopopos.sub("",line_buffer)
                 line_buffer = line_buffer.strip()
                 line_list = SPEC_multi_blank.split(line_buffer)
-                for value in line_list:
-                    init_motor_values.append(float(value))
+                try: # sometimes initial motor position are simply empty and this should not lead to an error
+                    for value in line_list:
+                        init_motor_values.append(float(value))
+                except: pass
 
             #if the line contains the number of colunmns
             elif SPEC_nofcols.match(line_buffer) and scan_started:
