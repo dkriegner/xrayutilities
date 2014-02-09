@@ -155,6 +155,6 @@ def gridmap(h5file,scannr,ccdfiletmp,nx,ny,nz,**kwargs):
     gridder = xu.Gridder3D(nx,ny,nz)
     gridder(qx,qy,qz,intensity)
 
-    return gridder.xaxis,gridder.yaxis,gridder.zaxis,gridder.gdata,gridder
+    return gridder.xaxis,gridder.yaxis,gridder.zaxis,gridder.data,gridder
 
 

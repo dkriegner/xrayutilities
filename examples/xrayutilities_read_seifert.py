@@ -34,7 +34,7 @@ om,tt,psd = xu.io.getSeifert_map(sample+'_%02d.nja',[3,4],path="data")
 # calculate data on a regular grid of 200x201 points
 gridder = xu.Gridder2D(200,600)
 gridder(qy,qz,psd)
-INT = xu.maplog(gridder.gdata.transpose(),6,0)
+INT = xu.maplog(gridder.data.transpose(),6,0)
 
 # plot the intensity as contour plot
 plt.figure(); plt.clf()
