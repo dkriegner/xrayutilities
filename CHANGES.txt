@@ -1,3 +1,13 @@
+
+* Documentation updates
+* minor compiler warning fixes and small bug fixes (line cut routines, 
+  EDF file reading)
+* more flexible shape of data arrays for Ang2Q function
+* minor improvements of the spec-file parser
+* added KeepData option to Gridders in 1,2,3 dimensions (sequential gridding)
+* implement possibility to read gzipped, bzipped data files 
+  (available for most data file readers)
+
 v1.0.4, 2013-12-22 "the final Linz edition"
 
 * bugfix in GID experimental class: qconv argument so far not used correctly!
