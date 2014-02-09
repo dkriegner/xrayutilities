@@ -85,11 +85,15 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
 {
     double *gnorm;
     unsigned int offset;
+    unsigned int ntot = nx*ny; //total number of points on the grid
 
     double dx = delta(xmin,xmax,nx);
     double dy = delta(ymin,ymax,ny);
 
     unsigned int i; //loop index
+    
+    /*initialize data if requested*/
+    if(!(flags&NO_DATA_INIT)) set_array(odata,ntot,0.);
 
     /*check if normalization array is passed*/
     if(norm==NULL)

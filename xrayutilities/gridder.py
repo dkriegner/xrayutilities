@@ -87,6 +87,8 @@ class Gridder(object):
         self.normalize = True
         self.fixed_range = False # flag to allow for sequential gridding with fixed data range
 
+        self.flags = self.flags|1 # no data initialization necessary in c-code
+
         if config.VERBOSITY >= config.INFO_ALL:
             self.flags = self.flags|16 # set verbosity flag
 
@@ -108,7 +110,6 @@ class Gridder(object):
         if not bool==True or bool==False:
             raise TypeError("Keep Data flag must be a boolan value (True/False)!")
 
-        print("XU.Gridder: currently KeepData option is not working and will give random results! Please do not use it.")
         self.keep_data = bool
 
     def Clear(self):
@@ -175,7 +176,8 @@ class Gridder1D(Gridder):
 
     def __call__(self,*args):
         """
-        Perform gridding on a set of data.
+        Perform gridding on a set of data. After running the gridder
+        the 'data' object in the class is holding the gridded data.
 
         Parameters
         ----------

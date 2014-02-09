@@ -68,7 +68,7 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     z = (double *)PyArray_DATA(py_z);
     data = (double *)PyArray_DATA(py_data);
     odata = (double *)PyArray_DATA(py_output);
-    if(norm!=NULL) norm = (double *)PyArray_DATA(py_norm);
+    if(py_norm!=NULL) norm = (double *)PyArray_DATA(py_norm);
 
     //get the total number of points
     n =  PyArray_SIZE(py_x);

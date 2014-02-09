@@ -63,10 +63,6 @@ class Gridder3D(Gridder):
 
         self._allocate_memory()
     
-    def Clear(self):
-        self.gdata[...] = 0
-        self.gnorm[...] = 0
-
     def __get_xaxis(self):
         return axis(self.xmin,self.xmax,self.nx)
     
@@ -87,6 +83,17 @@ class Gridder3D(Gridder):
     def __get_zmatrix(self):
         return ones(self.nx,self.ny,self.nz)*\
                 self.zaxis[numpy.newaxis,numpy.newaxis,:]
+        
+    def __get_data(self):
+        """
+        return gridded data (performs normalization if switched on)
+        """
+        if self.normalize:
+            tmp= numpy.copy(self.gdata)
+            tmp[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
+            return tmp
+        else:
+            return self.gdata.copy()
 
     zaxis = property(__get_zaxis)
     zmatrix = property(__get_zmatrix)
@@ -94,11 +101,34 @@ class Gridder3D(Gridder):
     xmatrix = property(__get_xmatrix)
     yaxis = property(__get_yaxis)
     ymatrix = property(__get_ymatrix)
+    data = property(__get_data)
 
+    def dataRange(self,(xmin,xmax),(ymin,ymax),(zmin,zmax),fixed=True):
+        """
+        define minimum and maximum data range, usually this is deduced
+        from the given data automatically, however, for sequential 
+        gridding it is usefull to set this before the first call of the
+        gridder. data outside the range are simply ignored
+
+        Parameters
+        ----------
+         xmin,ymin,zmin:   minimum value of the gridding range in x,y,z
+         xmax,ymax,zmax:   maximum value of the gridding range in x,y,z
+         fixed: flag to turn fixed range gridding on (True (default)) 
+                or of (False)
+        """
+        self.fixed_range = fixed
+        self.xmin = xmin
+        self.xmax = xmax
+        self.ymin = ymin
+        self.ymax = ymax
+        self.zmin = zmin
+        self.zmax = zmax
+    
     def __call__(self,x,y,z,data):
         """
         Perform gridding on a set of data. After running the gridder
-        the gdata object in the class is holding the gridded data.
+        the 'data' object in the class is holding the gridded data.
 
         Parameters
         ----------
@@ -111,6 +141,15 @@ class Gridder3D(Gridder):
         if not self.keep_data:
             self.Clear()
         
+        if isinstance(x,(list,tuple,numpy.float,numpy.int)):
+            x = numpy.array(x) 
+        if isinstance(y,(list,tuple,numpy.float,numpy.int)):
+            y = numpy.array(y) 
+        if isinstance(z,(list,tuple,numpy.float,numpy.int)):
+            z = numpy.array(z) 
+        if isinstance(data,(list,tuple,numpy.float,numpy.int)):
+            data = numpy.array(data) 
+        
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         z = z.reshape(z.size)
@@ -119,22 +158,25 @@ class Gridder3D(Gridder):
         if x.size != y.size or y.size!=z.size or z.size!=data.size:
             raise exception.InputError("XU.Gridder3D: size of given datasets (x,y,z,data) is not equal!")
 
+        if not self.fixed_range:
+            self.xmin = x.min()
+            self.xmax = x.max()
+            self.ymin = y.min()
+            self.ymax = y.max()
+            self.zmin = z.min()
+            self.zmax = z.max()
+        
         # require correct aligned memory for input arrays
-        x = check_array(x,numpy.double)
-        y = check_array(y,numpy.double)
-        z = check_array(z,numpy.double)
-        data = check_array(data,numpy.double)
+        lx = check_array(x,numpy.double)
+        ly = check_array(y,numpy.double)
+        lz = check_array(z,numpy.double)
+        ldata = check_array(data,numpy.double)
 
-        self.xmin = x.min()
-        self.xmax = x.max()
-        self.ymin = y.min()
-        self.ymax = y.max()
-        self.zmin = z.min()
-        self.zmax = z.max()
-
-        cxrayutilities.gridder3d(x,y,z,data,self.nx,self.ny,self.nz,
+        #remove normalize flag for C-code, normalization is always performed in python
+        flags = self.flags^4
+        cxrayutilities.gridder3d(lx,ly,lz,ldata,self.nx,self.ny,self.nz,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
                                  self.zmin,self.zmax,
-                                 self.gdata,self.gnorm,self.flags)            
+                                 self.gdata,self.gnorm,flags)            
 

@@ -121,7 +121,8 @@ class Gridder2D(Gridder):
 
     def __call__(self,*args):
         """
-        Perform gridding on a set of data.
+        Perform gridding on a set of data. After running the gridder
+        the 'data' object in the class is holding the gridded data.
 
         Parameters
         ----------
@@ -131,11 +132,20 @@ class Gridder2D(Gridder):
         """
         
         if not self.keep_data:
-            self.Clear()
+            self.Clear() 
 
         x = args[0]
         y = args[1]
         data = args[2]
+
+
+        if isinstance(x,(list,tuple,numpy.float,numpy.int)):
+            x = numpy.array(x) 
+        if isinstance(y,(list,tuple,numpy.float,numpy.int)):
+            y = numpy.array(y) 
+        if isinstance(data,(list,tuple,numpy.float,numpy.int)):
+            data = numpy.array(data) 
+        
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         data = data.reshape(data.size)
@@ -148,17 +158,11 @@ class Gridder2D(Gridder):
             self.xmax = x.max()
             self.ymin = y.min()
             self.ymax = y.max()
-            # require correct aligned memory for input arrays
-            lx = check_array(x,numpy.double)
-            ly = check_array(y,numpy.double)
-            ldata = check_array(data,numpy.double)
-        else:
-            mask = numpy.logical_and(x<=self.xmax,x>=self.xmin)
-            mask = numpy.logical_and(mask,numpy.logical_and(y<=self.ymax,y>=self.ymin))
-            # require correct aligned memory for input arrays
-            lx = check_array(x[mask],numpy.double)
-            ly = check_array(y[mask],numpy.double)
-            ldata = check_array(data[mask],numpy.double)
+        
+        # require correct aligned memory for input arrays
+        lx = check_array(x,numpy.double)
+        ly = check_array(y,numpy.double)
+        ldata = check_array(data,numpy.double)
                   
         #remove normalize flag for C-code, normalization is always performed in python
         flags = self.flags^4
