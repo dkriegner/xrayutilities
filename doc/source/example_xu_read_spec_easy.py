@@ -66,7 +66,7 @@ psd = xu.blockAveragePSD(psdraw, 1, roi=roi)
 gridder = xu.Gridder2D(200,201)
 gridder(qy,qz,psd)
 # maplog function limits the shown dynamic range to 8 orders of magnitude from the maxium 
-INT = xu.maplog(gridder.gdata.transpose(),8.,0)
+INT = xu.maplog(gridder.data.T,8.,0)
 
 # plot the intensity as contour plot using matplotlib
 plt.figure()

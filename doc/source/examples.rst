@@ -205,6 +205,43 @@ One can also print the peak positions and other informations of a powder by
        ....
 
 
+Using the ``Gridder`` classes
+-----------------------------
+
+*xrayutilities* provides Gridder classes for 1D, 2D, and 3D data sets. These Gridders map irregular spaced data onto a regular grid. 
+This is often needed after transforming data measured at equally spaced angular positions to reciprocal space were their spacing is irregular.
+
+In 1D this process actually equals the calculation of a histogramm. 
+Below you find the most basic way of using the Gridder in 2D. Other dimensions work very similar.
+
+The most easiest use (what most user might need) is:
+
+::
+    import xrayutilities as xu # import python package
+    g = xu.Gridder2D(100,101) # initialize the Gridder object, which will 
+                              # perform Gridding to a regular grid with 100x101 points
+    #====== load some data here =====
+    g(x,y,data) # call the gridder with the data
+    griddata = g.data # the data object of the Gridder contains the gridded data.
+
+_.. note: previously you could use the Gridder's gdata object, which was always an internal buffer and should not be used anymore!
+
+A more complicated example showing also sequential gridding is shown below. You need sequential gridding when you can not load all data at the same time, which is often problematic with 3D data sets. In such cases you need to specify the data range before the first call to the gridder. 
+
+::
+    import xrayutilities as xu # import python package
+    g = xu.Gridder2D(100,101) # initialize the Gridder object
+    g.KeepData(True)
+    g.dataRange((1,2),(3,4))  # (xgrd_min,xgrd_max),(ygrd_min,ygrd_max)
+    #====== load some data here =====
+    g(x,y,data) # call the gridder with the data
+    griddata = g.data # the data object of the Gridder contains the so far gridded data.
+
+    #====== load some more data here =====
+    g(x,y,data) # call the gridder with the new data
+    griddata = g.data # the data object of the Gridder contains the combined gridded data.
+
+
 Using the ``material`` class
 ----------------------------
 
