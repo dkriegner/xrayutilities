@@ -32,17 +32,17 @@ class TestGridder1D(unittest.TestCase):
     
     def test_gridder2d_data(self):
         # test shape of data
-        self.assertEqual(self.gridder.gdata.shape[0], self.nx) 
-        self.assertEqual(self.gridder.gdata.shape[1], self.ny) 
+        self.assertEqual(self.gridder.data.shape[0], self.nx) 
+        self.assertEqual(self.gridder.data.shape[1], self.ny) 
         # test values of data
         aj,ak = numpy.indices((self.nx,self.ny))
         aj,ak = numpy.ravel(aj),numpy.ravel(ak) 
         #print self.data
-        #print self.gridder.gdata
+        #print self.gridder.data
         for i in range(self.nx*self.ny):
             j,k = (aj[i],ak[i])
-            if k==2*j: self.assertAlmostEqual(self.gridder.gdata[j,2*j], self.data[j], places=12)
-            else: self.assertEqual(self.gridder.gdata[j,k], 0.)
+            if k==2*j: self.assertAlmostEqual(self.gridder.data[j,2*j], self.data[j], places=12)
+            else: self.assertEqual(self.gridder.data[j,k], 0.)
 
 if __name__ == '__main__':
         unittest.main()

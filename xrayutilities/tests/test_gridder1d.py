@@ -24,10 +24,10 @@ class TestGridder1D(unittest.TestCase):
     
     def test_gridder1d_data(self):
         # test length of data
-        self.assertEqual(len(self.gridder.gdata), self.num) 
+        self.assertEqual(len(self.gridder.data), self.num) 
         # test values of data
         for i in range(self.num):
-            self.assertAlmostEqual(self.gridder.gdata[i], self.data[i], places=12)
+            self.assertAlmostEqual(self.gridder.data[i], self.data[i], places=12)
 
 if __name__ == '__main__':
         unittest.main()

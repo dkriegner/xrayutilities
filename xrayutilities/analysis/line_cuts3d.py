@@ -106,9 +106,9 @@ def get_qx_scan3d(gridder,qypos,qzpos,**kwargs):
     if qrange > 0:
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_qx_scan3d: %d points used for integration" %((izmax-izmin+1)*(iymax-iymin+1)))
-        return gridder.xaxis[ixmin:ixmax+1],(gridder.gdata[ixmin:ixmax+1,iymin:iymax+1,izmin:izmax+1].sum(axis=2)).sum(axis=1)/((izmax-izmin+1)*(iymax-iymin+1))
+        return gridder.xaxis[ixmin:ixmax+1],(gridder.data[ixmin:ixmax+1,iymin:iymax+1,izmin:izmax+1].sum(axis=2)).sum(axis=1)/((izmax-izmin+1)*(iymax-iymin+1))
     else:
-        return gridder.xaxis[ixmin:ixmax+1],gridder.gdata[ixmin:ixmax+1,iymin,izmin]
+        return gridder.xaxis[ixmin:ixmax+1],gridder.data[ixmin:ixmax+1,iymin,izmin]
 
 
 def get_qy_scan3d(gridder,qxpos,qzpos,**kwargs):
@@ -165,9 +165,9 @@ def get_qy_scan3d(gridder,qxpos,qzpos,**kwargs):
     if qrange > 0:
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_qy_scan3d: %d points used for integration" %((izmax-izmin+1)*(ixmax-ixmin+1)))
-        return gridder.yaxis[iymin:iymax+1],(gridder.gdata[ixmin:ixmax+1,iymin:iymax+1,izmin:izmax+1].sum(axis=2)).sum(axis=0)/((izmax-izmin+1)*(ixmax-ixmin+1))
+        return gridder.yaxis[iymin:iymax+1],(gridder.data[ixmin:ixmax+1,iymin:iymax+1,izmin:izmax+1].sum(axis=2)).sum(axis=0)/((izmax-izmin+1)*(ixmax-ixmin+1))
     else:
-        return gridder.yaxis[iymin:iymax+1],gridder.gdata[ixmin,iymin:iymax+1,izmin]
+        return gridder.yaxis[iymin:iymax+1],gridder.data[ixmin,iymin:iymax+1,izmin]
 
 def get_qz_scan3d(gridder,qxpos,qypos,**kwargs):
     """
@@ -223,7 +223,7 @@ def get_qz_scan3d(gridder,qxpos,qypos,**kwargs):
     if qrange > 0:
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_qz_scan3d: %d points used for integration" %((ixmax-ixmin+1)*(iymax-iymin+1)))
-        return gridder.zaxis[izmin:izmax+1],(gridder.gdata[ixmin:ixmax+1,iymin:iymax+1,izmin:izmax+1].sum(axis=1)).sum(axis=0)/((ixmax-ixmin+1)*(iymax-iymin+1))
+        return gridder.zaxis[izmin:izmax+1],(gridder.data[ixmin:ixmax+1,iymin:iymax+1,izmin:izmax+1].sum(axis=1)).sum(axis=0)/((ixmax-ixmin+1)*(iymax-iymin+1))
     else:
-        return gridder.zaxis[izmin:izmax+1],gridder.gdata[ixmin,iymin,izmin:izmax+1]
+        return gridder.zaxis[izmin:izmax+1],gridder.data[ixmin,iymin,izmin:izmax+1]
 

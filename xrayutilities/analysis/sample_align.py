@@ -1819,7 +1819,7 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),peaktype
         gridder = Gridder2D(400,400)
         gridder(qy,qz,psd)
         # calculate intensity which should be plotted
-        INT = utilities.maplog(gridder.gdata.transpose(),4,0)
+        INT = utilities.maplog(gridder.data.transpose(),4,0)
         QXm = gridder.xmatrix
         QZm = gridder.ymatrix
         cl = plt.contour(gridder.xaxis,gridder.yaxis,utilities.maplog(func(QXm,QZm,*params),4,0).transpose(),8,colors='k',linestyles='solid')
