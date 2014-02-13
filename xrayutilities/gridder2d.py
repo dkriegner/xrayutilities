@@ -49,10 +49,10 @@ class Gridder2D(Gridder):
         class attributes.
         """
         
-        self.gdata = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
-        self.gdata = check_array(self.gdata,numpy.double)
-        self.gnorm = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
-        self.gnorm = check_array(self.gnorm,numpy.double)
+        self._gdata = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
+        self._gdata = check_array(self._gdata,numpy.double)
+        self._gnorm = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
+        self._gnorm = check_array(self._gnorm,numpy.double)
 
 
     def SetResolution(self,nx,ny):
@@ -82,22 +82,10 @@ class Gridder2D(Gridder):
     def __get_ymatrix(self):
         return ones(self.nx,self.ny)*self.yaxis[numpy.newaxis,:]
 
-    def __get_data(self):
-        """
-        return gridded data (performs normalization if switched on)
-        """
-        if self.normalize:
-            tmp= numpy.copy(self.gdata)
-            tmp[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
-            return tmp
-        else:
-            return self.gdata.copy()
-
     yaxis = property(__get_yaxis)
     xaxis = property(__get_xaxis)
     xmatrix = property(__get_xmatrix)
     ymatrix = property(__get_ymatrix)
-    data = property(__get_data)
 
     def dataRange(self,(xmin,xmax),(ymin,ymax),fixed=True):
         """
@@ -169,5 +157,5 @@ class Gridder2D(Gridder):
         cxrayutilities.gridder2d(lx,ly,ldata,self.nx,self.ny,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
-                                 self.gdata,self.gnorm,flags)            
+                                 self._gdata,self._gnorm,flags)            
 

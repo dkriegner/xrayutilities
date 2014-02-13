@@ -112,13 +112,26 @@ class Gridder(object):
 
         self.keep_data = bool
 
+    def __get_data(self):
+        """
+        return gridded data (performs normalization if switched on)
+        """
+        if self.normalize:
+            tmp= numpy.copy(self._gdata)
+            tmp[self._gnorm!=0] /= self._gnorm[self._gnorm!=0].astype(numpy.float)
+            return tmp
+        else:
+            return self._gdata.copy()
+
+    data = property(__get_data)
+    
     def Clear(self):
         """
         Clear so far gridded data to reuse this instance of the Gridder
         """
         try:
-            self.gdata[...] = 0
-            self.gnorm[...] = 0
+            self._gdata[...] = 0
+            self._gnorm[...] = 0
         except:
             pass
 
@@ -129,8 +142,8 @@ class Gridder1D(Gridder):
         self.nx = nx
         self.xmin = 0
         self.xmax = 0
-        self.gdata = numpy.zeros(nx,dtype=numpy.double)
-        self.gnorm = numpy.zeros(nx,dtype=numpy.double)
+        self._gdata = numpy.zeros(nx,dtype=numpy.double)
+        self._gnorm = numpy.zeros(nx,dtype=numpy.double)
 
     def __get_xaxis(self):
         """
@@ -142,19 +155,7 @@ class Gridder1D(Gridder):
         ax = self.xmin+dx*numpy.arange(0,self.nx) + dx/2.
         return ax
 
-    def __get_data(self):
-        """
-        return gridded data (performs normalization if switched on)
-        """
-        if self.normalize:
-            tmp= numpy.copy(self.gdata)
-            tmp[self.gnorm!=0] /= self.gnorm[self.gnorm!=0].astype(numpy.float)
-            return tmp
-        else:
-            return self.gdata.copy()
-
     xaxis = property(__get_xaxis)
-    data = property(__get_data)
 
     def dataRange(self,min,max,fixed=True):
         """
@@ -210,9 +211,9 @@ class Gridder1D(Gridder):
         tmpgdata,bins = numpy.histogram(lx,weights=ldata,bins=self.nx,range=(self.xmin,self.xmax))
         tmpgnorm,bins = numpy.histogram(lx,bins=self.nx,range=(self.xmin,self.xmax))
         if self.keep_data:
-            self.gnorm+= tmpgnorm
-            self.gdata+= tmpgdata
+            self._gnorm+= tmpgnorm
+            self._gdata+= tmpgdata
         else:
-            self.gnorm = tmpgnorm
-            self.gdata = tmpgdata
+            self._gnorm = tmpgnorm
+            self._gdata = tmpgdata
 
