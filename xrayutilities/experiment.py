@@ -1708,6 +1708,10 @@ class GID(Experiment):
         yi = self._A2QConversion.r_i
         isc = self._A2QConversion.sampleAxis[-1]
         zi = numpy.abs(math.getVector(isc))
+        if numpy.all(yi==zi):
+            zi = numpy.roll(zi,1)
+            if config.VERBOSITY >= config.INFO_LOW:
+                print("XU.Experiment: Warning, sample orientation convention failed. Using (%.3f %.3f %.3f) as internal z-axis"%(zi[0],zi[1],zi[2]))
         xi = math.VecUnit(numpy.cross(yi,zi))
         # turn r_i to Y and Z define by detector rotation plane
         self._t2 = math.CoordinateTransform(xi,yi,zi)
