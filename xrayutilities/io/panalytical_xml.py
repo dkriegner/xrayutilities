@@ -224,13 +224,20 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
     for f in files:
         d = XRDMLFile(os.path.join(path,f))
         s = d.scan
+        if len(s['detector'].shape)==1:
+            raise TypeError("XU.getxrdml_map: This function can only be used to parse reciprocal space map files")
+
         if roi==None:
             roi=[0,s['detector'].shape[1]]
-        if s['Omega'].size != s['2Theta'].size:
+        if s['Omega'].size < s['2Theta'].size:
             om = numpy.concatenate((om,getOmPixcel(s['Omega'],s['2Theta'][:,roi[0]:roi[1]])))
+            tt = numpy.concatenate((tt,s['2Theta'][:,roi[0]:roi[1]].flatten()))
+        elif s['Omega'].size > s['2Theta'].size:
+            om = numpy.concatenate((om,s['Omega'].flatten()))
+            tt = numpy.concatenate((tt,numpy.flatten(s['2Theta'][:,numpy.newaxis]*numpy.ones(s['Omega']))))
         else:
             om = numpy.concatenate((om,s['Omega'].flatten()))
-        tt = numpy.concatenate((tt,s['2Theta'][:,roi[0]:roi[1]].flatten()))
+            tt = numpy.concatenate((tt,s['2Theta'][:,roi[0]:roi[1]].flatten()))
         psd = numpy.concatenate((psd,s['detector'][:,roi[0]:roi[1]].flatten()))
 
     return om,tt,psd
