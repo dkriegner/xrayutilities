@@ -234,7 +234,7 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
             tt = numpy.concatenate((tt,s['2Theta'][:,roi[0]:roi[1]].flatten()))
         elif s['Omega'].size > s['2Theta'].size:
             om = numpy.concatenate((om,s['Omega'].flatten()))
-            tt = numpy.concatenate((tt,numpy.flatten(s['2Theta'][:,numpy.newaxis]*numpy.ones(s['Omega']))))
+            tt = numpy.concatenate((tt,numpy.ravel(s['2Theta'][:,numpy.newaxis]*numpy.ones(s['Omega'].shape))))
         else:
             om = numpy.concatenate((om,s['Omega'].flatten()))
             tt = numpy.concatenate((tt,s['2Theta'][:,roi[0]:roi[1]].flatten()))
