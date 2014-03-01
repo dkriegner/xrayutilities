@@ -48,6 +48,7 @@ from .spectra import Spectra
 
 from .panalytical_xml import XRDMLFile
 from .panalytical_xml import getxrdml_map
+from .panalytical_xml import getxrdml_scan
 
 # parser for the alignment log file of the rotating anode
 from .rotanode_alignment import RA_Alignment

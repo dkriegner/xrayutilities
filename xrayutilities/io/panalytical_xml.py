@@ -25,6 +25,7 @@ want to keep the number of dependancies as small as possible
 from xml.dom import minidom
 import numpy
 import os
+import warnings
 
 from .helper import xu_open
 from .. import config
@@ -52,6 +53,7 @@ class XRDMLMeasurement(object):
                 if config.VERBOSITY >= config.INFO_LOW:
                     print("XU.io.XRDMLFile: subscan has been aborted (part of the data unavailable)!")
             else:
+                self.scanmotname = s.getAttribute("scanAxis")
                 points = s.getElementsByTagName("dataPoints")[0]
 
                 # add count time to output data
@@ -122,6 +124,17 @@ class XRDMLMeasurement(object):
         if len(slist) == 1:
             for k in self.ddict.keys():
                 self.ddict[k] = numpy.ravel(self.ddict[k])
+
+        # save scanmot-values and detector counts in special arrays 
+        if self.scanmotname == '2Theta-Omega':
+            self.scanmot = self.ddict['2Theta']
+        elif self.scanmotname == 'Omega-2Theta':
+            self.scanmot = self.ddict['Omega']
+        elif self.scanmotname in self.ddict.keys():
+            self.scanmot = self.ddict[self.scanmotname]
+        else: 
+            warnings.warn('XU.io: unknown scan motor name in XRDML-File')
+        self.int = self.ddict['detector']
 
     def __getitem__(self,key):
         return self.ddict[key]
@@ -241,4 +254,117 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
         psd = numpy.concatenate((psd,s['detector'][:,roi[0]:roi[1]].flatten()))
 
     return om,tt,psd
+
+def getxrdml_scan(filetemplate,*motors,**kwargs):
+    """
+    parses multiple XRDML file and concatenates the results for parsing the
+    xrayutilities.io.XRDMLFile class is used. The function can be used for
+    parsing arbitrary scans and will return the the motor values of the scan
+    motor and additionally the positions of the motors given by in the
+    "*motors" argument
+    
+    Parameter
+    ---------
+     filetemplate: template string for the file names, can contain
+                   a %d which is replaced by the scan number or be a
+                   list of filenames given by the scannrs keyword argument
+     *motors:      motor names to return: e.g.: 'Omega','2Theta',...
+                   one can also use abbreviations 
+                   'Omega' = 'om' = 'o'
+                   '2Theta' = 'tt' = 't'
+                   'Chi' = 'c'
+                   'Phi' = 'p'
+     **kwargs: 
+       scannrs:      int or list of scan numbers
+       path:         common path to the filenames
+
+    Returns
+    -------
+     scanmot,mot1,mot2,...,detectorint: as flattened numpy arrays
+
+    Example
+    -------
+     >>> om,tt,inte = xrayutilities.io.getxrdml_scan("samplename_1.xrdml",'om','tt',path="./data")
+    """
+    flatten = True
+    # parse keyword arguments
+    if 'path' in kwargs:
+        path = kwargs['path']
+    else:
+        path = '.'
+    if 'scannrs' in kwargs:
+        scannrs = kwargs['scannrs']
+    else:
+        scannrs = None
+
+    validmotors = ['Omega','2Theta','Psi','Chi','Phi','Z','X','Y']
+    validmotorslow = ['omega','2theta','psi','chi','phi','z','x','y']
+    # create correct motor names from input values
+    motnames = []
+    for mot in motors:
+        if mot.lower() in validmotorslow:
+            motnames.append(validmotors[validmotorslow.index(mot.lower())])
+        elif mot.lower() in ['p']:
+            motnames.append('Phi')
+        elif mot.lower() in ['chi','c']:
+            motnames.append('Chi')
+        elif mot.lower() in ['tt','t']:
+            motnames.append('2Theta')
+        elif mot.lower() in ['om','o']:
+            motnames.append('Omega')
+        else:
+            raise ValueError("XU: invalid motor name given")
+
+    motvals = numpy.empty((len(motnames)+1,0))
+    detvals = numpy.empty(0)
+    # create scan names
+    if scannrs==None:
+        if isinstance(filetemplate,list):
+            files = filetemplate
+        else:
+            files = [filetemplate]
+    else:
+        files = list()
+        if not getattr(scannrs,'__iter__',False):
+            scannrs = [scannrs]
+        for nr in scannrs:
+            files.append(filetemplate %nr)
+
+    # parse files
+    if len(files) == 1:
+        flatten = False
+    for f in files:
+        d = XRDMLFile(os.path.join(path,f))
+        s = d.scan
+        detshape = s['detector'].shape
+        detsize = s['detector'].size
+
+        if len(detshape) == 2:
+            angles = numpy.ravel(s.scanmot)
+            angles.shape=(1,angles.size)
+            for mot in motnames:
+                if s[mot].shape!=detshape:
+                    angles = numpy.vstack((angles,numpy.ravel(s[mot][:,numpy.newaxis]*numpy.ones(detshape))))
+                else:
+                    angles = numpy.vstack((angles,numpy.ravel(s[mot])))
+            motvals = numpy.concatenate((motvals,angles),axis=1)
+            dval = numpy.ravel(s['detector'])
+            detvals = numpy.concatenate((detvals,dval))
+            if not flatten:
+                detvals.shape = detshape
+                motvals.shape = (len(motnames)+1,detshape[0],detshape[1])
+        else:
+            detvals = numpy.concatenate((detvals,s['detector']))
+            angles = s.scanmot
+            angles.shape=(1,angles.size)
+            for mot in motnames:
+                angles = numpy.vstack((angles,s[mot]))
+            motvals = numpy.concatenate((motvals,angles),axis=1)
+
+    # make return value
+    ret = []
+    for i in range(motvals.shape[0]):
+        ret.append(motvals[i,...])
+    ret.append(detvals)
+    return ret
 
