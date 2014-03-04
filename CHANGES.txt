@@ -1,3 +1,10 @@
+
+* add workaround for internal coordinate system definition in the experiment 
+  class
+* new getxrdml_scan function to read (multiple) XRDML-files 
+* fixes for the getxrdml_map function
+* add packaging instructions for WIN64
+
 v1.0.5, 2014-02-09
 
 * Documentation updates
