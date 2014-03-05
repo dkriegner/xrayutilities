@@ -26,7 +26,7 @@ from .. import config
 
 re_loop = re.compile(r"^loop_")
 re_symop = re.compile(r"^(_space_group_symop_operation_xyz|_symmetry_equiv_pos_as_xyz)")
-re_atom = re.compile(r"^_atom_site_label")
+re_atom = re.compile(r"^(_atom_site_label|_atom_site_type_symbol)")
 re_atomx = re.compile(r"^_atom_site_fract_x")
 re_atomy = re.compile(r"^_atom_site_fract_y")
 re_atomz = re.compile(r"^_atom_site_fract_z")
@@ -39,6 +39,7 @@ re_cell_c = re.compile(r"^_cell_length_c")
 re_cell_alpha = re.compile(r"^_cell_angle_alpha")
 re_cell_beta = re.compile(r"^_cell_angle_beta")
 re_cell_gamma = re.compile(r"^_cell_angle_gamma")
+re_comment = re.compile(r"^#")
 
 class CIFFile(object):
     """
@@ -102,6 +103,10 @@ class CIFFile(object):
         for line in self.fid.readlines():
             if config.VERBOSITY >= config.DEBUG:
                 print(line)
+            
+            # ignore comment lines
+            if re_comment.match(line): continue
+
             if re_loop.match(line): # start of loop
                 loop_start = True
                 loop_labels = []
@@ -168,7 +173,7 @@ class CIFFile(object):
             x = a[1][0]
             y = a[1][1]
             z = a[1][2]
-            el = re.sub(r"([1-9])",r"",a[0])
+            el = re.sub(r"([0-9])",r"",a[0])
             el = re.sub(r"\(\w*\)",r"",el)
             for symop in self.symops:
                 pos = eval("numpy.array("+ symop+ ")")

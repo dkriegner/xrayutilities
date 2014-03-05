@@ -1,4 +1,4 @@
-
+* minor fixes in the CIF file parser
 * add workaround for internal coordinate system definition in the experiment 
   class
 * new getxrdml_scan function to read (multiple) XRDML-files 
