@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities is a Python package for assisting with x-ray diffraction experiments. Its the
@@ -42,6 +42,8 @@ from .experiment import GID
 from .experiment import GISAXS
 from .experiment import Powder
 from .experiment import QConversion
+
+from .q2ang_fit import Q2AngFit
 
 from .normalize import blockAverage1D
 from .normalize import blockAverage2D
