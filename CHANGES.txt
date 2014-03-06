@@ -1,3 +1,4 @@
+* new Q2AngFit function able to fit the goniometer angles or a q-vector
 * minor fixes in the CIF file parser
 * add workaround for internal coordinate system definition in the experiment 
   class
