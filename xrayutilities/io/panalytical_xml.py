@@ -284,7 +284,7 @@ def getxrdml_scan(filetemplate,*motors,**kwargs):
 
     Example
     -------
-     >>> om,tt,inte = xrayutilities.io.getxrdml_scan("samplename_1.xrdml",'om','tt',path="./data")
+     >>> scanmot,om,tt,inte = xrayutilities.io.getxrdml_scan("samplename_1.xrdml",'om','tt',path="./data")
     """
     flatten = True
     # parse keyword arguments
@@ -298,7 +298,7 @@ def getxrdml_scan(filetemplate,*motors,**kwargs):
         scannrs = None
 
     validmotors = ['Omega','2Theta','Psi','Chi','Phi','Z','X','Y']
-    validmotorslow = ['omega','2theta','psi','chi','phi','z','x','y']
+    validmotorslow = [mot.lower() for mot in validmotors]
     # create correct motor names from input values
     motnames = []
     for mot in motors:
@@ -358,7 +358,10 @@ def getxrdml_scan(filetemplate,*motors,**kwargs):
             angles = s.scanmot
             angles.shape=(1,angles.size)
             for mot in motnames:
-                angles = numpy.vstack((angles,s[mot]))
+                try:
+                    angles = numpy.vstack((angles,s[mot]))
+                except: # motor is not array
+                    angles = numpy.vstack((angles,s[mot]*numpy.ones(detshape)))
             motvals = numpy.concatenate((motvals,angles),axis=1)
 
     # make return value
