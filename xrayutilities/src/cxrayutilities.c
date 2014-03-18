@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013,2014 Dominik Kriegner <dominik.kriegner@gmail.com>
  * Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
  *
 */
@@ -42,6 +42,12 @@ extern PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args);
+
+extern PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args);
+//extern PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args);
+//extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
+//extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
+//extern PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args);
 
 /* functions from file_io.c */
 extern PyObject* cbfread(PyObject *self, PyObject *args);
@@ -135,6 +141,7 @@ static PyMethodDef XRU_Methods[] = {
      "  kappadir ........ rotation axis of a possible kappa circle\n"
      "  UB .............. orientation matrix and reciprocal space conversion of investigated crystal (3,3)\n"
      "  lambda .......... wavelength of the used x-rays (Angstreom)\n"
+     "  nthreads ........ number of threads to use in parallel section of the code\n"
      "\n"
      "Returns\n"
      "-------\n"
@@ -160,6 +167,7 @@ static PyMethodDef XRU_Methods[] = {
      " tilt ............ tilt of the detector direction from dir\n"
      " UB .............. orientation matrix and reciprocal space conversion of investigated crystal (9)\n"
      " lambda .......... wavelength of the used x-rays in Angstroem\n"
+     "  nthreads ........ number of threads to use in parallel section of the code\n"
      "\n"
      "Returns\n"
      "-------\n"
@@ -191,6 +199,7 @@ static PyMethodDef XRU_Methods[] = {
      "                    given by the tiltazimuth\n"
      "  UB .............. orientation matrix and reciprocal space conversion of investigated crystal (3,3)\n"
      "  lambda .......... wavelength of the used x-rays \n"
+     "  nthreads ........ number of threads to use in parallel section of the code\n"
      "\n"
      "Returns\n"
      "-------\n"
@@ -221,6 +230,7 @@ static PyMethodDef XRU_Methods[] = {
      " tilt ............ tilt of the detector plane (rotation around axis normal to the direction\n"
      "                   given by the tiltazimuth\n"
      " lambda .......... wavelength of the used x-rays\n"
+     "  nthreads ........ number of threads to use in parallel section of the code\n"
      "\n"
      "Returns\n"
      "-------\n"
@@ -256,10 +266,32 @@ static PyMethodDef XRU_Methods[] = {
      "                   given by the tiltazimuth\n"
      " UB .............. orientation matrix and reciprocal space conversion of investigated crystal (3,3)\n"
      " lambda .......... wavelength of the used x-rays\n"
+     "  nthreads ........ number of threads to use in parallel section of the code\n"
      "\n"
      "Returns\n"
      "-------\n"
      " qpos ............ momentum transfer (Npoints,3)\n"
+    },
+    {"ang2q_conversion_sd", ang2q_conversion_sd, METH_VARARGS,
+     "conversion of Npoints of goniometer positions to reciprocal space\n"
+     "for a setup with point detector considering a sample displacement error\n"
+     "\n"
+     "Parameters\n"
+     "----------\n"
+     "  sampleAngles .... angular positions of the sample goniometer (Npoints,Ns)\n"
+     "  detectorAngles .. angular positions of the detector goniometer (Npoints,Nd)\n"
+     "  ri .............. direction of primary beam (length irrelevant) (angles zero) \n"
+     "  sampleAxis ...... string with sample axis directions\n"
+     "  detectorAxis .... string with detector axis directions\n"
+     "  kappadir ........ rotation axis of a possible kappa circle\n"
+     "  UB .............. orientation matrix and reciprocal space conversion of investigated crystal (3,3)\n"
+     "  sampledis ....... sample displacement vector in units of the detector distance\n"
+     "  lambda .......... wavelength of the used x-rays (Angstreom)\n"
+     "  nthreads ........ number of threads to use in parallel section of the code\n"
+     "\n"
+     "Returns\n"
+     "-------\n"
+     " qpos .......... momentum transfer (Npoints,3)\n"
     },
     {"cbfread", cbfread, METH_VARARGS,
      "parser for cbf data arrays from Pilatus detector images\n\n"

@@ -345,6 +345,8 @@ class QConversion(object):
              wl:         x-ray wavelength in angstroem (default: self._wl)
              deg:        flag to tell if angles are passed as degree
                          (default: True)
+             sampledis:  sample displacement vector in units of the detector 
+                         distance (default: (0,0,0))
 
         Returns
         -------
@@ -353,8 +355,8 @@ class QConversion(object):
         """
 
         for k in kwargs.keys():
-            if k not in ['wl','deg','UB','delta']:
-                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees")
+            if k not in ['wl','deg','UB','delta','sampledis']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'sampledis': sample displacement vector")
         
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -385,6 +387,12 @@ class QConversion(object):
         else:
             UB = self.UB
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+        
+        if 'sampledis' in kwargs:
+            sd = numpy.array(kwargs['sampledis'])
+        else:
+            sd = numpy.zeros(3) 
+        sd = numpy.require(sd,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -449,7 +457,11 @@ class QConversion(object):
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns,Nd))
             print("XU.QConversion: sAngles / dAngles %s / %s" %(str(sAngles),str(dAngles)))
 
-        qpos = cxrayutilities.ang2q_conversion(sAngles, dAngles, self.r_i,sAxis, dAxis, self._kappa_dir,
+        if numpy.any(sd):
+            qpos = cxrayutilities.ang2q_conversion_sd(sAngles, dAngles, self.r_i,sAxis, dAxis, self._kappa_dir,
+                                               UB, sd, wl, config.NTHREADS)
+        else:
+            qpos = cxrayutilities.ang2q_conversion(sAngles, dAngles, self.r_i,sAxis, dAxis, self._kappa_dir,
                                                UB, wl, config.NTHREADS)
 
         if Npoints==1:

@@ -587,6 +587,153 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     return PyArray_Return(qposArr);
 }
 
+PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
+   /* conversion of Npoints of goniometer positions to reciprocal space
+    * for a setup with point detector including the effect of a sample
+    * displacement error.
+    *
+    *   Parameters
+    *   ----------
+    *    sampleAngles .. angular positions of the sample goniometer (Npoints,Ns)
+    *    detectorAngles. angular positions of the detector goniometer (Npoints,Nd)
+    *    ri ............ direction of primary beam (length irrelevant) (angles zero)
+    *    sampleAxis .... string with sample axis directions
+    *    detectorAxis .. string with detector axis directions
+    *    kappadir ...... rotation axis of a possible kappa circle
+    *    UB ............ orientation matrix and reciprocal space conversion of investigated crystal (3,3)
+    *    sampledis ..... sample displacement vector in units of the detector distance
+    *    lambda ........ wavelength of the used x-rays (Angstreom)
+    *    nthreads ...... number of threads to use in parallel section of the code
+    *
+    *   Returns
+    *   -------
+    *    qpos .......... momentum transfer (Npoints,3)
+    *
+    *   */
+{
+    double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
+    double local_ri[3]; // copy of primary beam direction
+    int i,j; // needed indices
+    int Ns,Nd; // number of sample and detector circles
+    int Npoints; // number of angular positions
+    unsigned int nthreads; // number of threads to use
+    double lambda; // x-ray wavelength
+    char *sampleAxis,*detectorAxis; // string with sample and detector axis
+    double *sampleAngles,*detectorAngles, *ri, *kappadir, *sampledis, *UB, *qpos; // c-arrays for further usage
+    npy_intp nout[2];
+    // arrays with function pointers to rotation matrix functions
+    fp_rot *sampleRotation;
+    fp_rot *detectorRotation;
+
+    PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *riArr=NULL, *kappadirArr=NULL,
+                  *sampledisArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
+
+    // Python argument conversion code
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!O!dI",&PyArray_Type, &sampleAnglesArr,
+                                      &PyArray_Type, &detectorAnglesArr,
+                                      &PyArray_Type, &riArr,
+                                      &sampleAxis, &detectorAxis,
+                                      &PyArray_Type, &kappadirArr,
+                                      &PyArray_Type, &UBArr,
+                                      &PyArray_Type, &sampledisArr,
+                                      &lambda, &nthreads)) {
+        return NULL;
+    }
+
+    // check Python array dimensions and types
+    PYARRAY_CHECK(sampleAnglesArr,2,NPY_DOUBLE,"sampleAngles must be a 2D double array");
+    PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(riArr,1,NPY_DOUBLE,"r_i must be a 1D double array");
+    if (PyArray_SIZE(riArr) != 3) { PyErr_SetString(PyExc_ValueError,"r_i needs to be of length 3");
+        return NULL; }
+    PYARRAY_CHECK(sampledisArr,1,NPY_DOUBLE,"sampledis must be a 1D double array");
+    if (PyArray_SIZE(sampledisArr) != 3) { PyErr_SetString(PyExc_ValueError,"sampledis needs to be of length 3");
+        return NULL; }
+    PYARRAY_CHECK(kappadirArr,1,NPY_DOUBLE,"kappa_dir must be a 1D double array");
+    if (PyArray_SIZE(kappadirArr) != 3) { PyErr_SetString(PyExc_ValueError,"kappa_dir needs to be of length 3");
+        return NULL; }
+    PYARRAY_CHECK(UBArr,2,NPY_DOUBLE,"UB must be a 2D double array");
+    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
+
+    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+
+    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    ri = (double *) PyArray_DATA(riArr);
+    sampledis = (double *) PyArray_DATA(sampledisArr);
+    kappadir = (double *) PyArray_DATA(kappadirArr);
+    UB = (double *) PyArray_DATA(UBArr);
+
+    // create output ndarray
+    nout[0] = Npoints;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr);
+
+    #ifdef __OPENMP__
+    //set openmp thread numbers dynamically
+    OMPSETNUMTHREADS(nthreads);
+    #endif
+
+    // arrays with function pointers to rotation matrix functions
+    sampleRotation = (fp_rot*) malloc(Ns*sizeof(fp_rot));
+    detectorRotation = (fp_rot*) malloc(Nd*sizeof(fp_rot));
+
+    // determine axes directions
+    if(determine_axes_directions(sampleRotation,sampleAxis,Ns) != 0) { return NULL; }
+    if(determine_axes_directions(detectorRotation,detectorAxis,Nd) != 0) { return NULL; }
+
+    // give ri correct length
+    veccopy(local_ri,ri);
+    normalize(local_ri);
+
+    //debug
+    //print_matrix(UB);
+
+    // calculate rotation matices and perform rotations
+    #pragma omp parallel for default(shared) \
+            private(i,j,mtemp,mtemp2,ms,md) \
+            schedule(static)
+    for(i=0; i<Npoints; ++i) {
+        // determine sample rotations
+        ident(mtemp);
+        for(j=0; j<Ns; ++j) {
+            // load kappa direction into matrix (just needed for kappa goniometer)
+            mtemp2[0] = kappadir[0]; mtemp2[1] = kappadir[1]; mtemp2[2] = kappadir[2];
+            sampleRotation[j](sampleAngles[Ns*i+j],mtemp2);
+            matmul(mtemp,mtemp2);
+        }
+        // apply rotation of orientation matrix
+        matmul(mtemp,UB);
+        // determine inverse matrix
+        inversemat(mtemp,ms);
+
+        // determine detector rotations
+        ident(md);
+        for (j=0; j<Nd; ++j) {
+            detectorRotation[j](detectorAngles[Nd*i+j],mtemp);
+            matmul(md,mtemp);
+        }
+
+        //consider sample displacement in kf
+        // kf = |k| * (\mat D . \hat ri - \vec rs)/||...||
+        matvec(md,local_ri,mtemp);
+        diffvec(mtemp,sampledis);
+        normalize(mtemp);
+        diffvec(mtemp,local_ri); // ki/|k| - kf/|k|
+        vecmul(mtemp,M_2PI/lambda); //defines k_f
+        // mtemp now contains the momentum transfer which will be transformed to the sample q-coordinate system         
+        // calculate the momentum transfer
+        matvec(ms, mtemp, &qpos[3*i]);
+    }
+
+    // return output array
+    return PyArray_Return(qposArr);
+}
+
 PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a linear detector with a given pixel size mounted along one of
