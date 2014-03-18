@@ -345,7 +345,7 @@ class QConversion(object):
              wl:         x-ray wavelength in angstroem (default: self._wl)
              deg:        flag to tell if angles are passed as degree
                          (default: True)
-             sampledis:  sample displacement vector in units of the detector 
+             sampledis:  sample displacement vector in relative units of the detector 
                          distance (default: (0,0,0))
 
         Returns
@@ -566,6 +566,7 @@ class QConversion(object):
             roi:        region of interest for the detector pixels; e.g. [100,900] (default: self._linear_roi)
             wl:         x-ray wavelength in angstroem (default: self._wl)
             deg:        flag to tell if angles are passed as degree (default: True)
+            sampledis:  sample displacement vector in same units as the detector distance (default: (0,0,0))
 
         Returns
         -------
@@ -577,8 +578,8 @@ class QConversion(object):
             raise Exception("QConversion: linear detector not initialized -> call Ang2Q.init_linear(...)")
         
         for k in kwargs.keys():
-            if k not in ['wl','deg','UB','delta','Nav','roi']:
-                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest")
+            if k not in ['wl','deg','UB','delta','Nav','roi','sampledis']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -618,6 +619,11 @@ class QConversion(object):
             UB = self.UB
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
+        if 'sampledis' in kwargs:
+            sd = numpy.array(kwargs['sampledis'])
+        else:
+            sd = numpy.zeros(3) 
+        sd = numpy.require(sd,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -676,8 +682,13 @@ class QConversion(object):
         sAxis=self._sampleAxis_str
         dAxis=self._detectorAxis_str
 
-        qpos = cxrayutilities.ang2q_conversion_linear(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
+        if numpy.any(sd):
+            qpos = cxrayutilities.ang2q_conversion_linear_sd(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
+                     cch, pwidth, roi, self._linear_detdir, self._linear_tilt, UB, sd, wl, config.NTHREADS)
+        else:
+            qpos = cxrayutilities.ang2q_conversion_linear(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                      cch, pwidth, roi, self._linear_detdir, self._linear_tilt, UB, wl, config.NTHREADS)
+
 
         #reshape output
         if Npoints==1:
@@ -812,6 +823,7 @@ class QConversion(object):
                         (default: self._area_nav)
             wl:         x-ray wavelength in angstroem (default: self._wl)
             deg:        flag to tell if angles are passed as degree (default: True)
+            sampledis:  sample displacement vector in same units as the detector distance (default: (0,0,0))
 
         Returns
         -------
@@ -824,8 +836,8 @@ class QConversion(object):
             raise Exception("QConversion: area detector not initialized -> call Ang2Q.init_area(...)")
         
         for k in kwargs.keys():
-            if k not in ['wl','deg','UB','delta','Nav','roi']:
-                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest")
+            if k not in ['wl','deg','UB','delta','Nav','roi','sampledis']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -867,6 +879,11 @@ class QConversion(object):
             UB = self.UB
         UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
+        if 'sampledis' in kwargs:
+            sd = numpy.array(kwargs['sampledis'])
+        else:
+            sd = numpy.zeros(3) 
+        sd = numpy.require(sd,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -937,9 +954,15 @@ class QConversion(object):
         sAxis=self._sampleAxis_str
         dAxis=self._detectorAxis_str
 
-        qpos = cxrayutilities.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
+        if numpy.any(sd):
+            qpos = cxrayutilities.ang2q_conversion_area_sd(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
+                     cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1, self._area_detdir2,
+                     self._area_tiltazimuth, self._area_tilt, UB, sd, wl, config.NTHREADS)
+        else:
+            qpos = cxrayutilities.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
                      cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1, self._area_detdir2,
                      self._area_tiltazimuth, self._area_tilt, UB, wl, config.NTHREADS)
+
 
         #reshape output
         if Npoints==1:
