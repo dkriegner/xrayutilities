@@ -545,7 +545,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     // give ri correct length
     veccopy(local_ri,ri);
     normalize(local_ri);
-    vecmul(local_ri,M_2PI/lambda);
+    vecmul(local_ri,M_2PI/lambda); //defines k_i
 
     //debug
     //print_matrix(UB);
