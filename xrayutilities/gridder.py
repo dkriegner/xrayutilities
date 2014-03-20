@@ -203,9 +203,10 @@ class Gridder1D(Gridder):
         ldata = data[mask]
         lx = x[mask]
 
-        if not self.fixed_range:
-            self.xmin = lx.min()
-            self.xmax = lx.max()
+        if not self.fixed_range: 
+            # assume that with setting keep_data the user wants to call the gridder
+            # more often and obtain a reasonable result
+            self.dataRange(lx.min(),lx.max(),self.keep_data)
 
         # grid the data using numpy histogram
         tmpgdata,bins = numpy.histogram(lx,weights=ldata,bins=self.nx,range=(self.xmin,self.xmax))

@@ -33,10 +33,10 @@ class Gridder2D(Gridder):
     def __init__(self,nx,ny):
         Gridder.__init__(self)
 
-        self.xmin = 0
-        self.ymin = 0
-        self.xmax = 0
-        self.ymax = 0
+        self.xmin = None
+        self.ymin = None
+        self.xmax = None
+        self.ymax = None
 
         self.nx = nx
         self.ny = ny
@@ -126,7 +126,6 @@ class Gridder2D(Gridder):
         y = args[1]
         data = args[2]
 
-
         if isinstance(x,(list,tuple,numpy.float,numpy.int)):
             x = numpy.array(x) 
         if isinstance(y,(list,tuple,numpy.float,numpy.int)):
@@ -141,12 +140,11 @@ class Gridder2D(Gridder):
         if x.size != y.size or y.size!=data.size:
             raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,data) is not equal!")
  
-        if not self.fixed_range:
-            self.xmin = x.min()
-            self.xmax = x.max()
-            self.ymin = y.min()
-            self.ymax = y.max()
-        
+        if not self.fixed_range: 
+            # assume that with setting keep_data the user wants to call the gridder
+            # more often and obtain a reasonable result
+            self.dataRange((x.min(),x.max()),(y.min(),y.max()),self.keep_data)
+
         # require correct aligned memory for input arrays
         lx = check_array(x,numpy.double)
         ly = check_array(y,numpy.double)

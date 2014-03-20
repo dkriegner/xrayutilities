@@ -91,6 +91,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     unsigned int offset;          //linear offset for the grid data
     unsigned int ntot = nx*ny*nz; //total number of points on the grid
     unsigned int i;               //loop index variable
+    unsigned int noutofbounds=0; // counter for number of points out of bounds
 
 
     //compute step width for the grid
@@ -120,9 +121,18 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     for(i=0;i<n;i++)
     {
         //check if the current point is within the bounds of the grid
-        if((x[i]<xmin)||(x[i]>xmax)) continue;
-        if((y[i]<ymin)||(y[i]>ymax)) continue;
-        if((z[i]<zmin)||(z[i]>zmax)) continue;
+        if((x[i]<xmin)||(x[i]>xmax)) {
+            noutofbounds++;
+            continue;
+        }
+        if((y[i]<ymin)||(y[i]>ymax)) {
+            noutofbounds++;
+            continue;
+        }
+        if((z[i]<zmin)||(z[i]>zmax)) {
+            noutofbounds++;
+            continue;
+        }
 
         //compute the offset value of the current input point on the grid array
         offset = gindex(x[i],xmin,dx)*ny*nz +
@@ -142,6 +152,12 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
 
     /*free the norm buffer if it has been locally allocated*/
     if(norm==NULL) free(gnorm);
+
+    /* warn the user in case more than half the data points where out 
+       of the gridding area */
+    if(noutofbounds>n/2) {
+        fprintf(stdout,"XU.Gridder2D(c): more than half of the datapoints out of the data\n range, consider regridding with extended range!\n");
+    }
 
     return(0);
 }

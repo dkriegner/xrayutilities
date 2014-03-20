@@ -146,13 +146,10 @@ class Gridder3D(Gridder):
         if x.size != y.size or y.size!=z.size or z.size!=data.size:
             raise exception.InputError("XU.Gridder3D: size of given datasets (x,y,z,data) is not equal!")
 
-        if not self.fixed_range:
-            self.xmin = x.min()
-            self.xmax = x.max()
-            self.ymin = y.min()
-            self.ymax = y.max()
-            self.zmin = z.min()
-            self.zmax = z.max()
+        if not self.fixed_range: 
+            # assume that with setting keep_data the user wants to call the gridder
+            # more often and obtain a reasonable result
+            self.dataRange((x.min(),x.max()),(y.min(),y.max()),(z.min(),z.max()),self.keep_data)
         
         # require correct aligned memory for input arrays
         lx = check_array(x,numpy.double)

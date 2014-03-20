@@ -86,6 +86,7 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     double *gnorm;
     unsigned int offset;
     unsigned int ntot = nx*ny; //total number of points on the grid
+    unsigned int noutofbounds=0; // counter for number of points out of bounds
 
     double dx = delta(xmin,xmax,nx);
     double dy = delta(ymin,ymax,ny);
@@ -121,9 +122,14 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     {
         //if the x and y values are outside the grids boundaries continue with
         //the next point
-        if ((x[i]<xmin)||(x[i]>xmax)) continue;
-        if ((y[i]<ymin)||(y[i]>ymax)) continue;
-
+        if ((x[i]<xmin)||(x[i]>xmax)) {
+            noutofbounds++;
+            continue;
+        }
+        if ((y[i]<ymin)||(y[i]>ymax)) {
+            noutofbounds++;
+            continue;
+        }    
         //compute the linear offset and set the data
         offset = gindex(x[i],xmin,dx)*ny+gindex(y[i],ymin,dy);
 
@@ -144,6 +150,12 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
 
     /*free the norm buffer if it has been locally allocated*/
     if(norm==NULL) free(gnorm);
+            
+    /* warn the user in case more than half the data points where out 
+       of the gridding area */
+    if(noutofbounds>n/2) {
+        fprintf(stdout,"XU.Gridder2D(c): more than half of the datapoints out of the data\n range, consider regridding with extended range!\n");
+    }
 
     return(0);
 }
