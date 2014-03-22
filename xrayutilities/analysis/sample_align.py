@@ -983,6 +983,7 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
     in this variant not only scans through the primary beam but also scans at a set of symmetric reflections
     can be used for the detector parameter determination. for this not only the detector parameters but in addition the 
     sample orientation and wavelength need to be fit.
+    Both images from the primary beam hkl = (0,0,0) and from a symmetric reflection hkl = (h,k,l) need to be given for a successful run.
 
     parameters
     ----------
@@ -1051,11 +1052,11 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
     if imgpbcnt > 0:
         avg /= float(imgpbcnt)
     else:
-        avg = 0
+        raise ValueError("XU.analyis.area_detector_calib_hkl: no required images in the primary beam given!")
     (N1,N2) =  ccdimages[0].shape
 
     if debug:
-        print("average intensity per image: %.1f" %avg)
+        print("average intensity per image in the primary beam: %.1f" %avg)
 
     for i in range(Npoints):
         img = ccdimages[i]
