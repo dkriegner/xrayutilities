@@ -693,6 +693,9 @@ class SPECFile(object):
                 scan_has_mca = False
                 scan_header_offset = self.last_offset
                 scan_status = "OK"
+                # define some necessary variables which could be missing in the scan header
+                itime = numpy.nan
+                time = '' 
                 if config.VERBOSITY >= config.INFO_LOW:
                     print("XU.io.SPECFile.Parse: processing scan nr. %i ..." %scannr)
 
