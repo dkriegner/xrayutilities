@@ -546,7 +546,6 @@ class SPECFile(object):
         """
         self.filename = filename
         self.full_filename = os.path.join(path,filename)
-
         self.filename = os.path.basename(self.full_filename)
 
         #list holding scan objects
@@ -567,7 +566,43 @@ class SPECFile(object):
         self.Parse()
 
     def __getitem__(self,index):
+        """
+        function to return the n-th scan in the spec-file.  be aware that
+        numbering starts at 0! If scans are missing the relation between the
+        given number and the "number" of the returned scan might be not
+        trivial. 
+
+        See also
+        --------
+         scanI attributes of the SPECFile object
+        """
         return self.scan_list[index]
+
+    def __getattr__(self,name):
+        """
+        return scanX objects where X stands for the scan number in the SPECFile
+        which for this purpose is assumed to be unique. (otherwise the first
+        instance of scan number X is returned)
+        """
+        if name.startswith("scan"):
+            index = name[4:]
+            
+            try:
+                scannr = int(index)
+            except:
+                raise AttributeError("scannumber needs to be convertable to integer")
+
+            # try to find the scan in the list of scans
+            s=None
+            for scan in self.scan_list:
+                if scan.nr == scannr:
+                    s = scan
+                    break
+
+            if s!=None:
+                return s
+            else:
+                raise AttributeError("requested scan-number not found")
 
     def __len__(self):
         return self.scan_list.__len__()
