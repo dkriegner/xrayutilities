@@ -603,6 +603,8 @@ class SPECFile(object):
                 return s
             else:
                 raise AttributeError("requested scan-number not found")
+        else:
+            raise AttributeError("FastScan has no attribute '%s'"%name)
 
     def __len__(self):
         return self.scan_list.__len__()
