@@ -115,7 +115,7 @@ except ImportError:
     pass
 
 setup(name="xrayutilities",
-      version="1.0.5",
+      version="1.0.6",
       author="Eugen Wintersberger, Dominik Kriegner",
       description="package for x-ray diffraction data evaluation",
       classifiers=["Topic :: Scientific/Engineering :: Physics",

@@ -1,85 +1,5 @@
-xrayutilities Package
+xrayutilities package
 =====================
-
-:mod:`xrayutilities` Package
-----------------------------
-
-.. automodule:: xrayutilities.__init__
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`config` Module
---------------------
-
-.. automodule:: xrayutilities.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`exception` Module
------------------------
-
-.. automodule:: xrayutilities.exception
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`experiment` Module
-------------------------
-
-.. automodule:: xrayutilities.experiment
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`gridder` Module
----------------------
-
-.. automodule:: xrayutilities.gridder
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`gridder2d` Module
------------------------
-
-.. automodule:: xrayutilities.gridder2d
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`gridder3d` Module
------------------------
-
-.. automodule:: xrayutilities.gridder3d
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`normalize` Module
------------------------
-
-.. automodule:: xrayutilities.normalize
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`utilities` Module
------------------------
-
-.. automodule:: xrayutilities.utilities
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`utilities_noconf` Module
-------------------------------
-
-.. automodule:: xrayutilities.utilities_noconf
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 Subpackages
 -----------
@@ -91,3 +11,94 @@ Subpackages
     xrayutilities.materials
     xrayutilities.math
 
+Submodules
+----------
+
+xrayutilities.config module
+---------------------------
+
+.. automodule:: xrayutilities.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.exception module
+------------------------------
+
+.. automodule:: xrayutilities.exception
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.experiment module
+-------------------------------
+
+.. automodule:: xrayutilities.experiment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.gridder module
+----------------------------
+
+.. automodule:: xrayutilities.gridder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.gridder2d module
+------------------------------
+
+.. automodule:: xrayutilities.gridder2d
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.gridder3d module
+------------------------------
+
+.. automodule:: xrayutilities.gridder3d
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.normalize module
+------------------------------
+
+.. automodule:: xrayutilities.normalize
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.q2ang_fit module
+------------------------------
+
+.. automodule:: xrayutilities.q2ang_fit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.utilities module
+------------------------------
+
+.. automodule:: xrayutilities.utilities
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.utilities_noconf module
+-------------------------------------
+
+.. automodule:: xrayutilities.utilities_noconf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: xrayutilities
+    :members:
+    :undoc-members:
+    :show-inheritance:

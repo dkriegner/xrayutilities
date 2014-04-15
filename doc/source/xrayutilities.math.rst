@@ -1,43 +1,46 @@
-math Package
-============
+xrayutilities.math package
+==========================
 
-:mod:`math` Package
--------------------
+Submodules
+----------
 
-.. automodule:: xrayutilities.math
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`fit` Module
------------------
+xrayutilities.math.fit module
+-----------------------------
 
 .. automodule:: xrayutilities.math.fit
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`functions` Module
------------------------
+xrayutilities.math.functions module
+-----------------------------------
 
 .. automodule:: xrayutilities.math.functions
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`transforms` Module
-------------------------
+xrayutilities.math.transforms module
+------------------------------------
 
 .. automodule:: xrayutilities.math.transforms
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`vector` Module
---------------------
+xrayutilities.math.vector module
+--------------------------------
 
 .. automodule:: xrayutilities.math.vector
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: xrayutilities.math
+    :members:
+    :undoc-members:
+    :show-inheritance:

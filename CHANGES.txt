@@ -1,3 +1,5 @@
+* new way of accessing spec-scans when parsing the spec file
+  new: spec scans can be directly accessed with there spec-scan-number
 * sequential gridding: usage improvements
 * sample displacement error consideration in qconversion (experimental)
 * new Q2AngFit function able to fit the goniometer angles or a q-vector

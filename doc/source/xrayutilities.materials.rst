@@ -1,75 +1,62 @@
-materials Package
-=================
+xrayutilities.materials package
+===============================
 
-:mod:`materials` Package
-------------------------
+Submodules
+----------
 
-.. automodule:: xrayutilities.materials
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`_create_database` Module
-------------------------------
-
-.. automodule:: xrayutilities.materials._create_database
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`_create_database_alt` Module
+xrayutilities.materials.cif module
 ----------------------------------
-
-.. automodule:: xrayutilities.materials._create_database_alt
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`cif` Module
------------------
 
 .. automodule:: xrayutilities.materials.cif
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`database` Module
-----------------------
+xrayutilities.materials.database module
+---------------------------------------
 
 .. automodule:: xrayutilities.materials.database
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`elements` Module
-----------------------
+xrayutilities.materials.elements module
+---------------------------------------
 
 .. automodule:: xrayutilities.materials.elements
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`lattice` Module
----------------------
+xrayutilities.materials.lattice module
+--------------------------------------
 
 .. automodule:: xrayutilities.materials.lattice
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`material` Module
-----------------------
+xrayutilities.materials.material module
+---------------------------------------
 
 .. automodule:: xrayutilities.materials.material
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`predefined_materials` Module
-----------------------------------
+xrayutilities.materials.predefined_materials module
+---------------------------------------------------
 
 .. automodule:: xrayutilities.materials.predefined_materials
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: xrayutilities.materials
+    :members:
+    :undoc-members:
+    :show-inheritance:
