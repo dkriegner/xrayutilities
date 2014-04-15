@@ -38,9 +38,8 @@ An working example for both methods is given in the following.::
         s = xu.io.SPECFile("sample_name.spec",path="./specdir")
     
     # method (1)
-    scan10 = s[9] # Returns a SPECScan class, note 9 because the list starts at 0
-    scan10.ReadData()
-    scan10data = scan10.data
+    s.scan10.ReadData()
+    scan10data = s.scan10.data
     
     # method (2)
     h5file = os.path.join("h5dir","h5file.h5")
@@ -59,9 +58,8 @@ In the following it is shown how to re-parsing the SPEC file for new scans and r
     s.Update() # reparse for new scans in open SPECFile instance
     
     # reread data method (1)
-    scan10 = s[9] # Returns a SPECScan class
-    scan10.ReadData()
-    scan10data = scan10.data 
+    s.scan10.ReadData()
+    scan10data = s.scan10.data 
     
     # reread data method (2)
     s.Save2HDF5(h5) # save content of SPEC file to HDF5 file
