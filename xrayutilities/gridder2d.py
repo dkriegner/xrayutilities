@@ -157,3 +157,97 @@ class Gridder2D(Gridder):
                                  self.ymin,self.ymax,
                                  self._gdata,self._gnorm,flags)            
 
+
+class Gridder2DList(Gridder2D):
+    """
+    special version of a 2D gridder which performs no actual averaging of the
+    data in one grid/bin but just collects the data-objects belonging to one
+    bin for further treatment by the user  
+    """
+    def __init__(self,nx,ny):
+        Gridder.__init__(self)
+
+        self.xmin = None
+        self.ymin = None
+        self.xmax = None
+        self.ymax = None
+
+        self.nx = nx
+        self.ny = ny
+
+        self._allocate_memory()
+
+    def _allocate_memory(self):
+        """
+        Class method to allocate memory for the gridder based on the nx,ny 
+        class attributes.
+        """
+        
+        self._gdata = numpy.empty((self.nx,self.ny),dtype=list)
+        for i in range(self.nx):
+            for j in range(self.ny):
+                self._gdata[i,j] = []
+        self._gnorm = numpy.zeros((self.nx,self.ny),dtype=numpy.int)
+
+    def Clear(self):
+        self._allocate_memory()
+
+    def __get_data(self):
+        """
+        return gridded data, in this special version no normalization is defined!
+        """
+        return self._gdata.copy()
+
+    data = property(__get_data)
+
+    def __call__(self,*args):
+        """
+        Perform gridding on a set of data. After running the gridder the 'data'
+        object in the class is holding the lists of data-objects belonging to
+        one bin/grid-point. 
+
+        Parameters
+        ----------
+        x ............... numpy array of arbitrary shape with x positions
+        y ............... numpy array of arbitrary shape with y positions
+        data ............ array,list,tuple with data of same length as x,y but of arbitrary type
+        """
+        
+        if not self.keep_data:
+            self.Clear() 
+
+        x = args[0]
+        y = args[1]
+        data = args[2]
+
+        if isinstance(x,(list,tuple,numpy.float,numpy.int)):
+            x = numpy.array(x) 
+        if isinstance(y,(list,tuple,numpy.float,numpy.int)):
+            y = numpy.array(y) 
+        if isinstance(data,(list,tuple,numpy.float,numpy.int)):
+            data = list(data) 
+        
+        x = x.reshape(x.size)
+        y = y.reshape(y.size)
+
+        if x.size != y.size or y.size!=len(data):
+            raise exception.InputError("XU.Gridder2DList: size of given datasets (x,y,data) is not equal!")
+ 
+        if not self.fixed_range: 
+            # assume that with setting keep_data the user wants to call the gridder
+            # more often and obtain a reasonable result
+            self.dataRange((x.min(),x.max()),(y.min(),y.max()),self.keep_data)
+
+        # perform gridding this should be moved to native code if possible
+        def gindex(x,min,delt):
+            return numpy.round((x-min)/delt)
+
+        xdelta = delta(self.xmin,self.xmax,self.nx)
+        ydelta = delta(self.ymin,self.ymax,self.ny)
+
+        for i in range(len(x)):
+            xidx = gindex(x[i],self.xmin,xdelta)
+            yidx = gindex(y[i],self.ymin,ydelta)
+            self._gdata[xidx,yidx].append(data[i])
+            self._gnorm[xidx,yidx] += 1
+
