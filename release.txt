@@ -62,6 +62,8 @@ following steps:
  * compile with: 'python setup.py build -c msvc' which should give you
    the chance to run 'python setup.py bdist_wininst' or install.
 
+See https://github.com/cython/cython/wiki/64BitCythonExtensionsOnWindows
+for details.
 
 UPDATE WEBPAGE
 ==============
