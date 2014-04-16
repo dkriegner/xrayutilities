@@ -76,7 +76,10 @@ to upload new web-documentation connect to the sourceforge server via:
 
   sftp://USERNAME@web.sourceforge.net
   /home/project-web/xrayutilities/htdocs
+  
+files on sourceforge can be moved/archived using
 
+sftp://USERNAME@frs.sourceforge.net/home/frs/project/x/xr/xrayutilities
 
 UPDATE PyPI PACKAGE
 ===================
