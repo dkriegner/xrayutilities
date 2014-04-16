@@ -89,7 +89,10 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
 
     # kwargs
     if 'roi' in kwargs:
-        roi = kwargs['roi']
+        if kwargs['roi']: 
+            roi = kwargs['roi']
+        else:
+            roi = [0,data2d.shape[0],0,data2d.shape[1]]
     else:
         roi = [0,data2d.shape[0],0,data2d.shape[1]]
 
