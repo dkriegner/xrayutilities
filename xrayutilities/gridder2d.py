@@ -87,7 +87,7 @@ class Gridder2D(Gridder):
     xmatrix = property(__get_xmatrix)
     ymatrix = property(__get_ymatrix)
 
-    def dataRange(self,(xmin,xmax),(ymin,ymax),fixed=True):
+    def dataRange(self,xmin,xmax,ymin,ymax,fixed=True):
         """
         define minimum and maximum data range, usually this is deduced
         from the given data automatically, however, for sequential 
