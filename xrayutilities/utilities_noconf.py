@@ -25,6 +25,12 @@ import scipy.constants
 
 from .exception import InputError
 
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
+
 energies = {'CuKa1': 8047.82310, 'CuKa2': 8027.9117, 'CuKa12': 8041.18, 'CuKb': 8905.337, 'MoKa1': 17479.374 }
 # wavelength values from International Tables of Crystallography:
 # Vol C, 2nd Ed. page 203

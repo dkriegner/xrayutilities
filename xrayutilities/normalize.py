@@ -37,6 +37,12 @@ from . import math
 from .exception import InputError
 from . import config
 
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
+
 def blockAverage1D(data,Nav):
     """
     perform block average for 1D array/list of Scalar values

@@ -41,6 +41,12 @@ from . import cxrayutilities
 from . import config
 from .exception import InputError
 
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
+
 # regular expression to check goniometer circle syntax
 circleSyntax = re.compile("[xyz][+-]")
 circleSyntaxSample = re.compile("[xyzk][+-]")
