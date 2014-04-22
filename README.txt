@@ -64,20 +64,12 @@ specify the C compiler used for building the extension modules using
 
 before the installation can be performed as described above.
 
-Installation for Python-3.X
-===========================
+Python-2.7 and Python-3.X compatibility
+=======================================
 
-The current developement is still focues mainly on Python-2.7, however
-xrayutilies can be used with Python-3.X versions when the 2to3 tool is used to
-patch the Python sources. We suggest to use
-
-  $> 2to3 -f basestring -p xrayutilities >> xrayutilities-python3.patch
-
-to create the necessary patch. or
-
-  $> 2to3 -p -w xrayutilities 
-
-to change the source tree directly for use with Python3.X.
+The current developement focues Python-3.X and we ask all users to update to
+Python-3 if possible, however, xrayutilies can be used with Python-2.7 as well.
+Care was taken to make this possible from the same code-base
 
 The python package configuration
 ================================
