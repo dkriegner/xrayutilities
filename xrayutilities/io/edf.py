@@ -52,7 +52,7 @@ DataTypeDict = {"SignedByte":"b",
                 "UnsignedLong":"L"}
 
 # SignedLong is only 4byte, on my 64bit machine using SignedLong:"l" caused troubles
-# UnsignedLong is only 4byte, on my 64bit machine using UnsignedLong:"L" caused troubles
+# UnsignedLong is only 4byte, on my 64bit machine using UnsignedLong:"L" caused troubles ("I" works)
 
 class EDFFile(object):
     def __init__(self,fname,nxkey="Dim_1",nykey="Dim_2",dtkey="DataType",path="",header=True):

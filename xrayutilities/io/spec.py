@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a threaded class for observing a SPEC data file
@@ -340,7 +340,14 @@ class SPECScan(object):
         #convert the lists in the data dictionary to numpy arrays
         if config.VERBOSITY >= config.INFO_LOW:
             print("XU.io.SPECScan.ReadData: %s: %d %d %d" %(self.name,len(record_list),len(record_list[0]),len(type_desc["names"])) )
-        self.data = numpy.rec.fromrecords(record_list,dtype=type_desc)
+        if len(record_list[0]) == len(type_desc["names"]):
+            try:
+                self.data = numpy.rec.fromrecords(record_list,dtype=type_desc)
+            except ValueError:
+                self.scan_status = 'NODATA'
+                print("XU.io.SPECScan.ReadData: %s exception while parsing data"%self.name)
+        else: 
+            self.scan_status = 'NODATA'
 
         #reset the file pointer position
         self.fid.seek(oldfid,0)
