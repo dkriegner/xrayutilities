@@ -149,7 +149,7 @@ class Gridder3D(Gridder):
         if not self.fixed_range: 
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
-            self.dataRange((x.min(),x.max()),(y.min(),y.max()),(z.min(),z.max()),self.keep_data)
+            self.dataRange(x.min(),x.max(),y.min(),y.max(),z.min(),z.max(),self.keep_data)
         
         # require correct aligned memory for input arrays
         lx = check_array(x,numpy.double)
