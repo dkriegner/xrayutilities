@@ -127,6 +127,7 @@ class SPECScan(object):
         self.doffset = doffset      #file offset where the data section starts
         self.fid = fid              #descriptor of the file holding the data
         self.ischanged = True       #flag to force resave to hdf5 file in Save2HDF5()
+        self.header = []
 
         if scan_status in scan_status_flags:
             self.scan_status = scan_status
@@ -242,6 +243,14 @@ class SPECScan(object):
 
         #save the actual position of the file pointer
         oldfid = self.fid.tell()
+
+        # read header lines
+        self.fid.seek(self.hoffset,0)
+        self.header = []
+        while self.fid.tell() < self.doffset:
+            line_buffer = self.fid.readline().decode('ascii')
+            self.header.append(line_buffer.strip())
+
         self.fid.seek(self.doffset,0)
 
         #create dictionary to hold the data
@@ -260,7 +269,7 @@ class SPECScan(object):
         scan_aborted_flag = False
 
         while True:
-            line_buffer = self.fid.readline()
+            line_buffer = self.fid.readline().decode('ascii')
             line_buffer = line_buffer.strip()
 
             #Bugfix for ESRF/BM20 data
@@ -704,8 +713,14 @@ class SPECFile(object):
 
         #read the file
         self.last_offset = self.fid.tell()
+        if config.VERBOSITY >= config.DEBUG:
+            print('XU.io.SPECFile: start parsing')
+
         while True:
-            line_buffer = self.fid.readline()
+            line_buffer = self.fid.readline().decode('ascii')
+            if config.VERBOSITY >= config.DEBUG:
+                print('parsing line: %s' %line_buffer)
+
             if line_buffer=="": break
             #remove trailing and leading blanks from the read line
             line_buffer = line_buffer.strip()
@@ -933,7 +948,7 @@ class SPECLog(object):
     def Parse(self):
 
         while True:
-            line_buffer = self.fid.readline()
+            line_buffer = self.fid.readline().decode('ascii')
             if line_buffer == "":
                 break
 
