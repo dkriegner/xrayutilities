@@ -105,7 +105,7 @@ def Q2AngFit(qvec,expclass,bounds=None,ormat=numpy.identity(3),startvalues=None)
     
     Parameters
     ----------
-     qvec:      q-vector which should be transformed to reciprocal space
+     qvec:      q-vector for which the angular positions should be calculated
      expclass:  experimental class used to define the goniometer for which the 
                 angles should be calculated.
 
@@ -159,4 +159,4 @@ def Q2AngFit(qvec,expclass,bounds=None,ormat=numpy.identity(3),startvalues=None)
     if errcode>=3 and config.VERBOSITY>=config.INFO_LOW:
         print("xu.Q2AngFit: qerror=%.4g with error-code %d (%s)"%(qerror,errcode,scipy.optimize.tnc.RCSTRINGS[errcode]))
 
-    return x,errcode
+    return x,qerror,errcode

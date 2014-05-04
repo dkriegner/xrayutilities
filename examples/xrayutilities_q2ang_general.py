@@ -53,7 +53,7 @@ for i in range(1000):
     
     qvec = numpy.array((0,0,i*0.001))
     t0 = time.time()
-    ang,errcode = xu.Q2AngFit(qvec,hxrd,bounds,startvalues=ang)
+    ang,qerror,errcode = xu.Q2AngFit(qvec,hxrd,bounds,startvalues=ang)
     t1 = time.time()
 
     print("%.4f: err %d qvec %s angles %s"%(t1-t0,errcode,str(qvec),str(ang)))
