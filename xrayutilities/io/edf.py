@@ -104,7 +104,9 @@ class EDFFile(object):
             print("XU.io.EDFFile.ReadData: file: %s" %self.filename)
 
         while self.headerflag:
-            line_buffer = self.fid.readline()
+            line_buffer = self.fid.readline().decode('ascii')
+            if config.VERBOSITY >= config.DEBUG:
+                print(line_buffer)
 
             #remove leading and trailing whitespace symbols
             line_buffer = line_buffer.strip()
@@ -203,8 +205,14 @@ class EDFFile(object):
         try:
             num_data = struct.unpack(tot_nofp*fmt_str,bindata)
         except:
-            print("XU.io.EDFFile: number of entries in the file is not what was to be expected")
-
+            if fmt_str == 'L':
+                fmt_str = 'I'
+                try:
+                    num_data = struct.unpack(tot_nofp*fmt_str,bindata)
+                except: 
+                    raise IOError("XU.io.EDFFile: data format (%s) has different byte-length, from amount of data one expects %d bytes per entry"%(fmt_str,len(bindata)/tot_nofp))
+            else:
+                raise IOError("XU.io.EDFFile: data format (%s) has different byte-length, from amount of data one expects %d bytes per entry"%(fmt_str,len(bindata)/tot_nofp))
 
         #find the proper datatype
         if dtype=="SignedByte":
