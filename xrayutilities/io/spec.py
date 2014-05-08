@@ -755,8 +755,8 @@ class SPECFile(object):
                 # define some necessary variables which could be missing in the scan header
                 itime = numpy.nan
                 time = '' 
-                if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.io.SPECFile.Parse: processing scan nr. %i ..." %scannr)
+                if config.VERBOSITY >= config.INFO_ALL:
+                    print("XU.io.SPECFile.Parse: processing scan nr. %d ..." %scannr)
 
             #if the line contains the date and time information
             elif SPEC_datetime.match(line_buffer) and scan_started:
