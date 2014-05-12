@@ -68,7 +68,7 @@ def rad2hdf5(h5,rdcfile,h5path="/",rdcpath="."):
     while True:
 
         #read a line from the file
-        line_buffer = rdcfid.readline()
+        line_buffer = rdcfid.readline().decode('ascii')
 
         if line_buffer=="":
             if config.VERBOSITY >= config.DEBUG:
@@ -96,7 +96,7 @@ def rad2hdf5(h5,rdcfile,h5path="/",rdcpath="."):
             param_value_list.append(data_buffer[1])
             if data_buffer[0]=="Scan":
                 param_name_list.append("scantype")
-                line_buffer = rdcfid.readline()
+                line_buffer = rdcfid.readline().decode('ascii')
                 line_buffer = line_buffer.strip()
                 param_value_list.append(line_buffer)
 
@@ -106,11 +106,11 @@ def rad2hdf5(h5,rdcfile,h5path="/",rdcpath="."):
             motor_pos_list.append(data_buffer[1])
 
         if rdc_colname.match(line_buffer):
-            line_buffer = rdcfid.readline()
+            line_buffer = rdcfid.readline().decode('ascii')
             line_buffer = line_buffer.strip()
             col_name_list = re.compile(r"\s+").split(line_buffer)
             #perform an extra read cycle
-            line_buffer = rdcfid.readline()
+            line_buffer = rdcfid.readline().decode('ascii')
 
             #after the column names have been read - build the table and
             #add the header attributes

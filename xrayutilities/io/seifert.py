@@ -273,7 +273,7 @@ class SeifertScan(object):
             print("XU.io.SeifertScan.parse: starting the parser")
         self.data = []
         while True:
-            lb = self.fid.readline()
+            lb = self.fid.readline().decode('ascii')
             if not lb: break
             #remove leading and trailing whitespace and newline characeters
             lb = lb.strip()

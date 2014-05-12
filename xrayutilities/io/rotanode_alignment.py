@@ -91,6 +91,7 @@ class RA_Alignment(object):
 
         for line in self.fid.readlines():
             # for loop to read every line in the file
+            line = line.decode('ascii')
 
             # check for new tag in the current line
             if LOG_tagline.match(line):
