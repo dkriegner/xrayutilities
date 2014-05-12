@@ -83,12 +83,12 @@ class CBFFile(object):
             self._open()
 
         tmp = numpy.fromfile(file=self.fid,dtype="u1").tostring()
-  
+        tmp2 = tmp.decode('ascii','ignore') 
         # read header information
-        pos  = tmp.index(self.nxkey+':')+len(self.nxkey+':')
-        self.xdim = int(tmp[pos:pos+6].strip())
-        pos  = tmp.index(self.nykey+':')+len(self.nykey+':')
-        self.ydim = int(tmp[pos:pos+6].strip())
+        pos  = tmp2.index(self.nxkey+':')+len(self.nxkey+':')
+        self.xdim = int(tmp2[pos:pos+6].strip())
+        pos  = tmp2.index(self.nykey+':')+len(self.nykey+':')
+        self.ydim = int(tmp2[pos:pos+6].strip())
 
         self.data = cxrayutilities.cbfread(tmp,self.xdim,self.ydim).reshape((self.ydim,self.xdim))
         if wasclosed:

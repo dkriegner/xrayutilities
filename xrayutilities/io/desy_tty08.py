@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -104,7 +104,7 @@ class tty08File(object):
             # read header
             self.init_mopo = {}
             while True:
-                line = fid.readline()
+                line = fid.readline().decode('ascii')
                 #if DEGUG: print line
                 if not line:
                     break
@@ -144,7 +144,7 @@ def gettty08_scan(scanname,scannumbers,*args):
     Parameters
     ----------
      scanname:  name of the scans, for multiple scans this needs to be a template string
-     scannumber:   number of the scans of the reciprocal space map (int,tuple or list)
+     scannumbers:   number of the scans of the reciprocal space map (int,tuple or list)
 
      *args:   names of the motors (optional) (strings)
      to read reciprocal space maps measured in coplanar diffraction give:
