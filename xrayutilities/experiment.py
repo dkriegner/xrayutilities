@@ -68,7 +68,7 @@ class QConversion(object):
     """
     def __init__(self,sampleAxis,detectorAxis,r_i,**kwargs):
         """
-        initialize Qconversion object.
+        initialize QConversion object.
         This means the rotation axis of the sample and detector circles
         need to be given: starting with the outer most circle.
 
@@ -1323,7 +1323,10 @@ class HXRD(Experiment):
         """
         Convert a reciprocal space vector Q to COPLANAR scattering angles.
         The keyword argument trans determines whether Q should be transformed
-        to the experimental coordinate frame or not.
+        to the experimental coordinate frame or not. The coplanar scattering angles
+        correspond to a goniometer with sample rotations ['x+','y+','z-']
+        and detector rotation 'x+' and primary beam along y. This is a standard 
+        four circle diffractometer.
 
         Parameters
         ----------
@@ -1474,25 +1477,25 @@ class HXRD(Experiment):
 
             #calculation of the sample azimuth phi (scattering plane spanned by qvec[1] and qvec[2] directions)
 
-            chi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(z,qvec))
+            chi = -numpy.arctan2(math.VecDot(x,qvec),math.VecDot(z,qvec))
             if numpy.abs(chi - numpy.pi/2.) < config.EPSILON:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print("XU.HXRD: Given peak is perpendicular to ndir-reference direction (might be inplane/unreachable)")
 
             if geom == 'hi_lo':
                 om = tth/2. + math.VecAngle(z,qvec) # +: high incidence geometry
-                phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
+                phi = -numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
             elif geom == 'lo_hi':
                 om = tth/2. - math.VecAngle(z,qvec) # -: low incidence geometry
-                phi = numpy.arctan2(-1*math.VecDot(x,qvec),-1*math.VecDot(y,qvec))
+                phi = -numpy.arctan2(-1*math.VecDot(x,qvec),-1*math.VecDot(y,qvec))
             elif geom == 'real':
-                phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
+                phi = -numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
                 if numpy.abs(phi)<=numpy.pi/2.:
                     sign = +1.
-                    phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
+                    phi = -numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec))
                 else:
                     sign = -1.
-                    phi = numpy.arctan2(-1*math.VecDot(x,qvec),-1*math.VecDot(y,qvec))
+                    phi = -numpy.arctan2(-1*math.VecDot(x,qvec),-1*math.VecDot(y,qvec))
                 om = tth/2 + sign * math.VecAngle(z,qvec)
             elif geom == 'realTilt':
                 phi = 0.
@@ -1690,9 +1693,9 @@ class NonCOP(Experiment):
             om = tth/2.
 
             #calculation of the sample azimuth
-            phi = numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec)) - numpy.pi/2. # the sign depends on the phi movement direction
+            phi = -1*numpy.arctan2(math.VecDot(x,qvec),math.VecDot(y,qvec)) - numpy.pi/2. # the sign depends on the phi movement direction
 
-            chi = math.VecAngle(z,qvec)
+            chi = (math.VecAngle(z,qvec))
 
             angle[0,i] = om
             angle[1,i] = chi

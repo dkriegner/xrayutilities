@@ -1,3 +1,4 @@
+* fixed inconsitency bug in NonCOP and HXRD's Q2Ang function (thanks to FZ)
 * SPEC-file parser improvements 
 * python3.X compatibilty in single code-base
 
