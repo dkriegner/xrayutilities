@@ -66,6 +66,7 @@ GeTe = Material("GeTe",lattice.GeTeRhombohedral(elements.Ge,elements.Te,5.996,88
 Al = Material("Al",lattice.FCCLattice(elements.Al,4.04958))
 Au = Material("Au",lattice.FCCLattice(elements.Au,4.0782))
 V = Material("V",lattice.BCCLattice(elements.V,3.024))
+Ta = Material("Ta",lattice.BCCLattice(elements.Ta,3.306))
 Ag2Se = Material("Ag2Se",lattice.NaumanniteLattice(elements.Ag,elements.Se,4.333,7.062,7.764))
 VO2_Rutile = Material("VO_2",lattice.RutileLattice(elements.V,elements.O,4.55,2.88,0.305))
 VO2_Baddeleyite = Material("VO_2",lattice.BaddeleyiteLattice(elements.V,elements.O,5.75,5.42,5.38,122.6))
@@ -84,6 +85,7 @@ CoO = Material("CoO",lattice.RockSalt_Cubic_Lattice(elements.Co,elements.O, 4.21
 Fe3O4 = Material("Fe3O4",lattice.MagnetiteLattice(elements.Fe,elements.Fe,elements.O, 8.3958))
 Co3O4 = Material("Co3O4",lattice.MagnetiteLattice(elements.Co,elements.Co,elements.O, 8.0821))
 FeRh = Material("FeRh",lattice.CsClLattice(elements.Fe,elements.Rh, 2.993))
+Ir20Mn80 = Material("Ir20Mn80",lattice.FCCSharedLattice(elements.Ir,elements.Mn,0.2,0.8,3.780))
 
 # materials defined from cif file
 try:

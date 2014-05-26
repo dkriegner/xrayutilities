@@ -362,6 +362,27 @@ def FCCLattice(aa,a):
 
     return l
 
+def FCCSharedLattice(aa,ab,occa,occb,a):
+    #create lattice base
+    lb = LatticeBase()
+    lb.append(aa,[0,0,0],occ=occa)
+    lb.append(aa,[0.5,0.5,0],occ=occa)
+    lb.append(aa,[0.5,0,0.5],occ=occa)
+    lb.append(aa,[0,0.5,0.5],occ=occa)
+    lb.append(ab,[0,0,0],occ=occb)
+    lb.append(ab,[0.5,0.5,0],occ=occb)
+    lb.append(ab,[0.5,0,0.5],occ=occb)
+    lb.append(ab,[0,0.5,0.5],occ=occb)
+
+    #create lattice vectors
+    a1 = [a,0,0]
+    a2 = [0,a,0]
+    a3 = [0,0,a]
+
+    l = Lattice(a1,a2,a3,base=lb)
+
+    return l
+
 def BCCLattice(aa,a):
     #create lattice base
     lb = LatticeBase()
