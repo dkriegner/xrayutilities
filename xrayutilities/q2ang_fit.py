@@ -26,8 +26,9 @@ angles are needed to fit an arbitrary q-vector (2 sample + 1 detector angles or
 1 sample + 2 detector). More complicated restrictions can be implemented using
 the lmfit package. (done upon request!)  
 
-The function is based on a fitting routine.  For a speicific goniometer also
-analytic expressions from literature can be used.
+The function is based on a fitting routine. For a specific goniometer also
+analytic expressions from literature can be used as they are implemented in the
+predefined experimental classes HXRD, NonCOP, and GID.
 """
 
 import scipy.optimize

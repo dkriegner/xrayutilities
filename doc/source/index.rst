@@ -63,11 +63,12 @@ Angle calculation using the material classes
 
 Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the :mod:`materials`-package.
 This package provides a set of classes to describe crystal lattices and materials.
-Once such a material is properly defined one can calculate its properties, which includes the reciprocal lattice points, optical properties like 
+Once such a material is properly defined one can calculate its properties, which includes the reciprocal lattice points, lattice plane distances, optical properties like 
 the refractive index, the structure factor (including the atomic scattering factor) and the complex polarizability.
 These atomic properties are extracted from a database included in *xrayutilities*.
 
-Using such a material and an experimental class from the :mod:`experiment`-module describing the experimental setup the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries.
+Using such a material and an experimental class from the :mod:`experiment`-module, describing the experimental setup, the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries. 
+In the predefined experimental classes fixed geometries are used. For angle calculation of custom geometries using arbitrary geometries (max. of three free angles) the :mod:`q2ang_fit`-module can be used as described in one of the included example files.
 
 .. _helloworld:
 

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013,2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -64,6 +64,9 @@ mat = xu.materials.Si
 hxrd = xu.HXRD(mat.Q(1,1,-2),mat.Q(1,1,1),qconv=qconv)
 
 # calculate angles
+# IMPORTANT: the Q2Ang function is not influenced by the qconv argument. A
+# proper calculation of the angles needs the Q2AngFit function described in
+# the example file 'xrayutilities_q2ang_general.py'
 [om,chi,phi,tt] = hxrd.Q2Ang(mat.Q(H,K,L))
 
 # perform conversion to reciprocal space

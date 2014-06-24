@@ -15,6 +15,15 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+"""
+This example shows the use of the Q2AngFit function to calculate experimental
+angles which can not be calculated by the analytic functions coded in the 
+HXRD, NonCOP and GID experimental classes, which use a fixed geometry. 
+
+Here an arbitrary goniometer together with some restrictions can be defined and
+experimental angles can be calculated for this geometry
+"""
+
 import xrayutilities as xu
 import numpy
 import time

@@ -998,10 +998,14 @@ class Experiment(object):
                      to the primary beam and the innermost detector rotation axis)
 
         keyargs:     optional keyword arguments
-          qconv:     QConversion object to use for the Ang2Q conversion
+          qconv:     QConversion object to use for the Ang2Q conversion 
           wl:        wavelength of the x-rays in Angstroem (default: 1.5406A)
           en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
                      the en keyword overrulls the wl keyword
+
+        Note:
+         The qconv argument does not change the Q2Ang function's behavior. See Q2AngFit
+         function in case you want to calculate for arbitrary goniometers which some restrictions.
         """
 
         for k in keyargs.keys():
@@ -1209,7 +1213,8 @@ class Experiment(object):
     def Transform(self,v):
         """
         transforms a vector, matrix or tensor of rank 4 (e.g. elasticity tensor)
-        to the coordinate frame of the Experiment class.
+        to the coordinate frame of the Experiment class. This is for example 
+        necessary before any Q2Ang-conversion can be performed.
 
         Parameters
         ----------

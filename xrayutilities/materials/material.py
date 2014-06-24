@@ -202,6 +202,39 @@ class Material(object):
         p = self.rlattice.GetPoint(hkl[0],hkl[1],hkl[2])
 
         return p
+        
+    def planeDistance(self,*hkl):
+        """
+        determines the lattice plane spacing for the planes specified by (hkl)
+
+        Parameters
+        ----------
+         h,k,l:  Miller indices of the lattice planes given either as list,tuple or 
+                 seperate arguments
+
+        Returns
+        -------
+         d:   the lattice plane spacing as float
+        
+        Examples
+        --------
+        >>> xu.materials.Si.planeDistance(0,0,4)
+        1.3577600000000001
+
+        or
+
+        >>> xu.materials.Si.planeDistance((1,1,1))
+        3.1356124059796255
+
+        """
+        if len(hkl)<3:
+            hkl = hkl[0]
+            if len(hkl)<3:
+                raise InputError("need 3 indices for the lattice point")
+        
+        d = 2*numpy.pi/numpy.linalg.norm(self.rlattice.GetPoint(hkl))
+
+        return d     
 
     def delta(self,en="config"):
         """
