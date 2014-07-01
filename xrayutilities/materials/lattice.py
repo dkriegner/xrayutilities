@@ -47,6 +47,14 @@ class Atom(object):
         _db.SetMaterial(self.name)
         self.weight = _db.weight
 
+    def __key__(self):
+        """ key function to return the elements number """
+        return self.num
+
+    def __lt__(self,other_el):
+        """ make elements sortable by their key """
+        return self.__key__()<other_el.__key__()
+
     def f0(self,q):
         _db.SetMaterial(self.name)
 
@@ -180,7 +188,7 @@ class Lattice(object):
     """
     class Lattice:
     This object represents a Bravais lattice. A lattice consists of a
-    base
+    base and unit cell defined by three vectors.
     """
     def __init__(self,a1,a2,a3,base=None):
         if isinstance(a1,list):

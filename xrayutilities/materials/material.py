@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2012,2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -25,6 +25,7 @@ import copy
 import numpy
 import scipy.optimize
 import warnings
+import operator
 
 from . import lattice
 from . import elements
@@ -203,6 +204,67 @@ class Material(object):
 
         return p
         
+    def environment(self,*pos,maxdist=7):
+        """
+        Returns a list of neighboring atoms for a given position within the the unit cell.
+
+        Parameters
+        ----------
+         pos: list or numpy array with the fractional coordinated in the unit cell
+        keyword arguments:
+         maxdist:  maximum distance wanted in the list of neighbors
+
+        Returns
+        -------
+         list of tuples with (distance,atomType,multiplicity) giving distance (sorted) and type 
+         of neighboring atoms together with the amount of atoms at the given distance
+        """
+
+        if len(pos)<3:
+            pos = pos[0]
+            if len(pos)<3:
+                raise InputError("need 3 coordinates of the reference position")
+
+        refpos = self.lattice.a1*pos[0] + self.lattice.a2*pos[1] + self.lattice.a3*pos[2]
+
+        l = []
+        Na = 2*int(numpy.ceil(maxdist/numpy.linalg.norm(self.lattice.a1)))
+        Nb = 2*int(numpy.ceil(maxdist/numpy.linalg.norm(self.lattice.a2)))
+        Nc = 2*int(numpy.ceil(maxdist/numpy.linalg.norm(self.lattice.a3)))
+        if numpy.iterable(self.lattice.base):
+            for a,p,o,b in self.lattice.base:
+                ucpos = self.lattice.a1*p[0] + self.lattice.a2*p[1] + self.lattice.a3*p[2]
+                for i in range(-Na,Na+1):
+                    for j in range(-Nb,Nb+1):
+                        for k in range(-Nc,Nc+1):
+                            atpos = ucpos + self.lattice.a1*i + self.lattice.a2*j + self.lattice.a3*k
+                            distance = numpy.linalg.norm(atpos - refpos)
+                            if distance<=maxdist:
+                                l.append((distance, a))
+        else:
+            for i in range(-Na,Na+1):
+                for j in range(-Nb,Nb+1):
+                    for k in range(-Nc,Nc+1):
+                        atpos = self.lattice.a1*i + self.lattice.a2*j + self.lattice.a3*k
+                        distance = numpy.linalg.norm(atpos - refpos)
+                        if distance<=maxdist:
+                            l.append((distance, '__dummy__'))
+
+        # sort 
+        l.sort(key=operator.itemgetter(1))
+        l.sort(key=operator.itemgetter(0))
+        rl = []
+        mult = 1
+        for i in range(1,len(l)):
+            if numpy.abs(l[i-1][0] - l[i][0]) < config.EPSILON:
+                mult+=1
+            else:
+                rl.append((l[i-1][0],l[i-1][1],mult))
+                mult=1
+        rl.append((l[-1][0],l[-1][1],mult))
+        
+        return rl
+    
     def planeDistance(self,*hkl):
         """
         determines the lattice plane spacing for the planes specified by (hkl)
