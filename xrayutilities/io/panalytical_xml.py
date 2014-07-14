@@ -268,12 +268,14 @@ def getxrdml_scan(filetemplate,*motors,**kwargs):
      filetemplate: template string for the file names, can contain
                    a %d which is replaced by the scan number or be a
                    list of filenames given by the scannrs keyword argument
+     
      *motors:      motor names to return: e.g.: 'Omega','2Theta',...
                    one can also use abbreviations 
                    'Omega' = 'om' = 'o'
                    '2Theta' = 'tt' = 't'
                    'Chi' = 'c'
                    'Phi' = 'p'
+     
      **kwargs: 
        scannrs:      int or list of scan numbers
        path:         common path to the filenames
@@ -325,7 +327,7 @@ def getxrdml_scan(filetemplate,*motors,**kwargs):
             files = [filetemplate]
     else:
         files = list()
-        if not getattr(scannrs,'__iter__',False):
+        if not numpy.iterable(scannrs):
             scannrs = [scannrs]
         for nr in scannrs:
             files.append(filetemplate %nr)

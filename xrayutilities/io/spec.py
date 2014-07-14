@@ -1033,7 +1033,7 @@ def geth5_scan(h5f,scans,*args,**kwargs):
     else:
         h5g = h5.listNodes(h5.root)[0]
 
-    if isinstance(scans,(list,tuple)):
+    if numpy.iterable(scans):
         scanlist = scans
     else:
         scanlist = list([scans])
