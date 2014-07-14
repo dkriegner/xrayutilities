@@ -146,8 +146,7 @@ Similar functions exist for other experimental geometries. For grazing incidence
     (alphai,azimuth,tt,beta) = gid.Q2Ang(Si.Q(2,-2,0))
     print("azimuth,tt: %8.3f %8.3f" %(azimuth,tt))
 
-There are two implementations for GID experiments. Both describe 2S+2D diffractometers.
-They differ by the order of the detector circles. One describes a setup as available at ID10B/ESRF.
+There is on implementation of a GID 2S+2D diffractometer. Be sure to check if the order of the detector circles fits your goniometer, otherwise define one yourself!
 
 There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space and furthermore powder scans of materials can be simulated in a very primitive way, which should only be used to get an idea of the peak positions expected from a certain material.
 
@@ -202,7 +201,6 @@ One can also print the peak positions and other informations of a powder by
        [-1, -1, -2]    54.4859      3.731        50.75       23.31
        ....
 
-
 Using the ``Gridder`` classes
 -----------------------------
 
@@ -217,7 +215,7 @@ The most easiest use (what most user might need) is:
 ::
     import xrayutilities as xu # import python package
     g = xu.Gridder2D(100,101) # initialize the Gridder object, which will 
-                              # perform Gridding to a regular grid with 100x101 points
+    # perform Gridding to a regular grid with 100x101 points
     #====== load some data here =====
     g(x,y,data) # call the gridder with the data
     griddata = g.data # the data object of the Gridder contains the gridded data.
@@ -332,6 +330,51 @@ It is also possible to calculate the components of the structure factor of atoms
     print "f0: %8.4g" % Fe.f0(numpy.linalg.norm(Q))
     print "f1: %8.4g" % Fe.f1(en)
     print "f2: %8.4g" % Fe.f2(en)
+
+
+Calculation of diffraction angles for a general geometry
+--------------------------------------------------------
+
+Often the restricted predefined geometries are not corresponding to the experimental setup, nevertheless *xrayutilities* is able to calculate the goniometer angles needed to reach a certain reciprocal space position.
+
+For this purpose the goniometer together with the geometric restrictions need to be defined and the q-vector in laboratory reference frame needs to be specified.
+This works for arbitrary goniometer, however, the user is expected to set up bounds to put restrictions to the number of free angles to obtain reproducible results. 
+In general only three angles are needed to fit an arbitrary q-vector (2 sample + 1 detector angles or
+1 sample + 2 detector). 
+
+The example below shows the necessary code to perform such an angle calculation for a costum defined material with orthorhombic unit cell.
+
+.. code-block:: python
+
+    import xrayutilities as xu
+    import numpy as np
+
+    def Pnma(a,b,c):
+        #create orthorhombic unit cell
+        l = xu.materials.Lattice([a,0,0],[0,b,0],[0,0,c])
+        return l
+
+    latticeConstants=[5.600,7.706,5.3995]
+    SmFeO3 = xu.materials.Material("SmFeO3",Pnma(*latticeConstants))
+
+    qconv=xu.QConversion(('x+','z+'),('z+','x+'),(0,1,0)) # 2S+2D goniometer 
+    hxrd = xu.HXRD(SmFeO3.Q(0,0,1),SmFeO3.Q(1,1,0),qconv=qconv) # [1,1,0] surface normal
+
+    hkl=(2,0,0)
+    q_material = SmFeO3.Q(hkl)
+    q_laboratory = hxrd.Transform(q_material) # transform 
+
+    print('SmFeO3: \thkl ', hkl, '\tqvec ', np.round(q_material,5))
+    print('Lattice plane distance: %.4f'%SmFeO3.planeDistance(hkl))
+
+    #### determine the goniometer angles with the correct geometry restrictions
+    # tell bounds of angles / (min,max) pair or fixed value for all motors
+    # maximum of three free motors! here incidence angle fixed to 5 degree
+    # om, phi, tt, delta
+    bounds = (5,(-180,180),(-1,90),(-1,90))
+    ang,qerror,errcode = xu.Q2AngFit(q_laboratory,hxrd,bounds)
+    print('err %d (%.3g) angles %s'%(errcode,qerror,str(np.round(ang,5))))  # check that qerror is small!!
+    print('sanity check with back-transformation (hkl): ',np.round(hxrd.Ang2HKL(*ang,mat=SmFeO3),5))
 
 
 User-specific config file
