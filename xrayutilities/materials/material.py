@@ -211,6 +211,7 @@ class Material(object):
         Parameters
         ----------
          pos: list or numpy array with the fractional coordinated in the unit cell
+        
         keyword arguments:
          maxdist:  maximum distance wanted in the list of neighbors
 
@@ -218,6 +219,7 @@ class Material(object):
         -------
          list of tuples with (distance,atomType,multiplicity) giving distance (sorted) and type 
          of neighboring atoms together with the amount of atoms at the given distance
+
         """
 
         if len(pos)<3:
