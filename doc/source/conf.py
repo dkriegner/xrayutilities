@@ -248,7 +248,7 @@ import re
 def process_docstring(app, what, name, obj, options, lines):
     # highlight parameters names
     # insert section highlighting
-    for i in xrange(len(lines)):
+    for i in range(len(lines)):
         # replace/protect * character
         lines[i] = re.sub(r'\*',r'\\*',lines[i])
         # insert note block
