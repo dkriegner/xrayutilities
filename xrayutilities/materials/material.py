@@ -204,7 +204,7 @@ class Material(object):
 
         return p
         
-    def environment(self,*pos,maxdist=7):
+    def environment(self,*pos,**kwargs):
         """
         Returns a list of neighboring atoms for a given position within the the unit cell.
 
@@ -213,7 +213,7 @@ class Material(object):
          pos: list or numpy array with the fractional coordinated in the unit cell
         
         keyword arguments:
-         maxdist:  maximum distance wanted in the list of neighbors
+         maxdist:  maximum distance wanted in the list of neighbors (default: 7)
 
         Returns
         -------
@@ -221,6 +221,16 @@ class Material(object):
          of neighboring atoms together with the amount of atoms at the given distance
 
         """
+
+        for k in kwargs.keys():
+            if k not in ['maxdist']:
+                raise Exception("unknown keyword argument given: allowed is only 'maxdist': maximum distance needed in the output")
+
+        # kwargs
+        if "maxdist" in kwargs:
+            maxdist = kwargs['maxdist']
+        else:
+            maxdist = 7
 
         if len(pos)<3:
             pos = pos[0]
