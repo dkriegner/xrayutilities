@@ -25,7 +25,7 @@ various classes are provided for
 * describing experiments
 * calculating angular coordinates of Bragg reflections
 * converting angular coordinates to Q-space and vice versa
-* simulating powder diffraction patterns for materials
+* simulating (first order approx. -> just peak positions) powder diffraction patterns for materials
 """
 
 import numpy
