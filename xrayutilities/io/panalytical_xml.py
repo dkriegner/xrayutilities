@@ -126,7 +126,7 @@ class XRDMLMeasurement(object):
                 self.ddict[k] = numpy.ravel(self.ddict[k])
 
         # save scanmot-values and detector counts in special arrays 
-        if self.scanmotname == '2Theta-Omega':
+        if self.scanmotname in ['2Theta-Omega','Gonio']:
             self.scanmot = self.ddict['2Theta']
         elif self.scanmotname == 'Omega-2Theta':
             self.scanmot = self.ddict['Omega']

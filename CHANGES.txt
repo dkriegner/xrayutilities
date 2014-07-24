@@ -1,3 +1,4 @@
+* minimal bug-fixes in io (xrdml)
 * documentation updates
 * add environment function to Materials: function calculates the atomic
   neighbors around a given position in the unit cell
