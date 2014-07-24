@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -317,6 +317,75 @@ class QConversion(object):
 
         return pstr
 
+    def _checkInput(self,*args):
+        """
+        helper function to check that the arguments given to the QConversion
+        routines have the correct shape. It determines the number of points in
+        the input from the longest array/list given and checks that only inputs
+        combatible with this length are given
+
+        Parameters
+        ----------
+         *args:     arguments from the QConversion routine (sample and detector angles)
+        
+        Returns
+        -------
+         Npoints:   integer to tell the number of points given
+        """
+        np = 1
+        for a in args:
+            #optain size of input
+            if isinstance(a,numpy.ndarray):
+                anp = a.size
+            elif isinstance(a,(list,tuple)):
+                anp = len(a)
+            elif numpy.isscalar(a):
+                anp = 1
+            else:
+                raise TypeError('QConversion: Input argument #%d has an invalid type.'%args.index(a))
+            # check if the input field is valid
+            if anp>1 and np==1:
+                np=anp
+            elif anp>1 and np!=anp:
+                raise InputError('QConversion: Several input-arrays arguments with different shape are an invalid input!')
+
+        return np
+
+    def _reshapeInput(self,npoints,delta,*args):
+        """
+        helper function to reshape the input of arguments to (len(args),npoints)
+        The input arguments must be either scalars or are of length npoints.
+
+        Parameters
+        ----------
+         npoints:   length of the input arrays
+         delta:     value to substract from the input arguments as array with len(args)
+         *args:     input arrays and scalars
+
+        Returns
+        -------
+         inarr:     numpy.ndarray of shape (len(args),npoints) with the input arguments
+         retshape:  shape of return values 
+        """
+
+        inarr = numpy.empty((len(args),npoints),dtype=numpy.double)
+        retshape = (npoints,) #default value
+
+        for i in range(len(args)):
+            arg = args[i]
+            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
+            elif isinstance(arg,numpy.ScalarType):
+                arg = numpy.ones(npoints,dtype=numpy.double)*arg
+            elif isinstance(arg,(list,tuple)):
+                arg = numpy.array(arg,dtype=numpy.double)
+            else: # determine return value shape
+                retshape = arg.shape
+            arg = arg - delta[i]
+            inarr[i,:] = numpy.ravel(arg)
+
+        return inarr,retshape
+
     def __call__(self,*args,**kwargs):
         """
         wrapper function for point(...)
@@ -405,42 +474,15 @@ class QConversion(object):
         if len(args) != Ncirc:
             raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
+        
+        # determine the number of points
+        Npoints = self._checkInput(*args)
 
-        try:
-            if isinstance(args[0],numpy.ndarray):
-                Npoints = args[0].size
-            else:
-                Npoints = len(args[0])
-        except (TypeError,IndexError): Npoints = 1
-
-        sAngles = numpy.array((),dtype=numpy.double)
-        for i in range(Ns):
-            arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
-                arg = numpy.array([arg],dtype=numpy.double)
-            elif isinstance(arg,list):
-                arg = numpy.array(arg,dtype=numpy.double)
-            arg = arg - delta[i]
-            retshape = arg.shape
-            sAngles = numpy.concatenate((sAngles,numpy.ravel(arg)))
-
-        dAngles = numpy.array((),dtype=numpy.double)
-        for i in range(Ns,Ncirc):
-            arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the detector coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
-                arg = numpy.array([arg],dtype=numpy.double)
-            elif isinstance(arg,list):
-                arg = numpy.array(arg,dtype=numpy.double)
-            arg = arg - delta[i]
-            dAngles = numpy.concatenate((dAngles,numpy.ravel(arg)))
-
-        sAngles.shape = (Ns,Npoints)
+        # reshape/recast input arguments for sample and detector angles
+        sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
+        dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
+        
         sAngles = sAngles.transpose()
-        dAngles.shape = (Nd,Npoints)
         dAngles = dAngles.transpose()
 
         if deg:
@@ -636,36 +678,14 @@ class QConversion(object):
             raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
 
-        try: Npoints = len(args[0])
-        except (TypeError,IndexError): Npoints = 1
+        # determine the number of points
+        Npoints = self._checkInput(*args)
 
-        sAngles = numpy.array((),dtype=numpy.double)
-        for i in range(Ns):
-            arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
-                arg = numpy.array([arg],dtype=numpy.double)
-            elif isinstance(arg,list):
-                arg = numpy.array(arg,dtype=numpy.double)
-            arg = arg - delta[i]
-            sAngles = numpy.concatenate((sAngles,arg))
-
-        dAngles = numpy.array((),dtype=numpy.double)
-        for i in range(Ns,Ncirc):
-            arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the detector coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
-                arg = numpy.array([arg],dtype=numpy.double)
-            elif isinstance(arg,list):
-                arg = numpy.array(arg,dtype=numpy.double)
-            arg = arg - delta[i]
-            dAngles = numpy.concatenate((dAngles,arg))
-
-        sAngles.shape = (Ns,Npoints)
+        # reshape/recast input arguments for sample and detector angles
+        sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
+        dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
+        
         sAngles = sAngles.transpose()
-        dAngles.shape = (Nd,Npoints)
         dAngles = dAngles.transpose()
 
         if deg:
@@ -896,42 +916,24 @@ class QConversion(object):
             raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
 
-        try: Npoints = len(args[0])
-        except (TypeError,IndexError): Npoints = 1
+        # determine the number of points
+        Npoints = self._checkInput(*args)
 
-        sAngles = numpy.array((),dtype=numpy.double)
-        for i in range(Ns):
-            arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
-                arg = numpy.array([arg],dtype=numpy.double)
-            elif isinstance(arg,list):
-                arg = numpy.array(arg,dtype=numpy.double)
-            arg = arg - delta[i]
-            sAngles = numpy.concatenate((sAngles,arg))
-
-        dAngles = numpy.array((),dtype=numpy.double)
-        for i in range(Ns,Ncirc):
-            arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the detector coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
-                arg = numpy.array([arg],dtype=numpy.double)
-            elif isinstance(arg,list):
-                arg = numpy.array(arg,dtype=numpy.double)
-            arg = arg - delta[i]
-            dAngles = numpy.concatenate((dAngles,arg))
+        # reshape/recast input arguments for sample and detector angles
+        sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
+        
         if self._area_detrotaxis_set:
             Nd = Nd + 1
             if deg:
-                dAngles = numpy.concatenate((dAngles,numpy.ones(Npoints)*numpy.degrees(self._area_detrot)))
+                a = append(args[Ns:],numpy.degrees(self._area_detrot))
+                dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
             else:
-                dAngles = numpy.concatenate((dAngles,numpy.ones(Npoints)*self._area_detrot))
+                a = append(args[Ns:],self._area_detrot)
+                dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
+        else:
+            dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
 
-        sAngles.shape = (Ns,Npoints)
         sAngles = sAngles.transpose()
-        dAngles.shape = (Nd,Npoints)
         dAngles = dAngles.transpose()
 
         if deg:
@@ -968,7 +970,6 @@ class QConversion(object):
             qpos = cxrayutilities.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
                      cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1, self._area_detdir2,
                      self._area_tiltazimuth, self._area_tilt, UB, wl, config.NTHREADS)
-
 
         #reshape output
         if Npoints==1:
