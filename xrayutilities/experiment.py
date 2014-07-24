@@ -400,9 +400,12 @@ class QConversion(object):
         Parameters
         ----------
         *args:           sample and detector angles as numpy array, lists
-                         or Scalars in total len(self.sampleAxis)+len(detectorAxis)
-                         must be given, always starting with the outer most circle.
-                         all arguments must have the same shape or length
+                         or Scalars in total
+                         len(self.sampleAxis)+len(detectorAxis) must be given,
+                         always starting with the outer most circle.  all
+                         arguments must have the same shape or length but can
+                         be mixed with Scalars (i.e. if an angle is always the
+                         same it can be given only once instead of an array)
 
              sAngles:    sample circle angles, number of arguments must
                          correspond to len(self.sampleAxis)
@@ -593,10 +596,13 @@ class QConversion(object):
 
         Parameters
         ----------
-        *args:          sample and detector angles as numpy array, lists or Scalars
-                        in total len(self.sampleAxis)+len(detectorAxis) must be given
-                        always starting with the outer most circle
-                        all arguments must have the same shape or length
+        *args:          sample and detector angles as numpy array, lists or
+                        Scalars in total len(self.sampleAxis)+len(detectorAxis)
+                        must be given, always starting with the outer most
+                        circle.  all arguments must have the same shape or
+                        length but can be mixed with Scalars (i.e. if an angle
+                        is always the same it can be given only once instead of
+                        an array)
 
             sAngles:    sample circle angles, number of arguments must correspond to
                         len(self.sampleAxis)
@@ -826,10 +832,13 @@ class QConversion(object):
 
         Parameters
         ----------
-        *args:          sample and detector angles as numpy array, lists or Scalars
-                        in total len(self.sampleAxis)+len(detectorAxis) must be given
-                        always starting with the outer most circle
-                        all arguments must have the same shape or length
+        *args:          sample and detector angles as numpy array, lists or
+                        Scalars in total len(self.sampleAxis)+len(detectorAxis)
+                        must be given, always starting with the outer most
+                        circle.  all arguments must have the same shape or
+                        length but can be mixed with Scalars (i.e. if an angle
+                        is always the same it can be given only once instead of
+                        an array)
 
             sAngles:    sample circle angles, number of arguments must correspond to
                         len(self.sampleAxis)
