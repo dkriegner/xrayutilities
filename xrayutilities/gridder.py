@@ -23,20 +23,6 @@ from . import cxrayutilities
 from . import exception
 from . import config
 
-def check_array(a,dtype):
-    """
-    Check if an array fits the requirements for the C-code and returns it 
-    back to the callee. Such arrays must be aligned and C_CONTIGUOUS which
-    means that they have to follow C-ordering.
-
-    Parameters
-    ----------
-    a ............ array to check
-    dtype ........ numpy data type
-    """
-
-    return numpy.require(a,dtype=dtype,requirements=["ALIGNED","C_CONTIGUOUS"])
-
 def delta(min_value,max_value,n):
     """
     Compute the stepsize along an axis of a grid. 
@@ -193,10 +179,6 @@ class Gridder1D(Gridder):
 
         if x.size!=data.size:
             raise exception.InputError("XU.Gridder1D: size of given datasets (x,data) is not equal!")
-
-        # require correct aligned memory for input arrays
-        x = numpy.require(x,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # use only non-NaN data values
         mask = numpy.invert(numpy.isnan(data))

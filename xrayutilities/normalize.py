@@ -64,8 +64,6 @@ def blockAverage1D(data,Nav):
         raise TypeError("first argument data must be of type list or numpy.ndarray")
 
     data = numpy.array(data,dtype=numpy.double)
-    data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-
     block_av = cxrayutilities.block_average1d(data,Nav)
 
     return block_av
@@ -103,7 +101,6 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
         roi = [0,data2d.shape[0],0,data2d.shape[1]]
 
     data = numpy.array(data2d[roi[0]:roi[1],roi[2]:roi[3]],dtype=numpy.double)
-    data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
     if config.VERBOSITY >= config.DEBUG:
         print("xu.normalize.blockAverage2D: roi: %s" %(str(roi)))
@@ -145,7 +142,6 @@ def blockAveragePSD(psddata,Nav,**kwargs):
         roi = [0,psddata.shape[1]]
 
     data = numpy.array(psddata[:,roi[0]:roi[1]],dtype=numpy.double)
-    data = numpy.require(data,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
     block_av = cxrayutilities.block_average_PSD(data,Nav,config.NTHREADS)
 

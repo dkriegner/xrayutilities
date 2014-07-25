@@ -108,11 +108,9 @@ class QConversion(object):
         # r_i: primary beam direction
         if isinstance(r_i,(list,tuple,numpy.ndarray)):
             self.r_i = numpy.array(r_i,dtype=numpy.double)
-            self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
             if self.r_i.size != 3:
                 print("XU.QConversion: warning invalid primary beam direction given -> using [0,1,0]")
-                self.r_i = numpy.array([0,1,0],dtype=numpy.double,order='C')
-                self.r_i = numpy.require(self.r_i,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
+                self.r_i = numpy.array([0,1,0],dtype=numpy.double)
         else:
             raise TypeError("QConversion: invalid type of primary beam direction r_i, must be tuple, list or numpy.ndarray")
 
@@ -205,8 +203,6 @@ class QConversion(object):
                     if circ[1]=='-':
                         self._kappa_dir = -self._kappa_dir
 
-                    self._kappa_dir = numpy.require(self._kappa_dir,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)" % tuple(self._kappa_dir))
 
@@ -278,9 +274,7 @@ class QConversion(object):
         needs to be (3,3) matrix
         """
         tmp = numpy.array(UB)
-        if tmp.shape==(3,3):
-            self._UB = numpy.require(tmp,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        else:
+        if tmp.shape!=(3,3):
             raise InputError("QConversion: incorrect shape of UB matrix (shape: %s)" %str(tmp.shape))
 
 
@@ -464,13 +458,11 @@ class QConversion(object):
             UB = numpy.array(kwargs['UB'])
         else:
             UB = self.UB
-        UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
         else:
             sd = numpy.zeros(3) 
-        sd = numpy.require(sd,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -491,9 +483,6 @@ class QConversion(object):
         if deg:
             sAngles = numpy.radians(sAngles)
             dAngles = numpy.radians(dAngles)
-
-        sAngles = numpy.require(sAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        dAngles = numpy.require(dAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         sAxis=self._sampleAxis_str
         dAxis=self._detectorAxis_str
@@ -671,13 +660,11 @@ class QConversion(object):
             UB = numpy.array(kwargs['UB'])
         else:
             UB = self.UB
-        UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
         else:
             sd = numpy.zeros(3) 
-        sd = numpy.require(sd,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -697,10 +684,6 @@ class QConversion(object):
         if deg:
             sAngles = numpy.radians(sAngles)
             dAngles = numpy.radians(dAngles)
-
-        # check correct array type for passing to C subprogram
-        sAngles = numpy.require(sAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        dAngles = numpy.require(dAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # initialize psd geometry to for C subprogram (include Nav and roi possibility)
         cch = self._linear_cch/float(nav)
@@ -912,13 +895,11 @@ class QConversion(object):
             UB = numpy.array(kwargs['UB'])
         else:
             UB = self.UB
-        UB = numpy.require(UB,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
         else:
             sd = numpy.zeros(3) 
-        sd = numpy.require(sd,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -948,10 +929,6 @@ class QConversion(object):
         if deg:
             sAngles = numpy.radians(sAngles)
             dAngles = numpy.radians(dAngles)
-
-        # check that arrays have correct type and memory alignment for passing to C routine
-        sAngles = numpy.require(sAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        dAngles = numpy.require(dAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         # initialize ccd geometry to for C subroutine (include Nav and roi possibility)
         cch1 = self._area_cch1/float(nav[0])

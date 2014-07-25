@@ -29,6 +29,7 @@
 #include <stdio.h>
 
 #define PYARRAY_CHECK(array,dims,type,msg) \
+    array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *)array,type,NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED); \
     if(PyArray_NDIM(array) != dims ||  \
        PyArray_TYPE(array) != type) \
     {\

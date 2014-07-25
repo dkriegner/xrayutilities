@@ -834,11 +834,6 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         if deg:
             dAngles = numpy.radians(dAngles)
 
-        # check that arrays have correct type and memory alignment for passing to C routine
-        dAngles = numpy.require(dAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        n1 = numpy.require(n1,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        n2 = numpy.require(n2,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-
         qpos = cxrayutilities.ang2q_conversion_area_pixel( dAngles, n1, n2 , _area_ri, _detectorAxis_str,
                      _area_cch1, _area_cch2, _area_pwidth1/_area_distance, _area_pwidth2/_area_distance,
                      _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, wl, config.NTHREADS)
@@ -1402,12 +1397,6 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
         if deg:
             sAngles = numpy.radians(sAngles)
             dAngles = numpy.radians(dAngles)
-
-        # check that arrays have correct type and memory alignment for passing to C routine
-        sAngles = numpy.require(sAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        dAngles = numpy.require(dAngles,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        n1 = numpy.require(n1,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
-        n2 = numpy.require(n2,dtype=numpy.double,requirements=["ALIGNED","C_CONTIGUOUS"])
 
         qpos = cxrayutilities.ang2q_conversion_area_pixel2(sAngles, dAngles, n1, n2 , _area_ri, 
                      _sampleAxis_str, _detectorAxis_str, _area_cch1, _area_cch2, 

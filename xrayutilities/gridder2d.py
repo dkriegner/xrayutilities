@@ -24,7 +24,6 @@ from . import exception
 from . import config
 
 from .gridder import Gridder
-from .gridder import check_array
 from .gridder import delta
 from .gridder import axis
 from .gridder import ones
@@ -50,9 +49,7 @@ class Gridder2D(Gridder):
         """
         
         self._gdata = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
-        self._gdata = check_array(self._gdata,numpy.double)
         self._gnorm = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
-        self._gnorm = check_array(self._gnorm,numpy.double)
 
 
     def SetResolution(self,nx,ny):
@@ -145,14 +142,9 @@ class Gridder2D(Gridder):
             # more often and obtain a reasonable result
             self.dataRange(x.min(),x.max(),y.min(),y.max(),self.keep_data)
 
-        # require correct aligned memory for input arrays
-        lx = check_array(x,numpy.double)
-        ly = check_array(y,numpy.double)
-        ldata = check_array(data,numpy.double)
-                  
         #remove normalize flag for C-code, normalization is always performed in python
         flags = self.flags^4
-        cxrayutilities.gridder2d(lx,ly,ldata,self.nx,self.ny,
+        cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
                                  self._gdata,self._gnorm,flags)            

@@ -24,7 +24,6 @@ from . import exception
 from . import config
 
 from .gridder import Gridder
-from .gridder import check_array
 from .gridder import delta
 from .gridder import axis
 
@@ -45,16 +44,13 @@ class Gridder3D(Gridder):
 
         self._allocate_memory()
 
-
     def _allocate_memory(self):
         """
         Class method to allocate memory for the gridder based on the nx,ny 
         class attributes.
         """
         self._gdata = numpy.zeros((self.nx,self.ny,self.nz),dtype=numpy.double)
-        self._gdata = check_array(self._gdata,numpy.double)
         self._gnorm = numpy.zeros((self.nx,self.ny,self.nz),dtype=numpy.double)
-        self._gnorm = check_array(self._gnorm,numpy.double)
 
     def SetResolution(self,nx,ny,nz):
         self.nx = nx
@@ -151,15 +147,9 @@ class Gridder3D(Gridder):
             # more often and obtain a reasonable result
             self.dataRange(x.min(),x.max(),y.min(),y.max(),z.min(),z.max(),self.keep_data)
         
-        # require correct aligned memory for input arrays
-        lx = check_array(x,numpy.double)
-        ly = check_array(y,numpy.double)
-        lz = check_array(z,numpy.double)
-        ldata = check_array(data,numpy.double)
-
         #remove normalize flag for C-code, normalization is always performed in python
         flags = self.flags^4
-        cxrayutilities.gridder3d(lx,ly,lz,ldata,self.nx,self.ny,self.nz,
+        cxrayutilities.gridder3d(x,y,z,data,self.nx,self.ny,self.nz,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
                                  self.zmin,self.zmax,
