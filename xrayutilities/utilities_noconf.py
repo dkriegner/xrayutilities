@@ -20,6 +20,7 @@ xrayutilities utilities contains a conglomeration of useful functions
 this part of utilities does not need the config class
 """
 
+import numbers
 import numpy
 import scipy.constants
 
@@ -74,16 +75,18 @@ def energy(en):
     Parameter
     ---------
 
-     en: energy (scalar ( energy in eV will be returned unchanged)
-                 or string with name of emission line)
+     en: energy either as scalar or array with value in eV, which 
+         will be returned unchanged; or string with name of emission line
 
     Returns
     -------
      energy in eV as float
     """
 
-    if numpy.isreal(en):
+    if isinstance(en,numbers.Number):
         return numpy.double(en)
+    elif isinstance(en,(numpy.ndarray,list,tuple)):
+        return en
     elif isinstance(en,basestring):
         return energies[en]
     else:
@@ -108,8 +111,10 @@ def wavelength(wl):
 
     """
 
-    if numpy.isreal(wl):
+    if isinstance(wl,numbers.Number):
         return numpy.double(wl)
+    elif isinstance(wl,(numpy.ndarray,list,tuple)):
+        return wl
     elif isinstance(wl,basestring):
         return lam2en(energies[wl])
     else:
