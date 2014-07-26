@@ -22,5 +22,14 @@ class TestQConversion(unittest.TestCase):
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hklasym[i], places=10)
     
+    def test_qconversion_energy(self):
+        ang1 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))
+        ang2 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym)/2.)
+        qout = self.hxrd.Ang2HKL((ang1[0],ang2[0]),(ang1[3],ang2[3]),en=(self.hxrd.energy,2*self.hxrd.energy),mat=self.mat)
+        for i in range(3):
+            self.assertAlmostEqual(qout[i][0], self.hklsym[i], places=10)
+            self.assertAlmostEqual(qout[i][1], self.hklsym[i], places=10)
+
+
 if __name__ == '__main__':
         unittest.main()
