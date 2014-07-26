@@ -28,6 +28,7 @@ various classes are provided for
 * simulating (first order approx. -> just peak positions) powder diffraction patterns for materials
 """
 
+import numbers
 import numpy
 from numpy.linalg import norm
 import warnings
@@ -368,9 +369,9 @@ class QConversion(object):
 
         for i in range(len(args)):
             arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+            if not isinstance(arg,(numbers.Number,list,tuple,numpy.ndarray)):
                 raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
+            elif isinstance(arg,numbers.Number):
                 arg = numpy.ones(npoints,dtype=numpy.double)*arg
             elif isinstance(arg,(list,tuple)):
                 arg = numpy.array(arg,dtype=numpy.double)
@@ -476,7 +477,7 @@ class QConversion(object):
 
         # reshape/recast input arguments for sample and detector angles
         sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
-        dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
+        dAngles = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])[0]
         
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -492,7 +493,6 @@ class QConversion(object):
             dAxis=self._detectorAxis_str[:-2] # do not consider detector rotation for point detector
         else:
             dAxis=self._detectorAxis_str
-
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns,Nd))
@@ -916,10 +916,10 @@ class QConversion(object):
         if self._area_detrotaxis_set:
             Nd = Nd + 1
             if deg:
-                a = append(args[Ns:],numpy.degrees(self._area_detrot))
+                a = args[Ns:] + (numpy.degrees(self._area_detrot),)
                 dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
             else:
-                a = append(args[Ns:],self._area_detrot)
+                a = args[Ns:] + (self._area_detrot,)
                 dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
         else:
             dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
@@ -989,7 +989,7 @@ class Experiment(object):
           qconv:     QConversion object to use for the Ang2Q conversion 
           wl:        wavelength of the x-rays in Angstroem (default: 1.5406A)
           en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
-                     the en keyword overrulls the wl keyword
+                     the en keyword overrules the wl keyword
 
         Note:
          The qconv argument does not change the Q2Ang function's behavior. See Q2AngFit
