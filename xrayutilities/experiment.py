@@ -28,6 +28,7 @@ various classes are provided for
 * simulating (first order approx. -> just peak positions) powder diffraction patterns for materials
 """
 
+import numbers
 import numpy
 from numpy.linalg import norm
 import warnings
@@ -368,9 +369,9 @@ class QConversion(object):
 
         for i in range(len(args)):
             arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+            if not isinstance(arg,(numbers.Number,list,tuple,numpy.ndarray)):
                 raise TypeError("QConversion: invalid type for one of the sample coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
+            elif isinstance(arg,numbers.Number):
                 arg = numpy.ones(npoints,dtype=numpy.double)*arg
             elif isinstance(arg,(list,tuple)):
                 arg = numpy.array(arg,dtype=numpy.double)
@@ -416,6 +417,10 @@ class QConversion(object):
                          used to determine not Q but (hkl)
                          (default: self.UB)
              wl:         x-ray wavelength in angstroem (default: self._wl)
+             en:         x-ray energy in eV (default is converted self._wl)
+                         both wavelength and energy can also be an arrays
+                         which enables the QConversion for energy scans.
+                         Note that the en keyword overrules the wl keyword!
              deg:        flag to tell if angles are passed as degree
                          (default: True)
              sampledis:  sample displacement vector in relative units of the detector 
@@ -428,8 +433,8 @@ class QConversion(object):
         """
 
         for k in kwargs.keys():
-            if k not in ['wl','deg','UB','delta','sampledis']:
-                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'sampledis': sample displacement vector")
+            if k not in ['wl','en','deg','UB','delta','sampledis']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl/en': x-ray wavelength/energy, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'sampledis': sample displacement vector")
         
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -442,6 +447,8 @@ class QConversion(object):
             wl = utilities.wavelength(kwargs['wl'])
         else:
             wl = self._wl
+        if 'en' in kwargs:
+            wl = utilities.lam2en(utilities.energy(kwargs['en']))
 
         if 'deg' in kwargs:
             deg = kwargs['deg']
@@ -472,11 +479,13 @@ class QConversion(object):
                              number of arguments should be %d" %(len(args),Ncirc))
         
         # determine the number of points
-        Npoints = self._checkInput(*args)
+        a = args + (wl,)
+        Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
         sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
-        dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
+        dAngles = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])[0]
+        wl = numpy.ravel(self._reshapeInput(Npoints,(0,),wl)[0])
         
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -492,7 +501,6 @@ class QConversion(object):
             dAxis=self._detectorAxis_str[:-2] # do not consider detector rotation for point detector
         else:
             dAxis=self._detectorAxis_str
-
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns,Nd))
@@ -916,10 +924,10 @@ class QConversion(object):
         if self._area_detrotaxis_set:
             Nd = Nd + 1
             if deg:
-                a = append(args[Ns:],numpy.degrees(self._area_detrot))
+                a = args[Ns:] + (numpy.degrees(self._area_detrot),)
                 dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
             else:
-                a = append(args[Ns:],self._area_detrot)
+                a = args[Ns:] + (self._area_detrot,)
                 dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
         else:
             dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
@@ -989,7 +997,7 @@ class Experiment(object):
           qconv:     QConversion object to use for the Ang2Q conversion 
           wl:        wavelength of the x-rays in Angstroem (default: 1.5406A)
           en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
-                     the en keyword overrulls the wl keyword
+                     the en keyword overrules the wl keyword
 
         Note:
          The qconv argument does not change the Q2Ang function's behavior. See Q2AngFit
@@ -1153,6 +1161,12 @@ class Experiment(object):
             dettype:detector type: one of ('point', 'linear', 'area')
                     decides which routine of Ang2Q to call
                     default 'point'
+            delta:  giving delta angles to correct the given ones for misalignment
+                    delta must be an numpy array or list of length 2.
+                    used angles are than om,tt - delta
+            wl:     x-ray wavelength in angstroem (default: self._wl)
+            en:     x-ray energy in eV (default: converted self._wl)
+            deg:    flag to tell if angles are passed as degree (default: True)
 
         Returns
         -------
@@ -1162,8 +1176,8 @@ class Experiment(object):
         """
 
         for k in kwargs.keys():
-            if k not in ['U','B','mat','dettype']:
-                raise Exception("unknown keyword argument given: allowed are 'B': orthonormalization matrix, 'U': orientation matrix, 'mat': material object, 'dettype': string with detector type")
+            if k not in ['U','B','mat','dettype','delta','wl','en','deg']:
+                raise Exception("unknown keyword argument given: allowed are 'B': orthonormalization matrix, 'U': orientation matrix, 'mat': material object, 'dettype': string with detector type, and 'delta,wl,en,deg' from Ang2Q")
         
         if "B" in kwargs:
             B = numpy.array(kwargs['B'])

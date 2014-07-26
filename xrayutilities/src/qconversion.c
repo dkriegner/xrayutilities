@@ -464,7 +464,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     *    detectorAxis .. string with detector axis directions
     *    kappadir ...... rotation axis of a possible kappa circle
     *    UB ............ orientation matrix and reciprocal space conversion of investigated crystal (3,3)
-    *    lambda ........ wavelength of the used x-rays (Angstreom)
+    *    lambda ........ wavelength of the used x-rays as array (Npoints,) (in Angstreom)
     *    nthreads ...... number of threads to use in parallel section of the code
     *
     *   Returns
@@ -474,36 +474,36 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     *   */
 {
     double mtemp[9],mtemp2[9], ms[9], md[9]; //matrices
-    double local_ri[3]; // copy of primary beam direction
+    double local_ri[3], ki[3]; // copy of primary beam direction, and vector for ki
     int i,j; // needed indices
     int Ns,Nd; // number of sample and detector circles
     int Npoints; // number of angular positions
     unsigned int nthreads; // number of threads to use
-    double lambda; // x-ray wavelength
     char *sampleAxis,*detectorAxis; // string with sample and detector axis
-    double *sampleAngles,*detectorAngles, *ri, *kappadir, *UB, *qpos; // c-arrays for further usage
+    double *sampleAngles,*detectorAngles, *ri, *kappadir, *UB, *qpos, *lambda; // c-arrays for further usage
     npy_intp nout[2];
     // arrays with function pointers to rotation matrix functions
     fp_rot *sampleRotation;
     fp_rot *detectorRotation;
 
     PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *riArr=NULL, *kappadirArr=NULL,
-                  *UBArr=NULL, *qposArr=NULL; // numpy arrays
+                  *UBArr=NULL, *qposArr=NULL, *lambdaArr=NULL;// numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!dI",&PyArray_Type, &sampleAnglesArr,
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!O!I",&PyArray_Type, &sampleAnglesArr,
                                       &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &riArr,
                                       &sampleAxis, &detectorAxis,
                                       &PyArray_Type, &kappadirArr,
                                       &PyArray_Type, &UBArr,
-                                      &lambda, &nthreads)) {
+                                      &PyArray_Type, &lambdaArr, &nthreads)) {
         return NULL;
     }
-
+    
     // check Python array dimensions and types
     PYARRAY_CHECK(sampleAnglesArr,2,NPY_DOUBLE,"sampleAngles must be a 2D double array");
     PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(lambdaArr,1,NPY_DOUBLE,"wavelength must be a 1D double array");
     PYARRAY_CHECK(riArr,1,NPY_DOUBLE,"r_i must be a 1D double array");
     if (PyArray_SIZE(riArr) != 3) { PyErr_SetString(PyExc_ValueError,"r_i needs to be of length 3");
         return NULL; }
@@ -520,6 +520,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    lambda = (double *) PyArray_DATA(lambdaArr);
     ri = (double *) PyArray_DATA(riArr);
     kappadir = (double *) PyArray_DATA(kappadirArr);
     UB = (double *) PyArray_DATA(UBArr);
@@ -546,9 +547,9 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     // give ri correct length
     veccopy(local_ri,ri);
     normalize(local_ri);
-    vecmul(local_ri,M_2PI/lambda); //defines k_i
 
     //debug
+    //print_vector(local_ri);
     //print_matrix(UB);
 
     // calculate rotation matices and perform rotations
@@ -581,7 +582,9 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
         matmul(ms,md);
         // ms contains now the rotation matrix to determine the momentum transfer
         // calculate the momentum transfer
-        matvec(ms, local_ri, &qpos[3*i]);
+        veccopy(ki,local_ri); // ki is now normalized ri -> needs mult with 2Pi/lam
+        vecmul(ki,M_2PI/lambda[i]); //scales k_i
+        matvec(ms, ki, &qpos[3*i]);
     }
 
     // return output array
@@ -603,7 +606,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     *    kappadir ...... rotation axis of a possible kappa circle
     *    UB ............ orientation matrix and reciprocal space conversion of investigated crystal (3,3)
     *    sampledis ..... sample displacement vector in relative units of the detector distance
-    *    lambda ........ wavelength of the used x-rays (Angstreom)
+    *    lambda ........ wavelength of the used x-rays as array (Npoints,) (in Angstreom)
     *    nthreads ...... number of threads to use in parallel section of the code
     *
     *   Returns
@@ -618,32 +621,32 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     int Ns,Nd; // number of sample and detector circles
     int Npoints; // number of angular positions
     unsigned int nthreads; // number of threads to use
-    double lambda; // x-ray wavelength
     char *sampleAxis,*detectorAxis; // string with sample and detector axis
-    double *sampleAngles,*detectorAngles, *ri, *kappadir, *sampledis, *UB, *qpos; // c-arrays for further usage
+    double *sampleAngles,*detectorAngles, *ri, *kappadir, *sampledis, *UB, *qpos, *lambda; // c-arrays for further usage
     npy_intp nout[2];
     // arrays with function pointers to rotation matrix functions
     fp_rot *sampleRotation;
     fp_rot *detectorRotation;
 
     PyArrayObject *sampleAnglesArr=NULL, *detectorAnglesArr=NULL, *riArr=NULL, *kappadirArr=NULL,
-                  *sampledisArr=NULL, *UBArr=NULL, *qposArr=NULL; // numpy arrays
+                  *sampledisArr=NULL, *UBArr=NULL, *qposArr=NULL, *lambdaArr=NULL; // numpy arrays
 
     // Python argument conversion code
-    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!O!dI",&PyArray_Type, &sampleAnglesArr,
+    if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!O!O!I",&PyArray_Type, &sampleAnglesArr,
                                       &PyArray_Type, &detectorAnglesArr,
                                       &PyArray_Type, &riArr,
                                       &sampleAxis, &detectorAxis,
                                       &PyArray_Type, &kappadirArr,
                                       &PyArray_Type, &UBArr,
                                       &PyArray_Type, &sampledisArr,
-                                      &lambda, &nthreads)) {
+                                      &PyArray_Type, &lambdaArr, &nthreads)) {
         return NULL;
     }
 
     // check Python array dimensions and types
     PYARRAY_CHECK(sampleAnglesArr,2,NPY_DOUBLE,"sampleAngles must be a 2D double array");
     PYARRAY_CHECK(detectorAnglesArr,2,NPY_DOUBLE,"detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(lambdaArr,1,NPY_DOUBLE,"wavelength must be a 1D double array");
     PYARRAY_CHECK(riArr,1,NPY_DOUBLE,"r_i must be a 1D double array");
     if (PyArray_SIZE(riArr) != 3) { PyErr_SetString(PyExc_ValueError,"r_i needs to be of length 3");
         return NULL; }
@@ -663,6 +666,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    lambda = (double *) PyArray_DATA(lambdaArr);
     ri = (double *) PyArray_DATA(riArr);
     sampledis = (double *) PyArray_DATA(sampledisArr);
     kappadir = (double *) PyArray_DATA(kappadirArr);
@@ -725,7 +729,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
         diffvec(mtemp,sampledis);
         normalize(mtemp);
         diffvec(mtemp,local_ri); // ki/|k| - kf/|k|
-        vecmul(mtemp,M_2PI/lambda); //defines k_f
+        vecmul(mtemp,M_2PI/lambda[i]); //defines k_f
         // mtemp now contains the momentum transfer which will be transformed to the sample q-coordinate system         
         // calculate the momentum transfer
         matvec(ms, mtemp, &qpos[3*i]);
