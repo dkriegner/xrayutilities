@@ -1,3 +1,5 @@
+* Reciprocal space conversion of energy scans for point, linear, area
+  detectors 
 * code-cleanup
 * minimal bug-fixes in io (xrdml)
 * documentation updates

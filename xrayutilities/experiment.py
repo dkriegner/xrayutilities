@@ -54,8 +54,11 @@ circleSyntaxSample = re.compile("[xyzk][+-]")
 
 class QConversion(object):
     """
-    Class for the conversion of angular coordinates to momentum
-    space for arbitrary goniometer geometries
+    Class for the conversion of angular coordinates to momentum space for
+    arbitrary goniometer geometries and X-ray energy.  Both angular scans
+    (where some goniometer angles change during data acquisition) and energy
+    scans (where the energy is varied during acquisition) as well as mixed
+    cases can be treated.
 
     the class is configured with the initialization and does provide three
     distinct routines for conversion to momentum space for
