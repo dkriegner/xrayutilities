@@ -418,7 +418,7 @@ class QConversion(object):
                          (default: self.UB)
              wl:         x-ray wavelength in angstroem (default: self._wl)
              en:         x-ray energy in eV (default is converted self._wl)
-                         both wavelength and energy can also be an arrays
+                         both wavelength and energy can also be an array
                          which enables the QConversion for energy scans.
                          Note that the en keyword overrules the wl keyword!
              deg:        flag to tell if angles are passed as degree
@@ -617,6 +617,10 @@ class QConversion(object):
             Nav:        number of channels to average to reduce data size (default: self._linear_nav)
             roi:        region of interest for the detector pixels; e.g. [100,900] (default: self._linear_roi)
             wl:         x-ray wavelength in angstroem (default: self._wl)
+            en:         x-ray energy in eV (default is converted self._wl)
+                        both wavelength and energy can also be an array
+                        which enables the QConversion for energy scans.
+                        Note that the en keyword overrules the wl keyword!
             deg:        flag to tell if angles are passed as degree (default: True)
             sampledis:  sample displacement vector in same units as the detector distance (default: (0,0,0))
 
@@ -630,8 +634,8 @@ class QConversion(object):
             raise Exception("QConversion: linear detector not initialized -> call Ang2Q.init_linear(...)")
         
         for k in kwargs.keys():
-            if k not in ['wl','deg','UB','delta','Nav','roi','sampledis']:
-                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
+            if k not in ['wl','en','deg','UB','delta','Nav','roi','sampledis']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl/en': x-ray wavelength/energy, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -642,6 +646,8 @@ class QConversion(object):
             wl = utilities.wavelength(kwargs['wl'])
         else:
             wl = self._wl
+        if 'en' in kwargs:
+            wl = utilities.lam2en(utilities.energy(kwargs['en']))
 
         if 'deg' in kwargs:
             deg = kwargs['deg']
@@ -681,11 +687,13 @@ class QConversion(object):
                              number of arguments should be %d" %(len(args),Ncirc))
 
         # determine the number of points
-        Npoints = self._checkInput(*args)
+        a = args + (wl,)
+        Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
         sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
-        dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
+        dAngles = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])[0]
+        wl = numpy.ravel(self._reshapeInput(Npoints,(0,),wl)[0])
         
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -849,6 +857,10 @@ class QConversion(object):
             Nav:        number of channels to average to reduce data size e.g. [2,2]
                         (default: self._area_nav)
             wl:         x-ray wavelength in angstroem (default: self._wl)
+            en:         x-ray energy in eV (default is converted self._wl)
+                        both wavelength and energy can also be an array
+                        which enables the QConversion for energy scans.
+                        Note that the en keyword overrules the wl keyword!
             deg:        flag to tell if angles are passed as degree (default: True)
             sampledis:  sample displacement vector in same units as the detector distance (default: (0,0,0))
 
@@ -863,8 +875,8 @@ class QConversion(object):
             raise Exception("QConversion: area detector not initialized -> call Ang2Q.init_area(...)")
         
         for k in kwargs.keys():
-            if k not in ['wl','deg','UB','delta','Nav','roi','sampledis']:
-                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
+            if k not in ['wl','en','deg','UB','delta','Nav','roi','sampledis']:
+                raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl/en': x-ray wavelength/energy, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -877,6 +889,8 @@ class QConversion(object):
             wl = utilities.wavelength(kwargs['wl'])
         else:
             wl = self._wl
+        if 'en' in kwargs:
+            wl = utilities.lam2en(utilities.energy(kwargs['en']))
 
         if 'deg' in kwargs:
             deg = kwargs['deg']
@@ -916,21 +930,23 @@ class QConversion(object):
                              number of arguments should be %d" %(len(args),Ncirc))
 
         # determine the number of points
-        Npoints = self._checkInput(*args)
+        a = args + (wl,)
+        Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
         sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
+        wl = numpy.ravel(self._reshapeInput(Npoints,(0,),wl)[0])
         
         if self._area_detrotaxis_set:
             Nd = Nd + 1
             if deg:
                 a = args[Ns:] + (numpy.degrees(self._area_detrot),)
-                dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
+                dAngles = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)[0]
             else:
                 a = args[Ns:] + (self._area_detrot,)
-                dAngles,_dummy = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)
+                dAngles = self._reshapeInput(Npoints,numpy.append(delta[Ns:],0),*a)[0]
         else:
-            dAngles,_dummy = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])
+            dAngles = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])[0]
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
