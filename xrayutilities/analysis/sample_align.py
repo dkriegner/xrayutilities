@@ -22,6 +22,7 @@ experiments with linear detectors
 
 import re
 import numpy
+import numbers
 import scipy
 import scipy.stats
 import scipy.optimize as optimize
@@ -795,9 +796,9 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         dAngles = numpy.array((),dtype=numpy.double)
         for i in range(Nd-1):
             arg = args[i]
-            if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+            if not isinstance(arg,(numbers.Number,tuple,list,numpy.ndarray)):
                 raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
-            elif isinstance(arg,numpy.ScalarType):
+            elif isinstance(arg,numbers.Number):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
                 arg = numpy.array(arg,dtype=numpy.double)
@@ -811,18 +812,18 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         n2 = numpy.array((),dtype=numpy.double)
 
         arg = args[Nd-1]
-        if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+        if not isinstance(arg,(numbers.Number,tuple,list,numpy.ndarray)):
             raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
-        elif isinstance(arg,numpy.ScalarType):
+        elif isinstance(arg,numbers.Number):
             arg = numpy.array([arg],dtype=numpy.double)
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
         n1 = arg
 
         arg = args[Nd]
-        if not isinstance(arg,(numpy.ScalarType,list,numpy.ndarray)):
+        if not isinstance(arg,(numbers.Number,tuple,list,numpy.ndarray)):
             raise TypeError("QConversionPixel: invalid type for one of the detector coordinates, must be scalar, list or array")
-        elif isinstance(arg,numpy.ScalarType):
+        elif isinstance(arg,numbers.Number):
             arg = numpy.array([arg],dtype=numpy.double)
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
@@ -1352,7 +1353,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
         sAngles = numpy.array((),dtype=numpy.double)
         for i in range(1):
             arg = args[i]
-            if isinstance(arg,numpy.ScalarType):
+            if isinstance(arg,numbers.Number):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
                 arg = numpy.array(arg,dtype=numpy.double)
@@ -1362,7 +1363,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
         dAngles = numpy.array((),dtype=numpy.double)
         for i in range(1,Nd):
             arg = args[i]
-            if isinstance(arg,numpy.ScalarType):
+            if isinstance(arg,numbers.Number):
                 arg = numpy.array([arg],dtype=numpy.double)
             elif isinstance(arg,list):
                 arg = numpy.array(arg,dtype=numpy.double)
@@ -1376,14 +1377,14 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
         n2 = numpy.array((),dtype=numpy.double)
 
         arg = args[Nd]
-        if isinstance(arg,numpy.ScalarType):
+        if isinstance(arg,numbers.Number):
             arg = numpy.array([arg],dtype=numpy.double)
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
         n1 = arg
 
         arg = args[Nd+1]
-        if isinstance(arg,numpy.ScalarType):
+        if isinstance(arg,numbers.Number):
             arg = numpy.array([arg],dtype=numpy.double)
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
