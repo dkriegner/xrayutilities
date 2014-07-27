@@ -375,15 +375,17 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_
     /* include possible tilt of detector axis with respect to its direction */
     cross(r_i,rpixel,tiltaxis);
     normalize(tiltaxis);
-    //print_vector(tiltaxis);
+    /* check if there is a problem with the tiltaxis */
+    for(i=0; i<3; ++i) {
+        if(isnan(tiltaxis[i])) {
+            memset(tiltaxis, 0, sizeof(tiltaxis));
+        }
+    }
     /* create needed rotation matrix */
     rotation_arb(tilt,tiltaxis,tiltmat);
-    //print_matrix(tiltmat);
     /* rotate rpixel */
     matvec(tiltmat,rpixel,tiltaxis);
-    //print_vector(rpixel);
     veccopy(rpixel,tiltaxis);
-    //print_vector(rpixel);
     return 0;
 }
 
