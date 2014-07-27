@@ -26,6 +26,7 @@ import numpy
 import scipy.optimize
 import warnings
 import operator
+import numbers
 
 from . import lattice
 from . import elements
@@ -120,7 +121,7 @@ class Material(object):
         self.rlattice = lat.ReciprocalLattice()
         self.cijkl = Cij2Cijkl(self.cij)
         self.transform = None
-        if numpy.isscalar(thetaDebye):
+        if isinstance(thetaDebye,numbers.Number):
             self.thetaDebye = float(thetaDebye)
         else:
             self.thetaDebye = thetaDebye
@@ -1018,7 +1019,7 @@ class CubicAlloy(Alloy):
         """
 
         # check input parameters
-        if isinstance(q_perp,numpy.ScalarType) and numpy.isfinite(q_perp):
+        if isinstance(q_perp,numbers.Number) and numpy.isfinite(q_perp):
             q_perp = float(q_perp)
         else:
             raise TypeError("First argument (q_perp) must be a scalar!")
@@ -1030,11 +1031,11 @@ class CubicAlloy(Alloy):
             inpr = numpy.array(inpr,dtype=numpy.double)
         else:
             raise TypeError("Third argument (inpr) must be of type list, tuple or numpy.ndarray")
-        if isinstance(asub,numpy.ScalarType) and numpy.isfinite(asub):
+        if isinstance(asub,numbers.Number) and numpy.isfinite(asub):
             asub = float(asub)
         else:
             raise TypeError("Fourth argument (asub) must be a scalar!")
-        if isinstance(relax,numpy.ScalarType) and numpy.isfinite(relax):
+        if isinstance(relax,numbers.Number) and numpy.isfinite(relax):
             relax = float(relax)
         else:
             raise TypeError("Fifth argument (relax) must be a scalar!")
@@ -1107,11 +1108,11 @@ class CubicAlloy(Alloy):
         """
 
         # check input parameters
-        if isinstance(q_inp,numpy.ScalarType) and numpy.isfinite(q_inp):
+        if isinstance(q_inp,number.Numbers) and numpy.isfinite(q_inp):
             q_inp = float(q_inp)
         else:
             raise TypeError("First argument (q_inp) must be a scalar!")
-        if isinstance(q_perp,numpy.ScalarType) and numpy.isfinite(q_perp):
+        if isinstance(q_perp,number.Numbers) and numpy.isfinite(q_perp):
             q_perp = float(q_perp)
         else:
             raise TypeError("Second argument (q_perp) must be a scalar!")

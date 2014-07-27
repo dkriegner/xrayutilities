@@ -22,6 +22,7 @@ module handling crystal lattice structures
 
 import numpy
 from numpy.linalg import norm
+import numbers
 import atexit
 import os.path
 
@@ -167,10 +168,10 @@ class LatticeBase(list):
         else:
             raise TypeError("point must be a list or numpy array of shape (3)")
 
-        if not numpy.isscalar(occ):
-            raise TypeError("occupation (occ) must be a float/numerical value")
-        if not numpy.isscalar(b):
-            raise TypeError("occupation (occ) must be a float/numerical value")
+        if not isinstance(occ,numbers.Number):
+            raise TypeError("occupation (occ) must be a numerical value")
+        if not isinstance(b,numbers.Number):
+            raise TypeError("occupation (occ) must be a numerical value")
 
         list.__setitem__(self,key,(atom,p,float(occ),float(b)))
 

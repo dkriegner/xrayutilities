@@ -33,6 +33,7 @@ predefined experimental classes HXRD, NonCOP, and GID.
 
 import scipy.optimize
 import numpy
+import numbers
 
 from . import config
 
@@ -62,7 +63,7 @@ def _makebounds(boundsin):
                 boundsout.append((b[0],b[0]))
             else:
                 raise InputError()
-        elif isinstance(b,numpy.ScalarType):
+        elif isinstance(b,numbers.Number):
             boundsout.append((b,b)) # variable fixed
         elif b==None:
             boundsout.append((None,None)) # no bound

@@ -338,7 +338,7 @@ class QConversion(object):
                 anp = a.size
             elif isinstance(a,(list,tuple)):
                 anp = len(a)
-            elif numpy.isscalar(a):
+            elif isinstance(a,numbers.Number):
                 anp = 1
             else:
                 raise TypeError('QConversion: Input argument #%d has an invalid type.'%args.index(a))
