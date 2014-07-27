@@ -524,6 +524,11 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) { 
+        PyErr_SetString(PyExc_ValueError,"detectorAngles and sampleAngles need to have same first dimension");
+        return NULL; }
+    if (PyArray_SIZE(lambdaArr) != Npoints) { PyErr_SetString(PyExc_ValueError,"size of wavelength array need to fit with angle arrays");
+        return NULL; }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -666,6 +671,11 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) { 
+        PyErr_SetString(PyExc_ValueError,"detectorAngles and sampleAngles need to have same first dimension");
+        return NULL; }
+    if (PyArray_SIZE(lambdaArr) != Npoints) { PyErr_SetString(PyExc_ValueError,"size of wavelength array need to fit with angle arrays");
+        return NULL; }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -818,6 +828,11 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) { 
+        PyErr_SetString(PyExc_ValueError,"detectorAngles and sampleAngles need to have same first dimension");
+        return NULL; }
+    if (PyArray_SIZE(lambdaArr) != Npoints) { PyErr_SetString(PyExc_ValueError,"size of wavelength array need to fit with angle arrays");
+        return NULL; }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -991,6 +1006,11 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) { 
+        PyErr_SetString(PyExc_ValueError,"detectorAngles and sampleAngles need to have same first dimension");
+        return NULL; }
+    if (PyArray_SIZE(lambdaArr) != Npoints) { PyErr_SetString(PyExc_ValueError,"size of wavelength array need to fit with angle arrays");
+        return NULL; }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -1166,6 +1186,11 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) { 
+        PyErr_SetString(PyExc_ValueError,"detectorAngles and sampleAngles need to have same first dimension");
+        return NULL; }
+    if (PyArray_SIZE(lambdaArr) != Npoints) { PyErr_SetString(PyExc_ValueError,"size of wavelength array need to fit with angle arrays");
+        return NULL; }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -1369,6 +1394,11 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
     Npoints = PyArray_DIMS(sampleAnglesArr)[0];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) { 
+        PyErr_SetString(PyExc_ValueError,"detectorAngles and sampleAngles need to have same first dimension");
+        return NULL; }
+    if (PyArray_SIZE(lambdaArr) != Npoints) { PyErr_SetString(PyExc_ValueError,"size of wavelength array need to fit with angle arrays");
+        return NULL; }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -1716,6 +1746,9 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
         return NULL; }
     Nd = PyArray_DIMS(detectorAnglesArr)[1];
     Ns = PyArray_DIMS(sampleAnglesArr)[1];
+    if (PyArray_DIMS(sampleAnglesArr)[0] != Npoints) { 
+        PyErr_SetString(PyExc_ValueError,"detectorAngles and sampleAngles need to have same first dimension");
+        return NULL; }
 
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
