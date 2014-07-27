@@ -292,9 +292,9 @@ INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat) {
 
 
 /* #######################################
- *  conversion helper functions
+ *  debug helper functions
  * #######################################*/
-
+/*
 int print_matrix(double *m) {
     unsigned int i;
     for(i=0;i<9;i+=3) {
@@ -308,6 +308,11 @@ int print_vector(double *m) {
     printf("\n%8.5g %8.5g %8.5g\n",m[0],m[1],m[2]);
     return 0;
 }
+*/
+
+/* #######################################
+ *  conversion helper functions
+ * #######################################*/
 
 int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt) {
     /* determine the direction of linear direction or one of the directions
@@ -550,10 +555,6 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     veccopy(local_ri,ri);
     normalize(local_ri);
 
-    //debug
-    //print_vector(local_ri);
-    //print_matrix(UB);
-
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
             private(i,j,ki,mtemp,mtemp2,ms,md) \
@@ -696,9 +697,6 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     // give ri correct length
     veccopy(local_ri,ri);
     normalize(local_ri);
-
-    //debug
-    //print_matrix(UB);
 
     // calculate rotation matices and perform rotations
     #pragma omp parallel for default(shared) \
@@ -1411,8 +1409,6 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
     if(determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) { return NULL; }
     if(determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) { return NULL; }
 
-    /*print_vector(rpixel1);
-    print_vector(rpixel2);*/
     // rotate detector pixel vectors according to tilt
     veccopy(rtemp,rpixel1);
     normalize(rtemp);
@@ -1431,9 +1427,6 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
     matvec(mtemp,rtemp,rpixel1);
     veccopy(rtemp,rpixel2);
     matvec(mtemp,rtemp,rpixel2);
-
-    /*print_vector(rpixel1);
-    print_vector(rpixel2);*/
 
     // calculate center channel position in detector plane
     for(k=0; k<3; ++k)
@@ -1483,9 +1476,6 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
                 vecmul(rtemp,f);
                 // determine momentum transfer
                 matvec(ms, rtemp, &qpos[3*(i*idxh1+idxh2*(j1-roi[0])+(j2-roi[2]))]);
-                //print_matrix(ms);
-                //print_vector(rtemp);
-                //print_vector(&qpos[3*(i*idxh1+idxh2*(j1-roi[0])+(j2-roi[2]))]);
             }
         }
     }
