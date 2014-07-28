@@ -43,27 +43,44 @@ energies = {'CuKa1': 8047.82310, 'CuKa2': 8027.9117, 'CuKa12': 8041.18, 'CuKb': 
 
 def lam2en(inp):
     """
-    converts the input energy in eV to a wavelength in Angstrom
-    or the input wavelength in Angstrom to an energy in eV
+    converts the input wavelength in Angstrom to an energy in eV
 
     Parameter
     ---------
-     inp : either an energy in eV or an wavelength in Angstrom
+     inp : wavelength in Angstrom
 
     Returns
     -------
-     float, energy in eV or wavlength in Angstrom
+     float, energy in eV
+
+    Examples
+    --------
+     >>> energy = lam2en(1.5406)
+    """
+    #  E(eV) = h*c/(e * lambda(A)) *1e10
+    inp = wavelength(inp)
+    out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
+    return out
+
+def en2lam(inp):
+    """
+    converts the input energy in eV to a wavelength in Angstrom
+
+    Parameter
+    ---------
+     inp : energy in eV
+
+    Returns
+    -------
+     float, wavlength in Angstrom
 
     Examples
     --------
      >>> lambda = lam2en(8048)
-     >>> energy = lam2en(1.5406)
     """
-    #  E(eV) = h*c/(e * lambda(A)) *1e10
     #  lambda(A) = h*c/(e * E(eV)) *1e10
     inp = energy(inp)
     out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
-
     return out
 
 def energy(en):
@@ -116,7 +133,7 @@ def wavelength(wl):
     elif isinstance(wl,(numpy.ndarray,list,tuple)):
         return numpy.array(wl)
     elif isinstance(wl,basestring):
-        return lam2en(energies[wl])
+        return en2lam(energies[wl])
     else:
         raise InputError("wrong type for argument wavelength")
 

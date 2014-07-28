@@ -74,7 +74,7 @@ if numpy.isnan(ENERGY):
 if ENERGY=='NaN':
     ENERGY = utilities_noconf.lam2en(utilities_noconf.wavelength(WAVELENGTH))
 else: # energy was given and wavelength is calculated from given energy
-    WAVELENGTH = utilities_noconf.lam2en(utilities_noconf.energy(ENERGY))
+    WAVELENGTH = utilities_noconf.en2lam(utilities_noconf.energy(ENERGY))
 
 # number of threads in parallel section of c-code 
 NTHREADS = xuParser.getint("xrayutilities","nthreads")

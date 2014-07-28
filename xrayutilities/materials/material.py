@@ -331,7 +331,7 @@ class Material(object):
         if en=="config":
             en = utilities.energy(config.ENERGY)
 
-        lam = utilities.lam2en(en)
+        lam = utilities.en2lam(en)
         delta = 0.
 
         for atpos in self.lattice.base:
@@ -361,7 +361,7 @@ class Material(object):
         if en=="config":
             en = utilities.energy(config.ENERGY)
 
-        lam = utilities.lam2en(en)
+        lam = utilities.en2lam(en)
         beta = 0.
 
         for atpos in self.lattice.base:
@@ -435,7 +435,7 @@ class Material(object):
 
         #classical electron radius
         r_e = 1/(4*numpy.pi*scipy.constants.epsilon_0)*scipy.constants.e**2/(scipy.constants.electron_mass*scipy.constants.speed_of_light**2)*1e10
-        lam = utilities.lam2en(en)
+        lam = utilities.en2lam(en)
 
         f = -lam**2*r_e/(numpy.pi*self.lattice.UnitCellVolume())
         rchi = numpy.abs(f*sr)
@@ -508,7 +508,7 @@ class Material(object):
 
         if en=="config":
             en = utilities.energy(config.ENERGY)
-        lam = utilities.lam2en(en)
+        lam = utilities.en2lam(en)
         dth = numpy.degrees(2*self.delta(en)/numpy.sin(2*numpy.arcsin(lam*numpy.linalg.norm(Q)/(4*numpy.pi))))
         return dth
 
