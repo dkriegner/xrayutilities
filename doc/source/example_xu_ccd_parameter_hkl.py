@@ -13,7 +13,7 @@ datadir = 'data'
 specfile = "si_align.spec"
 
 en=15000 #eV
-wl = xu.lam2en(en)
+wl = xu.en2lam(en)
 imgdir = os.path.join(datadir,"si_align_") # data path for CCD files
 filetmp = "si_align_12_%04d.edf.gz"
 

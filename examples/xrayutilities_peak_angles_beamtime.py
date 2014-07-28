@@ -34,7 +34,7 @@ InP_4H = xu.materials.Material("InP(4H)",xu.materials.Hexagonal4HLattice(In,P,ai
 
 for energy in [8041]: #eV
 
-    lam = xu.lam2en(energy) # e in eV -> lam in Angstroem
+    lam = xu.en2lam(energy) # e in eV -> lam in Angstroem
     print('         %d eV = %8.4f A' % (energy,lam))
     print('-----------------------------------------------------------------------------------')
     print('material |         peak    |   omega  |  2theta  |    phi   |   tt-om  |     |F|   ')

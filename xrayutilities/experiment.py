@@ -136,7 +136,7 @@ class QConversion(object):
 
     def _set_energy(self,energy):
         self._en = utilities.energy(energy)
-        self._wl = utilities.lam2en(self._en)
+        self._wl = utilities.en2lam(self._en)
 
     def _set_wavelength(self,wl):
         self._wl = utilities.wavelength(wl)
@@ -1080,7 +1080,7 @@ class Experiment(object):
 
     def _set_energy(self,energy):
         self._en = utilities.energy(energy)
-        self._wl = utilities.lam2en(self._en)
+        self._wl = utilities.en2lam(self._en)
         self.k0 = numpy.pi*2./self._wl
         self._A2QConversion.wavelength = self._wl
 

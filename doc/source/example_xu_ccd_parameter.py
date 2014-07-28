@@ -32,5 +32,5 @@ for imgnr in imagenrs:
 # detector arm rotations and primary beam direction need to be given 
 # in total 8 parameters are fitted, however the 4 misalignment parameters can be fixed
 # they are the detector tilt azimuth, the detector tilt angle, the detector rotation around the primary beam and the outer angle offset
-param,eps = xu.analysis.sample_align.area_detector_calib(ang1,ang2,images,['z+','y-'],'x+',start=(45,0,-0.7,0),fix=(False,False,False,False),wl=xu.lam2en(en))
+param,eps = xu.analysis.sample_align.area_detector_calib(ang1,ang2,images,['z+','y-'],'x+',start=(45,0,-0.7,0),fix=(False,False,False,False),wl=xu.en2lam(en))
 
