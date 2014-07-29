@@ -298,6 +298,47 @@ class AxisToZ(CoordinateTransform):
 
         CoordinateTransform.__init__(self,newx,newy,newz)
 
+class AxisToZ_keepXY(CoordinateTransform):
+    """
+    Creates a coordinate transformation to move a certain axis to the z-axis.
+    The rotation is done along the great circle.
+    The x-axis/y-axis of the new coordinate frame is created to be similar to the
+    old x and y directions. This variant of AxisToZ assumes that the new Z-axis 
+    has its main component along the Z-direction
+    """
+    def __init__(self,newzaxis):
+        """
+        initialize the CoordinateTransformation to move a certain axis to the z-axis
+
+        Parameters
+        ----------
+         newzaxis:  list or numpy array with new z-axis
+        """
+        if isinstance(newzaxis,(list,tuple)):
+            newz = numpy.array(newzaxis,dtype=numpy.double)
+        elif isinstance(newzaxis,numpy.ndarray):
+            newz = newzaxis
+        else:
+            raise TypeError("vector must be a list, tuple or numpy array")
+
+        if vector.VecAngle([0,0,1],newz) < config.EPSILON:
+            newx = [1,0,0]
+            newy = [0,1,0]
+            newz = [0,0,1]
+        elif vector.VecAngle([0,0,1],-newz) < config.EPSILON:
+            newx = [-1,0,0]
+            newy = [0,1,0]
+            newz = [0,0,-1]
+        else:    
+            newx = numpy.cross(newz,[0,0,1])
+            newy = numpy.cross(newz,newx)
+            # rotate newx and newy to be similar to old directions
+            ang = numpy.degrees(numpy.arctan2(newz[0],newz[1]))
+            newx = rotarb(newx,newz,ang)
+            newy = rotarb(newy,newz,ang)            
+        
+        CoordinateTransform.__init__(self,newx,newy,newz)
+
 def XRotation(alpha,deg=True):
     """
     Returns a transform that represents a rotation about the x-axis
