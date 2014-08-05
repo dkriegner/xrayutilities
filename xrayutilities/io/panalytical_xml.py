@@ -197,9 +197,10 @@ def getOmPixcel(omraw,ttraw):
 
 def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
     """
-    parses multiple XRDML file and concatenates the results
-    for parsing the xrayutilities.io.XRDMLFile class is used. The function can
-    be used for parsing maps measured with the PIXCel and point detector.
+    parses multiple XRDML file and concatenates the results for parsing the
+    xrayutilities.io.XRDMLFile class is used. The function can be used for
+    parsing maps measured with the PIXCel 1D detector (and in limited way also
+    for data acquired with a point detector -> see getxrdml_scan instead).
 
     Parameter
     ---------
@@ -209,7 +210,7 @@ def getxrdml_map(filetemplate,scannrs=None,path=".",roi=None):
      scannrs:      int or list of scan numbers
      path:         common path to the filenames
      roi:          region of interest for the PIXCel detector,
-                   for other measurements this i not usefull!
+                   for other measurements this is not usefull!
 
     Returns
     -------
