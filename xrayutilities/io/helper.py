@@ -25,6 +25,10 @@ these functions should be used in new parsers since they transparently allow to 
 import os
 import gzip
 import bz2
+import sys
+
+if sys.version_info >= (3,3):
+    import lzma # new in python 3.3
 
 from .. import config
 from ..exception import InputError
@@ -52,6 +56,11 @@ def xu_open(filename,mode='rb'):
         fid = gzip.open(filename,mode)
     elif os.path.splitext(filename)[-1] == '.bz2':
         fid = bz2.BZ2File(filename,mode)
+    elif os.path.splitext(filename)[-1] == '.xz':
+        if sys.version_info >= (3,3):
+            fid = lzma.open(filename,mode)
+        else:
+            raise TypeError("File compression type not supported in python versions prior to 3.3")
     else:
         fid = open(filename,mode)
 
