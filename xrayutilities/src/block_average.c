@@ -66,7 +66,7 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!i",&PyArray_Type, &input, &Nav)) return NULL;
 
     PYARRAY_CHECK(input,1,NPY_DOUBLE,"input must be a 1D double array!");
-    N = PyArray_SIZE(input);
+    N = (int) PyArray_SIZE(input);
     cin = (double *) PyArray_DATA(input);
 
     // create output ndarray
@@ -120,8 +120,8 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!iiI",&PyArray_Type, &input, &Nav2, &Nav1, &nthreads)) return NULL;
 
     PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
-    Nch2 = PyArray_DIMS(input)[0];
-    Nch1 = PyArray_DIMS(input)[1];
+    Nch2 = (int) PyArray_DIMS(input)[0];
+    Nch1 = (int) PyArray_DIMS(input)[1];
     cin = (double *) PyArray_DATA(input);
 
     // create output ndarray
@@ -179,8 +179,8 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!iI",&PyArray_Type, &input, &Nav, &nthreads)) return NULL;
 
     PYARRAY_CHECK(input,2,NPY_DOUBLE,"input must be a 2D double array!");
-    Nspec = PyArray_DIMS(input)[0];
-    Nch = PyArray_DIMS(input)[1];
+    Nspec = (int) PyArray_DIMS(input)[0];
+    Nch = (int) PyArray_DIMS(input)[1];
     cin = (double *) PyArray_DATA(input);
 
     // create output ndarray

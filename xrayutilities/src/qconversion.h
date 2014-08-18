@@ -111,7 +111,7 @@ INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat);
 #   functions needed for reciprocal space converions
 ################################################*/
 
-int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n);
+int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,unsigned int n);
 int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt);
 int print_matrix(double *m);
 int print_vector(double *m);

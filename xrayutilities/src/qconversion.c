@@ -38,6 +38,10 @@
 #ifdef __OPENMP__
 #include <omp.h>
 #endif
+#ifdef _WIN32
+#include <float.h>
+#define isnan _isnan
+#endif
 
 #define PYARRAY_CHECK(array,dims,type,msg) \
     array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *)array,type,NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED); \
@@ -389,7 +393,7 @@ int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_
     return 0;
 }
 
-int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,int n) {
+int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,unsigned int n) {
     /* feed the function pointer array with the correct
      * rotation matrix generating functions
      * */
@@ -516,9 +520,9 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
         PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
 
-    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -659,9 +663,9 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
         PyErr_SetString(PyExc_ValueError,"UB must be of shape (3,3)"); return NULL; }
 
-    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -812,9 +816,9 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     if (PyArray_SIZE(roiArr) != 2) {
         PyErr_SetString(PyExc_ValueError,"roi must be of length 2"); return NULL; }
 
-    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -982,9 +986,9 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
     if (PyArray_SIZE(roiArr) != 2) {
         PyErr_SetString(PyExc_ValueError,"roi must be of length 2"); return NULL; }
 
-    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -1154,9 +1158,9 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     if (PyArray_SIZE(roiArr) != 4) {
         PyErr_SetString(PyExc_ValueError,"roi must be of length 4"); return NULL; }
 
-    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -1363,9 +1367,9 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
     if (PyArray_SIZE(sampledisArr) != 3) { PyErr_SetString(PyExc_ValueError,"sampledis needs to be of length 3");
         return NULL; }
 
-    Npoints = PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
@@ -1551,11 +1555,11 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     PYARRAY_CHECK(n1Arr,1,NPY_DOUBLE,"n1 must be a 1D double array");
     PYARRAY_CHECK(n2Arr,1,NPY_DOUBLE,"n2 must be a 1D double array");
 
-    Npoints = PyArray_DIMS(detectorAnglesArr)[0];
+    Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
     if (PyArray_SIZE(n1Arr) != Npoints || PyArray_SIZE(n2Arr) != Npoints) {
         PyErr_SetString(PyExc_ValueError,"n1,n2 must be of length Npoints");
         return NULL; }
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
 
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
     rcch = (double *) PyArray_DATA(rcchArr);
@@ -1714,12 +1718,12 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     PYARRAY_CHECK(n1Arr,1,NPY_DOUBLE,"n1 must be a 1D double array");
     PYARRAY_CHECK(n2Arr,1,NPY_DOUBLE,"n2 must be a 1D double array");
 
-    Npoints = PyArray_DIMS(detectorAnglesArr)[0];
+    Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
     if (PyArray_SIZE(n1Arr) != Npoints || PyArray_SIZE(n2Arr) != Npoints) {
         PyErr_SetString(PyExc_ValueError,"n1,n2 must be of length Npoints");
         return NULL; }
-    Nd = PyArray_DIMS(detectorAnglesArr)[1];
-    Ns = PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
+    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
 
     detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
