@@ -44,6 +44,10 @@ from .edf import EDFDirectory
 from .cbf import CBFFile
 from .cbf import CBFDirectory
 
+from .fastscan import FastScan
+from .fastscan import FastScanCCD
+from .fastscan import FastScanSeries
+
 from .spectra import Spectra
 
 from .panalytical_xml import XRDMLFile

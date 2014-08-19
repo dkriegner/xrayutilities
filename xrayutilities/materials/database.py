@@ -148,10 +148,7 @@ class DataBase(object):
         except:
             pass
 
-        a = tables.Float32Atom()
-        c = self.h5file.createCArray(self.h5group,"f0",a,[len(p)],title="f0 fit parameters")
-
-        c[...] = p
+        c = self.h5file.createArray(self.h5group,"f0",p,"f0 fit parameters")
         self.h5file.flush()
 
     def SetF1(self,en,f1):
@@ -188,12 +185,10 @@ class DataBase(object):
         except:
             pass
 
-        c = self.h5file.createCArray(self.h5group,"en_f1",a,end.shape,"f1 energy scale in (eV)")
-        c[...] = end
+        c = self.h5file.createArray(self.h5group,"en_f1",end,"f1 energy scale in (eV)")
         self.h5file.flush()
 
-        c = self.h5file.createCArray(self.h5group,"f1",a,f1d.shape,"f1 data")
-        c[...] = f1d
+        c = self.h5file.createArray(self.h5group,"f1",f1d,"f1 data")
         self.h5file.flush()
 
     def SetF2(self,en,f2):
@@ -230,12 +225,10 @@ class DataBase(object):
         except:
             pass
 
-        c = self.h5file.createCArray(self.h5group,"en_f2",a,end.shape,"f2 energy scale in (eV)")
-        c[...] = end
+        c = self.h5file.createArray(self.h5group,"en_f2",end,"f2 energy scale in (eV)")
         self.h5file.flush()
 
-        c = self.h5file.createCArray(self.h5group,"f2",a,f2d.shape,"f2 data")
-        c[...] = f2d
+        c = self.h5file.createArray(self.h5group,"f2",f2d,"f2 data")
         self.h5file.flush()
 
     def SetMaterial(self,name):

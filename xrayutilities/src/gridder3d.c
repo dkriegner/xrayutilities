@@ -71,7 +71,7 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     if(py_norm!=NULL) norm = (double *)PyArray_DATA(py_norm);
 
     //get the total number of points
-    n =  PyArray_SIZE(py_x);
+    n = (int) PyArray_SIZE(py_x);
 
     //call the actual gridder routine
     result = gridder3d(x,y,z,data,n,nx,ny,nz,

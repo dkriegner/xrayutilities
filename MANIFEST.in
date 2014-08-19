@@ -8,4 +8,7 @@ recursive-include examples *
 
 # C source files and tests
 graft xrayutilities/src
-graft xrayutilities/tests
+recursive-include xrayutilities/tests *.py
+
+# include database files
+graft xrayutilities/materials/data

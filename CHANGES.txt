@@ -1,5 +1,9 @@
 * Reciprocal space conversion of energy scans for point, linear, area
   detectors 
+* fixes for possible segfault in the Gridder classes
+* considerable reduce size of elements.db file
+* FastScan parser for spec-mesh scans and FastScan/kmap data from ESRF 
+  (thanks to RG for help with testing and implementation ideas)
 * code-cleanup
 * minimal bug-fixes in io (xrdml)
 * documentation updates

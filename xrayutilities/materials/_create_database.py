@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 script to create the HDF5 database from the raw data of XOP
 this file is only needed for administration
@@ -21,20 +21,27 @@ this file is only needed for administration
 
 import os
 
-from . import database as db
+#if __name__ == "__main__" and __package__ is None:
+#        __package__ = "xrayutilities"
+#from . import database as db
+execfile('database.py')
 
 filename = os.path.join("data","elements.db")
 
-dbf = db.DataBase(filename)
+dbf = DataBase(filename)
 dbf.Create(filename,"Database with elemental data from XOP and Kissel databases")
 
-db.init_material_db(dbf)
+init_material_db(dbf)
 
-db.add_mass_from_NIST(dbf,os.path.join("data","nist_atom.dat"))
-db.add_f0_from_xop(dbf,os.path.join("data","f0_xop.dat"))
-db.add_f1f2_from_kissel(dbf,os.path.join("data","f1f2_asf_Kissel.dat"))
-# add costum (more acurate data for Ga and P)
-db.add_f1f2_from_ascii_file(dbf,os.path.join("data","Ga.f1f2"),'Ga')
-db.add_f1f2_from_ascii_file(dbf,os.path.join("data","P.f1f2"),'P')
+add_mass_from_NIST(dbf,os.path.join("data","nist_atom.dat"))
+add_f0_from_xop(dbf,os.path.join("data","f0_xop.dat"))
+add_f1f2_from_kissel(dbf,os.path.join("data","f1f2_asf_Kissel.dat"))
+# alternative use the Henke database
+# add_f1f2_from_henkedb(dbf,os.path.join("data","f1f2_Henke.dat"))
+
+# Also its possible to add costum data from different databases; e.g. created by Hepaestus (http://bruceravel.github.io/demeter/)
+# this is also possible for specific elements only, therefore extract the data from Hephaestus or any other source producing
+# ASCII files with three columns (energy (eV), f1, f2)
+# add_f1f2_from_ascii_file(dbf,os.path.join("data","Ga.f1f2"),'Ga')
 
 dbf.Close()

@@ -748,7 +748,13 @@ class Material(object):
         return s
         # still a lot of overhead, because normally we do have 2 different types of atoms in a 8 atom base, but we calculate all 8 times which is obviously not necessary. One would have to reorganize the things in the LatticeBase class, and introduce something like an atom type and than only store the type in the List.
 
-    def ApplyStrain(self,strain,**keyargs):
+    def ApplyStrain(self,strain):
+        """
+        Applies a certain strain on the lattice of the material. The result is
+        a change in the base vectors of the real space as well as reciprocal
+        space lattice.  The full strain matrix (3x3) needs to be given.  Note:
+        NO elastic response of the material will be considered!
+        """
         #let strain act on the base vectors
         self.lattice.ApplyStrain(strain)
         #recalculate the reciprocal lattice

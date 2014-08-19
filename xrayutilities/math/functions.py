@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module with several common function needed in xray data analysis
@@ -206,7 +206,7 @@ def TwoGauss2d(x,y,*p):
     """
 
     p = list(p)
-    p1 = p[0:5] + [p[12],] + [p[6],]
+    p1 = p[0:5] + [p[12],] + [p[5],]
     p2 = p[6:11] + [p[12],] +[p[11],]
 
     g = Gauss2d(x,y,*p1) + Gauss2d(x,y,*p2)

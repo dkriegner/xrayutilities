@@ -227,14 +227,17 @@ class Lattice(object):
     def ApplyStrain(self,eps):
         """
         Applies a certain strain on a lattice. The result is a change
-        in the base vectors.
+        in the base vectors. The full strain matrix (3x3) needs to be given.
+        Note: NO elastic response of the material will be considered!
 
         requiered input arguments:
          eps .............. a 3x3 matrix independent strain components
         """
 
-        if isinstance(eps,list):
+        if isinstance(eps,(list,tuple)):
             eps = numpy.array(eps,dtype=numpy.double)
+        if eps.shape != (3,3):
+            raise InputError("ApplyStrain needs a 3x3 matrix with strain values")
 
         u1 = (eps*self.a1[numpy.newaxis,:]).sum(axis=1)
         self.a1 = self.a1 + u1
