@@ -32,6 +32,10 @@ class Gridder2D(Gridder):
     def __init__(self,nx,ny):
         Gridder.__init__(self)
 
+        # check input
+        if nx<=0 or ny<=0:
+            raise exception.InputError('Neither nx nor ny can be smaller than 1!')
+
         self.xmin = None
         self.ymin = None
         self.xmax = None

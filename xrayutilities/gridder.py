@@ -33,8 +33,10 @@ def delta(min_value,max_value,n):
     max_value ........... axis maximum value
     n ................... number of steps
     """
-
-    return (float(max_value)-float(min_value))/float(n-1)
+    if n!=1:
+        return (float(max_value)-float(min_value))/float(n-1)
+    else:
+        return numpy.inf
 
 def axis(min_value,max_value,n):
     """
@@ -124,6 +126,8 @@ class Gridder(object):
 class Gridder1D(Gridder):
     def __init__(self,nx):
         Gridder.__init__(self)
+        if nx<=0:
+            raise InputError('nx must be a positiv integer!')
 
         self.nx = nx
         self.xmin = 0
