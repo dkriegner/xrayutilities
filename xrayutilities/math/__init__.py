@@ -48,6 +48,10 @@ from .functions import Lorentz1d_der_x
 from .functions import Lorentz1d_der_p
 from .functions import Lorentz2d
 from .functions import PseudoVoigt1d
+from .functions import PseudoVoigt2d
+from .functions import Gauss1dArea
+from .functions import Gauss2dArea
+from .functions import Lorentz1dArea
 from .functions import PseudoVoigt1dArea
 
 from .fit import fit_peak2d

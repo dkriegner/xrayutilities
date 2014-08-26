@@ -102,7 +102,7 @@ def peak_fit(xdata,ydata,iparams=[],peaktype='Gauss',maxit=200):
     # use least-square fit
     myodr.set_job(fit_type=2)
 
-#    # DK commented out because this command triggers a synthax error with new scipy version 2013/5/7
+#    # DK commented out because this command triggers a syntax error with new scipy version 2013/5/7
 #    if config.VERBOSITY >= config.DEBUG:
 #        myodr.set_iprint(final=1)
 
