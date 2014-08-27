@@ -120,21 +120,24 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     /*the master loop over all data points*/
     for(i=0;i<n;i++)
     {
-        //if the x and y values are outside the grids boundaries continue with
-        //the next point
-        if ((x[i]<xmin)||(x[i]>xmax)) {
-            noutofbounds++;
-            continue;
-        }
-        if ((y[i]<ymin)||(y[i]>ymax)) {
-            noutofbounds++;
-            continue;
-        }    
-        //compute the linear offset and set the data
-        offset = gindex(x[i],xmin,dx)*ny+gindex(y[i],ymin,dy);
+        //if data point is nan ignore it
+        if(!isnan(data[i])) {
+            //if the x and y values are outside the grids boundaries continue with
+            //the next point
+            if ((x[i]<xmin)||(x[i]>xmax)) {
+                noutofbounds++;
+                continue;
+            }
+            if ((y[i]<ymin)||(y[i]>ymax)) {
+                noutofbounds++;
+                continue;
+            }    
+            //compute the linear offset and set the data
+            offset = gindex(x[i],xmin,dx)*ny+gindex(y[i],ymin,dy);
 
-        odata[offset] += data[i];
-        gnorm[offset] += 1.;
+            odata[offset] += data[i];
+            gnorm[offset] += 1.;
+        }
     }
 
     /*perform normalization*/

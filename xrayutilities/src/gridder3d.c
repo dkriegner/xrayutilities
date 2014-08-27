@@ -120,27 +120,29 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     /*the master loop over all data points*/
     for(i=0;i<n;i++)
     {
-        //check if the current point is within the bounds of the grid
-        if((x[i]<xmin)||(x[i]>xmax)) {
-            noutofbounds++;
-            continue;
-        }
-        if((y[i]<ymin)||(y[i]>ymax)) {
-            noutofbounds++;
-            continue;
-        }
-        if((z[i]<zmin)||(z[i]>zmax)) {
-            noutofbounds++;
-            continue;
-        }
+        if(!isnan(data[i])) {
+            //check if the current point is within the bounds of the grid
+            if((x[i]<xmin)||(x[i]>xmax)) {
+                noutofbounds++;
+                continue;
+            }
+            if((y[i]<ymin)||(y[i]>ymax)) {
+                noutofbounds++;
+                continue;
+            }
+            if((z[i]<zmin)||(z[i]>zmax)) {
+                noutofbounds++;
+                continue;
+            }
 
-        //compute the offset value of the current input point on the grid array
-        offset = gindex(x[i],xmin,dx)*ny*nz +
-                 gindex(y[i],ymin,dy)*nz +
-                 gindex(z[i],zmin,dz);
+            //compute the offset value of the current input point on the grid array
+            offset = gindex(x[i],xmin,dx)*ny*nz +
+                     gindex(y[i],ymin,dy)*nz +
+                     gindex(z[i],zmin,dz);
 
-        odata[offset] += data[i];
-        gnorm[offset] += 1.;
+            odata[offset] += data[i];
+            gnorm[offset] += 1.;
+        }
     }
 
     /*perform normalization*/

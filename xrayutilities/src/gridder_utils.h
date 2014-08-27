@@ -27,6 +27,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#ifdef _WIN32
+#include <float.h>
+#define isnan _isnan
+#endif
 
 #define PYARRAY_CHECK(array,dims,type,msg) \
     array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *)array,type,NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED); \
