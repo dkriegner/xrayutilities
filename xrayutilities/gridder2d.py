@@ -138,17 +138,23 @@ class Gridder2D(Gridder):
         y = y.reshape(y.size)
         data = data.reshape(data.size)
 
+        # use only non-NaN data values
+        mask = numpy.invert(numpy.isnan(data))
+        ldata = data[mask]
+        lx = x[mask]
+        ly = y[mask]
+        
         if x.size != y.size or y.size!=data.size:
             raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,data) is not equal!")
  
         if not self.fixed_range: 
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
-            self.dataRange(x.min(),x.max(),y.min(),y.max(),self.keep_data)
+            self.dataRange(lx.min(),lx.max(),ly.min(),ly.max(),self.keep_data)
 
         #remove normalize flag for C-code, normalization is always performed in python
         flags = self.flags^4
-        cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,
+        cxrayutilities.gridder2d(lx,ly,ldata,self.nx,self.ny,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
                                  self._gdata,self._gnorm,flags)            
