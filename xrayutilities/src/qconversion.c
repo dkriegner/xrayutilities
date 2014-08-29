@@ -39,8 +39,10 @@
 #include <omp.h>
 #endif
 #ifdef _WIN32
-#include <float.h>
-#define isnan _isnan
+    #ifndef __MINGW32__
+        #include <float.h>
+        #define isnan _isnan
+    #endif
 #endif
 
 #define PYARRAY_CHECK(array,dims,type,msg) \
