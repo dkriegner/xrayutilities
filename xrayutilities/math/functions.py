@@ -105,7 +105,6 @@ def Gauss1d(x,*p):
     >>> Gauss1d(x,*p)
     >>> Gauss1d(numpy.linspace(0,10,100), 5, 1, 1e3, 0)
     """
-
     g = p[3]+p[2]*numpy.exp(-((p[0]-x)/p[1])**2/2.)
     return g
 
@@ -229,9 +228,7 @@ def Lorentz1d(x,*p):
     at position (x,y)
 
     """
-
     g = p[3]+p[2]/(1+(2*(x-p[0])/p[1])**2)
-
     return g
 
 def Lorentz1d_der_x(x,*p):
@@ -250,13 +247,11 @@ def Lorentz1d_der_p(x,*p):
 
     for parameter description see Lorentz1d
     """
-
     r = numpy.concatenate(( 4*(x-p[0])* p[2]/p[1]/(1+(2*(x-p[0])/p[1])**2)**2,\
                             4*(p[0]-x)* p[2]/p[1]**2/(1+(2*(x-p[0])/p[1])**2)**2,\
                             1/(1+(2*(x-p[0])/p[1])**2),\
                             numpy.ones(x.shape,dtype=numpy.float) ))
     r.shape = (4,) + x.shape
-
     return r
 
 def Lorentz2d(x,y,*p):
@@ -275,7 +270,6 @@ def Lorentz2d(x,y,*p):
     the value of the Lorentian described by the parameters p
     at position (x,y)
     """
-
     rcen_x = p[0] * numpy.cos(p[6]) - p[1] * numpy.sin(p[6])
     rcen_y = p[0] * numpy.sin(p[6]) + p[1] * numpy.cos(p[6])
     xp = x * numpy.cos(p[6]) - y * numpy.sin(p[6])
@@ -287,11 +281,12 @@ def Lorentz2d(x,y,*p):
 
 def PseudoVoigt1d(x,*p):
     """
-    function to calculate a pseudo Voigt function as linear combination of a Gauss and Lorentz peak
+    function to calculate a pseudo Voigt function as linear combination of a
+    Gauss and Lorentz peak
 
     Parameters
     ----------
-     p:     list of parameters of the Lorentz-function
+     p:     list of parameters of the pseudo Voigt-function
             [XCEN,FWHM,AMP,BACKGROUND,ETA]
             ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
      x:     coordinate(s) where the function should be evaluated
@@ -299,12 +294,80 @@ def PseudoVoigt1d(x,*p):
     Returns
     -------
     the value of the PseudoVoigt described by the parameters p
-    at position (x,y)
-
+    at position 'x'
     """
+    sigma = p[1]/(2*numpy.sqrt(2*numpy.log(2)))
+    f = p[3] + p[4]*Lorentz1d(x,p[0],p[1],p[2],0) + (1-p[4])*Gauss1d(x,p[0],sigma,p[2],0) 
+    return f
 
-    f = p[3]+p[2] * ( p[4]*(1/(1+(2*(x-p[0])/(p[1]/2.))**2)) + (1-p[4])*numpy.exp(-numpy.log(2)*((p[0]-x)/(p[1]/2.))**2) ) 
+def PseudoVoigt2d(x,y,*p):
+    """
+    function to calculate a pseudo Voigt function as linear combination of a
+    Gauss and Lorentz peak in two dimensions
 
+    Parameters
+    ----------
+     x,y:   coordinate(s) where the function should be evaluated
+     p:     list of parameters of the pseudo Voigt-function
+            [XCEN,YCEN,FWHMX,FWHMY,AMP,BACKGROUND,ANGLE,ETA]
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
+
+    Returns
+    -------
+    the value of the PseudoVoigt described by the parameters p
+    at position (x,y)
+    """
+    sigmax = p[2]/(2*numpy.sqrt(2*numpy.log(2)))
+    sigmay = p[3]/(2*numpy.sqrt(2*numpy.log(2)))
+    f = p[5] + p[7]*Lorentz2d(x,y,p[0],p[1],p[2],p[3],p[4],0,p[6]) + (1-p[7])*Gauss2d(x,y,p[0],p[1],sigmax,sigmay,p[4],0,p[6]) 
+    return f
+
+def Gauss1dArea(*p):
+    """
+    function to calculate the area of a Gauss function with neglected background
+
+    Parameters
+    ----------
+     p:     list of parameters of the Gauss-function
+            [XCEN,SIGMA,AMP,BACKGROUND]
+
+    Returns
+    -------
+    the area of the Gaussian described by the parameters p
+    """
+    f = p[2] * numpy.sqrt(2*numpy.pi)*p[1]  
+    return f
+
+def Gauss2dArea(*p):
+    """
+    function to calculate the area of a 2D Gauss function with neglected background
+
+    Parameters
+    ----------
+     p:     list of parameters of the Gauss-function
+            [XCEN,YCEN,SIGMAX,SIGMAY,AMP,ANGLE,BACKGROUND]
+
+    Returns
+    -------
+    the area of the Gaussian described by the parameters p
+    """
+    f = p[4] * numpy.sqrt(2*numpy.pi)**2*p[2]*p[3]  
+    return f
+
+def Lorentz1dArea(*p):
+    """
+    function to calculate the area of a Lorentz function with neglected background
+
+    Parameters
+    ----------
+     p:     list of parameters of the Lorentz-function
+            [XCEN,FWHM,AMP,BACKGROUND]
+
+    Returns
+    -------
+    the area of the Lorentzian described by the parameters p
+    """
+    f = p[2] * numpy.pi/(2./(p[1])) 
     return f
 
 def PseudoVoigt1dArea(*p):
@@ -319,13 +382,10 @@ def PseudoVoigt1dArea(*p):
 
     Returns
     -------
-    the value of the PseudoVoigt described by the parameters p
-    at position (x,y)
-
+    the area of the PseudoVoigt described by the parameters p
     """
-
-    f = p[2] * ( p[4]*numpy.pi/(4./(p[1])) + (1.-p[4])*numpy.sqrt(numpy.pi)/(numpy.sqrt(numpy.log(2))*2./(p[1])) ) 
-
+    sigma = p[1]/(2*numpy.sqrt(2*numpy.log(2)))
+    f = p[4]*Lorentz1dArea(*p) + (1.-p[4])*Gauss1dArea(p[0],sigma,p[2],p[3])
     return f
 
 def Debye1(x):
@@ -366,3 +426,102 @@ def Debye1(x):
         print("XU.math.Debye1: Debye integral value/error estimate: %g %g"%(integral[0],integral[1]))
 
     return d1
+
+def multPeak1d(x,*args):
+    """
+    function to calculate the sum of multiple peaks in 1D.
+    the peaks can be of different type and a background function (polynom)
+    can also be included.
+
+    Parameters
+    ----------
+     x:         coordinate where the function should be evaluated
+     *args:     list of peak/function types and parameters
+                for every function type two arguments need to be given
+                first the type of function as string with possible values
+                'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'p': polynom
+                the second type of arguments is the tuple/list of parameters of 
+                the respective function. See documentation of 
+                math.Gauss1d, math.Lorentz1d, math.PseudoVoigt1d, and numpy.polyval
+                for details of the different function types.   
+
+    Returns
+    -------
+     value of the sum of functions at position x
+    """
+    if len(args)%2 != 0:
+        raise ValueError('number of arguments must be even!')
+        
+    if numpy.isscalar(x):
+        f = 0
+    else:
+        lx = numpy.array(x)
+        f = numpy.zeros(lx.shape)
+        
+    for i in range(int(len(args)/2)):
+        ftype = str.lower(args[2*i])
+        fparam = args[2*i+1]
+        if ftype == 'g':
+            f+= Gauss1d(x,*fparam)
+        elif ftype == 'l':
+            f+= Lorentz1d(x,*fparam)
+        elif ftype == 'v':
+            f+= PseudoVoigt1d(x,*fparam)
+        elif ftype == 'p':
+            if isinstance(fparam,(tuple,list,numpy.ndarray)):
+                f+= numpy.polyval(fparam,x)
+            else:
+                f+= numpy.polyval((fparam,),x)
+        else:
+            raise ValueError('invalid function type given!')
+
+    return f 
+
+def multPeak2d(x,y,*args):
+    """
+    function to calculate the sum of multiple peaks in 2D.
+    the peaks can be of different type and a background function (polynom)
+    can also be included.
+
+    Parameters
+    ----------
+     x,y:       coordinates where the function should be evaluated
+     *args:     list of peak/function types and parameters
+                for every function type two arguments need to be given
+                first the type of function as string with possible values
+                'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'c': constant
+                the second type of arguments is the tuple/list of parameters of 
+                the respective function. See documentation of 
+                math.Gauss2d, math.Lorentz2d, math.PseudoVoigt2d for details of 
+                the different function types.
+                The constant accepts a single float which will be added to the data   
+
+    Returns
+    -------
+     value of the sum of functions at position (x,y)
+    """
+    if len(args)%2 != 0:
+        raise ValueError('number of arguments must be even!')
+        
+    if numpy.isscalar(x):
+        f = 0
+    else:
+        lx = numpy.array(x)
+        ly = numpy.array(y)
+        f = numpy.zeros(lx.shape)
+        
+    for i in range(int(len(args)/2)):
+        ftype = str.lower(args[2*i])
+        fparam = args[2*i+1]
+        if ftype == 'g':
+            f+= Gauss2d(lx,ly,*fparam)
+        elif ftype == 'l':
+            f+= Lorentz2d(lx,ly,*fparam)
+        elif ftype == 'v':
+            f+= PseudoVoigt2d(lx,ly,*fparam)
+        elif ftype == 'c':
+            f+= fparam
+        else:
+            raise ValueError('invalid function type given!')
+
+    return f 

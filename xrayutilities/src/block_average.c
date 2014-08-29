@@ -29,6 +29,7 @@
 #endif
 
 #define PYARRAY_CHECK(array,dims,type,msg) \
+    array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *)array,type,NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED); \
     if(PyArray_NDIM(array) != dims ||  \
        PyArray_TYPE(array) != type) \
     {\
@@ -83,6 +84,9 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
         }
         cout[i/Nav] = buf/(float)(j-i); //save average to output array
     }
+
+    // clean up 
+    Py_DECREF(input);
 
     // return output array
     return PyArray_Return(outarr);
@@ -148,6 +152,9 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
         }
     }
 
+    // clean up 
+    Py_DECREF(input);
+
     return PyArray_Return(outarr);
 }
 
@@ -206,6 +213,9 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
             cout[j/Nav+i*nout[1]] = buf/(float)(k-j); //save average to output array
         }
     }
+
+    // clean up 
+    Py_DECREF(input);
 
     // return output array
     return PyArray_Return(outarr);

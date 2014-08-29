@@ -73,8 +73,15 @@ PyObject* pygridder2d(PyObject *self,PyObject *args)
 
     //call the actual gridder routine
     result = gridder2d(x,y,data,n,nx,ny,xmin,xmax,ymin,ymax,odata,norm,flags);
-    return Py_BuildValue("i",&result);
 
+    //clean up
+    Py_DECREF(py_x);
+    Py_DECREF(py_y);
+    Py_DECREF(py_data);
+    Py_DECREF(py_output);
+    if(py_norm!=NULL) Py_DECREF(py_norm);
+
+    return Py_BuildValue("i",&result);
 }
 
 //-----------------------------------------------------------------------------
@@ -120,21 +127,24 @@ int gridder2d(double *x,double *y,double *data,unsigned int n,
     /*the master loop over all data points*/
     for(i=0;i<n;i++)
     {
-        //if the x and y values are outside the grids boundaries continue with
-        //the next point
-        if ((x[i]<xmin)||(x[i]>xmax)) {
-            noutofbounds++;
-            continue;
-        }
-        if ((y[i]<ymin)||(y[i]>ymax)) {
-            noutofbounds++;
-            continue;
-        }    
-        //compute the linear offset and set the data
-        offset = gindex(x[i],xmin,dx)*ny+gindex(y[i],ymin,dy);
+        //if data point is nan ignore it
+        if(!isnan(data[i])) {
+            //if the x and y values are outside the grids boundaries continue with
+            //the next point
+            if ((x[i]<xmin)||(x[i]>xmax)) {
+                noutofbounds++;
+                continue;
+            }
+            if ((y[i]<ymin)||(y[i]>ymax)) {
+                noutofbounds++;
+                continue;
+            }    
+            //compute the linear offset and set the data
+            offset = gindex(x[i],xmin,dx)*ny+gindex(y[i],ymin,dy);
 
-        odata[offset] += data[i];
-        gnorm[offset] += 1.;
+            odata[offset] += data[i];
+            gnorm[offset] += 1.;
+        }
     }
 
     /*perform normalization*/

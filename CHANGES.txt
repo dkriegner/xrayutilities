@@ -1,5 +1,7 @@
 * Reciprocal space conversion of energy scans for point, linear, area
   detectors 
+* addition of serval test routines to improve the code quality
+* new mathematical functions in math subpackage
 * fixes for possible segfault in the Gridder classes
 * considerable reduce size of elements.db file
 * FastScan parser for spec-mesh scans and FastScan/kmap data from ESRF 
