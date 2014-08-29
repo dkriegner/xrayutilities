@@ -607,6 +607,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     Py_DECREF(riArr);
     Py_DECREF(kappadirArr);
     Py_DECREF(UBArr);
+    Py_DECREF(lambdaArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -765,6 +766,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     Py_DECREF(kappadirArr);
     Py_DECREF(UBArr);
     Py_DECREF(sampledisArr);
+    Py_DECREF(lambdaArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -943,6 +945,7 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     Py_DECREF(kappadirArr);
     Py_DECREF(roiArr);
     Py_DECREF(UBArr);
+    Py_DECREF(lambdaArr);
     
     // return output array
     return PyArray_Return(qposArr);
@@ -1134,6 +1137,7 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
     Py_DECREF(roiArr);
     Py_DECREF(UBArr);
     Py_DECREF(sampledisArr);
+    Py_DECREF(lambdaArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -1344,6 +1348,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     Py_DECREF(kappadirArr);
     Py_DECREF(roiArr);
     Py_DECREF(UBArr);
+    Py_DECREF(lambdaArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -1564,6 +1569,7 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
     Py_DECREF(roiArr);
     Py_DECREF(UBArr);
     Py_DECREF(sampledisArr);
+    Py_DECREF(lambdaArr);
 
     // return output array
     return PyArray_Return(qposArr);
