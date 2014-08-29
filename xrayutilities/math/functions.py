@@ -427,3 +427,101 @@ def Debye1(x):
 
     return d1
 
+def multPeak1d(x,*args):
+    """
+    function to calculate the sum of multiple peaks in 1D.
+    the peaks can be of different type and a background function (polynom)
+    can also be included.
+
+    Parameters
+    ----------
+     x:         coordinate where the function should be evaluated
+     *args:     list of peak/function types and parameters
+                for every function type two arguments need to be given
+                first the type of function as string with possible values
+                'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'p': polynom
+                the second type of arguments is the tuple/list of parameters of 
+                the respective function. See documentation of 
+                math.Gauss1d, math.Lorentz1d, math.PseudoVoigt1d, and numpy.polyval
+                for details of the different function types.   
+
+    Returns
+    -------
+     value of the sum of functions at position x
+    """
+    if len(args)%2 != 0:
+        raise ValueError('number of arguments must be even!')
+        
+    if numpy.isscalar(x):
+        f = 0
+    else:
+        lx = numpy.array(x)
+        f = numpy.zeros(lx.shape)
+        
+    for i in range(int(len(args)/2)):
+        ftype = str.lower(args[2*i])
+        fparam = args[2*i+1]
+        if ftype == 'g':
+            f+= Gauss1d(x,*fparam)
+        elif ftype == 'l':
+            f+= Lorentz1d(x,*fparam)
+        elif ftype == 'v':
+            f+= PseudoVoigt1d(x,*fparam)
+        elif ftype == 'p':
+            if isinstance(fparam,(tuple,list,numpy.ndarray)):
+                f+= numpy.polyval(fparam,x)
+            else:
+                f+= numpy.polyval((fparam,),x)
+        else:
+            raise ValueError('invalid function type given!')
+
+    return f 
+
+def multPeak2d(x,y,*args):
+    """
+    function to calculate the sum of multiple peaks in 2D.
+    the peaks can be of different type and a background function (polynom)
+    can also be included.
+
+    Parameters
+    ----------
+     x,y:       coordinates where the function should be evaluated
+     *args:     list of peak/function types and parameters
+                for every function type two arguments need to be given
+                first the type of function as string with possible values
+                'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'c': constant
+                the second type of arguments is the tuple/list of parameters of 
+                the respective function. See documentation of 
+                math.Gauss2d, math.Lorentz2d, math.PseudoVoigt2d for details of 
+                the different function types.
+                The constant accepts a single float which will be added to the data   
+
+    Returns
+    -------
+     value of the sum of functions at position (x,y)
+    """
+    if len(args)%2 != 0:
+        raise ValueError('number of arguments must be even!')
+        
+    if numpy.isscalar(x):
+        f = 0
+    else:
+        lx = numpy.array(x)
+        ly = numpy.array(y)
+        f = numpy.zeros(lx.shape)
+        
+    for i in range(int(len(args)/2)):
+        ftype = str.lower(args[2*i])
+        fparam = args[2*i+1]
+        if ftype == 'g':
+            f+= Gauss2d(lx,ly,*fparam)
+        elif ftype == 'l':
+            f+= Lorentz2d(lx,ly,*fparam)
+        elif ftype == 'v':
+            f+= PseudoVoigt2d(lx,ly,*fparam)
+        elif ftype == 'c':
+            f+= fparam
+        else:
+            raise ValueError('invalid function type given!')
+
+    return f 
