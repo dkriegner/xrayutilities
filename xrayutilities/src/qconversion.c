@@ -592,6 +592,13 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
         matvec(ms, local_ri, &qpos[3*i]);
     }
 
+    // clean up 
+    Py_DECREF(sampleAnglesArr);
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(riArr);
+    Py_DECREF(kappadirArr);
+    Py_DECREF(UBArr);
+
     // return output array
     return PyArray_Return(qposArr);
 }
@@ -738,6 +745,14 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
         // calculate the momentum transfer
         matvec(ms, mtemp, &qpos[3*i]);
     }
+    
+    // clean up 
+    Py_DECREF(sampleAnglesArr);
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(riArr);
+    Py_DECREF(kappadirArr);
+    Py_DECREF(UBArr);
+    Py_DECREF(sampledisArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -901,6 +916,14 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
         }
     }
 
+    // clean up 
+    Py_DECREF(sampleAnglesArr);
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(rcchArr);
+    Py_DECREF(kappadirArr);
+    Py_DECREF(roiArr);
+    Py_DECREF(UBArr);
+    
     // return output array
     return PyArray_Return(qposArr);
 }
@@ -1074,6 +1097,15 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
             matvec(ms, rtemp, &qpos[3*(i*Nch+j-roi[0])]);
         }
     }
+    
+    // clean up 
+    Py_DECREF(sampleAnglesArr);
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(rcchArr);
+    Py_DECREF(kappadirArr);
+    Py_DECREF(roiArr);
+    Py_DECREF(UBArr);
+    Py_DECREF(sampledisArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -1277,6 +1309,14 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
             }
         }
     }
+
+    // clean up 
+    Py_DECREF(sampleAnglesArr);
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(rcchArr);
+    Py_DECREF(kappadirArr);
+    Py_DECREF(roiArr);
+    Py_DECREF(UBArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -1490,6 +1530,15 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
         }
     }
 
+    // clean up 
+    Py_DECREF(sampleAnglesArr);
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(rcchArr);
+    Py_DECREF(kappadirArr);
+    Py_DECREF(roiArr);
+    Py_DECREF(UBArr);
+    Py_DECREF(sampledisArr);
+
     // return output array
     return PyArray_Return(qposArr);
 }
@@ -1642,6 +1691,12 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
         // save momentum transfer to output
         veccopy(&qpos[3*i], rtemp);
     }
+
+    // clean up 
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(n1Arr);
+    Py_DECREF(n2Arr);
+    Py_DECREF(rcchArr);
 
     // return output array
     return PyArray_Return(qposArr);
@@ -1825,6 +1880,14 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
         matvec(ms, rtemp, &qpos[3*i]);
     }
 
+    // clean up 
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(n1Arr);
+    Py_DECREF(n2Arr);
+    Py_DECREF(rcchArr);
+    Py_DECREF(sampleAnglesArr);
+    Py_DECREF(UBArr);
+    
     // return output array
     return PyArray_Return(qposArr);
 }

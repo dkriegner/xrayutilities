@@ -73,8 +73,15 @@ PyObject* pygridder2d(PyObject *self,PyObject *args)
 
     //call the actual gridder routine
     result = gridder2d(x,y,data,n,nx,ny,xmin,xmax,ymin,ymax,odata,norm,flags);
-    return Py_BuildValue("i",&result);
 
+    //clean up
+    Py_DECREF(py_x);
+    Py_DECREF(py_y);
+    Py_DECREF(py_data);
+    Py_DECREF(py_output);
+    if(py_norm!=NULL) Py_DECREF(py_norm);
+
+    return Py_BuildValue("i",&result);
 }
 
 //-----------------------------------------------------------------------------

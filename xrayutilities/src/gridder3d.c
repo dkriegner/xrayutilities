@@ -76,6 +76,15 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     //call the actual gridder routine
     result = gridder3d(x,y,z,data,n,nx,ny,nz,
                            xmin,xmax,ymin,ymax,zmin,zmax,odata,norm,flags);
+    
+    //clean up
+    Py_DECREF(py_x);
+    Py_DECREF(py_y);
+    Py_DECREF(py_z);
+    Py_DECREF(py_data);
+    Py_DECREF(py_output);
+    if(py_norm!=NULL) Py_DECREF(py_norm);
+
     return Py_BuildValue("i",&result);
 
 }
