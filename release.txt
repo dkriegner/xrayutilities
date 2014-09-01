@@ -60,7 +60,7 @@ To perform the installation or build a installer package perform the
 following steps:
  * open an administrator shell
  * execute: 'set DISTUTILS_USE_SDK=1'
- * execute: 'setenv /x64 /release'
+ * execute: 'setenv /x64 /release' (use /x86 for a 32-bit build)
  * compile with: 'python setup.py build -c msvc' which should give you
    the chance to run 'python setup.py bdist_wininst' or install.
 
