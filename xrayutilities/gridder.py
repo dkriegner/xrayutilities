@@ -49,8 +49,11 @@ def axis(min_value,max_value,n):
     n ................... number of steps
     """
 
-    d = delta(min_value,max_value,n)
-    a = min_value + d*numpy.arange(0,n)
+    if n!=1:
+        d = delta(min_value,max_value,n)
+        a = min_value + d*numpy.arange(0,n)
+    else:
+        a=(min_value+max_value)/2.
 
     return a
 
