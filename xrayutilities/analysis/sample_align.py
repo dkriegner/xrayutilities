@@ -1801,7 +1801,7 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),peaktype
 
     [omfit,dummy,dummy,ttfit] = exphxrd.Q2Ang((0,params[0],params[1]),trans=False,geometry="real")
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.analysis.fit_bragg_peak:fitted substrate angles: \n\tom =%8.4f \n\ttt =%8.4f" %(omfit,ttfit))
+        print("XU.analysis.fit_bragg_peak:fitted peak angles: \n\tom =%8.4f \n\ttt =%8.4f" %(omfit,ttfit))
 
     if plot:
         plt.figure(); plt.clf()
