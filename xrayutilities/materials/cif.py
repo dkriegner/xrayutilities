@@ -25,21 +25,21 @@ from . import elements
 from .. import config
 
 re_loop = re.compile(r"^loop_")
-re_symop = re.compile(r"^(_space_group_symop_operation_xyz|_symmetry_equiv_pos_as_xyz)")
-re_atom = re.compile(r"^(_atom_site_label|_atom_site_type_symbol)")
-re_atomx = re.compile(r"^_atom_site_fract_x")
-re_atomy = re.compile(r"^_atom_site_fract_y")
-re_atomz = re.compile(r"^_atom_site_fract_z")
-re_labelline = re.compile(r"^_")
+re_symop = re.compile(r"^\s*(_space_group_symop_operation_xyz|_symmetry_equiv_pos_as_xyz)")
+re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)")
+re_atomx = re.compile(r"^\s*_atom_site_fract_x")
+re_atomy = re.compile(r"^\s*_atom_site_fract_y")
+re_atomz = re.compile(r"^\s*_atom_site_fract_z")
+re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
 re_quote = re.compile(r"'")
-re_cell_a = re.compile(r"^_cell_length_a")
-re_cell_b = re.compile(r"^_cell_length_b")
-re_cell_c = re.compile(r"^_cell_length_c")
-re_cell_alpha = re.compile(r"^_cell_angle_alpha")
-re_cell_beta = re.compile(r"^_cell_angle_beta")
-re_cell_gamma = re.compile(r"^_cell_angle_gamma")
-re_comment = re.compile(r"^#")
+re_cell_a = re.compile(r"^\s*_cell_length_a")
+re_cell_b = re.compile(r"^\s*_cell_length_b")
+re_cell_c = re.compile(r"^\s*_cell_length_c")
+re_cell_alpha = re.compile(r"^\s*_cell_angle_alpha")
+re_cell_beta = re.compile(r"^\s*_cell_angle_beta")
+re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma")
+re_comment = re.compile(r"^\s*#")
 
 class CIFFile(object):
     """
@@ -108,6 +108,8 @@ class CIFFile(object):
             if re_comment.match(line): continue
 
             if re_loop.match(line): # start of loop
+                if config.VERBOSITY >= config.DEBUG:
+                    print('XU.material: loop start found')
                 loop_start = True
                 loop_labels = []
                 symop_loop = False
@@ -128,10 +130,14 @@ class CIFFile(object):
                 if loop_start:
                     loop_labels.append(line.strip())
                     if re_symop.match(line): # start of symmetry op. loop
+                        if config.VERBOSITY >= config.DEBUG:
+                            print('XU.material: symop-loop identified')
                         symop_loop = True
                         loop_start = False
                         symop_idx = len(loop_labels)-1
                     elif re_atom.match(line): # start of atom position loop
+                        if config.VERBOSITY >= config.DEBUG:
+                            print('XU.material: atom position-loop identified')
                         atom_loop = True
                         alab_idx = len(loop_labels)-1
                     elif re_atomx.match(line):
