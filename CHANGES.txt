@@ -1,3 +1,4 @@
+* add easy Powder Diffraction cif file parser
 * addition of serval test routines to improve the code quality
 * new mathematical functions in math subpackage
 * fixes for possible segfault in the Gridder classes
