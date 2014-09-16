@@ -85,6 +85,8 @@ files on sourceforge can be moved/archived using
 
 sftp://USERNAME@frs.sourceforge.net/home/frs/project/x/xr/xrayutilities
 
+however upon such a move the download statistics are lost.
+
 UPDATE PyPI PACKAGE
 ===================
 
