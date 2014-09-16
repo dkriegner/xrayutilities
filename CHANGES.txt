@@ -1,5 +1,8 @@
+v1.1.0-beta, 2014-09-16
+
+* new 1D Gridder working consistent with 2D and 3D
 * add easy Powder Diffraction cif file parser
-* addition of serval test routines to improve the code quality
+* addition of several test routines to improve the code quality
 * new mathematical functions in math subpackage
 * fixes for possible segfault in the Gridder classes
 * considerable reduce size of elements.db file
@@ -11,7 +14,7 @@
 * add environment function to Materials: function calculates the atomic
   neighbors around a given position in the unit cell
 * documentation update regarding the Q2Ang and Q2AngFit functions
-* fixed inconsitency bug in NonCOP and HXRD's Q2Ang function (thanks to FZ)
+* fixed inconsistency bug in NonCOP and HXRD's Q2Ang function (thanks to FZ)
 * SPEC-file parser improvements 
 * python3.X compatibilty in single code-base
 
