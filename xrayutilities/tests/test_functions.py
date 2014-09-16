@@ -3,11 +3,11 @@ import numpy
 import scipy.integrate
 import unittest
 
-class TestQConversion(unittest.TestCase):
+class TestMathFunctions(unittest.TestCase):
 
     def setUp(self):
-        amp = numpy.random.rand(1)
-        fwhm = numpy.random.rand(1)*1.5
+        amp = numpy.random.rand(1)[0]
+        fwhm = numpy.random.rand(1)[0]*1.5
         self.x = numpy.arange(-3,3,0.0003) 
         self.p = [0.,fwhm,amp,0.]
         self.p2d = [0.,0.,fwhm,fwhm,amp,0.,2*numpy.pi*numpy.random.rand(1)]
@@ -50,7 +50,7 @@ class TestQConversion(unittest.TestCase):
     
     def test_pvoigt1darea(self):
         p = list(numpy.copy(self.p))
-        p += [numpy.random.rand(1),]
+        p += [numpy.random.rand(1)[0],]
         area = xu.math.PseudoVoigt1dArea(*p)
         (numarea,err) = scipy.integrate.quad(xu.math.PseudoVoigt1d,-numpy.inf,numpy.inf,args=tuple(p))
         digits = int(numpy.abs(numpy.log10(err)))-1
