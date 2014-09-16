@@ -66,11 +66,28 @@ def ones(*args):
 
 
 class Gridder(object):
+    """
+    Basis class for gridders in xrayutilities. A gridder is a function mapping
+    irregular spaced data onto a regular grid by binning the data into equally
+    sized elements.
+
+    There are different ways of defining the regular grid of a Gridder. In
+    xrayutilities the data bins extend beyond the data range in the input data,
+    but the given position being the center of these bins, extends from the
+    minimum to the maximum of the data!  The main motivation for this was to
+    create a Gridder, which when feeded with N equidistant data points and
+    gridded with N bins would not change the data position (not the case with
+    numpy.histogramm functions!). Of course this leads to the fact that for
+    homogeneous point density the first and last bin in any direction are not
+    filled as the other bins. 
+
+    A different definition is used by numpy histogram functions where the bins
+    extend only to the end of the data range. (see numpy histogram,
+    histrogram2d, ...)
+    """
     def __init__(self):
         """
-        Basis class for gridders in xrayutilities. A gridder is a function mapping
-        irregular spaced data onto a regular grid by binning the data into equally 
-        sized elements
+        Constructor defining default properties of any Gridder class
         """
 
         self.flags = 0

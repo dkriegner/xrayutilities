@@ -436,7 +436,7 @@ def multPeak1d(x,*args):
     Parameters
     ----------
      x:         coordinate where the function should be evaluated
-     *args:     list of peak/function types and parameters
+     args:      list of peak/function types and parameters
                 for every function type two arguments need to be given
                 first the type of function as string with possible values
                 'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'p': polynom
@@ -486,7 +486,7 @@ def multPeak2d(x,y,*args):
     Parameters
     ----------
      x,y:       coordinates where the function should be evaluated
-     *args:     list of peak/function types and parameters
+     args:      list of peak/function types and parameters
                 for every function type two arguments need to be given
                 first the type of function as string with possible values
                 'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'c': constant

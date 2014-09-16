@@ -27,8 +27,8 @@ you have the latest version installed!)
 
 In the root directory of the package execute the following to rebuild the documentation pdf
 
-  python setup.py build build_doc -b latex
-  cd build/sphinx/latex; make && mv xrayutilities.pdf ../../..; cd ../../..
+  python setup.py build build_doc -b pdf
+  cd build/sphinx/pdf; mv xrayutilities.pdf ../../..; cd ../../..
 
 PACKAGING
 =========
