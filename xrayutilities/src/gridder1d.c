@@ -92,7 +92,7 @@ int gridder1d(double *x,double *data,unsigned int n,
     double dx = delta(xmin,xmax,nx);
 
     unsigned int i; //loop index
-    
+
     /*initialize data if requested*/
     if(!(flags&NO_DATA_INIT)) set_array(odata,nx,0.);
 
@@ -149,8 +149,8 @@ int gridder1d(double *x,double *data,unsigned int n,
 
     /*free the norm buffer if it has been locally allocated*/
     if(norm==NULL) free(gnorm);
-            
-    /* warn the user in case more than half the data points where out 
+
+    /* warn the user in case more than half the data points where out
        of the gridding area */
     if(noutofbounds>n/2) {
         fprintf(stdout,"XU.Gridder1D(c): more than half of the datapoints out of the data\n range, consider regridding with extended range!\n");

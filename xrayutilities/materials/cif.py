@@ -103,7 +103,7 @@ class CIFFile(object):
         for line in self.fid.readlines():
             if config.VERBOSITY >= config.DEBUG:
                 print(line)
-            
+
             # ignore comment lines
             if re_comment.match(line): continue
 

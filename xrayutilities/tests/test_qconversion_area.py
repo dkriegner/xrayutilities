@@ -35,7 +35,7 @@ class TestQConversion(unittest.TestCase):
         self.assertEqual(qout[0].shape, self.nch)
         for i in range(3):
             q = qout[i]
-            self.assertAlmostEqual(numpy.average(q), self.hklsym[i], places=6) 
+            self.assertAlmostEqual(numpy.average(q), self.hklsym[i], places=6)
 
     def test_qconversion_area_asym(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hklasym))

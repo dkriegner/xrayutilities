@@ -38,6 +38,6 @@ class TestQConversion(unittest.TestCase):
         qout = self.hxrd.Ang2HKL(ang[0],ang[3],mat=self.mat)
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hklasym[i], places=10)
-    
+
 if __name__ == '__main__':
         unittest.main()

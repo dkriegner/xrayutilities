@@ -22,7 +22,7 @@ python package included in *xrayutilities*.
 
 It helps with planning experiments as well as analyzing the data.
 
-Authors: 
+Authors:
  Dominik Kriegner <dominik.kriegner@gmail.com> and
  Eugen Wintersberger <eugen.wintersberger@desy.de>
 """

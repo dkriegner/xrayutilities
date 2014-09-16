@@ -110,9 +110,9 @@ class SeifertMultiScan(object):
         """
         if path:
             self.Filename = os.path.join(path,filename)
-        else:    
+        else:
             self.Filename = filename
-        
+
         try:
             self.fid = xu_open(self.Filename)
         except:
@@ -142,7 +142,7 @@ class SeifertMultiScan(object):
         m2_tmppos = None
         self.sm_pos = []
         self.m2_pos = []
-        
+
         # flag to check if all header information was parsed
         header_complete = False
 
@@ -243,9 +243,9 @@ class SeifertScan(object):
         """
         if path:
             self.Filename = os.path.join(path,filename)
-        else:    
+        else:
             self.Filename = filename
-        
+
         try:
             self.fid = xu_open(self.Filename)
         except:
@@ -302,13 +302,13 @@ class SeifertScan(object):
 
                     if key=="Axis":
                         axes = value
-                        try: 
+                        try:
                             self.axispos[value]
                         except:
                             self.axispos[value] = []
                     elif key=="Pos":
-                        self.axispos[axes] += [value,] 
-                        
+                        self.axispos[axes] += [value,]
+
                     self.hdr.__setattr__(key,value)
                 else:
                     try:
@@ -401,7 +401,7 @@ def getSeifert_map(filetemplate,scannrs=None,path=".",scantype="map",Nchannels=1
                     list of filenames
      scannrs:       int or list of scan numbers
      path:          common path to the filenames
-     scantype:      type of datafile: 
+     scantype:      type of datafile:
                         "map": reciprocal space map measured with a regular Seifert job
                         "tsk": MCA spectra measured using the TaskInterpreter
      Nchannels:     number of channels of the MCA (needed for "tsk" measurements)
@@ -448,4 +448,4 @@ def getSeifert_map(filetemplate,scannrs=None,path=".",scantype="map",Nchannels=1
 
 
     return om,tt,psd
-        
+

@@ -125,14 +125,14 @@ class XRDMLMeasurement(object):
             for k in self.ddict.keys():
                 self.ddict[k] = numpy.ravel(self.ddict[k])
 
-        # save scanmot-values and detector counts in special arrays 
+        # save scanmot-values and detector counts in special arrays
         if self.scanmotname in ['2Theta-Omega','Gonio']:
             self.scanmot = self.ddict['2Theta']
         elif self.scanmotname == 'Omega-2Theta':
             self.scanmot = self.ddict['Omega']
         elif self.scanmotname in self.ddict.keys():
             self.scanmot = self.ddict[self.scanmotname]
-        else: 
+        else:
             warnings.warn('XU.io: unknown scan motor name in XRDML-File')
         self.int = self.ddict['detector']
 
@@ -263,21 +263,21 @@ def getxrdml_scan(filetemplate,*motors,**kwargs):
     parsing arbitrary scans and will return the the motor values of the scan
     motor and additionally the positions of the motors given by in the
     "*motors" argument
-    
+
     Parameter
     ---------
      filetemplate: template string for the file names, can contain
                    a %d which is replaced by the scan number or be a
                    list of filenames given by the scannrs keyword argument
-     
+
      *motors:      motor names to return: e.g.: 'Omega','2Theta',...
-                   one can also use abbreviations 
+                   one can also use abbreviations
                    'Omega' = 'om' = 'o'
                    '2Theta' = 'tt' = 't'
                    'Chi' = 'c'
                    'Phi' = 'p'
-     
-     **kwargs: 
+
+     **kwargs:
        scannrs:      int or list of scan numbers
        path:         common path to the filenames
 

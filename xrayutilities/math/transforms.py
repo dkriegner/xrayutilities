@@ -104,7 +104,7 @@ class Transform(object):
             self.imatrix = None
 
     def inverse(self,*args):
-        """ 
+        """
         performs inverse transformation a vector, matrix or tensor of rank 4
 
         Parameters
@@ -116,7 +116,7 @@ class Transform(object):
 
         if self.imatrix==None:
             raise Exception("XU.math.Transform: matrix cannot be inverted - seems to be singular")
-        
+
         it = Transform(self.imatrix)
         return it(*args)
 
@@ -303,7 +303,7 @@ class AxisToZ_keepXY(CoordinateTransform):
     Creates a coordinate transformation to move a certain axis to the z-axis.
     The rotation is done along the great circle.
     The x-axis/y-axis of the new coordinate frame is created to be similar to the
-    old x and y directions. This variant of AxisToZ assumes that the new Z-axis 
+    old x and y directions. This variant of AxisToZ assumes that the new Z-axis
     has its main component along the Z-direction
     """
     def __init__(self,newzaxis):
@@ -329,14 +329,14 @@ class AxisToZ_keepXY(CoordinateTransform):
             newx = [-1,0,0]
             newy = [0,1,0]
             newz = [0,0,-1]
-        else:    
+        else:
             newx = numpy.cross(newz,[0,0,1])
             newy = numpy.cross(newz,newx)
             # rotate newx and newy to be similar to old directions
             ang = numpy.degrees(numpy.arctan2(newz[0],newz[1]))
             newx = rotarb(newx,newz,ang)
-            newy = rotarb(newy,newz,ang)            
-        
+            newy = rotarb(newy,newz,ang)
+
         CoordinateTransform.__init__(self,newx,newy,newz)
 
 def XRotation(alpha,deg=True):

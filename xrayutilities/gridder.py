@@ -25,7 +25,7 @@ from . import config
 
 def delta(min_value,max_value,n):
     """
-    Compute the stepsize along an axis of a grid. 
+    Compute the stepsize along an axis of a grid.
 
     Parameters
     ----------
@@ -40,7 +40,7 @@ def delta(min_value,max_value,n):
 
 def axis(min_value,max_value,n):
     """
-    Compute the a grid axis. 
+    Compute the a grid axis.
 
     Parameters
     ----------
@@ -79,7 +79,7 @@ class Gridder(object):
     gridded with N bins would not change the data position (not the case with
     numpy.histogramm functions!). Of course this leads to the fact that for
     homogeneous point density the first and last bin in any direction are not
-    filled as the other bins. 
+    filled as the other bins.
 
     A different definition is used by numpy histogram functions where the bins
     extend only to the end of the data range. (see numpy histogram,
@@ -132,7 +132,7 @@ class Gridder(object):
             return self._gdata.copy()
 
     data = property(__get_data)
-    
+
     def Clear(self):
         """
         Clear so far gridded data to reuse this instance of the Gridder
@@ -169,7 +169,7 @@ class Gridder1D(Gridder):
     def dataRange(self,min,max,fixed=True):
         """
         define minimum and maximum data range, usually this is deduced
-        from the given data automatically, however, for sequential 
+        from the given data automatically, however, for sequential
         gridding it is useful to set this before the first call of the
         gridder. data outside the range are simply ignored
 
@@ -177,7 +177,7 @@ class Gridder1D(Gridder):
         ----------
          min:   minimum value of the gridding range
          max:   maximum value of the gridding range
-         fixed: flag to turn fixed range gridding on (True (default)) 
+         fixed: flag to turn fixed range gridding on (True (default))
                 or of (False)
         """
         self.fixed_range = fixed
@@ -196,23 +196,23 @@ class Gridder1D(Gridder):
         """
 
         if not self.keep_data:
-            self.Clear() 
+            self.Clear()
 
         x = args[0]
         data = args[1]
 
         if isinstance(x,(list,tuple,numpy.float,numpy.int)):
-            x = numpy.array(x) 
+            x = numpy.array(x)
         if isinstance(data,(list,tuple,numpy.float,numpy.int)):
-            data = numpy.array(data) 
-        
+            data = numpy.array(data)
+
         x = x.reshape(x.size)
         data = data.reshape(data.size)
 
         if x.size != data.size:
             raise exception.InputError("XU.Gridder1D: size of given datasets (x,data) is not equal!")
- 
-        if not self.fixed_range: 
+
+        if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
             self.dataRange(x.min(),x.max(),self.keep_data)
@@ -260,7 +260,7 @@ class npyGridder1D(Gridder1D):
         ldata = data[mask]
         lx = x[mask]
 
-        if not self.fixed_range: 
+        if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
             self.dataRange(lx.min(),lx.max(),self.keep_data)

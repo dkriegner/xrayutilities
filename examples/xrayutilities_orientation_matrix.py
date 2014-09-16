@@ -25,7 +25,7 @@ The procedure is as follows:
 
  1) determine the reciprocal space position without setting a custom U matrix
  2) calculate the orientation matrix
- 3) recalculate the reciprocal space positions corrected for a misalignment of 
+ 3) recalculate the reciprocal space positions corrected for a misalignment of
     the lattice from the ideal diffraction condition
 
 In this example only step number 2 is shown. look into other examples to see how
@@ -47,7 +47,7 @@ qasym = (0.0173859,1.56126512,3.3450612) # (113) peak
 
 tz = xu.math.AxisToZ(qsym) # correction of qsym to z-axis
 # tz is a coordinate transformation objetct
-# calling 
+# calling
 tz(qsym)
 # should return (~0,~0,qz)
 
@@ -65,13 +65,13 @@ ta(tz(qasym))
 # the orientation matrix is then given by
 
 U = numpy.linalg.inv(numpy.dot(ta.matrix,tz.matrix)) # orientation matrix
-# the matrix inversion is needed here because of the definition of U, 
+# the matrix inversion is needed here because of the definition of U,
 # which is usually used to calculate the misaligned q from the ideal one
 
 # in case you just want the corrected peak positions you can use again a coordinate transformation
 t = xu.math.Transform(numpy.linalg.inv(U))
 
-t(qasym) # will transform qasym to the x/z plane 
+t(qasym) # will transform qasym to the x/z plane
 
 # for correctly transforming a set of data us U in the call to the transformation function
 # for point, linear or area detector

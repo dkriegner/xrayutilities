@@ -38,6 +38,6 @@ class TestQ2Ang_nonCOP(unittest.TestCase):
         qout = self.hxrd.Ang2HKL(*ang,mat=self.mat)
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hkltest2[i], places=10)
-    
+
 if __name__ == '__main__':
         unittest.main()

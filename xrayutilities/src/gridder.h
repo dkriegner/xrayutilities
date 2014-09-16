@@ -66,7 +66,7 @@ PyObject* pygridder1d(PyObject *self,PyObject *args);
 int gridder1d(double *x,double *data,unsigned int n,
               unsigned int nx,double xmin,double xmax,
               double *odata,double *norm,int flags);
-              
+
 /*!
 \brief python interface function
 

@@ -592,7 +592,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
         matvec(ms, local_ri, &qpos[3*i]);
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(sampleAnglesArr);
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(riArr);
@@ -741,12 +741,12 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
         normalize(mtemp);
         diffvec(mtemp,local_ri); // ki/|k| - kf/|k|
         vecmul(mtemp,M_2PI/lambda); //defines k_f
-        // mtemp now contains the momentum transfer which will be transformed to the sample q-coordinate system         
+        // mtemp now contains the momentum transfer which will be transformed to the sample q-coordinate system
         // calculate the momentum transfer
         matvec(ms, mtemp, &qpos[3*i]);
     }
-    
-    // clean up 
+
+    // clean up
     Py_DECREF(sampleAnglesArr);
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(riArr);
@@ -916,14 +916,14 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
         }
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(sampleAnglesArr);
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(rcchArr);
     Py_DECREF(kappadirArr);
     Py_DECREF(roiArr);
     Py_DECREF(UBArr);
-    
+
     // return output array
     return PyArray_Return(qposArr);
 }
@@ -984,8 +984,8 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
                                       &PyArray_Type, &kappadirArr,
                                       &cch, &dpixel, &PyArray_Type, &roiArr,
                                       &dir, &tilt,
-                                      &PyArray_Type, &UBArr, 
-                                      &PyArray_Type, &sampledisArr, 
+                                      &PyArray_Type, &UBArr,
+                                      &PyArray_Type, &sampledisArr,
                                       &lambda, &nthreads)) {
         return NULL;
     }
@@ -1000,7 +1000,7 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
     PYARRAY_CHECK(sampledisArr,1,NPY_DOUBLE,"sampledis must be a 1D double array");
     if (PyArray_SIZE(sampledisArr) != 3) { PyErr_SetString(PyExc_ValueError,"sampledis needs to be of length 3");
         return NULL; }
-    
+
     PYARRAY_CHECK(kappadirArr,1,NPY_DOUBLE,"kappa_dir must be a 1D double array");
     if (PyArray_SIZE(kappadirArr) != 3) { PyErr_SetString(PyExc_ValueError,"kappa_dir needs to be of length 3");
         return NULL; }
@@ -1097,8 +1097,8 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
             matvec(ms, rtemp, &qpos[3*(i*Nch+j-roi[0])]);
         }
     }
-    
-    // clean up 
+
+    // clean up
     Py_DECREF(sampleAnglesArr);
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(rcchArr);
@@ -1310,7 +1310,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
         }
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(sampleAnglesArr);
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(rcchArr);
@@ -1325,7 +1325,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
 PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
    /* conversion of Npoints of goniometer positions to reciprocal space
     * for a area detector with a given pixel size mounted along one of
-    * the coordinate axis. this variant also considers the effect of a 
+    * the coordinate axis. this variant also considers the effect of a
     * sample displacement error.
     *
     *   Parameters
@@ -1385,7 +1385,7 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
                                       &PyArray_Type, &roiArr,
                                       &dir1, &dir2, &tiltazimuth, &tilt,
                                       &PyArray_Type, &UBArr,
-                                      &PyArray_Type, &sampledisArr, 
+                                      &PyArray_Type, &sampledisArr,
                                       &lambda, &nthreads)) {
         return NULL;
     }
@@ -1530,7 +1530,7 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
         }
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(sampleAnglesArr);
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(rcchArr);
@@ -1692,7 +1692,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
         veccopy(&qpos[3*i], rtemp);
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(n1Arr);
     Py_DECREF(n2Arr);
@@ -1880,14 +1880,14 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
         matvec(ms, rtemp, &qpos[3*i]);
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(detectorAnglesArr);
     Py_DECREF(n1Arr);
     Py_DECREF(n2Arr);
     Py_DECREF(rcchArr);
     Py_DECREF(sampleAnglesArr);
     Py_DECREF(UBArr);
-    
+
     // return output array
     return PyArray_Return(qposArr);
 }

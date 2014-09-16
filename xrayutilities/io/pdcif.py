@@ -51,7 +51,7 @@ class pdCIF(object):
         ----------
          filename:      filename of the file to be parsed
          datacolumn:    name of data column to identify the data loop
-                        (default =None; means that a list of default names is used) 
+                        (default =None; means that a list of default names is used)
         """
         self.filename = filename
         self.datacolumn = datacolumn
@@ -62,7 +62,7 @@ class pdCIF(object):
 
     def Parse(self):
         """
-        parser of the pdCIF file. the method reads the data from the file and 
+        parser of the pdCIF file. the method reads the data from the file and
         fills the data and header attributes with content
         """
 
@@ -75,7 +75,7 @@ class pdCIF(object):
 
         Parameters
         ----------
-         fh:    file handle 
+         fh:    file handle
         """
         loopStart = False
         dataLoop = False
@@ -104,7 +104,7 @@ class pdCIF(object):
                 # parse header
                 split = line.split(None,1)
                 label = split[0].strip()
-                try: 
+                try:
                     val = split[1].strip()
                     self.header[label] = val
                     # convert data format of header line
@@ -120,7 +120,7 @@ class pdCIF(object):
                     else:
                         fh.seek(fh.tell()-len(line2))
                         raise ValueError('a value is missing for label %s'%label)
-                        
+
             elif re_label.match(line) and loopStart:
                 # read loop entries
                 if (self.datacolumn == None and re_default.match(line)) or line.strip() == self.datacolumn:
@@ -156,11 +156,11 @@ class pdCIF(object):
          filehandle:    filehandle object to use as data source
          fields:        field names in the loop
          nentry:        number of entries in the loop
-         
+
         Return
         ------
          data:          data read from the file as numpy record array
-        """         
+        """
         tmp = numpy.fromfile(filehandle,count=nentry*len(fields),sep=' ')
         data = numpy.rec.fromarrays(tmp.reshape((-1,len(fields))).T,names=fields)
         return data
@@ -174,20 +174,20 @@ class pdCIF(object):
         ---------
          filehandle:    filehandle object to use as data source
          fields:        field names in the loop
-         
+
         Return
         ------
-         nothing  
+         nothing
         """
         fh = filehandle
-        
+
         for f in fields:
             self.header[f] = []
         while True:
             line = fh.readline().decode('ascii')
             if not line:
                 break
-    
+
             if re_label.match(line) or line.strip() == '':
                 fh.seek(fh.tell()-len(line))
                 break
@@ -212,11 +212,11 @@ class pdCIF(object):
                         fh.seek(fh.tell()-len(line2))
                         raise ValueError('a column is missing for label %s in a loop'%fields[i])
 
-        
+
 class pdESG(pdCIF):
     """
     class for parsing multiple pdCIF loops in one file.
-    This includes especially *.esg files which are supposed to 
+    This includes especially *.esg files which are supposed to
     consist of multiple loops of pdCIF data with equal length.
 
     Upon parsing the class tries to combine the data of these different
@@ -233,10 +233,10 @@ class pdESG(pdCIF):
 
     def Parse(self):
         """
-        parser of the pdCIF file. the method reads the data from the file and 
+        parser of the pdCIF file. the method reads the data from the file and
         fills the data and header attributes with content
         """
-        
+
         with xu_open(self.filename) as fh:
             # parse first header and loop
             self._parse_single(fh)
@@ -264,7 +264,7 @@ class pdESG(pdCIF):
 
                 fdata = numpy.append(fdata,self.data)
                 nscan +=1
-        
+
         # convert data for output to user
         for key in self.fileheader:
             if isinstance(self.fileheader[key],list):

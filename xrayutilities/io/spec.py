@@ -346,7 +346,7 @@ class SPECScan(object):
             except ValueError:
                 self.scan_status = 'NODATA'
                 print("XU.io.SPECScan.ReadData: %s exception while parsing data"%self.name)
-        else: 
+        else:
             self.scan_status = 'NODATA'
 
         #reset the file pointer position
@@ -586,7 +586,7 @@ class SPECFile(object):
         function to return the n-th scan in the spec-file.  be aware that
         numbering starts at 0! If scans are missing the relation between the
         given number and the "number" of the returned scan might be not
-        trivial. 
+        trivial.
 
         See also
         --------
@@ -602,7 +602,7 @@ class SPECFile(object):
         """
         if name.startswith("scan"):
             index = name[4:]
-            
+
             try:
                 scannr = int(index)
             except:
@@ -754,7 +754,7 @@ class SPECFile(object):
                 scan_status = "OK"
                 # define some necessary variables which could be missing in the scan header
                 itime = numpy.nan
-                time = '' 
+                time = ''
                 if config.VERBOSITY >= config.INFO_ALL:
                     print("XU.io.SPECFile.Parse: processing scan nr. %d ..." %scannr)
 

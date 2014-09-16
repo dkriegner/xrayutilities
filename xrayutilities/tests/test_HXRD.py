@@ -39,24 +39,24 @@ class TestQ2Ang_HXRD(unittest.TestCase):
         qout = self.hxrd.Ang2HKL(*ang,mat=self.mat)
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hkltest[i], places=10)
-    
+
     def test_Q2Ang_hxrd_geom_lo_hi(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hkltest),geometry='lo_hi')
         qout = self.hxrd.Ang2HKL(*ang,mat=self.mat)
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hkltest[i], places=10)
-    
+
     def test_Q2Ang_hxrd_geom_real(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hkltest),geometry='real')
         qout = self.hxrd.Ang2HKL(*ang,mat=self.mat)
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hkltest[i], places=10)
-    
+
     def test_Q2Ang_hxrd_geom_realTilt(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hkltest),geometry='realTilt')
         qout = self.hxrd.Ang2HKL(*ang,mat=self.mat)
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hkltest[i], places=10)
-    
+
 if __name__ == '__main__':
         unittest.main()

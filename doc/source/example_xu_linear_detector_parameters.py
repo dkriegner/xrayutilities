@@ -1,7 +1,7 @@
 """
-example script to show how the detector parameters 
-such as pixel width, center channel and detector tilt 
-can be determined for a linear detector. 
+example script to show how the detector parameters
+such as pixel width, center channel and detector tilt
+can be determined for a linear detector.
 """
 
 import xrayutilities as xu

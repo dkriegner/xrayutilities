@@ -167,7 +167,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",model
         linewidth = 2.0
         if fignum==None:
             plt.figure()
-        else:    
+        else:
             plt.figure(fignum)
         # first plot to show linear model
         ax1 = plt.subplot(211)
@@ -177,7 +177,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",model
         plt.plot(angp,models._unilin(fitlin.beta,angp),'k-',label='')
         if usetilt:
             plt.plot(angp,straight_tilt(fittilt.beta,angp),modeltilt, label=mtiltlabel,lw=linewidth)
-        if stdev == None: 
+        if stdev == None:
             plt.plot(angles,channels,datap, ms=markersize, mew=markeredgewidth, mec=datap[0], mfc='none', label=dlabel)
         else:
             plt.errorbar(angles,channels,fmt=datap,yerr=stdevu, ms=markersize, mew=markeredgewidth, mec=datap[0], mfc='none', label=dlabel, ecolor='0.5')
@@ -200,7 +200,7 @@ def psd_chdeg(angles,channels,stdev=None,usetilt=True,plot=True,datap="kx",model
         plt.ylabel("ch. num. - linear trend")
         plt.grid(True)
         plt.hlines(0,angp.min(),angp.max())
-        
+
         if figtitle:
             if usetilt:
                 plt.suptitle("L/w*pi/180: %8.2f; center channel: %8.2f; tilt: %5.2fdeg"%(fittilt.beta[0],fittilt.beta[1],fittilt.beta[2]))
@@ -248,20 +248,20 @@ def linear_detector_calib(angle,mca_spectra,**keyargs):
     selected options from psd_chdeg:
      plot:     flag to specify if a visualization of the fit should be done
      usetilt:   whether to use model considering a detector tilt (deviation angle of the pixel direction from orthogonal to the primary beam) (default: True)
-    
-    Note:  see help of psd_chdeg for more options 
+
+    Note:  see help of psd_chdeg for more options
 
     returns
     -------
      pixelwidth (at one meter distance) , center_channel[, detector_tilt]
-      
+
     Note:  L/pixelwidth*pi/180 ~= channel/degree, with the sample detector distance L
 
     pixelwidth is negative in case the hit channel number decreases upon an increase of the detector angle
     The function also prints out how a linear detector can be initialized using the results
     obtained from this calibration. Carefully check the results
     """
-                                                   
+
     if "detaxis" in keyargs:
         detrotaxis = keyargs["detaxis"]
         keyargs.pop("detaxis")
@@ -828,7 +828,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
         elif isinstance(arg,list):
             arg = numpy.array(arg,dtype=numpy.double)
         n2 = arg
-   
+
         dAngles.shape = (Nd,Npoints)
         dAngles = dAngles.transpose()
 
@@ -875,7 +875,7 @@ def _area_detector_calib_fit(ang1,ang2,n1,n2, detaxis, r_i, detdir1, detdir2, st
 
         # use only positive tilt
         param[5] = numpy.abs(param[5])
-        
+
         (qx,qy,qz) = areapixel(param[:-1],detectorDir1,detectorDir2,r_i,detectorAxis,angle1,angle2,n1,n2,delta=[param[-1],0.],distance=1.,wl=wl)
 
         return qx**2+qy**2+qz**2
@@ -977,7 +977,7 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
     detector arm angles
 
     in this variant not only scans through the primary beam but also scans at a set of symmetric reflections
-    can be used for the detector parameter determination. for this not only the detector parameters but in addition the 
+    can be used for the detector parameter determination. for this not only the detector parameters but in addition the
     sample orientation and wavelength need to be fit.
     Both images from the primary beam hkl = (0,0,0) and from a symmetric reflection hkl = (h,k,l) need to be given for a successful run.
 
@@ -1044,7 +1044,7 @@ def area_detector_calib_hkl(sampleang,angle1,angle2,ccdimages,hkls,experiment,ma
         if (numpy.all(hkls[i] == (0,0,0))):
             avg += numpy.sum(ccdimages[i])
             imgpbcnt+=1
-    
+
     if imgpbcnt > 0:
         avg /= float(imgpbcnt)
     else:
@@ -1224,7 +1224,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
         fix ..... fix parameters of start
         full_output   flag to tell if to return fit object with final parameters and detector directions
         debug ... flag to tell if you want to see debug output of the script (switch this to true only if you can handle it :))
-    
+
     returns
     -------
         eps   final epsilon of the fit
@@ -1297,7 +1297,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
             _detectorAxis_str += circ
 
         Nd = len(dAxis)
-        Nargs = Nd + 2 -1 +1 
+        Nargs = Nd + 2 -1 +1
 
         # check detectorDir
         _area_detdir1 = detectorDir1
@@ -1328,7 +1328,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
             UB = kwargs['UB']
         else:
             UB = numpy.identity(3)
-        
+
         if 'deg' in kwargs:
             deg = kwargs['deg']
         else:
@@ -1359,7 +1359,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
                 arg = numpy.array(arg,dtype=numpy.double)
             arg = arg - delta[i]
             sAngles = numpy.concatenate((sAngles,arg))
-            
+
         dAngles = numpy.array((),dtype=numpy.double)
         for i in range(1,Nd):
             arg = args[i]
@@ -1399,8 +1399,8 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
             sAngles = numpy.radians(sAngles)
             dAngles = numpy.radians(dAngles)
 
-        qpos = cxrayutilities.ang2q_conversion_area_pixel2(sAngles, dAngles, n1, n2 , _area_ri, 
-                     _sampleAxis_str, _detectorAxis_str, _area_cch1, _area_cch2, 
+        qpos = cxrayutilities.ang2q_conversion_area_pixel2(sAngles, dAngles, n1, n2 , _area_ri,
+                     _sampleAxis_str, _detectorAxis_str, _area_cch1, _area_cch2,
                      _area_pwidth1/_area_distance, _area_pwidth2/_area_distance,
                      _area_detdir1, _area_detdir2, _area_tiltazimuth, _area_tilt, UB, wl, config.NTHREADS)
 
@@ -1528,11 +1528,11 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
 
     # determine better start values for sample tilt and azimuth
     (qx,qy,qz) = areapixel2(param[:-4],detdir1,detdir2,r_i,detaxis,sangs,ang1s,ang2s,n1s,n2s,delta=[0,param[7],0.],distance=1.,wl=wavelength)
-    if debug: 
+    if debug:
         print("average qx: %.3f(%.3f)"%(numpy.average(qx),numpy.std(qx)))
         print("average qy: %.3f(%.3f)"%(numpy.average(qy),numpy.std(qy)))
         print("average qz: %.3f(%.3f)"%(numpy.average(qz),numpy.std(qz)))
-    
+
     qvecav = (numpy.average(qx),numpy.average(qy),numpy.average(qz))
     sampletilt = math.VecAngle(experiment.Transform(experiment.ndir),qvecav,deg=True)
     stazimuth = -math.VecAngle(experiment.Transform(experiment.idir),qvecav-math.VecDot(experiment.Transform(experiment.ndir),qvecav)*experiment.Transform(experiment.ndir),deg=True)
@@ -1563,7 +1563,7 @@ def _area_detector_calib_fit2(sang,ang1,ang2,n1,n2, hkls, experiment, material, 
     ifixb = ()
     for i in range(len(fix)):
         ifixb += (int(not fix[i]),)
-    
+
     my_odr = odr.ODR(data,model,beta0=param,ifixb=(1,1,1,1)+ifixb, ifixx =(0,0,0,0,0,0,0,0) ,stpb=(0.4,0.4,pwidth1/50.,pwidth2/50.,2,0.125,0.01,0.01,0.01,1.,0.0001), sclb=(1/numpy.abs(cch1),1/numpy.abs(cch2),1/pwidth1,1/pwidth2,1/90.,1/0.2,1/0.2,1/0.2,1/0.1,1/90.,1.) ,maxit=1000,ndigit=12, sstol=1e-11, partol=1e-11)
     #if debug:
     #    my_odr.set_iprint(final=1)
@@ -1753,7 +1753,7 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),peaktype
     helper function to determine the Bragg peak position in a reciprocal
     space map used to obtain the position needed for correction of the data.
     the determination is done by fitting a two dimensional Gaussian
-    (xrayutilities.math.Gauss2d) or Lorentzian 
+    (xrayutilities.math.Gauss2d) or Lorentzian
     (xrayutilities.math.Lorentz2d)
 
     PLEASE ALWAYS CHECK THE RESULT CAREFULLY!
@@ -1771,9 +1771,9 @@ def fit_bragg_peak(om,tt,psd,omalign,ttalign,exphxrd,frange=(0.03,0.03),peaktype
               reciprocal space.
      frange:  data range used for the fit in both directions
               (see above for details default:(0.03,0.03) unit: \AA^{-1})
-     peaktype: can be 'Gauss' or 'Lorentz' to fit either of the two peak 
+     peaktype: can be 'Gauss' or 'Lorentz' to fit either of the two peak
                shapes
-     plot:  if True (default) function will plot the result of the fit in 
+     plot:  if True (default) function will plot the result of the fit in
             comparison with the measurement.
 
     Returns

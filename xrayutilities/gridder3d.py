@@ -43,14 +43,14 @@ class Gridder3D(Gridder):
         self.zmax = 0
 
         self.nx = nx
-        self.nz = nz 
+        self.nz = nz
         self.ny = ny
 
         self._allocate_memory()
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx,ny 
+        Class method to allocate memory for the gridder based on the nx,ny
         class attributes.
         """
         self._gdata = numpy.zeros((self.nx,self.ny,self.nz),dtype=numpy.double)
@@ -62,13 +62,13 @@ class Gridder3D(Gridder):
         self.nz = nz
 
         self._allocate_memory()
-    
+
     def __get_xaxis(self):
         return axis(self.xmin,self.xmax,self.nx)
-    
+
     def __get_yaxis(self):
         return axis(self.ymin,self.ymax,self.ny)
-    
+
     def __get_zaxis(self):
         return axis(self.zmin,self.zmax,self.nz)
 
@@ -83,7 +83,7 @@ class Gridder3D(Gridder):
     def __get_zmatrix(self):
         return ones(self.nx,self.ny,self.nz)*\
                 self.zaxis[numpy.newaxis,numpy.newaxis,:]
-        
+
     zaxis = property(__get_zaxis)
     zmatrix = property(__get_zmatrix)
     xaxis = property(__get_xaxis)
@@ -94,7 +94,7 @@ class Gridder3D(Gridder):
     def dataRange(self,xmin,xmax,ymin,ymax,zmin,zmax,fixed=True):
         """
         define minimum and maximum data range, usually this is deduced
-        from the given data automatically, however, for sequential 
+        from the given data automatically, however, for sequential
         gridding it is useful to set this before the first call of the
         gridder. data outside the range are simply ignored
 
@@ -102,7 +102,7 @@ class Gridder3D(Gridder):
         ----------
          xmin,ymin,zmin:   minimum value of the gridding range in x,y,z
          xmax,ymax,zmax:   maximum value of the gridding range in x,y,z
-         fixed: flag to turn fixed range gridding on (True (default)) 
+         fixed: flag to turn fixed range gridding on (True (default))
                 or of (False)
         """
         self.fixed_range = fixed
@@ -112,7 +112,7 @@ class Gridder3D(Gridder):
         self.ymax = ymax
         self.zmin = zmin
         self.zmax = zmax
-    
+
     def __call__(self,x,y,z,data):
         """
         Perform gridding on a set of data. After running the gridder
@@ -125,19 +125,19 @@ class Gridder3D(Gridder):
         z ............... numpy array fo arbitrary shape with z positions
         data ............ numpy array of arbitrary shape with data values
         """
-        
+
         if not self.keep_data:
             self.Clear()
-        
+
         if isinstance(x,(list,tuple,numpy.float,numpy.int)):
-            x = numpy.array(x) 
+            x = numpy.array(x)
         if isinstance(y,(list,tuple,numpy.float,numpy.int)):
-            y = numpy.array(y) 
+            y = numpy.array(y)
         if isinstance(z,(list,tuple,numpy.float,numpy.int)):
-            z = numpy.array(z) 
+            z = numpy.array(z)
         if isinstance(data,(list,tuple,numpy.float,numpy.int)):
-            data = numpy.array(data) 
-        
+            data = numpy.array(data)
+
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         z = z.reshape(z.size)
@@ -146,16 +146,16 @@ class Gridder3D(Gridder):
         if x.size != y.size or y.size!=z.size or z.size!=data.size:
             raise exception.InputError("XU.Gridder3D: size of given datasets (x,y,z,data) is not equal!")
 
-        if not self.fixed_range: 
+        if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
             self.dataRange(x.min(),x.max(),y.min(),y.max(),z.min(),z.max(),self.keep_data)
-        
+
         #remove normalize flag for C-code, normalization is always performed in python
         flags = self.flags^4
         cxrayutilities.gridder3d(x,y,z,data,self.nx,self.ny,self.nz,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
                                  self.zmin,self.zmax,
-                                 self._gdata,self._gnorm,flags)            
+                                 self._gdata,self._gnorm,flags)
 

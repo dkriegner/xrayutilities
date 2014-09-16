@@ -83,7 +83,7 @@ class CBFFile(object):
             self._open()
 
         tmp = numpy.fromfile(file=self.fid,dtype="u1").tostring()
-        tmp2 = tmp.decode('ascii','ignore') 
+        tmp2 = tmp.decode('ascii','ignore')
         # read header information
         pos  = tmp2.index(self.nxkey+':')+len(self.nxkey+':')
         self.xdim = int(tmp2[pos:pos+6].strip())
@@ -199,7 +199,7 @@ class CBFDirectory(object):
         if isinstance(group,str):
             if group == "":
                 group = os.path.split(self.datapath)[1]
-            try: 
+            try:
                 g = h5.getNode(h5.root,group)
             except:
                 g = h5.createGroup(h5.root,group)

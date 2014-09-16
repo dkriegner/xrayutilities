@@ -855,7 +855,7 @@ def GeTeRhombohedral(aa,ab,a,ang,x=0.237):
 
     l = Lattice(a1,a2,a3,base=lb)
 
-    return l    
+    return l
 
 def MagnetiteLattice( aa , ab , ac , a ,x = 0.255):
     lb = LatticeBase()
@@ -918,7 +918,7 @@ def MagnetiteLattice( aa , ab , ac , a ,x = 0.255):
     lb.append(ac,[.5-x,x-.25,x+.25])
     lb.append(ac,[.5+x,.5+x,x])
     lb.append(ac,[.5-x,.5-x,1-x])
- 
+
     a1=[ a , 0 , 0 ]
     a2=[ 0 , a , 0 ]
     a3=[ 0 , 0 , a ]

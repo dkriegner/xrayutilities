@@ -18,13 +18,13 @@
 """
 Module provides functions to convert a q-vector from reciprocal space to
 angular space. a simple implementation uses scipy optimize routines to perform
-a fit for a arbitrary goniometer. 
+a fit for a arbitrary goniometer.
 
 The user is, however, expected to use the bounds variable to put restrictions
 to the number of free angles to obtain reproducible results. In general only 3
 angles are needed to fit an arbitrary q-vector (2 sample + 1 detector angles or
 1 sample + 2 detector). More complicated restrictions can be implemented using
-the lmfit package. (done upon request!)  
+the lmfit package. (done upon request!)
 
 The function is based on a fitting routine. For a specific goniometer also
 analytic expressions from literature can be used as they are implemented in the
@@ -44,14 +44,14 @@ def _makebounds(boundsin):
 
     Parameters
     ----------
-     boundsin:   list/tuple/array of bounds, or fixed values. the number of 
+     boundsin:   list/tuple/array of bounds, or fixed values. the number of
                  entries needs to be equal to the number of angle in the
                  goniometer given to the q2ang_general function
                  example input for 4 gonimeter angles: ((0,90),0,(0,180),(0,90))
 
     Returns
     -------
-     bounds to be handed over to the scipy.minimize routine. The function will 
+     bounds to be handed over to the scipy.minimize routine. The function will
      expand
     """
     boundsout = []
@@ -98,25 +98,25 @@ def Q2AngFit(qvec,expclass,bounds=None,ormat=numpy.identity(3),startvalues=None)
     """
     Functions to convert a q-vector from reciprocal space to angular space.
     This implementation uses scipy optimize routines to perform a fit for a
-    goniometer with arbitrary number of goniometer angles. 
+    goniometer with arbitrary number of goniometer angles.
 
     The user *must* use the bounds variable to put
     restrictions to the number of free angles to obtain reproducible results.
     In general only 3 angles are needed to fit an arbitrary q-vector (2 sample
     + 1 detector angles or 1 sample + 2 detector).
-    
+
     Parameters
     ----------
      qvec:      q-vector for which the angular positions should be calculated
-     expclass:  experimental class used to define the goniometer for which the 
+     expclass:  experimental class used to define the goniometer for which the
                 angles should be calculated.
 
      keyword arguments(optional):
       bounds:   list of bounds of the goniometer angles. The number of bounds must correspond to the number of goniometer angles in the expclass. Angles can also be fixed by supplying only one value for a particular angle. e.g.: ((low,up),fix,(low2,up2),(low3,up3))
       ormat:    orientation matrix of the sample to be used in the conversion
       startvalues:  start values for the fit, which can significantly speed up the
-                    conversion. The number of values must correspond to the number                    of angles in the goniometer of the expclass   
-     
+                    conversion. The number of values must correspond to the number                    of angles in the goniometer of the expclass
+
     Returns
     -------
      fittedangles,errcode: list of fitted goniometer angles and the errcode of the                           scipy minimize function. for a successful fit the error
@@ -129,7 +129,7 @@ def Q2AngFit(qvec,expclass,bounds=None,ormat=numpy.identity(3),startvalues=None)
 
     qconv = expclass._A2QConversion
     nangles = len(qconv.sampleAxis)+len(qconv.detectorAxis)
-    
+
     # generate starting position for optimization
     if startvalues == None:
         start = numpy.zeros(nangles)
@@ -142,18 +142,18 @@ def Q2AngFit(qvec,expclass,bounds=None,ormat=numpy.identity(3),startvalues=None)
         bounds[::2] = 180.
         bounds.shape = (nangles,2)
     elif len(bounds)!= nangles:
-        raise ValueError("XU.Q2AngFit: number of specified bounds invalid") 
-            
+        raise ValueError("XU.Q2AngFit: number of specified bounds invalid")
+
     # perform optimization
     x,nfun,errcode = scipy.optimize.fmin_tnc(_errornorm_q2ang,start,args=(qvec,expclass,ormat),bounds=_makebounds(bounds),approx_grad=True,maxfun=1000,disp=False)
-    
+
     qerror = _errornorm_q2ang(x,qvec,expclass,ormat)
     if qerror >= 1e-6:
         if config.VERBOSITY>=config.DEBUG:
             print("XU.Q2AngFit: info: need second run")
         # make a second run
         x,nfun,errcode = scipy.optimize.fmin_tnc(_errornorm_q2ang,x,args=(qvec,expclass,ormat),bounds=_makebounds(bounds),approx_grad=True,maxfun=1000,disp=False)
-    
+
     qerror = _errornorm_q2ang(x,qvec,expclass,ormat)
     if config.VERBOSITY>=config.DEBUG:
         print("XU.Q2AngFit: q-error=%.4g with error-code %d (%s)"%(qerror,errcode,scipy.optimize.tnc.RCSTRINGS[errcode]))

@@ -76,7 +76,7 @@ PyObject* pygridder3d(PyObject *self,PyObject *args)
     //call the actual gridder routine
     result = gridder3d(x,y,z,data,n,nx,ny,nz,
                            xmin,xmax,ymin,ymax,zmin,zmax,odata,norm,flags);
-    
+
     //clean up
     Py_DECREF(py_x);
     Py_DECREF(py_y);
@@ -164,7 +164,7 @@ int gridder3d(double *x,double *y,double *z,double *data,unsigned int n,
     /*free the norm buffer if it has been locally allocated*/
     if(norm==NULL) free(gnorm);
 
-    /* warn the user in case more than half the data points where out 
+    /* warn the user in case more than half the data points where out
        of the gridding area */
     if(noutofbounds>n/2) {
         fprintf(stdout,"XU.Gridder2D(c): more than half of the datapoints out of the data\n range, consider regridding with extended range!\n");

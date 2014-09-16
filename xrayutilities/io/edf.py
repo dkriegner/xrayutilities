@@ -155,7 +155,7 @@ class EDFFile(object):
         # try to parse motor positions and counters from header into separate dictionary
         if 'motor_mne' in self.header.keys():
             tkeys = self.header['motor_mne'].split()
-            try: 
+            try:
                 tval = numpy.array(self.header['motor_pos'].split(),dtype=numpy.double)
                 self.motors = dict(zip(tkeys,tval))
             except:
@@ -163,7 +163,7 @@ class EDFFile(object):
 
         if 'counter_mne' in self.header.keys():
             tkeys = self.header['counter_mne'].split()
-            try: 
+            try:
                 tval = numpy.array(self.header['counter_pos'].split(),dtype=numpy.double)
                 self.counters = dict(zip(tkeys,tval))
             except:
@@ -209,7 +209,7 @@ class EDFFile(object):
                 fmt_str = 'I'
                 try:
                     num_data = struct.unpack(tot_nofp*fmt_str,bindata)
-                except: 
+                except:
                     raise IOError("XU.io.EDFFile: data format (%s) has different byte-length, from amount of data one expects %d bytes per entry"%(fmt_str,len(bindata)/tot_nofp))
             else:
                 raise IOError("XU.io.EDFFile: data format (%s) has different byte-length, from amount of data one expects %d bytes per entry"%(fmt_str,len(bindata)/tot_nofp))
@@ -358,7 +358,7 @@ class EDFDirectory(object):
         if isinstance(group,str):
             if group == "":
                 group = os.path.split(self.datapath)[1]
-            try: 
+            try:
                 g = h5.getNode(h5.root,group)
             except:
                 g = h5.createGroup(h5.root,group)

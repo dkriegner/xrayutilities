@@ -17,8 +17,8 @@
 
 """
 This example shows the use of the Q2AngFit function to calculate experimental
-angles which can not be calculated by the analytic functions coded in the 
-HXRD, NonCOP and GID experimental classes, which use a fixed geometry. 
+angles which can not be calculated by the analytic functions coded in the
+HXRD, NonCOP and GID experimental classes, which use a fixed geometry.
 
 Here an arbitrary goniometer together with some restrictions can be defined and
 experimental angles can be calculated for this geometry
@@ -53,13 +53,13 @@ bounds = (0,(0,90),0,(-1,90),(0,90))
 
 
 #############################
-# call angle fit function 
+# call angle fit function
 #############################
 
 ang = None
 tbegin = time.time()
 for i in range(1000):
-    
+
     qvec = numpy.array((0,0,i*0.001))
     t0 = time.time()
     ang,qerror,errcode = xu.Q2AngFit(qvec,hxrd,bounds,startvalues=ang)

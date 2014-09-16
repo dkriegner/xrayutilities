@@ -17,7 +17,7 @@ wl = xu.en2lam(en)
 imgdir = os.path.join(datadir,"si_align_") # data path for CCD files
 filetmp = "si_align_12_%04d.edf.gz"
 
-qconv = xu.QConversion(['z+','y-'],['z+','y-'],[1,0,0]) 
+qconv = xu.QConversion(['z+','y-'],['z+','y-'],[1,0,0])
 hxrd = xu.HXRD(Si.Q(1,1,-2),Si.Q(1,1,1),wl=wl,qconv=qconv)
 
 ## manually selected images
@@ -61,14 +61,14 @@ for imgnr in numpy.sort(list(set(imagenrs)-set(avoid_images))[::4]):
     sang.append(float(edf.header['motor_pos'].split()[1]))
     if imgnr > 1293.:
         hkls.append((0,0,0))
-    elif imgnr < 139: 
+    elif imgnr < 139:
         hkls.append((0,0,numpy.sqrt(27))) #(3,3,3))
-    else: 
+    else:
         hkls.append((0,0,numpy.sqrt(75))) #(5,5,5))
 
-# call the fit for the detector parameters 
-# detector arm rotations and primary beam direction need to be given 
-# in total 8 detector parameters + 2 additional parameters for the reference crystal orientation and the wavelength are fitted, 
+# call the fit for the detector parameters
+# detector arm rotations and primary beam direction need to be given
+# in total 8 detector parameters + 2 additional parameters for the reference crystal orientation and the wavelength are fitted,
 # however the 4 misalignment parameters of the detector and the 3 other parameters can be fixed
 # the fixable parameters are detector tilt azimuth, the detector tilt angle, the detector rotation around the primary beam, the outer angle offset
 # sample tilt, sample tilt azimuth and the x-ray wavelength
@@ -76,7 +76,7 @@ param,eps = xu.analysis.area_detector_calib_hkl(sang,ang1,ang2,images,hkls,hxrd,
 
 # Following is an example of the output of the summary of the area_detector_calib_hkl function
 #total time needed for fit: 624.51sec
-#fitted parameters: epsilon: 9.9159e-08 (2,['Parameter convergence']) 
+#fitted parameters: epsilon: 9.9159e-08 (2,['Parameter convergence'])
 #param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset,sampletilt,stazimuth,wavelength)
 #param: 367.12 349.27 6.8187e-05 6.8405e-05 131.4 2.87 -0.390 -0.061 1.201 318.44 0.8254
 #please check the resulting data (consider setting plot=True)

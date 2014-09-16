@@ -32,14 +32,14 @@ class TestGridder1D(unittest.TestCase):
 
     def test_gridder1d_axis(self):
         # test length of xaxis
-        self.assertEqual(len(self.gridder.xaxis), self.num) 
+        self.assertEqual(len(self.gridder.xaxis), self.num)
         # test values of xaxis
         for i in range(self.num):
             self.assertAlmostEqual(self.gridder.xaxis[i], self.x[i], places=12)
-    
+
     def test_gridder1d_data(self):
         # test length of data
-        self.assertEqual(len(self.gridder.data), self.num) 
+        self.assertEqual(len(self.gridder.data), self.num)
         # test values of data
         for i in range(self.num):
             self.assertAlmostEqual(self.gridder.data[i], self.data[i], places=12)

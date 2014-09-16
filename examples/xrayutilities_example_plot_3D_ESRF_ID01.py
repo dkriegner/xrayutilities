@@ -47,9 +47,9 @@ qx,qy,qz,gint,gridder = id01.gridmap(h5file,SCANNR,ccdfiletmp,nx,ny,nz)
 #################################################
 # for a 3D plot using python function i sugggest
 # to use mayavi's mlab package. the basic usage
-# is shown below. otherwise have a look at the 
-# file xrayutilities_export_data2vtk.py in order learn 
-# how you can get your data to a vtk file for further 
+# is shown below. otherwise have a look at the
+# file xrayutilities_export_data2vtk.py in order learn
+# how you can get your data to a vtk file for further
 # processing.
 ######
 ## one of the following import statements is needed
