@@ -50,6 +50,7 @@ from .normalize import blockAverage2D
 from .normalize import blockAveragePSD
 from .normalize import IntensityNormalizer
 
+from .gridder import npyGridder1D
 from .gridder import Gridder1D
 from .gridder2d import Gridder2D
 from .gridder2d import Gridder2DList

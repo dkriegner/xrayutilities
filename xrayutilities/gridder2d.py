@@ -92,7 +92,7 @@ class Gridder2D(Gridder):
         """
         define minimum and maximum data range, usually this is deduced
         from the given data automatically, however, for sequential 
-        gridding it is usefull to set this before the first call of the
+        gridding it is useful to set this before the first call of the
         gridder. data outside the range are simply ignored
 
         Parameters

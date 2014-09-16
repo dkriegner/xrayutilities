@@ -2,7 +2,7 @@ import xrayutilities as xu
 import numpy
 import unittest
 
-class TestGridder1D(unittest.TestCase):
+class TestGridder2D(unittest.TestCase):
 
     def setUp(self):
         self.nx = 10

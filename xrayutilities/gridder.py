@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2009-2010,2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -126,6 +126,7 @@ class Gridder(object):
         except:
             pass
 
+
 class Gridder1D(Gridder):
     def __init__(self,nx):
         Gridder.__init__(self)
@@ -142,11 +143,9 @@ class Gridder1D(Gridder):
         """
         Returns the xaxis of the gridder
         the returned values correspond to the center of the data bins used by
-        the numpy.histogram function
+        the gridding algorithm
         """
-        dx = (float(self.xmax-self.xmin))/float(self.nx) # no -1 here to be consistent with numpy.histogram
-        ax = self.xmin+dx*numpy.arange(0,self.nx) + dx/2.
-        return ax
+        return axis(self.xmin,self.xmax,self.nx)
 
     xaxis = property(__get_xaxis)
 
@@ -154,7 +153,7 @@ class Gridder1D(Gridder):
         """
         define minimum and maximum data range, usually this is deduced
         from the given data automatically, however, for sequential 
-        gridding it is usefull to set this before the first call of the
+        gridding it is useful to set this before the first call of the
         gridder. data outside the range are simply ignored
 
         Parameters
@@ -167,6 +166,58 @@ class Gridder1D(Gridder):
         self.fixed_range = fixed
         self.xmin = min
         self.xmax = max
+
+    def __call__(self,*args):
+        """
+        Perform gridding on a set of data. After running the gridder
+        the 'data' object in the class is holding the gridded data.
+
+        Parameters
+        ----------
+         x ............... numpy array of arbitrary shape with x positions
+         data ............ numpy array of arbitrary shape with data values
+        """
+
+        if not self.keep_data:
+            self.Clear() 
+
+        x = args[0]
+        data = args[1]
+
+        if isinstance(x,(list,tuple,numpy.float,numpy.int)):
+            x = numpy.array(x) 
+        if isinstance(data,(list,tuple,numpy.float,numpy.int)):
+            data = numpy.array(data) 
+        
+        x = x.reshape(x.size)
+        data = data.reshape(data.size)
+
+        if x.size != data.size:
+            raise exception.InputError("XU.Gridder1D: size of given datasets (x,data) is not equal!")
+ 
+        if not self.fixed_range: 
+            # assume that with setting keep_data the user wants to call the gridder
+            # more often and obtain a reasonable result
+            self.dataRange(x.min(),x.max(),self.keep_data)
+
+        #remove normalize flag for C-code, normalization is always performed in python
+        flags = self.flags^4
+        cxrayutilities.gridder1d(x,data,self.nx,self.xmin,self.xmax,
+                                 self._gdata,self._gnorm,flags)
+
+
+class npyGridder1D(Gridder1D):
+    def __get_xaxis(self):
+        """
+        Returns the xaxis of the gridder
+        the returned values correspond to the center of the data bins used by
+        the numpy.histogram function
+        """
+        dx = (float(self.xmax-self.xmin))/float(self.nx) # no -1 here to be consistent with numpy.histogram
+        ax = self.xmin+dx*numpy.arange(0,self.nx) + dx/2.
+        return ax
+
+    xaxis = property(__get_xaxis)
 
     def __call__(self,*args):
         """

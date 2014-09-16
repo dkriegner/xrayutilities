@@ -82,6 +82,7 @@ with open('README.txt') as f:
 extmodul = Extension('xrayutilities.cxrayutilities',
                      sources = [os.path.join('xrayutilities','src','cxrayutilities.c'),
                                 os.path.join('xrayutilities','src','gridder_utils.c'),
+                                os.path.join('xrayutilities','src','gridder1d.c'),
                                 os.path.join('xrayutilities','src','gridder2d.c'),
                                 os.path.join('xrayutilities','src','block_average.c'),
                                 os.path.join('xrayutilities','src','qconversion.c'),
