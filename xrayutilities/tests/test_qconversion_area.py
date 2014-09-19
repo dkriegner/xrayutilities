@@ -46,7 +46,7 @@ class TestQConversion(unittest.TestCase):
         for i in range(3):
             q = qout[i]
             self.assertAlmostEqual(numpy.average(q), self.hklasym[i], places=6)
-    
+
     def test_qconversion_area_energy(self):
         ang1 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))
         ang2 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym)/2.)

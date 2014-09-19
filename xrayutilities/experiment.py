@@ -438,7 +438,7 @@ class QConversion(object):
         for k in kwargs.keys():
             if k not in ['wl','en','deg','UB','delta','sampledis']:
                 raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl/en': x-ray wavelength/energy, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'sampledis': sample displacement vector")
-        
+
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
@@ -489,7 +489,7 @@ class QConversion(object):
         sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
         dAngles = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])[0]
         wl = numpy.ravel(self._reshapeInput(Npoints,(0,),wl)[0])
-        
+
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
 
