@@ -60,6 +60,6 @@ from .fit import fit_peak2d
 from .fit import gauss_fit
 from .fit import peak_fit
 from .fit import multPeakFit
-from .fit import multPeakPlot 
+from .fit import multPeakPlot
 from .fit import multGaussFit
-from .fit import multGaussPlot 
+from .fit import multGaussPlot

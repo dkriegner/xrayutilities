@@ -85,7 +85,7 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
         cout[i/Nav] = buf/(float)(j-i); //save average to output array
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(input);
 
     // return output array
@@ -152,7 +152,7 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
         }
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(input);
 
     return PyArray_Return(outarr);
@@ -214,7 +214,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
         }
     }
 
-    // clean up 
+    // clean up
     Py_DECREF(input);
 
     // return output array

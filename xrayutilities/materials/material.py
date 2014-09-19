@@ -204,7 +204,7 @@ class Material(object):
         p = self.rlattice.GetPoint(hkl[0],hkl[1],hkl[2])
 
         return p
-        
+
     def environment(self,*pos,**kwargs):
         """
         Returns a list of neighboring atoms for a given position within the the unit cell.
@@ -212,13 +212,13 @@ class Material(object):
         Parameters
         ----------
          pos: list or numpy array with the fractional coordinated in the unit cell
-        
+
         keyword arguments:
          maxdist:  maximum distance wanted in the list of neighbors (default: 7)
 
         Returns
         -------
-         list of tuples with (distance,atomType,multiplicity) giving distance (sorted) and type 
+         list of tuples with (distance,atomType,multiplicity) giving distance (sorted) and type
          of neighboring atoms together with the amount of atoms at the given distance
 
         """
@@ -263,7 +263,7 @@ class Material(object):
                         if distance<=maxdist:
                             l.append((distance, '__dummy__'))
 
-        # sort 
+        # sort
         l.sort(key=operator.itemgetter(1))
         l.sort(key=operator.itemgetter(0))
         rl = []
@@ -275,22 +275,22 @@ class Material(object):
                 rl.append((l[i-1][0],l[i-1][1],mult))
                 mult=1
         rl.append((l[-1][0],l[-1][1],mult))
-        
+
         return rl
-    
+
     def planeDistance(self,*hkl):
         """
         determines the lattice plane spacing for the planes specified by (hkl)
 
         Parameters
         ----------
-         h,k,l:  Miller indices of the lattice planes given either as list,tuple or 
+         h,k,l:  Miller indices of the lattice planes given either as list,tuple or
                  seperate arguments
 
         Returns
         -------
          d:   the lattice plane spacing as float
-        
+
         Examples
         --------
         >>> xu.materials.Si.planeDistance(0,0,4)
@@ -306,10 +306,10 @@ class Material(object):
             hkl = hkl[0]
             if len(hkl)<3:
                 raise InputError("need 3 indices for the lattice point")
-        
+
         d = 2*numpy.pi/numpy.linalg.norm(self.rlattice.GetPoint(hkl))
 
-        return d     
+        return d
 
     def delta(self,en="config"):
         """
@@ -771,10 +771,10 @@ class Material(object):
         """
         function to obtain distances of atoms in the crystal up to the unit cell size (largest value of a,b,c is the cut-off)
 
-        returns a list of tuples with distance d and number of occurence n 
+        returns a list of tuples with distance d and number of occurence n
         [(d1,n1),(d2,n2),...]
 
-        Note: if the base of the material is empty the list will be empty 
+        Note: if the base of the material is empty the list will be empty
         """
 
         if not self.lattice.base:
@@ -804,7 +804,7 @@ class Material(object):
                         tmp_data.append(dis)
 
 
-        
+
         # sort the list and compress equal entries
         tmp_data.sort()
 
@@ -821,7 +821,7 @@ class Material(object):
         ret = []
         for i in range(len(self._distances)):
             ret.append((self._distances[i],self._dis_hist[i]))
-        
+
         return ret
 
 

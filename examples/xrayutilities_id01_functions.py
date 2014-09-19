@@ -74,7 +74,7 @@ def rawmap(h5file,scannr,ccdfiletmp,roi=default_roi,angdelta=[0,0,0,0,0],en=defa
     angular coordinates are taken from the spec file
     or read from the edf file header when no scan number is given (scannr=None)
     """
-    
+
     if scannr: # read image numbers from spec scan, get angles from spec
         [mu,eta,phi,nu,delta,ccdn],sdata = xu.io.geth5_scan(h5file,scannr,'Mu','Eta','Phi','Nu','Delta','ccdn')
         ccdn = sdata['ccd_n']

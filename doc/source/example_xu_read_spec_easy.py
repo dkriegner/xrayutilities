@@ -16,7 +16,7 @@ import os
 sample = "test" # sample name used also as file name for the data file
 energy = 8042.5 # x-ray energy in eV
 center_ch = 715.9 # center channel of the linear detector
-chpdeg = 345.28 # channels per degree of the linear detector 
+chpdeg = 345.28 # channels per degree of the linear detector
 roi=[100,1340] # region of interest of the detector
 nchannel = 1500 # number of channels of the detector
 
@@ -27,9 +27,9 @@ normalizer_detcorr = xu.IntensityNormalizer("MCA",mon="Monitor",time="Seconds",a
 # substrate material used for Bragg peak calculation to correct for experimental offsets
 InP = xu.materials.InP
 
-# initialize experimental class to specify the reference directions of your crystal 
+# initialize experimental class to specify the reference directions of your crystal
 # 11-2: inplane reference
-# 111: surface normal 
+# 111: surface normal
 hxrd = xu.HXRD(InP.Q(1,1,-2),InP.Q(1,1,1),en=energy)
 
 # configure linear detector
@@ -51,7 +51,7 @@ omalign = 43.0529 # experimental aligned values
 ttalign = 86.0733
 [omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(InP.Q(3,3,3)) # nominal values of the substrate peak
 
-# read the data from the HDF5 file 
+# read the data from the HDF5 file
 #(scan number:36, names of motors in spec file: omega= sample rocking, gamma = twotheta)
 [om,tt],MAP = xu.io.geth5_scan(h5file,36,'omega','gamma')
 # normalize the intensity values (absorber and count time corrections)
@@ -65,7 +65,7 @@ psd = xu.blockAveragePSD(psdraw, 1, roi=roi)
 # calculate data on a regular grid of 200x201 points
 gridder = xu.Gridder2D(200,201)
 gridder(qy,qz,psd)
-# maplog function limits the shown dynamic range to 8 orders of magnitude from the maxium 
+# maplog function limits the shown dynamic range to 8 orders of magnitude from the maxium
 INT = xu.maplog(gridder.data.T,8.,0)
 
 # plot the intensity as contour plot using matplotlib

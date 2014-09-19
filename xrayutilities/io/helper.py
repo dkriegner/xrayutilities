@@ -36,14 +36,14 @@ from ..exception import InputError
 def xu_open(filename,mode='rb'):
     """
     function to open a file no matter if zipped or not. Files with extension
-    '.gz' or '.bz2' are assumed to be compressed and transparently opened to read like 
+    '.gz' or '.bz2' are assumed to be compressed and transparently opened to read like
     usual files.
 
     Parameters
     ----------
      filename:  filename of the file to open (full including path)
      mode:      mode in which the file should be opened
-    
+
     Returns
     -------
      file handle of the opened file

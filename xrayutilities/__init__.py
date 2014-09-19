@@ -22,7 +22,7 @@ python package included in *xrayutilities*.
 
 It helps with planning experiments as well as analyzing the data.
 
-Authors: 
+Authors:
  Dominik Kriegner <dominik.kriegner@gmail.com> and
  Eugen Wintersberger <eugen.wintersberger@desy.de>
 """
@@ -50,6 +50,7 @@ from .normalize import blockAverage2D
 from .normalize import blockAveragePSD
 from .normalize import IntensityNormalizer
 
+from .gridder import npyGridder1D
 from .gridder import Gridder1D
 from .gridder2d import Gridder2D
 from .gridder2d import Gridder2DList

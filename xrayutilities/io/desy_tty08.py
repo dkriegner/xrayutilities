@@ -49,7 +49,7 @@ class tty08File(object):
     Required constructor arguments:
     ------------------------------
      filename:  a string with the name of the tty08-file
-    
+
     Optional keyword arguments:
     --------------------------
      mcadir .................. directory name of MCA files
@@ -73,11 +73,11 @@ class tty08File(object):
                 self.ReadMCA()
 
     def ReadMCA(self):
-        
+
         mca = numpy.empty((len(raws),numpy.loadtxt(raws[0]).shape[0]),dtype=numpy.float)
         for i in range(len(raws)):
             mca[i,:] = numpy.loadtxt(self.mca_files[i])[:,1]
-            
+
             fname = self.mca_file_template %i
             data = numpy.loadtxt(fname)
 
@@ -99,7 +99,7 @@ class tty08File(object):
         """
         Read the data from the file
         """
-    
+
         with xu_open(self.full_filename) as fid:
             # read header
             self.init_mopo = {}
@@ -129,13 +129,13 @@ class tty08File(object):
                     self.columns = tuple(line.split()[1:])
                     break # here all necessary information is read and we can start reading the data
             self.data = numpy.loadtxt(fid,comments="/")
-        
+
         self.data = numpy.rec.fromrecords(self.data,names=self.columns)
 
 def gettty08_scan(scanname,scannumbers,*args):
     """
     function to obtain the angular cooridinates as well as intensity values
-    saved in TTY08 datafiles. Especially usefull for reciprocal space map measurements, 
+    saved in TTY08 datafiles. Especially usefull for reciprocal space map measurements,
     and to combine date from several scans
 
     further more it is possible to obtain even more positions from
@@ -196,7 +196,7 @@ def gettty08_scan(scanname,scannumbers,*args):
             except:
                 buf = scan.init_mopo[motname]*numpy.ones(scanlength)
             angles[motname] =numpy.concatenate((angles[motname],buf))
- 
+
     retval = []
     for motname in args:
         #create return values in correct order

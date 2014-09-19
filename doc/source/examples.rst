@@ -130,7 +130,7 @@ Methods for high angle x-ray diffraction experiments. Mostly for experiments per
     print("Si (224)")
     print("om,tt: %8.3f %8.3f" %(om,tt))
 
-Note that on line 5 the ``HXRD`` class is initialized without specifying the energy used in the experiment. It will use the default energy stored in the configuration file, which defaults to CuK :math:`\alpha_1`.
+Note that on line 5 the ``HXRD`` class is initialized without specifying the energy used in the experiment. It will use the default energy stored in the configuration file, which defaults to CuK-alpha1.
 
 One could also call::
 

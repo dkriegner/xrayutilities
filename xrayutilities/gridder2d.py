@@ -48,10 +48,10 @@ class Gridder2D(Gridder):
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx,ny 
+        Class method to allocate memory for the gridder based on the nx,ny
         class attributes.
         """
-        
+
         self._gdata = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
         self._gnorm = numpy.zeros((self.nx,self.ny),dtype=numpy.double)
 
@@ -59,7 +59,7 @@ class Gridder2D(Gridder):
     def SetResolution(self,nx,ny):
         """
         Reset the resolution of the gridder. In this case the original data
-        stored in the object will be deleted. 
+        stored in the object will be deleted.
 
         Parameters
         ----------
@@ -91,15 +91,15 @@ class Gridder2D(Gridder):
     def dataRange(self,xmin,xmax,ymin,ymax,fixed=True):
         """
         define minimum and maximum data range, usually this is deduced
-        from the given data automatically, however, for sequential 
-        gridding it is usefull to set this before the first call of the
+        from the given data automatically, however, for sequential
+        gridding it is useful to set this before the first call of the
         gridder. data outside the range are simply ignored
 
         Parameters
         ----------
          xmin,ymin:   minimum value of the gridding range in x,y
          xmax,ymax:   maximum value of the gridding range in x,y
-         fixed: flag to turn fixed range gridding on (True (default)) 
+         fixed: flag to turn fixed range gridding on (True (default))
                 or of (False)
         """
         self.fixed_range = fixed
@@ -119,29 +119,29 @@ class Gridder2D(Gridder):
         y ............... numpy array of arbitrary shape with y positions
         data ............ numpy array of arbitrary shape with data values
         """
-        
+
         if not self.keep_data:
-            self.Clear() 
+            self.Clear()
 
         x = args[0]
         y = args[1]
         data = args[2]
 
         if isinstance(x,(list,tuple,numpy.float,numpy.int)):
-            x = numpy.array(x) 
+            x = numpy.array(x)
         if isinstance(y,(list,tuple,numpy.float,numpy.int)):
-            y = numpy.array(y) 
+            y = numpy.array(y)
         if isinstance(data,(list,tuple,numpy.float,numpy.int)):
-            data = numpy.array(data) 
-        
+            data = numpy.array(data)
+
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         data = data.reshape(data.size)
 
         if x.size != y.size or y.size!=data.size:
             raise exception.InputError("XU.Gridder2D: size of given datasets (x,y,data) is not equal!")
- 
-        if not self.fixed_range: 
+
+        if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
             self.dataRange(x.min(),x.max(),y.min(),y.max(),self.keep_data)
@@ -151,14 +151,14 @@ class Gridder2D(Gridder):
         cxrayutilities.gridder2d(x,y,data,self.nx,self.ny,
                                  self.xmin,self.xmax,
                                  self.ymin,self.ymax,
-                                 self._gdata,self._gnorm,flags)            
+                                 self._gdata,self._gnorm,flags)
 
 
 class Gridder2DList(Gridder2D):
     """
     special version of a 2D gridder which performs no actual averaging of the
     data in one grid/bin but just collects the data-objects belonging to one
-    bin for further treatment by the user  
+    bin for further treatment by the user
     """
     def __init__(self,nx,ny):
         Gridder.__init__(self)
@@ -175,10 +175,10 @@ class Gridder2DList(Gridder2D):
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx,ny 
+        Class method to allocate memory for the gridder based on the nx,ny
         class attributes.
         """
-        
+
         self._gdata = numpy.empty((self.nx,self.ny),dtype=list)
         for i in range(self.nx):
             for j in range(self.ny):
@@ -200,7 +200,7 @@ class Gridder2DList(Gridder2D):
         """
         Perform gridding on a set of data. After running the gridder the 'data'
         object in the class is holding the lists of data-objects belonging to
-        one bin/grid-point. 
+        one bin/grid-point.
 
         Parameters
         ----------
@@ -208,28 +208,28 @@ class Gridder2DList(Gridder2D):
         y ............... numpy array of arbitrary shape with y positions
         data ............ array,list,tuple with data of same length as x,y but of arbitrary type
         """
-        
+
         if not self.keep_data:
-            self.Clear() 
+            self.Clear()
 
         x = args[0]
         y = args[1]
         data = args[2]
 
         if isinstance(x,(list,tuple,numpy.float,numpy.int)):
-            x = numpy.array(x) 
+            x = numpy.array(x)
         if isinstance(y,(list,tuple,numpy.float,numpy.int)):
-            y = numpy.array(y) 
+            y = numpy.array(y)
         if isinstance(data,(list,tuple,numpy.float,numpy.int)):
-            data = list(data) 
-        
+            data = list(data)
+
         x = x.reshape(x.size)
         y = y.reshape(y.size)
 
         if x.size != y.size or y.size!=len(data):
             raise exception.InputError("XU.Gridder2DList: size of given datasets (x,y,data) is not equal!")
- 
-        if not self.fixed_range: 
+
+        if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
             self.dataRange((x.min(),x.max()),(y.min(),y.max()),self.keep_data)

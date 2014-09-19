@@ -17,7 +17,7 @@
 
 """
 script to show how the detector parameters (like pixel width, center channel
-and detector tilt can be determined for a linear detector. 
+and detector tilt can be determined for a linear detector.
 """
 
 import matplotlib.pyplot as plt

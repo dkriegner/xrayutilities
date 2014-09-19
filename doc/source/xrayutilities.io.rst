@@ -28,6 +28,14 @@ xrayutilities.io.edf module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.io.fastscan module
+--------------------------------
+
+.. automodule:: xrayutilities.io.fastscan
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.io.helper module
 ------------------------------
 
@@ -48,6 +56,14 @@ xrayutilities.io.panalytical_xml module
 ---------------------------------------
 
 .. automodule:: xrayutilities.io.panalytical_xml
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.io.pdcif module
+-----------------------------
+
+.. automodule:: xrayutilities.io.pdcif
     :members:
     :undoc-members:
     :show-inheritance:

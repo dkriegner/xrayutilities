@@ -92,7 +92,7 @@ def energy(en):
     Parameter
     ---------
 
-     en: energy either as scalar or array with value in eV, which 
+     en: energy either as scalar or array with value in eV, which
          will be returned unchanged; or string with name of emission line
 
     Returns

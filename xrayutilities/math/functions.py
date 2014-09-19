@@ -52,8 +52,8 @@ def smooth(x,n):
 
 def kill_spike(data,threshold=2.):
     """
-    function to smooth **single** data points which differ from the average of the neighboring data 
-    points by more than the threshold factor. Such spikes will be replaced by the mean value of the 
+    function to smooth **single** data points which differ from the average of the neighboring data
+    points by more than the threshold factor. Such spikes will be replaced by the mean value of the
     next neighbors.
 
     .. warning:: Use this function carefully not to manipulate your data!
@@ -65,7 +65,7 @@ def kill_spike(data,threshold=2.):
 
     Returns
     -------
-     1d data-array with spikes removed 
+     1d data-array with spikes removed
     """
 
     dataout = data.copy()
@@ -98,7 +98,7 @@ def Gauss1d(x,*p):
     -------
     the value of the Gaussian described by the parameters p
     at position x
-    
+
     Example
     -------
     Calling with a list of parameters needs a call looking as shown below (note the '*') or explicit listing of the parameters:
@@ -288,7 +288,7 @@ def PseudoVoigt1d(x,*p):
     ----------
      p:     list of parameters of the pseudo Voigt-function
             [XCEN,FWHM,AMP,BACKGROUND,ETA]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
      x:     coordinate(s) where the function should be evaluated
 
     Returns
@@ -297,7 +297,7 @@ def PseudoVoigt1d(x,*p):
     at position 'x'
     """
     sigma = p[1]/(2*numpy.sqrt(2*numpy.log(2)))
-    f = p[3] + p[4]*Lorentz1d(x,p[0],p[1],p[2],0) + (1-p[4])*Gauss1d(x,p[0],sigma,p[2],0) 
+    f = p[3] + p[4]*Lorentz1d(x,p[0],p[1],p[2],0) + (1-p[4])*Gauss1d(x,p[0],sigma,p[2],0)
     return f
 
 def PseudoVoigt2d(x,y,*p):
@@ -310,7 +310,7 @@ def PseudoVoigt2d(x,y,*p):
      x,y:   coordinate(s) where the function should be evaluated
      p:     list of parameters of the pseudo Voigt-function
             [XCEN,YCEN,FWHMX,FWHMY,AMP,BACKGROUND,ANGLE,ETA]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
 
     Returns
     -------
@@ -319,7 +319,7 @@ def PseudoVoigt2d(x,y,*p):
     """
     sigmax = p[2]/(2*numpy.sqrt(2*numpy.log(2)))
     sigmay = p[3]/(2*numpy.sqrt(2*numpy.log(2)))
-    f = p[5] + p[7]*Lorentz2d(x,y,p[0],p[1],p[2],p[3],p[4],0,p[6]) + (1-p[7])*Gauss2d(x,y,p[0],p[1],sigmax,sigmay,p[4],0,p[6]) 
+    f = p[5] + p[7]*Lorentz2d(x,y,p[0],p[1],p[2],p[3],p[4],0,p[6]) + (1-p[7])*Gauss2d(x,y,p[0],p[1],sigmax,sigmay,p[4],0,p[6])
     return f
 
 def Gauss1dArea(*p):
@@ -335,7 +335,7 @@ def Gauss1dArea(*p):
     -------
     the area of the Gaussian described by the parameters p
     """
-    f = p[2] * numpy.sqrt(2*numpy.pi)*p[1]  
+    f = p[2] * numpy.sqrt(2*numpy.pi)*p[1]
     return f
 
 def Gauss2dArea(*p):
@@ -351,7 +351,7 @@ def Gauss2dArea(*p):
     -------
     the area of the Gaussian described by the parameters p
     """
-    f = p[4] * numpy.sqrt(2*numpy.pi)**2*p[2]*p[3]  
+    f = p[4] * numpy.sqrt(2*numpy.pi)**2*p[2]*p[3]
     return f
 
 def Lorentz1dArea(*p):
@@ -367,7 +367,7 @@ def Lorentz1dArea(*p):
     -------
     the area of the Lorentzian described by the parameters p
     """
-    f = p[2] * numpy.pi/(2./(p[1])) 
+    f = p[2] * numpy.pi/(2./(p[1]))
     return f
 
 def PseudoVoigt1dArea(*p):
@@ -378,7 +378,7 @@ def PseudoVoigt1dArea(*p):
     ----------
      p:     list of parameters of the Lorentz-function
             [XCEN,FWHM,AMP,BACKGROUND,ETA]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz 
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
 
     Returns
     -------
@@ -436,14 +436,14 @@ def multPeak1d(x,*args):
     Parameters
     ----------
      x:         coordinate where the function should be evaluated
-     *args:     list of peak/function types and parameters
+     args:      list of peak/function types and parameters
                 for every function type two arguments need to be given
                 first the type of function as string with possible values
                 'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'p': polynom
-                the second type of arguments is the tuple/list of parameters of 
-                the respective function. See documentation of 
+                the second type of arguments is the tuple/list of parameters of
+                the respective function. See documentation of
                 math.Gauss1d, math.Lorentz1d, math.PseudoVoigt1d, and numpy.polyval
-                for details of the different function types.   
+                for details of the different function types.
 
     Returns
     -------
@@ -451,13 +451,13 @@ def multPeak1d(x,*args):
     """
     if len(args)%2 != 0:
         raise ValueError('number of arguments must be even!')
-        
+
     if numpy.isscalar(x):
         f = 0
     else:
         lx = numpy.array(x)
         f = numpy.zeros(lx.shape)
-        
+
     for i in range(int(len(args)/2)):
         ftype = str.lower(args[2*i])
         fparam = args[2*i+1]
@@ -475,7 +475,7 @@ def multPeak1d(x,*args):
         else:
             raise ValueError('invalid function type given!')
 
-    return f 
+    return f
 
 def multPeak2d(x,y,*args):
     """
@@ -486,15 +486,15 @@ def multPeak2d(x,y,*args):
     Parameters
     ----------
      x,y:       coordinates where the function should be evaluated
-     *args:     list of peak/function types and parameters
+     args:      list of peak/function types and parameters
                 for every function type two arguments need to be given
                 first the type of function as string with possible values
                 'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'c': constant
-                the second type of arguments is the tuple/list of parameters of 
-                the respective function. See documentation of 
-                math.Gauss2d, math.Lorentz2d, math.PseudoVoigt2d for details of 
+                the second type of arguments is the tuple/list of parameters of
+                the respective function. See documentation of
+                math.Gauss2d, math.Lorentz2d, math.PseudoVoigt2d for details of
                 the different function types.
-                The constant accepts a single float which will be added to the data   
+                The constant accepts a single float which will be added to the data
 
     Returns
     -------
@@ -502,14 +502,14 @@ def multPeak2d(x,y,*args):
     """
     if len(args)%2 != 0:
         raise ValueError('number of arguments must be even!')
-        
+
     if numpy.isscalar(x):
         f = 0
     else:
         lx = numpy.array(x)
         ly = numpy.array(y)
         f = numpy.zeros(lx.shape)
-        
+
     for i in range(int(len(args)/2)):
         ftype = str.lower(args[2*i])
         fparam = args[2*i+1]
@@ -524,4 +524,4 @@ def multPeak2d(x,y,*args):
         else:
             raise ValueError('invalid function type given!')
 
-    return f 
+    return f

@@ -45,12 +45,12 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
     unsigned char *cin;
     float *cout;
     npy_intp nout;
-   
+
     int cur  = 0;
     int diff = 0;
     unsigned int np = 0;
 
-    union { 
+    union {
         const unsigned char*  uint8;
         const unsigned short* uint16;
         const unsigned int*   uint32;
@@ -58,7 +58,7 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
         const          short*  int16;
         const          int*    int32;
     } parser;
-    
+
     // Python argument conversion code
     if (!PyArg_ParseTuple(args, "s#ii", &cin, &len, &nx, &ny)) return NULL;
     /*printf("stream length: %d\n",len);
@@ -68,7 +68,7 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
     nout = nx*ny;
     outarr = (PyArrayObject *) PyArray_SimpleNew(1, &nout, NPY_FLOAT);
     cout = (float *) PyArray_DATA(outarr);
-    
+
     i = 0;
     while (i<len-10) {   // find the start of the array
         if ((cin[i]==0x0c)&&(cin[i+1]==0x1a)&&(cin[i+2]==0x04)&&(cin[i+3]==0xd5)) {
@@ -76,7 +76,7 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
             i = len+10;
         }
         i++;
-    } 
+    }
     if(i==len-10) {
         PyErr_SetString(PyExc_ValueError,"start of data in stream not found!\n");
         return NULL;
@@ -84,7 +84,7 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
     /*else {
         printf("found start at %d\n",start);
     }*/
-    
+
     // next while part was taken from pilatus code and adapted by O. Seeck and D. Kriegner
     parser.uint8 = (const unsigned char*) cin+start;
 
@@ -113,16 +113,16 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
 	    }
 	    cur += diff;
 	    *cout++ = (float) cur;
-        np++;        
+        np++;
         // check if we already have all data (file might be longer)
         if(np==nout) {
             //printf("all data read (%d,%d)\n",np,parsed);
             break;
         }
     }
-    
+
     // return output array
     return PyArray_Return(outarr);
-}    
+}
 
 #undef PY_ARRAY_UNIQUE_SYMBOL

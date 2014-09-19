@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2009-2010,2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -25,7 +25,7 @@ from . import config
 
 def delta(min_value,max_value,n):
     """
-    Compute the stepsize along an axis of a grid. 
+    Compute the stepsize along an axis of a grid.
 
     Parameters
     ----------
@@ -40,7 +40,7 @@ def delta(min_value,max_value,n):
 
 def axis(min_value,max_value,n):
     """
-    Compute the a grid axis. 
+    Compute the a grid axis.
 
     Parameters
     ----------
@@ -49,8 +49,11 @@ def axis(min_value,max_value,n):
     n ................... number of steps
     """
 
-    d = delta(min_value,max_value,n)
-    a = min_value + d*numpy.arange(0,n)
+    if n!=1:
+        d = delta(min_value,max_value,n)
+        a = min_value + d*numpy.arange(0,n)
+    else:
+        a=(min_value+max_value)/2.
 
     return a
 
@@ -63,11 +66,28 @@ def ones(*args):
 
 
 class Gridder(object):
+    """
+    Basis class for gridders in xrayutilities. A gridder is a function mapping
+    irregular spaced data onto a regular grid by binning the data into equally
+    sized elements.
+
+    There are different ways of defining the regular grid of a Gridder. In
+    xrayutilities the data bins extend beyond the data range in the input data,
+    but the given position being the center of these bins, extends from the
+    minimum to the maximum of the data!  The main motivation for this was to
+    create a Gridder, which when feeded with N equidistant data points and
+    gridded with N bins would not change the data position (not the case with
+    numpy.histogramm functions!). Of course this leads to the fact that for
+    homogeneous point density the first and last bin in any direction are not
+    filled as the other bins.
+
+    A different definition is used by numpy histogram functions where the bins
+    extend only to the end of the data range. (see numpy histogram,
+    histrogram2d, ...)
+    """
     def __init__(self):
         """
-        Basis class for gridders in xrayutilities. A gridder is a function mapping
-        irregular spaced data onto a regular grid by binning the data into equally 
-        sized elements
+        Constructor defining default properties of any Gridder class
         """
 
         self.flags = 0
@@ -112,7 +132,7 @@ class Gridder(object):
             return self._gdata.copy()
 
     data = property(__get_data)
-    
+
     def Clear(self):
         """
         Clear so far gridded data to reuse this instance of the Gridder
@@ -122,6 +142,7 @@ class Gridder(object):
             self._gnorm[...] = 0
         except:
             pass
+
 
 class Gridder1D(Gridder):
     def __init__(self,nx):
@@ -139,6 +160,74 @@ class Gridder1D(Gridder):
         """
         Returns the xaxis of the gridder
         the returned values correspond to the center of the data bins used by
+        the gridding algorithm
+        """
+        return axis(self.xmin,self.xmax,self.nx)
+
+    xaxis = property(__get_xaxis)
+
+    def dataRange(self,min,max,fixed=True):
+        """
+        define minimum and maximum data range, usually this is deduced
+        from the given data automatically, however, for sequential
+        gridding it is useful to set this before the first call of the
+        gridder. data outside the range are simply ignored
+
+        Parameters
+        ----------
+         min:   minimum value of the gridding range
+         max:   maximum value of the gridding range
+         fixed: flag to turn fixed range gridding on (True (default))
+                or of (False)
+        """
+        self.fixed_range = fixed
+        self.xmin = min
+        self.xmax = max
+
+    def __call__(self,*args):
+        """
+        Perform gridding on a set of data. After running the gridder
+        the 'data' object in the class is holding the gridded data.
+
+        Parameters
+        ----------
+         x ............... numpy array of arbitrary shape with x positions
+         data ............ numpy array of arbitrary shape with data values
+        """
+
+        if not self.keep_data:
+            self.Clear()
+
+        x = args[0]
+        data = args[1]
+
+        if isinstance(x,(list,tuple,numpy.float,numpy.int)):
+            x = numpy.array(x)
+        if isinstance(data,(list,tuple,numpy.float,numpy.int)):
+            data = numpy.array(data)
+
+        x = x.reshape(x.size)
+        data = data.reshape(data.size)
+
+        if x.size != data.size:
+            raise exception.InputError("XU.Gridder1D: size of given datasets (x,data) is not equal!")
+
+        if not self.fixed_range:
+            # assume that with setting keep_data the user wants to call the gridder
+            # more often and obtain a reasonable result
+            self.dataRange(x.min(),x.max(),self.keep_data)
+
+        #remove normalize flag for C-code, normalization is always performed in python
+        flags = self.flags^4
+        cxrayutilities.gridder1d(x,data,self.nx,self.xmin,self.xmax,
+                                 self._gdata,self._gnorm,flags)
+
+
+class npyGridder1D(Gridder1D):
+    def __get_xaxis(self):
+        """
+        Returns the xaxis of the gridder
+        the returned values correspond to the center of the data bins used by
         the numpy.histogram function
         """
         dx = (float(self.xmax-self.xmin))/float(self.nx) # no -1 here to be consistent with numpy.histogram
@@ -146,24 +235,6 @@ class Gridder1D(Gridder):
         return ax
 
     xaxis = property(__get_xaxis)
-
-    def dataRange(self,min,max,fixed=True):
-        """
-        define minimum and maximum data range, usually this is deduced
-        from the given data automatically, however, for sequential 
-        gridding it is usefull to set this before the first call of the
-        gridder. data outside the range are simply ignored
-
-        Parameters
-        ----------
-         min:   minimum value of the gridding range
-         max:   maximum value of the gridding range
-         fixed: flag to turn fixed range gridding on (True (default)) 
-                or of (False)
-        """
-        self.fixed_range = fixed
-        self.xmin = min
-        self.xmax = max
 
     def __call__(self,*args):
         """
@@ -189,7 +260,7 @@ class Gridder1D(Gridder):
         ldata = data[mask]
         lx = x[mask]
 
-        if not self.fixed_range: 
+        if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the gridder
             # more often and obtain a reasonable result
             self.dataRange(lx.min(),lx.max(),self.keep_data)

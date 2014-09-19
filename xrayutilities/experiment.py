@@ -101,7 +101,7 @@ class QConversion(object):
         for k in kwargs.keys():
             if k not in ['wl','en','UB']:
                 raise Exception("unknown keyword argument given: allowed are 'en': for x-ray energy, 'wl': x-ray wavelength, 'UB': orientation/orthonormalization matrix")
-        
+
         #initialize some needed variables
         self._kappa_dir = numpy.array((numpy.nan,numpy.nan,numpy.nan))
 
@@ -326,7 +326,7 @@ class QConversion(object):
         Parameters
         ----------
          *args:     arguments from the QConversion routine (sample and detector angles)
-        
+
         Returns
         -------
          Npoints:   integer to tell the number of points given
@@ -364,7 +364,7 @@ class QConversion(object):
         Returns
         -------
          inarr:     numpy.ndarray of shape (len(args),npoints) with the input arguments
-         retshape:  shape of return values 
+         retshape:  shape of return values
         """
 
         inarr = numpy.empty((len(args),npoints),dtype=numpy.double)
@@ -426,7 +426,7 @@ class QConversion(object):
                          Note that the en keyword overrules the wl keyword!
              deg:        flag to tell if angles are passed as degree
                          (default: True)
-             sampledis:  sample displacement vector in relative units of the detector 
+             sampledis:  sample displacement vector in relative units of the detector
                          distance (default: (0,0,0))
 
         Returns
@@ -469,18 +469,18 @@ class QConversion(object):
             UB = numpy.array(kwargs['UB'])
         else:
             UB = self.UB
-        
+
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
         else:
-            sd = numpy.zeros(3) 
+            sd = numpy.zeros(3)
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
             raise InputError("QConversion: wrong amount (%d) of arguments given, \
                              number of arguments should be %d" %(len(args),Ncirc))
-        
+
         # determine the number of points
         a = args + (wl,)
         Npoints = self._checkInput(*a)
@@ -543,7 +543,7 @@ class QConversion(object):
          tilt:            tilt of the detector axis from the detectorDir (in degree)
 
             Note: the channel numbers run from 0 .. Nchannel-1
-        
+
         **kwargs:        optional keyword arguments
           Nav:           number of channels to average to reduce data size (default: 1)
           roi:           region of interest for the detector pixels; e.g. [100,900]
@@ -552,7 +552,7 @@ class QConversion(object):
         for k in kwargs.keys():
             if k not in ['Nav','roi']:
                 raise Exception("unknown keyword argument given: allowed are 'Nav': number of channels for block-average, 'roi': region of interest")
-        
+
         # detectorDir
         if not isinstance(detectorDir,basestring) or len(detectorDir)!=2:
             raise InputError("QConversion: incorrect detector direction type or syntax (%s)" %repr(detectorDir))
@@ -635,7 +635,7 @@ class QConversion(object):
 
         if not self._linear_init:
             raise Exception("QConversion: linear detector not initialized -> call Ang2Q.init_linear(...)")
-        
+
         for k in kwargs.keys():
             if k not in ['wl','en','deg','UB','delta','Nav','roi','sampledis']:
                 raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl/en': x-ray wavelength/energy, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
@@ -682,7 +682,7 @@ class QConversion(object):
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
         else:
-            sd = numpy.zeros(3) 
+            sd = numpy.zeros(3)
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -697,7 +697,7 @@ class QConversion(object):
         sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
         dAngles = self._reshapeInput(Npoints,delta[Ns:],*args[Ns:])[0]
         wl = numpy.ravel(self._reshapeInput(Npoints,(0,),wl)[0])
-        
+
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
 
@@ -761,7 +761,7 @@ class QConversion(object):
            Note: Either distance and pwidth1,2 or chpdeg1,2 must be given !!
 
            Note: the channel numbers run from 0 .. NchX-1
-       
+
         **kwargs:         optional keyword arguments
           Nav:            number of channels to average to reduce data size (default: [1,1])
           roi:            region of interest for the detector pixels; e.g. [100,900,200,800]
@@ -770,7 +770,7 @@ class QConversion(object):
         for k in kwargs.keys():
             if k not in ['Nav','roi']:
                 raise Exception("unknown keyword argument given: allowed are 'Nav': number of channels for block-average, 'roi': region of interest")
-        
+
         # detectorDir
         if not isinstance(detectorDir1,basestring) or len(detectorDir1)!=2:
             raise InputError("QConversion: incorrect detector direction1 type or syntax (%s)" %repr(detectorDir1))
@@ -876,7 +876,7 @@ class QConversion(object):
 
         if not self._area_init:
             raise Exception("QConversion: area detector not initialized -> call Ang2Q.init_area(...)")
-        
+
         for k in kwargs.keys():
             if k not in ['wl','en','deg','UB','delta','Nav','roi','sampledis']:
                 raise Exception("unknown keyword argument given: allowed are 'delta': angle offsets, 'wl/en': x-ray wavelength/energy, 'UB': orientation/orthonormalization matrix, 'deg': flag to tell if angles are in degrees, 'Nav': number of channels for block-averaging, 'roi': region of interest, 'sampledis': sample displacement vector")
@@ -925,7 +925,7 @@ class QConversion(object):
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
         else:
-            sd = numpy.zeros(3) 
+            sd = numpy.zeros(3)
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -939,7 +939,7 @@ class QConversion(object):
         # reshape/recast input arguments for sample and detector angles
         sAngles,retshape = self._reshapeInput(Npoints,delta[:Ns],*args[:Ns])
         wl = numpy.ravel(self._reshapeInput(Npoints,(0,),wl)[0])
-        
+
         if self._area_detrotaxis_set:
             Nd = Nd + 1
             if deg:
@@ -977,11 +977,11 @@ class QConversion(object):
         dAxis=self._detectorAxis_str
 
         if numpy.any(sd):
-            qpos = cxrayutilities.ang2q_conversion_area_sd(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
+            qpos = cxrayutilities.ang2q_conversion_area_sd(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                      cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1, self._area_detdir2,
                      self._area_tiltazimuth, self._area_tilt, UB, sd, wl, config.NTHREADS)
         else:
-            qpos = cxrayutilities.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir, 
+            qpos = cxrayutilities.ang2q_conversion_area(sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                      cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1, self._area_detdir2,
                      self._area_tiltazimuth, self._area_tilt, UB, wl, config.NTHREADS)
 
@@ -1013,7 +1013,7 @@ class Experiment(object):
                      to the primary beam and the innermost detector rotation axis)
 
         keyargs:     optional keyword arguments
-          qconv:     QConversion object to use for the Ang2Q conversion 
+          qconv:     QConversion object to use for the Ang2Q conversion
           wl:        wavelength of the x-rays in Angstroem (default: 1.5406A)
           en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
                      the en keyword overrules the wl keyword
@@ -1197,7 +1197,7 @@ class Experiment(object):
         for k in kwargs.keys():
             if k not in ['U','B','mat','dettype','delta','wl','en','deg']:
                 raise Exception("unknown keyword argument given: allowed are 'B': orthonormalization matrix, 'U': orientation matrix, 'mat': material object, 'dettype': string with detector type, and 'delta,wl,en,deg' from Ang2Q")
-        
+
         if "B" in kwargs:
             B = numpy.array(kwargs['B'])
             kwargs.pop("B")
@@ -1234,7 +1234,7 @@ class Experiment(object):
     def Transform(self,v):
         """
         transforms a vector, matrix or tensor of rank 4 (e.g. elasticity tensor)
-        to the coordinate frame of the Experiment class. This is for example 
+        to the coordinate frame of the Experiment class. This is for example
         necessary before any Q2Ang-conversion can be performed.
 
         Parameters
@@ -1351,7 +1351,7 @@ class HXRD(Experiment):
         The keyword argument trans determines whether Q should be transformed
         to the experimental coordinate frame or not. The coplanar scattering angles
         correspond to a goniometer with sample rotations ['x+','y+','z-']
-        and detector rotation 'x+' and primary beam along y. This is a standard 
+        and detector rotation 'x+' and primary beam along y. This is a standard
         four circle diffractometer.
 
         Parameters
@@ -1408,7 +1408,7 @@ class HXRD(Experiment):
         for k in keyargs.keys():
             if k not in ['trans','deg','geometry','refrac','mat','fi','fd','full_output']:
                 raise Exception("unknown keyword argument given: see documentation for details")
-        
+
         # collect the q-space input
         if len(Q)<3:
             Q = Q[0]
@@ -1670,7 +1670,7 @@ class NonCOP(Experiment):
         for k in keyargs.keys():
             if k not in ['trans','deg']:
                 raise Exception("unknown keyword argument given: allowed are 'trans': coordinate transformation flag, 'deg': degree-flag")
-        
+
         # collect the q-space input
         if len(Q)<3:
             Q = Q[0]
@@ -1819,7 +1819,7 @@ class GID(Experiment):
         for k in kwargs.keys():
             if k not in ['trans','deg']:
                 raise Exception("unknown keyword argument given: allowed are 'trans': coordinate transformation flag, 'deg': degree-flag")
-        
+
         if isinstance(Q,list):
             q = numpy.array(Q,dtype=numpy.double)
         elif isinstance(Q,numpy.ndarray):

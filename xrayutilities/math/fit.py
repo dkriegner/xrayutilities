@@ -54,13 +54,13 @@ def peak_fit(xdata,ydata,iparams=[],peaktype='Gauss',maxit=200):
      iparams:   initial paramters for the fit (determined automatically if nothing is given)
      peaktype:  type of peak to fit ('Gauss','Lorentz','PseudoVoigt')
      maxit:     maximal iteration number of the fit
-    
+
     Returns
     -------
      params,sd_params,itlim
 
     the parameters as defined in function Gauss1d/Lorentz1d or PseudoVoigt1d(x, *param)
-    and their errors of the fit, as well as a boolean flag which is false in the case of a 
+    and their errors of the fit, as well as a boolean flag which is false in the case of a
     successful fit
     """
 
@@ -136,13 +136,13 @@ def gauss_fit(xdata,ydata,iparams=[],maxit=200):
     keyword parameters:
      iparams:   initial paramters for the fit (determined automatically if nothing is given
      maxit:     maximal iteration number of the fit
-    
+
     Returns
     -------
      params,sd_params,itlim
 
     the Gauss parameters as defined in function Gauss1d(x, *param)
-    and their errors of the fit, as well as a boolean flag which is false in the case of a 
+    and their errors of the fit, as well as a boolean flag which is false in the case of a
     successful fit
     """
 
@@ -259,7 +259,7 @@ def multPeakFit(x,data,peakpos,peakwidth,dranges=None,peaktype='Gaussian'):
         b = numpy.ones(x.size)*k
 
         return derx+b
-        
+
     def deriv_p(p, x):
         """
         function to calculate the derivative of the signal of multiple peaks and background w.r.t. the parameters
@@ -283,11 +283,11 @@ def multPeakFit(x,data,peakpos,peakwidth,dranges=None,peaktype='Gaussian'):
                 derp = numpy.append(derp,4*(x-lp[0])* lp[2]/lp[1]/(1+(2*(x-lp[0])/lp[1])**2)**2)
                 derp = numpy.append(derp,4*(lp[0]-x)* lp[2]/lp[1]**2/(1+(2*(x-lp[0])/lp[1])**2)**2)
                 derp = numpy.append(derp,1/(1+(2*(x-p[0])/p[1])**2))
-     
+
         # background contributions
         derp = numpy.append(derp,x)
         derp = numpy.append(derp,numpy.ones(x.size))
-        
+
         # reshape output
         derp.shape = (len(p),) + x.shape
         return derp
@@ -323,16 +323,16 @@ def multPeakFit(x,data,peakpos,peakwidth,dranges=None,peaktype='Gaussian'):
             mask = numpy.logical_or(mask,lmask)
         lx = x[mask]
         ldata = data[mask]
-    else: 
+    else:
         lx = x
         ldata = data
 
     # create initial parameter list
     p = []
-    
+
     # background
     k,d = numpy.polyfit(lx, ldata, 1)
-    
+
     # peak parameters
     for i in range(len(peakpos)):
         amp = ldata[(lx-peakpos[i])>=0][0] - numpy.polyval((k,d),lx)[(lx-peakpos[i])>=0][0]
@@ -345,7 +345,7 @@ def multPeakFit(x,data,peakpos,peakwidth,dranges=None,peaktype='Gaussian'):
         print("XU.math.multGaussFit: intial parameters")
         print(p)
 
-    
+
     ##########################
     # fit with odrpack
     model =  odr.Model(fsignal, fjacd=deriv_x, fjacb=deriv_p)
@@ -384,7 +384,7 @@ def multGaussPlot(*args,**kwargs):
 
 def multPeakPlot(x,fpos,fwidth,famp,background,dranges=None,peaktype='Gaussian',fig="xu_plot",fact=1.):
     """
-    function to plot multiple Gaussian/Lorentz peaks with background values given by an array 
+    function to plot multiple Gaussian/Lorentz peaks with background values given by an array
 
     Parameters
     ----------
@@ -404,7 +404,7 @@ def multPeakPlot(x,fpos,fwidth,famp,background,dranges=None,peaktype='Gaussian',
     except NameError:
         print("XU.math.multPeakPlot: Warning: plot functionality not available")
         return
-    
+
     plt.figure(fig)
     # plot single peaks
     if dranges:
@@ -415,7 +415,7 @@ def multPeakPlot(x,fpos,fwidth,famp,background,dranges=None,peaktype='Gaussian',
             mask = numpy.logical_or(mask,lmask)
         lx = x[mask]
         lb = background[mask]
-    else: 
+    else:
         lx = x
         lb = background
 
@@ -425,7 +425,7 @@ def multPeakPlot(x,fpos,fwidth,famp,background,dranges=None,peaktype='Gaussian',
             lf = Gauss1d(lx,fpos[i],fwidth[i],famp[i],0)
         elif peaktype=='Lorentzian':
             lf = Lorentz1d(lx,fpos[i],fwidth[i],famp[i],0)
-        else: 
+        else:
             raise ValueError('wrong value for parameter peaktype was given')
         f += lf
         plt.plot(lx,(lf+lb)*fact,'k:')

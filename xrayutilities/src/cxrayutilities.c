@@ -30,6 +30,9 @@ extern PyObject* block_average1d(PyObject *self, PyObject *args);
 extern PyObject* block_average2d(PyObject *self, PyObject *args);
 extern PyObject* block_average_PSD(PyObject *self, PyObject *args);
 
+/* functions from gridder1d.c */
+extern PyObject* pygridder1d(PyObject *self,PyObject *args);
+
 /* functions from gridder2d.c */
 extern PyObject* pygridder2d(PyObject *self,PyObject *args);
 
@@ -90,6 +93,17 @@ static PyMethodDef XRU_Methods[] = {
      "-------\n"
      " block_av:    block averaged output array\n"
      "              size = (Nspec , ceil(Nch/Nav)) (out)\n"
+    },
+    {"gridder1d",pygridder1d,METH_VARARGS,
+     "Function performs 1D gridding on 1D input data. \n\n"
+     "Parameters\n"
+     "----------\n"
+     "  x ...... input x-values (1D numpy array - float64)\n"
+     "  data ... input data (1D numpy array - float64)\n"
+     "  nx ..... number of grid points in x-direction\n"
+     "  xmin ... minimum x-value of the grid\n"
+     "  xmax ... maximum x-value of the grid\n"
+     "  out .... output data\n"
     },
     {"gridder2d",pygridder2d,METH_VARARGS,
      "Function performs 2D gridding on 1D input data. \n\n"

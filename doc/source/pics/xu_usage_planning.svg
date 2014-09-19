@@ -15,9 +15,9 @@
    version="1.1"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="xu_usage_planning.svg"
-   inkscape:export-filename="/home/dk/devel/xrutils/doc/source/pics/xu_usage_planning.png"
-   inkscape:export-xdpi="100.01665"
-   inkscape:export-ydpi="100.01665">
+   inkscape:export-filename="/home/dk/devel/xrayutilities/doc/source/pics/xu_usage_planning.png"
+   inkscape:export-xdpi="149.94885"
+   inkscape:export-ydpi="149.94885">
   <defs
      id="defs4">
     <marker
@@ -173,9 +173,9 @@
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1366"
-     inkscape:window-height="709"
-     inkscape:window-x="1920"
-     inkscape:window-y="459"
+     inkscape:window-height="744"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -194,6 +194,14 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-52.297636,-148.10306)">
+    <rect
+       style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect3037"
+       width="611.14227"
+       height="326.27927"
+       x="-3.0304577"
+       y="-4.9949288"
+       transform="translate(52.297636,148.10306)" />
     <g
        id="g3878"
        transform="translate(-24.060915,-6.7487463)">
@@ -404,7 +412,7 @@
        inkscape:connector-curvature="0" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
-       d="m 176.95943,378.45844 0,25.27917"
+       d="m 177.31408,378.45844 0.30085,25.27917"
        id="path5828"
        inkscape:connector-type="polyline"
        inkscape:connection-start="#g3878-2"

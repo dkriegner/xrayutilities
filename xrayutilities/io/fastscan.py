@@ -161,6 +161,7 @@ class FastScan(object):
         Parameters
         ----------
          nx,ny:     number of bins in x,y direction
+        
         optional keyword arguments:
          counter:   name of the counter to use for gridding (default: 'mpx4int' (ID01))
          gridrange: range for the gridder: format: ((xmin,xmax),(ymin,ymax))
@@ -218,12 +219,13 @@ class FastScanCCD(FastScan):
          ccdnr:         array with ccd file numbers of length
                         length(FastScanCCD.data) OR a string with the data
                         column name for the file ccd-numbers
+        
         optional:
          gridrange:     range for the gridder: format: ((xmin,xmax),(ymin,ymax))
 
         Returns
         -------
-         gridder object    regular x,y-grid as well as 4-dimensional data object
+         gridder object:    regular x,y-grid as well as 4-dimensional data object
         """
         g2l = Gridder2DList(nx,ny)
         if gridrange:
@@ -259,6 +261,7 @@ class FastScanCCD(FastScan):
          ccdnr:         array with ccd file numbers of length
                         length(FastScanCCD.data) OR a string with the data
                         column name for the file ccd-numbers
+        
         optional:
          roi:           region of interest on the 2D detector. should be a list
                         of lower and upper bounds of detector channels for the
@@ -274,7 +277,7 @@ class FastScanCCD(FastScan):
 
         Returns
         -------
-         X,Y,DATA    regular x,y-grid as well as 4-dimensional data object
+         X,Y,DATA:      regular x,y-grid as well as 4-dimensional data object
         """
         
         g2l = _gridCCDnumbers(self,nx,ny,ccdnr,gridrange=gridrange)
@@ -462,6 +465,7 @@ class FastScanSeries(object):
         ----------
          posx:  real space x-position or index in x direction
          posy:  real space y-position or index in y direction
+        
         optional:
          typ:   type of coordinates. specifies if the position is specified as
                 real space coordinate or as index. valid values are 'real' and 
@@ -529,6 +533,7 @@ class FastScanSeries(object):
          qconv:         QConversion-object to be used for the conversion of the
                         CCD-data to reciprocal space 
          ccdtemp:       template string for the ccdfilenames
+        
         optional:
          path:          common path of the CCDframes
          roi:           region of interest on the 2D detector. should be a list
@@ -547,8 +552,9 @@ class FastScanSeries(object):
 
         Returns
         -------
-        qx,qy,qz,ccddata,valuelist:     raw data of the reciprocal space map
-        valuelist contains the ccdframe numbers and corresponding motor positions 
+        qx,qy,qz,ccddata,valuelist:  raw data of the reciprocal space map and 
+                                     valuelist containing the ccdframe numbers and 
+                                     corresponding motor positions 
         """
         if 'UB' in kwargs:
             U = kwargs['UB']
@@ -611,6 +617,7 @@ class FastScanSeries(object):
          qconv:         QConversion-object to be used for the conversion of the
                         CCD-data to reciprocal space 
          ccdtemp:   template string for the ccdfilenames
+        
         optional:
          path:          common path of the CCDframes
          roi:           region of interest on the 2D detector. should be a list

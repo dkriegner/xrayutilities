@@ -93,7 +93,7 @@ def blockAverage2D(data2d,Nav1,Nav2,**kwargs):
 
     # kwargs
     if 'roi' in kwargs:
-        if kwargs['roi']: 
+        if kwargs['roi']:
             roi = kwargs['roi']
         else:
             roi = [0,data2d.shape[0],0,data2d.shape[1]]
@@ -186,7 +186,7 @@ class IntensityNormalizer(object):
         for k in keyargs.keys():
             if k not in ['mon','time','smoothmon','av_mon','absfun','flatfield','darkfield']:
                 raise Exception("unknown keyword argument given: allowed are 'mon', 'smoothmon', 'av_mon', 'absfun', 'flatfield' and 'darkfield'")
-        
+
         #check input arguments
         self._setdet(det)
 
@@ -219,7 +219,7 @@ class IntensityNormalizer(object):
             self._setdarkfield(keyargs['darkfield'])
         else:
             self._darkfield = None
-        
+
         if 'smoothmon' in keyargs:
             self.smoothmon = keyargs['smoothmon']
         else:
