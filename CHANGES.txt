@@ -1,3 +1,5 @@
+* make python code to conform to PEP8
+
 v1.1.0-beta, 2014-09-16
 
 * new 1D Gridder working consistent with 2D and 3D
