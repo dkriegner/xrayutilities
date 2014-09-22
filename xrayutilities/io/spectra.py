@@ -27,13 +27,15 @@ import tables
 import os.path
 from numpy import rec
 import glob
-try:
-    import matplotlib
-except RuntimeError:
-    if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.io.specitra: warning; spectra class hdf5 import functionality not available")
 
 from .. import config
+
+try:
+    import matplotlib
+except ImportError:
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU.io.spectra: warning; spectra class plotting "
+              "functionality not available")
 
 re_wspaces = re.compile(r"\s+")
 re_colname = re.compile(r"^Col")

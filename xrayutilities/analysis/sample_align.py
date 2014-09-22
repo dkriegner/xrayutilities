@@ -40,7 +40,7 @@ from .. import cxrayutilities
 
 try:
     from matplotlib import pyplot as plt
-except RuntimeError:
+except ImportError:
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.analysis.sample_align: warning; plotting functionality not available")
 
