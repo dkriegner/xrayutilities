@@ -17,8 +17,8 @@
 # Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-xrayutilities is a Python package for assisting with x-ray diffraction experiments. Its the
-python package included in *xrayutilities*.
+xrayutilities is a Python package for assisting with x-ray diffraction
+experiments. Its the python package included in *xrayutilities*.
 
 It helps with planning experiments as well as analyzing the data.
 

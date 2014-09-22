@@ -32,7 +32,12 @@ try:
 except NameError:
     basestring = str
 
-energies = {'CuKa1': 8047.82310, 'CuKa2': 8027.9117, 'CuKa12': 8041.18, 'CuKb': 8905.337, 'MoKa1': 17479.374 }
+energies = {
+    'CuKa1': 8047.82310,
+    'CuKa2': 8027.9117,
+    'CuKa12': 8041.18,
+    'CuKb': 8905.337,
+    'MoKa1': 17479.374}
 # wavelength values from International Tables of Crystallography:
 # Vol C, 2nd Ed. page 203
 # CuKa1: 1.54059292(45) the value in bracket is the uncertainty
@@ -40,6 +45,7 @@ energies = {'CuKa1': 8047.82310, 'CuKa2': 8027.9117, 'CuKa12': 8041.18, 'CuKb': 
 # CuKa12: mixture 2:1 a1 and a2
 # CuKb:  1.392246(14)
 # MoKa1: 0.70931713(41)
+
 
 def lam2en(inp):
     """
@@ -59,8 +65,10 @@ def lam2en(inp):
     """
     #  E(eV) = h*c/(e * lambda(A)) *1e10
     inp = wavelength(inp)
-    out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
+    c = scipy.constants
+    out = c.h * c.speed_of_light / (c.e * inp) * 1e10
     return out
+
 
 def en2lam(inp):
     """
@@ -80,8 +88,10 @@ def en2lam(inp):
     """
     #  lambda(A) = h*c/(e * E(eV)) *1e10
     inp = energy(inp)
-    out = scipy.constants.h*scipy.constants.speed_of_light/(scipy.constants.e* inp) * 1e10
+    c = scipy.constants
+    out = c.h * c.speed_of_light / (c.e * inp) * 1e10
     return out
+
 
 def energy(en):
     """
@@ -100,11 +110,11 @@ def energy(en):
      energy in eV as float
     """
 
-    if isinstance(en,numbers.Number):
+    if isinstance(en, numbers.Number):
         return numpy.double(en)
-    elif isinstance(en,(numpy.ndarray,list,tuple)):
+    elif isinstance(en, (numpy.ndarray, list, tuple)):
         return numpy.array(en)
-    elif isinstance(en,basestring):
+    elif isinstance(en, basestring):
         return energies[en]
     else:
         raise InputError("wrong type for argument en")
@@ -119,8 +129,9 @@ def wavelength(wl):
     Parameter
     ---------
 
-     wl: wavelength (scalar ( wavelength in Angstrom will be returned unchanged)
-                     or string with name of emission line)
+     wl: wavelength; If scalar or array the wavelength in Angstrom will be
+         returned unchanged, string with emission name is converted to
+         wavelength
 
     Returns
     -------
@@ -128,12 +139,11 @@ def wavelength(wl):
 
     """
 
-    if isinstance(wl,numbers.Number):
+    if isinstance(wl, numbers.Number):
         return numpy.double(wl)
-    elif isinstance(wl,(numpy.ndarray,list,tuple)):
+    elif isinstance(wl, (numpy.ndarray, list, tuple)):
         return numpy.array(wl)
-    elif isinstance(wl,basestring):
+    elif isinstance(wl, basestring):
         return en2lam(energies[wl])
     else:
         raise InputError("wrong type for argument wavelength")
-
