@@ -23,10 +23,10 @@ used to convert angles to HKL coordinates of a certain material
 The orientation of the crystal is specified by the two directions given to the
 HXRD class.
 
-The same example is shown twice using different goniometer definitions with different
-incidence beam directions. The different definition changes the momentum transfer Q
-(only its orientation), however both yields the same HKL upon back and force conversion
-to angular and HKL-space.
+The same example is shown twice using different goniometer definitions with
+different incidence beam directions. The different definition changes the
+momentum transfer Q (only its orientation), however both yields the same HKL
+upon back and force conversion to angular and HKL-space.
 """
 
 import xrayutilities as xu
@@ -39,39 +39,39 @@ K = 3
 L = 1
 
 # define experiment geometry
-hxrd = xu.HXRD(mat.Q(1,1,-2),mat.Q(1,1,1))
+hxrd = xu.HXRD(mat.Q(1, 1, -2), mat.Q(1, 1, 1))
 
 # calculate angles
-[om,dummy1,dummy2,tt] = hxrd.Q2Ang(mat.Q(H,K,L))
+[om, dummy1, dummy2, tt] = hxrd.Q2Ang(mat.Q(H, K, L))
 
 # perform conversion to reciprocal space
-print(hxrd.Transform(mat.Q(H,K,L)))
-print(hxrd.Ang2Q(om,tt))
+print(hxrd.Transform(mat.Q(H, K, L)))
+print(hxrd.Ang2Q(om, tt))
 
 # perform conversion ro HKL coordinates
-if dummy1 !=0 or dummy2!=0:
+if dummy1 != 0 or dummy2 != 0:
     print("Geometry not enough for full description -> HKL will be wrong")
-print(hxrd.Ang2HKL(om,tt,mat=mat))
+print(hxrd.Ang2HKL(om, tt, mat=mat))
 
 print("--------------")
 # example with custom qconv
-qconv = xu.experiment.QConversion(['z+','x+','y-'],'z+',[1,0,0])
+qconv = xu.experiment.QConversion(['z+', 'x+', 'y-'], 'z+', [1, 0, 0])
 
 # material used in this example
 mat = xu.materials.Si
 
 # define experiment geometry
-hxrd = xu.HXRD(mat.Q(1,1,-2),mat.Q(1,1,1),qconv=qconv)
+hxrd = xu.HXRD(mat.Q(1, 1, -2), mat.Q(1, 1, 1), qconv=qconv)
 
 # calculate angles
 # IMPORTANT: the Q2Ang function is not influenced by the qconv argument. A
 # proper calculation of the angles needs the Q2AngFit function described in
 # the example file 'xrayutilities_q2ang_general.py'
-[om,chi,phi,tt] = hxrd.Q2Ang(mat.Q(H,K,L))
+[om, chi, phi, tt] = hxrd.Q2Ang(mat.Q(H, K, L))
 
 # perform conversion to reciprocal space
-print(hxrd.Transform(mat.Q(H,K,L)))
-print(hxrd.Ang2Q(om,chi,phi,tt))
+print(hxrd.Transform(mat.Q(H, K, L)))
+print(hxrd.Ang2Q(om, chi, phi, tt))
 
 # perform conversion ro HKL coordinates
-print(hxrd.Ang2HKL(om,chi,phi,tt,mat=mat))
+print(hxrd.Ang2HKL(om, chi, phi, tt, mat=mat))

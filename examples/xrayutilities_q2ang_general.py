@@ -33,23 +33,32 @@ energy = 15000
 ###########################
 # definition of goniometer
 ###########################
-qconv = xu.experiment.QConversion(['z+','y-','z-'],['z+','y-'],[1,0,0]) # 3S+2D goniometer (simplified ID01 goniometer, sample mu,eta,phi detector nu,del
-    # convention for coordinate system: x downstream; z upwards; y to the "outside" (righthanded)
-    # QConversion will set up the goniometer geometry. So the first argument describes the sample rotations, the second the detector rotations and the third the primary beam direction.
-    # For this consider the following coordinate system (at least this is what i use at ID01, feel free to use your conventions):
-    # x: downstream (direction of primary beam)
-    # y: out of the ring
-    # z: upwards
-    # these three axis form a right handed coordinate system.
-    # The outer most sample rotation (so the one mounted on the floor) is one which turns righthanded (+) around the z-direction -> z+ (at the moment this rotation is called 'mu' in the spec-session)
-    # The second sample rotation ('eta') is lefthanded (-) around y -> y-
+# 3S+2D goniometer (simplified ID01 goniometer, sample mu,eta,phi detector
+# nu,del
+qconv = xu.experiment.QConversion(['z+', 'y-', 'z-'], ['z+', 'y-'], [1, 0, 0])
+# convention for coordinate system: x downstream; z upwards; y to the "outside"
+# (righthanded)
+# QConversion will set up the goniometer geometry. So the first argument
+# describes the sample rotations, the second the detector rotations and the
+# third the primary beam direction.
+# For this consider the following coordinate system (at least this is what i
+# use at ID01, feel free to use your conventions):
+# x: downstream (direction of primary beam)
+# y: out of the ring
+# z: upwards
+# these three axis form a right handed coordinate system.
+# The outer most sample rotation (so the one mounted on the floor) is one which
+# turns righthanded (+) around the z-direction -> z+ (at the moment this
+# rotation is called 'mu' in the spec-session)
+# The second sample rotation ('eta') is lefthanded (-) around y -> y-
 
-# define experimental geometry with respect to the crystalline directions of the substrate
-hxrd = xu.HXRD((1,0,0),(0,0,1),en=energy,qconv=qconv)
+# define experimental geometry with respect to the crystalline directions
+# of the substrate
+hxrd = xu.HXRD((1, 0, 0), (0, 0, 1), en=energy, qconv=qconv)
 
 # tell bounds of angles / (min,max) pair for all motors
 # mu,eta,phi detector nu,del
-bounds = (0,(0,90),0,(-1,90),(0,90))
+bounds = (0, (0, 90), 0, (-1, 90), (0, 90))
 
 
 #############################
@@ -60,12 +69,13 @@ ang = None
 tbegin = time.time()
 for i in range(1000):
 
-    qvec = numpy.array((0,0,i*0.001))
+    qvec = numpy.array((0, 0, i * 0.001))
     t0 = time.time()
-    ang,qerror,errcode = xu.Q2AngFit(qvec,hxrd,bounds,startvalues=ang)
+    ang, qerror, errcode = xu.Q2AngFit(qvec, hxrd, bounds, startvalues=ang)
     t1 = time.time()
 
-    print("%.4f: err %d qvec %s angles %s"%(t1-t0,errcode,str(qvec),str(ang)))
+    print("%.4f: err %d qvec %s angles %s"
+          % (t1 - t0, errcode, str(qvec), str(ang)))
 
 tend = time.time()
-print("Total time needed: %.2fsec"%(tend-tbegin))
+print("Total time needed: %.2fsec" % (tend - tbegin))

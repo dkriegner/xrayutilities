@@ -21,24 +21,28 @@ import xrayutilities as xu
 import os
 
 # load powder diffraction cif data file
-pd = xu.io.pdCIF(os.path.join('data','04-003-0996.cif')) # here cif-file from ICDD
-
+# here use e.g. cif-file from ICDD
+pd = xu.io.pdCIF(os.path.join('data', '04-003-0996.cif'))
 # plot data
 plt.figure()
-plt.semilogy(pd.data['_pd_meas_2theta_scan'],pd.data['_pd_meas_intensity_total'])
-plt.xlim(0,90)
-plt.ylim(1e-1,1.5e3)
+plt.semilogy(
+    pd.data['_pd_meas_2theta_scan'],
+    pd.data['_pd_meas_intensity_total'])
+plt.xlim(0, 90)
+plt.ylim(1e-1, 1.5e3)
 plt.ylabel('Intensity Sb$_2$Te$_3$ (arb.u.)')
 plt.xlabel('scattering angle (deg)')
 
 # load materials
-ciff = xu.materials.CIFFile(os.path.join('data','1216385.cif')) # structure cif from Pearson's crystal data database
-st = xu.materials.Material("Sb2Te3",ciff.Lattice())
-pst = xu.Powder(st,en='CuKa12')
+# structure cif from Pearson's crystal data database
+ciff = xu.materials.CIFFile(os.path.join('data', '1216385.cif'))
+st = xu.materials.Material("Sb2Te3", ciff.Lattice())
+pst = xu.Powder(st, en='CuKa12')
 pst.PowderIntensity(tt_cutoff=90)
 
 height = 0.05
-#peak positions of Sb2Te3
-mask = pst.data/pst.data.max() >0.001
-plt.bar(pst.ang[mask]*2, numpy.ones(mask.sum())*height, width=0.4, bottom=0.13, linewidth=0, color='r',align='center', orientation='vertical')
-
+# peak positions of Sb2Te3
+mask = pst.data / pst.data.max() > 0.001
+plt.bar(pst.ang[mask] * 2, numpy.ones(mask.sum()) * height, width=0.4,
+        bottom=0.13, linewidth=0, color='r', align='center',
+        orientation='vertical')

@@ -24,55 +24,59 @@ from vtk.util import numpy_support
 import os
 import xrayutilities_id01_functions as id01
 
-home = "DATADIR" # data path (root)
-datadir = os.path.join(home,"FOLDERNAME") # data path for CCD/Maxipix files
-specdir = home # location of spec file
+home = "DATADIR"  # data path (root)
+datadir = os.path.join(home, "FOLDERNAME")  # data path for CCD/Maxipix files
+specdir = home  # location of spec file
 
-sample = "SAMPLENAME" # sample name -> used as spec file name
-ccdfiletmp = os.path.join(datadir,"CCDFILENAME_%04d.edf.gz") # template for the CCD file names
+sample = "SAMPLENAME"  # sample name -> used as spec file name
+# template for the CCD file names
+ccdfiletmp = os.path.join(datadir, "CCDFILENAME_%04d.edf.gz")
 
 
-h5file = os.path.join(specdir,sample+".h5")
-##read spec file and save to HDF5 (needs to be done only once)
-#try: s
-#except NameError: s = xu.io.SPECFile(sample+".spec",path=specdir)
-#else: s.Update() # in ipython run with: "run -i script" to just update the spec file and parse for new scans only
-#s.Save2HDF5(h5file)
+h5file = os.path.join(specdir, sample + ".h5")
+# read spec file and save to HDF5 (needs to be done only once)
+# try: s
+# except NameError: s = xu.io.SPECFile(sample+".spec",path=specdir)
+# else:
+#    s.Update()
+# s.Save2HDF5(h5file)
+# in ipython run with: "run -i script" to just update the spec file and parse
+# for new scans only
 
 # number of points to be used during the gridding
-nx, ny, nz = 100,101,102
+nx, ny, nz = 100, 101, 102
 
 # read and grid data with helper function
-qx,qy,qz,gint,gridder = id01.gridmap(h5file,SCANNR,ccdfiletmp,nx,ny,nz)
+qx, qy, qz, gint, gridder = id01.gridmap(h5file, SCANNR, ccdfiletmp,
+                                         nx, ny, nz)
 
 # prepare data for export to VTK image file
-INT = xu.maplog(gint,3.0,0)
+INT = xu.maplog(gint, 3.0, 0)
 
 qx0 = qx.min()
-dqx  = (qx.max()-qx.min())/nx
+dqx = (qx.max() - qx.min()) / nx
 
 qy0 = qy.min()
-dqy  = (qy.max()-qy.min())/ny
+dqy = (qy.max() - qy.min()) / ny
 
 qz0 = qz.min()
-dqz = (qz.max()-qz.min())/nz
+dqz = (qz.max() - qz.min()) / nz
 
 INT = numpy.transpose(INT).reshape((INT.size))
 data_array = numpy_support.numpy_to_vtk(INT)
 
 image_data = vtk.vtkImageData()
 image_data.SetNumberOfScalarComponents(1)
-image_data.SetOrigin(qx0,qy0,qz0)
-image_data.SetSpacing(dqx,dqy,dqz)
-image_data.SetExtent(0,nx-1,0,ny-1,0,nz-1)
+image_data.SetOrigin(qx0, qy0, qz0)
+image_data.SetSpacing(dqx, dqy, dqz)
+image_data.SetExtent(0, nx - 1, 0, ny - 1, 0, nz - 1)
 image_data.SetScalarTypeToDouble()
 
 pd = image_data.GetPointData()
 pd.SetScalars(data_array)
 
 # export data to file
-writer= vtk.vtkXMLImageDataWriter()
+writer = vtk.vtkXMLImageDataWriter()
 writer.SetFileName("output.vti")
 writer.SetInput(image_data)
 writer.Write()
-
