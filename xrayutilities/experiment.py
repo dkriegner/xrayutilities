@@ -1471,8 +1471,9 @@ class HXRD(Experiment):
         Parameters
         ----------
          om,tt:      sample and detector angles as numpy array, lists or
-                     Scalars must be given. all arguments must have the same
-                     shape or length
+                     Scalars must be given. All arguments must have the same
+                     shape or length. However, if one angle is always the same
+                     its enough to give one scalar value.
 
         **kwargs:    optional keyword arguments
              delta:  giving delta angles to correct the given ones for
@@ -1813,8 +1814,9 @@ class NonCOP(Experiment):
         Parameters
         ----------
          om,chi,phi,tt: sample and detector angles as numpy array, lists or
-                        Scalars must be given. all arguments must have the same
-                        shape or length
+                        Scalars must be given. All arguments must have the same
+                        shape or length. However, if one angle is always the
+                        same its enough to give one scalar value.
 
         **kwargs:   optional keyword arguments
             delta:  giving delta angles to correct the given ones for
@@ -2086,8 +2088,9 @@ class GID(Experiment):
         Parameters
         ----------
          ai,phi,tt,beta: sample and detector angles as numpy array, lists or
-                         Scalars must be given. all arguments must have the
-                         same shape or length
+                         Scalars must be given. All arguments must have the
+                         same shape or length. However, if one angle is always
+                         the same its enough to give one scalar value.
 
         **kwargs:   optional keyword arguments
             delta:  giving delta angles to correct the given ones for
@@ -2155,7 +2158,8 @@ class GISAXS(Experiment):
         ----------
          ai,tt,beta: sample and detector angles as numpy array, lists or
                      Scalars must be given. all arguments must have the same
-                     shape or length
+                     shape or length. Howevver, if one angle is always the same
+                     its enough to give one scalar value.
 
         **kwargs:   optional keyword arguments
             delta:  giving delta angles to correct the given ones for
