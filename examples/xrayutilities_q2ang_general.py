@@ -28,6 +28,8 @@ import xrayutilities as xu
 import numpy
 import time
 
+numpy.set_printoptions(precision=4, threshold=100, suppress=True)
+
 energy = 15000
 
 ###########################
@@ -67,6 +69,7 @@ bounds = (0, (0, 90), 0, (-1, 90), (0, 90))
 
 ang = None
 tbegin = time.time()
+print("time  error (code)      qvec             angles")
 for i in range(100):
 
     qvec = numpy.array((0, 0, i * 0.01))
@@ -74,8 +77,8 @@ for i in range(100):
     ang, qerror, errcode = xu.Q2AngFit(qvec, hxrd, bounds, startvalues=ang)
     t1 = time.time()
 
-    print("%.4f: err %d qvec %s angles %s"
-          % (t1 - t0, errcode, str(qvec), str(ang)))
+    print("%.4f: %.3g (%d) %s %s" % (t1 - t0, qerror, errcode,
+                                     str(qvec), str(ang)))
 
 tend = time.time()
 print("Total time needed: %.2fsec" % (tend - tbegin))
