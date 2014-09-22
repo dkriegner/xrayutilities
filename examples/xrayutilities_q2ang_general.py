@@ -67,9 +67,9 @@ bounds = (0, (0, 90), 0, (-1, 90), (0, 90))
 
 ang = None
 tbegin = time.time()
-for i in range(1000):
+for i in range(100):
 
-    qvec = numpy.array((0, 0, i * 0.001))
+    qvec = numpy.array((0, 0, i * 0.01))
     t0 = time.time()
     ang, qerror, errcode = xu.Q2AngFit(qvec, hxrd, bounds, startvalues=ang)
     t1 = time.time()

@@ -41,7 +41,7 @@ from ..exception import InputError
 
 try:
     from matplotlib import pylab
-except RuntimeError:
+except ImportError:
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.io.spec: warning; spec class plotting "
               "functionality not available")

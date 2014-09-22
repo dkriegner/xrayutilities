@@ -26,7 +26,7 @@ from .. import config
 
 try:
     from matplotlib import pylab as plt
-except RuntimeError:
+except ImportError:
     if config.VERBOSITY >= config.INFO_ALL:
         print("rotanode_alignment: warning; plotting functionality "
               "not available")

@@ -176,7 +176,9 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         print("XU.Q2AngFit: q-error=%.4g with error-code %d (%s)"
               % (qerror, errcode, scipy.optimize.tnc.RCSTRINGS[errcode]))
 
-    if errcode >= 3 and config.VERBOSITY >= config.INFO_LOW:
+    if (errcode>=3 and
+            qerror > config.EPSILON and
+            config.VERBOSITY>=config.INFO_LOW):
         print("xu.Q2AngFit: qerror=%.4g with error-code %d (%s)"
               % (qerror, errcode, scipy.optimize.tnc.RCSTRINGS[errcode]))
 
