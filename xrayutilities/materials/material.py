@@ -1114,11 +1114,11 @@ class CubicAlloy(Alloy):
         """
 
         # check input parameters
-        if isinstance(q_inp,number.Numbers) and numpy.isfinite(q_inp):
+        if isinstance(q_inp,numbers.Number) and numpy.isfinite(q_inp):
             q_inp = float(q_inp)
         else:
             raise TypeError("First argument (q_inp) must be a scalar!")
-        if isinstance(q_perp,number.Numbers) and numpy.isfinite(q_perp):
+        if isinstance(q_perp,numbers.Number) and numpy.isfinite(q_perp):
             q_perp = float(q_perp)
         else:
             raise TypeError("Second argument (q_perp) must be a scalar!")
