@@ -28,16 +28,20 @@ try:
     from matplotlib import pylab as plt
 except RuntimeError:
     if config.VERBOSITY >= config.INFO_ALL:
-        print("rotanode_alignment: warning; plotting functionality not available")
+        print("rotanode_alignment: warning; plotting functionality "
+              "not available")
 
 LOG_comment = re.compile(r"^#C")
 LOG_peakname = re.compile(r"^#P")
 LOG_motorname = re.compile(r"^#M")
 LOG_datetime = re.compile(r"^#D")
 LOG_tagline = re.compile(r"^#")
-LOG_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+") #denotes a numeric value
+# denotes a numeric value
+LOG_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+")
+
 
 class RA_Alignment(object):
+
     """
     class to parse the data file created by the alignment routine
     (tpalign) at the rotating anode spec installation
@@ -49,7 +53,7 @@ class RA_Alignment(object):
     peaks)
     """
 
-    def __init__(self,filename):
+    def __init__(self, filename):
         """
         initialization function to initialize the objects variables and
         opens the file
@@ -61,10 +65,11 @@ class RA_Alignment(object):
 
         self.filename = filename
         try:
-            self.fid = open(self.filename,'r')
+            self.fid = open(self.filename, 'r')
         except:
             self.fid = None
-            raise IOError("error opening alignment log file %s" %self.filename)
+            raise IOError("error opening alignment log file %s"
+                          % self.filename)
 
         self.peaks = []
         self.alignnames = []
@@ -86,8 +91,9 @@ class RA_Alignment(object):
         dataline = False
         iteration = 0
 
-        if self.fid == None:
-            raise Exception("RA_Alignment: file was not opened by initialization!")
+        if self.fid is None:
+            raise Exception("RA_Alignment: file was not opened by "
+                            "initialization!")
 
         for line in self.fid.readlines():
             # for loop to read every line in the file
@@ -108,27 +114,30 @@ class RA_Alignment(object):
 
                 elif LOG_peakname.match(line):
                     # line with peak name found
-                    pname = LOG_peakname.sub("",line)
+                    pname = LOG_peakname.sub("", line)
                     pname = pname.strip()
                     # check if we found a new peakname
-                    try: self.peaks.index(pname)
+                    try:
+                        self.peaks.index(pname)
                     except ValueError:
                         self.peaks.append(pname)
-                    currentpeakname = pname # set current peak name
-                    iteration +=1 # increment iteration counter
+                    currentpeakname = pname  # set current peak name
+                    iteration += 1  # increment iteration counter
 
                 elif LOG_motorname.match(line):
                     # line with motorname is found
-                    motname = LOG_motorname.sub("",line)
+                    motname = LOG_motorname.sub("", line)
                     motname = motname.strip()
                     # check if a peakname is already set
-                    if currentpeakname == None:
+                    if currentpeakname is None:
                         if config.VERBOSITY >= config.INFO_LOW:
-                            print("RA_Alignment: Warning: a peakname should be given before a motor data line")
+                            print("RA_Alignment: Warning: a peakname should "
+                                  "be given before a motor data line")
                         currentpeakname = "somepeak"
                     currentmotname = currentpeakname + "_" + motname
                     # check if we found a new peak/motor name combination
-                    try: self.alignnames.index(currentmotname)
+                    try:
+                        self.alignnames.index(currentmotname)
                     except ValueError:
                         # new peak/motor combination
                         self.alignnames.append(currentmotname)
@@ -136,7 +145,8 @@ class RA_Alignment(object):
                         self.motorpos.append([])
                         self.intensities.append([])
                         self.iterations.append([])
-                    dataline = True # next line contains motor position and intensity
+                    # next line contains motor position and intensity
+                    dataline = True
             elif opencommenttag:
                 # ignore line because it is part of a comment block
                 continue
@@ -152,8 +162,9 @@ class RA_Alignment(object):
 
         # convert data to numpy array and combine position and intensity
         self.data = []
-        for i,k in enumerate(self.keys()):
-            self.data.append(numpy.array((self.motorpos[i],self.intensities[i],self.iterations[i])))
+        for i, k in enumerate(self.keys()):
+            self.data.append(numpy.array((self.motorpos[i],
+                             self.intensities[i], self.iterations[i])))
 
     def __str__(self):
         """
@@ -165,8 +176,10 @@ class RA_Alignment(object):
         return ostr
 
     def __del__(self):
-        try: fid.close()
-        except: pass
+        try:
+            fid.close()
+        except:
+            pass
 
     def keys(self):
         """
@@ -174,10 +187,10 @@ class RA_Alignment(object):
         """
         return self.alignnames
 
-    def get(self,key):
+    def get(self, key):
         return self.__getitem__(key)
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         """
         returns the values to the corresponding key
         """
@@ -187,7 +200,7 @@ class RA_Alignment(object):
         else:
             raise KeyError("RA_Alignment: unknown key given!")
 
-    def plot(self,pname):
+    def plot(self, pname):
         """
         function to plot the alignment history for a given peak
 
@@ -196,33 +209,33 @@ class RA_Alignment(object):
          pname:  peakname for which the alignment should be plotted
         """
 
-        try: plt.__version__
+        try:
+            plt.__version__
         except NameError:
             print("RA_Alignment.plot: error: plot functionality not available")
             return
 
-        if not pname in self.peaks:
-            print ("RA_Alignment.plot: error peakname not found!")
+        if pname not in self.peaks:
+            print("RA_Alignment.plot: error peakname not found!")
             return
 
         # get number aligned axis for the current peak
         axnames = []
         for k in self.keys():
-            if k.find(pname)>=0:
+            if k.find(pname) >= 0:
                 axnames.append(k)
 
-        fig,ax = plt.subplots(nrows=len(axnames),sharex=True)
+        fig, ax = plt.subplots(nrows=len(axnames), sharex=True)
 
-        for an,axis in zip(axnames,ax):
+        for an, axis in zip(axnames, ax):
             d = self.get(an)
             plt.sca(axis)
-            plt.plot(d[2],d[0],'k.-')
-            plt.ylabel(re.sub(pname+"_","",an))
+            plt.plot(d[2], d[0], 'k.-')
+            plt.ylabel(re.sub(pname + "_", "", an))
             twax = axis.twinx()
-            plt.plot(d[2],d[1],'r.-')
+            plt.plot(d[2], d[1], 'r.-')
             plt.ylabel("Int (cps)")
             plt.grid()
 
         plt.xlabel("Peak iteration number")
         plt.suptitle(pname)
-
