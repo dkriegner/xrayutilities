@@ -45,6 +45,11 @@
     #endif
 #endif
 
+#if NPY_FEATURE_VERSION < NPY_1_7_API_VERSION
+    #define NPY_ARRAY_ALIGNED       NPY_ALIGNED
+    #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
+#endif
+
 #define PYARRAY_CHECK(array,dims,type,msg) \
     array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *)array,type,NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED); \
     if(PyArray_NDIM(array) != dims ||  \
