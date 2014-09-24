@@ -22,13 +22,8 @@
  * author: Dominik Kriegner
 */
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
-#define NO_IMPORT_ARRAY
 #include "gridder.h"
 #include "gridder_utils.h"
-
-#include <numpy/arrayobject.h>
 
 
 PyObject* pygridder1d(PyObject *self,PyObject *args)

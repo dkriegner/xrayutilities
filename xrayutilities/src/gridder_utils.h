@@ -27,6 +27,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <Python.h>
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
+#define NO_IMPORT_ARRAY
+#include <numpy/arrayobject.h>
 #ifdef _WIN32
     #ifndef __MINGW32__
         #include <float.h>
@@ -34,7 +39,7 @@
     #endif
 #endif
 
-#if NPY_FEATURE_VERSION < NPY_1_7_API_VERSION
+#if NPY_FEATURE_VERSION < 0x00000007
     #define NPY_ARRAY_ALIGNED       NPY_ALIGNED
     #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
 #endif
