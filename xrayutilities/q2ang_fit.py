@@ -129,9 +129,10 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
 
     Returns
     -------
-     fittedangles,errcode: list of fitted goniometer angles and the errcode of
-                           the scipy minimize function. for a successful fit
-                           the error code should be <=2
+     fittedangles, qerror, errcode:
+        list of fitted goniometer angles, the error in reciprocal space and the
+        errcode of the scipy minimize function. for a successful fit the error
+        code should be <=2
     """
 
     # check input parameters
