@@ -270,7 +270,7 @@ class Lattice(object):
         """
         function to calculate the unit cell volume of a lattice (angstrom^3)
         """
-        V = numpy.dot(self.a3, numpy.cross(self.a1, self.a2))
+        V = numpy.abs(numpy.dot(self.a3, numpy.cross(self.a1, self.a2)))
         return V
 
     def GetPoint(self, *args):
