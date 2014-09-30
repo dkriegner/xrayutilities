@@ -2011,6 +2011,9 @@ class GID(Experiment):
     goniometer to help with GID experiments at the ROTATING ANODE.
     3D data can be treated with the use of linear and area detectors.
     see help self.Ang2Q
+
+    Using this class the default sample surface orientation is determined by
+    the inner most sample rotation (which is usually the azimuth motor).
     """
 
     def __init__(self, idir, ndir, **keyargs):
