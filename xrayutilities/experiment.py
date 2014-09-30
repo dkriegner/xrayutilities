@@ -1127,7 +1127,10 @@ class Experiment(object):
         """
         initialization of an Experiment class needs the sample orientation
         given by the samples surface normal and an second not colinear
-        direction specifying the inplane reference direction.
+        direction specifying the inplane reference direction in the crystal
+        coordinate system. The orientation of the surface normal in the lab
+        coordinate system can also be given or is automatically determined by
+        the goniometer type (see argument sampleor).
 
         Parameters
         ----------
@@ -1139,6 +1142,14 @@ class Experiment(object):
 
         keyargs:     optional keyword arguments
           qconv:     QConversion object to use for the Ang2Q conversion
+          sampleor:  sample orientation specifies the orientation of the sample
+                     surface with respect to the coordinate system in which the
+                     goniometer rotations are given. You can use the [xyz][+-]
+                     synthax to specify the nominal surface orientation (when
+                     all goniometer angles are zero). In addition two special
+                     values 'det' and 'sam' are available, which will let the
+                     code determine the orientation from either the inner
+                     most detector or sample rotation. Default is 'det'.
           wl:        wavelength of the x-rays in Angstroem (default: 1.5406A)
           en:        energy of the x-rays in eV (default: 8048eV == 1.5406A )
                      the en keyword overrules the wl keyword
@@ -1150,11 +1161,12 @@ class Experiment(object):
         """
 
         for k in keyargs.keys():
-            if k not in ['qconv', 'wl', 'en']:
+            if k not in ['qconv', 'wl', 'en', 'sampleor']:
                 raise Exception("unknown keyword argument given: allowed are "
                                 "'en': for x-ray energy, "
                                 "'wl': x-ray wavelength, "
-                                "'qconv': reciprocal space conversion.")
+                                "'qconv': reciprocal space conversion, "
+                                "'sampleor': sample orientation")
 
         if isinstance(ipdir, (list, tuple)):
             self.idir = math.VecUnit(numpy.array(ipdir, dtype=numpy.double))
@@ -1190,13 +1202,19 @@ class Experiment(object):
         if "qconv" in keyargs:
             self._A2QConversion = keyargs["qconv"]
         else:
-            self._A2QConversion = QConversion(
-                'x+', 'x+', [0, 1, 0])  # 1S+1D goniometer
+            # 1S+1D goniometer
+            self._A2QConversion = QConversion('x+', 'x+', [0, 1, 0])
         self.Ang2Q = self._A2QConversion
+
+        if "sampleor" in keyargs:
+            self._sampleor = keyargs['sampleor']
+        else:
+            self._sampleor = 'det'
 
         # set the coordinate transform for the azimuth used in the experiment
         self.scatplane = math.VecUnit(numpy.cross(self.idir, self.ndir))
-        self._set_transform(self.scatplane, self.idir, self.ndir)
+        self._set_transform(self.scatplane, self.idir, 
+                            self.ndir, self._sampleor)
 
         # calculate the energy from the wavelength
         if "wl" in keyargs:
@@ -1224,23 +1242,66 @@ class Experiment(object):
 
         return ostr
 
-    def _set_transform(self, v1, v2, v3):
+    def _set_transform(self, v1, v2, v3, sampleor='det'):
         """
         set new transformation of the coordinate system to use in the
-        experimental class
+        experimental class. 
+        
+        The sampleor variable determines the sample surface orientation with
+        respect to the coordinate system in which the goniometer rotations are
+        given. You can use the [xyz][+-] synthax to specify the nominal surface
+        orientation (when all goniometer angles are zero). In addition two
+        special values 'det' and 'sam' are available, which will let the code
+        determine the orientation from either the inner most detector or sample
+        rotation. 'det' means the surface is in the plane spanned by the inner
+        most detector rotation (rotation around primary beam is ignored) and
+        perpendicular to the primary beam. 'sam' means the surface orientation
+        is along the innermost sample circles rotation direction (in this case
+        this should be the azimuth motor to yield the expected results).
+        Default is 'det'.
+
+        Restrictions: the given direction can not be along the primary beam.
+        If one needs that case, let the maintainer know. Currently this case is
+        caught and a different axis is automatically used as z-axis.
         """
         # turn idir to Y and ndir to Z
         self._t1 = math.CoordinateTransform(v1, v2, v3)
-
-        yi = self._A2QConversion.r_i
-        idc = self._A2QConversion.detectorAxis[-1]
-        xi = math.getVector(idc)
-        if numpy.linalg.norm(numpy.cross(xi, yi)) < config.EPSILON:
-            # this is the case when a detector rotation around the primary beam
-            # direction is installed
-            idc = self._A2QConversion.detectorAxis[-2]
+        
+        if sampleor == 'det':
+            yi = self._A2QConversion.r_i
+            idc = self._A2QConversion.detectorAxis[-1]
             xi = math.getVector(idc)
-        zi = math.VecUnit(numpy.cross(xi, yi))
+            if numpy.linalg.norm(numpy.cross(xi, yi)) < config.EPSILON:
+                # this is the case when a detector rotation around the primary
+                # beam direction is installed
+                idc = self._A2QConversion.detectorAxis[-2]
+                xi = math.getVector(idc)
+            zi = math.VecUnit(numpy.cross(xi, yi))
+        elif sampleor == 'sam':
+            yi = self._A2QConversion.r_i
+            isc = self._A2QConversion.sampleAxis[-1]
+            zi = numpy.abs(math.getVector(isc))
+            if numpy.all(numpy.abs(yi) == numpy.abs(zi)):
+                zi = numpy.roll(zi, 1)
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.Experiment: Warning, sample orientation "
+                          "convention failed. Using (%.3f %.3f %.3f) "
+                          "as internal z-axis" % (zi[0], zi[1], zi[2]))
+            xi = math.VecUnit(numpy.cross(yi, zi))
+        else:
+            yi = self._A2QConversion.r_i
+            try:
+                zi = math.getVector(sampleor)
+            except:
+                raise InputError('invalid value of sample orientation, use '
+                                 'either [xyz][+-] syntax or det/sam!')
+            if numpy.all(numpy.abs(yi) == numpy.abs(zi)):
+                zi = numpy.roll(zi, 1)
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.Experiment: Warning, sample orientation "
+                          "convention failed. Using (%.3f %.3f %.3f) "
+                          "as internal z-axis" % (zi[0], zi[1], zi[2]))
+            xi = math.VecUnit(numpy.cross(yi, zi))
         # turn r_i to Y and Z defined by detector rotation plane
         self._t2 = math.CoordinateTransform(xi, yi, zi)
 
@@ -1277,7 +1338,7 @@ class Experiment(object):
             raise TypeError("Inplane direction must be list or numpy array")
 
         v1 = numpy.cross(self.ndir, self.idir)
-        self._set_transform(v1, self.idir, self.ndir)
+        self._set_transform(v1, self.idir, self.ndir, self._sampleor)
 
     def _get_inplane_direction(self):
         return self.idir
@@ -1291,7 +1352,7 @@ class Experiment(object):
             raise TypeError("Surface normal must be list or numpy array")
 
         v1 = numpy.cross(self.ndir, self.idir)
-        self._set_transform(v1, self.idir, self.ndir)
+        self._set_transform(v1, self.idir, self.ndir, self._sampleor)
 
     def _get_normal_direction(self):
         return self.ndir
@@ -1443,19 +1504,16 @@ class HXRD(Experiment):
                         "real" general geometry - q-coordinates determine
                                high or low incidence
         """
-        Experiment.__init__(self, idir, ndir, **keyargs)
-
+        if "qconv" not in keyargs:
+            keyargs['qconv'] = QConversion('x+', 'x+', [0, 1, 0])
+        
         if geometry in ["hi_lo", "lo_hi", "real"]:
             self.geometry = geometry
         else:
             raise InputError("HXRD: invalid value for the geometry "
                              "argument given")
-
-        # initialize Ang2Q conversion
-        if "qconv" not in keyargs:
-            self._A2QConversion = QConversion(
-                'x+', 'x+', [0, 1, 0], wl=self._wl)  # 1S+1D goniometer
-            self.Ang2Q = self._A2QConversion
+        
+        Experiment.__init__(self, idir, ndir, **keyargs)
 
         if config.VERBOSITY >= config.DEBUG:
             print(
@@ -1796,15 +1854,13 @@ class NonCOP(Experiment):
         same as for the Experiment base class
 
         """
-        Experiment.__init__(self, idir, ndir, **keyargs)
-
-        # initialize Ang2Q conversion
         if "qconv" not in keyargs:
             # 3S+1D goniometer (standard four-circle goniometer,
             # omega,chi,phi,theta)
-            self._A2QConversion = QConversion(['x+', 'y+', 'z-'], 'x+',
-                                              [0, 1, 0], wl=self._wl)
-            self.Ang2Q = self._A2QConversion
+            keyargs['qconv'] = QConversion(['x+', 'y+', 'z-'],
+                                           'x+', [0, 1, 0])
+        
+        Experiment.__init__(self, idir, ndir, **keyargs)
 
     def Ang2Q(self, om, chi, phi, tt, **kwargs):
         """
@@ -1970,38 +2026,16 @@ class GID(Experiment):
         ----------
         same as for the Experiment base class
         """
-        Experiment.__init__(self, idir, ndir, **keyargs)
-
-        # initialize Ang2Q conversion
+        if 'sampleor' not in keyargs:
+            keyargs['sampleor'] = 'sam'
+        
         if "qconv" not in keyargs:
             # 2S+2D goniometer
-            self._A2QConversion = QConversion(['z-', 'x+'], ['x+', 'z-'],
-                                              [0, 1, 0], wl=self._wl)
-            self.Ang2Q = self._A2QConversion
+            keyargs['qconv'] = QConversion(['z-', 'x+'], ['x+', 'z-'],
+                                           [0, 1, 0])
 
-    def _set_transform(self, v1, v2, v3):
-        """
-        set new transformation of the coordinate system to use in the
-        experimental class
-        """
-        # turn idir to Y and ndir to Z
-        self._t1 = math.CoordinateTransform(v1, v2, v3)
+        Experiment.__init__(self, idir, ndir, **keyargs)
 
-        yi = self._A2QConversion.r_i
-        isc = self._A2QConversion.sampleAxis[-1]
-        zi = numpy.abs(math.getVector(isc))
-        if numpy.all(yi == zi):
-            zi = numpy.roll(zi, 1)
-            if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.Experiment: Warning, sample orientation convention "
-                      "failed. Using (%.3f %.3f %.3f) as internal z-axis"
-                      % (zi[0], zi[1], zi[2]))
-        xi = math.VecUnit(numpy.cross(yi, zi))
-        # turn r_i to Y and Z define by detector rotation plane
-        self._t2 = math.CoordinateTransform(xi, yi, zi)
-
-        self._transform = math.Transform(
-            numpy.dot(self._t2.imatrix, self._t1.matrix))
 
     def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
         """
@@ -2137,14 +2171,12 @@ class GISAXS(Experiment):
         same as for the Experiment base class
 
         """
-        Experiment.__init__(self, idir, ndir, **keyargs)
-
         if "qconv" not in keyargs:
-            # initialize Ang2Q conversion
             # 1S+2D goniometer
-            self._A2QConversion = QConversion(['x+'], ['x+', 'z-'],
-                                              [0, 1, 0], wl=self._wl)
-            self.Ang2Q = self._A2QConversion
+            keyargs['qconv'] = QConversion(['x+'], ['x+', 'z-'],
+                                           [0, 1, 0])
+        
+        Experiment.__init__(self, idir, ndir, **keyargs)
 
     def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
         pass
@@ -2199,7 +2231,6 @@ class Powder(Experiment):
          keyargs:    optional keyword arguments
                      same as for the Experiment base class
         """
-        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **keyargs)
         if isinstance(mat, materials.Material):
             self.mat = mat
         else:
@@ -2209,6 +2240,8 @@ class Powder(Experiment):
         # number of significant digits, needed to identify equal floats
         self.digits = 5
         self.qpos = None
+        
+        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **keyargs)
 
     def PowderIntensity(self, tt_cutoff=180):
         """
