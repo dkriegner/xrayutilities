@@ -1,3 +1,5 @@
+* fix bug in Q2Ang with refrac=True (omega angle could have been reported
+  incorrect)
 * more flexibility in sample position definition
 * doc-string updates
 * small bug fixes in matplotlib import code

@@ -1800,9 +1800,14 @@ class HXRD(Experiment):
                                  numpy.sign(numpy.dot(fd, kd)) *
                                  (n * cosbd - cosb0) * fd)
 
-                # observed goniometer angles
+                if config.VERBOSITY >= config.DEBUG:
+                    print("XU.HXRD.Q2Ang: ki,ki0 = %s %s"
+                          % (repr(ki),repr(ki0)))
+                    print("XU.HXRD.Q2Ang: kd,kd0 = %s %s"
+                          % (repr(kd),repr(kd0)))
 
-                om = math.VecAngle(y, ki0)
+                # observed goniometer angles
+                om = math.VecAngle((0, 1, 0), ki0)
                 tth = math.VecAngle(ki0, kd0)
                 psi_i = numpy.arcsin(ki0[0] / self.k0)
                 psi_d = numpy.arcsin(kd0[0] / self.k0)
