@@ -1727,14 +1727,16 @@ class HXRD(Experiment):
             qa = math.VecNorm(qvec)
             tth = 2. * numpy.arcsin(qa / 2. / k)
 
-            # calculation of the sample azimuth phi (scattering plane spanned
-            # by qvec[1] and qvec[2] directions)
+            # calculation of the sample azimuth phi (scattering plane
+            # spanned by qvec[1] and qvec[2] directions)
 
-            chi = -numpy.arctan2(math.VecDot(x, qvec), math.VecDot(z, qvec))
+            chi = -numpy.arctan2(math.VecDot(x, qvec),
+                                 math.VecDot(z, qvec))
             if numpy.abs(chi - numpy.pi / 2.) < config.EPSILON:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print("XU.HXRD: Given peak is perpendicular to ndir-"
-                          "reference direction (might be inplane/unreachable)")
+                          "reference direction (might be inplane or "
+                          "unreachable)")
 
             if geom == 'hi_lo':
                 # +: high incidence geometry
@@ -1772,45 +1774,55 @@ class HXRD(Experiment):
 
             # refraction correction at incidence and exit facet
             psi_i = 0.
-            psi_d = 0.  # needed if refrac is false and full_output is True
+            psi_d = 0.  # needed if refrac is false and full_output
             if refrac:
-                if config.VERBOSITY >= config.DEBUG:
-                    print("XU.HXRD.Q2Ang: considering refraction correction")
-
                 beta = tth - om
+                if config.VERBOSITY >= config.DEBUG:
+                    print("XU.HXRD.Q2Ang: considering refraction "
+                          "correction for omega, beta: %.3f %.3f"
+                          % (om, beta))
 
-                ki = k * numpy.array([0., numpy.cos(om), -numpy.sin(om)],
-                                     dtype=numpy.double)
-                kd = k * numpy.array([0., numpy.cos(beta), numpy.sin(beta)],
-                                     dtype=numpy.double)
+                ki = k * (numpy.cos(om) * y - numpy.sin(om) * z)
+                kd = k * (numpy.cos(beta) * y + numpy.sin(beta) *z)
 
                 # refraction at incidence facet
-                cosbi = numpy.abs(numpy.dot(fi, ki) / norm(ki))
-                cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbi ** 2))
+                if numpy.dot(fi, ki) > 0:
+                    print("XU.HXRD: Warning, incidence facet not hit by "
+                          "primary beam! check your input!")
+                    om = numpy.nan
+                    tth = numpy.nan
+                else:
+                    cosbi = numpy.abs(numpy.dot(fi, ki) / norm(ki))
+                    cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbi ** 2))
 
-                ki0 = self.k0 * (n * ki / norm(ki) -
-                                 numpy.sign(numpy.dot(fi, ki)) *
-                                 (n * cosbi - cosb0) * fi)
+                    ki0 = self.k0 * (n * ki / norm(ki) -
+                                     numpy.sign(numpy.dot(fi, ki)) *
+                                     (n * cosbi - cosb0) * fi)
+                    om = math.VecAngle(y, ki0)
+                    psi_i = numpy.arcsin(numpy.dot(ki0, x) / self.k0)
+                    tth = -1
+                    if config.VERBOSITY >= config.DEBUG:
+                        print("XU.HXRD.Q2Ang: ki,ki0 = %s %s"
+                              % (repr(ki),repr(ki0)))
 
                 # refraction at exit facet
-                cosbd = numpy.abs(numpy.dot(fd, kd) / norm(kd))
-                cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbd ** 2))
+                if numpy.dot(fd, kd) < 0:
+                    print("XU.HXRD: Warning, exit facet not hit by "
+                          "diffracted beam! check your input!")
+                    om = numpy.nan
+                    tth = numpy.nan
+                elif tth == -1:
+                    cosbd = numpy.abs(numpy.dot(fd, kd) / norm(kd))
+                    cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbd ** 2))
 
-                kd0 = self.k0 * (n * kd / norm(kd) -
-                                 numpy.sign(numpy.dot(fd, kd)) *
-                                 (n * cosbd - cosb0) * fd)
-
-                if config.VERBOSITY >= config.DEBUG:
-                    print("XU.HXRD.Q2Ang: ki,ki0 = %s %s"
-                          % (repr(ki),repr(ki0)))
-                    print("XU.HXRD.Q2Ang: kd,kd0 = %s %s"
-                          % (repr(kd),repr(kd0)))
-
-                # observed goniometer angles
-                om = math.VecAngle((0, 1, 0), ki0)
-                tth = math.VecAngle(ki0, kd0)
-                psi_i = numpy.arcsin(ki0[0] / self.k0)
-                psi_d = numpy.arcsin(kd0[0] / self.k0)
+                    kd0 = self.k0 * (n * kd / norm(kd) -
+                                     numpy.sign(numpy.dot(fd, kd)) *
+                                     (n * cosbd - cosb0) * fd)
+                    tth = math.VecAngle(ki0, kd0)
+                    psi_d = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
+                    if config.VERBOSITY >= config.DEBUG:
+                        print("XU.HXRD.Q2Ang: kd,kd0 = %s %s"
+                              % (repr(kd),repr(kd0)))
 
             if geom == 'realTilt':
                 angle[0, i] = om
