@@ -149,7 +149,7 @@ int gridder3d(double *x, double *y, double *z, double *data, unsigned int n,
                 continue;
             }
 
-            /* compute the offset value of the current input point on the 
+            /* compute the offset value of the current input point on the
              * grid array */
             offset = gindex(x[i], xmin, dx) * ny * nz +
                      gindex(y[i], ymin, dy) * nz +

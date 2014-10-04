@@ -458,7 +458,7 @@ int determine_axes_directions(fp_rot *fp_circles, char *stringAxis,
                         fp_circles[i] = &rotation_ym;
                     break;
                     default:
-                        PyErr_SetString(PyExc_ValueError, 
+                        PyErr_SetString(PyExc_ValueError,
                             "XU.Qconversion(c): axis determination: no valid "
                             "rotation sense given");
                         return 1;
@@ -483,7 +483,7 @@ int determine_axes_directions(fp_rot *fp_circles, char *stringAxis,
                 fp_circles[i] = &rotation_kappa;
             break;
             default:
-                PyErr_SetString(PyExc_ValueError, 
+                PyErr_SetString(PyExc_ValueError,
                     "XU.Qconversion(c): axis determination: no valid axis "
                     "direction given");
                 return 2;
@@ -565,18 +565,18 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
                   "r_i must be a 1D double array");
     if (PyArray_SIZE(riArr) != 3) {
         PyErr_SetString(PyExc_ValueError, "r_i needs to be of length 3");
-        return NULL; 
+        return NULL;
     }
     PYARRAY_CHECK(kappadirArr, 1, NPY_DOUBLE,
                   "kappa_dir must be a 1D double array");
     if (PyArray_SIZE(kappadirArr) != 3) {
         PyErr_SetString(PyExc_ValueError, "kappa_dir needs to be of length 3");
-        return NULL; 
+        return NULL;
     }
     PYARRAY_CHECK(UBArr, 2, NPY_DOUBLE, "UB must be a 2D double array");
     if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
         PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
-        return NULL; 
+        return NULL;
     }
 
     Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
@@ -617,7 +617,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
     normalize(local_ri);
     vecmul(local_ri, M_2PI / lambda);  /* defines k_i */
 
-    /* debug 
+    /* debug
      * print_matrix(UB); */
 
     /* calculate rotation matices and perform rotations */
@@ -628,7 +628,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
         /* determine sample rotations */
         ident(mtemp);
         for (j = 0; j < Ns; ++j) {
-            /* load kappa direction into matrix 
+            /* load kappa direction into matrix
              * (just needed for kappa goniometer) */
             mtemp2[0] = kappadir[0];
             mtemp2[1] = kappadir[1];
@@ -651,7 +651,7 @@ PyObject* ang2q_conversion(PyObject *self, PyObject *args)
         diffmat(md, mtemp);
 
         matmul(ms, md);
-        /* ms contains now the rotation matrix to determine 
+        /* ms contains now the rotation matrix to determine
          * the momentum transfer.
          * calculate the momentum transfer */
         matvec(ms, local_ri, &qpos[3 * i]);
@@ -675,11 +675,11 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     *
     *   Parameters
     *   ----------
-    *    sampleAngles .. angular positions of the sample goniometer 
+    *    sampleAngles .. angular positions of the sample goniometer
     *                    (Npoints, Ns)
-    *    detectorAngles. angular positions of the detector goniometer 
+    *    detectorAngles. angular positions of the detector goniometer
     *                    (Npoints, Nd)
-    *    ri ............ direction of primary beam (length irrelevant) 
+    *    ri ............ direction of primary beam (length irrelevant)
     *                    (angles zero)
     *    sampleAxis .... string with sample axis directions
     *    detectorAxis .. string with detector axis directions
@@ -689,7 +689,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     *    sampledis ..... sample displacement vector in relative units of
     *                    the detector distance
     *    lambda ........ wavelength of the used x-rays (Angstreom)
-    *    nthreads ...... number of threads to use in parallel section of       
+    *    nthreads ...... number of threads to use in parallel section of
     *                    the code
     *
     *   Returns
@@ -808,7 +808,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
         /* determine sample rotations */
         ident(mtemp);
         for (j = 0; j < Ns; ++j) {
-            /* load kappa direction into matrix 
+            /* load kappa direction into matrix
              * (just needed for kappa goniometer) */
             mtemp2[0] = kappadir[0];
             mtemp2[1] = kappadir[1];
@@ -828,14 +828,14 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
             matmul(md, mtemp);
         }
 
-        /* consider sample displacement in kf 
+        /* consider sample displacement in kf
          * kf = |k| * (\mat D . \hat ri - \vec rs)/||...||  */
         matvec(md, local_ri, mtemp);
         diffvec(mtemp, sampledis);
         normalize(mtemp);
         diffvec(mtemp, local_ri);  /* ki/|k| - kf/|k| */
         vecmul(mtemp, M_2PI / lambda);  /*defines k_f */
-        /* mtemp now contains the momentum transfer which will be 
+        /* mtemp now contains the momentum transfer which will be
          * transformed to the sample q-coordinate system.
          * calculate the momentum transfer */
         matvec(ms, mtemp, &qpos[3 * i]);
@@ -894,9 +894,9 @@ PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args)
     double f, lambda, cch, dpixel, tilt;  /* x-ray wavelength, f=M_2PI/lambda
                                            * and detector parameters */
     char *sampleAxis, *detectorAxis, *dir;  /* string with sample and
-                                             * detector axis, and detector 
+                                             * detector axis, and detector
                                              * direction */
-    double *sampleAngles, *detectorAngles, *rcch, *kappadir, *UB, *qpos; 
+    double *sampleAngles, *detectorAngles, *rcch, *kappadir, *UB, *qpos;
     int *roi;  /* region of interest integer array */
     npy_intp nout[2];
     fp_rot *sampleRotation;
@@ -1099,7 +1099,7 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
     double f, lambda, cch, dpixel, tilt;  /* wavelength and detector
                                            * parameters */
     char *sampleAxis, *detectorAxis, *dir;  /* string with sample and
-                                             * detector axis, and 
+                                             * detector axis, and
                                              * detector direction */
     double *sampleAngles, *detectorAngles, *rcch, *kappadir, *sampledis,
            *UB, *qpos;  /* c-arrays for further usage */
@@ -1253,7 +1253,7 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
             diffvec(rtemp, sampledis);
             normalize(rtemp);
             /* continue with normal conversion */
-            /* rtemp contains detector pixel direction, 
+            /* rtemp contains detector pixel direction,
              * r_i contains primary beam direction */
             diffvec(rtemp, r_i);
             vecmul(rtemp, f);
@@ -1503,7 +1503,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
                 diffvec(rtemp, r_i);
                 vecmul(rtemp, f);
                 /* determine momentum transfer */
-                matvec(ms, rtemp, 
+                matvec(ms, rtemp,
                        &qpos[3 * (i * idxh1 + idxh2 * (j1 - roi[0]) +
                              (j2 - roi[2]))]);
             }
@@ -1762,7 +1762,7 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
                 diffvec(rtemp, r_i);
                 vecmul(rtemp, f);
                 /* determine momentum transfer */
-                matvec(ms, rtemp, 
+                matvec(ms, rtemp,
                        &qpos[3 * (i * idxh1 + idxh2 * (j1 - roi[0]) +
                              (j2 - roi[2]))]);
             }
@@ -1826,7 +1826,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     unsigned int nthreads;  /* number of threads to use */
     /* x-ray wavelength, f = M_2PI / lambda and detector parameters */
     double f, lambda, cch1, cch2, dpixel1, dpixel2, tilt, tiltazimuth;
-    char *detectorAxis, *dir1, *dir2;  /* string with detector axis, 
+    char *detectorAxis, *dir1, *dir2;  /* string with detector axis,
                                         * and detector direction */
     double *detectorAngles, *n1, *n2, *rcch, *qpos; /* c-arrays */
     fp_rot *detectorRotation;

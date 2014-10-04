@@ -133,7 +133,7 @@ int gridder2d(double *x, double *y, double *data, unsigned int n,
     for (i=0; i<n; i++) {
         /* if data point is nan ignore it */
         if (!isnan(data[i])) {
-            /* if the x and y values are outside the grids boundaries 
+            /* if the x and y values are outside the grids boundaries
              * continue with the next point */
             if ((x[i] < xmin) || (x[i] > xmax)) {
                 noutofbounds++;

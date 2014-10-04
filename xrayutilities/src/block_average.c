@@ -88,7 +88,7 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
     /* c-code following is performing the block averaging */
     for (i = 0; i < N; i = i + Nav) {
         buf=0;
-        /* perform one block average (j-i serves as counter 
+        /* perform one block average (j-i serves as counter
            -> last bin is therefore correct) */
         for (j = i; j < i + Nav && j < N; ++j) {
             buf += cin[j];
@@ -199,7 +199,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     npy_intp nout[2];
 
     /* Python argument conversion code */
-    if (!PyArg_ParseTuple(args, "O!iI", &PyArray_Type, 
+    if (!PyArg_ParseTuple(args, "O!iI", &PyArray_Type,
                           &input, &Nav, &nthreads)) {
         return NULL;
     }
@@ -225,7 +225,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     for (i = 0; i < Nspec; ++i) {
         for (j = 0; j < Nch; j = j + Nav) {
             buf = 0;
-            /* perform one block average 
+            /* perform one block average
                (j-i serves as counter -> last bin is therefore correct) */
             for (k = j; k < j + Nav && k < Nch; ++k) {
                 buf += cin[i * Nch + k];
