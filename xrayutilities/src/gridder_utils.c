@@ -19,67 +19,68 @@
  *
  ******************************************************************************
  *
- * created: Jun 8,2013
+ * created: Jun 8, 2013
  * author: Eugen Wintersberger
 */
 
 #include "gridder_utils.h"
 
-//-----------------------------------------------------------------------------
-double get_min(double *a,unsigned int n)
+/*---------------------------------------------------------------------------*/
+double get_min(double *a, unsigned int n)
 {
     double m = a[0];
     unsigned int i;
 
-    for(i=0;i<n;i++) {
-        if(m<a[i]) {
+    for (i = 0; i < n; i++) {
+        if (m < a[i]) {
             m = a[i];
         }
     }
 
-    return(m);
+    return m;
 }
 
-//-----------------------------------------------------------------------------
-double get_max(double *a,unsigned int n)
+/*---------------------------------------------------------------------------*/
+double get_max(double *a, unsigned int n)
 {
-    double m=a[0];
+    double m = a[0];
     unsigned int i;
 
-    for(i=0;i<n;i++) {
-        if(m>a[i]) {
+    for (i = 0; i < n; i++) {
+        if (m > a[i]) {
             m = a[i];
         }
     }
 
-    return(m);
+    return m;
 }
 
-//-----------------------------------------------------------------------------
-void set_array(double *a,unsigned int n,double value)
+/*---------------------------------------------------------------------------*/
+void set_array(double *a, unsigned int n, double value)
 {
     unsigned int i;
 
-    for(i=0;i<n;++i) {
+    for (i = 0; i < n; ++i) {
         a[i] = value;
     }
 }
 
-//-----------------------------------------------------------------------------
-double delta(double min,double max,unsigned int n)
+/*---------------------------------------------------------------------------*/
+double delta(double min, double max, unsigned int n)
 {
-    return fabs(max-min)/(double)(n-1);
+    return fabs(max - min) / (double) (n - 1);
 }
 
-//-----------------------------------------------------------------------------
-unsigned int gindex(double x,double min,double d)
+/*---------------------------------------------------------------------------*/
+unsigned int gindex(double x, double min, double d)
 {
-    return (unsigned int)rint((x-min)/d);
+    return (unsigned int) rint((x - min) / d);
 }
-//-----------------------------------------------------------------------------
+
+/*---------------------------------------------------------------------------*/
 #ifdef _WIN32
 double rint(double x)
 {
-    return x < 0.0 ? ceil(x-0.5) : floor(x+0.5);
+    return x < 0.0 ? ceil(x - 0.5) : floor(x + 0.5);
 }
 #endif

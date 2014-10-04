@@ -1,9 +1,10 @@
-* fix bug in Q2Ang with refrac=True (omega angle could have been reported
-  incorrect)
+* fix bug in Q2Ang with refrac = True (omega angle could have been reported
+  incorrect and added some geometry checks/warnings)
 * more flexibility in sample position definition
 * doc-string updates
 * small bug fixes in matplotlib import code
-* make python code to conform to PEP8
+* reformat c-code to conform to PEP7
+* reformat python code to conform to PEP8
 
 v1.1.0-beta, 2014-09-16
 

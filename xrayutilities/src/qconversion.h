@@ -22,13 +22,13 @@
 #ifndef M_PI
 #   define M_PI 3.14159265358979323846
 #endif
-#define M_2PI (2*M_PI)
+#define M_2PI (2 * M_PI)
 
-#define cdeg2rad (M_PI/180.)
-#define crad2deg (180./M_PI)
+#define cdeg2rad (M_PI / 180.)
+#define crad2deg (180. / M_PI)
 
-#define deg2rad(ang) (ang*cdeg2rad)
-#define rad2deg(rad) (rad*crad2deg)
+#define deg2rad(ang) (ang * cdeg2rad)
+#define rad2deg(rad) (rad * crad2deg)
 
 /* 'extern inline' seems to work only on newer version of gcc (>4.6 tested)
  * gcc 4.1 seems to need this empty, i am not sure if there is a speed gain
@@ -49,9 +49,9 @@
 
 INLINE void ident(double *m);
 
-INLINE void sumvec(double *RESTRICT v1,double *RESTRICT v2);
+INLINE void sumvec(double *RESTRICT v1, double *RESTRICT v2);
 
-INLINE void diffvec(double *RESTRICT v1,double *RESTRICT v2);
+INLINE void diffvec(double *RESTRICT v1, double *RESTRICT v2);
 
 INLINE double norm(double *v);
 
@@ -61,21 +61,25 @@ INLINE void veccopy(double *RESTRICT v1, double *RESTRICT v2);
 
 INLINE void vecmul(double *RESTRICT r, double a);
 
-INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT r);
+INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, 
+                  double *RESTRICT r);
 
-INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m, double *RESTRICT mr);
+INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m,
+                        double *RESTRICT mr);
 
 INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2);
 
 INLINE void matmulc(double *RESTRICT m, double c);
 
-INLINE void matvec(double *RESTRICT m, double *RESTRICT v, double *RESTRICT r);
+INLINE void matvec(double *RESTRICT m, double *RESTRICT v,
+                   double *RESTRICT r);
 
-INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2, double *RESTRICT m);
+INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2,
+                       double *RESTRICT m);
 
-INLINE void summat(double *RESTRICT m1,double *RESTRICT m2);
+INLINE void summat(double *RESTRICT m1, double *RESTRICT m2);
 
-INLINE void diffmat(double *RESTRICT m1,double *RESTRICT m2);
+INLINE void diffmat(double *RESTRICT m1, double *RESTRICT m2);
 
 INLINE void inversemat(double *RESTRICT m, double *RESTRICT i);
 
@@ -92,27 +96,29 @@ INLINE double determinant(double *RESTRICT m);
 #   supplied
 ################################################*/
 
-typedef void (*fp_rot)(double,double *);
+typedef void (*fp_rot)(double, double *);
 
-INLINE void rotation_xp(double a,double *mat);
-INLINE void rotation_yp(double a,double *mat);
-INLINE void rotation_zp(double a,double *mat);
+INLINE void rotation_xp(double a, double *mat);
+INLINE void rotation_yp(double a, double *mat);
+INLINE void rotation_zp(double a, double *mat);
 
-INLINE void rotation_xm(double a,double *mat);
-INLINE void rotation_ym(double a,double *mat);
-INLINE void rotation_zm(double a,double *mat);
+INLINE void rotation_xm(double a, double *mat);
+INLINE void rotation_ym(double a, double *mat);
+INLINE void rotation_zm(double a, double *mat);
 
 INLINE void rotation_kappa(double a, double *mat);
 
-INLINE void rotation_arb(double a,double *RESTRICT e,double *RESTRICT mat);
+INLINE void rotation_arb(double a, double *RESTRICT e, double *RESTRICT mat);
 
 
 /*##############################################
 #   functions needed for reciprocal space converions
 ################################################*/
 
-int determine_axes_directions(fp_rot *fp_circles,char *stringAxis,unsigned int n);
-int determine_detector_pixel(double *rpixel,char *dir, double dpixel, double *r_i, double tilt);
+int determine_axes_directions(fp_rot *fp_circles, char *stringAxis,
+                              unsigned int n);
+int determine_detector_pixel(double *rpixel, char *dir, double dpixel,
+                             double *r_i, double tilt);
 int print_matrix(double *m);
 int print_vector(double *m);
 
