@@ -21,6 +21,9 @@
 #include <Python.h>
 #include <math.h>
 
+/*****************************************************************************
+ * NUMPY specific macros and header files
+ ****************************************************************************/
 /*
  * need to make some definitions before loading the arrayobject.h 
  * header file
@@ -30,31 +33,18 @@
 #define NO_IMPORT_ARRAY
 #include <numpy/arrayobject.h>
 
-/* 'extern inline' seems to work only on newer version of gcc (>4.6 tested)
- * gcc 4.1 seems to need this empty, i am not sure if there is a speed gain
- * by inlining since the calls to those functions are anyhow built dynamically
- * for compatibility keep this empty unless you can test with several compilers */
-#define INLINE
-#ifdef _WIN32
-#define RESTRICT
-#else
-#define RESTRICT restrict
-#endif
-
 /*
- * if M_PI is not set we do this here
+ * set numpy API specific macros
  */
-#ifndef M_PI
-#   define M_PI 3.14159265358979323846
-#endif
-#define M_2PI (2 * M_PI)
-
-
 #if NPY_FEATURE_VERSION < 0x00000007
     #define NPY_ARRAY_ALIGNED       NPY_ALIGNED
     #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
 #endif
 
+/*
+ * define a macro to check a numpy array. This should mabye go into a 
+ * function in future.
+ */
 #define PYARRAY_CHECK(array, dims, type, msg) \
     array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *) array, \
                                                type, \
@@ -65,6 +55,21 @@
         PyErr_SetString(PyExc_ValueError, msg); \
         return NULL; \
     }
+
+
+/*****************************************************************************
+ * Windows build related macros 
+ ****************************************************************************/
+/* 'extern inline' seems to work only on newer version of gcc (>4.6 tested)
+ * gcc 4.1 seems to need this empty, i am not sure if there is a speed gain
+ * by inlining since the calls to those functions are anyhow built dynamically
+ * for compatibility keep this empty unless you can test with several compilers */
+#define INLINE
+#ifdef _WIN32
+#define RESTRICT
+#else
+#define RESTRICT restrict
+#endif
 
 
 /*
@@ -78,7 +83,21 @@
 
 #endif
 
+/*****************************************************************************
+ * general purpose macros
+ ****************************************************************************/
+/*
+ * if M_PI is not set we do this here
+ */
+#ifndef M_PI
+#   define M_PI 3.14159265358979323846
+#endif
+#define M_2PI (2 * M_PI)
 
+
+/*****************************************************************************
+ * OpenMP related macros 
+ ****************************************************************************/
 /*
  * include OpenMP header is required
  */
