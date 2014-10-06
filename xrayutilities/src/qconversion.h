@@ -16,13 +16,9 @@
  *
  * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
-
 #pragma once
 
-#ifndef M_PI
-#   define M_PI 3.14159265358979323846
-#endif
-#define M_2PI (2 * M_PI)
+#include "xrayutilities.h"
 
 #define cdeg2rad (M_PI / 180.)
 #define crad2deg (180. / M_PI)
@@ -30,16 +26,6 @@
 #define deg2rad(ang) (ang * cdeg2rad)
 #define rad2deg(rad) (rad * crad2deg)
 
-/* 'extern inline' seems to work only on newer version of gcc (>4.6 tested)
- * gcc 4.1 seems to need this empty, i am not sure if there is a speed gain
- * by inlining since the calls to those functions are anyhow built dynamically
- * for compatibility keep this empty unless you can test with several compilers */
-#define INLINE
-#ifdef _WIN32
-#define RESTRICT
-#else
-#define RESTRICT restrict
-#endif
 
 /* ###################################
  * matrix vector operations for

@@ -25,36 +25,13 @@
 #pragma once
 
 #include <stdlib.h>
-#include <math.h>
 #include <stdio.h>
-#include <Python.h>
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
-#define NO_IMPORT_ARRAY
-#include <numpy/arrayobject.h>
+
+#include "xrayutilities.h"
+
 #ifdef _WIN32
-    #ifndef __MINGW32__
-        #include <float.h>
-        #define isnan _isnan
-    #endif
+    double rint(double x);
 #endif
-
-#if NPY_FEATURE_VERSION < 0x00000007
-    #define NPY_ARRAY_ALIGNED       NPY_ALIGNED
-    #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
-#endif
-
-#define PYARRAY_CHECK(array, dims, type, msg) \
-    array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *) array, \
-                                               type, \
-                                               NPY_ARRAY_C_CONTIGUOUS | \
-                                               NPY_ARRAY_ALIGNED); \
-    if (PyArray_NDIM(array) != dims || \
-        PyArray_TYPE(array) != type) {\
-        PyErr_SetString(PyExc_ValueError, \
-                msg); \
-        return NULL; \
-    }
 
 /*!
 \brief find minimum
@@ -107,6 +84,3 @@ double delta(double min, double max, unsigned int n);
 */
 unsigned int gindex(double x, double min, double d);
 
-#ifdef _WIN32
-double rint(double x);
-#endif

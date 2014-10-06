@@ -17,12 +17,7 @@
  * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
-#include <Python.h>
-
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
-#define NO_IMPORT_ARRAY
-#include <numpy/arrayobject.h>
+#include "xrayutilities.h"
 
 #include <stdio.h>
 
@@ -127,4 +122,3 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
     return PyArray_Return(outarr);
 }
 
-#undef PY_ARRAY_UNIQUE_SYMBOL

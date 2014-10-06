@@ -18,12 +18,12 @@
  * Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
  *
 */
-
 #include <Python.h>
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
 #include <numpy/arrayobject.h>
+
 
 /* functions from block_average.c */
 extern PyObject* block_average1d(PyObject *self, PyObject *args);

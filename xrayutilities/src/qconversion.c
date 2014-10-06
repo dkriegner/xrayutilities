@@ -25,45 +25,11 @@
  *   and detectors
  * ######################################*/
 
-#include <Python.h>
-
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
-#define NO_IMPORT_ARRAY
-#include <numpy/arrayobject.h>
 
 #include "qconversion.h"
 #include <ctype.h>
 #include <math.h>
-#ifdef __OPENMP__
-#include <omp.h>
-#endif
-#ifdef _WIN32
-    #ifndef __MINGW32__
-        #include <float.h>
-        #define isnan _isnan
-    #endif
-#endif
 
-#if NPY_FEATURE_VERSION < 0x00000007
-    #define NPY_ARRAY_ALIGNED       NPY_ALIGNED
-    #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
-#endif
-
-#define PYARRAY_CHECK(array, dims, type, msg) \
-    array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *) array, \
-                                               type, \
-                                               NPY_ARRAY_C_CONTIGUOUS | \
-                                               NPY_ARRAY_ALIGNED); \
-    if (PyArray_NDIM(array) != dims ||  \
-        PyArray_TYPE(array) != type) {\
-        PyErr_SetString(PyExc_ValueError, msg); \
-        return NULL; \
-    }
-
-#define OMPSETNUMTHREADS(nth) \
-    if (nth == 0) omp_set_num_threads(omp_get_max_threads());\
-    else omp_set_num_threads(nth);
 
 /* ###################################
  * matrix vector operations for
@@ -2190,4 +2156,3 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     return PyArray_Return(qposArr);
 }
 
-#undef PY_ARRAY_UNIQUE_SYMBOL

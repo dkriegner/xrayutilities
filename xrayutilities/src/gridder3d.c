@@ -185,4 +185,3 @@ int gridder3d(double *x, double *y, double *z, double *data, unsigned int n,
     return 0;
 }
 
-#undef PY_ARRAY_UNIQUE_SYMBOL

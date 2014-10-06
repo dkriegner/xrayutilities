@@ -162,4 +162,3 @@ int gridder1d(double *x, double *data, unsigned int n,
     return 0;
 }
 
-#undef PY_ARRAY_UNIQUE_SYMBOL

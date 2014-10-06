@@ -17,38 +17,7 @@
  * Copyright (C) 2010-2011, 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
-#include <Python.h>
-
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
-#define NO_IMPORT_ARRAY
-#include <numpy/arrayobject.h>
-#include <math.h>
-#ifdef __OPENMP__
-#include <omp.h>
-#endif
-
-#if NPY_FEATURE_VERSION < 0x00000007
-    #define NPY_ARRAY_ALIGNED       NPY_ALIGNED
-    #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
-#endif
-
-#define PYARRAY_CHECK(array, dims, type, msg)\
-    array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *) array,\
-                                               type,\
-                                               NPY_ARRAY_C_CONTIGUOUS | \
-                                               NPY_ARRAY_ALIGNED);\
-    if (PyArray_NDIM(array) != dims || PyArray_TYPE(array) != type) {\
-        PyErr_SetString(PyExc_ValueError,\
-                msg);\
-        return NULL;\
-    }
-
-#define OMPSETNUMTHREADS(nth)\
-    if (nth == 0) {\
-        omp_set_num_threads(omp_get_max_threads());\
-    }\
-    else omp_set_num_threads(nth);
+#include "xrayutilities.h"
 
 PyObject* block_average1d(PyObject *self, PyObject *args) {
     /*    block average for one-dimensional double array
@@ -242,4 +211,3 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     return PyArray_Return(outarr);
 }
 
-#undef PY_ARRAY_UNIQUE_SYMBOL
