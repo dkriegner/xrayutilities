@@ -3,6 +3,7 @@
 * more flexibility in sample position definition
 * doc-string updates
 * small bug fixes in matplotlib import code
+* c-header-code cleanup
 * reformat c-code to conform to PEP7
 * reformat python code to conform to PEP8
 
