@@ -25,7 +25,7 @@ class TestMathFunctions(unittest.TestCase):
 
     def setUp(self):
         amp = numpy.random.rand(1)[0]
-        fwhm = numpy.random.rand(1)[0] * 1.5
+        fwhm = numpy.random.rand(1)[0] * 1.5 + 0.1
         self.x = numpy.arange(-3, 3, 0.0003)
         self.p = [0., fwhm, amp, 0.]
         self.p2d = [0., 0., fwhm, fwhm, amp, 0.,
