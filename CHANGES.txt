@@ -1,7 +1,9 @@
+v1.1.0, 2014-10-09
+
 * fix bug in Q2Ang with refrac = True (omega angle could have been reported
   incorrect and added some geometry checks/warnings)
-* more flexibility in sample position definition
-* doc-string updates
+* more flexibility in sample position/orientation definition
+* documentation updates
 * small bug fixes in matplotlib import code
 * c-header-code cleanup
 * reformat c-code to conform to PEP7
