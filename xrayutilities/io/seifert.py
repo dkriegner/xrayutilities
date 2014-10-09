@@ -412,10 +412,10 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
                     list of filenames
      scannrs:       int or list of scan numbers
      path:          common path to the filenames
-     scantype:      type of datafile:
-                        "map": reciprocal space map measured with a regular
-                               Seifert job
-                        "tsk": MCA spectra measured using the TaskInterpreter
+     scantype:      type of datafile: can be either "map" (reciprocal space map
+                    measured with a regular Seifert job (default)) or "tsk"
+                    (MCA spectra measured using the TaskInterpreter)
+
      Nchannels:     number of channels of the MCA (needed for "tsk"
                     measurements)
 

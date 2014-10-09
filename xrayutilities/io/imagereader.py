@@ -35,9 +35,9 @@ class ImageReader(object):
 
     The routine was tested so far with
 
-    * RoperScientific files with 4096x4096 pixels created at Hasylab Hamburg,
-      which save an 16bit integer per point.
-    * Perkin Elmer images created at Hasylab Hamburg with 2048x2048 pixels.
+    1. RoperScientific files with 4096x4096 pixels created at Hasylab Hamburg,
+       which save an 16bit integer per point.
+    2. Perkin Elmer images created at Hasylab Hamburg with 2048x2048 pixels.
     """
 
     def __init__(self, nop1, nop2, hdrlen=0, flatfield=None, darkfield=None,

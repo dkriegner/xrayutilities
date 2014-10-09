@@ -109,13 +109,14 @@ class CBFFile(object):
         can be changed by passing the name of a target group or a path to the
         target group via the "group" keyword argument.
 
-        required arguments.
-        h5 ........ a HDF5 file object
+        Parameters
+        ----------
+         h5 ........ a HDF5 file object
 
         optional keyword arguments:
-        group ..... group where to store the data (default to the root of the
-                    file)
-        comp ...... activate compression - true by default
+         group ..... group where to store the data (default to the root of the
+                     file)
+         comp ...... activate compression - true by default
         """
 
         if isinstance(group, str):
@@ -204,13 +205,14 @@ class CBFDirectory(object):
         passing the name of a target group or a path to the target group via
         the "group" keyword argument.
 
-        required arguments.
-        h5 ........ a HDF5 file object
+        Parameters
+        ----------
+         h5 ........ a HDF5 file object
 
         optional keyword arguments:
-        group ..... group where to store the data (defaults to
-                    pathname if group is empty string)
-        comp ...... activate compression - true by default
+         group ..... group where to store the data (defaults to
+                     pathname if group is empty string)
+         comp ...... activate compression - true by default
         """
 
         if isinstance(group, str):

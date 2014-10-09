@@ -18,15 +18,13 @@
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
-module helping with planning and analyzing experiments
+module helping with planning and analyzing experiments.
+various classes are provided for describing experimental geometries,
+calculationof angular coordinates of Bragg reflections, conversion of angular
+coordinates to Q-space and determination of powder diffraction peak positions.
 
-various classes are provided for
-
-* describing experiments
-* calculating angular coordinates of Bragg reflections
-* converting angular coordinates to Q-space and vice versa
-* simulating (first order approx. -> just peak positions) powder diffraction
-  patterns for materials
+The strength of the module is the versatile QConversion module which can be
+configured to describe almost any goniometer geometry.
 """
 
 import numbers
@@ -1213,7 +1211,7 @@ class Experiment(object):
 
         # set the coordinate transform for the azimuth used in the experiment
         self.scatplane = math.VecUnit(numpy.cross(self.idir, self.ndir))
-        self._set_transform(self.scatplane, self.idir, 
+        self._set_transform(self.scatplane, self.idir,
                             self.ndir, self._sampleor)
 
         # calculate the energy from the wavelength
@@ -1245,8 +1243,8 @@ class Experiment(object):
     def _set_transform(self, v1, v2, v3, sampleor='det'):
         """
         set new transformation of the coordinate system to use in the
-        experimental class. 
-        
+        experimental class.
+
         The sampleor variable determines the sample surface orientation with
         respect to the coordinate system in which the goniometer rotations are
         given. You can use the [xyz][+-] synthax to specify the nominal surface
@@ -1266,7 +1264,7 @@ class Experiment(object):
         """
         # turn idir to Y and ndir to Z
         self._t1 = math.CoordinateTransform(v1, v2, v3)
-        
+
         if sampleor == 'det':
             yi = self._A2QConversion.r_i
             idc = self._A2QConversion.detectorAxis[-1]
@@ -1506,13 +1504,13 @@ class HXRD(Experiment):
         """
         if "qconv" not in keyargs:
             keyargs['qconv'] = QConversion('x+', 'x+', [0, 1, 0])
-        
+
         if geometry in ["hi_lo", "lo_hi", "real"]:
             self.geometry = geometry
         else:
             raise InputError("HXRD: invalid value for the geometry "
                              "argument given")
-        
+
         Experiment.__init__(self, idir, ndir, **keyargs)
 
         if config.VERBOSITY >= config.DEBUG:
@@ -1783,7 +1781,7 @@ class HXRD(Experiment):
                           % (om, beta))
 
                 ki = k * (numpy.cos(om) * y - numpy.sin(om) * z)
-                kd = k * (numpy.cos(beta) * y + numpy.sin(beta) *z)
+                kd = k * (numpy.cos(beta) * y + numpy.sin(beta) * z)
 
                 # refraction at incidence facet
                 if numpy.dot(fi, ki) > 0:
@@ -1803,7 +1801,7 @@ class HXRD(Experiment):
                     tth = -1
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.HXRD.Q2Ang: ki,ki0 = %s %s"
-                              % (repr(ki),repr(ki0)))
+                              % (repr(ki), repr(ki0)))
 
                 # refraction at exit facet
                 if numpy.dot(fd, kd) < 0:
@@ -1822,7 +1820,7 @@ class HXRD(Experiment):
                     psi_d = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.HXRD.Q2Ang: kd,kd0 = %s %s"
-                              % (repr(kd),repr(kd0)))
+                              % (repr(kd), repr(kd0)))
 
             if geom == 'realTilt':
                 angle[0, i] = om
@@ -1876,7 +1874,7 @@ class NonCOP(Experiment):
             # omega,chi,phi,theta)
             keyargs['qconv'] = QConversion(['x+', 'y+', 'z-'],
                                            'x+', [0, 1, 0])
-        
+
         Experiment.__init__(self, idir, ndir, **keyargs)
 
     def Ang2Q(self, om, chi, phi, tt, **kwargs):
@@ -2048,14 +2046,13 @@ class GID(Experiment):
         """
         if 'sampleor' not in keyargs:
             keyargs['sampleor'] = 'sam'
-        
+
         if "qconv" not in keyargs:
             # 2S+2D goniometer
             keyargs['qconv'] = QConversion(['z-', 'x+'], ['x+', 'z-'],
                                            [0, 1, 0])
 
         Experiment.__init__(self, idir, ndir, **keyargs)
-
 
     def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
         """
@@ -2195,7 +2192,7 @@ class GISAXS(Experiment):
             # 1S+2D goniometer
             keyargs['qconv'] = QConversion(['x+'], ['x+', 'z-'],
                                            [0, 1, 0])
-        
+
         Experiment.__init__(self, idir, ndir, **keyargs)
 
     def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
@@ -2260,7 +2257,7 @@ class Powder(Experiment):
         # number of significant digits, needed to identify equal floats
         self.digits = 5
         self.qpos = None
-        
+
         Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **keyargs)
 
     def PowderIntensity(self, tt_cutoff=180):

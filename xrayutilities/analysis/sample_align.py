@@ -17,7 +17,7 @@
 
 """
 functions to help with experimental alignment during experiments, especially
-for experiments with linear detectors
+for experiments with linear and area detectors
 """
 
 import re
@@ -90,8 +90,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
 
     pixelwidth:  the width of one detector channel @ 1m distance, which is
                  negative in case the hit channel number decreases upon an
-                 increase of the
-    detector angle.
+                 increase of the detector angle.
     centerch: center channel of the detector
     tilt: tilt of the detector from perpendicular to the beam
           (will be zero in case of usetilt=False)
@@ -293,18 +292,17 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
     function to calibrate the detector distance/channel per degrees
     for a straight linear detector mounted on a detector arm
 
-    parameters
+    Parameters
     ----------
-     angle ........ array of angles in degree of measured detector spectra
-     mca_spectra .. corresponding detector spectra
-                    (shape: (len(angle),Nchannels)
+     angle:         array of angles in degree of measured detector spectra
+     mca_spectra :  corresponding detector spectra
+                    (shape: (len(angle), Nchannels)
 
-    **keyargs are passed to psd_chdeg function used for the modelling,
-    additional options are:
-     r_i .......... primary beam direction as vector [xyz][+-]; default: 'y+'
-     detaxis ...... detector arm rotation axis [xyz][+-]; default: 'x+'
+    keyword arguments:
+     r_i:           primary beam direction as vector [xyz][+-]; default: 'y+'
+     detaxis:       detector arm rotation axis [xyz][+-]; default: 'x+'
 
-    selected options from psd_chdeg:
+    other options are passed to psd_chdeg function, options include:
      plot:     flag to specify if a visualization of the fit should be done
      usetilt:  whether to use model considering a detector tilt, i.e.
                deviation angle of the pixel direction from orthogonal to the
@@ -312,9 +310,9 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
 
     Note:  see help of psd_chdeg for more options
 
-    returns
+    Returns
     -------
-     pixelwidth (at one meter distance) , center_channel[, detector_tilt]
+     pixelwidth (at one meter distance), center_channel[, detector_tilt]
 
     Note:  L/pixelwidth*pi/180 ~= channel/degree, with the sample detector
            distance L
@@ -1961,7 +1959,7 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
     try:
         plt.__name__
     except NameError:
-        print("XU.analyis.psd_chdeg: Warning: plot functionality not "
+        print("XU.analyis.psd_refl_align: Warning: plot functionality not "
               "available")
         plot = False
 
@@ -2063,7 +2061,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
         try:
             plt.__name__
         except NameError:
-            print("XU.analyis.psd_chdeg: Warning: plot functionality not "
+            print("XU.analyis.misfit_calc: Warning: plot functionality not "
                   "available")
             plot = False
 
