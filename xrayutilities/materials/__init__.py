@@ -16,7 +16,7 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-#import module objects
+# import module objects
 
 from .lattice import Atom
 from .lattice import LatticeBase

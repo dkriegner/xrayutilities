@@ -20,25 +20,26 @@ import xrayutilities as xu
 import os
 
 # global setting for the experiment
-sample = "testnja" # sample name used also as file name for the data file
+sample = "testnja"  # sample name used also as file name for the data file
 
-hxrd = xu.HXRD((1,1,0),(0,0,1))
+hxrd = xu.HXRD((1, 1, 0), (0, 0, 1))
 
 #################################
 # read the data from the Seifert NJA files
-om,tt,psd = xu.io.getSeifert_map(sample+'_%02d.nja',[3,4],path="data")
+om, tt, psd = xu.io.getSeifert_map(sample + '_%02d.nja', [3, 4], path="data")
 
 # convert angular coordinates to reciprocal space + correct for offsets
-[qx,qy,qz] = hxrd.Ang2Q(om,tt)
+[qx, qy, qz] = hxrd.Ang2Q(om, tt)
 
 # calculate data on a regular grid of 200x201 points
-gridder = xu.Gridder2D(200,600)
-gridder(qy,qz,psd)
-INT = xu.maplog(gridder.data.transpose(),6,0)
+gridder = xu.Gridder2D(200, 600)
+gridder(qy, qz, psd)
+INT = xu.maplog(gridder.data.transpose(), 6, 0)
 
 # plot the intensity as contour plot
-plt.figure(); plt.clf()
-cf = plt.contourf(gridder.xaxis, gridder.yaxis,INT,100,extend='min')
+plt.figure()
+plt.clf()
+cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend='min')
 plt.xlabel(r'$Q_{[110]}$ ($\AA^{-1}$)')
 plt.ylabel(r'$Q_{[001]}$ ($\AA^{-1}$)')
 cb = plt.colorbar(cf)

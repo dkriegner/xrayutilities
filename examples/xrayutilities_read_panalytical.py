@@ -31,42 +31,48 @@ mpl.rcParams['axes.grid'] = False
 
 
 # global setting for the experiment
-sample = "rsm" # sample name used also as file name for the data file
+sample = "rsm"  # sample name used also as file name for the data file
 
-# substrate material used for Bragg peak calculation to correct for experimental offsets
+# substrate material used for Bragg peak calculation to correct for
+# experimental offsets
 Si = xu.materials.Si
 Ge = xu.materials.Ge
-SiGe = xu.materials.SiGe(1) # parameter x_Ge = 1
+SiGe = xu.materials.SiGe(1)  # parameter x_Ge = 1
 
-hxrd = xu.HXRD(Si.Q(1,1,0),Si.Q(0,0,1))
+hxrd = xu.HXRD(Si.Q(1, 1, 0), Si.Q(0, 0, 1))
 
 #################################
 # Si/SiGe (004) reciprocal space map
-omalign = 34.3046 # experimental aligned values
+omalign = 34.3046  # experimental aligned values
 ttalign = 69.1283
-[omnominal,dummy,dummy,ttnominal] = hxrd.Q2Ang(Si.Q(0,0,4)) # nominal values of the substrate peak
+# nominal values of the substrate peak
+[omnominal, dummy, dummy, ttnominal] = hxrd.Q2Ang(Si.Q(0, 0, 4))
 
 # read the data from the xrdml files
-om,tt,psd = xu.io.getxrdml_map(sample+'_%d.xrdml.bz2',[1,2,3,4,5],path='data')
+om, tt, psd = xu.io.getxrdml_map(sample + '_%d.xrdml.bz2', [1, 2, 3, 4, 5],
+                                 path='data')
 
 # determine offset of substrate peak from experimental values (optional)
-omalign,ttalign,p,cov = xu.analysis.fit_bragg_peak(om,tt,psd,omalign,ttalign,hxrd,plot=False)
+omalign, ttalign, p, cov = xu.analysis.fit_bragg_peak(
+    om, tt, psd, omalign, ttalign, hxrd, plot=False)
 
 # convert angular coordinates to reciprocal space + correct for offsets
-[qx,qy,qz] = hxrd.Ang2Q(om,tt,delta=[omalign-omnominal, ttalign-ttnominal])
+[qx, qy, qz] = hxrd.Ang2Q(om, tt, delta=[omalign - omnominal,
+                                         ttalign - ttnominal])
 
 # calculate data on a regular grid of 200x201 points
-gridder = xu.Gridder2D(200,600)
-gridder(qy,qz,psd)
-INT = xu.maplog(gridder.data.transpose(),6,0)
+gridder = xu.Gridder2D(200, 600)
+gridder(qy, qz, psd)
+INT = xu.maplog(gridder.data.transpose(), 6, 0)
 
 # plot the intensity as contour plot
-plt.figure(); plt.clf()
-cf = plt.contourf(gridder.xaxis, gridder.yaxis,INT,100,extend='min')
+plt.figure()
+plt.clf()
+cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend='min')
 plt.xlabel(r'$Q_{[110]}$ ($\AA^{-1}$)')
 plt.ylabel(r'$Q_{[001]}$ ($\AA^{-1}$)')
 cb = plt.colorbar(cf)
 cb.set_label(r"$\log($Int$)$ (cps)")
 
-tr = SiGe.RelaxationTriangle([0,0,4], Si, hxrd)
-plt.plot(tr[0],tr[1], 'ko')
+tr = SiGe.RelaxationTriangle([0, 0, 4], Si, hxrd)
+plt.plot(tr[0], tr[1], 'ko')

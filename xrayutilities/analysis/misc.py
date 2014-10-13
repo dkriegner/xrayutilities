@@ -24,7 +24,8 @@ import numpy
 from .. import config
 from .. import math
 
-def getangles(peak,sur,inp):
+
+def getangles(peak, sur, inp):
     """
     calculates the chi and phi angles for a given peak
 
@@ -37,7 +38,8 @@ def getangles(peak,sur,inp):
 
     Returns
     -------
-     [chi,phi] for the given peak on surface sur with inplane direction inp as reference
+     [chi,phi] for the given peak on surface sur with inplane direction inp
+               as reference
 
     Example
     -------
@@ -51,44 +53,46 @@ def getangles(peak,sur,inp):
     sur = numpy.array(sur)
     inp = numpy.array(inp)
 
-    peak = peak/numpy.linalg.norm(peak)
-    sur = sur/numpy.linalg.norm(sur)
-    inp = inp/numpy.linalg.norm(inp)
+    peak = peak / numpy.linalg.norm(peak)
+    sur = sur / numpy.linalg.norm(sur)
+    inp = inp / numpy.linalg.norm(inp)
 
     # calculate reference inplane direction
-    inplane = numpy.cross(numpy.cross(sur,inp),sur)
-    inplane = inplane/numpy.linalg.norm(inplane)
+    inplane = numpy.cross(numpy.cross(sur, inp), sur)
+    inplane = inplane / numpy.linalg.norm(inplane)
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.analyis.getangles: reference inplane direction: ", inplane)
 
     # calculate inplane direction of peak
-    pinp = numpy.cross(numpy.cross(sur,peak),sur)
-    pinp = pinp/numpy.linalg.norm(pinp)
-    if(numpy.linalg.norm(numpy.cross(sur,peak))<=config.EPSILON): pinp = inplane
+    pinp = numpy.cross(numpy.cross(sur, peak), sur)
+    pinp = pinp / numpy.linalg.norm(pinp)
+    if(numpy.linalg.norm(numpy.cross(sur, peak)) <= config.EPSILON):
+        pinp = inplane
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.analyis.getangles: peaks inplane direction: ", pinp)
 
     # calculate angles
-    r2d = 180./numpy.pi
-    chi = numpy.arccos(numpy.dot(sur,peak))*r2d
-    #print numpy.dot(sur,peak),numpy.dot(sur,numpy.cross(inplane,pinp)),numpy.sign(numpy.dot(sur,numpy.cross(inplane,pinp))),numpy.dot(pinp,inplane)
-    if(numpy.dot(sur,peak)>=1.-config.EPSILON):
+    r2d = 180. / numpy.pi
+    chi = numpy.arccos(numpy.dot(sur, peak)) * r2d
+    # print
+    # numpy.dot(sur,peak),numpy.dot(sur,numpy.cross(inplane,pinp)),numpy.sign(numpy.dot(sur,numpy.cross(inplane,pinp))),numpy.dot(pinp,inplane)
+    if(numpy.dot(sur, peak) >= 1. - config.EPSILON):
         chi = 0.
         phi = 0.
-    elif(numpy.dot(sur,peak)<=-1.+config.EPSILON):
-        chi=180.
-        phi=0.
-    elif(numpy.dot(sur,numpy.cross(inplane,pinp))<=config.EPSILON):
-        if numpy.dot(pinp,inplane) >= 1.0:
+    elif(numpy.dot(sur, peak) <= -1. + config.EPSILON):
+        chi = 180.
+        phi = 0.
+    elif(numpy.dot(sur, numpy.cross(inplane, pinp)) <= config.EPSILON):
+        if numpy.dot(pinp, inplane) >= 1.0:
             phi = 0.
-        elif numpy.dot(pinp,inplane) <= -1.0:
-            phi =180.
+        elif numpy.dot(pinp, inplane) <= -1.0:
+            phi = 180.
         else:
-            phi = numpy.sign(numpy.dot(sur,numpy.cross(inplane,pinp)))*numpy.arccos(numpy.dot(pinp,inplane))*r2d
+            phi = numpy.sign(numpy.dot(sur, numpy.cross(inplane, pinp))) *\
+                numpy.arccos(numpy.dot(pinp, inplane)) * r2d
     else:
-        phi = numpy.sign(numpy.dot(sur,numpy.cross(inplane,pinp)))*numpy.arccos(numpy.dot(pinp,inplane))*r2d
-    phi = phi - round(phi/360.)*360
+        phi = numpy.sign(numpy.dot(sur, numpy.cross(inplane, pinp))) * \
+            numpy.arccos(numpy.dot(pinp, inplane)) * r2d
+    phi = phi - round(phi / 360.) * 360
 
-    return (chi,phi)
-
-
+    return (chi, phi)

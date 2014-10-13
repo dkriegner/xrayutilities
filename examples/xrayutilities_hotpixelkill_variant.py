@@ -17,10 +17,14 @@
 # Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-The function below is a modification of the hotpixelkill function included
-in the xrayutilities_id01_functions.py file. 
+The function below is a modification of the hotpixelkill function included in
+the xrayutilities_id01_functions.py file.
 
-Instead of manually specifying the list of hot pixel they are automatically determined from a series of dark images. The idea is as follows: If in the average data of several dark images (no intentional x-ray radiations during acquisition) a signal above a certain threshold remains it is expected to arise from a hot pixel and such pixels should be removed to avoid spikes in the data.
+Instead of manually specifying the list of hot pixel they are automatically
+determined from a series of dark images. The idea is as follows: If in the
+average data of several dark images (no intentional x-ray radiations during
+acquisition) a signal above a certain threshold remains it is expected to arise
+from a hot pixel and such pixels should be removed to avoid spikes in the data.
 """
 
 import numpy
@@ -33,13 +37,15 @@ def hotpixelkill(ccd):
     function to remove hot pixels from CCD frames
     """
     ccd[hotpixelnumbers] = 0
+    # one could also use NaN here, since NaN values are
+    # ignored by the gridder
     return ccd
 
 # identify hot pixels numbers from a series of dark images
 
-# open a series of 2D detector frames 
+# open a series of 2D detector frames
 ccdavg = numpy.empty(0)
-n=0
+n = 0
 for f in glob.glob("G:\data\dark*.edf"):
     e = xu.io.EDFFile(f)
     ccdraw = e.data
@@ -47,16 +53,14 @@ for f in glob.glob("G:\data\dark*.edf"):
         ccdavg += ccdraw
     except:
         ccdavg = ccdraw.astype(numpy.float)
-    n+=1
+    n += 1
 
-ccdavg/=float(n)    
+ccdavg /= float(n)
 
 # adjust treshold value: either as absolute value or in relation to the maximum
-threshold = 10 # counts
+threshold = 10  # counts
 # or
-#threshold = ccdraw.max()*0.1 #take 10% of maximum intensity
+# threshold = ccdraw.max()*0.1 #take 10% of maximum intensity
 
 # determine hot pixels by comparison with the threshold value
-hotpixelnumbers = numpy.where(ccdraw>threshold)
-
-
+hotpixelnumbers = numpy.where(ccdraw > threshold)

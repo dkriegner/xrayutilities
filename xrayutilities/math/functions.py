@@ -24,7 +24,8 @@ import scipy.integrate
 
 from .. import config
 
-def smooth(x,n):
+
+def smooth(x, n):
     """
     function to smooth an array of data by averaging N adjacent data points
 
@@ -41,20 +42,20 @@ def smooth(x,n):
         raise ValueError("smooth only accepts 1 dimension arrays.")
     if x.size < n:
         raise ValueError("Input vector needs to be bigger than n.")
-    if n<2:
+    if n < 2:
         return x
     # avoid boundary effects by adding mirrored signal at the boundaries
-    s=numpy.r_[x[n-1:0:-1],x,x[-1:-n-1:-1]]
-    w=numpy.ones(n,'d')
-    y=numpy.convolve(w/w.sum(),s,mode='same')
-    return y[n:-n+1]
+    s = numpy.r_[x[n - 1:0:-1], x, x[-1:-n - 1:-1]]
+    w = numpy.ones(n, 'd')
+    y = numpy.convolve(w / w.sum(), s, mode='same')
+    return y[n:-n + 1]
 
 
-def kill_spike(data,threshold=2.):
+def kill_spike(data, threshold=2.):
     """
-    function to smooth **single** data points which differ from the average of the neighboring data
-    points by more than the threshold factor. Such spikes will be replaced by the mean value of the
-    next neighbors.
+    function to smooth **single** data points which differ from the average of
+    the neighboring data points by more than the threshold factor. Such spikes
+    will be replaced by the mean value of the next neighbors.
 
     .. warning:: Use this function carefully not to manipulate your data!
 
@@ -70,20 +71,22 @@ def kill_spike(data,threshold=2.):
 
     dataout = data.copy()
 
-    mean = (data[:-2] + data[2:])/2.
-    mask = numpy.logical_or( numpy.abs(data[1:-1]*threshold) < numpy.abs(mean) , numpy.abs(data[1:-1]/threshold) > numpy.abs(mean) )
-    #ensure that only single value are corrected and neighboring are ignored
-    for i in range(1,len(mask)-1):
-        if mask[i-1] and mask[i] and mask[i+1]:
-            mask[i-1]=False
-            mask[i+1]=False
+    mean = (data[:-2] + data[2:]) / 2.
+    mask = numpy.logical_or(
+        numpy.abs(data[1:-1] * threshold) < numpy.abs(mean),
+        numpy.abs(data[1:-1] / threshold) > numpy.abs(mean))
+    # ensure that only single value are corrected and neighboring are ignored
+    for i in range(1, len(mask) - 1):
+        if mask[i - 1] and mask[i] and mask[i + 1]:
+            mask[i - 1] = False
+            mask[i + 1] = False
 
     dataout[1:-1][mask] = (numpy.abs(mean))[mask]
 
     return dataout
 
 
-def Gauss1d(x,*p):
+def Gauss1d(x, *p):
     """
     function to calculate a general one dimensional Gaussian
 
@@ -101,15 +104,16 @@ def Gauss1d(x,*p):
 
     Example
     -------
-    Calling with a list of parameters needs a call looking as shown below (note the '*') or explicit listing of the parameters:
+    Calling with a list of parameters needs a call looking as shown below
+    (note the '*') or explicit listing of the parameters:
     >>> Gauss1d(x,*p)
     >>> Gauss1d(numpy.linspace(0,10,100), 5, 1, 1e3, 0)
     """
-    g = p[3]+p[2]*numpy.exp(-((p[0]-x)/p[1])**2/2.)
+    g = p[3] + p[2] * numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
     return g
 
 
-def Gauss1d_der_x(x,*p):
+def Gauss1d_der_x(x, *p):
     """
     function to calculate the derivative of a Gaussian with respect to x
 
@@ -118,10 +122,10 @@ def Gauss1d_der_x(x,*p):
 
     lp = numpy.copy(p)
     lp[3] = 0
-    return 2*(p[0]-x)*Gauss1d(x,*lp)
+    return 2 * (p[0] - x) * Gauss1d(x, *lp)
 
 
-def Gauss1d_der_p(x,*p):
+def Gauss1d_der_p(x, *p):
     """
     function to calculate the derivative of a Gaussian with respect the
     parameters p
@@ -130,16 +134,16 @@ def Gauss1d_der_p(x,*p):
     """
     lp = numpy.copy(p)
     lp[3] = 0
-    r = numpy.concatenate(( -2*(p[0]-x)*Gauss1d(x,*lp),\
-                            (p[0]-x)**2/(2*p[1]**3)*Gauss1d(x,*lp),\
-                            Gauss1d(x,*lp)/p[2],\
-                            numpy.ones(x.shape,dtype=numpy.float) ))
+    r = numpy.concatenate((-2 * (p[0] - x) * Gauss1d(x, *lp),
+                           (p[0] - x) ** 2 / (2 * p[1] ** 3) * Gauss1d(x, *lp),
+                           Gauss1d(x, *lp) / p[2],
+                           numpy.ones(x.shape, dtype=numpy.float)))
     r.shape = (4,) + x.shape
 
     return r
 
 
-def Gauss2d(x,y,*p):
+def Gauss2d(x, y, *p):
     """
     function to calculate a general two dimensional Gaussian
 
@@ -162,11 +166,12 @@ def Gauss2d(x,y,*p):
     xp = x * numpy.cos(p[6]) - y * numpy.sin(p[6])
     yp = x * numpy.sin(p[6]) + y * numpy.cos(p[6])
 
-    g = p[5]+p[4]*numpy.exp(-(((rcen_x-xp)/p[2])**2+
-                                     ((rcen_y-yp)/p[3])**2)/2.)
+    g = p[5] + p[4] * numpy.exp(-(((rcen_x - xp) / p[2]) ** 2 +
+                                  ((rcen_y - yp) / p[3]) ** 2) / 2.)
     return g
 
-def Gauss3d(x,y,z,*p):
+
+def Gauss3d(x, y, z, *p):
     """
     function to calculate a general three dimensional Gaussian
 
@@ -183,17 +188,21 @@ def Gauss3d(x,y,z,*p):
     at positions (x,y,z)
     """
 
-    g = p[7]+p[6]*numpy.exp(-(((x-p[0])/p[3])**2+((y-p[1])/p[4])**2+((z-p[2])/p[5])**2)/2.)
+    g = p[7] + p[6] * numpy.exp(-(((x - p[0]) / p[3]) ** 2 +
+                                  ((y - p[1]) / p[4]) ** 2 +
+                                  ((z - p[2]) / p[5]) ** 2) / 2.)
     return g
 
-def TwoGauss2d(x,y,*p):
+
+def TwoGauss2d(x, y, *p):
     """
     function to calculate two general two dimensional Gaussians
 
     Parameters
     ----------
      p:     list of parameters of the Gauss-function
-            [XCEN1,YCEN1,SIGMAX1,SIGMAY1,AMP1,ANGLE1,XCEN2,YCEN2,SIGMAX2,SIGMAY2,AMP2,ANGLE2,BACKGROUND]
+            [XCEN1,YCEN1,SIGMAX1,SIGMAY1,AMP1,ANGLE1,XCEN2,YCEN2,
+            SIGMAX2,SIGMAY2,AMP2,ANGLE2,BACKGROUND]
             SIGMA = FWHM / (2*sqrt(2*log(2)))
             ANGLE = rotation of the X,Y direction of the Gaussian in radians
      x,y:   coordinate(s) where the function should be evaluated
@@ -205,14 +214,15 @@ def TwoGauss2d(x,y,*p):
     """
 
     p = list(p)
-    p1 = p[0:5] + [p[12],] + [p[5],]
-    p2 = p[6:11] + [p[12],] +[p[11],]
+    p1 = p[0:5] + [p[12], ] + [p[5], ]
+    p2 = p[6:11] + [p[12], ] + [p[11], ]
 
-    g = Gauss2d(x,y,*p1) + Gauss2d(x,y,*p2)
+    g = Gauss2d(x, y, *p1) + Gauss2d(x, y, *p2)
 
     return g
 
-def Lorentz1d(x,*p):
+
+def Lorentz1d(x, *p):
     """
     function to calculate a general one dimensional Lorentzian
 
@@ -228,33 +238,39 @@ def Lorentz1d(x,*p):
     at position (x,y)
 
     """
-    g = p[3]+p[2]/(1+(2*(x-p[0])/p[1])**2)
+    g = p[3] + p[2] / (1 + (2 * (x - p[0]) / p[1]) ** 2)
     return g
 
-def Lorentz1d_der_x(x,*p):
+
+def Lorentz1d_der_x(x, *p):
     """
     function to calculate the derivative of a Gaussian with respect to x
 
     for parameter description see Lorentz1d
     """
 
-    return 4*(p[0]-x)* p[2]/p[1]/(1+(2*(x-p[0])/p[1])**2)**2
+    return 4 * (p[0] - x) * p[2] / p[1] / \
+        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2
 
-def Lorentz1d_der_p(x,*p):
+
+def Lorentz1d_der_p(x, *p):
     """
     function to calculate the derivative of a Gaussian with respect the
     parameters p
 
     for parameter description see Lorentz1d
     """
-    r = numpy.concatenate(( 4*(x-p[0])* p[2]/p[1]/(1+(2*(x-p[0])/p[1])**2)**2,\
-                            4*(p[0]-x)* p[2]/p[1]**2/(1+(2*(x-p[0])/p[1])**2)**2,\
-                            1/(1+(2*(x-p[0])/p[1])**2),\
-                            numpy.ones(x.shape,dtype=numpy.float) ))
+    r = numpy.concatenate((
+        4 * (x - p[0]) * p[2] / p[1] / (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
+        4 * (p[0] - x) * p[2] / p[1] ** 2 /
+        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
+        1 / (1 + (2 * (x - p[0]) / p[1]) ** 2),
+        numpy.ones(x.shape, dtype=numpy.float)))
     r.shape = (4,) + x.shape
     return r
 
-def Lorentz2d(x,y,*p):
+
+def Lorentz2d(x, y, *p):
     """
     function to calculate a general two dimensional Lorentzian
 
@@ -275,11 +291,12 @@ def Lorentz2d(x,y,*p):
     xp = x * numpy.cos(p[6]) - y * numpy.sin(p[6])
     yp = x * numpy.sin(p[6]) + y * numpy.cos(p[6])
 
-    g = p[5]+p[4]/(1+(2*(rcen_x-xp)/p[2])**2+(2*(rcen_y-yp)/p[3])**2)
+    g = p[5] + p[4] / (1 + (2 * (rcen_x - xp) / p[2]) **
+                       2 + (2 * (rcen_y - yp) / p[3]) ** 2)
     return g
 
 
-def PseudoVoigt1d(x,*p):
+def PseudoVoigt1d(x, *p):
     """
     function to calculate a pseudo Voigt function as linear combination of a
     Gauss and Lorentz peak
@@ -296,11 +313,13 @@ def PseudoVoigt1d(x,*p):
     the value of the PseudoVoigt described by the parameters p
     at position 'x'
     """
-    sigma = p[1]/(2*numpy.sqrt(2*numpy.log(2)))
-    f = p[3] + p[4]*Lorentz1d(x,p[0],p[1],p[2],0) + (1-p[4])*Gauss1d(x,p[0],sigma,p[2],0)
+    sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
+    f = p[3] + p[4] * Lorentz1d(x, p[0], p[1], p[2], 0) + \
+        (1 - p[4]) * Gauss1d(x, p[0], sigma, p[2], 0)
     return f
 
-def PseudoVoigt2d(x,y,*p):
+
+def PseudoVoigt2d(x, y, *p):
     """
     function to calculate a pseudo Voigt function as linear combination of a
     Gauss and Lorentz peak in two dimensions
@@ -317,14 +336,17 @@ def PseudoVoigt2d(x,y,*p):
     the value of the PseudoVoigt described by the parameters p
     at position (x,y)
     """
-    sigmax = p[2]/(2*numpy.sqrt(2*numpy.log(2)))
-    sigmay = p[3]/(2*numpy.sqrt(2*numpy.log(2)))
-    f = p[5] + p[7]*Lorentz2d(x,y,p[0],p[1],p[2],p[3],p[4],0,p[6]) + (1-p[7])*Gauss2d(x,y,p[0],p[1],sigmax,sigmay,p[4],0,p[6])
+    sigmax = p[2] / (2 * numpy.sqrt(2 * numpy.log(2)))
+    sigmay = p[3] / (2 * numpy.sqrt(2 * numpy.log(2)))
+    f = p[5] + p[7] * Lorentz2d(x, y, p[0], p[1], p[2], p[3], p[4], 0, p[6]) + \
+        (1 - p[7]) * Gauss2d(x, y, p[0], p[1], sigmax, sigmay, p[4], 0, p[6])
     return f
+
 
 def Gauss1dArea(*p):
     """
-    function to calculate the area of a Gauss function with neglected background
+    function to calculate the area of a Gauss function with neglected
+    background
 
     Parameters
     ----------
@@ -335,12 +357,14 @@ def Gauss1dArea(*p):
     -------
     the area of the Gaussian described by the parameters p
     """
-    f = p[2] * numpy.sqrt(2*numpy.pi)*p[1]
+    f = p[2] * numpy.sqrt(2 * numpy.pi) * p[1]
     return f
+
 
 def Gauss2dArea(*p):
     """
-    function to calculate the area of a 2D Gauss function with neglected background
+    function to calculate the area of a 2D Gauss function with neglected
+    background
 
     Parameters
     ----------
@@ -351,12 +375,14 @@ def Gauss2dArea(*p):
     -------
     the area of the Gaussian described by the parameters p
     """
-    f = p[4] * numpy.sqrt(2*numpy.pi)**2*p[2]*p[3]
+    f = p[4] * numpy.sqrt(2 * numpy.pi) ** 2 * p[2] * p[3]
     return f
+
 
 def Lorentz1dArea(*p):
     """
-    function to calculate the area of a Lorentz function with neglected background
+    function to calculate the area of a Lorentz function with neglected
+    background
 
     Parameters
     ----------
@@ -367,12 +393,14 @@ def Lorentz1dArea(*p):
     -------
     the area of the Lorentzian described by the parameters p
     """
-    f = p[2] * numpy.pi/(2./(p[1]))
+    f = p[2] * numpy.pi / (2. / (p[1]))
     return f
+
 
 def PseudoVoigt1dArea(*p):
     """
-    function to calculate the area of a pseudo Voigt function with neglected background
+    function to calculate the area of a pseudo Voigt function with neglected
+    background
 
     Parameters
     ----------
@@ -384,9 +412,11 @@ def PseudoVoigt1dArea(*p):
     -------
     the area of the PseudoVoigt described by the parameters p
     """
-    sigma = p[1]/(2*numpy.sqrt(2*numpy.log(2)))
-    f = p[4]*Lorentz1dArea(*p) + (1.-p[4])*Gauss1dArea(p[0],sigma,p[2],p[3])
+    sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
+    f = p[4] * Lorentz1dArea(*p) + (1. - p[4]) * \
+        Gauss1dArea(p[0], sigma, p[2], p[3])
     return f
+
 
 def Debye1(x):
     """
@@ -412,22 +442,25 @@ def Debye1(x):
         """
         integration kernel for the numeric integration
         """
-        y = t/(numpy.exp(t)-1)
+        y = t / (numpy.exp(t) - 1)
         return y
 
-    if x>0.:
+    if x > 0.:
         integral = scipy.integrate.quad(__int_kernel, 0, x)
-        d1 = (1/float(x)) * integral[0]
+        d1 = (1 / float(x)) * integral[0]
     else:
-        integral = (0,0)
+        integral = (0, 0)
         d1 = 1.
 
     if (config.VERBOSITY >= config.DEBUG):
-        print("XU.math.Debye1: Debye integral value/error estimate: %g %g"%(integral[0],integral[1]))
+        print(
+            "XU.math.Debye1: Debye integral value/error estimate: %g %g" %
+            (integral[0], integral[1]))
 
     return d1
 
-def multPeak1d(x,*args):
+
+def multPeak1d(x, *args):
     """
     function to calculate the sum of multiple peaks in 1D.
     the peaks can be of different type and a background function (polynom)
@@ -436,20 +469,20 @@ def multPeak1d(x,*args):
     Parameters
     ----------
      x:         coordinate where the function should be evaluated
-     args:      list of peak/function types and parameters
-                for every function type two arguments need to be given
-                first the type of function as string with possible values
-                'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'p': polynom
-                the second type of arguments is the tuple/list of parameters of
-                the respective function. See documentation of
-                math.Gauss1d, math.Lorentz1d, math.PseudoVoigt1d, and numpy.polyval
-                for details of the different function types.
+     args:      list of peak/function types and parameters for every function
+                type two arguments need to be given first the type of function
+                as string with possible values 'g': Gaussian, 'l': Lorentzian,
+                'v': PseudoVoigt, 'p': polynom the second type of arguments is
+                the tuple/list of parameters of the respective function. See
+                documentation of math.Gauss1d, math.Lorentz1d,
+                math.PseudoVoigt1d, and numpy.polyval for details of the
+                different function types.
 
     Returns
     -------
      value of the sum of functions at position x
     """
-    if len(args)%2 != 0:
+    if len(args) % 2 != 0:
         raise ValueError('number of arguments must be even!')
 
     if numpy.isscalar(x):
@@ -458,26 +491,27 @@ def multPeak1d(x,*args):
         lx = numpy.array(x)
         f = numpy.zeros(lx.shape)
 
-    for i in range(int(len(args)/2)):
-        ftype = str.lower(args[2*i])
-        fparam = args[2*i+1]
+    for i in range(int(len(args) / 2)):
+        ftype = str.lower(args[2 * i])
+        fparam = args[2 * i + 1]
         if ftype == 'g':
-            f+= Gauss1d(x,*fparam)
+            f += Gauss1d(x, *fparam)
         elif ftype == 'l':
-            f+= Lorentz1d(x,*fparam)
+            f += Lorentz1d(x, *fparam)
         elif ftype == 'v':
-            f+= PseudoVoigt1d(x,*fparam)
+            f += PseudoVoigt1d(x, *fparam)
         elif ftype == 'p':
-            if isinstance(fparam,(tuple,list,numpy.ndarray)):
-                f+= numpy.polyval(fparam,x)
+            if isinstance(fparam, (tuple, list, numpy.ndarray)):
+                f += numpy.polyval(fparam, x)
             else:
-                f+= numpy.polyval((fparam,),x)
+                f += numpy.polyval((fparam,), x)
         else:
             raise ValueError('invalid function type given!')
 
     return f
 
-def multPeak2d(x,y,*args):
+
+def multPeak2d(x, y, *args):
     """
     function to calculate the sum of multiple peaks in 2D.
     the peaks can be of different type and a background function (polynom)
@@ -486,21 +520,21 @@ def multPeak2d(x,y,*args):
     Parameters
     ----------
      x,y:       coordinates where the function should be evaluated
-     args:      list of peak/function types and parameters
-                for every function type two arguments need to be given
-                first the type of function as string with possible values
-                'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'c': constant
-                the second type of arguments is the tuple/list of parameters of
-                the respective function. See documentation of
-                math.Gauss2d, math.Lorentz2d, math.PseudoVoigt2d for details of
-                the different function types.
-                The constant accepts a single float which will be added to the data
+     args:      list of peak/function types and parameters for every function
+                type two arguments need to be given first the type of function
+                as string with possible values 'g': Gaussian, 'l': Lorentzian,
+                'v': PseudoVoigt, 'c': constant the second type of arguments is
+                the tuple/list of parameters of the respective function. See
+                documentation of math.Gauss2d, math.Lorentz2d,
+                math.PseudoVoigt2d for details of the different function types.
+                The constant accepts a single float which will be added to the
+                data
 
     Returns
     -------
      value of the sum of functions at position (x,y)
     """
-    if len(args)%2 != 0:
+    if len(args) % 2 != 0:
         raise ValueError('number of arguments must be even!')
 
     if numpy.isscalar(x):
@@ -510,17 +544,17 @@ def multPeak2d(x,y,*args):
         ly = numpy.array(y)
         f = numpy.zeros(lx.shape)
 
-    for i in range(int(len(args)/2)):
-        ftype = str.lower(args[2*i])
-        fparam = args[2*i+1]
+    for i in range(int(len(args) / 2)):
+        ftype = str.lower(args[2 * i])
+        fparam = args[2 * i + 1]
         if ftype == 'g':
-            f+= Gauss2d(lx,ly,*fparam)
+            f += Gauss2d(lx, ly, *fparam)
         elif ftype == 'l':
-            f+= Lorentz2d(lx,ly,*fparam)
+            f += Lorentz2d(lx, ly, *fparam)
         elif ftype == 'v':
-            f+= PseudoVoigt2d(lx,ly,*fparam)
+            f += PseudoVoigt2d(lx, ly, *fparam)
         elif ftype == 'c':
-            f+= fparam
+            f += fparam
         else:
             raise ValueError('invalid function type given!')
 

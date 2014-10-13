@@ -29,6 +29,7 @@ from .. import config
 
 circleSyntax = re.compile("[xyz][+-]")
 
+
 def VecNorm(v):
     """
     Calculate the norm of a vector.
@@ -39,17 +40,19 @@ def VecNorm(v):
     return value:
      float holding the vector norm
     """
-    if isinstance(v,(list,tuple)):
-        vtmp = numpy.array(v,dtype=numpy.double)
-    elif isinstance(v,numpy.ndarray):
+    if isinstance(v, (list, tuple)):
+        vtmp = numpy.array(v, dtype=numpy.double)
+    elif isinstance(v, numpy.ndarray):
         vtmp = v.astype(numpy.double)
     else:
         raise TypeError("Vector must be a list, tuple or numpy array")
 
     if vtmp.size != 3:
-        raise ValueError("Vector must be of size 3, but has size %d!"%vtmp.size)
+        raise ValueError("Vector must be of size 3, but has size %d!"
+                         % vtmp.size)
 
     return numpy.linalg.norm(vtmp)
+
 
 def VecUnit(v):
     """
@@ -61,16 +64,17 @@ def VecUnit(v):
     return value:
      numpy array with the unit vector
     """
-    if isinstance(v,(list,tuple)):
-        vtmp = numpy.array(v,dtype=numpy.double)
-    elif isinstance(v,numpy.ndarray):
+    if isinstance(v, (list, tuple)):
+        vtmp = numpy.array(v, dtype=numpy.double)
+    elif isinstance(v, numpy.ndarray):
         vtmp = v.astype(numpy.double)
     else:
         raise TypeError("Vector must be a list, tuple or numpy array")
 
-    return vtmp/VecNorm(vtmp)
+    return vtmp / VecNorm(vtmp)
 
-def VecDot(v1,v2):
+
+def VecDot(v1, v2):
     """
     Calculate the vector dot product.
 
@@ -81,27 +85,28 @@ def VecDot(v1,v2):
     return value:
      float value
     """
-    if isinstance(v1,(list,tuple)):
-        v1tmp = numpy.array(v1,dtype=numpy.double)
-    elif isinstance(v1,numpy.ndarray):
+    if isinstance(v1, (list, tuple)):
+        v1tmp = numpy.array(v1, dtype=numpy.double)
+    elif isinstance(v1, numpy.ndarray):
         v1tmp = v1.astype(numpy.double)
     else:
         raise TypeError("Vector must be a list, tuple or numpy array")
 
-    if isinstance(v2,(list,tuple)):
-        v2tmp = numpy.array(v2,dtype=numpy.double)
-    elif isinstance(v2,numpy.ndarray):
+    if isinstance(v2, (list, tuple)):
+        v2tmp = numpy.array(v2, dtype=numpy.double)
+    elif isinstance(v2, numpy.ndarray):
         v2tmp = v2.astype(numpy.double)
     else:
         raise TypeError("Vector must be a list, tuple or numpy array")
 
     if v1tmp.size != 3 or v2tmp.size != 3:
-        raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)" %(v1tmp.size,v2tmp.size))
+        raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
+                         % (v1tmp.size, v2tmp.size))
 
-    return numpy.dot(v1tmp,v2tmp)
+    return numpy.dot(v1tmp, v2tmp)
 
 
-def VecAngle(v1,v2,deg=False):
+def VecAngle(v1, v2, deg=False):
     """
     calculate the angle between two vectors. The following
     formula is used
@@ -123,13 +128,14 @@ def VecAngle(v1,v2,deg=False):
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
     if(config.VERBOSITY >= config.DEBUG):
-        print("XU.math.VecAngle: norm of the vectors: %8.5g %8.5g" %(u1,u2))
+        print("XU.math.VecAngle: norm of the vectors: %8.5g %8.5g" % (u1, u2))
 
-    alpha = numpy.arccos(numpy.minimum(1.,VecDot(v1,v2)/u1/u2))
+    alpha = numpy.arccos(numpy.minimum(1., VecDot(v1, v2) / u1 / u2))
     if deg:
         alpha = numpy.degrees(alpha)
 
     return alpha
+
 
 def getVector(string):
     """
@@ -148,25 +154,28 @@ def getVector(string):
     if len(string) != 2:
         raise InputError("wrong length of string for conversion given")
     if not circleSyntax.search(string):
-        raise InputError("getVector: incorrect string syntax (%s)" %string)
+        raise InputError("getVector: incorrect string syntax (%s)" % string)
 
     if string[0] == 'x':
-        v = [1.,0,0]
+        v = [1., 0, 0]
     elif string[0] == 'y':
-        v = [0,1.,0]
+        v = [0, 1., 0]
     elif string[0] == 'z':
-        v = [0,0,1.]
+        v = [0, 0, 1.]
     else:
-        raise InputError("wrong first character of string given (needs to be one of x,y,z)")
+        raise InputError("wrong first character of string given "
+                         "(needs to be one of x,y,z)")
 
     if string[1] == '+':
-        v = numpy.array(v)*(+1)
+        v = numpy.array(v) * (+1)
     elif string[1] == '-':
-        v = numpy.array(v)*(-1)
+        v = numpy.array(v) * (-1)
     else:
-        raise InputError("wrong second character of string given (needs to be + or -)")
+        raise InputError("wrong second character of string given "
+                         "(needs to be + or -)")
 
     return v
+
 
 def getSyntax(vec):
     """
@@ -187,22 +196,23 @@ def getSyntax(vec):
     if len(vec) != 3:
         raise InputError("no valid 3D vector given")
 
-    x = [1,0,0]
-    y = [0,1,0]
-    z = [0,0,1]
+    x = [1, 0, 0]
+    y = [0, 1, 0]
+    z = [0, 0, 1]
 
     vec = numpy.array(vec)
-    if numpy.linalg.norm(numpy.cross(numpy.cross(x,y),vec)) <= config.EPSILON:
+    norm = numpy.linalg.norm
+    if norm(numpy.cross(numpy.cross(x, y), vec)) <= config.EPSILON:
         if vec[2] >= 0:
             string = 'z+'
         else:
             string = 'z-'
-    elif numpy.linalg.norm(numpy.cross(numpy.cross(x,z),vec)) <= config.EPSILON:
+    elif norm(numpy.cross(numpy.cross(x, z), vec)) <= config.EPSILON:
         if vec[1] >= 0:
             string = 'y+'
         else:
             string = 'y-'
-    elif numpy.linalg.norm(numpy.cross(numpy.cross(y,z),vec)) <= config.EPSILON:
+    elif norm(numpy.cross(numpy.cross(y, z), vec)) <= config.EPSILON:
         if vec[0] >= 0:
             string = 'x+'
         else:

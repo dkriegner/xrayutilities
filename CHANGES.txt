@@ -2,6 +2,17 @@
   detectors 
 * addition of serval test routines to improve the code quality
 
+v1.1.0, 2014-10-09
+
+* fix bug in Q2Ang with refrac = True (omega angle could have been reported
+  incorrect and added some geometry checks/warnings)
+* more flexibility in sample position/orientation definition
+* documentation updates
+* small bug fixes in matplotlib import code
+* c-header-code cleanup
+* reformat c-code to conform to PEP7
+* reformat python code to conform to PEP8
+
 v1.1.0-beta, 2014-09-16
 
 * new 1D Gridder working consistent with 2D and 3D

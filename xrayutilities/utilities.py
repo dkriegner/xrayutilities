@@ -25,12 +25,13 @@ import numpy
 from . import config
 from .utilities_noconf import *
 
-def maplog(inte,dynlow = "config",dynhigh = "config",**keyargs):
+
+def maplog(inte, dynlow="config", dynhigh="config", **keyargs):
     """
     clips values smaller and larger as the given bounds and returns the log10
-    of the input array. The bounds are given as exponent with base 10 with respect
-    to the maximum in the input array.
-    The function is implemented in analogy to J. Stangl's matlab implementation.
+    of the input array. The bounds are given as exponent with base 10 with
+    respect to the maximum in the input array.  The function is implemented in
+    analogy to J. Stangl's matlab implementation.
 
     Parameters
     ----------
@@ -58,9 +59,9 @@ def maplog(inte,dynlow = "config",dynhigh = "config",**keyargs):
         dynhigh = config.DYNHIGH
 
     if inte.max() <= 0.0:
-        raise ValueError("XU.maplog: only negativ or zero values given. Log is not defined!")
-    ma = inte.max()*10**(-dynhigh) # upper bound
-    mi = inte.max()*10**(-dynlow)  # lower bound
+        raise ValueError("XU.maplog: only negativ or zero values given. "
+                         "Log is not defined!")
+    ma = inte.max() * 10 ** (-dynhigh)  # upper bound
+    mi = inte.max() * 10 ** (-dynlow)  # lower bound
 
-    return numpy.log10(numpy.minimum(numpy.maximum(inte,mi),ma))
-
+    return numpy.log10(numpy.minimum(numpy.maximum(inte, mi), ma))

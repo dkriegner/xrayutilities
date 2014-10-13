@@ -24,37 +24,37 @@ import numpy
 import sys
 
 cliopts = []
-cliopts.append(("without-openmp",None,"build without OpenMP support"))
+cliopts.append(("without-openmp", None, "build without OpenMP support"))
 
-options = FancyGetopt(option_table = cliopts)
+options = FancyGetopt(option_table=cliopts)
 
-#first read all the arguments passed to the script
-#we need to do this otherwise the --help commands would not work
+# first read all the arguments passed to the script
+# we need to do this otherwise the --help commands would not work
 args = sys.argv[1:]
 try:
-    #search the arguments for options we would like to use
-    #get new args with the custom options stripped away
-    args,opts = options.getopt(args)
+    # search the arguments for options we would like to use
+    # get new args with the custom options stripped away
+    args, opts = options.getopt(args)
 except:
     pass
 
-#set default flags
+# set default flags
 without_openmp = False
 
-for opts,values in options.get_option_order():
+for opts, values in options.get_option_order():
     if opts == "without-openmp":
         without_openmp = True
 
 
-copt =  {'msvc' : [],
-         'mingw32' : ['-std=c99'],
-         'unix' : ['-std=c99'] }
-lopt =  {'mingw32' : [],
-         'unix' : [] }
+copt = {'msvc': [],
+        'mingw32': ['-std=c99'],
+        'unix': ['-std=c99']}
+lopt = {'mingw32': [],
+        'unix': []}
 
 user_macros = []
 if not without_openmp:
-    user_macros = [('__OPENMP__',None)]
+    user_macros = [('__OPENMP__', None)]
     copt["msvc"].append('/openmp')
     copt["mingw32"].append("-fopenmp")
     copt["unix"].append("-fopenmp")
@@ -62,16 +62,16 @@ if not without_openmp:
     lopt["unix"].append("-lgomp")
 
 
-class build_ext_subclass( build_ext ):
+class build_ext_subclass(build_ext):
     def build_extensions(self):
         c = self.compiler.compiler_type
         # set custom compiler options
         if c in list(copt.keys()):
             for e in self.extensions:
-                e.extra_compile_args = copt[ c ]
+                e.extra_compile_args = copt[c]
         if c in list(lopt.keys()):
             for e in self.extensions:
-                e.extra_link_args = lopt[ c ]
+                e.extra_link_args = lopt[c]
         build_ext.build_extensions(self)
 
 cmdclass = {'build_ext': build_ext_subclass}
@@ -79,16 +79,19 @@ cmdclass = {'build_ext': build_ext_subclass}
 with open('README.txt') as f:
     long_description = f.read()
 
-extmodul = Extension('xrayutilities.cxrayutilities',
-                     sources = [os.path.join('xrayutilities','src','cxrayutilities.c'),
-                                os.path.join('xrayutilities','src','gridder_utils.c'),
-                                os.path.join('xrayutilities','src','gridder1d.c'),
-                                os.path.join('xrayutilities','src','gridder2d.c'),
-                                os.path.join('xrayutilities','src','block_average.c'),
-                                os.path.join('xrayutilities','src','qconversion.c'),
-                                os.path.join('xrayutilities','src','gridder3d.c'),
-                                os.path.join('xrayutilities','src','file_io.c')],
-                     define_macros = user_macros)
+extmodul = Extension(
+    'xrayutilities.cxrayutilities',
+    sources=[os.path.join('xrayutilities', 'src', 'cxrayutilities.c'),
+             os.path.join('xrayutilities', 'src', 'gridder_utils.c'),
+             os.path.join('xrayutilities', 'src', 'gridder1d.c'),
+             os.path.join('xrayutilities', 'src', 'gridder2d.c'),
+             os.path.join('xrayutilities', 'src', 'block_average.c'),
+             os.path.join('xrayutilities', 'src', 'qconversion.c'),
+             os.path.join('xrayutilities', 'src', 'gridder3d.c'),
+             os.path.join('xrayutilities', 'src', 'file_io.c')
+             ],
+    define_macros=user_macros
+    )
 
 try:
     import sphinx
@@ -115,28 +118,38 @@ try:
 except ImportError:
     pass
 
-setup(name="xrayutilities",
-      version="1.1.0-beta",
-      author="Eugen Wintersberger, Dominik Kriegner",
-      description="package for x-ray diffraction data evaluation",
-      classifiers=["Topic :: Scientific/Engineering :: Physics",
-                   "Intended Audience :: Science/Research",
-                   "Development Status :: 4 - Beta",
-                   "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)"],
-      long_description=long_description,
-      author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
-      maintainer="Dominik Kriegner",
-      maintainer_email="dominik.kriegner@gmail.com",
-      packages=["xrayutilities","xrayutilities.math","xrayutilities.io","xrayutilities.materials",
-                "xrayutilities.analysis"],
-      package_data={
-          "xrayutilities":["*.conf"],
-          "xrayutilities.materials":[os.path.join("data","*.db"),os.path.join("data","*.cif")]},
-      requires=['numpy','scipy','matplotlib','tables'],
-      include_dirs = [numpy.get_include()],
-      ext_modules = [extmodul],
-      cmdclass = cmdclass,
-      url="http://xrayutilities.sourceforge.net",
-      license="GPLv2",
-      script_args = args
-      )
+setup(
+    name="xrayutilities",
+    version="1.1.0",
+    author="Eugen Wintersberger, Dominik Kriegner",
+    description="package for x-ray diffraction data evaluation",
+    classifiers=[
+        "Topic :: Scientific/Engineering :: Physics",
+        "Intended Audience :: Science/Research",
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: GNU General Public License v2 or later "
+        "(GPLv2+)"
+        ],
+    long_description=long_description,
+    author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
+    maintainer="Dominik Kriegner",
+    maintainer_email="dominik.kriegner@gmail.com",
+    packages=[
+        "xrayutilities", "xrayutilities.math", "xrayutilities.io",
+        "xrayutilities.materials", "xrayutilities.analysis"
+        ],
+    package_data={
+        "xrayutilities": ["*.conf"],
+        "xrayutilities.materials": [
+            os.path.join("data", "*.db"),
+            os.path.join("data", "*.cif")
+            ]
+        },
+    requires=['numpy', 'scipy', 'matplotlib', 'tables'],
+    include_dirs=[numpy.get_include()],
+    ext_modules=[extmodul],
+    cmdclass=cmdclass,
+    url="http://xrayutilities.sourceforge.net",
+    license="GPLv2",
+    script_args=args
+    )

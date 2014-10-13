@@ -24,13 +24,12 @@ import matplotlib.pyplot as plt
 import xrayutilities as xu
 import os
 
-en = xu.utilities.energies["CuKa1"] #eV
-dfile = os.path.join("data","primarybeam_alignment20130403_2_dis350.nja")
+en = xu.utilities.energies["CuKa1"]  # eV
+dfile = os.path.join("data", "primarybeam_alignment20130403_2_dis350.nja")
 
 # read seifert file
 s = xu.io.SeifertScan(dfile)
 ang = s.axispos["T"]
-spectra = s.data[:,:,1]
+spectra = s.data[:, :, 1]
 
-pwidth,cch,tilt = xu.analysis.linear_detector_calib(ang,spectra)
-
+pwidth, cch, tilt = xu.analysis.linear_detector_calib(ang, spectra)

@@ -119,7 +119,7 @@ Detailed instructions
 
 Installing *xrayutilities* is done using Python's distutils
 
-The package can be installed on Linux, Mac OS X and Microsoft Windows, however it is mostly tested on Linux/Unix platforms. 
+The package can be installed on Linux, Mac OS X and Microsoft Windows, however, it is mostly tested on Linux/Unix platforms. 
 Please inform one of the authors in case the installation fails!
 
 Required third party software

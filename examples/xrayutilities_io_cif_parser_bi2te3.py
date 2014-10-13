@@ -20,10 +20,10 @@ import numpy
 import os
 
 # parse cif file to get unit cell structure
-ciff = xu.materials.CIFFile(os.path.join("data","bi2te3.cif"))
+ciff = xu.materials.CIFFile(os.path.join("data", "bi2te3.cif"))
 
-#create material
-bite = xu.materials.Material("Bi2Te3",ciff.Lattice())
+# create material
+bite = xu.materials.Material("Bi2Te3", ciff.Lattice())
 
-#structure factor calculation
+# structure factor calculation
 # bite= bite.StructureFactor(bite.Q(h,k,l),energy)

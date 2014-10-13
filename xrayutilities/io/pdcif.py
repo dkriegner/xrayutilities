@@ -23,12 +23,20 @@ import shlex
 from . import xu_open
 
 re_label = re.compile(r'^\s*_')
-re_default = re.compile(r'^\s*_(pd_meas_counts_total|pd_meas_intensity_total|pd_proc_intensity_total|pd_proc_intensity_net|pd_calc_intensity_total|pd_calc_intensity_net)')
+re_default = re.compile(r'^\s*_('
+                        'pd_meas_counts_total|'
+                        'pd_meas_intensity_total|'
+                        'pd_proc_intensity_total|'
+                        'pd_proc_intensity_net|'
+                        'pd_calc_intensity_total|'
+                        'pd_calc_intensity_net)')
 re_loop = re.compile(r'^\s*loop_')
 re_nop = re.compile(r'^\s*_(pd_meas_number_of_points|pd_meas_detector_id)')
 re_multiline = re.compile(r';')
 
+
 class pdCIF(object):
+
     """
     the class implements a primitive parser for pdCIF-like files.  It reads
     every entry and collects the information in the header attribute. The first
@@ -41,9 +49,11 @@ class pdCIF(object):
       _pd_proc_intensity_total, _pd_proc_intensity_net,
       _pd_calc_intensity_total, _pd_calc_intensity_net
 
-    alternatively the data column name can be given as argument to the constructor
+    alternatively the data column name can be given as argument to the
+    constructor
     """
-    def __init__(self,filename,datacolumn=None):
+
+    def __init__(self, filename, datacolumn=None):
         """
         contructor of the pdCIF class
 
@@ -51,7 +61,8 @@ class pdCIF(object):
         ----------
          filename:      filename of the file to be parsed
          datacolumn:    name of data column to identify the data loop
-                        (default =None; means that a list of default names is used)
+                        (default =None; means that a list of default names is
+                        used)
         """
         self.filename = filename
         self.datacolumn = datacolumn
@@ -69,7 +80,7 @@ class pdCIF(object):
         with xu_open(self.filename) as fh:
             self._parse_single(fh)
 
-    def _parse_single(self,fh):
+    def _parse_single(self, fh):
         """
         internal routine to parse a single loop of the pdCIF file
 
@@ -94,7 +105,7 @@ class pdCIF(object):
 
             if multiline:
                 multiline += line
-                if re_multiline.match(line): # end of multiline
+                if re_multiline.match(line):  # end of multiline
                     val = multiline
                     self.header[label] = val
                     multiline = None
@@ -102,7 +113,7 @@ class pdCIF(object):
 
             if re_label.match(line) and not loopStart:
                 # parse header
-                split = line.split(None,1)
+                split = line.split(None, 1)
                 label = split[0].strip()
                 try:
                     val = split[1].strip()
@@ -110,44 +121,52 @@ class pdCIF(object):
                     # convert data format of header line
                     if re_nop.match(line):
                         numOfEntries = int(val)
-                    try: self.header[label] = float(val)
-                    except ValueError: self.header[label] = val
+                    try:
+                        self.header[label] = float(val)
+                    except ValueError:
+                        self.header[label] = val
                 except IndexError:
                     # try if multiline
                     line2 = fh.readline().decode('ascii')
                     if re_multiline.match(line2):
                         multiline = line2
                     else:
-                        fh.seek(fh.tell()-len(line2))
-                        raise ValueError('a value is missing for label %s'%label)
+                        fh.seek(fh.tell() - len(line2))
+                        raise ValueError('a value is missing for label %s'
+                                         % label)
 
             elif re_label.match(line) and loopStart:
                 # read loop entries
-                if (self.datacolumn == None and re_default.match(line)) or line.strip() == self.datacolumn:
+                if ((self.datacolumn is None and re_default.match(line)) or
+                        line.strip() == self.datacolumn):
                     dataLoop = True
                 loopheader.append(line.strip())
 
             elif loopStart:
-                fh.seek(fh.tell()-len(line))
+                fh.seek(fh.tell() - len(line))
                 if numOfEntries != -1 and dataLoop:
-                    self.data = self._parse_loop_numpy(fh,loopheader,numOfEntries)
+                    self.data = self._parse_loop_numpy(fh, loopheader,
+                                                       numOfEntries)
                     break
                 elif dataLoop:
-                    self._parse_loop(fh,loopheader)
+                    self._parse_loop(fh, loopheader)
                     length = len(self.header[loopheader[0]])
-                    dtypes = [ (entry,type(self.header[entry][0])) for entry in loopheader ]
+                    dtypes = [(entry, type(self.header[entry][0]))
+                              for entry in loopheader]
                     for i in range(len(dtypes)):
-                        if dtypes[i][1] == str: dtypes[i] = (dtypes[i][0],numpy.str_,64)
-                    self.data = numpy.zeros(length,dtype = dtypes)
-                    for entry in loopheader: self.data[entry] = self.header.pop(entry)
+                        if dtypes[i][1] == str:
+                            dtypes[i] = (dtypes[i][0], numpy.str_, 64)
+                    self.data = numpy.zeros(length, dtype=dtypes)
+                    for entry in loopheader:
+                        self.data[entry] = self.header.pop(entry)
                 else:
-                    self._parse_loop(fh,loopheader)
+                    self._parse_loop(fh, loopheader)
                 dataLoop = False
                 loopStart = False
                 loopheader = []
                 numOfEntries = -1
 
-    def _parse_loop_numpy(self,filehandle,fields,nentry):
+    def _parse_loop_numpy(self, filehandle, fields, nentry):
         """
         function to parse a loop using numpy routines
 
@@ -161,14 +180,15 @@ class pdCIF(object):
         ------
          data:          data read from the file as numpy record array
         """
-        tmp = numpy.fromfile(filehandle,count=nentry*len(fields),sep=' ')
-        data = numpy.rec.fromarrays(tmp.reshape((-1,len(fields))).T,names=fields)
+        tmp = numpy.fromfile(filehandle, count=nentry * len(fields), sep=' ')
+        data = numpy.rec.fromarrays(tmp.reshape((-1, len(fields))).T,
+                                    names=fields)
         return data
 
-    def _parse_loop(self,filehandle,fields):
+    def _parse_loop(self, filehandle, fields):
         """
-        function to parse a loop using python loops routines. the fields are added
-        to the fileheader dictionary
+        function to parse a loop using python loops routines. the fields are
+        added to the fileheader dictionary
 
         Parameter
         ---------
@@ -189,13 +209,15 @@ class pdCIF(object):
                 break
 
             if re_label.match(line) or line.strip() == '':
-                fh.seek(fh.tell()-len(line))
+                fh.seek(fh.tell() - len(line))
                 break
             row = shlex.split(line)
             for i in range(len(fields)):
-                try: self.header[fields[i]].append(float(row[i]))
-                except ValueError: self.header[fields[i]].append(row[i])
-                except IndexError: # maybe multiline field
+                try:
+                    self.header[fields[i]].append(float(row[i]))
+                except ValueError:
+                    self.header[fields[i]].append(row[i])
+                except IndexError:  # maybe multiline field
                     line2 = fh.readline().decode('ascii')
                     if re_multiline.match(line2):
                         multiline = line2
@@ -204,16 +226,18 @@ class pdCIF(object):
                             if not line:
                                 break
                             if not re_multiline.match(line):
-                               multiline += line
+                                multiline += line
                             else:
                                 self.header[fields[i]].append(multiline)
                                 break
                     else:
-                        fh.seek(fh.tell()-len(line2))
-                        raise ValueError('a column is missing for label %s in a loop'%fields[i])
+                        fh.seek(fh.tell() - len(line2))
+                        raise ValueError('a column is missing for label %s '
+                                         'in a loop' % fields[i])
 
 
 class pdESG(pdCIF):
+
     """
     class for parsing multiple pdCIF loops in one file.
     This includes especially *.esg files which are supposed to
@@ -222,7 +246,8 @@ class pdESG(pdCIF):
     Upon parsing the class tries to combine the data of these different
     scans into a single data matrix -> same shape of subscan data is assumed
     """
-    def __init__(self,filename,datacolumn=None):
+
+    def __init__(self, filename, datacolumn=None):
         self.filename = filename
         self.datacolumn = datacolumn
         self.fileheader = {}
@@ -246,30 +271,30 @@ class pdESG(pdCIF):
             datasize = self.data.size
             nscan = 1
             tell = 0
-            while True: # try to parse all scans
+            while True:  # try to parse all scans
                 tell = fh.tell()
                 try:
                     self._parse_single(fh)
                 except:
                     break
-                if tell == fh.tell(): break
+                if tell == fh.tell():
+                    break
                 # copy changing data from header
                 for key in self.header:
                     if key in self.fileheader:
-                        if not isinstance(self.fileheader[key],list):
-                            self.fileheader[key] = [self.fileheader[key],]
+                        if not isinstance(self.fileheader[key], list):
+                            self.fileheader[key] = [self.fileheader[key], ]
                         self.fileheader[key].append(self.header[key])
                     else:
                         self.fileheader[key] = self.header[key]
 
-                fdata = numpy.append(fdata,self.data)
-                nscan +=1
+                fdata = numpy.append(fdata, self.data)
+                nscan += 1
 
         # convert data for output to user
         for key in self.fileheader:
-            if isinstance(self.fileheader[key],list):
+            if isinstance(self.fileheader[key], list):
                 self.fileheader[key] = numpy.array(self.fileheader[key])
         self.data = numpy.empty(fdata.shape)
         self.data[...] = fdata[...]
-        self.data.shape = (nscan,datasize)
-
+        self.data.shape = (nscan, datasize)

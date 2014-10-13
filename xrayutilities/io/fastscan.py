@@ -20,9 +20,9 @@
 modules to help with the analysis of FastScan data acquired at the ESRF.
 FastScan data are X-ray data (various detectors possible) acquired during
 scanning the sample in real space with a Piezo Scanner.  The same functions
-might be used to analze traditional SPEC mesh scans. 
+might be used to analze traditional SPEC mesh scans.
 
-The module provides three core classes: 
+The module provides three core classes:
 
 * FastScan
 * FastScanCCD
@@ -55,31 +55,34 @@ try:
 except NameError:
     basestring = str
 
+
 class FastScan(object):
+
     """
-    class to help parsing and treating fast scan data.
-    FastScan is the aquisition of X-ray data while scanning the sample with
-    piezo stages in real space. It's is available at several beamlines at the ESRF
-    synchrotron light-source.
+    class to help parsing and treating fast scan data.  FastScan is the
+    aquisition of X-ray data while scanning the sample with piezo stages in
+    real space. It's is available at several beamlines at the ESRF synchrotron
+    light-source.
     """
-    
-    def __init__(self,filename,scannr,xmotor='adcX',ymotor='adcY',path=""):
+
+    def __init__(self, filename, scannr,
+                 xmotor='adcX', ymotor='adcY', path=""):
         """
-        Constructor routine for the FastScan object. It initializes the object 
-        and parses the spec-scan for the needed data which are saved in properties
-        of the FastScan object. 
+        Constructor routine for the FastScan object. It initializes the object
+        and parses the spec-scan for the needed data which are saved in
+        properties of the FastScan object.
 
         Parameters
         ----------
          filename:  file name of the fast scan spec file
          scannr:    scannr of the to be parsed fast scan
          optional:
-          xmotor:   motor name of the x-motor (default: 'adcX' (ID01))   
+          xmotor:   motor name of the x-motor (default: 'adcX' (ID01))
           ymotor:   motor name of the y-motor (default: 'adcY' (ID01))
           path:     optional path of the FastScan spec file
         """
         self.filename = filename
-        self.full_filename = os.path.join(path,filename)       
+        self.full_filename = os.path.join(path, filename)
         self.filename = os.path.basename(self.full_filename)
 
         self.scannr = scannr
@@ -88,24 +91,24 @@ class FastScan(object):
         # read the scan
         self.specscan = None
         self.parse()
-    
+
     def parse(self):
         """
-        parse the specfile for the scan number specified in the constructor and 
-        store the needed informations in the object properties 
+        parse the specfile for the scan number specified in the constructor and
+        store the needed informations in the object properties
         """
-        
-        # parse the file 
+
+        # parse the file
         self.specfile = SPECFile(self.full_filename)
-        self.specscan = self.specfile.__getattr__('scan%d'%self.scannr)
+        self.specscan = self.specfile.__getattr__('scan%d' % self.scannr)
         self.specscan.ReadData()
 
         self.xvalues = self.specscan.data[self.xmotor]
         self.yvalues = self.specscan.data[self.ymotor]
 
         self.data = self.specscan.data
- 
-    def motorposition(self,motorname):
+
+    def motorposition(self, motorname):
         """
         read the position of motor with name given by motorname from the data
         file. In case the motor is included in the data columns the returned
@@ -119,17 +122,19 @@ class FastScan(object):
 
         Returns
         -------
-         val:   motor position(s) of motor with name motorname during the scan 
+         val:   motor position(s) of motor with name motorname during the scan
         """
         if self.specscan:
             # try reading value from data
-            try: 
+            try:
                 return self.data[motorname]
             except ValueError:
                 try:
-                    return self.specscan.init_motor_pos['INIT_MOPO_%s'%motorname]
+                    return self.specscan.init_motor_pos['INIT_MOPO_%s'
+                                                        % motorname]
                 except ValueError:
-                    raise ValueError("given motorname '%s' not found in the Spec-data" %motorname)
+                    raise ValueError("given motorname '%s' not found in the "
+                                     "Spec-data" % motorname)
         else:
             return None
 
@@ -140,20 +145,22 @@ class FastScan(object):
         cleans the xvalues, yvalues and data attribute of the FastScan object.
         """
 
-        # set window to determin the slope    
+        # set window to determin the slope
         window = [-1, 0, 1]
         # calc the slope of x_motor movement using a window for better acuracy
-        slope = numpy.convolve(self.xvalues, window, mode='same') / numpy.convolve(numpy.arange(len(self.xvalues)), window, mode='same')
+        slope = numpy.convolve(self.xvalues, window, mode='same') / \
+            numpy.convolve(numpy.arange(len(self.xvalues)), window, 'same')
         # select where slope is above the slope mean value
-        # this can be modified if data points are missing of the retrace does not clean all points    
-        mask = numpy.where(slope>slope.mean())
-        
+        # this can be modified if data points are missing of the retrace does
+        # not clean all points
+        mask = numpy.where(slope > slope.mean())
+
         # reduce data size by cutting out retrace
         self.xvalues = self.xvalues[mask]
         self.yvalues = self.yvalues[mask]
-        self.data = self.data[mask]    
-        
-    def grid2D(self,nx,ny,**kwargs):
+        self.data = self.data[mask]
+
+    def grid2D(self, nx, ny, **kwargs):
         """
         function to grid the counter data and return the gridded X,Y and
         Intensity values.
@@ -161,9 +168,10 @@ class FastScan(object):
         Parameters
         ----------
          nx,ny:     number of bins in x,y direction
-        
+
         optional keyword arguments:
-         counter:   name of the counter to use for gridding (default: 'mpx4int' (ID01))
+         counter:   name of the counter to use for gridding (default: 'mpx4int'
+                    (ID01))
          gridrange: range for the gridder: format: ((xmin,xmax),(ymin,ymax))
 
         Returns
@@ -181,25 +189,30 @@ class FastScan(object):
             kwargs.pop("gridrange")
         else:
             gridrange = None
-            
-        #define gridder
-        g2d = Gridder2D(nx,ny)
+
+        # define gridder
+        g2d = Gridder2D(nx, ny)
         if gridrange:
-            g2d.dataRange(gridrange[0][0],gridrange[0][1],gridrange[1][0],gridrange[1][1])
-        
-        #check if counter is in data fields
+            g2d.dataRange(gridrange[0][0], gridrange[0][1],
+                          gridrange[1][0], gridrange[1][1])
+
+        # check if counter is in data fields
         try:
             inte = self.data[self.counter]
         except ValueError:
-            raise ValueError("field named '%s' not found in data parsed from scan #%d in file %s"%(self.counter,self.scannr,self.filename))
+            raise ValueError("field named '%s' not found in data parsed from "
+                             "scan #%d in file %s"
+                             % (self.counter, self.scannr, self.filename))
 
-        # grid data 
-        g2d(self.xvalues,self.yvalues,self.data[self.counter])
-        
+        # grid data
+        g2d(self.xvalues, self.yvalues, self.data[self.counter])
+
         # return gridded data
         return g2d
 
+
 class FastScanCCD(FastScan):
+
     """
     class to help parsing and treating fast scan data including CCD frames.
     FastScan is the aquisition of X-ray data while scanning the sample with
@@ -208,51 +221,57 @@ class FastScanCCD(FastScan):
     CCD frames are recorded and need to be analyzed
     """
 
-    def _gridCCDnumbers(self,nx,ny,ccdnr,gridrange=None):
+    def _gridCCDnumbers(self, nx, ny, ccdnr, gridrange=None):
         """
         internal function to grid the CCD frame number to produce a list of
         ccd-files per bin needed for the further treatment
 
         Parameters
         ----------
-         nx,ny:         number of bins in x,y direction
-         ccdnr:         array with ccd file numbers of length
-                        length(FastScanCCD.data) OR a string with the data
-                        column name for the file ccd-numbers
-        
+         nx,ny:       number of bins in x,y direction
+         ccdnr:       array with ccd file numbers of length
+                      length(FastScanCCD.data) OR a string with the data
+                      column name for the file ccd-numbers
+
         optional:
-         gridrange:     range for the gridder: format: ((xmin,xmax),(ymin,ymax))
+         gridrange:   range for the gridder: format: ((xmin,xmax),(ymin,ymax))
 
         Returns
         -------
-         gridder object:    regular x,y-grid as well as 4-dimensional data object
+         gridder object:    regular x,y-grid as well as 4-dimensional data
+                            object
         """
-        g2l = Gridder2DList(nx,ny)
+        g2l = Gridder2DList(nx, ny)
         if gridrange:
-            g2l.dataRange(gridrange[0][0],gridrange[0][1],gridrange[1][0],gridrange[1][1])
+            g2l.dataRange(gridrange[0][0], gridrange[0][1],
+                          gridrange[1][0], gridrange[1][1])
 
-        if isinstance(ccdnr,basestring):        
-            #check if counter is in data fields
+        if isinstance(ccdnr, basestring):
+            # check if counter is in data fields
             try:
                 ccdnumbers = self.data[ccdnr]
             except ValueError:
-                raise ValueError("field named '%s' not found in data parsed from scan #%d in file %s"%(ccdnr,self.scannr,self.filename))
-        elif isinstance(ccdnr,(list,tuple,numpy.ndarray)):
+                raise ValueError("field named '%s' not found in data parsed "
+                                 "from scan #%d in file %s"
+                                 % (ccdnr, self.scannr, self.filename))
+        elif isinstance(ccdnr, (list, tuple, numpy.ndarray)):
             ccdnumbers = ccdnr
         else:
-            raise ValueError("xu.FastScanCCD: wrong data type for argument 'ccdnr'")
+            raise ValueError("xu.FastScanCCD: wrong data type for "
+                             "argument 'ccdnr'")
 
         # assign ccd frames to grid
-        g2l(self.xvalues,self.yvalues,ccdnumbers)
+        g2l(self.xvalues, self.yvalues, ccdnumbers)
 
         return g2l
 
-    def gridCCD(self,nx,ny,ccdtemplate,ccdnr,roi=None,path="",nav=[1,1],gridrange=None,filterfunc=None):
+    def gridCCD(self, nx, ny, ccdtemplate, ccdnr, roi=None, path="",
+                nav=[1, 1], gridrange=None, filterfunc=None):
         """
         function to grid the internal data and ccd files and return the gridded
         X,Y and DATA values. DATA represents a 4D with first two dimensions
         representing X,Y and the remaining two dimensions representing detector
-        channels 
+        channels
 
         Parameters
         ----------
@@ -261,81 +280,88 @@ class FastScanCCD(FastScan):
          ccdnr:         array with ccd file numbers of length
                         length(FastScanCCD.data) OR a string with the data
                         column name for the file ccd-numbers
-        
+
         optional:
-         roi:           region of interest on the 2D detector. should be a list
-                        of lower and upper bounds of detector channels for the
-                        two pixel directions (default: None)
-         path:          common path of the CCDframe
-         nav:           number of detector pixel which will be averaged together 
-                        (reduces the date size)
-         gridrange:     range for the gridder: format: ((xmin,xmax),(ymin,ymax))
-         filterfunc:    function applied to the CCD-frames before any
-                        processing. this function should take a single argument which is the
-                        ccddata which need to be returned with the same shape!  e.g. remove
-                        hot pixels, flat/darkfield correction
+         roi:          region of interest on the 2D detector. should be a list
+                       of lower and upper bounds of detector channels for the
+                       two pixel directions (default: None)
+         path:         common path of the CCDframe
+         nav:          number of detector pixel which will be averaged together
+                       (reduces the date size)
+         gridrange:    range for the gridder: format: ((xmin,xmax),(ymin,ymax))
+         filterfunc:   function applied to the CCD-frames before any
+                       processing. this function should take a single argument
+                       which is the ccddata which need to be returned with the
+                       same shape!  e.g. remove hot pixels, flat/darkfield
+                       correction
 
         Returns
         -------
          X,Y,DATA:      regular x,y-grid as well as 4-dimensional data object
         """
-        
-        g2l = _gridCCDnumbers(self,nx,ny,ccdnr,gridrange=gridrange)
+
+        g2l = _gridCCDnumbers(self, nx, ny, ccdnr, gridrange=gridrange)
         gdata = g2l.data
 
-        self.ccdtemplate = os.path.join(path,ccdtemplate)       
+        self.ccdtemplate = os.path.join(path, ccdtemplate)
         # get CCDframe numbers and motor values
-        valuelist = self.getCCDFrames(posx,posy,typ)
+        valuelist = self.getCCDFrames(posx, posy, typ)
         # read ccd shape from first image
-        ccdshape=blockAverage2D(EDFFile(self.ccdtemplate%(0,valuelist[0][-1][0])).data, nav[0], nav[1], roi=roi).shape
-        self.ccddata = numpy.zeros((nx,ny,ccdshape[0],ccdshape[1]))
+        ccdshape = blockAverage2D(
+            EDFFile(self.ccdtemplate % (0, valuelist[0][-1][0])).data,
+            nav[0], nav[1], roi=roi).shape
+        self.ccddata = numpy.zeros((nx, ny, ccdshape[0], ccdshape[1]))
 
         # go through the gridded data and average the ccdframes
         for i in range(gdata.shape[0]):
             for j in range(gdata.shape[1]):
-                if len(gdata[i,j]) == 0:
+                if len(gdata[i, j]) == 0:
                     continue
                 else:
                     framecount = 0
                     # read ccdframes and average them
-                    for k in range(len(gdata[i,j])):
-                        e = EDFFile(self.ccdtemplate%gdata[i,j][k])
+                    for k in range(len(gdata[i, j])):
+                        e = EDFFile(self.ccdtemplate % gdata[i, j][k])
                         if filterfunc:
-                            ccdfilt = filterfunc(e.data) 
+                            ccdfilt = filterfunc(e.data)
                         else:
                             ccdfilt = e.data
-                        ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1], roi=roi)
-                        self.ccddata[i,j,:,:] += ccdframe
+                        ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1],
+                                                  roi=roi)
+                        self.ccddata[i, j, :, :] += ccdframe
                         framecount += 1
-                    self.ccddata[i,j,:,:] = self.ccddata[i,j,:,:]/float(framecount)
-        
-        return g2l.xmatrix,g2l.ymatrix,self.ccddata
+                    self.ccddata[i, j, :, :] = self.ccddata[i, j, :, :] / \
+                        float(framecount)
+
+        return g2l.xmatrix, g2l.ymatrix, self.ccddata
 
 
 class FastScanSeries(object):
+
     """
     class to help parsing and treating a series of fast scan data including CCD
     frames.  FastScan is the aquisition of X-ray data while scanning the sample
     with piezo stages in real space. It's is available at several beamlines at
     the ESRF synchrotron light-source. During such fast scan at every grid
-    point CCD frames are recorded and need to be analyzed. 
+    point CCD frames are recorded and need to be analyzed.
 
     For the series of FastScans we assume that they are measured at different
     goniometer angles and therefore transform the data to reciprocal space.
     """
-   
-    def __init__(self,filenames,scannrs,nx,ny,*args,**kwargs):
-        """        
+
+    def __init__(self, filenames, scannrs, nx, ny, *args, **kwargs):
+        """
         Constructor routine for the FastScanSeries object. It initializes the
         object and creates a list of FastScanCCD objects. Importantly it also
         expects the motor names of the angles needed for reciprocal space
-        conversion.  
+        conversion.
 
         Parameters
         ----------
-         filenames: file names of the fast scan spec files, in case of more than
-                    one filename supply a list of names and also a list of scan
-                    numbers for the different files in the 'scannrs' argument
+         filenames: file names of the fast scan spec files, in case of more
+                    than one filename supply a list of names and also a list of
+                    scan numbers for the different files in the 'scannrs'
+                    argument
          scannrs:   scannrs of the to be parsed fast scans. in case of one
                     specfile this is a list of numbers (e.g. [1,2,3]). when
                     multiple filenames are given supply a separate list for
@@ -344,20 +370,22 @@ class FastScanSeries(object):
          *args:     motor names for the Reciprocal space conversion. The order
                     needs be as required by the QConversion.area() function.
          optional keyword arguments:
-          xmotor:   motor name of the x-motor (default: 'adcX' (ID01))   
-          ymotor:   motor name of the y-motor (default: 'adcY' (ID01)) 
-          ccdnr:    name of the ccd-number data column (default: 'imgnr' (ID01))
-          counter:  name of a defined counter (roi) in the spec file (default: 'ccdint1' (ID01))
+          xmotor:   motor name of the x-motor (default: 'adcX' (ID01))
+          ymotor:   motor name of the y-motor (default: 'adcY' (ID01))
+          ccdnr:    name of the ccd-number data column
+                    (default: 'imgnr' (ID01))
+          counter:  name of a defined counter (roi) in the spec file
+                    (default: 'ccdint1' (ID01))
           path:     optional path of the FastScan spec file (default: '')
 
         """
-        
+
         if 'ccdnr' in kwargs:
             self.ccdnr = kwargs['ccdnr']
             kwargs.pop("ccdnr")
         else:
             self.ccdnr = 'imgnr'
-        
+
         if 'counter' in kwargs:
             self.counter = kwargs['counter']
             kwargs.pop("counter")
@@ -371,28 +399,30 @@ class FastScanSeries(object):
         self.gridded = False
 
         self.gonio_motors = []
-        #save motor names
+        # save motor names
         for arg in args:
-            if not isinstance(arg,basestring):
-                raise ValueError("one of the motor name arguments is not of type 'str' but %s"%str(type(arg)))
+            if not isinstance(arg, basestring):
+                raise ValueError("one of the motor name arguments is not of "
+                                 "type 'str' but %s" % str(type(arg)))
             self.gonio_motors.append(arg)
 
         # create list of FastScans
-        if isinstance(filenames,basestring):
+        if isinstance(filenames, basestring):
             filenames = [filenames]
             scannrs = [scannrs]
-        if isinstance(filenames,(tuple,list)):
+        if isinstance(filenames, (tuple, list)):
             for fname in filenames:
                 for snrs in scannrs[filenames.index(fname)]:
-                    self.fastscans.append(FastScanCCD(fname,snrs,**kwargs))
+                    self.fastscans.append(FastScanCCD(fname, snrs, **kwargs))
         else:
-            raise ValueError("argument 'filenames' is not of appropriate type!")
+            raise ValueError("argument 'filenames' is not of "
+                             "appropriate type!")
 
     def retrace_clean(self):
         """
         perform retrace clean for every FastScan in the series
         """
-        self.gridded = False        
+        self.gridded = False
         self.xmin = numpy.min(self.fastscans[0].xvalues)
         self.ymin = numpy.min(self.fastscans[0].yvalues)
         self.xmax = numpy.max(self.fastscans[0].xvalues)
@@ -400,7 +430,7 @@ class FastScanSeries(object):
 
         for fs in self.fastscans:
             fs.retrace_clean()
-            
+
             if numpy.max(fs.xvalues) > self.xmax:
                 self.xmax = numpy.max(fs.xvalues)
             if numpy.max(fs.yvalues) > self.ymax:
@@ -409,8 +439,8 @@ class FastScanSeries(object):
                 self.xmin = numpy.min(fs.xvalues)
             if numpy.min(fs.yvalues) < self.ymin:
                 self.ymin = numpy.min(fs.yvalues)
-      
-    def align(self,deltax,deltay):
+
+    def align(self, deltax, deltay):
         """
         Since a sample drift or shift due to rotation often occurs between
         different FastScans it should be correct before combining them. Since
@@ -422,7 +452,8 @@ class FastScanSeries(object):
 
         Parameters
         ----------
-         deltax:    list of shifts in x-direction for every FastScan in the data structure
+         deltax:    list of shifts in x-direction for every FastScan in the
+                    data structure
          deltay:    same for the y-direction
         """
         self.gridded = False
@@ -446,16 +477,17 @@ class FastScanSeries(object):
 
     def read_motors(self):
         """
-        read motor values from the series of fast scans 
+        read motor values from the series of fast scans
         """
-        self.motor_pos = numpy.zeros((len(self.fastscans),len(self.gonio_motors)))      
+        self.motor_pos = numpy.zeros((len(self.fastscans),
+                                      len(self.gonio_motors)))
         for i in range(len(self.fastscans)):
             fs = self.fastscans[i]
             for j in range(len(self.gonio_motors)):
                 mname = self.gonio_motors[j]
-                self.motor_pos[i,j] = fs.motorposition(mname)
+                self.motor_pos[i, j] = fs.motorposition(mname)
 
-    def getCCDFrames(self,posx,posy,typ='real'):
+    def getCCDFrames(self, posx, posy, typ='real'):
         """
         function to determine the list of ccd-frame numbers for a specific real
         space position. The real space position must be within the data limits
@@ -465,11 +497,11 @@ class FastScanSeries(object):
         ----------
          posx:  real space x-position or index in x direction
          posy:  real space y-position or index in y direction
-        
+
         optional:
          typ:   type of coordinates. specifies if the position is specified as
-                real space coordinate or as index. valid values are 'real' and 
-                'index'. (default: 'real') 
+                real space coordinate or as index. valid values are 'real' and
+                'index'. (default: 'real')
 
         Returns
         -------
@@ -477,84 +509,88 @@ class FastScanSeries(object):
           from the N-ths FastScan in the series and ccdnrsN is the list of
           according CCD-frames
         """
-        
-        # determine grid point for position x,y
-        if typ=='real': 
-            # grid point calculation 
-            def gindex(x,min,delt):
-                return numpy.round((x-min)/delt)
 
-            xdelta = delta(self.xmin,self.xmax,self.nx)
-            ydelta = delta(self.ymin,self.ymax,self.ny)
-            xidx = gindex(posx,self.xmin,xdelta)
-            yidx = gindex(posy,self.ymin,ydelta)
-        elif typ=='index':
+        # determine grid point for position x,y
+        if typ == 'real':
+            # grid point calculation
+            def gindex(x, min, delt):
+                return numpy.round((x - min) / delt)
+
+            xdelta = delta(self.xmin, self.xmax, self.nx)
+            ydelta = delta(self.ymin, self.ymax, self.ny)
+            xidx = gindex(posx, self.xmin, xdelta)
+            yidx = gindex(posy, self.ymin, ydelta)
+        elif typ == 'index':
             xidx = posx
             yidx = posy
         else:
             raise ValueError("given value of 'typ' is invalid.")
-        
-        if xidx>=self.nx or xidx<0:
+
+        if xidx >= self.nx or xidx < 0:
             raise ValueError("specified x-position is out of the data range")
-        if yidx>self.ny or yidx<0:
+        if yidx > self.ny or yidx < 0:
             raise ValueError("specified y-position is out of the data range")
 
-        #read motor values and perform gridding for all subscans
+        # read motor values and perform gridding for all subscans
         if not self.gridded:
             self.read_motors()
             self.glist = []
             for fs in self.fastscans:
-                g2l = fs._gridCCDnumbers(self.nx,self.ny,self.ccdnr,gridrange=((self.xmin,self.xmax),(self.ymin,self.ymax)))
-                self.glist.append(g2l) # contains the ccdnumbers in g2l.data
-            
+                g2l = fs._gridCCDnumbers(
+                    self.nx, self.ny, self.ccdnr,
+                    gridrange=((self.xmin, self.xmax), (self.ymin, self.ymax)))
+                self.glist.append(g2l)  # contains the ccdnumbers in g2l.data
+
             self.gridded = True
-        
+
         # return the ccdnumbers and goniometer angles for this position
         ret = []
         for i in range(len(self.glist)):
             motorpos = self.motor_pos[i]
-            ccdnrs = self.glist[i].data[xidx,yidx]
-            ret.append([motorpos,ccdnrs])
+            ccdnrs = self.glist[i].data[xidx, yidx]
+            ret.append([motorpos, ccdnrs])
 
         return ret
-        
-    def rawRSM(self,posx,posy,qconv,ccdtemp,path,roi=None,nav=[1,1],typ='real',filterfunc=None,**kwargs):
+
+    def rawRSM(self, posx, posy, qconv, ccdtemp, path, roi=None,
+               nav=[1, 1], typ='real', filterfunc=None, **kwargs):
         """
         function to return the reciprocal space map data at a certain
-        x,y-position from a series of FastScan measurements. It necessary to give 
-        the QConversion-object to be used for the reciprocal space conversion.  The
-        QConversion-object is expected to have the 'area' conversion routines
-        configured properly.
-         
+        x,y-position from a series of FastScan measurements. It necessary to
+        give the QConversion-object to be used for the reciprocal space
+        conversion.  The QConversion-object is expected to have the 'area'
+        conversion routines configured properly.
+
         Parameters
         ----------
          posx:          real space x-position or index in x direction
          posy:          real space y-position or index in y direction
          qconv:         QConversion-object to be used for the conversion of the
-                        CCD-data to reciprocal space 
+                        CCD-data to reciprocal space
          ccdtemp:       template string for the ccdfilenames
-        
+
         optional:
          path:          common path of the CCDframes
          roi:           region of interest on the 2D detector. should be a list
                         of lower and upper bounds of detector channels for the
                         two pixel directions (default: None)
-         nav:           number of detector pixel which will be averaged together 
-                        (reduces the date size)
-         typ:           type of coordinates. specifies if the position is specified as
-                        real space coordinate or as index. valid values are 'real' and 
-                        'index'. (default: 'real') 
+         nav:           number of detector pixel which will be averaged
+                        together (reduces the date size)
+         typ:           type of coordinates. specifies if the position is
+                        specified as real space coordinate or as index. valid
+                        values are 'real' and 'index'. (default: 'real')
          filterfunc:    function applied to the CCD-frames before any
-                        processing. this function should take a single argument which is the
-                        ccddata which need to be returned with the same shape!  e.g. remove
-                        hot pixels, flat/darkfield correction
+                        processing. this function should take a single argument
+                        which is the ccddata which need to be returned with the
+                        same shape!  e.g. remove hot pixels, flat/darkfield
+                        correction
          UB:            sample orientation matrix
 
         Returns
         -------
-        qx,qy,qz,ccddata,valuelist:  raw data of the reciprocal space map and 
-                                     valuelist containing the ccdframe numbers and 
-                                     corresponding motor positions 
+        qx,qy,qz,ccddata,valuelist:  raw data of the reciprocal space map and
+                                     valuelist containing the ccdframe numbers
+                                     and corresponding motor positions
         """
         if 'UB' in kwargs:
             U = kwargs['UB']
@@ -563,42 +599,45 @@ class FastScanSeries(object):
             U = numpy.identity(3)
 
         # get CCDframe numbers and motor values
-        valuelist = self.getCCDFrames(posx,posy,typ)
+        valuelist = self.getCCDFrames(posx, posy, typ)
         # load ccd frames and convert to reciprocal space
-        self.ccdtemplate = os.path.join(path,ccdtemp)
+        self.ccdtemplate = os.path.join(path, ccdtemp)
         # read ccd shape from first image
-        ccdshape = blockAverage2D(EDFFile(self.ccdtemplate%(valuelist[0][1][0])).data, nav[0], nav[1], roi=roi).shape
-        ccddata = numpy.zeros((len(self.fastscans),ccdshape[0],ccdshape[1]))
+        ccdshape = blockAverage2D(
+            EDFFile(self.ccdtemplate % (valuelist[0][1][0])).data,
+            nav[0], nav[1], roi=roi).shape
+        ccddata = numpy.zeros((len(self.fastscans), ccdshape[0], ccdshape[1]))
         motors = []
         for i in range(len(self.gonio_motors)):
             motors.append(numpy.zeros(0))
         # go through the gridded data and average the ccdframes
         for i in range(len(self.fastscans)):
-            imotors,ccdnrs = valuelist[i]
+            imotors, ccdnrs = valuelist[i]
             # read CCD
             if len(ccdnrs) == 0:
                 continue
             else:
-               # append motors
-               for j in range(len(self.gonio_motors)):
-                   motors[j] = numpy.append(motors[j],imotors[j])
-               framecount = 0
-               # read ccdframes and average them
-               for k in range(len(ccdnrs)):
-                   edf = EDFFile(self.ccdtemplate%ccdnrs[k])
-                   if filterfunc:
-                       ccdfilt = filterfunc(edf.data) 
-                   else:
-                       ccdfilt = edf.data
-                   ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1], roi=roi)
-                   ccddata[i,:,:] += ccdframe
-                   framecount += 1
-               ccddata[i,:,:] = ccddata[i,:,:]/float(framecount)
-               
-        qx,qy,qz = qconv.area(*motors,roi=roi,Nav=nav,UB=U)
-        return qx,qy,qz,ccddata,valuelist
+                # append motors
+                for j in range(len(self.gonio_motors)):
+                    motors[j] = numpy.append(motors[j], imotors[j])
+                framecount = 0
+                # read ccdframes and average them
+                for k in range(len(ccdnrs)):
+                    edf = EDFFile(self.ccdtemplate % ccdnrs[k])
+                    if filterfunc:
+                        ccdfilt = filterfunc(edf.data)
+                    else:
+                        ccdfilt = edf.data
+                    ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1], roi=roi)
+                    ccddata[i, :, :] += ccdframe
+                    framecount += 1
+                ccddata[i, :, :] = ccddata[i, :, :] / float(framecount)
 
-    def gridRSM(self,posx,posy,qnx,qny,qnz,qconv,ccdtemp,path="",roi=None,nav=[1,1],typ='real',filterfunc=None,**kwargs):
+        qx, qy, qz = qconv.area(*motors, roi=roi, Nav=nav, UB=U)
+        return qx, qy, qz, ccddata, valuelist
+
+    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, ccdtemp, path="",
+                roi=None, nav=[1, 1], typ='real', filterfunc=None, **kwargs):
         """
         function to calculate the reciprocal space map at a certain
         x,y-position from a series of FastScan measurements it is necessary to
@@ -606,42 +645,44 @@ class FastScanSeries(object):
         QConversion-object to be used for the reciprocal space conversion.  The
         QConversion-object is expected to have the 'area' conversion routines
         configured properly.
-         
+
         Parameters
         ----------
-         posx:          real space x-position or index in x direction
-         posy:          real space y-position or index in y direction
-         qnx:           number of points in the Qx direction of the gridded reciprocal space map
-         qny:           same for y direction
-         qnz:           same for z directino
-         qconv:         QConversion-object to be used for the conversion of the
-                        CCD-data to reciprocal space 
+         posx:      real space x-position or index in x direction
+         posy:      real space y-position or index in y direction
+         qnx:       number of points in the Qx direction of the gridded
+                    reciprocal space map
+         qny:       same for y direction
+         qnz:       same for z directino
+         qconv:     QConversion-object to be used for the conversion of the
+                    CCD-data to reciprocal space
          ccdtemp:   template string for the ccdfilenames
-        
+
         optional:
-         path:          common path of the CCDframes
-         roi:           region of interest on the 2D detector. should be a list
-                        of lower and upper bounds of detector channels for the
-                        two pixel directions (default: None)
-         nav:           number of detector pixel which will be averaged together 
-                        (reduces the date size)
-         typ:           type of coordinates. specifies if the position is specified as
-                        real space coordinate or as index. valid values are 'real' and 
-                        'index'. (default: 'real') 
-         filterfunc:    function applied to the CCD-frames before any
-                        processing. this function should take a single argument which is the
-                        ccddata which need to be returned with the same shape!  e.g. remove
-                        hot pixels, flat/darkfield correction
-         UB:            sample orientation matrix
+         path:      common path of the CCDframes
+         roi:       region of interest on the 2D detector. should be a list
+                    of lower and upper bounds of detector channels for the
+                    two pixel directions (default: None)
+         nav:       number of detector pixel which will be averaged together
+                    (reduces the date size)
+         typ:       type of coordinates. specifies if the position is
+                    specified as real space coordinate or as index. valid
+                    values are 'real' and 'index'. (default: 'real')
+         filterfunc:  function applied to the CCD-frames before any
+                      processing. this function should take a single argument
+                      which is the ccddata which need to be returned with the
+                      same shape!  e.g. remove hot pixels, flat/darkfield
+                      correction
+         UB:          sample orientation matrix
 
         Returns
         -------
         Gridder3D object with gridded reciprocal space map
         """
-        qx,qy,qz,ccddata,vallist = self.rawRSM(posx,posy,qconv,ccdtemp,path,roi=roi,nav=nav,typ=typ,filterfunc=filterfunc,**kwargs) 
+        qx, qy, qz, ccddata, vallist = self.rawRSM(
+            posx, posy, qconv, ccdtemp, path, roi=roi, nav=nav,
+            typ=typ, filterfunc=filterfunc, **kwargs)
         # perform 3D gridding and return the data or gridder
-        g = Gridder3D(qnx,qny,qnz)
-        g(qx,qy,qz,ccddata)
+        g = Gridder3D(qnx, qny, qnz)
+        g(qx, qy, qz, ccddata)
         return g
-
-

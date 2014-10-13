@@ -19,7 +19,8 @@
 """
 convenience functions to open files for various data file reader
 
-these functions should be used in new parsers since they transparently allow to open gzipped and bzipped files
+these functions should be used in new parsers since they transparently allow to
+open gzipped and bzipped files
 """
 
 import os
@@ -27,17 +28,18 @@ import gzip
 import bz2
 import sys
 
-if sys.version_info >= (3,3):
-    import lzma # new in python 3.3
+if sys.version_info >= (3, 3):
+    import lzma  # new in python 3.3
 
 from .. import config
 from ..exception import InputError
 
-def xu_open(filename,mode='rb'):
+
+def xu_open(filename, mode='rb'):
     """
     function to open a file no matter if zipped or not. Files with extension
-    '.gz' or '.bz2' are assumed to be compressed and transparently opened to read like
-    usual files.
+    '.gz' or '.bz2' are assumed to be compressed and transparently opened to
+    read like usual files.
 
     Parameters
     ----------
@@ -48,21 +50,21 @@ def xu_open(filename,mode='rb'):
     -------
      file handle of the opened file
 
-    If the file does not exist an IOError is raised by the open routine, which is not
-    caught within the function
+    If the file does not exist an IOError is raised by the open routine, which
+    is not caught within the function
     """
 
     if os.path.splitext(filename)[-1] == '.gz':
-        fid = gzip.open(filename,mode)
+        fid = gzip.open(filename, mode)
     elif os.path.splitext(filename)[-1] == '.bz2':
-        fid = bz2.BZ2File(filename,mode)
+        fid = bz2.BZ2File(filename, mode)
     elif os.path.splitext(filename)[-1] == '.xz':
-        if sys.version_info >= (3,3):
-            fid = lzma.open(filename,mode)
+        if sys.version_info >= (3, 3):
+            fid = lzma.open(filename, mode)
         else:
-            raise TypeError("File compression type not supported in python versions prior to 3.3")
+            raise TypeError("File compression type not supported in Python "
+                            "versions prior to 3.3")
     else:
-        fid = open(filename,mode)
+        fid = open(filename, mode)
 
     return fid
-

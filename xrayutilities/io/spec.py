@@ -41,15 +41,17 @@ from ..exception import InputError
 
 try:
     from matplotlib import pylab
-except RuntimeError:
+except ImportError:
     if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.io.spec: warning; spec class plotting functionality not available")
+        print("XU.io.spec: warning; spec class plotting "
+              "functionality not available")
 
-#define some uesfull regular expressions
+# define some uesfull regular expressions
 SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")
 SPEC_multi_blank = re.compile(r"\s+")
 SPEC_multi_blank2 = re.compile(r"\s\s+")
-SPEC_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+") #denotes a numeric value
+# denotes a numeric value
+SPEC_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+")
 SPEC_dataline = re.compile(r"^[+-]*\d.*")
 
 SPEC_scan = re.compile(r"^#S")
@@ -67,39 +69,50 @@ SPEC_scanresumed = re.compile(r"#C[a-zA-Z0-9: .]*Scan resumed")
 SPEC_commentline = re.compile(r"#C")
 SPEC_newheader = re.compile(r"^#E")
 SPEC_errorbm20 = re.compile(r"^MI:")
-scan_status_flags = ["OK","NODATA","ABORTED","CORRUPTED"]
+scan_status_flags = ["OK", "NODATA", "ABORTED", "CORRUPTED"]
+
 
 class SPECMCA(object):
+
     """
     SPECMCA - represents an MCA object in a SPEC file.
     This class is an abstract class not itended for being used directly.
     Instead use one of the derived classes SPECMCAFile or SPECMCAInline.
     """
-    def __init__(self,nchan,roistart,roistop):
+
+    def __init__(self, nchan, roistart, roistop):
         self.n_channels = nchan
-        self.roi_start  = roistart
-        self.roi_stop   = roistop
+        self.roi_start = roistart
+        self.roi_stop = roistop
+
 
 class SPECMCAFile(SPECMCA):
+
     def __init__(self):
         SPECMCA.__init__(self)
 
     def ReadData(self):
         pass
 
+
 class SPECMCAInline(SPECMCA):
+
     def __init__(self):
         SPEMCA.__init__(self)
 
     def ReadData(self):
         pass
 
+
 class SPECScan(object):
+
     """
-    Represents a single SPEC scan.
+    Represents a single SPEC scan. This class is usually not called by the
+    user directly but used via the SPECFile class.
     """
-    def __init__(self,name,scannr,command,date,time,itime,colnames,hoffset,
-                 doffset,fid,imopnames,imopvalues,scan_status):
+
+    def __init__(self, name, scannr, command, date, time, itime, colnames,
+                 hoffset, doffset, fid, imopnames, imopvalues, scan_status):
         """
         Constructor for the SPECScan class.
 
@@ -117,16 +130,17 @@ class SPECScan(object):
          imopvalues ....... intial motor positions array
          scan_status ...... is one of the values
         """
-        self.name = name            #name of the scan
-        self.nr = scannr            #number of the scan
-        self.command = command      #command used to record the data
-        self.date = date            #date the command has been sent
-        self.time = time            #time the command has been sent
-        self.colnames = colnames    #list with column names
-        self.hoffset = hoffset      #file offset where the header data starts
-        self.doffset = doffset      #file offset where the data section starts
-        self.fid = fid              #descriptor of the file holding the data
-        self.ischanged = True       #flag to force resave to hdf5 file in Save2HDF5()
+        self.name = name  # name of the scan
+        self.nr = scannr  # number of the scan
+        self.command = command  # command used to record the data
+        self.date = date  # date the command has been sent
+        self.time = time  # time the command has been sent
+        self.colnames = colnames  # list with column names
+        self.hoffset = hoffset  # file offset where the header data starts
+        self.doffset = doffset  # file offset where the data section starts
+        self.fid = fid  # descriptor of the file holding the data
+        # flag to force resave to hdf5 file in Save2HDF5()
+        self.ischanged = True
         self.header = []
 
         if scan_status in scan_status_flags:
@@ -134,60 +148,79 @@ class SPECScan(object):
         else:
             self.scan_status = "CORRUPTED"
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.spec.SPECScan: unknown scan status flag - set to CORRUPTED")
+                print("XU.io.spec.SPECScan: unknown scan status flag - "
+                      "set to CORRUPTED")
 
-        #setup the initial motor positions dictionary - set the motor names
-        self.init_motor_pos = {}    #dictionary holding the initial motor positions
+        def makeNaturalName(name):
+            ret = name.replace(" ", "_")
+            ret = ret.replace("-", "_")
+            ret = ret.replace(".", "_")
+            return ret
+        # setup the initial motor positions dictionary - set the motor names
+        # dictionary holding the initial motor positions
+        self.init_motor_pos = {}
         if len(imopnames) == len(imopvalues):
             for i in range(len(imopnames)):
-                self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
+                self.init_motor_pos[
+                    "INIT_MOPO_" +
+                    makeNaturalName(imopnames[i])] = float(imopvalues[i])
         else:
-            print("XU.io.spec.SPECScan: Warning: incorrect number of initial motor positions")
+            print("XU.io.spec.SPECScan: Warning: incorrect number of "
+                  "initial motor positions")
             if config.VERBOSITY >= config.INFO_ALL:
                 print(imopnames)
                 print(imopvalues)
             # ASSUME ORDER DID NOT CHANGE!! (which might be wrong)
             # in fact this is sign for a broken spec file
-            # number of initial motor positions should not change without new file header!
-            for i in range(min(len(imopnames),len(imopvalues))):
-                self.init_motor_pos["INIT_MOPO_"+imopnames[i].replace(" ","_").replace("-","_").replace(".","_")] = float(imopvalues[i])
+            # number of initial motor positions should not change without new
+            # file header!
+            for i in range(min(len(imopnames), len(imopvalues))):
+                self.init_motor_pos[
+                    "INIT_MOPO_" +
+                    makeNaturalName(imopnames[i])] = float(imopvalues[i])
             # read the rest of the positions into dummy INIT_MOPO__NONAME__%03d
-            for i in range(len(imopnames),len(imopvalues)):
-                self.init_motor_pos["INIT_MOPO___NONAME__%03d"%(i)] = float(imopvalues[i])
+            for i in range(len(imopnames), len(imopvalues)):
+                self.init_motor_pos["INIT_MOPO___NONAME__%03d" % (i)] = \
+                    float(imopvalues[i])
 
-        #some additional attributes for the MCA data
-        self.has_mca = False       #False if scan contains no MCA data, True otherwise
-        self.mca_column_format = 0 #number of columns used to save MCA data
-        self.mca_channels = 0      #number of channels stored from the MCA
-        self.mca_nof_lines = 0     #number of lines used to store MCA data
-        self.mca_start_channel = 0 #first channel of the MCA that is stored
-        self.mca_stop_channel = 0  #last channel of the MCA that is stored
+        # some additional attributes for the MCA data
+        # False if scan contains no MCA data, True otherwise
+        self.has_mca = False
+        self.mca_column_format = 0  # number of columns used to save MCA data
+        self.mca_channels = 0  # number of channels stored from the MCA
+        self.mca_nof_lines = 0  # number of lines used to store MCA data
+        self.mca_start_channel = 0  # first channel of the MCA that is stored
+        self.mca_stop_channel = 0  # last channel of the MCA that is stored
 
-        #a numpy record array holding the data - this is set using by the ReadData method.
+        # a numpy record array holding the data - this is set using by the
+        # ReadData method.
         self.data = None
 
-        #check for duplicate values in column names
+        # check for duplicate values in column names
         for i in range(len(self.colnames)):
             name = self.colnames[i]
             cnt = self.colnames.count(name)
-            if cnt>1:
-                #have multiple entries
+            if cnt > 1:
+                # have multiple entries
                 cnt = 1
-                for j in range(self.colnames.index(name)+1,len(self.colnames)):
-                    if self.colnames[j]==name: self.colnames[j] = name+"_%i" %cnt
+                for j in range(self.colnames.index(name) + 1,
+                               len(self.colnames)):
+                    if self.colnames[j] == name:
+                        self.colnames[j] = name + "_%i" % cnt
                     cnt += 1
 
-    def SetMCAParams(self,mca_column_format,mca_channels,mca_start,mca_stop):
+    def SetMCAParams(self, mca_column_format, mca_channels,
+                     mca_start, mca_stop):
         """
         Set the parameters used to save the MCA data to the file. This method
         calculates the number of lines used to store the MCA data from the
         number of columns and the
 
         required input aguments:
-         mca_column_format ....................... number of columns used to save the data
-         mca_channels ............................ number of MCA channels stored
-         mca_start ............................... first channel that is stored
-         mca_stop ................................ last channel that is stored
+         mca_column_format ....... number of columns used to save the data
+         mca_channels ............ number of MCA channels stored
+         mca_start ............... first channel that is stored
+         mca_stop ................ last channel that is stored
         """
         self.has_mca = True
         self.mca_column_format = mca_column_format
@@ -195,24 +228,28 @@ class SPECScan(object):
         self.mca_start_channel = mca_start
         self.mca_stop_channel = mca_stop
 
-        #calculate the number of lines per data point for the mca
-        self.mca_nof_lines = int(mca_channels/mca_column_format)
-        if mca_channels%mca_column_format != 0:
-            #some additional values have to be read
+        # calculate the number of lines per data point for the mca
+        self.mca_nof_lines = int(mca_channels / mca_column_format)
+        if mca_channels % mca_column_format != 0:
+            # some additional values have to be read
             self.mca_nof_lines = self.mca_nof_lines + 1
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.io.SPECScan.SetMCAParams: number of channels: %d" %self.mca_channels)
-            print("XU.io.SPECScan.SetMCAParams: number of columns: %d" %self.mca_column_format)
-            print("XU.io.SPECScan.SetMCAParams: number of lines to read for MCA: %d" %self.mca_nof_lines)
+            print("XU.io.SPECScan.SetMCAParams: number of channels: %d"
+                  % self.mca_channels)
+            print("XU.io.SPECScan.SetMCAParams: number of columns: %d"
+                  % self.mca_column_format)
+            print("XU.io.SPECScan.SetMCAParams: number of lines to read "
+                  "for MCA: %d" % self.mca_nof_lines)
 
     def __str__(self):
-        #build a proper string to print the scan information
-        str_rep = "|%4i|" %(self.nr)
-        str_rep = str_rep + "%50s|%10s|%10s|" %(self.command,self.time,self.date)
+        # build a proper string to print the scan information
+        str_rep = "|%4i|" % (self.nr)
+        str_rep = str_rep + "%50s|%10s|%10s|" % (self.command, self.time,
+                                                 self.date)
 
         if self.has_mca:
-            str_rep = str_rep + "MCA: %5i" %(self.mca_channels)
+            str_rep = str_rep + "MCA: %5i" % (self.mca_channels)
 
         str_rep = str_rep + "\n"
         return str_rep
@@ -233,37 +270,42 @@ class SPECScan(object):
 
         if self.scan_status == "NODATA":
             if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.io.SPECScan.ReadData: %s has been aborted - no data available!" %self.name)
+                print("XU.io.SPECScan.ReadData: %s has been aborted - "
+                      "no data available!" % self.name)
             self.data = None
             return None
 
         if not self.has_mca:
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.SPECScan.ReadData: scan %d contains no MCA data" %self.nr)
+                print("XU.io.SPECScan.ReadData: scan %d contains no MCA data"
+                      % self.nr)
 
-        #save the actual position of the file pointer
+        # save the actual position of the file pointer
         oldfid = self.fid.tell()
 
         # read header lines
-        self.fid.seek(self.hoffset,0)
+        self.fid.seek(self.hoffset, 0)
         self.header = []
         while self.fid.tell() < self.doffset:
             line_buffer = self.fid.readline().decode('ascii')
             self.header.append(line_buffer.strip())
 
-        self.fid.seek(self.doffset,0)
+        self.fid.seek(self.doffset, 0)
 
-        #create dictionary to hold the data
+        # create dictionary to hold the data
         if self.has_mca:
-            type_desc = {"names":self.colnames+["MCA"],"formats":len(self.colnames)*[numpy.float32]+\
-                         [(numpy.uint32,self.mca_channels)]}
+            type_desc = {"names": self.colnames + ["MCA"],
+                         "formats": len(self.colnames) * [numpy.float32] +
+                         [(numpy.uint32, self.mca_channels)]}
         else:
-            type_desc = {"names":self.colnames,"formats":len(self.colnames)*[numpy.float32]}
+            type_desc = {"names": self.colnames,
+                         "formats": len(self.colnames) * [numpy.float32]}
 
         if config.VERBOSITY >= config.DEBUG:
-            print("xu.io.SPECScan.ReadData: type descriptor: %s" %(repr(type_desc)))
+            print("xu.io.SPECScan.ReadData: type descriptor: %s"
+                  % (repr(type_desc)))
 
-        record_list = [] #from this list the record array while be built
+        record_list = []  # from this list the record array while be built
 
         mca_counter = 0
         scan_aborted_flag = False
@@ -272,15 +314,17 @@ class SPECScan(object):
             line_buffer = self.fid.readline().decode('ascii')
             line_buffer = line_buffer.strip()
 
-            #Bugfix for ESRF/BM20 data
-            #the problem is that they store messages from automatic absorbers
-            #in the SPEC file - need to handle this
+            # Bugfix for ESRF/BM20 data
+            # the problem is that they store messages from automatic absorbers
+            # in the SPEC file - need to handle this
             t = re.compile(r"^#C .* filter factor.*")
-            if t.match(line_buffer): continue
-            #these lines should do the job
+            if t.match(line_buffer):
+                continue
+            # these lines should do the job
 
-            if line_buffer=="": break #EOF
-            #check if scan is broken
+            if line_buffer == "":
+                break  # EOF
+            # check if scan is broken
             if SPEC_scanbroken.findall(line_buffer) != [] or scan_aborted_flag:
                 # need to check next line(s) to know if scan is resumed
                 # read until end of comment block or end of file
@@ -288,13 +332,15 @@ class SPECScan(object):
                     scan_aborted_flag = True
                     self.scan_status = "ABORTED"
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print("XU.io.SPECScan.ReadData: %s aborted" %self.name)
+                        print("XU.io.SPECScan.ReadData: %s aborted"
+                              % self.name)
                     continue
                 elif SPEC_scanresumed.match(line_buffer):
                     self.scan_status = "OK"
                     scan_aborted_flag = False
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print("XU.io.SPECScan.ReadData: %s resumed" %self.name)
+                        print("XU.io.SPECScan.ReadData: %s resumed"
+                              % self.name)
                     continue
                 elif SPEC_commentline.match(line_buffer):
                     continue
@@ -304,55 +350,61 @@ class SPECScan(object):
                 else:
                     break
 
-            if SPEC_headerline.match(line_buffer) or SPEC_commentline.match(line_buffer): break
+            if SPEC_headerline.match(line_buffer) or \
+               SPEC_commentline.match(line_buffer):
+                break
 
             if mca_counter == 0:
-                #the line is a scalar data line
+                # the line is a scalar data line
                 line_list = SPEC_num_value.findall(line_buffer)
                 if config.VERBOSITY >= config.DEBUG:
-                    print("XU.io.SPECScan.ReadData: %s" %line_buffer)
-                    print("XU.io.SPECScan.ReadData: read scalar values %s" %repr(line_list))
-                #convert strings to numbers
+                    print("XU.io.SPECScan.ReadData: %s" % line_buffer)
+                    print("XU.io.SPECScan.ReadData: read scalar values %s"
+                          % repr(line_list))
+                # convert strings to numbers
                 for i in range(len(line_list)):
                     line_list[i] = float(line_list[i])
 
-                #increment the MCA counter if MCA data is stored
+                # increment the MCA counter if MCA data is stored
                 if self.has_mca:
                     mca_counter = mca_counter + 1
-                    #create a temporary list for the mca data
+                    # create a temporary list for the mca data
                     mca_tmp_list = []
                 else:
                     record_list.append(line_list)
             else:
-                #reading and MCA spectrum
+                # reading and MCA spectrum
                 tmp_list = SPEC_num_value.findall(line_buffer)
                 for x in tmp_list:
                     mca_tmp_list.append(float(x))
 
-                #increment MCA counter
+                # increment MCA counter
                 mca_counter = mca_counter + 1
-                #if mca_counter exceeds the number of lines used to store MCA
-                #data append everything to the record list
+                # if mca_counter exceeds the number of lines used to store MCA
+                # data append everything to the record list
                 if mca_counter > self.mca_nof_lines:
                     record_list.append(line_list + [mca_tmp_list])
                     mca_counter = 0
 
-        #convert the lists in the data dictionary to numpy arrays
+        # convert the lists in the data dictionary to numpy arrays
         if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.io.SPECScan.ReadData: %s: %d %d %d" %(self.name,len(record_list),len(record_list[0]),len(type_desc["names"])) )
+            print("XU.io.SPECScan.ReadData: %s: %d %d %d"
+                  % (self.name, len(record_list),
+                     len(record_list[0]), len(type_desc["names"])))
         if len(record_list[0]) == len(type_desc["names"]):
             try:
-                self.data = numpy.rec.fromrecords(record_list,dtype=type_desc)
+                self.data = numpy.rec.fromrecords(record_list, dtype=type_desc)
             except ValueError:
                 self.scan_status = 'NODATA'
-                print("XU.io.SPECScan.ReadData: %s exception while parsing data"%self.name)
+                print("XU.io.SPECScan.ReadData: %s exception while parsing "
+                      "data" % self.name)
         else:
             self.scan_status = 'NODATA'
 
-        #reset the file pointer position
-        self.fid.seek(oldfid,0)
+        # reset the file pointer position
+        self.fid.seek(oldfid, 0)
 
-    def plot(self,*args,**keyargs):
+    def plot(self, *args, **keyargs):
         """
         Plot scan data to a matplotlib figure. If newfig=True a new
         figure instance will be created. If logy=True (default is False)
@@ -360,18 +412,21 @@ class SPECScan(object):
 
         Parameters
         ----------
-         *args:  arguments for the plot: first argument is the name of x-value column
-                 the following pairs of arguments are the y-value names and plot styles
-                 allowed are 3,5,7,... number of arguments
+         *args:  arguments for the plot: first argument is the name of x-value
+                 column the following pairs of arguments are the y-value names
+                 and plot styles allowed are 3,5,7,... number of arguments
 
          **keyargs:
-          newfig:  if True a new figure instance will be created otherwise an existing one will be used
+          newfig:  if True a new figure instance will be created otherwise an
+                   existing one will be used
           logy:    if True a semilogy plot will be done
         """
 
-        try: pylab.__version__
+        try:
+            pylab.__version__
         except NameError:
-            print("XU.io.SPECScan.plot: ERROR: plot functionality not available")
+            print("XU.io.SPECScan.plot: ERROR: plot functionality not "
+                  "available")
             return
 
         if "newfig" in keyargs:
@@ -393,75 +448,82 @@ class SPECScan(object):
         alist = args[1:]
         leglist = []
 
-        if len(alist)%2 != 0:
+        if len(alist) % 2 != 0:
             raise InputError("wrong number of yname/style arguments!")
 
         if newfig:
             pylab.figure()
-            pylab.subplots_adjust(left=0.08,right=0.95)
+            pylab.subplots_adjust(left=0.08, right=0.95)
 
-        for i in range(0,len(alist),2):
+        for i in range(0, len(alist), 2):
             yname = alist[i]
-            ystyle = alist[i+1]
+            ystyle = alist[i + 1]
             try:
                 ydata = self.data[yname]
             except:
-                raise InputError("no column with name %s exists!" %yname)
+                raise InputError("no column with name %s exists!" % yname)
                 continue
             if logy:
-                pylab.semilogy(xdata,ydata,ystyle)
+                pylab.semilogy(xdata, ydata, ystyle)
             else:
-                pylab.plot(xdata,ydata,ystyle)
+                pylab.plot(xdata, ydata, ystyle)
 
             leglist.append(yname)
 
-        pylab.xlabel("%s" %xname)
+        pylab.xlabel("%s" % xname)
         pylab.legend(leglist)
-        pylab.title("scan %i %s\n%s %s" %(self.nr,self.command,self.date,self.time))
-        #need to adjust axis limits properly
+        pylab.title("scan %i %s\n%s %s"
+                    % (self.nr, self.command, self.date, self.time))
+        # need to adjust axis limits properly
         lim = pylab.axis()
-        pylab.axis([xdata.min(),xdata.max(),lim[2],lim[3]])
+        pylab.axis([xdata.min(), xdata.max(), lim[2], lim[3]])
 
-
-    def Save2HDF5(self,h5f,group="/",title="",desc="",optattrs={},comp=True):
+    def Save2HDF5(self, h5f, group="/", title="", desc="",
+                  optattrs={}, comp=True):
         """
-        Save a SPEC scan to an HDF5 file. The method creates a group with the name of the
-        scan and stores the data there as a table object with name "data". By default the
-        scan group is created under the root group of the HDF5 file.
-        The title of the scan group is ususally the scan command. Metadata of the scan
-        are stored as attributes to the scan group. Additional custom attributes to the scan
-        group can be passed as a dictionary via the optattrs keyword argument.
+        Save a SPEC scan to an HDF5 file. The method creates a group with the
+        name of the scan and stores the data there as a table object with name
+        "data". By default the scan group is created under the root group of
+        the HDF5 file.  The title of the scan group is ususally the scan
+        command. Metadata of the scan are stored as attributes to the scan
+        group. Additional custom attributes to the scan group can be passed as
+        a dictionary via the optattrs keyword argument.
 
         input arguments:
-         h5f ............ a HDF5 file object or its filename
+         h5f ........ a HDF5 file object or its filename
 
         optional keyword arguments:
-         group .......... name or group object of the HDF5 group where to store the data
-         title .......... a string with the title for the data, defaults to the name of scan if empty
-         desc ........... a string with the description of the data, defaults to the scan command if empty
-         optattrs ....... a dictionary with optional attributes to store for the data
-         comp ........... activate compression - true by default
+         group ...... name or group object of the HDF5 group where to store the
+                      data
+         title ...... a string with the title for the data, defaults to the
+                      name of scan if empty
+         desc ....... a string with the description of the data, defaults to
+                      the scan command if empty
+         optattrs ... a dictionary with optional attributes to store for the
+                      data
+         comp ....... activate compression - true by default
         """
 
-        closeFile=False
-        if isinstance(h5f,tables.file.File):
+        closeFile = False
+        if isinstance(h5f, tables.file.File):
             h5 = h5f
             if not h5.isopen:
-                h5 = tables.openFile(h5f,mode='a')
-                closeFile=True
-        elif isinstance(h5f,str):
-            h5 = tables.openFile(h5f,mode='a')
-            closeFile=True
+                h5 = tables.openFile(h5f, mode='a')
+                closeFile = True
+        elif isinstance(h5f, str):
+            h5 = tables.openFile(h5f, mode='a')
+            closeFile = True
         else:
             raise InputError("h5f argument of wrong type was passed")
 
-        #check if data object has been already written
-        if self.data == None:
-            raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read so far - call ReadData method of the scan")
+        # check if data object has been already written
+        if self.data is None:
+            raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read "
+                             "so far - call ReadData method of the scan")
             return None
 
-        #parse keyword arguments:
-        if isinstance(group,str):
+        # parse keyword arguments:
+        if isinstance(group, str):
             rootgroup = h5.getNode(group)
         else:
             rootgroup = group
@@ -470,88 +532,91 @@ class SPECScan(object):
             group_title = title
         else:
             group_title = self.name
-        group_title  = group_title.replace(".","_")
+        group_title = group_title.replace(".", "_")
 
         if desc != "":
             group_desc = desc
         else:
             group_desc = self.command
 
-
-        #create the dictionary describing the table
+        # create the dictionary describing the table
         tab_desc_dict = {}
         col_name_list = []
         for d in self.data.dtype.descr:
             cname = d[0]
             col_name_list.append(cname)
-            if len(d[1:])==1:
+            if len(d[1:]) == 1:
                 ctype = numpy.dtype((d[1]))
             else:
-                ctype = numpy.dtype((d[1],d[2]))
+                ctype = numpy.dtype((d[1], d[2]))
             tab_desc_dict[cname] = tables.Col.from_dtype(ctype)
 
-
-        #create the table object and fill it
-        f = tables.Filters(complevel=7,complib="zlib",fletcher32=True)
+        # create the table object and fill it
+        f = tables.Filters(complevel=7, complib="zlib", fletcher32=True)
         copy_count = 0
         while True:
             try:
-                #if everything goes well the group will be created and the
-                #loop stoped
-                g = h5.createGroup(rootgroup,group_title,group_desc)
+                # if everything goes well the group will be created and the
+                # loop stopped
+                g = h5.createGroup(rootgroup, group_title, group_desc)
                 break
             except:
-                #if the group already exists the name must be changed and
-                #another will be made to create the group.
+                # if the group already exists the name must be changed and
+                # another will be made to create the group.
                 if self.ischanged:
-                    g = h5.removeNode(rootgroup,group_title,recursive=True)
+                    g = h5.removeNode(rootgroup, group_title, recursive=True)
                 else:
-                    group_title = group_title + "_%i" %(copy_count)
+                    group_title = group_title + "_%i" % (copy_count)
                     copy_count = copy_count + 1
 
         if comp:
-            tab = h5.createTable(g,"data",tab_desc_dict,"scan data",filters=f)
+            tab = h5.createTable(g, "data", tab_desc_dict, "scan data",
+                                 filters=f)
         else:
-            tab = h5.createTable(g,"data",tab_desc_dict,"scan data")
+            tab = h5.createTable(g, "data", tab_desc_dict, "scan data")
 
         for rec in self.data:
             for cname in rec.dtype.names:
                 tab.row[cname] = rec[cname]
             tab.row.append()
 
-        #finally after the table has been written to the table - commit the table to the file
+        # finally after the table has been written to the table - commit the
+        # table to the file
         tab.flush()
 
-        #write attribute data for the scan
+        # write attribute data for the scan
         g._v_attrs.ScanNumber = numpy.uint(self.nr)
         g._v_attrs.Command = self.command
         g._v_attrs.Date = self.date
         g._v_attrs.Time = self.time
 
-        #write the initial motor positions as attributes
+        # write the initial motor positions as attributes
         for k in self.init_motor_pos.keys():
-            g._v_attrs.__setattr__(k,numpy.float(self.init_motor_pos[k]))
+            g._v_attrs.__setattr__(k, numpy.float(self.init_motor_pos[k]))
 
-        #if scan contains MCA data write also MCA parameters
+        # if scan contains MCA data write also MCA parameters
         g._v_attrs.mca_start_channel = numpy.uint(self.mca_start_channel)
         g._v_attrs.mca_stop_channel = numpy.uint(self.mca_stop_channel)
         g._v_attrs.mca_nof_channels = numpy.uint(self.mca_channels)
 
         for k in optattrs.keys():
-            g._v_attrs.__setattr__(k,opattrs[k])
+            g._v_attrs.__setattr__(k, opattrs[k])
 
         h5.flush()
 
         if closeFile:
             h5.close()
 
+
 class SPECFile(object):
+
     """
     This class represents a single SPEC file. The class provides
     methodes for updateing an already opened file which makes it particular
     interesting for interactive use.
     """
-    def __init__(self,filename,path=""):
+
+    def __init__(self, filename, path=""):
         """
         SPECFile init routine
 
@@ -561,27 +626,27 @@ class SPECFile(object):
          path:      path to the specfile (optional)
         """
         self.filename = filename
-        self.full_filename = os.path.join(path,filename)
+        self.full_filename = os.path.join(path, filename)
         self.filename = os.path.basename(self.full_filename)
 
-        #list holding scan objects
+        # list holding scan objects
         self.scan_list = []
-        #open the file for reading
+        # open the file for reading
         try:
-            self.fid=xu_open(self.full_filename)
+            self.fid = xu_open(self.full_filename)
             self.last_offset = self.fid.tell()
         except:
             self.fid = None
             self.last_offset = 0
-            raise IOError("error opening SPEC file %s" %(self.full_filename))
+            raise IOError("error opening SPEC file %s" % (self.full_filename))
 
-        #initially parse the file
-        self.init_motor_names = [] #this list will hold the names of the
-                                   #motors saved in initial motor positions
+        # initially parse the file
+        self.init_motor_names = []  # this list will hold the names of the
+        # motors saved in initial motor positions
 
         self.Parse()
 
-    def __getitem__(self,index):
+    def __getitem__(self, index):
         """
         function to return the n-th scan in the spec-file.  be aware that
         numbering starts at 0! If scans are missing the relation between the
@@ -594,7 +659,7 @@ class SPECFile(object):
         """
         return self.scan_list[index]
 
-    def __getattr__(self,name):
+    def __getattr__(self, name):
         """
         return scanX objects where X stands for the scan number in the SPECFile
         which for this purpose is assumed to be unique. (otherwise the first
@@ -606,21 +671,22 @@ class SPECFile(object):
             try:
                 scannr = int(index)
             except:
-                raise AttributeError("scannumber needs to be convertable to integer")
+                raise AttributeError("scannumber needs to be convertable to "
+                                     "integer")
 
             # try to find the scan in the list of scans
-            s=None
+            s = None
             for scan in self.scan_list:
                 if scan.nr == scannr:
                     s = scan
                     break
 
-            if s!=None:
+            if s is not None:
                 return s
             else:
                 raise AttributeError("requested scan-number not found")
         else:
-            raise AttributeError("FastScan has no attribute '%s'"%name)
+            raise AttributeError("FastScan has no attribute '%s'" % name)
 
     def __len__(self):
         return self.scan_list.__len__()
@@ -628,17 +694,17 @@ class SPECFile(object):
     def __str__(self):
         ostr = ""
         for i in range(len(self.scan_list)):
-            ostr = ostr + "%5i" %(i)
+            ostr = ostr + "%5i" % (i)
             ostr = ostr + self.scan_list[i].__str__()
 
         return ostr
 
-    def Save2HDF5(self,h5f,comp=True):
+    def Save2HDF5(self, h5f, comp=True):
         """
-        Save the entire file in an HDF5 file. For that purpose a group is set up in the root
-        group of the file with the name of the file without extension and leading path.
-        If the method is called after an previous update only the scans not written to the file meanwhile are
-        saved.
+        Save the entire file in an HDF5 file. For that purpose a group is set
+        up in the root group of the file with the name of the file without
+        extension and leading path.  If the method is called after an previous
+        update only the scans not written to the file meanwhile are saved.
 
         required arguments:
          h5f .................... a HDF5 file object or its filename
@@ -647,28 +713,32 @@ class SPECFile(object):
          comp .................. activate compression - true by default
         """
 
-        closeFile=False
-        if isinstance(h5f,tables.file.File):
+        closeFile = False
+        if isinstance(h5f, tables.file.File):
             h5 = h5f
             if not h5.isopen:
-                h5 = tables.openFile(h5f,mode='a')
-                closeFile=True
-        elif isinstance(h5f,str):
-            h5 = tables.openFile(h5f,mode='a')
-            closeFile=True
+                h5 = tables.openFile(h5f, mode='a')
+                closeFile = True
+        elif isinstance(h5f, str):
+            h5 = tables.openFile(h5f, mode='a')
+            closeFile = True
         else:
             raise InputError("h5f argument of wrong type was passed")
 
         try:
-            g = h5.createGroup("/",os.path.splitext(os.path.splitext(self.filename)[0])[0],"Data of SPEC - File %s" %(self.filename))
+            g = h5.createGroup("/", os.path.splitext(
+                               os.path.splitext(self.filename)[0])[0],
+                               "Data of SPEC - File %s" % (self.filename))
         except:
-            g = h5.getNode("/"+os.path.splitext(os.path.splitext(self.filename)[0])[0])
+            g = h5.getNode("/" + os.path.splitext(
+                           os.path.splitext(self.filename)[0])[0])
 
         for s in self.scan_list:
-            if (((not g.__contains__(s.name)) or s.ischanged) and s.scan_status!="NODATA"):
+            if (((not g.__contains__(s.name)) or s.ischanged)
+                    and s.scan_status != "NODATA"):
                 s.ReadData()
-                if s.data != None:
-                    s.Save2HDF5(h5,group=g,comp=comp)
+                if s.data is not None:
+                    s.Save2HDF5(h5, group=g, comp=comp)
                     s.ClearData()
                     s.ischanged = False
 
@@ -683,42 +753,41 @@ class SPECFile(object):
 
         self.fid.close()
         try:
-            self.fid=xu_open(self.full_filename)
+            self.fid = xu_open(self.full_filename)
         except:
             self.fid = None
-            raise IOError("error opening SPEC file %s" %(self.full_filename))
+            raise IOError("error opening SPEC file %s" % (self.full_filename))
 
-        #before reparsing the SPEC file update the fids in all scan objects
+        # before reparsing the SPEC file update the fids in all scan objects
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.io.SPECFile.Update: update FID for actual scans ...")
         for scan in self.scan_list:
             scan.fid = self.fid
 
-        #reparse the SPEC file
+        # reparse the SPEC file
         if config.VERBOSITY >= config.INFO_LOW:
             print("XU.io.SPECFile.Update: reparsing file for new scans ...")
         # mark last found scan as not saved to force reread
         idx = len(self.scan_list)
-        if idx>0:
-            lastscan = self.scan_list[idx-1]
-            lastscan.ischanged=True
+        if idx > 0:
+            lastscan = self.scan_list[idx - 1]
+            lastscan.ischanged = True
         self.Parse()
-
 
     def Parse(self):
         """
         Parses the file from the starting at last_offset and adding found scans
         to the scan list.
         """
-        #move to the last read position in the file
-        self.fid.seek(self.last_offset,0)
+        # move to the last read position in the file
+        self.fid.seek(self.last_offset, 0)
         scan_started = False
         scan_has_mca = False
-        #list with the motors from whome the initial
-        #position is stored.
+        # list with the motors from whome the initial
+        # position is stored.
         init_motor_values = []
 
-        #read the file
+        # read the file
         self.last_offset = self.fid.tell()
         if config.VERBOSITY >= config.DEBUG:
             print('XU.io.SPECFile: start parsing')
@@ -726,84 +795,93 @@ class SPECFile(object):
         while True:
             line_buffer = self.fid.readline().decode('ascii')
             if config.VERBOSITY >= config.DEBUG:
-                print('parsing line: %s' %line_buffer)
+                print('parsing line: %s' % line_buffer)
 
-            if line_buffer=="": break
-            #remove trailing and leading blanks from the read line
+            if line_buffer == "":
+                break
+            # remove trailing and leading blanks from the read line
             line_buffer = line_buffer.strip()
 
-            #fill the list with the initial motor names
+            # fill the list with the initial motor names
             if SPEC_newheader.match(line_buffer):
                 self.init_motor_names = []
 
             elif SPEC_initmoponames.match(line_buffer):
-                line_buffer = SPEC_initmoponames.sub("",line_buffer)
+                line_buffer = SPEC_initmoponames.sub("", line_buffer)
                 line_buffer = line_buffer.strip()
-                self.init_motor_names = self.init_motor_names + SPEC_multi_blank2.split(line_buffer)
+                self.init_motor_names = self.init_motor_names + \
+                    SPEC_multi_blank2.split(line_buffer)
 
-            #if the line marks the beginning of a new scan
+            # if the line marks the beginning of a new scan
             elif SPEC_scan.match(line_buffer) and not scan_started:
                 if config.VERBOSITY >= config.DEBUG:
                     print("XU.io.SPECFile.Parse: found scan")
                 line_list = SPEC_multi_blank.split(line_buffer)
                 scannr = int(line_list[1])
-                scancmd = "".join(" "+x+" " for x in line_list[2:])
+                scancmd = "".join(" " + x + " " for x in line_list[2:])
                 scan_started = True
                 scan_has_mca = False
                 scan_header_offset = self.last_offset
                 scan_status = "OK"
-                # define some necessary variables which could be missing in the scan header
+                # define some necessary variables which could be missing in the
+                # scan header
                 itime = numpy.nan
                 time = ''
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print("XU.io.SPECFile.Parse: processing scan nr. %d ..." %scannr)
+                    print("XU.io.SPECFile.Parse: processing scan nr. %d ..."
+                          % scannr)
 
-            #if the line contains the date and time information
+            # if the line contains the date and time information
             elif SPEC_datetime.match(line_buffer) and scan_started:
                 if config.VERBOSITY >= config.DEBUG:
                     print("XU.io.SPECFile.Parse: found date and time")
-                #fetch the time from the line data
+                # fetch the time from the line data
                 time = SPEC_time_format.findall(line_buffer)[0]
-                line_buffer = SPEC_time_format.sub("",line_buffer)
-                line_buffer = SPEC_datetime.sub("",line_buffer)
-                date = SPEC_multi_blank.sub(" ",line_buffer)
+                line_buffer = SPEC_time_format.sub("", line_buffer)
+                line_buffer = SPEC_datetime.sub("", line_buffer)
+                date = SPEC_multi_blank.sub(" ", line_buffer)
 
-            #if the line contains the integration time
+            # if the line contains the integration time
             elif SPEC_exptime.match(line_buffer) and scan_started:
-                if config.VERBOSITY >= config.DEBUG: print("XU.io.SPECFile.Parse: found exposure time")
+                if config.VERBOSITY >= config.DEBUG:
+                    print("XU.io.SPECFile.Parse: found exposure time")
                 itime = float(SPEC_num_value.findall(line_buffer)[0])
-            #read the initial motor positions
+            # read the initial motor positions
             elif SPEC_initmopopos.match(line_buffer) and scan_started:
                 if config.VERBOSITY >= config.DEBUG:
-                    print("XU.io.SPECFile.Parse: found initial motor positions")
-                line_buffer = SPEC_initmopopos.sub("",line_buffer)
+                    print("XU.io.SPECFile.Parse: found initial motor "
+                          "positions")
+                line_buffer = SPEC_initmopopos.sub("", line_buffer)
                 line_buffer = line_buffer.strip()
                 line_list = SPEC_multi_blank.split(line_buffer)
-                try: # sometimes initial motor position are simply empty and this should not lead to an error
+                # sometimes initial motor position are simply empty and this
+                # should not lead to an error
+                try:
                     for value in line_list:
                         init_motor_values.append(float(value))
-                except: pass
+                except:
+                    pass
 
-            #if the line contains the number of colunmns
+            # if the line contains the number of colunmns
             elif SPEC_nofcols.match(line_buffer) and scan_started:
                 if config.VERBOSITY >= config.DEBUG:
                     print("XU.io.SPECFile.Parse: found number of columns")
-                line_buffer = SPEC_nofcols.sub("",line_buffer)
+                line_buffer = SPEC_nofcols.sub("", line_buffer)
                 line_buffer = line_buffer.strip()
                 nofcols = int(line_buffer)
 
-            #if the line contains the column names
+            # if the line contains the column names
             elif SPEC_colnames.match(line_buffer) and scan_started:
                 if config.VERBOSITY >= config.DEBUG:
                     print("XU.io.SPECFile.Parse: found column names")
-                line_buffer = SPEC_colnames.sub("",line_buffer)
+                line_buffer = SPEC_colnames.sub("", line_buffer)
                 line_buffer = line_buffer.strip()
                 col_names = SPEC_multi_blank.split(line_buffer)
 
-                #this is a fix in the case that blanks are allowed in
-                #motor and detector names (only a single balanks is supported
-                #meanwhile)
-                if len(col_names)>nofcols:
+                # this is a fix in the case that blanks are allowed in
+                # motor and detector names (only a single balanks is supported
+                # meanwhile)
+                if len(col_names) > nofcols:
                     col_names = SPEC_multi_blank2.split(line_buffer)
 
             elif SPEC_MCAFormat.match(line_buffer) and scan_started:
@@ -816,134 +894,145 @@ class SPECFile(object):
                 mca_start = int(line_list[1])
                 mca_stop = int(line_list[2])
 
-            elif SPEC_scanbroken.findall(line_buffer)!=[] and scan_started:
-                #this is the case when a scan is broken and no data has been
-                #written, but nevertheless a comment is in the file that tells
-                #us that the scan was aborted
+            elif SPEC_scanbroken.findall(line_buffer) != [] and scan_started:
+                # this is the case when a scan is broken and no data has been
+                # written, but nevertheless a comment is in the file that tells
+                # us that the scan was aborted
                 try:
-                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
-                                 date,time,itime,col_names,
-                                 scan_header_offset,scan_data_offset,self.fid,
-                                 self.init_motor_names,init_motor_values,"NODATA")
+                    s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
+                                 time, itime, col_names, scan_header_offset,
+                                 scan_data_offset, self.fid,
+                                 self.init_motor_names, init_motor_values,
+                                 "NODATA")
                 except:
                     scan_data_offset = self.last_offset
-                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
-                                 date,time,itime,col_names,
-                                 scan_header_offset,scan_data_offset,self.fid,
-                                 self.init_motor_names,init_motor_values,"NODATA")
+                    s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
+                                 time, itime, col_names, scan_header_offset,
+                                 scan_data_offset, self.fid,
+                                 self.init_motor_names, init_motor_values,
+                                 "NODATA")
 
                 self.scan_list.append(s)
 
-                #reset control flags
+                # reset control flags
                 scan_started = False
                 scan_has_mca = False
-                #reset initial motor positions flag
+                # reset initial motor positions flag
                 init_motor_values = []
 
-
             elif SPEC_dataline.match(line_buffer) and scan_started:
-                #this is now the real end of the header block.
-                #at this point we know that there is enough information about the scan
+                # this is now the real end of the header block.
+                # at this point we know that there is enough information about
+                # the scan
 
-                #save the data offset
+                # save the data offset
                 scan_data_offset = self.last_offset
 
-                #create an SPECFile scan object and add it to the scan list
-                #the name of the group consists of the prefix scan and the
-                #number of the scan in the file - this shoule make it easier
-                #to find scans in the HDF5 file.
-                s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
-                             date,time,itime,col_names,
-                             scan_header_offset,scan_data_offset,self.fid,
-                             self.init_motor_names,init_motor_values,scan_status)
+                # create an SPECFile scan object and add it to the scan list
+                # the name of the group consists of the prefix scan and the
+                # number of the scan in the file - this shoule make it easier
+                # to find scans in the HDF5 file.
+                s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
+                             time, itime, col_names, scan_header_offset,
+                             scan_data_offset, self.fid,
+                             self.init_motor_names, init_motor_values,
+                             scan_status)
                 if scan_has_mca:
-                    s.SetMCAParams(mca_col_number,mca_channels,mca_start,
+                    s.SetMCAParams(mca_col_number, mca_channels, mca_start,
                                    mca_stop)
 
                 self.scan_list.append(s)
 
-                #reset control flags
+                # reset control flags
                 scan_started = False
                 scan_has_mca = False
-                #reset initial motor positions flag
+                # reset initial motor positions flag
                 init_motor_values = []
 
             elif SPEC_scan.match(line_buffer) and scan_started:
-                #this should only be the case when there are two consecutive file
-                #headers in the data file without any data or abort notice of the
-                #first scan
-                # first store current scan as aborted than start new scan parsing
+                # this should only be the case when there are two consecutive
+                # file headers in the data file without any data or abort
+                # notice of the first scan;
+                # first store current scan as aborted then start new scan
+                # parsing
 
                 try:
-                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
-                                 date,time,itime,col_names,
-                                 scan_header_offset,scan_data_offset,self.fid,
-                                 self.init_motor_names,init_motor_values,"ABORTED")
+                    s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
+                                 time, itime, col_names, scan_header_offset,
+                                 scan_data_offset, self.fid,
+                                 self.init_motor_names, init_motor_values,
+                                 "ABORTED")
                 except:
                     scan_data_offset = self.last_offset
-                    s = SPECScan("scan_%i" %(scannr),scannr,scancmd,
-                                 date,time,itime,col_names,
-                                 scan_header_offset,scan_data_offset,self.fid,
-                                 self.init_motor_names,init_motor_values,"ABORTED")
+                    s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
+                                 time, itime, col_names, scan_header_offset,
+                                 scan_data_offset, self.fid,
+                                 self.init_motor_names, init_motor_values,
+                                 "ABORTED")
 
                 self.scan_list.append(s)
 
-                #reset control flags
+                # reset control flags
                 scan_started = False
                 scan_has_mca = False
-                #reset initial motor positions flag
+                # reset initial motor positions flag
                 init_motor_values = []
 
                 # start parsing of new scan
                 if config.VERBOSITY >= config.DEBUG:
-                    print("XU.io.SPECFile.Parse: found scan (after aborted scan)")
+                    print("XU.io.SPECFile.Parse: found scan "
+                          "(after aborted scan)")
                 line_list = SPEC_multi_blank.split(line_buffer)
                 scannr = int(line_list[1])
-                scancmd = "".join(" "+x+" " for x in line_list[2:])
+                scancmd = "".join(" " + x + " " for x in line_list[2:])
                 scan_started = True
                 scan_has_mca = False
                 scan_header_offset = self.last_offset
                 scan_status = "OK"
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.io.SPECFile.Parse: processing scan nr. %i ..." %scannr)
+                    print("XU.io.SPECFile.Parse: processing scan nr. %i ..."
+                          % scannr)
 
-            #store the position of the file pointer
+            # store the position of the file pointer
             self.last_offset = self.fid.tell()
 
-        #if reading of the file is finished store the data offset of the last scan as the last
-        #offset for the next parsing run of the file
+        # if reading of the file is finished store the data offset of the last
+        # scan as the last offset for the next parsing run of the file
         self.last_offset = self.scan_list[-1].doffset
 
 
 class SPECCmdLine(object):
-    def __init__(self,n,prompt,cmdl,out):
+
+    def __init__(self, n, prompt, cmdl, out):
         self.linenumber = n
         self.prompt = prompt
         self.command = cmdl
         self.out = out
 
     def __str__(self):
-        ostr = "%i: %s %s" %(self.linenumber,self.prompt,self.command)
+        ostr = "%i: %s %s" % (self.linenumber, self.prompt, self.command)
         return ostr
 
-    def Save2HDF5(h5,**keyargs):
+    def Save2HDF5(h5, **keyargs):
         pass
 
+
 class SPECLog(object):
-    def __init__(self,filename,prompt,path=""):
+
+    def __init__(self, filename, prompt, path=""):
         """
         init routine for a class to read a SPEC log file
         """
         self.filename = filename
-        self.full_filename = os.path.join(path,self.filename)
+        self.full_filename = os.path.join(path, self.filename)
 
         try:
-            self.fid = xu_open(self.full_filename,'r')
+            self.fid = xu_open(self.full_filename, 'r')
         except:
-            raise IOError("cannot open log file %s" %(self.full_filename))
+            raise IOError("cannot open log file %s" % (self.full_filename))
 
         self.prompt = prompt
-        self.prompt_re = re.compile(r"^"+self.prompt)
+        self.prompt_re = re.compile(r"^" + self.prompt)
 
         self.cmdl_list = []
         self.last_offset = self.fid.tell()
@@ -962,10 +1051,8 @@ class SPECLog(object):
             line_buffer = line_buffer.strip()
 
             if self.prompt_re.match(line_buffer):
-                line_buffer = self.prompt_re.sub("",line_buffer)
+                line_buffer = self.prompt_re.sub("", line_buffer)
                 line_buffer = line_buffer.strip()
-
-
 
     def __str__(self):
         ostr = ""
@@ -976,7 +1063,7 @@ class SPECLog(object):
         return ostr
 
 
-def geth5_scan(h5f,scans,*args,**kwargs):
+def geth5_scan(h5f, scans, *args, **kwargs):
     """
     function to obtain the angular cooridinates as well as intensity values
     saved in an HDF5 file, which was created from a spec file by the Save2HDF5
@@ -988,7 +1075,8 @@ def geth5_scan(h5f,scans,*args,**kwargs):
     Parameters
     ----------
      h5f:     file object of a HDF5 file opened using pytables or its filename
-     scans:   number of the scans of the reciprocal space map (int,tuple or list)
+     scans:   number of the scans of the reciprocal space map (int,tuple or
+              list)
 
      *args:   names of the motors (optional) (strings)
      to read reciprocal space maps measured in coplanar diffraction give:
@@ -1013,23 +1101,23 @@ def geth5_scan(h5f,scans,*args,**kwargs):
 
     Example
     -------
-    >>> [om,tt],MAP = xu.io.geth5_scan(h5file,36,'omega','gamma')
+    >>> [om, tt], MAP = xu.io.geth5_scan(h5file, 36, 'omega', 'gamma')
     """
 
-    closeFile=False
-    if isinstance(h5f,tables.file.File):
+    closeFile = False
+    if isinstance(h5f, tables.file.File):
         h5 = h5f
         if not h5.isopen:
-            h5 = tables.openFile(h5f,mode='r')
-            closeFile=True
-    elif isinstance(h5f,str):
-        h5 = tables.openFile(h5f,mode='r')
-        closeFile=True
+            h5 = tables.openFile(h5f, mode='r')
+            closeFile = True
+    elif isinstance(h5f, str):
+        h5 = tables.openFile(h5f, mode='r')
+        closeFile = True
     else:
         raise InputError("h5f argument of wrong type was passed")
 
     if "samplename" in kwargs:
-        h5g = h5.getNode(h5.root,kwargs["samplename"])
+        h5g = h5.getNode(h5.root, kwargs["samplename"])
     else:
         h5g = h5.listNodes(h5.root)[0]
 
@@ -1040,45 +1128,47 @@ def geth5_scan(h5f,scans,*args,**kwargs):
 
     angles = dict.fromkeys(args)
     for key in angles.keys():
-        if not isinstance(key,str):
+        if not isinstance(key, str):
             raise InputError("*arg values need to be strings with motornames")
         angles[key] = numpy.zeros(0)
-    buf=numpy.zeros(0)
+    buf = numpy.zeros(0)
     MAP = numpy.zeros(0)
 
     for nr in scanlist:
-        h5scan = h5.getNode(h5g,"scan_%d" %nr)
-        command = h5.getNodeAttr(h5scan,'Command')
+        h5scan = h5.getNode(h5g, "scan_%d" % nr)
+        command = h5.getNodeAttr(h5scan, 'Command')
         sdata = h5scan.data.read()
-        if MAP.dtype == numpy.float64:  MAP.dtype = sdata.dtype
+        if MAP.dtype == numpy.float64:
+            MAP.dtype = sdata.dtype
         # append scan data to MAP, where all data are stored
-        MAP = numpy.append(MAP,sdata)
-        #check type of scan
+        MAP = numpy.append(MAP, sdata)
+        # check type of scan
         notscanmotors = []
         for i in range(len(args)):
             motname = args[i]
             try:
                 buf = sdata[motname]
                 scanshape = buf.shape
-                angles[motname] =numpy.concatenate((angles[motname],buf))
+                angles[motname] = numpy.concatenate((angles[motname], buf))
             except:
                 notscanmotors.append(i)
         if len(notscanmotors) == len(args):
             scanshape = len(sdata)
         for i in notscanmotors:
             motname = args[i]
-            buf = numpy.ones(scanshape) * h5.getNodeAttr(h5scan,"INIT_MOPO_%s" %motname)
-            angles[motname] =numpy.concatenate((angles[motname],buf))
+            buf = numpy.ones(
+                scanshape) * h5.getNodeAttr(h5scan, "INIT_MOPO_%s" % motname)
+            angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []
     for motname in args:
-        #create return values in correct order
+        # create return values in correct order
         retval.append(angles[motname])
 
     if closeFile:
         h5.close()
 
-    if len(args)==0:
+    if len(args) == 0:
         return MAP
-    else: return retval,MAP
-
+    else:
+        return retval, MAP

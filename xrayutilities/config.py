@@ -48,54 +48,59 @@ from . import utilities_noconf
 
 xuParser = configparser.ConfigParser()
 
-#read global default values for configuration variables
-with open(os.path.join(__path__[0],"xrayutilities_default.conf")) as gconffile:
-    xuParser.readfp(gconffile)
+# read global default values for configuration variables
+with open(os.path.join(__path__[0], "xrayutilities_default.conf")) as conffile:
+    xuParser.readfp(conffile)
 
 # read user configuration and local configuration if available
-cfiles = xuParser.read([os.path.expanduser(os.path.join("~",".xrayutilities.conf")), \
-              "xrayutilities.conf"])
+cfiles = xuParser.read([
+    os.path.expanduser(os.path.join("~", ".xrayutilities.conf")),
+    "xrayutilities.conf"])
 
 # set global variables according to configuration
-INFO_LOW = xuParser.getint("xrayutilities","info_low")
-INFO_ALL = xuParser.getint("xrayutilities","info_all")
-DEBUG = xuParser.getint("xrayutilities","debug")
+INFO_LOW = xuParser.getint("xrayutilities", "info_low")
+INFO_ALL = xuParser.getint("xrayutilities", "info_all")
+DEBUG = xuParser.getint("xrayutilities", "debug")
 
-VERBOSITY = xuParser.getint("xrayutilities","verbosity")
-try: WAVELENGTH = xuParser.getfloat("xrayutilities","wavelength")
-except: WAVELENGTH = numpy.nan
+VERBOSITY = xuParser.getint("xrayutilities", "verbosity")
+try:
+    WAVELENGTH = xuParser.getfloat("xrayutilities", "wavelength")
+except:
+    WAVELENGTH = numpy.nan
 if numpy.isnan(WAVELENGTH):
-    WAVELENGTH = xuParser.get("xrayutilities","wavelength")
+    WAVELENGTH = xuParser.get("xrayutilities", "wavelength")
 
-try: ENERGY = xuParser.getfloat("xrayutilities","energy")
-except: ENERGY=numpy.nan
+try:
+    ENERGY = xuParser.getfloat("xrayutilities", "energy")
+except:
+    ENERGY = numpy.nan
 if numpy.isnan(ENERGY):
-    ENERGY = xuParser.get("xrayutilities","energy")
-if ENERGY=='NaN':
+    ENERGY = xuParser.get("xrayutilities", "energy")
+if ENERGY == 'NaN':
     ENERGY = utilities_noconf.lam2en(utilities_noconf.wavelength(WAVELENGTH))
-else: # energy was given and wavelength is calculated from given energy
+else:  # energy was given and wavelength is calculated from given energy
     WAVELENGTH = utilities_noconf.en2lam(utilities_noconf.energy(ENERGY))
 
 # number of threads in parallel section of c-code
-NTHREADS = xuParser.getint("xrayutilities","nthreads")
+NTHREADS = xuParser.getint("xrayutilities", "nthreads")
 
 # default parameters for the maplog function
-DYNLOW = xuParser.getfloat("xrayutilities","dynlow")
-DYNHIGH = xuParser.getfloat("xrayutilities","dynhigh")
+DYNLOW = xuParser.getfloat("xrayutilities", "dynlow")
+DYNHIGH = xuParser.getfloat("xrayutilities", "dynhigh")
 
 # small number needed for error checks
-EPSILON = xuParser.getfloat("xrayutilities","epsilon")
+EPSILON = xuParser.getfloat("xrayutilities", "epsilon")
 
 # name of the database with atomic scattering factors
-DBNAME = xuParser.get("xrayutilities","dbname")
+DBNAME = xuParser.get("xrayutilities", "dbname")
 
 # kappa goniometer specific config parameters
-KAPPA_PLANE = xuParser.get("xrayutilities","kappa_plane")
-KAPPA_ANGLE = xuParser.getfloat("xrayutilities","kappa_angle")
+KAPPA_PLANE = xuParser.get("xrayutilities", "kappa_plane")
+KAPPA_ANGLE = xuParser.getfloat("xrayutilities", "kappa_angle")
 
 if VERBOSITY >= DEBUG:
-    print("XU.config: xrayutilities configuration files: %s" %repr(cfiles))
+    print("XU.config: xrayutilities configuration files: %s" % repr(cfiles))
     print("xrayutilities configuration:")
     for (name, value) in xuParser.items("xrayutilities"):
-        print("%s: %s" %(name,value))
-    print ("---")
+        print("%s: %s" % (name, value))
+    print("---")
