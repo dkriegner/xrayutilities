@@ -58,7 +58,8 @@ class TestMathFunctions(unittest.TestCase):
         area = xu.math.Gauss1dArea(*p)
         (numarea, err) = quad(
             xu.math.Gauss1d, -numpy.inf, numpy.inf, args=tuple(p))
-        digits = int(numpy.abs(numpy.log10(err))) - 1
+        digits = int(numpy.abs(numpy.log10(err))) - 2
+        self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
 
     def test_lorentz1darea(self):
@@ -66,7 +67,8 @@ class TestMathFunctions(unittest.TestCase):
         area = xu.math.Lorentz1dArea(*p)
         (numarea, err) = quad(
             xu.math.Lorentz1d, -numpy.inf, numpy.inf, args=tuple(p))
-        digits = int(numpy.abs(numpy.log10(err))) - 1
+        digits = int(numpy.abs(numpy.log10(err))) - 2
+        self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
 
     def test_pvoigt1darea(self):
@@ -75,7 +77,8 @@ class TestMathFunctions(unittest.TestCase):
         area = xu.math.PseudoVoigt1dArea(*p)
         (numarea, err) = quad(
             xu.math.PseudoVoigt1d, -numpy.inf, numpy.inf, args=tuple(p))
-        digits = int(numpy.abs(numpy.log10(err))) - 1
+        digits = int(numpy.abs(numpy.log10(err))) - 2
+        self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
 
     def test_gauss2darea(self):
@@ -86,7 +89,8 @@ class TestMathFunctions(unittest.TestCase):
         (numarea, err) = dblquad(xu.math.Gauss2d, -numpy.inf, numpy.inf,
                                  lambda x: -numpy.inf, lambda x: numpy.inf,
                                  args=tuple(p))
-        digits = int(numpy.abs(numpy.log10(err))) - 1
+        digits = int(numpy.abs(numpy.log10(err))) - 2
+        self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
 
 if __name__ == '__main__':
