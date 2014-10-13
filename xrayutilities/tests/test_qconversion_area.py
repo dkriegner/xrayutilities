@@ -52,7 +52,7 @@ class TestQConversion(unittest.TestCase):
     def test_qconversion_area_energy(self):
         ang1 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))
         ang2 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym) / 2.)
-        qout = self.hxrd.Ang2HKL((ang1[0], ang2[0]), (ang1[3],ang2[3]),
+        qout = self.hxrd.Ang2HKL((ang1[0], ang2[0]), (ang1[3], ang2[3]),
                                  en=(self.hxrd.energy, 2 * self.hxrd.energy),
                                  mat=self.mat, dettype='area')
         for i in range(3):
