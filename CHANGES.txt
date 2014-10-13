@@ -1,4 +1,6 @@
-* Reciprocal space conversion of energy scans for point, linear, area
+* reciprocal space conversion for goniometers with translation-axis in the
+  detector arms (point, linear, area detectors)
+* reciprocal space conversion of energy scans for point, linear, area
   detectors 
 * addition of serval test routines to improve the code quality
 
