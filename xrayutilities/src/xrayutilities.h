@@ -63,7 +63,8 @@
 /* 'extern inline' seems to work only on newer version of gcc (>4.6 tested)
  * gcc 4.1 seems to need this empty, i am not sure if there is a speed gain
  * by inlining since the calls to those functions are anyhow built dynamically
- * for compatibility keep this empty unless you can test with several compilers */
+ * for compatibility keep this empty unless you can test with several compilers
+ */
 #define INLINE
 #ifdef _WIN32
 #define RESTRICT

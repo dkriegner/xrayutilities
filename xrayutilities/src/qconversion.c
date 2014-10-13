@@ -715,7 +715,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     int Ns, Nd;  /* number of sample and detector circles */
     int Npoints;  /* number of angular positions */
     unsigned int nthreads;  /* number of threads to use */
-    char *sampleAxis, *detectorAxis;  /* string with sample and detector axis */
+    char *sampleAxis, *detectorAxis;  /* str with sample and detector axis */
     double *sampleAngles,*detectorAngles, *ri, *kappadir, *sampledis,
            *UB, *qpos, *lambda;  /* c-arrays for further usage */
     npy_intp nout[2];
@@ -777,7 +777,7 @@ PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args)
     Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
     if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) { 
         PyErr_SetString(PyExc_ValueError,
-            "detectorAngles and sampleAngles need to have same first dimension");
+            "detectorAngles and sampleAngles must have same first dimension");
         return NULL;
     }
     if (PyArray_SIZE(lambdaArr) != Npoints) {
