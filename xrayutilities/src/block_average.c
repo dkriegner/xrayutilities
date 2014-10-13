@@ -35,7 +35,7 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
      */
 
     int i, j, Nav, N;
-    PyArrayObject *input=NULL, *outarr=NULL;
+    PyArrayObject *input = NULL, *outarr = NULL;
     double *cin, *cout;
     double buf;
     npy_intp nout;
@@ -56,7 +56,7 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
 
     /* c-code following is performing the block averaging */
     for (i = 0; i < N; i = i + Nav) {
-        buf=0;
+        buf = 0;
         /* perform one block average (j-i serves as counter
            -> last bin is therefore correct) */
         for (j = i; j < i + Nav && j < N; ++j) {
@@ -162,7 +162,7 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     int Nspec, Nch;  /* number of items in input */
     int Nav;  /* number of items to average */
     unsigned int nthreads;  /* number of threads to use */
-    PyArrayObject *input=NULL, *outarr=NULL;
+    PyArrayObject *input = NULL, *outarr = NULL;
     double *cin, *cout;
     double buf;
     npy_intp nout[2];

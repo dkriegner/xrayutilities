@@ -130,7 +130,7 @@ int gridder2d(double *x, double *y, double *data, unsigned int n,
     }
 
     /* the master loop over all data points */
-    for (i=0; i<n; i++) {
+    for (i = 0; i < n; i++) {
         /* if data point is nan ignore it */
         if (!isnan(data[i])) {
             /* if the x and y values are outside the grids boundaries
@@ -156,7 +156,7 @@ int gridder2d(double *x, double *y, double *data, unsigned int n,
         if (flags & VERBOSE)
             fprintf(stdout, "XU.Gridder2D(c): perform normalization ...\n");
 
-        for (i=0; i < nx * ny; i++) {
+        for (i = 0; i < nx * ny; i++) {
             if (gnorm[i] > 1.e-16) {
                 odata[i] = odata[i] / gnorm[i];
             }

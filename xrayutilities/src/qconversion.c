@@ -58,7 +58,7 @@ INLINE void diffvec(double *RESTRICT v1, double *RESTRICT v2) {
 }
 
 INLINE double norm(double *v) {
-    double n=0.;
+    double n = 0;
     unsigned int i;
     for (i = 0; i < 3; ++i) {
         n += v[i] * v[i];
@@ -1471,8 +1471,6 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* print_vector(rpixel1);
-     * print_vector(rpixel2); */
     /* rotate detector pixel vectors according to tilt */
     veccopy(rtemp, rpixel1);
     normalize(rtemp);
@@ -1491,9 +1489,6 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     matvec(mtemp, rtemp, rpixel1);
     veccopy(rtemp, rpixel2);
     matvec(mtemp, rtemp, rpixel2);
-
-    /* print_vector(rpixel1);
-     * print_vector(rpixel2); */
 
     /* calculate center channel position in detector plane */
     for (k = 0; k < 3; ++k) {
@@ -1742,8 +1737,6 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* print_vector(rpixel1);
-     * print_vector(rpixel2); */
     /* rotate detector pixel vectors according to tilt */
     veccopy(rtemp, rpixel1);
     normalize(rtemp);
@@ -1762,9 +1755,6 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
     matvec(mtemp, rtemp, rpixel1);
     veccopy(rtemp, rpixel2);
     matvec(mtemp, rtemp, rpixel2);
-
-    /* print_vector(rpixel1);
-     * print_vector(rpixel2); */
 
     /* calculate center channel position in detector plane */
     for (k = 0; k < 3; ++k) {

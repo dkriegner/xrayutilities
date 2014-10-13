@@ -74,7 +74,7 @@ PyObject* pygridder1d(PyObject *self, PyObject *args)
     Py_DECREF(py_x);
     Py_DECREF(py_data);
     Py_DECREF(py_output);
-    if (py_norm!=NULL) {
+    if (py_norm != NULL) {
         Py_DECREF(py_norm);
     }
 
