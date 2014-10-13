@@ -104,8 +104,6 @@ INLINE void apply_xm(double a, double *vec);
 INLINE void apply_ym(double a, double *vec);
 INLINE void apply_zm(double a, double *vec);
 
-INLINE void apply_kappa(double a, double *vec);
-
 INLINE void apply_tx(double x, double *vec);
 INLINE void apply_ty(double y, double *vec);
 INLINE void apply_tz(double z, double *vec);

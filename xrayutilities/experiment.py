@@ -581,11 +581,17 @@ class QConversion(object):
                   % (str(sAngles), str(dAngles)))
 
         if numpy.any(sd):
-            qpos = cxrayutilities.ang2q_conversion_sd(
+            cfunc = cxrayutilities.ang2q_conversion_sd
+            if self._has_translations:
+                cfunc = cxrayutilities.ang2q_conversion_sdtrans
+            qpos = cfunc(
                 sAngles, dAngles, self.r_i, sAxis, dAxis,
                 self._kappa_dir, UB, sd, wl, config.NTHREADS)
         else:
-            qpos = cxrayutilities.ang2q_conversion(
+            cfunc = cxrayutilities.ang2q_conversion
+            if self._has_translations:
+                cfunc = cxrayutilities.ang2q_conversion_trans
+            qpos = cfunc(
                 sAngles, dAngles, self.r_i, sAxis, dAxis,
                 self._kappa_dir, UB, wl, config.NTHREADS)
 
@@ -649,8 +655,8 @@ class QConversion(object):
         self._linear_tilt = numpy.radians(tilt)
 
         if distance is not None and pixelwidth is not None:
-            self._linear_distance = 1.0
-            self._linear_pixwidth = float(pixelwidth) / float(distance)
+            self._linear_distance = float(distance)
+            self._linear_pixwidth = float(pixelwidth)
         elif chpdeg is not None:
             self._linear_distance = 1.0
             self._linear_pixwidth = 2 * self._linear_distance / \
@@ -824,12 +830,18 @@ class QConversion(object):
         dAxis = self._detectorAxis_str
 
         if numpy.any(sd):
-            qpos = cxrayutilities.ang2q_conversion_linear_sd(
+            cfunc = cxrayutilities.ang2q_conversion_linear_sd
+            if self._has_translations:
+                cfunc = cxrayutilities.ang2q_conversion_linear_sdtrans
+            qpos = cfunc(
                 sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                 cch, pwidth, roi, self._linear_detdir, self._linear_tilt,
                 UB, sd, wl, config.NTHREADS)
         else:
-            qpos = cxrayutilities.ang2q_conversion_linear(
+            cfunc = cxrayutilities.ang2q_conversion_linear
+            if self._has_translations:
+                cfunc = cxrayutilities.ang2q_conversion_linear_trans
+            qpos = cfunc(
                 sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                 cch, pwidth, roi, self._linear_detdir, self._linear_tilt,
                 UB, wl, config.NTHREADS)
@@ -1098,7 +1110,7 @@ class QConversion(object):
             else:
                 a = args[Ns:] + (self._area_detrot,)
                 dAngles = self._reshapeInput(
-                    Npoints, numpy.append(delta[Ns:], 0),*a)[0]
+                    Npoints, numpy.append(delta[Ns:], 0), *a)[0]
         else:
             dAngles = self._reshapeInput(Npoints, delta[Ns:], *args[Ns:])[0]
 
@@ -1130,19 +1142,19 @@ class QConversion(object):
         dAxis = self._detectorAxis_str
 
         if numpy.any(sd):
-            qpos = cxrayutilities.ang2q_conversion_area_sd(
+            cfunc = cxrayutilities.ang2q_conversion_area_sd
+            if self._has_translations:
+                cfunc = cxrayutilities.ang2q_conversion_area_sdtrans
+            qpos = cfunc(
                 sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                 cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
                 self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
                 UB, sd, wl, config.NTHREADS)
-        elif self._has_translations:
-            qpos = cxrayutilities.ang2q_conversion_area_trans(
-                sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
-                cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
-                self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
-                UB, wl, config.NTHREADS)
         else:
-            qpos = cxrayutilities.ang2q_conversion_area(
+            cfunc = cxrayutilities.ang2q_conversion_area
+            if self._has_translations:
+                cfunc = cxrayutilities.ang2q_conversion_area_trans
+            qpos = cfunc(
                 sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                 cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
                 self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
@@ -1424,9 +1436,9 @@ class Experiment(object):
             dettype:detector type: one of ('point', 'linear', 'area')
                     decides which routine of Ang2Q to call
                     default 'point'
-            delta:  giving delta angles to correct the given ones for misalignment
-                    delta must be an numpy array or list of length 2.
-                    used angles are than om,tt - delta
+            delta:  giving delta angles to correct the given ones for
+                    misalignment. delta must be an numpy array or list of
+                    length 2. used angles are than om,tt - delta
             wl:     x-ray wavelength in angstroem (default: self._wl)
             en:     x-ray energy in eV (default: converted self._wl)
             deg:    flag to tell if angles are passed as degree (default: True)
