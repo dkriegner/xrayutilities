@@ -48,7 +48,8 @@ except NameError:
     basestring = str
 
 # regular expression to check goniometer circle syntax
-circleSyntax = re.compile("[xyz][+-]")
+directionSyntax = re.compile("[xyz][+-]")
+circleSyntaxDetector = re.compile("([xyz][+-])|(t[xyz])")
 circleSyntaxSample = re.compile("[xyzk][+-]")
 
 
@@ -90,7 +91,7 @@ class QConversion(object):
                         motor turning lefthanded around the x-axis.
 
         r_i:            vector giving the direction of the primary beam
-                        (length is irrelevant)
+                        (length is relevant only if translations are involved)
 
         **kwargs:       optional keyword arguments
             wl:         wavelength of the x-rays in Angstroem
@@ -260,6 +261,7 @@ class QConversion(object):
                            be added (used internally to avoid double adding of
                            detector rotation axis)
         """
+        has_translations = False
         if isinstance(detectorAxis, (basestring, list, tuple)):
             if isinstance(detectorAxis, basestring):
                 dAxis = list([detectorAxis])
@@ -269,14 +271,17 @@ class QConversion(object):
                 if not isinstance(circ, basestring) or len(circ) != 2:
                     raise InputError("QConversion: incorrect detector circle "
                                      "type or syntax (%s)" % repr(circ))
-                if not circleSyntax.search(circ):
+                if not circleSyntaxDetector.search(circ):
                     raise InputError("QConversion: incorrect detector circle "
                                      "syntax (%s)" % circ)
+                if circ[0] == 't':
+                    has_translations = True
         else:
             raise TypeError("Qconversion error: invalid type for "
                             "detectorAxis, must be str, list or tuple")
         self._detectorAxis = dAxis
         self._detectorAxis_str = ''
+        self._has_translations = has_translations
         for circ in self._detectorAxis:
             self._detectorAxis_str += circ
         if detrot:
@@ -383,7 +388,7 @@ class QConversion(object):
                 anp = a.size
             elif isinstance(a, (list, tuple)):
                 anp = len(a)
-            elif isinstance(a,numbers.Number):
+            elif isinstance(a, numbers.Number):
                 anp = 1
             else:
                 raise TypeError('QConversion: Input argument #%d has an '
@@ -634,7 +639,7 @@ class QConversion(object):
         if not isinstance(detectorDir, basestring) or len(detectorDir) != 2:
             raise InputError("QConversion: incorrect detector direction type "
                              "or syntax (%s)" % repr(detectorDir))
-        if not circleSyntax.search(detectorDir):
+        if not directionSyntax.search(detectorDir):
             raise InputError("QConversion: incorrect detector direction "
                              "syntax (%s)" % detectorDir)
         self._linear_detdir = detectorDir
@@ -665,6 +670,9 @@ class QConversion(object):
             self._linear_nav = kwargs['Nav']
         else:
             self._linear_nav = 1
+
+        # rescale r_i
+        self.r_i = math.VecUnit(self.r_i) * self._linear_distance
 
         self._linear_init = True
 
@@ -886,14 +894,14 @@ class QConversion(object):
         if not isinstance(detectorDir1, basestring) or len(detectorDir1) != 2:
             raise InputError("QConversion: incorrect detector direction1 type "
                              "or syntax (%s)" % repr(detectorDir1))
-        if not circleSyntax.search(detectorDir1):
+        if not directionSyntax.search(detectorDir1):
             raise InputError("QConversion: incorrect detector direction1 "
                              "syntax (%s)" % detectorDir1)
         self._area_detdir1 = detectorDir1
         if not isinstance(detectorDir2, basestring) or len(detectorDir2) != 2:
             raise InputError("QConversion: incorrect detector direction2 type "
                              "or syntax (%s)" % repr(detectorDir2))
-        if not circleSyntax.search(detectorDir2):
+        if not directionSyntax.search(detectorDir2):
             raise InputError("QConversion: incorrect detector direction2 "
                              "syntax (%s)" % detectorDir2)
         self._area_detdir2 = detectorDir2
@@ -946,6 +954,9 @@ class QConversion(object):
             self._area_nav = kwargs['Nav']
         else:
             self._area_nav = [1, 1]
+
+        # rescale r_i
+        self.r_i = math.VecUnit(self.r_i) * self._area_distance
 
         self._area_init = True
 
@@ -1124,6 +1135,12 @@ class QConversion(object):
                 cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
                 self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
                 UB, sd, wl, config.NTHREADS)
+        elif self._has_translations:
+            qpos = cxrayutilities.ang2q_conversion_area_trans(
+                sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
+                cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
+                self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
+                UB, wl, config.NTHREADS)
         else:
             qpos = cxrayutilities.ang2q_conversion_area(
                 sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,

@@ -25,7 +25,7 @@
  * NUMPY specific macros and header files
  ****************************************************************************/
 /*
- * need to make some definitions before loading the arrayobject.h 
+ * need to make some definitions before loading the arrayobject.h
  * header file
  */
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
@@ -42,7 +42,7 @@
 #endif
 
 /*
- * define a macro to check a numpy array. This should mabye go into a 
+ * define a macro to check a numpy array. This should mabye go into a
  * function in future.
  */
 #define PYARRAY_CHECK(array, dims, type, msg) \
@@ -58,7 +58,7 @@
 
 
 /*****************************************************************************
- * Windows build related macros 
+ * Windows build related macros
  ****************************************************************************/
 /* 'extern inline' seems to work only on newer version of gcc (>4.6 tested)
  * gcc 4.1 seems to need this empty, i am not sure if there is a speed gain
@@ -97,7 +97,7 @@
 
 
 /*****************************************************************************
- * OpenMP related macros 
+ * OpenMP related macros
  ****************************************************************************/
 /*
  * include OpenMP header is required

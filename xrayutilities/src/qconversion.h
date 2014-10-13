@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 #pragma once
 
@@ -47,7 +47,7 @@ INLINE void veccopy(double *RESTRICT v1, double *RESTRICT v2);
 
 INLINE void vecmul(double *RESTRICT r, double a);
 
-INLINE void cross(double *RESTRICT v1, double *RESTRICT v2, 
+INLINE void cross(double *RESTRICT v1, double *RESTRICT v2,
                   double *RESTRICT r);
 
 INLINE void vecmatcross(double *RESTRICT v, double *RESTRICT m,
@@ -96,6 +96,19 @@ INLINE void rotation_kappa(double a, double *mat);
 
 INLINE void rotation_arb(double a, double *RESTRICT e, double *RESTRICT mat);
 
+INLINE void apply_xp(double a, double *vec);
+INLINE void apply_yp(double a, double *vec);
+INLINE void apply_zp(double a, double *vec);
+
+INLINE void apply_xm(double a, double *vec);
+INLINE void apply_ym(double a, double *vec);
+INLINE void apply_zm(double a, double *vec);
+
+INLINE void apply_kappa(double a, double *vec);
+
+INLINE void apply_tx(double x, double *vec);
+INLINE void apply_ty(double y, double *vec);
+INLINE void apply_tz(double z, double *vec);
 
 /*##############################################
 #   functions needed for reciprocal space converions
@@ -103,6 +116,10 @@ INLINE void rotation_arb(double a, double *RESTRICT e, double *RESTRICT mat);
 
 int determine_axes_directions(fp_rot *fp_circles, char *stringAxis,
                               unsigned int n);
+
+int determine_axes_directions_apply(fp_rot *fp_circles, char *stringAxis,
+                                    unsigned int n);
+
 int determine_detector_pixel(double *rpixel, char *dir, double dpixel,
                              double *r_i, double tilt);
 
