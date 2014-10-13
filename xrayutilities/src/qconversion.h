@@ -105,6 +105,10 @@ int determine_axes_directions(fp_rot *fp_circles, char *stringAxis,
                               unsigned int n);
 int determine_detector_pixel(double *rpixel, char *dir, double dpixel,
                              double *r_i, double tilt);
+
+int tilt_detector_axis(double tiltazimuth, double tilt,
+                        double *RESTRICT rpixel1, double *RESTRICT rpixel2);
+
 int print_matrix(double *m);
 int print_vector(double *m);
 

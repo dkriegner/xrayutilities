@@ -464,6 +464,32 @@ int determine_axes_directions(fp_rot *fp_circles, char *stringAxis,
     return 0;
 }
 
+int tilt_detector_axis(double tiltazimuth, double tilt,
+                       double *RESTRICT rpixel1, double *RESTRICT rpixel2) {
+    /* rotate detector pixel vectors of a 2D detector according to tilt and
+     * tiltazimuth */
+    double rtemp[3], rtemp2[3];  /* buffer vectors */
+    double mtemp[9]; /* rotation matrix buffer */
+
+    veccopy(rtemp, rpixel1);
+    normalize(rtemp);
+    vecmul(rtemp, cos(tiltazimuth + M_PI / 2.));
+
+    veccopy(rtemp2, rpixel2);
+    normalize(rtemp2);
+    vecmul(rtemp2, sin(tiltazimuth + M_PI / 2.));
+
+    sumvec(rtemp, rtemp2);  /* tiltaxis (rotation axis) now stored in rtemp */
+    rotation_arb(tilt, rtemp, mtemp);  /* rotation matrix now in mtemp */
+
+    /* rotate detector pixel directions */
+    veccopy(rtemp, rpixel1);
+    matvec(mtemp, rtemp, rpixel1);
+    veccopy(rtemp, rpixel2);
+    matvec(mtemp, rtemp, rpixel2);
+
+    return 0;
+}
 
 /* #######################################
  *  conversion functions
@@ -1344,7 +1370,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
 {
     double mtemp[9], mtemp2[9], ms[9], md[9];  /* matrices */
     double rd[3], rpixel1[3], rpixel2[3], rcchp[3];  /* detector position */
-    double r_i[3], rtemp[3], rtemp2[3];  /* r_i: center channel direction */
+    double r_i[3], rtemp[3];  /* r_i: center channel direction */
     int i, j, j1, j2, k;  /* loop indices */
     int idxh1, idxh2;  /* temporary index helper */
     int Ns, Nd;  /* number of sample and detector circles */
@@ -1472,23 +1498,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
     }
 
     /* rotate detector pixel vectors according to tilt */
-    veccopy(rtemp, rpixel1);
-    normalize(rtemp);
-    vecmul(rtemp, cos(tiltazimuth + M_PI / 2.));
-
-    veccopy(rtemp2, rpixel2);
-    normalize(rtemp2);
-    vecmul(rtemp2, sin(tiltazimuth + M_PI / 2.));
-
-    sumvec(rtemp, rtemp2);  /* tiltaxis (rotation axis) now stored in rtemp */
-
-    rotation_arb(tilt, rtemp, mtemp);  /* rotation matrix now in mtemp */
-
-    /* rotate detector pixel directions */
-    veccopy(rtemp, rpixel1);
-    matvec(mtemp, rtemp, rpixel1);
-    veccopy(rtemp, rpixel2);
-    matvec(mtemp, rtemp, rpixel2);
+    tilt_detector_axis(tiltazimuth, tilt, rpixel1, rpixel2);
 
     /* calculate center channel position in detector plane */
     for (k = 0; k < 3; ++k) {
@@ -1603,7 +1613,7 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
 {
     double mtemp[9], mtemp2[9], ms[9], md[9];  /* matrices */
     double rd[3], rpixel1[3], rpixel2[3], rcchp[3];  /* detector position */
-    double r_i[3], rtemp[3], rtemp2[3];  /* r_i: center channel direction */
+    double r_i[3], rtemp[3];  /* r_i: center channel direction */
     int i, j, j1, j2, k; /* loop indices */
     int idxh1, idxh2;  /* temporary index helper */
     int Ns, Nd;  /* number of sample and detector circles */
@@ -1738,23 +1748,7 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
     }
 
     /* rotate detector pixel vectors according to tilt */
-    veccopy(rtemp, rpixel1);
-    normalize(rtemp);
-    vecmul(rtemp, cos(tiltazimuth + M_PI / 2.));
-
-    veccopy(rtemp2, rpixel2);
-    normalize(rtemp2);
-    vecmul(rtemp2, sin(tiltazimuth + M_PI / 2.));
-
-    sumvec(rtemp, rtemp2);  /* tiltaxis (rotation axis) now stored in rtemp */
-
-    rotation_arb(tilt, rtemp, mtemp);  /* rotation matrix now in mtemp */
-
-    /* rotate detector pixel directions */
-    veccopy(rtemp, rpixel1);
-    matvec(mtemp, rtemp, rpixel1);
-    veccopy(rtemp, rpixel2);
-    matvec(mtemp, rtemp, rpixel2);
+    tilt_detector_axis(tiltazimuth, tilt, rpixel1, rpixel2);
 
     /* calculate center channel position in detector plane */
     for (k = 0; k < 3; ++k) {
@@ -1867,7 +1861,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 {
     double mtemp[9], md[9];  /* matrices */
     double rd[3], rpixel1[3], rpixel2[3], rcchp[3];  /* detector position */
-    double r_i[3], rtemp[3], rtemp2[3];  /* r_i: center channel direction */
+    double r_i[3], rtemp[3];  /* r_i: center channel direction */
     int i, j, k;  /* loop indices */
     int Nd;  /* number of detector circles */
     int Npoints;  /* number of angular positions */
@@ -1953,23 +1947,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     }
 
     /* rotate detector pixel vectors according to tilt */
-    veccopy(rtemp, rpixel1);
-    normalize(rtemp);
-    vecmul(rtemp, cos(tiltazimuth + M_PI / 2.));
-
-    veccopy(rtemp2, rpixel2);
-    normalize(rtemp2);
-    vecmul(rtemp2, sin(tiltazimuth + M_PI / 2.));
-
-    sumvec(rtemp, rtemp2);  /* tiltaxis (rotation axis) now stored in rtemp */
-
-    rotation_arb(tilt, rtemp, mtemp); /* rotation matrix now in mtemp */
-
-    /* rotate detector pixel directions */
-    veccopy(rtemp, rpixel1);
-    matvec(mtemp, rtemp, rpixel1);
-    veccopy(rtemp, rpixel2);
-    matvec(mtemp, rtemp, rpixel2);
+    tilt_detector_axis(tiltazimuth, tilt, rpixel1, rpixel2);
 
     /* calculate center channel position in detector plane */
     for (k = 0; k < 3; ++k) {
@@ -2058,7 +2036,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
 {
     double mtemp[9], mtemp2[9], ms[9], md[9];  /* matrices */
     double rd[3], rpixel1[3], rpixel2[3], rcchp[3];  /* detector position */
-    double r_i[3], rtemp[3], rtemp2[3];  /* r_i: center channel direction */
+    double r_i[3], rtemp[3];  /* r_i: center channel direction */
     int i, j, k;  /* loop indices */
     int Ns, Nd;  /* number of sample / detector circles */
     int Npoints; /* number of angular positions */
@@ -2168,23 +2146,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     }
 
     /* rotate detector pixel vectors according to tilt */
-    veccopy(rtemp, rpixel1);
-    normalize(rtemp);
-    vecmul(rtemp, cos(tiltazimuth + M_PI / 2.));
-
-    veccopy(rtemp2, rpixel2);
-    normalize(rtemp2);
-    vecmul(rtemp2, sin(tiltazimuth + M_PI / 2.));
-
-    sumvec(rtemp, rtemp2);  /* tiltaxis (rotation axis) now stored in rtemp */
-
-    rotation_arb(tilt, rtemp, mtemp);  /* rotation matrix now in mtemp */
-
-    /* rotate detector pixel directions */
-    veccopy(rtemp, rpixel1);
-    matvec(mtemp, rtemp, rpixel1);
-    veccopy(rtemp, rpixel2);
-    matvec(mtemp, rtemp, rpixel2);
+    tilt_detector_axis(tiltazimuth, tilt, rpixel1, rpixel2);
 
     /* calculate center channel position in detector plane */
     for (k = 0; k < 3; ++k) {
