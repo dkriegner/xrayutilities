@@ -26,6 +26,7 @@ import numpy
 import re
 
 from .. import config
+from ..exception import InputError
 
 circleSyntax = re.compile("[xyz][+-]")
 
