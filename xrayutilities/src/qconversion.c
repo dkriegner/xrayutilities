@@ -1243,7 +1243,7 @@ PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args)
 
 PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
    /* conversion of Npoints of goniometer positions to reciprocal space
-    * for a area detector with a given pixel size mounted along one of
+    * for an area detector with a given pixel size mounted along one of
     * the coordinate axis
     *
     *   Parameters
@@ -1490,7 +1490,7 @@ PyObject* ang2q_conversion_area(PyObject *self, PyObject *args)
 
 PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
    /* conversion of Npoints of goniometer positions to reciprocal space
-    * for a area detector with a given pixel size mounted along one of
+    * for an area detector with a given pixel size mounted along one of
     * the coordinate axis. this variant also considers the effect of a
     * sample displacement error.
     *
@@ -1749,7 +1749,7 @@ PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args)
 }
 
 PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
-   /* conversion of Npoints of detector positions to Q for a area detector
+   /* conversion of Npoints of detector positions to Q for an area detector
     * with a given pixel size mounted along one of the coordinate axis. This
     * function only calculates the q-position for the pairs of pixel numbers
     * (n1, n2) given in the input and should therefore be used only for
@@ -1933,7 +1933,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 
 PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
    /* conversion of Npoints of detector positions to Q
-    * for a area detector with a given pixel size mounted along one of
+    * for an area detector with a given pixel size mounted along one of
     * the coordinate axis. This function only calculates the q-position for the
     * pairs of pixel numbers (n1, n2) given in the input and should therefore
     * be used only for detector calibration purposes.
