@@ -36,6 +36,7 @@ import numpy
 import numbers
 
 from . import config
+from .exception import InputError
 
 
 def _makebounds(boundsin):
@@ -64,13 +65,13 @@ def _makebounds(boundsin):
             elif len(b) == 1:
                 boundsout.append((b[0], b[0]))
             else:
-                raise InputError()
+                raise InputError('bound values must have two or one elements')
         elif isinstance(b, numbers.Number):
             boundsout.append((b, b))  # variable fixed
         elif b is None:
             boundsout.append((None, None))  # no bound
         else:
-            raise InputError()
+            raise InputError('bound value is of invalid type (%s)'%type(b))
 
     return tuple(boundsout)
 
