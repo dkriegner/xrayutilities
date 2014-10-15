@@ -71,7 +71,7 @@ def _makebounds(boundsin):
         elif b is None:
             boundsout.append((None, None))  # no bound
         else:
-            raise InputError('bound value is of invalid type (%s)'%type(b))
+            raise InputError('bound value is of invalid type (%s)' % type(b))
 
     return tuple(boundsout)
 
