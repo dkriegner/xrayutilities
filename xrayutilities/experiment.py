@@ -402,7 +402,7 @@ class QConversion(object):
 
         return np
 
-    def _reshapeInput(self, npoints, delta, *args):
+    def _reshapeInput(self, npoints, delta, circles, *args, **kwargs):
         """
         helper function to reshape the input of arguments to
         (len(args),npoints) The input arguments must be either scalars or are
@@ -413,7 +413,12 @@ class QConversion(object):
          npoints:   length of the input arrays
          delta:     value to substract from the input arguments as array with
                     len(args)
+         circles:   list of circle description to decide if degree/radians
+                    conversion is needed
          *args:     input arrays and scalars
+         **kwargs:  optional keyword argument to tell if values of rotation
+                    axis should be converted to radiants (name= 'deg',
+                    default=True)
 
         Returns
         -------
@@ -424,6 +429,10 @@ class QConversion(object):
 
         inarr = numpy.empty((len(args), npoints), dtype=numpy.double)
         retshape = (npoints,)  # default value
+        if 'deg' in kwargs:
+            deg2rad = kwargs['deg']
+        else:
+            deg2rad = True
 
         for i in range(len(args)):
             arg = args[i]
@@ -443,7 +452,10 @@ class QConversion(object):
             else:  # determine return value shape
                 retshape = arg.shape
             arg = arg - delta[i]
-            inarr[i, :] = numpy.ravel(arg)
+            if deg2rad and circleSyntaxSample.search(circles[i]):
+                inarr[i, :] = numpy.radians(numpy.ravel(arg))
+            else:
+                inarr[i, :] = numpy.ravel(arg)
 
         return inarr, retshape
 
@@ -555,16 +567,17 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], *args[:Ns])
-        dAngles = self._reshapeInput(Npoints, delta[Ns:], *args[Ns:])[0]
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), wl)[0])
+        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], 
+                                               self.sampleAxis, *args[:Ns], 
+                                               deg=deg)
+        dAngles = self._reshapeInput(Npoints, delta[Ns:],
+                                     self.detectorAxis, *args[Ns:],
+                                     deg=deg)[0]
+        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
+                                            wl, deg=False)[0])
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
-
-        if deg:
-            sAngles = numpy.radians(sAngles)
-            dAngles = numpy.radians(dAngles)
 
         sAxis = self._sampleAxis_str
         dAxis = self._detectorAxis_str
@@ -805,16 +818,17 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], *args[:Ns])
-        dAngles = self._reshapeInput(Npoints, delta[Ns:], *args[Ns:])[0]
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), wl)[0])
+        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], 
+                                               self.sampleAxis, *args[:Ns], 
+                                               deg=deg)
+        dAngles = self._reshapeInput(Npoints, delta[Ns:],
+                                     self.detectorAxis, *args[Ns:],
+                                     deg=deg)[0]
+        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
+                                            wl, deg=False)[0])
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
-
-        if deg:
-            sAngles = numpy.radians(sAngles)
-            dAngles = numpy.radians(dAngles)
 
         # initialize psd geometry to for C subprogram (include Nav and roi
         # possibility)
@@ -1098,35 +1112,35 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], *args[:Ns])
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), wl)[0])
+        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], 
+                                               self.sampleAxis, *args[:Ns], 
+                                               deg=deg)
+        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
+                                            wl, deg=False)[0])
 
         if self._area_detrotaxis_set:
             Nd = Nd + 1
             if deg:
                 a = args[Ns:] + (numpy.degrees(self._area_detrot),)
-                dAngles = self._reshapeInput(
-                    Npoints, numpy.append(delta[Ns:], 0), *a)[0]
             else:
                 a = args[Ns:] + (self._area_detrot,)
-                dAngles = self._reshapeInput(
-                    Npoints, numpy.append(delta[Ns:], 0), *a)[0]
+            dAngles = self._reshapeInput(
+                Npoints, numpy.append(delta[Ns:], 0),
+                self.detectorAxis, *a, deg=deg)[0]
         else:
-            dAngles = self._reshapeInput(Npoints, delta[Ns:], *args[Ns:])[0]
+            dAngles = self._reshapeInput(Npoints, delta[Ns:],
+                                         self.detectorAxis, *args[Ns:],
+                                         deg=deg)[0]
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
-
-        if deg:
-            sAngles = numpy.radians(sAngles)
-            dAngles = numpy.radians(dAngles)
 
         # initialize ccd geometry to for C subroutine (include Nav and roi
         # possibility)
         cch1 = self._area_cch1 / float(nav[0])
         cch2 = self._area_cch2 / float(nav[1])
-        pwidth1 = self._area_pwidth1 * nav[0] / self._area_distance
-        pwidth2 = self._area_pwidth2 * nav[1] / self._area_distance
+        pwidth1 = self._area_pwidth1 * nav[0]
+        pwidth2 = self._area_pwidth2 * nav[1]
         roi = numpy.array(oroi)
         roi[0] = numpy.floor(oroi[0] / float(nav[0]))
         roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav[0])) + roi[0]
