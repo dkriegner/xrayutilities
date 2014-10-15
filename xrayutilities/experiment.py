@@ -308,11 +308,11 @@ class QConversion(object):
         needs to be (3,3) matrix
         """
         tmp = numpy.array(UB)
-        if tmp.shape != (3, 3):
+        if tmp.shape != (3, 3) and tmp.size != 9:
             raise InputError("QConversion: incorrect shape of UB matrix "
                              "(shape: %s)" % str(tmp.shape))
         else:
-            self._UB = tmp
+            self._UB = tmp.reshape((3, 3))
 
     energy = property(_get_energy, _set_energy)
     wavelength = property(_get_wavelength, _set_wavelength)
