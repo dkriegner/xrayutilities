@@ -1993,9 +1993,8 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     *   qpos ............ momentum transfer (Npoints, 3)
     *   */
 {
-    double mtemp[9], md[9];  /* matrices */
     double rd[3], rpixel1[3], rpixel2[3], rcchp[3];  /* detector position */
-    double r_i[3], rtemp[3];  /* r_i: center channel direction */
+    double r_i[3];  /* r_i: center channel direction */
     int i, j, k;  /* loop indices */
     int Nd;  /* number of detector circles */
     int Npoints;  /* number of angular positions */
@@ -2065,7 +2064,8 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
-    if (determine_axes_directions(detectorRotation, detectorAxis, Nd) != 0) {
+    if (determine_axes_directions_apply(detectorRotation,
+                                        detectorAxis, Nd) != 0) {
         return NULL;
     }
 
@@ -2090,29 +2090,25 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 
     /* calculate rotation matices and perform rotations */
     #pragma omp parallel for default(shared) \
-            private(i, j, k, mtemp, md, rd, rtemp) \
+            private(i, j, k, rd) \
             schedule(static)
     for (i = 0; i < Npoints; ++i) {
-        /* determine detector rotations */
-        ident(md);
-        for (j = 0; j < Nd; ++j) {
-            detectorRotation[j](detectorAngles[Nd * i + j], mtemp);
-            matmul(md, mtemp);
-        }
-        /* md contains the detector rotation matrix */
         /* calculate momentum transfer for the detector pixel n1[i], n2[i] */
         for (k = 0; k < 3; ++k) {
             rd[k] = n1[i] * rpixel1[k] + n2[i] * rpixel2[k] - rcchp[k];
         }
         sumvec(rd, rcch);
+        /* apply detector rotations/translations */
+        for (j = 0; j < Nd; ++j) {
+            detectorRotation[j](detectorAngles[Nd * i + j], rd);
+        }
         normalize(rd);
         /* rd contains detector pixel direction,
          * r_i contains primary beam direction */
-        matvec(md, rd, rtemp);
-        diffvec(rtemp, r_i);
-        vecmul(rtemp, f);
+        diffvec(rd, r_i);
+        vecmul(rd, f);
         /* save momentum transfer to output */
-        veccopy(&qpos[3 * i], rtemp);
+        veccopy(&qpos[3 * i], rd);
     }
 
     /* clean up */
@@ -2168,9 +2164,9 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     *   qpos ............ momentum transfer (Npoints, 3)
     *   */
 {
-    double mtemp[9], mtemp2[9], ms[9], md[9];  /* matrices */
+    double mtemp[9], mtemp2[9], ms[9];  /* matrices */
     double rd[3], rpixel1[3], rpixel2[3], rcchp[3];  /* detector position */
-    double r_i[3], rtemp[3];  /* r_i: center channel direction */
+    double r_i[3];  /* r_i: center channel direction */
     int i, j, k;  /* loop indices */
     int Ns, Nd;  /* number of sample / detector circles */
     int Npoints; /* number of angular positions */
@@ -2264,7 +2260,8 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
         return NULL;
     }
-    if (determine_axes_directions(detectorRotation, detectorAxis, Nd) != 0) {
+    if (determine_axes_directions_apply(detectorRotation,
+                                        detectorAxis, Nd) != 0) {
         return NULL;
     }
 
@@ -2289,7 +2286,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
 
     /* calculate rotation matices and perform rotations */
     #pragma omp parallel for default(shared) \
-            private(i, j, k, mtemp, mtemp2, ms, md, rd, rtemp) \
+            private(i, j, k, mtemp, mtemp2, ms, rd) \
             schedule(static)
     for (i = 0; i < Npoints; ++i) {
         /* determine sample rotations */
@@ -2303,28 +2300,23 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
         /* determine inverse matrix */
         inversemat(mtemp, ms);
 
-        /* determine detector rotations */
-        ident(md);
-        for (j = 0; j < Nd; ++j) {
-            detectorRotation[j](detectorAngles[Nd * i + j], mtemp);
-            matmul(md, mtemp);
-        }
-
         /* ms contains now the inverse rotation matrix for the sample circles
-         * md contains the detector rotation matrix
          * calculate the momentum transfer for a certain detector pixel */
         for (k = 0; k < 3; ++k) {
             rd[k] = n1[i] * rpixel1[k] + n2[i] * rpixel2[k] - rcchp[k];
         }
         sumvec(rd, rcch);
+        /* apply detector rotations/translations */
+        for (j = 0; j < Nd; ++j) {
+            detectorRotation[j](detectorAngles[Nd * i + j], rd);
+        }
         normalize(rd);
         /* rd contains detector pixel direction,
          * r_i contains primary beam direction */
-        matvec(md, rd, rtemp);
-        diffvec(rtemp, r_i);
-        vecmul(rtemp, f);
+        diffvec(rd, r_i);
+        vecmul(rd, f);
         /* determine momentum transfer */
-        matvec(ms, rtemp, &qpos[3 * i]);
+        matvec(ms, rd, &qpos[3 * i]);
     }
 
     /* clean up */
