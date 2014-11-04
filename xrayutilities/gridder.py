@@ -191,7 +191,7 @@ class Gridder1D(Gridder):
          min:   minimum value of the gridding range
          max:   maximum value of the gridding range
          fixed: flag to turn fixed range gridding on (True (default))
-                or of (False)
+                or off (False)
         """
         self.fixed_range = fixed
         self.xmin = min

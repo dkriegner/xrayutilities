@@ -103,7 +103,7 @@ class Gridder2D(Gridder):
          xmin,ymin:   minimum value of the gridding range in x,y
          xmax,ymax:   maximum value of the gridding range in x,y
          fixed: flag to turn fixed range gridding on (True (default))
-                or of (False)
+                or off (False)
         """
         self.fixed_range = fixed
         self.xmin = xmin
