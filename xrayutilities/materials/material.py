@@ -269,7 +269,7 @@ class Material(object):
                                              self.lattice.a3 * k)
                             distance = numpy.linalg.norm(atpos - refpos)
                             if distance <= maxdist:
-                                l.append((distance, a))
+                                l.append((distance, a, o))
         else:
             for i in range(-Na, Na + 1):
                 for j in range(-Nb, Nb + 1):
@@ -279,19 +279,22 @@ class Material(object):
                                  self.lattice.a3 * k)
                         distance = numpy.linalg.norm(atpos - refpos)
                         if distance <= maxdist:
-                            l.append((distance, '__dummy__'))
+                            l.append((distance, '__dummy__', 1.))
 
         # sort
         l.sort(key=operator.itemgetter(1))
         l.sort(key=operator.itemgetter(0))
         rl = []
-        mult = 1
+        if len(l) >= 1:
+            mult = l[0][2]
+        else:
+            return rl
         for i in range(1, len(l)):
-            if numpy.abs(l[i - 1][0] - l[i][0]) < config.EPSILON:
-                mult += 1
+            if numpy.abs(l[i - 1][0] - l[i][0]) < config.EPSILON and l[i - 1][1] == l[i][1]:
+                mult += l[i -1][2] # add occupancy
             else:
                 rl.append((l[i - 1][0], l[i - 1][1], mult))
-                mult = 1
+                mult = l[i][2]
         rl.append((l[-1][0], l[-1][1], mult))
 
         return rl

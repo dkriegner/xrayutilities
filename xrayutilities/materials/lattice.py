@@ -123,6 +123,9 @@ class Atom(object):
         ostr += " (%2d)" % self.num
         return ostr
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class LatticeBase(list):
 
