@@ -83,7 +83,8 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
         raise InputError("keyword rgument peaktype takes invalid value!")
 
     if not any(iparams):
-        cen = numpy.sum(xdata * ydata) / numpy.sum(ydata)
+        min = numpy.min(ydata)
+        cen = numpy.sum(xdata * (ydata-min)) / numpy.sum(ydata-min)
         iparams = [
             cen,
             numpy.sqrt(numpy.abs(numpy.sum((xdata - cen) ** 2 * ydata)
