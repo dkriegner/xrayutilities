@@ -1,3 +1,4 @@
+* peak_fit function: enhancement of automatic initial parameter determination
 * improvements in the Material.environment function (occupancy awareness)
 * reciprocal space conversion for goniometers with translation-axis in the
   detector arms (point, linear, area detectors)
