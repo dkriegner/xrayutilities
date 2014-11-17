@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012, 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module with a function wrapper to scipy.optimize.leastsq
 for fitting of a 2D function to a peak or a 1D Gauss fit with
@@ -83,14 +83,17 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
         raise InputError("keyword rgument peaktype takes invalid value!")
 
     if not any(iparams):
-        min = numpy.min(ydata)
-        cen = numpy.sum(xdata * (ydata-min)) / numpy.sum(ydata-min)
+        ld = ydata - numpy.min(ydata)
+        ipos = numpy.sum(xdata * ld) / numpy.sum(ld)
+        maxpos = xdata[numpy.argmax(ld)]
+        avx = numpy.average(xdata)
+        if numpy.abs(ipos - avx) < numpy.abs(maxpos-avx):
+            ipos = maxpos # use the estimate which is further from the center
         iparams = [
-            cen,
-            numpy.sqrt(numpy.abs(numpy.sum((xdata - cen) ** 2 * ydata)
-                       / numpy.sum(ydata))),
-            numpy.max(ydata),
-            numpy.min(ydata)]
+            ipos,
+            numpy.sqrt(numpy.abs(numpy.sum((xdata - ipos) ** 2 * ld))),
+            numpy.max(ld),
+            numpy.median(ydata)]
     if peaktype == 'PseudoVoigt':
         # set ETA parameter to be between Gauss and Lorentz shape
         iparams.append(0.5)
@@ -109,11 +112,6 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
     # use least-square fit
     myodr.set_job(fit_type=2)
 
-# DK commented out because this command triggers a syntax error with new scipy
-# version 2013/5/7
-#    if config.VERBOSITY >= config.DEBUG:
-#        myodr.set_iprint(final=1)
-
     fit = myodr.run()
 
     # fit.pprint() # prints final message from odrpack
@@ -131,7 +129,6 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
                   "do not trust the result!")
 
     return fit.beta, fit.sd_beta, itlim
-
 
 def gauss_fit(xdata, ydata, iparams=[], maxit=200):
     """
