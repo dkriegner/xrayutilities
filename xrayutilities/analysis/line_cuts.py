@@ -217,6 +217,7 @@ def get_qz_scan_int(qx, qz, intensity, qxpos, **kwargs):
       intdir:   integration direction
                 'omega': sample rocking angle (default)
                 '2theta': scattering angle
+      wl:       wavelength used to determine angular integration positions
 
     Returns
     -------
@@ -229,11 +230,14 @@ def get_qz_scan_int(qx, qz, intensity, qxpos, **kwargs):
     >>> qzcut,qzcut_int = get_qz_scan_int(qx,qz,inten,5.0,omrange=0.3)
     """
 
-    if 'lam' in kwargs:
-        lam = kwargs['lam']
+    if 'wl' in kwargs:
+        lam = kwargs['wl']
         exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam, geometry='real')
     else:
-        exp = experiment.HXRD([1, 0, 0], [0, 0, 1])
+        exp = experiment.HXRD([1, 0, 0], [0, 0, 1], geometry='real')
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.analysis.get_qz_scan_int: no wavelength specified, "
+                  "using default wavelength of %.4f\AA" % (exp.wavelength))
 
     if 'angrange' in kwargs:
         angrange = kwargs['angrange']
