@@ -1807,7 +1807,7 @@ class HXRD(Experiment):
 
             chi = -numpy.arctan2(math.VecDot(x, qvec),
                                  math.VecDot(z, qvec))
-            if numpy.abs(chi - numpy.pi / 2.) < config.EPSILON:
+            if numpy.abs(math.VecDot(z, qvec)) < config.EPSILON:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print("XU.HXRD: Given peak is perpendicular to ndir-"
                           "reference direction (might be inplane or "
