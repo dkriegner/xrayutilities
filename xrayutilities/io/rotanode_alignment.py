@@ -23,6 +23,7 @@ import numpy
 import re
 
 from .. import config
+from .helper import xu_open
 
 try:
     from matplotlib import pylab as plt
@@ -65,7 +66,7 @@ class RA_Alignment(object):
 
         self.filename = filename
         try:
-            self.fid = open(self.filename, 'r')
+            self.fid = xu_open(self.filename)
         except:
             self.fid = None
             raise IOError("error opening alignment log file %s"
@@ -234,7 +235,7 @@ class RA_Alignment(object):
             plt.ylabel(re.sub(pname + "_", "", an))
             twax = axis.twinx()
             plt.plot(d[2], d[1], 'r.-')
-            plt.ylabel("Int (cps)")
+            plt.ylabel("Int (cps)", color='r')
             plt.grid()
 
         plt.xlabel("Peak iteration number")
