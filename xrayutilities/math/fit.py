@@ -41,7 +41,8 @@ except ImportError:
               "available")
 
 
-def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
+def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
+             background='constant', plot=False, func_out=False):
     """
     fit function using odr-pack wrapper in scipy similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
@@ -57,28 +58,44 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
                 determined automatically if not specified
      peaktype:  type of peak to fit ('Gauss','Lorentz','PseudoVoigt')
      maxit:     maximal iteration number of the fit
+     background:    type of background, either 'constant' or 'linear'
+     plot:      flag to ask for a plot to visually judge the fit
+     func_out:  returns the fitted function, which takes the independent
+                variables as only argument (f(x))
 
     Returns
     -------
-     params,sd_params,itlim
+     params,sd_params,itlim[,fitfunc]
 
-    the parameters as defined in function Gauss1d/Lorentz1d or
-    PseudoVoigt1d(x, *param) and their errors of the fit, as well as a boolean
-    flag which is false in the case of a successful fit
+    the parameters as defined in function Gauss1d/Lorentz1d or 
+    PseudoVoigt1d(x, *param). In the case of linear background one more 
+    parameter is included! For every parameter the corresponding errors of the
+    fit 'sd_params' are returned. A boolean flag 'itlim', which is False in
+    the case of a successful fit is added by default. Further the function
+    used in the fit can be returned (see func_out).
     """
 
+    gfunc_dx = None
+    gfunc_dp = None
     if peaktype == 'Gauss':
-        gfunc = lambda param, x: Gauss1d(x, *param)
-        gfunc_dx = lambda param, x: Gauss1d_der_x(x, *param)
-        gfunc_dp = lambda param, x: Gauss1d_der_p(x, *param)
+        if background == 'linear':
+            gfunc = lambda param, x: Gauss1d(x, *param) + x * param[-1]
+        else:
+            gfunc = lambda param, x: Gauss1d(x, *param)
+            gfunc_dx = lambda param, x: Gauss1d_der_x(x, *param)
+            gfunc_dp = lambda param, x: Gauss1d_der_p(x, *param)
     elif peaktype == 'Lorentz':
-        gfunc = lambda param, x: Lorentz1d(x, *param)
-        gfunc_dx = lambda param, x: Lorentz1d_der_x(x, *param)
-        gfunc_dp = lambda param, x: Lorentz1d_der_p(x, *param)
+        if background == 'linear':
+            gfunc = lambda param, x: Lorentz1d(x, *param) + x * param[-1]
+        else:
+            gfunc = lambda param, x: Lorentz1d(x, *param)
+            gfunc_dx = lambda param, x: Lorentz1d_der_x(x, *param)
+            gfunc_dp = lambda param, x: Lorentz1d_der_p(x, *param)
     elif peaktype == 'PseudoVoigt':
-        gfunc = lambda param, x: PseudoVoigt1d(x, *param)
-        gfunc_dx = None
-        gfunc_dp = None
+        if background == 'linear':
+            gfunc = lambda param, x: PseudoVoigt1d(x, *param) + x * param[-1]
+        else:
+            gfunc = lambda param, x: PseudoVoigt1d(x, *param)
     else:
         raise InputError("keyword rgument peaktype takes invalid value!")
 
@@ -91,12 +108,16 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
             ipos = maxpos # use the estimate which is further from the center
         iparams = [
             ipos,
-            numpy.sqrt(numpy.abs(numpy.sum((xdata - ipos) ** 2 * ld))),
+            numpy.sqrt(numpy.sum(numpy.abs((xdata - ipos) ** 2 * ld))/numpy.sum(ld)),
             numpy.max(ld),
             numpy.median(ydata)]
-    if peaktype == 'PseudoVoigt':
-        # set ETA parameter to be between Gauss and Lorentz shape
-        iparams.append(0.5)
+        if peaktype in ['Lorentz', 'PseudoVoigt']:
+            iparams[1] *= 1/(2 * numpy.sqrt(2 * numpy.log(2)))
+        if peaktype == 'PseudoVoigt':
+            # set ETA parameter to be between Gauss and Lorentz shape
+            iparams.append(0.5)
+        if background == 'linear':
+            iparams.append(0.)
 
     if config.VERBOSITY >= config.DEBUG:
         print("XU.math.peak_fit: iparams: %s" % str(tuple(iparams)))
@@ -114,12 +135,9 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
 
     fit = myodr.run()
 
-    # fit.pprint() # prints final message from odrpack
-
     if config.VERBOSITY >= config.DEBUG:
-        print("XU.math.peak_fit: params: %s" % str(tuple(fit.beta)))
-        print("XU.math.peak_fit: params std: %s" % str(tuple(fit.sd_beta)))
-        print("XU.math.peak_fit: %s" % fit.stopreason[0])
+        print('XU.math.peak_fit:')
+        fit.pprint() # prints final message from odrpack
 
     itlim = False
     if fit.stopreason[0] == 'Iteration limit reached':
@@ -128,9 +146,25 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=200):
             print("XU.math.peak_fit: Iteration limit reached, "
                   "do not trust the result!")
 
-    return fit.beta, fit.sd_beta, itlim
+    if plot:
+        try:
+            plt.__name__
+        except NameError:
+            print("XU.math.peak_fit: Warning: plot functionality not "
+                  "available")
+        else:
+            plt.figure('XU:peak_fit')
+            plt.plot(xdata, ydata, 'ko', label='data', mew=2)
+            plt.plot(xdata, gfunc(fit.beta, xdata),'r-',
+                     label='%s-fit' % peaktype)
+            plt.legend()
 
-def gauss_fit(xdata, ydata, iparams=[], maxit=200):
+    if func_out:
+        return fit.beta, fit.sd_beta, itlim, lambda x: gfunc(fit.beta, x)
+    else:
+        return fit.beta, fit.sd_beta, itlim
+
+def gauss_fit(xdata, ydata, iparams=[], maxit=300):
     """
     Gauss fit function using odr-pack wrapper in scipy similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
