@@ -313,9 +313,16 @@ def PseudoVoigt1d(x, *p):
     the value of the PseudoVoigt described by the parameters p
     at position 'x'
     """
+    if p[4] > 1.0:
+        pv = 1.0
+    elif p[4] < 0.:
+        pv = 0.0
+    else:
+        pv = p[4]
+
     sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
-    f = p[3] + p[4] * Lorentz1d(x, p[0], p[1], p[2], 0) + \
-        (1 - p[4]) * Gauss1d(x, p[0], sigma, p[2], 0)
+    f = p[3] + pv * Lorentz1d(x, p[0], p[1], p[2], 0) + \
+        (1 - pv) * Gauss1d(x, p[0], sigma, p[2], 0)
     return f
 
 
@@ -336,10 +343,16 @@ def PseudoVoigt2d(x, y, *p):
     the value of the PseudoVoigt described by the parameters p
     at position (x,y)
     """
+    if p[7] > 1.0:
+        pv = 1.0
+    elif p[7] < 0.:
+        pv = 0.0
+    else:
+        pv = p[7]
     sigmax = p[2] / (2 * numpy.sqrt(2 * numpy.log(2)))
     sigmay = p[3] / (2 * numpy.sqrt(2 * numpy.log(2)))
-    f = p[5] + p[7] * Lorentz2d(x, y, p[0], p[1], p[2], p[3], p[4], 0, p[6]) + \
-        (1 - p[7]) * Gauss2d(x, y, p[0], p[1], sigmax, sigmay, p[4], 0, p[6])
+    f = p[5] + pv * Lorentz2d(x, y, p[0], p[1], p[2], p[3], p[4], 0, p[6]) + \
+        (1 - pv) * Gauss2d(x, y, p[0], p[1], sigmax, sigmay, p[4], 0, p[6])
     return f
 
 
