@@ -2150,10 +2150,10 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
         [qx, qy, qz] = exphxrd.Ang2Q(om, tt)
     [qxsub, qysub, qzsub] = exphxrd.Ang2Q(omalign, ttalign)
     params = [qysub, qzsub, 0.001, 0.001, psd.max(), 0, 0.]
+    drange = [qysub - frange[0], qysub + frange[0], qzsub - frange[1],
+              qzsub + frange[1]]
     params, covariance = math.fit_peak2d(
-        qy.flatten(), qz.flatten(), psd.flatten(), params,
-        [qysub - frange[0], qysub + frange[0], qzsub - frange[1],
-         qzsub + frange[1]],
+        qy.flatten(), qz.flatten(), psd.flatten(), params, drange,
         func, maxfev=10000)
     # correct params
     params[6] = params[6] % (numpy.pi)
@@ -2171,8 +2171,10 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
         plt.clf()
         from ..gridder2d import Gridder2D
         from .. import utilities
-        gridder = Gridder2D(400, 400)
-        gridder(qy, qz, psd)
+        gridder = Gridder2D(50, 50)
+        mask = (qy.flatten() > drange[0]) * (qy.flatten() < drange[1]) * \
+               (qz.flatten() > drange[2]) * (qz.flatten() < drange[3])
+        gridder(qy.flatten()[mask], qz.flatten()[mask], psd.flatten()[mask])
         # calculate intensity which should be plotted
         INT = utilities.maplog(gridder.data.transpose(), 4, 0)
         QXm = gridder.xmatrix
