@@ -1,3 +1,5 @@
+* spec-parser improvements, keep file closed when not parsing it
+* peak_fit: linear background feature
 * peak_fit function: enhancement of automatic initial parameter determination
 * improvements in the Material.environment function (occupancy awareness)
 * reciprocal space conversion for goniometers with translation-axis in the
