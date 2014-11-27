@@ -35,7 +35,7 @@ import tables
 import gzip
 
 # relative imports from xrayutilities
-from .helper import xu_open
+from .helper import xu_open, xu_h5open
 from .. import config
 from ..exception import InputError
 
@@ -501,108 +501,94 @@ class SPECScan(object):
          comp ....... activate compression - true by default
         """
 
-        closeFile = False
-        if isinstance(h5f, tables.file.File):
-            h5 = h5f
-            if not h5.isopen:
-                h5 = tables.openFile(h5f, mode='a')
-                closeFile = True
-        elif isinstance(h5f, str):
-            h5 = tables.openFile(h5f, mode='a')
-            closeFile = True
-        else:
-            raise InputError("h5f argument of wrong type was passed")
+        with xu_h5open(h5f, 'a') as h5:
+            # check if data object has been already written
+            if self.data is None:
+                raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read "
+                                 "so far - call ReadData method of the scan")
+                return None
 
-        # check if data object has been already written
-        if self.data is None:
-            raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read "
-                             "so far - call ReadData method of the scan")
-            return None
-
-        # parse keyword arguments:
-        if isinstance(group, str):
-            rootgroup = h5.getNode(group)
-        else:
-            rootgroup = group
-
-        if title != "":
-            group_title = title
-        else:
-            group_title = self.name
-        group_title = group_title.replace(".", "_")
-
-        if desc != "":
-            group_desc = desc
-        else:
-            group_desc = self.command
-
-        # create the dictionary describing the table
-        tab_desc_dict = {}
-        col_name_list = []
-        for d in self.data.dtype.descr:
-            cname = d[0]
-            col_name_list.append(cname)
-            if len(d[1:]) == 1:
-                ctype = numpy.dtype((d[1]))
+            # parse keyword arguments:
+            if isinstance(group, str):
+                rootgroup = h5.getNode(group)
             else:
-                ctype = numpy.dtype((d[1], d[2]))
-            tab_desc_dict[cname] = tables.Col.from_dtype(ctype)
+                rootgroup = group
 
-        # create the table object and fill it
-        f = tables.Filters(complevel=7, complib="zlib", fletcher32=True)
-        copy_count = 0
-        while True:
-            try:
-                # if everything goes well the group will be created and the
-                # loop stopped
-                g = h5.createGroup(rootgroup, group_title, group_desc)
-                break
-            except:
-                # if the group already exists the name must be changed and
-                # another will be made to create the group.
-                if self.ischanged:
-                    g = h5.removeNode(rootgroup, group_title, recursive=True)
+            if title != "":
+                group_title = title
+            else:
+                group_title = self.name
+            group_title = group_title.replace(".", "_")
+
+            if desc != "":
+                group_desc = desc
+            else:
+                group_desc = self.command
+
+            # create the dictionary describing the table
+            tab_desc_dict = {}
+            col_name_list = []
+            for d in self.data.dtype.descr:
+                cname = d[0]
+                col_name_list.append(cname)
+                if len(d[1:]) == 1:
+                    ctype = numpy.dtype((d[1]))
                 else:
-                    group_title = group_title + "_%i" % (copy_count)
-                    copy_count = copy_count + 1
+                    ctype = numpy.dtype((d[1], d[2]))
+                tab_desc_dict[cname] = tables.Col.from_dtype(ctype)
 
-        if comp:
-            tab = h5.createTable(g, "data", tab_desc_dict, "scan data",
-                                 filters=f)
-        else:
-            tab = h5.createTable(g, "data", tab_desc_dict, "scan data")
+            # create the table object and fill it
+            f = tables.Filters(complevel=7, complib="zlib", fletcher32=True)
+            copy_count = 0
+            while True:
+                try:
+                    # if everything goes well the group will be created and the
+                    # loop stopped
+                    g = h5.createGroup(rootgroup, group_title, group_desc)
+                    break
+                except:
+                    # if the group already exists the name must be changed and
+                    # another will be made to create the group.
+                    if self.ischanged:
+                        g = h5.removeNode(rootgroup, group_title, recursive=True)
+                    else:
+                        group_title = group_title + "_%i" % (copy_count)
+                        copy_count = copy_count + 1
 
-        for rec in self.data:
-            for cname in rec.dtype.names:
-                tab.row[cname] = rec[cname]
-            tab.row.append()
+            if comp:
+                tab = h5.createTable(g, "data", tab_desc_dict, "scan data",
+                                     filters=f)
+            else:
+                tab = h5.createTable(g, "data", tab_desc_dict, "scan data")
 
-        # finally after the table has been written to the table - commit the
-        # table to the file
-        tab.flush()
+            for rec in self.data:
+                for cname in rec.dtype.names:
+                    tab.row[cname] = rec[cname]
+                tab.row.append()
 
-        # write attribute data for the scan
-        g._v_attrs.ScanNumber = numpy.uint(self.nr)
-        g._v_attrs.Command = self.command
-        g._v_attrs.Date = self.date
-        g._v_attrs.Time = self.time
+            # finally after the table has been written to the table - commit the
+            # table to the file
+            tab.flush()
 
-        # write the initial motor positions as attributes
-        for k in self.init_motor_pos.keys():
-            g._v_attrs.__setattr__(k, numpy.float(self.init_motor_pos[k]))
+            # write attribute data for the scan
+            g._v_attrs.ScanNumber = numpy.uint(self.nr)
+            g._v_attrs.Command = self.command
+            g._v_attrs.Date = self.date
+            g._v_attrs.Time = self.time
 
-        # if scan contains MCA data write also MCA parameters
-        g._v_attrs.mca_start_channel = numpy.uint(self.mca_start_channel)
-        g._v_attrs.mca_stop_channel = numpy.uint(self.mca_stop_channel)
-        g._v_attrs.mca_nof_channels = numpy.uint(self.mca_channels)
+            # write the initial motor positions as attributes
+            for k in self.init_motor_pos.keys():
+                g._v_attrs.__setattr__(k, numpy.float(self.init_motor_pos[k]))
 
-        for k in optattrs.keys():
-            g._v_attrs.__setattr__(k, opattrs[k])
+            # if scan contains MCA data write also MCA parameters
+            g._v_attrs.mca_start_channel = numpy.uint(self.mca_start_channel)
+            g._v_attrs.mca_stop_channel = numpy.uint(self.mca_stop_channel)
+            g._v_attrs.mca_nof_channels = numpy.uint(self.mca_channels)
 
-        h5.flush()
+            for k in optattrs.keys():
+                g._v_attrs.__setattr__(k, opattrs[k])
 
-        if closeFile:
-            h5.close()
+            h5.flush()
 
 
 class SPECFile(object):
@@ -703,38 +689,23 @@ class SPECFile(object):
         optional keyword arguments:
          comp .................. activate compression - true by default
         """
+        with xu_h5open(h5f, 'a') as h5:
+            try:
+                g = h5.createGroup("/", os.path.splitext(
+                                   os.path.splitext(self.filename)[0])[0],
+                                   "Data of SPEC - File %s" % (self.filename))
+            except:
+                g = h5.getNode("/" + os.path.splitext(
+                               os.path.splitext(self.filename)[0])[0])
 
-        closeFile = False
-        if isinstance(h5f, tables.file.File):
-            h5 = h5f
-            if not h5.isopen:
-                h5 = tables.openFile(h5f, mode='a')
-                closeFile = True
-        elif isinstance(h5f, str):
-            h5 = tables.openFile(h5f, mode='a')
-            closeFile = True
-        else:
-            raise InputError("h5f argument of wrong type was passed")
-
-        try:
-            g = h5.createGroup("/", os.path.splitext(
-                               os.path.splitext(self.filename)[0])[0],
-                               "Data of SPEC - File %s" % (self.filename))
-        except:
-            g = h5.getNode("/" + os.path.splitext(
-                           os.path.splitext(self.filename)[0])[0])
-
-        for s in self.scan_list:
-            if (((not g.__contains__(s.name)) or s.ischanged)
-                    and s.scan_status != "NODATA"):
-                s.ReadData()
-                if s.data is not None:
-                    s.Save2HDF5(h5, group=g, comp=comp)
-                    s.ClearData()
-                    s.ischanged = False
-
-        if closeFile:
-            h5.close()
+            for s in self.scan_list:
+                if (((not g.__contains__(s.name)) or s.ischanged)
+                        and s.scan_status != "NODATA"):
+                    s.ReadData()
+                    if s.data is not None:
+                        s.Save2HDF5(h5, group=g, comp=comp)
+                        s.ClearData()
+                        s.ischanged = False
 
     def Update(self):
         """
@@ -1077,70 +1048,56 @@ def geth5_scan(h5f, scans, *args, **kwargs):
     -------
     >>> [om, tt], MAP = xu.io.geth5_scan(h5file, 36, 'omega', 'gamma')
     """
+    
+    with xu_h5open(h5f) as h5:
+        if "samplename" in kwargs:
+            h5g = h5.getNode(h5.root, kwargs["samplename"])
+        else:
+            h5g = h5.listNodes(h5.root)[0]
 
-    closeFile = False
-    if isinstance(h5f, tables.file.File):
-        h5 = h5f
-        if not h5.isopen:
-            h5 = tables.openFile(h5f, mode='r')
-            closeFile = True
-    elif isinstance(h5f, str):
-        h5 = tables.openFile(h5f, mode='r')
-        closeFile = True
-    else:
-        raise InputError("h5f argument of wrong type was passed")
+        if numpy.iterable(scans):
+            scanlist = scans
+        else:
+            scanlist = list([scans])
 
-    if "samplename" in kwargs:
-        h5g = h5.getNode(h5.root, kwargs["samplename"])
-    else:
-        h5g = h5.listNodes(h5.root)[0]
+        angles = dict.fromkeys(args)
+        for key in angles.keys():
+            if not isinstance(key, str):
+                raise InputError("*arg values need to be strings with motornames")
+            angles[key] = numpy.zeros(0)
+        buf = numpy.zeros(0)
+        MAP = numpy.zeros(0)
 
-    if numpy.iterable(scans):
-        scanlist = scans
-    else:
-        scanlist = list([scans])
-
-    angles = dict.fromkeys(args)
-    for key in angles.keys():
-        if not isinstance(key, str):
-            raise InputError("*arg values need to be strings with motornames")
-        angles[key] = numpy.zeros(0)
-    buf = numpy.zeros(0)
-    MAP = numpy.zeros(0)
-
-    for nr in scanlist:
-        h5scan = h5.getNode(h5g, "scan_%d" % nr)
-        command = h5.getNodeAttr(h5scan, 'Command')
-        sdata = h5scan.data.read()
-        if MAP.dtype == numpy.float64:
-            MAP.dtype = sdata.dtype
-        # append scan data to MAP, where all data are stored
-        MAP = numpy.append(MAP, sdata)
-        # check type of scan
-        notscanmotors = []
-        for i in range(len(args)):
-            motname = args[i]
-            try:
-                buf = sdata[motname]
-                scanshape = buf.shape
+        for nr in scanlist:
+            h5scan = h5.getNode(h5g, "scan_%d" % nr)
+            command = h5.getNodeAttr(h5scan, 'Command')
+            sdata = h5scan.data.read()
+            if MAP.dtype == numpy.float64:
+                MAP.dtype = sdata.dtype
+            # append scan data to MAP, where all data are stored
+            MAP = numpy.append(MAP, sdata)
+            # check type of scan
+            notscanmotors = []
+            for i in range(len(args)):
+                motname = args[i]
+                try:
+                    buf = sdata[motname]
+                    scanshape = buf.shape
+                    angles[motname] = numpy.concatenate((angles[motname], buf))
+                except:
+                    notscanmotors.append(i)
+            if len(notscanmotors) == len(args):
+                scanshape = len(sdata)
+            for i in notscanmotors:
+                motname = args[i]
+                buf = numpy.ones(
+                    scanshape) * h5.getNodeAttr(h5scan, "INIT_MOPO_%s" % motname)
                 angles[motname] = numpy.concatenate((angles[motname], buf))
-            except:
-                notscanmotors.append(i)
-        if len(notscanmotors) == len(args):
-            scanshape = len(sdata)
-        for i in notscanmotors:
-            motname = args[i]
-            buf = numpy.ones(
-                scanshape) * h5.getNodeAttr(h5scan, "INIT_MOPO_%s" % motname)
-            angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []
     for motname in args:
         # create return values in correct order
         retval.append(angles[motname])
-
-    if closeFile:
-        h5.close()
 
     if len(args) == 0:
         return MAP

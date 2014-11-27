@@ -17,6 +17,7 @@
 # Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .helper import xu_open
+from .helper import xu_h5open
 
 from .radicon import rad2hdf5
 from .radicon import hst2hdf5

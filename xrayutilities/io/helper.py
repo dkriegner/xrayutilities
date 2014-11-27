@@ -27,6 +27,7 @@ import os
 import gzip
 import bz2
 import sys
+import tables
 
 if sys.version_info >= (3, 3):
     import lzma  # new in python 3.3
@@ -34,6 +35,11 @@ if sys.version_info >= (3, 3):
 from .. import config
 from ..exception import InputError
 
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
 
 def xu_open(filename, mode='rb'):
     """
@@ -68,3 +74,41 @@ def xu_open(filename, mode='rb'):
         fid = open(filename, mode)
 
     return fid
+
+class xu_h5open(object):
+    """
+    helper object to decide if a HDF5 file has to opened/closed when
+    using with a 'with' statement.
+    """
+    def __init__(self, f, mode='r'):
+        """
+        Parameters
+        ----------
+         f:     filename or tables.file.File instance
+         mode:  mode in which the file should be opened. ignored in case a
+                file handle is passed as f
+        """
+        self.closeFile = True
+        self.fid = None
+        self.mode = mode
+        if isinstance(f, tables.file.File):
+            self.fid = f
+            self.closeFile = False
+            self.filename = f.filename
+        elif isinstance(f, basestring):
+            self.filename = f
+        else:
+            raise InputError("f argument of wrong type was passed, "
+                             "should be string or filename")
+
+    def __enter__(self):
+        if self.fid:
+            if not self.fid.isopen:
+                self.fid = tables.openFile(self.filename, mode=self.mode)
+        else:
+            self.fid = tables.openFile(self.filename, mode=self.mode)
+        return self.fid
+
+    def __exit__(self, type, value, traceback):
+        if self.closeFile:
+            self.fid.close()
