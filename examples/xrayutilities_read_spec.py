@@ -25,7 +25,6 @@ for details about the measurement see:
 """
 
 import numpy
-import tables
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import xrayutilities as xu
