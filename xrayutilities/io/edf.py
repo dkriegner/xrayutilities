@@ -79,11 +79,6 @@ class EDFFile(object):
         self.filename = fname
         self.full_filename = os.path.join(path, fname)
 
-        try:
-            self.fid = xu_open(self.full_filename, 'rb')
-        except:
-            raise IOError("cannot open file %s" % (self.full_filename))
-
         # evaluate keyword arguments
         self.nxkey = nxkey
         self.nykey = nykey
@@ -91,131 +86,159 @@ class EDFFile(object):
         self.headerflag = header
 
         # create attributes for holding data
-        self.header = {}
-        self.data = None
-        self.ReadData()
+        self._data = {}
+        self._headers = []
+        self._data_offsets = []
+        self._data_read = False
+        self._dimx = []
+        self._dimy = []
+        self._byte_order = []
+        self._fmt_str = []
+        self._dtype = []
 
-    def ReadData(self):
+        self.Parse()
+        self.nimages = len(self._data_offsets)
+        self.header = self._headers[0]
+
+    def Parse(self):
         """
-        Read the CCD data into the .data object
-        this function is called by the initialization
+        Parse file to find the number of entries and read the respective
+        header information
         """
-        line_buffer = " "
-        hdr_flag = False
-        ml_value_flag = False  # marks a multiline header
+        header = {}
         offset = 0
-        byte_order = ""
 
-        if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.io.EDFFile.ReadData: file: %s" % self.filename)
+        with xu_open(self.full_filename, 'rb') as fid:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.io.EDFFile.Parse: file: %s" % self.full_filename)
 
-        while self.headerflag:
-            line_buffer = self.fid.readline().decode('ascii')
-            if config.VERBOSITY >= config.DEBUG:
-                print(line_buffer)
+            if self.headerflag:
+                while True: # until end of file
+                    hdr_flag = False
+                    ml_value_flag = False  # marks a multiline header
+                    byte_order = ""
+                    while True: # until end of header
+                        line_buffer = fid.readline().decode('ascii')
+                        if config.VERBOSITY >= config.DEBUG:
+                            print(line_buffer)
+                        if line_buffer == "":
+                            break
+                        # remove leading and trailing whitespace symbols
+                        line_buffer = line_buffer.strip()
 
-            # remove leading and trailing whitespace symbols
-            line_buffer = line_buffer.strip()
+                        if line_buffer == "{" and not hdr_flag:  # start with header
+                            hdr_flag = True
+                            header = {}
+                            continue
 
-            if line_buffer == "{" and not hdr_flag:  # start with header
-                hdr_flag = True
-                continue
+                        if hdr_flag:
+                            # stop reading when the end of the header is reached
+                            if line_buffer == "}":
+                                # place offset reading here - here we get the
+                                # real starting position of the binary data!!!!
+                                offset = fid.tell()
+                                break
 
-            if hdr_flag:
-                # stop reading when the end of the header is reached
-                if line_buffer == "}":
-                    # place offset reading here - here we get the
-                    # real starting position of the binary data!!!!
-                    offset = self.fid.tell()
-                    break
+                            # continue if the line has no content
+                            if line_buffer == "":
+                                continue
 
-                # continue if the line has no content
-                if line_buffer == "":
-                    continue
+                            # split key and value of the header entry
+                            if not ml_value_flag:
+                                try:
+                                    [key, value] = edf_kv_split.split(line_buffer, 1)
+                                except:
+                                    print("XU.io.EDFFile.ReadData: line_buffer: %s"
+                                          % line_buffer)
 
-                # split key and value of the header entry
-                if not ml_value_flag:
-                    try:
-                        [key, value] = edf_kv_split.split(line_buffer, 1)
-                    except:
-                        print("XU.io.EDFFile.ReadData: line_buffer: %s"
-                              % line_buffer)
+                                key = key.strip()
+                                value = value.strip()
 
-                    key = key.strip()
-                    value = value.strip()
+                                # if the value extends over multiple lines set the
+                                # multiline value flag
+                                if value[-1] != ";":
+                                    ml_value_flag = True
+                                else:
+                                    value = value[:-1]
+                                    value = value.strip()
+                                    header[key] = value
+                            else:
+                                value = value + line_buffer
+                                if value[-1] == ";":
+                                    ml_value_flag = False
 
-                    # if the value extends over multiple lines set the
-                    # multiline value flag
-                    if value[-1] != ";":
-                        ml_value_flag = True
-                    else:
-                        value = value[:-1]
-                        value = value.strip()
-                        self.header[key] = value
-                else:
-                    value = value + line_buffer
-                    if value[-1] == ";":
-                        ml_value_flag = False
+                                    value = value[:-1]
+                                    value = value.strip()
+                                    header[key] = value
+                    if line_buffer == "":
+                        break
+                    else:  # append header to class variables
+                        self._byte_order.append(header["ByteOrder"])
+                        self._fmt_str.append(DataTypeDict[header[self.dtkey]])
+                        self._dimx.append(int(header[self.nxkey]))
+                        self._dimy.append(int(header[self.nykey]))
+                        self._dtype.append(header[self.dtkey])
 
-                        value = value[:-1]
-                        value = value.strip()
-                        self.header[key] = value
+                        self._headers.append(header)
+                        self._data_offsets.append(offset)
+                        # jump over data block
+                        tot_nofp = self._dimx[-1] * self._dimy[-1]
+                        fid.seek(fid.tell()+struct.calcsize(tot_nofp * self._fmt_str[-1]), 0)
 
-        # try to parse motor positions and counters from header into separate
-        # dictionary
-        if 'motor_mne' in self.header.keys():
-            tkeys = self.header['motor_mne'].split()
+            else:  # in case of no header also save one set of defaults
+                self._byte_order.append('LowByteFirst')
+                self._fmt_str.append(DataTypeDict['UnsignedShort'])
+                self._dimx.append(516)
+                self._dimy.append(516)
+                self._dtype.append('UnsignedShort')
+                self._headers.append(header)
+                self._data_offsets.append(offset)
+
+        # try to parse motor positions and counters from last found header
+        # into separate dictionary
+        if 'motor_mne' in header.keys():
+            tkeys = header['motor_mne'].split()
             try:
-                tval = numpy.array(
-                    self.header['motor_pos'].split(),
-                    dtype=numpy.double)
+                tval = numpy.array(header['motor_pos'].split(),
+                                   dtype=numpy.double)
                 self.motors = dict(zip(tkeys, tval))
             except:
                 print("XU.io.EDFFile.ReadData: Warning: header conversion "
                       "of motor positions failed")
 
-        if 'counter_mne' in self.header.keys():
-            tkeys = self.header['counter_mne'].split()
+        if 'counter_mne' in header.keys():
+            tkeys = header['counter_mne'].split()
             try:
-                tval = numpy.array(self.header['counter_pos'].split(),
+                tval = numpy.array(header['counter_pos'].split(),
                                    dtype=numpy.double)
                 self.counters = dict(zip(tkeys, tval))
             except:
                 print("XU.io.EDFFile.ReadData: Warning: header conversion "
                       "of counter values failed")
 
-        # ----------------start to read the data section----------------------
+    def ReadData(self, nimg=0):
+        """
+        Read the CCD data of the specified image and return the data
+        this function is called automatically when the 'data' property is
+        accessed, but can also be called manually when only a certain image
+        from the file is needed.
 
+        Parameters
+        ----------
+         nimg:      number of the image which should be read (starts with 0)
+        """
         # to read the data we have to open the file in binary mode
-        binfid = xu_open(self.full_filename, 'rb')
-
-        if (not self.headerflag):  # for fast scan at ID01
-            byte_order = 'LowByteFirst'
-            # evaluate some header entries
-            fmt_str = DataTypeDict['UnsignedShort']
-            # hdr_size = int(self.header["EDF_HeaderSize"])
-            dimx = 516
-            dimy = 516
-            dtype = 'UnsignedShort'
-        else:
-            byte_order = self.header["ByteOrder"]
-            # evaluate some header entries
-            fmt_str = DataTypeDict[self.header[self.dtkey]]
-            # hdr_size = int(self.header["EDF_HeaderSize"])
-            dimx = int(self.header[self.nxkey])
-            dimy = int(self.header[self.nykey])
-            dtype = self.header[self.dtkey]
-
-        # calculate the total number of pixles in the data block
-        tot_nofp = dimx * dimy
-        # move to the data section - jump over the header
-        binfid.seek(offset, 0)
-        # read the data
-        bindata = binfid.read(struct.calcsize(tot_nofp * fmt_str))
-        if config.VERBOSITY >= config.DEBUG:
-            print("XU.io.EDFFile: read binary data: nofp: %d len: %d"
-                  % (tot_nofp, len(bindata)))
-            print("XU.io.EDFFile: format: %s" % fmt_str)
+        with xu_open(self.full_filename, 'rb') as binfid:
+            # move to the data section - jump over the header
+            binfid.seek(self._data_offsets[nimg], 0)
+            # read the data
+            tot_nofp = self._dimx[nimg] * self._dimy[nimg]
+            fmt_str = self._fmt_str[nimg]
+            bindata = binfid.read(struct.calcsize(tot_nofp * fmt_str))
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.io.EDFFile: read binary data: nofp: %d len: %d"
+                      % (tot_nofp, len(bindata)))
+                print("XU.io.EDFFile: format: %s" % fmt_str)
 
         try:
             num_data = struct.unpack(tot_nofp * fmt_str, bindata)
@@ -236,39 +259,47 @@ class EDFFile(object):
                               % (fmt_str, len(bindata) / tot_nofp))
 
         # find the proper datatype
-        if dtype == "SignedByte":
-            self.data = numpy.array(num_data, dtype=numpy.int8)
-        elif dtype == "SignedShort":
-            self.data = numpy.array(num_data, dtype=numpy.int16)
-        elif dtype == "SignedInteger":
-            self.data = numpy.array(num_data, dtype=numpy.int32)
-        elif dtype == "SignedLong":
-            self.data = numpy.array(num_data, dtype=numpy.int64)
-        elif dtype == "FloatValue":
-            self.data = numpy.array(num_data, dtype=numpy.float)
-        elif dtype == "DoubleValue":
-            self.data = numpy.array(num_data, dtype=numpy.double)
-        elif dtype == "UnsignedByte":
-            self.data = numpy.array(num_data, dtype=numpy.uint8)
-        elif dtype == "UnsignedShort":
-            self.data = numpy.array(num_data, dtype=numpy.uint16)
-        elif dtype == "UnsignedInt":
-            self.data = numpy.array(num_data, dtype=numpy.uint32)
-        elif dtype == "UnsignedLong":
-            self.data = numpy.array(num_data, dtype=numpy.uint64)
+        if self._dtype[nimg] == "SignedByte":
+            data = numpy.asarray(num_data, dtype=numpy.int8)
+        elif self._dtype[nimg] == "SignedShort":
+            data = numpy.asarray(num_data, dtype=numpy.int16)
+        elif self._dtype[nimg] == "SignedInteger":
+            data = numpy.asarray(num_data, dtype=numpy.int32)
+        elif self._dtype[nimg] == "SignedLong":
+            data = numpy.asarray(num_data, dtype=numpy.int64)
+        elif self._dtype[nimg] == "FloatValue":
+            data = numpy.asarray(num_data, dtype=numpy.float)
+        elif self._dtype[nimg] == "DoubleValue":
+            data = numpy.asarray(num_data, dtype=numpy.double)
+        elif self._dtype[nimg] == "UnsignedByte":
+            data = numpy.asarray(num_data, dtype=numpy.uint8)
+        elif self._dtype[nimg] == "UnsignedShort":
+            data = numpy.asarray(num_data, dtype=numpy.uint16)
+        elif self._dtype[nimg] == "UnsignedInt":
+            data = numpy.asarray(num_data, dtype=numpy.uint32)
+        elif self._dtype[nimg] == "UnsignedLong":
+            data = numpy.asarray(num_data, dtype=numpy.uint64)
         else:
-            self.data = numpy.array(num_data, dtype=dtype.double)
+            data = numpy.asarray(num_data, dtype=numpy.double)
 
-        self.data = self.data.reshape(dimy, dimx)
-        if byte_order != "LowByteFirst":  # self.data = self.data.byteswap()
+        data.shape = (self._dimy[nimg], self._dimx[nimg])
+
+        if self._byte_order[nimg] != "LowByteFirst":  # data = data.byteswap()
             print("XU.io.EDFFile.ReadData: check byte order - "
                   "not low byte first")
 
-        # close the binary file descriptor
-        binfid.close()
+        return data
 
-        # return with file pointer to 0
-        self.fid.seek(0)
+    @property
+    def data(self):
+        if not self._data_read:
+            for i in range(self.nimages):
+                self._data[i] = self.ReadData(i)
+            self._data_read = True
+        if self.nimages == 1:
+            return self._data[0]
+        else:
+            return self._data
 
     def Save2HDF5(self, h5, group="/", comp=True):
         """
