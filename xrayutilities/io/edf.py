@@ -29,6 +29,7 @@ import glob
 import gzip
 
 from .helper import xu_open
+from .helper import xu_open, xu_h5open
 from .. import config
 
 edf_kv_split = re.compile(r"\s*=\s*")  # key value sepeartor for header data
@@ -301,7 +302,7 @@ class EDFFile(object):
         else:
             return self._data
 
-    def Save2HDF5(self, h5, group="/", comp=True):
+    def Save2HDF5(self, h5f, group="/", comp=True):
         """
         Saves the data stored in the EDF file in a HDF5 file as a HDF5 array.
         By default the data is stored in the root group of the HDF5 file - this
@@ -310,60 +311,68 @@ class EDFFile(object):
 
         Parameters
         ----------
-         h5 ....... a HDF5 file object
+         h5f ...... a HDF5 file object or name
 
         optional keyword arguments:
          group .... group where to store the data (default to the root of the
                     file)
          comp ..... activate compression - true by default
         """
+        with xu_h5open(h5f, 'a') as h5:
+            if isinstance(group, str):
+                g = h5.getNode(group)
+            else:
+                g = group
 
-        if isinstance(group, str):
-            g = h5.getNode(group)
-        else:
-            g = group
+            # create the array name
+            ca_name = os.path.split(self.filename)[-1]
+            ca_name = os.path.splitext(ca_name)[0]
+            # perform a second time for case of .edf.gz files
+            ca_name = os.path.splitext(ca_name)[0]
+            ca_name = ca_name.replace("-", "_")
+            ca_name = ca_name.replace(" ", "_")
+            if edf_name_start_num.match(ca_name):
+                ca_name = "ccd_" + ca_name
+            if config.VERBOSITY >= config.INFO_ALL:
+                print(ca_name)
 
-        # create the array name
-        ca_name = os.path.split(self.filename)[-1]
-        ca_name = os.path.splitext(ca_name)[0]
-        # perform a second time for case of .edf.gz files
-        ca_name = os.path.splitext(ca_name)[0]
-        ca_name = ca_name.replace("-", "_")
-        if edf_name_start_num.match(ca_name):
-            ca_name = "ccd_" + ca_name
-        if config.VERBOSITY >= config.INFO_ALL:
-            print(ca_name)
-        ca_name = ca_name.replace(" ", "_")
+            # create the array description
+            ca_desc = "EDF CCD data from file %s " % (self.filename)
 
-        # create the array description
-        ca_desc = "EDF CCD data from file %s " % (self.filename)
+            # create the Atom for the array
+            f = tables.Filters(complevel=7, complib="zlib", fletcher32=True)
+            if self.nimages != 1:
+                ca_name += '_{n:04d}'
+            
+            d = self.data
+            for n in range(self.nimages):
+                if self.nimages != 1:
+                    d = self.data[n]
+                s = d.shape
+                a = tables.Atom.from_dtype(d.dtype)
+                name = ca_name.format(n=n)
+                if comp:
+                    try:
+                        ca = h5.createCArray(g, name, a, s, ca_desc,
+                                             filters=f)
+                    except:
+                        h5.removeNode(g, name, recursive=True)
+                        ca = h5.createCArray(g, name, a, s, ca_desc,
+                                             filters=f)
+                else:
+                    try:
+                        ca = h5.createCArray(g, name, a, s, ca_desc)
+                    except:
+                        h5.removeNode(g, name, recursive=True)
+                        ca = h5.createCArray(g, name, a, s, ca_desc)
+                # write the data
+                ca[...] = d[...]
 
-        # create the Atom for the array
-        a = tables.Atom.from_dtype(self.data.dtype)
-        f = tables.Filters(complevel=7, complib="zlib", fletcher32=True)
-        if comp:
-            try:
-                ca = h5.createCArray(g, ca_name, a, self.data.shape,
-                                     ca_desc, filters=f)
-            except:
-                h5.removeNode(g, ca_name, recursive=True)
-                ca = h5.createCArray(g, ca_name, a, self.data.shape,
-                                     ca_desc, filters=f)
-        else:
-            try:
-                ca = h5.createCArray(g, ca_name, a, self.data.shape, ca_desc)
-            except:
-                h5.removeNode(g, ca_name, recursive=True)
-                ca = h5.createCArray(g, ca_name, a, self.data.shape, ca_desc)
-
-        # write the data
-        ca[...] = self.data[...]
-
-        # finally we have to append the attributes
-        for k in self.header.keys():
-            aname = k.replace(".", "_")
-            aname = aname.replace(" ", "_")
-            ca.attrs.__setattr__(aname, self.header[k])
+            # finally we have to append the attributes
+            for k in self.header.keys():
+                aname = k.replace(".", "_")
+                aname = aname.replace(" ", "_")
+                ca.attrs.__setattr__(aname, self.header[k])
 
 
 class EDFDirectory(object):
@@ -403,7 +412,7 @@ class EDFDirectory(object):
 
         self.init_keyargs = keyargs
 
-    def Save2HDF5(self, h5, group="", comp=True):
+    def Save2HDF5(self, h5f, group="", comp=True):
         """
         Saves the data stored in the EDF files in the specified directory in a
         HDF5 file as a HDF5 arrays in a subgroup.  By default the data is
@@ -413,32 +422,32 @@ class EDFDirectory(object):
 
         Parameters
         ----------
-         h5 ...... a HDF5 file object
+         h5f ..... a HDF5 file object or name
 
         optional keyword arguments:
          group ... group where to store the data (defaults to pathname if
                    group is empty string)
          comp .... activate compression - true by default
         """
+        with xu_h5open(h5f, 'a') as h5:
+            if isinstance(group, str):
+                if group == "":
+                    group = os.path.split(self.datapath)[1]
+                try:
+                    g = h5.getNode(h5.root, group)
+                except:
+                    g = h5.createGroup(h5.root, group)
+            else:
+                g = group
 
-        if isinstance(group, str):
-            if group == "":
-                group = os.path.split(self.datapath)[1]
-            try:
-                g = h5.getNode(h5.root, group)
-            except:
-                g = h5.createGroup(h5.root, group)
-        else:
-            g = group
+            if "comp" in keyargs:
+                compflag = keyargs["comp"]
+            else:
+                compflag = True
 
-        if "comp" in keyargs:
-            compflag = keyargs["comp"]
-        else:
-            compflag = True
-
-        for infile in self.files:
-            # read EDFFile and save to hdf5
-            filename = os.path.split(infile)[1]
-            e = EDFFile(filename, path=self.datapath, **self.init_keyargs)
-            # e.ReadData()
-            e.Save2HDF5(h5, group=g)
+            for infile in self.files:
+                # read EDFFile and save to hdf5
+                filename = os.path.split(infile)[1]
+                e = EDFFile(filename, path=self.datapath, **self.init_keyargs)
+                # e.ReadData()
+                e.Save2HDF5(h5, group=g)
