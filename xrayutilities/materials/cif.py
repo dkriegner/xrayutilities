@@ -155,6 +155,9 @@ class CIFFile(object):
                         loop_start = False
 
             elif re_emptyline.match(line):
+                loop_start = False
+                symop_loop = False
+                atom_loop = False
                 continue
             elif symop_loop:  # symmetry operation entry
                 entry = shlex.split(line)[symop_idx]
