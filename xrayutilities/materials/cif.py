@@ -20,7 +20,6 @@ import numpy
 import shlex
 
 from .lattice import LatticeBase, Lattice
-from .material import Material
 from . import elements
 from .. import config
 
@@ -28,6 +27,7 @@ re_loop = re.compile(r"^loop_")
 re_symop = re.compile(r"^\s*("
                       "_space_group_symop_operation_xyz|"
                       "_symmetry_equiv_pos_as_xyz)")
+re_name = re.compile(r"^\s*_chemical_formula_sum")
 re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)")
 re_atomx = re.compile(r"^\s*_atom_site_fract_x")
 re_atomy = re.compile(r"^\s*_atom_site_fract_y")
@@ -53,16 +53,18 @@ class CIFFile(object):
     structure are parsed from the CIF file
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, digits=3):
         """
         initialization of the CIFFile class
 
         Parameter
         ---------
          filename:  filename of the CIF file
+         digits:    number of digits to check if position is unique (optional)
         """
+        self.name = filename
         self.filename = filename
-        self.digits = 3  # number of digits used to check if position is unique
+        self.digits = digits
 
         try:
             self.fid = open(self.filename, "r")
@@ -70,7 +72,6 @@ class CIFFile(object):
             raise IOError("cannot open CIF file %s" % self.filename)
 
         self.Parse()
-
         self.SymStruct()
 
     def __del__(self):
@@ -133,6 +134,11 @@ class CIFFile(object):
                     self.lattice_angles[1] = floatconv(line.split()[1])
                 elif re_cell_gamma.match(line):
                     self.lattice_angles[2] = floatconv(line.split()[1])
+                elif re_name.match(line):
+                    try:
+                        self.name = shlex.split(line)[1]
+                    except:
+                        pass
                 if loop_start:
                     loop_labels.append(line.strip())
                     if re_symop.match(line):  # start of symmetry op. loop

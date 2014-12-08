@@ -148,9 +148,7 @@ Ir20Mn80 = Material(
 
 # materials defined from cif file
 try:
-    Al2O3 = Material(
-        "Al2O3",
-        CIFFile(os.path.join(__path__[0], "data", "Al2O3.cif")).Lattice())
+    Al2O3 = Material.fromCIF(os.path.join(__path__[0], "data", "Al2O3.cif"))
 except:
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.materials: Warning: import of CIF "

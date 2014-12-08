@@ -30,6 +30,7 @@ import numbers
 
 from . import lattice
 from . import elements
+from . import cif
 from .. import math
 from .. import utilities
 from .. import config
@@ -130,6 +131,23 @@ class Material(object):
             self.thetaDebye = float(thetaDebye)
         else:
             self.thetaDebye = thetaDebye
+
+    @classmethod
+    def fromCIF(cls, ciffilename):
+        """
+        Create a Material from a CIF file. Name and
+
+        Parameters
+        ----------
+         ciffilename:  filename of the CIF file
+
+        Returns
+        -------
+         Material instance
+        """
+        cf = cif.CIFFile(ciffilename)
+        lat = cf.Lattice()
+        return cls(cf.name, lat)
 
     def __getattr__(self, name):
         if name.startswith("c"):
