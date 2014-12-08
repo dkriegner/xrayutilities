@@ -36,6 +36,8 @@ from .. import utilities
 from .. import config
 from ..exception import InputError
 
+numpy.seterr(divide='ignore', invalid='ignore')
+
 map_ijkl2ij = {"00": 0, "11": 1, "22": 2,
                "12": 3, "20": 4, "01": 5,
                "21": 6, "02": 7, "10": 8}
