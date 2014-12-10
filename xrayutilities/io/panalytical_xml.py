@@ -180,7 +180,10 @@ class XRDMLFile(object):
         self.filename = fname
         d = ElementTree.parse(xu_open(fname))
         root = d.getroot()
-        namespace = root.tag[:root.tag.index('}')+1]
+        try:
+            namespace = root.tag[:root.tag.index('}')+1]
+        except:
+            namespace = ''
 
         slist = root.findall(namespace+"xrdMeasurement")
 
