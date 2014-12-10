@@ -1,4 +1,5 @@
 * fix memory leak in XRDMLFile by abandoning minidom
+* edf-parser improvements: support for multiple images per file
 * spec-parser improvements, keep file closed when not parsing it
 * peak_fit: linear background feature
 * peak_fit function: enhancement of automatic initial parameter determination
@@ -6,7 +7,7 @@
 * reciprocal space conversion for goniometers with translation-axis in the
   detector arms (point, linear, area detectors)
 * reciprocal space conversion of energy scans for point, linear, area
-  detectors 
+  detectors
 * addition of serval test routines to improve the code quality
 
 v1.1.0, 2014-10-09
