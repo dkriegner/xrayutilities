@@ -36,6 +36,7 @@ from .imagereader import ImageReader
 
 from .spec import SPECFile
 from .spec import SPECScan
+from .spec import SPECLog
 from .spec import geth5_scan
 # for backward compatibility import also as old name
 from .spec import geth5_scan as geth5_map

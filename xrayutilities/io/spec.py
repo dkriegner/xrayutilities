@@ -72,38 +72,6 @@ SPEC_errorbm20 = re.compile(r"^MI:")
 scan_status_flags = ["OK", "NODATA", "ABORTED", "CORRUPTED"]
 
 
-class SPECMCA(object):
-
-    """
-    SPECMCA - represents an MCA object in a SPEC file.
-    This class is an abstract class not itended for being used directly.
-    Instead use one of the derived classes SPECMCAFile or SPECMCAInline.
-    """
-
-    def __init__(self, nchan, roistart, roistop):
-        self.n_channels = nchan
-        self.roi_start = roistart
-        self.roi_stop = roistop
-
-
-class SPECMCAFile(SPECMCA):
-
-    def __init__(self):
-        SPECMCA.__init__(self)
-
-    def ReadData(self):
-        pass
-
-
-class SPECMCAInline(SPECMCA):
-
-    def __init__(self):
-        SPEMCA.__init__(self)
-
-    def ReadData(self):
-        pass
-
-
 class SPECScan(object):
 
     """
@@ -951,18 +919,15 @@ class SPECFile(object):
 
 class SPECCmdLine(object):
 
-    def __init__(self, n, prompt, cmdl, out):
+    def __init__(self, n, prompt, cmdl, out=""):
         self.linenumber = n
         self.prompt = prompt
         self.command = cmdl
         self.out = out
 
     def __str__(self):
-        ostr = "%i: %s %s" % (self.linenumber, self.prompt, self.command)
+        ostr = "%i.%s> %s" % (self.linenumber, self.prompt, self.command)
         return ostr
-
-    def Save2HDF5(h5, **keyargs):
-        pass
 
 
 class SPECLog(object):
@@ -974,33 +939,29 @@ class SPECLog(object):
         self.filename = filename
         self.full_filename = os.path.join(path, self.filename)
 
-        try:
-            self.fid = xu_open(self.full_filename, 'r')
-        except:
-            raise IOError("cannot open log file %s" % (self.full_filename))
-
         self.prompt = prompt
-        self.prompt_re = re.compile(r"^" + self.prompt)
+        self.prompt_re = re.compile(r"%s>" % self.prompt)
 
         self.cmdl_list = []
-        self.last_offset = self.fid.tell()
         self.line_counter = 0
+        self.Parse()
 
     def Parse(self):
+        with xu_open(self.full_filename, 'r') as fid:
+            while True:
+                line_buffer = fid.readline().decode('ascii')
+                if line_buffer == "":
+                    break
+                self.line_counter += 1
 
-        while True:
-            line_buffer = self.fid.readline().decode('ascii')
-            if line_buffer == "":
-                break
-
-            line_buffer = line_buffer.strip()
-
-            if self.prompt_re.match(line_buffer):
-                line_buffer = self.prompt_re.sub("", line_buffer)
                 line_buffer = line_buffer.strip()
+                if self.prompt_re.findall(line_buffer):
+                    [line, cmd] = self.prompt_re.split(line_buffer)
+                    self.cmdl_list.append(SPECCmdLine(int(float(line)),
+                                                      self.prompt, cmd))
 
     def __str__(self):
-        ostr = ""
+        ostr = "%s with %d lines\n" % (self.filename, self.line_counter)
 
         for cmd in self.cmdl_list:
             ostr = ostr + cmd.__str__() + "\n"
