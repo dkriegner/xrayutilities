@@ -41,6 +41,36 @@
 /*!
 \brief python interface function
 
+Python interface function for fuzzygridder1d. This function is virtually doing
+all the Python related stuff to run fuzzygridder1d function.
+\param self reference to the module
+\param args function arguments
+\return return value of the function
+*/
+PyObject* pyfuzzygridder1d(PyObject *self, PyObject *args);
+
+/*---------------------------------------------------------------------------*/
+/*!
+\brief 1D single threaded fuzzy gridder
+
+\param x input x-values
+\param data input data
+\param n number of input points
+\param nx number of steps in x-direction
+\param xmin minimm along x-direction
+\param xmax maximum along x-direction
+\param odata output data
+\param norm normalization data
+\param fuzzywidth width of the data for the fuzzy assignment to bins
+\param flags control falgs
+*/
+int fuzzygridder1d(double *x, double *data, unsigned int n,
+              unsigned int nx, double xmin, double xmax,
+              double *odata, double *norm, double fuzzywidth, int flags);
+
+/*!
+\brief python interface function
+
 Python interface function for gridder1d. This function is virtually doing all
 the Python related stuff to run gridder1d function.
 \param self reference to the module

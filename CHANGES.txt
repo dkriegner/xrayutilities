@@ -1,3 +1,5 @@
+* FuzzyGridder1D: improved 1D gridder using a range of value for each data
+  point
 * fix memory leak in XRDMLFile by abandoning minidom
 * edf-parser improvements: support for multiple images per file
 * spec-parser improvements, keep file closed when not parsing it

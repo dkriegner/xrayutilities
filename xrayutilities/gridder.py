@@ -138,7 +138,7 @@ class Gridder(object):
         if self.normalize:
             tmp = numpy.copy(self._gdata)
             mask = (self._gnorm != 0)
-            tmp[mask] /= self._gnorm[mask].astype(numpy.float)
+            tmp[mask] /= self._gnorm[mask].astype(numpy.double)
             return tmp
         else:
             return self._gdata.copy()
@@ -236,6 +236,58 @@ class Gridder1D(Gridder):
         flags = self.flags ^ 4
         cxrayutilities.gridder1d(x, data, self.nx, self.xmin, self.xmax,
                                  self._gdata, self._gnorm, flags)
+
+
+class FuzzyGridder1D(Gridder1D):
+    """
+    An 1D binning class considering every data point to have a finite width.
+    If necessary one data point will be split fractionally over different
+    data bins. This is numerically more effort but represents better the
+    typical case of a experimental data, which do not represent a mathematical
+    point but have a finite width (e.g. X-ray data from a 1D detector).
+    """
+
+    def __call__(self, x, data, width=None):
+        """
+        Perform gridding on a set of data. After running the gridder
+        the 'data' object in the class is holding the gridded data.
+
+        Parameters
+        ----------
+         x ............... numpy array of arbitrary shape with x positions
+         data ............ numpy array of arbitrary shape with data values
+         width ........... width of one data point. If not given half the bin
+                           size will be used.
+        """
+
+        if not self.keep_data:
+            self.Clear()
+
+        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
+            x = numpy.array(x)
+        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
+            data = numpy.array(data)
+
+        x = x.reshape(x.size)
+        data = data.reshape(data.size)
+
+        if x.size != data.size:
+            raise exception.InputError("XU.Gridder1D: size of given datasets "
+                                       "(x,data) is not equal!")
+
+        if not self.fixed_range:
+            # assume that with setting keep_data the user wants to call the
+            # gridder more often and obtain a reasonable result
+            self.dataRange(x.min(), x.max(), self.keep_data)
+
+        if not width:
+            width = delta(self.xmin, self.xmax, self.nx) / 2.
+
+        # remove normalize flag for C-code, normalization is always performed
+        # in python
+        flags = self.flags ^ 4
+        cxrayutilities.fuzzygridder1d(x, data, self.nx, self.xmin, self.xmax,
+                                      self._gdata, self._gnorm, width, flags)
 
 
 class npyGridder1D(Gridder1D):

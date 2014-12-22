@@ -32,6 +32,7 @@ extern PyObject* block_average_PSD(PyObject *self, PyObject *args);
 
 /* functions from gridder1d.c */
 extern PyObject* pygridder1d(PyObject *self, PyObject *args);
+extern PyObject* pyfuzzygridder1d(PyObject *self, PyObject *args);
 
 /* functions from gridder2d.c */
 extern PyObject* pygridder2d(PyObject *self, PyObject *args);
@@ -112,6 +113,22 @@ static PyMethodDef XRU_Methods[] = {
      "  xmin ... minimum x-value of the grid\n"
      "  xmax ... maximum x-value of the grid\n"
      "  out .... output data\n"
+     "  norm ... normalization array\n"
+     "  flags .. flags to specify behavior\n"
+    },
+    {"fuzzygridder1d", pyfuzzygridder1d, METH_VARARGS,
+     "Function performs fuzzy 1D gridding on 1D input data. \n\n"
+     "Parameters\n"
+     "----------\n"
+     "  x ...... input x-values (1D numpy array - float64)\n"
+     "  data ... input data (1D numpy array - float64)\n"
+     "  nx ..... number of grid points in x-direction\n"
+     "  xmin ... minimum x-value of the grid\n"
+     "  xmax ... maximum x-value of the grid\n"
+     "  out .... output data\n"
+     "  norm ... normalization array\n"
+     "  fuzzywidth .. fuzzy-size of the input data\n"
+     "  flags .. flags to specify behavior\n"
     },
     {"gridder2d", pygridder2d, METH_VARARGS,
      "Function performs 2D gridding on 1D input data. \n\n"
@@ -127,6 +144,8 @@ static PyMethodDef XRU_Methods[] = {
      "  ymin ... minimum y-value of the grid\n"
      "  ymax ... minimum y-value of the grid\n"
      "  out .... output data\n"
+     "  norm ... normalization array\n"
+     "  flags .. flags to specify behavior\n"
     },
     {"gridder3d", pygridder3d, METH_VARARGS,
      "Function performs 2D gridding on 1D input data. \n\n"
@@ -146,6 +165,8 @@ static PyMethodDef XRU_Methods[] = {
      "  zmin ... minimum z-value of the grid\n"
      "  zmax ... maximum z-value of the grid\n"
      "  out .... output data\n"
+     "  norm ... normalization array\n"
+     "  flags .. flags to specify behavior\n"
     },
     {"ang2q_conversion", ang2q_conversion, METH_VARARGS,
      "conversion of Npoints of goniometer positions to reciprocal space\n"
