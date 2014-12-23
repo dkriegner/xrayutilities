@@ -121,7 +121,10 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
 
     /* the master loop over all data points */
     dwidth = fuzzywidth / dx;
-    fprintf(stdout, "%f %f\n", fuzzywidth, dwidth);
+    if (flags & VERBOSE) {
+        fprintf(stdout, "XU.Gridder1D(c): fuzzyness: %f %f\n", fuzzywidth,
+                dwidth);
+    }
     for (i = 0; i < n; i++) {
         /* if data point is nan ignore it */
         if (!isnan(data[i])) {
