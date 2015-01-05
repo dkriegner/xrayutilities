@@ -21,6 +21,7 @@ module with several common function needed in xray data analysis
 
 import numpy
 import scipy.integrate
+import numbers
 
 from .. import config
 
@@ -325,6 +326,52 @@ def PseudoVoigt1d(x, *p):
         (1 - pv) * Gauss1d(x, p[0], sigma, p[2], 0)
     return f
 
+def PseudoVoigt1dasym(x, *p):
+    """
+    function to calculate an asymmetric pseudo Voigt function as linear
+    combination of asymmetric Gauss and Lorentz peak
+
+    Parameters
+    ----------
+     p:     list of parameters of the pseudo Voigt-function
+            [XCEN,FWHMLEFT,FWHMRIGHT,AMP,BACKGROUND,ETA]
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
+     x:     coordinate(s) where the function should be evaluated
+
+    Returns
+    -------
+    the value of the PseudoVoigt described by the parameters p
+    at position 'x'
+    """
+    if p[5] > 1.0:
+        pv = 1.0
+    elif p[5] < 0.:
+        pv = 0.0
+    else:
+        pv = p[5]
+
+    sigmal = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
+    sigmar = p[2] / (2 * numpy.sqrt(2 * numpy.log(2)))
+
+    if isinstance(x, numbers.Number):
+        if x < p[0]:
+            f = p[4] + pv * Lorentz1d(x, p[0], p[1], p[3], 0) + \
+                (1 - pv) * Gauss1d(x, p[0], sigmal, p[3], 0)
+        else:
+            f = p[4] + pv * Lorentz1d(x, p[0], p[2], p[3], 0) + \
+                (1 - pv) * Gauss1d(x, p[0], sigmar, p[3], 0)
+    else:
+        lx = numpy.asarray(x)
+        f = numpy.zeros(lx.shape)
+        f[lx < p[0]] = (p[4] + pv *
+                        Lorentz1d(lx[x < p[0]], p[0], p[1], p[3], 0) + (1 - pv)
+                        * Gauss1d(lx[x < p[0]], p[0], sigmal, p[3], 0))
+        f[lx >= p[0]] = (p[4] +  pv *
+                         Lorentz1d(lx[x >= p[0]], p[0], p[2], p[3], 0) +
+                         (1 - pv) *
+                         Gauss1d(lx[x >= p[0]], p[0], sigmar, p[3], 0))
+
+    return f
 
 def PseudoVoigt2d(x, y, *p):
     """
@@ -485,11 +532,11 @@ def multPeak1d(x, *args):
      args:      list of peak/function types and parameters for every function
                 type two arguments need to be given first the type of function
                 as string with possible values 'g': Gaussian, 'l': Lorentzian,
-                'v': PseudoVoigt, 'p': polynom the second type of arguments is
-                the tuple/list of parameters of the respective function. See
-                documentation of math.Gauss1d, math.Lorentz1d,
-                math.PseudoVoigt1d, and numpy.polyval for details of the
-                different function types.
+                'v': PseudoVoigt, 'a': asym. PseudoVoigt, 'p': polynom the
+                second type of arguments is the tuple/list of parameters of the
+                respective function. See documentation of math.Gauss1d,
+                math.Lorentz1d, math.PseudoVoigt1d, math.PseudoVoigt1dasym, and
+                numpy.polyval for details of the different function types.
 
     Returns
     -------
@@ -513,6 +560,8 @@ def multPeak1d(x, *args):
             f += Lorentz1d(x, *fparam)
         elif ftype == 'v':
             f += PseudoVoigt1d(x, *fparam)
+        elif ftype == 'a':
+            f += PseudoVoigt1dasym(x, *fparam)
         elif ftype == 'p':
             if isinstance(fparam, (tuple, list, numpy.ndarray)):
                 f += numpy.polyval(fparam, x)
