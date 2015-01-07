@@ -90,7 +90,7 @@ however upon such a move the download statistics are lost.
 UPDATE PyPI PACKAGE
 ===================
 
-Upload new version to the python package index by
+Upload new version to the Python package index by
 
   python setup.py sdist upload
   
