@@ -372,7 +372,7 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
             numpy.arange(Nuse),
             row[max(maxp - N // 2, 0):min(maxp + N // 2, len(row) - 1)],
             peaktype='PseudoVoigt')
-        if param[0] > 0 and param[0] < Nuse and perr[0] < Nuse/2.: 
+        if param[0] > 0 and param[0] < Nuse and perr[0] < Nuse/2.:
             param[0] += max(maxp - N // 2, 0)
             pos.append(param[0])
             posstd.append(perr[0])
@@ -386,7 +386,7 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
               "spectra." % (len(ang), len(angle)))
     if config.VERBOSITY >= config.DEBUG:
         print("XU.analysis.linear_detector_calib: determined peak positions:")
-        print(zip(pos,posstd))
+        print(zip(pos, posstd))
 
     detparam = psd_chdeg(ang, pos, stdev=posstd, **keyargs)
     if numpy.sign(detparam[0]) > 0:

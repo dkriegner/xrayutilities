@@ -41,6 +41,7 @@ try:
 except NameError:
     basestring = str
 
+
 def xu_open(filename, mode='rb'):
     """
     function to open a file no matter if zipped or not. Files with extension
@@ -74,6 +75,7 @@ def xu_open(filename, mode='rb'):
         fid = open(filename, mode)
 
     return fid
+
 
 class xu_h5open(object):
     """

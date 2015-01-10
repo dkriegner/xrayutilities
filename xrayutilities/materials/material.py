@@ -310,8 +310,9 @@ class Material(object):
         else:
             return rl
         for i in range(1, len(l)):
-            if numpy.abs(l[i - 1][0] - l[i][0]) < config.EPSILON and l[i - 1][1] == l[i][1]:
-                mult += l[i -1][2] # add occupancy
+            if (numpy.abs(l[i - 1][0] - l[i][0]) < config.EPSILON and
+                    l[i - 1][1] == l[i][1]):
+                mult += l[i - 1][2]  # add occupancy
             else:
                 rl.append((l[i - 1][0], l[i - 1][1], mult))
                 mult = l[i][2]

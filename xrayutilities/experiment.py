@@ -567,8 +567,8 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], 
-                                               self.sampleAxis, *args[:Ns], 
+        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
+                                               self.sampleAxis, *args[:Ns],
                                                deg=deg)
         dAngles = self._reshapeInput(Npoints, delta[Ns:],
                                      self.detectorAxis, *args[Ns:],
@@ -818,8 +818,8 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], 
-                                               self.sampleAxis, *args[:Ns], 
+        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
+                                               self.sampleAxis, *args[:Ns],
                                                deg=deg)
         dAngles = self._reshapeInput(Npoints, delta[Ns:],
                                      self.detectorAxis, *args[Ns:],
@@ -1112,8 +1112,8 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns], 
-                                               self.sampleAxis, *args[:Ns], 
+        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
+                                               self.sampleAxis, *args[:Ns],
                                                deg=deg)
         wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
                                             wl, deg=False)[0])

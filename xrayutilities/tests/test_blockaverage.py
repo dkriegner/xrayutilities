@@ -45,7 +45,8 @@ class TestBlockAverageFunctions(unittest.TestCase):
 
     def test_blockav_psd(self):
         out = xu.blockAveragePSD(self.seq2d, self.n)
-        self.assertAlmostEqual(out[0, 0], numpy.average(self.seq2d[0, 0:self.n]))
+        self.assertAlmostEqual(out[0, 0],
+                               numpy.average(self.seq2d[0, 0:self.n]))
         self.assertEqual(
             out.shape,
             (self.seq2d.shape[0],

@@ -67,8 +67,8 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
     -------
      params,sd_params,itlim[,fitfunc]
 
-    the parameters as defined in function Gauss1d/Lorentz1d or 
-    PseudoVoigt1d(x, *param). In the case of linear background one more 
+    the parameters as defined in function Gauss1d/Lorentz1d or
+    PseudoVoigt1d(x, *param). In the case of linear background one more
     parameter is included! For every parameter the corresponding errors of the
     fit 'sd_params' are returned. A boolean flag 'itlim', which is False in
     the case of a successful fit is added by default. Further the function
@@ -105,10 +105,11 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
         maxpos = xdata[numpy.argmax(ld)]
         avx = numpy.average(xdata)
         if numpy.abs(ipos - avx) < numpy.abs(maxpos-avx):
-            ipos = maxpos # use the estimate which is further from the center
+            ipos = maxpos  # use the estimate which is further from the center
         iparams = [
             ipos,
-            numpy.sqrt(numpy.sum(numpy.abs((xdata - ipos) ** 2 * ld))/numpy.sum(ld)),
+            numpy.sqrt(numpy.sum(numpy.abs((xdata - ipos) ** 2 * ld)) /
+                       numpy.sum(ld)),
             numpy.max(ld),
             numpy.median(ydata)]
         if peaktype in ['Lorentz', 'PseudoVoigt']:
@@ -137,7 +138,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
 
     if config.VERBOSITY >= config.DEBUG:
         print('XU.math.peak_fit:')
-        fit.pprint() # prints final message from odrpack
+        fit.pprint()  # prints final message from odrpack
 
     itlim = False
     if fit.stopreason[0] == 'Iteration limit reached':
@@ -155,7 +156,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
         else:
             plt.figure('XU:peak_fit')
             plt.plot(xdata, ydata, 'ko', label='data', mew=2)
-            plt.plot(xdata, gfunc(fit.beta, xdata),'r-',
+            plt.plot(xdata, gfunc(fit.beta, xdata), 'r-',
                      label='%s-fit' % peaktype)
             plt.legend()
 
@@ -163,6 +164,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
         return fit.beta, fit.sd_beta, itlim, lambda x: gfunc(fit.beta, x)
     else:
         return fit.beta, fit.sd_beta, itlim
+
 
 def gauss_fit(xdata, ydata, iparams=[], maxit=300):
     """

@@ -326,6 +326,7 @@ def PseudoVoigt1d(x, *p):
         (1 - pv) * Gauss1d(x, p[0], sigma, p[2], 0)
     return f
 
+
 def PseudoVoigt1dasym(x, *p):
     """
     function to calculate an asymmetric pseudo Voigt function as linear
@@ -366,12 +367,13 @@ def PseudoVoigt1dasym(x, *p):
         f[lx < p[0]] = (p[4] + pv *
                         Lorentz1d(lx[x < p[0]], p[0], p[1], p[3], 0) + (1 - pv)
                         * Gauss1d(lx[x < p[0]], p[0], sigmal, p[3], 0))
-        f[lx >= p[0]] = (p[4] +  pv *
+        f[lx >= p[0]] = (p[4] + pv *
                          Lorentz1d(lx[x >= p[0]], p[0], p[2], p[3], 0) +
                          (1 - pv) *
                          Gauss1d(lx[x >= p[0]], p[0], sigmar, p[3], 0))
 
     return f
+
 
 def PseudoVoigt2d(x, y, *p):
     """

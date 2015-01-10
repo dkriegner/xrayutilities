@@ -211,7 +211,7 @@ class CIFFile(object):
                         unique = False
                 if unique:
                     unique_pos.append(pos)
-            element = getattr(elements,el)
+            element = getattr(elements, el)
             self.unique_positions.append((element, unique_pos))
 
     def Lattice(self):

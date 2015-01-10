@@ -282,8 +282,8 @@ class SPECScan(object):
                 line_buffer = line_buffer.strip()
 
                 # Bugfix for ESRF/BM20 data
-                # the problem is that they store messages from automatic absorbers
-                # in the SPEC file - need to handle this
+                # the problem is that they store messages from automatic
+                # absorbers in the SPEC file - need to handle this
                 t = re.compile(r"^#C .* filter factor.*")
                 if t.match(line_buffer):
                     continue
@@ -292,7 +292,8 @@ class SPECScan(object):
                 if line_buffer == "":
                     break  # EOF
                 # check if scan is broken
-                if SPEC_scanbroken.findall(line_buffer) != [] or scan_aborted_flag:
+                if (SPEC_scanbroken.findall(line_buffer) != [] or
+                        scan_aborted_flag):
                     # need to check next line(s) to know if scan is resumed
                     # read until end of comment block or end of file
                     if not scan_aborted_flag:
@@ -347,8 +348,8 @@ class SPECScan(object):
 
                     # increment MCA counter
                     mca_counter = mca_counter + 1
-                    # if mca_counter exceeds the number of lines used to store MCA
-                    # data append everything to the record list
+                    # if mca_counter exceeds the number of lines used to store
+                    # MCA data: append everything to the record list
                     if mca_counter > self.mca_nof_lines:
                         record_list.append(line_list + [mca_tmp_list])
                         mca_counter = 0
@@ -360,14 +361,14 @@ class SPECScan(object):
                          len(record_list[0]), len(type_desc["names"])))
             if len(record_list[0]) == len(type_desc["names"]):
                 try:
-                    self.data = numpy.rec.fromrecords(record_list, dtype=type_desc)
+                    self.data = numpy.rec.fromrecords(record_list,
+                                                      dtype=type_desc)
                 except ValueError:
                     self.scan_status = 'NODATA'
-                    print("XU.io.SPECScan.ReadData: %s exception while parsing "
-                          "data" % self.name)
+                    print("XU.io.SPECScan.ReadData: %s exception while "
+                          "parsing data" % self.name)
             else:
                 self.scan_status = 'NODATA'
-
 
     def plot(self, *args, **keyargs):
         """
@@ -472,8 +473,9 @@ class SPECScan(object):
         with xu_h5open(h5f, 'a') as h5:
             # check if data object has been already written
             if self.data is None:
-                raise InputError("XU.io.SPECScan.Save2HDF5: No data has been read "
-                                 "so far - call ReadData method of the scan")
+                raise InputError("XU.io.SPECScan.Save2HDF5: No data has been"
+                                 "read so far - call ReadData method of the "
+                                 "scan")
                 return None
 
             # parse keyword arguments:
@@ -518,7 +520,8 @@ class SPECScan(object):
                     # if the group already exists the name must be changed and
                     # another will be made to create the group.
                     if self.ischanged:
-                        g = h5.removeNode(rootgroup, group_title, recursive=True)
+                        g = h5.removeNode(rootgroup, group_title,
+                                          recursive=True)
                     else:
                         group_title = group_title + "_%i" % (copy_count)
                         copy_count = copy_count + 1
@@ -534,8 +537,8 @@ class SPECScan(object):
                     tab.row[cname] = rec[cname]
                 tab.row.append()
 
-            # finally after the table has been written to the table - commit the
-            # table to the file
+            # finally after the table has been written to the table - commit
+            # the table to the file
             tab.flush()
 
             # write attribute data for the scan
@@ -739,13 +742,13 @@ class SPECFile(object):
                     scan_has_mca = False
                     scan_header_offset = self.last_offset
                     scan_status = "OK"
-                    # define some necessary variables which could be missing in the
-                    # scan header
+                    # define some necessary variables which could be missing in
+                    # the scan header
                     itime = numpy.nan
                     time = ''
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print("XU.io.SPECFile.Parse: processing scan nr. %d ..."
-                              % scannr)
+                        print("XU.io.SPECFile.Parse: processing scan nr. %d "
+                              "..." % scannr)
 
                 # if the line contains the date and time information
                 elif SPEC_datetime.match(line_buffer) and scan_started:
@@ -770,8 +773,8 @@ class SPECFile(object):
                     line_buffer = SPEC_initmopopos.sub("", line_buffer)
                     line_buffer = line_buffer.strip()
                     line_list = SPEC_multi_blank.split(line_buffer)
-                    # sometimes initial motor position are simply empty and this
-                    # should not lead to an error
+                    # sometimes initial motor position are simply empty and
+                    # this should not lead to an error
                     try:
                         for value in line_list:
                             init_motor_values.append(float(value))
@@ -795,13 +798,14 @@ class SPECFile(object):
                     col_names = SPEC_multi_blank.split(line_buffer)
 
                     # this is a fix in the case that blanks are allowed in
-                    # motor and detector names (only a single balanks is supported
-                    # meanwhile)
+                    # motor and detector names (only a single balanks is
+                    # supported meanwhile)
                     if len(col_names) > nofcols:
                         col_names = SPEC_multi_blank2.split(line_buffer)
 
                 elif SPEC_MCAFormat.match(line_buffer) and scan_started:
-                    mca_col_number = int(SPEC_num_value.findall(line_buffer)[0])
+                    mca_col_number = int(SPEC_num_value.findall(
+                                         line_buffer)[0])
                     scan_has_mca = True
 
                 elif SPEC_MCAChannels.match(line_buffer) and scan_started:
@@ -810,23 +814,24 @@ class SPECFile(object):
                     mca_start = int(line_list[1])
                     mca_stop = int(line_list[2])
 
-                elif SPEC_scanbroken.findall(line_buffer) != [] and scan_started:
-                    # this is the case when a scan is broken and no data has been
-                    # written, but nevertheless a comment is in the file that tells
-                    # us that the scan was aborted
+                elif (SPEC_scanbroken.findall(line_buffer) != [] and
+                      scan_started):
+                    # this is the case when a scan is broken and no data has
+                    # been written, but nevertheless a comment is in the file
+                    # that tells us that the scan was aborted
                     try:
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
-                                     time, itime, col_names, scan_header_offset,
-                                     scan_data_offset, self.full_filename,
-                                     self.init_motor_names, init_motor_values,
-                                     "NODATA")
+                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+                                     date, time, itime, col_names,
+                                     scan_header_offset, scan_data_offset,
+                                     self.full_filename, self.init_motor_names,
+                                     init_motor_values, "NODATA")
                     except:
                         scan_data_offset = self.last_offset
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
-                                     time, itime, col_names, scan_header_offset,
-                                     scan_data_offset, self.full_filename,
-                                     self.init_motor_names, init_motor_values,
-                                     "NODATA")
+                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+                                     date, time, itime, col_names,
+                                     scan_header_offset, scan_data_offset,
+                                     self.full_filename, self.init_motor_names,
+                                     init_motor_values, "NODATA")
 
                     self.scan_list.append(s)
 
@@ -837,17 +842,17 @@ class SPECFile(object):
                     init_motor_values = []
 
                 elif SPEC_dataline.match(line_buffer) and scan_started:
-                    # this is now the real end of the header block.
-                    # at this point we know that there is enough information about
-                    # the scan
+                    # this is now the real end of the header block. at this
+                    # point we know that there is enough information about the
+                    # scan
 
                     # save the data offset
                     scan_data_offset = self.last_offset
 
-                    # create an SPECFile scan object and add it to the scan list
-                    # the name of the group consists of the prefix scan and the
-                    # number of the scan in the file - this shoule make it easier
-                    # to find scans in the HDF5 file.
+                    # create an SPECFile scan object and add it to the scan
+                    # list the name of the group consists of the prefix scan
+                    # and the number of the scan in the file - this shoule make
+                    # it easier to find scans in the HDF5 file.
                     s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
                                  time, itime, col_names, scan_header_offset,
                                  scan_data_offset, self.full_filename,
@@ -866,25 +871,24 @@ class SPECFile(object):
                     init_motor_values = []
 
                 elif SPEC_scan.match(line_buffer) and scan_started:
-                    # this should only be the case when there are two consecutive
-                    # file headers in the data file without any data or abort
-                    # notice of the first scan;
-                    # first store current scan as aborted then start new scan
-                    # parsing
+                    # this should only be the case when there are two
+                    # consecutive file headers in the data file without any
+                    # data or abort notice of the first scan; first store
+                    # current scan as aborted then start new scan parsing
 
                     try:
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
-                                     time, itime, col_names, scan_header_offset,
-                                     scan_data_offset, self.full_filename,
-                                     self.init_motor_names, init_motor_values,
-                                     "ABORTED")
+                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+                                     date, time, itime, col_names,
+                                     scan_header_offset, scan_data_offset,
+                                     self.full_filename, self.init_motor_names,
+                                     init_motor_values, "ABORTED")
                     except:
                         scan_data_offset = self.last_offset
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd, date,
-                                     time, itime, col_names, scan_header_offset,
-                                     scan_data_offset, self.full_filename,
-                                     self.init_motor_names, init_motor_values,
-                                     "ABORTED")
+                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+                                     date, time, itime, col_names,
+                                     scan_header_offset, scan_data_offset,
+                                     self.full_filename, self.init_motor_names,
+                                     init_motor_values, "ABORTED")
 
                     self.scan_list.append(s)
 
@@ -906,14 +910,14 @@ class SPECFile(object):
                     scan_header_offset = self.last_offset
                     scan_status = "OK"
                     if config.VERBOSITY >= config.INFO_LOW:
-                        print("XU.io.SPECFile.Parse: processing scan nr. %i ..."
-                              % scannr)
+                        print("XU.io.SPECFile.Parse: processing scan nr. %i"
+                              "..." % scannr)
 
                 # store the position of the file pointer
                 self.last_offset = self.fid.tell()
 
-            # if reading of the file is finished store the data offset of the last
-            # scan as the last offset for the next parsing run of the file
+            # if reading of the file is finished store the data offset of the
+            # last scan as the last offset for the next parsing run of the file
             self.last_offset = self.scan_list[-1].doffset
 
 
@@ -1009,7 +1013,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
     -------
     >>> [om, tt], MAP = xu.io.geth5_scan(h5file, 36, 'omega', 'gamma')
     """
-    
+
     with xu_h5open(h5f) as h5:
         if "samplename" in kwargs:
             h5g = h5.getNode(h5.root, kwargs["samplename"])
@@ -1024,7 +1028,8 @@ def geth5_scan(h5f, scans, *args, **kwargs):
         angles = dict.fromkeys(args)
         for key in angles.keys():
             if not isinstance(key, str):
-                raise InputError("*arg values need to be strings with motornames")
+                raise InputError("*arg values need to be strings with "
+                                 "motornames")
             angles[key] = numpy.zeros(0)
         buf = numpy.zeros(0)
         MAP = numpy.zeros(0)
@@ -1052,7 +1057,8 @@ def geth5_scan(h5f, scans, *args, **kwargs):
             for i in notscanmotors:
                 motname = args[i]
                 buf = numpy.ones(
-                    scanshape) * h5.getNodeAttr(h5scan, "INIT_MOPO_%s" % motname)
+                    scanshape) * h5.getNodeAttr(h5scan,
+                                                "INIT_MOPO_%s" % motname)
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []

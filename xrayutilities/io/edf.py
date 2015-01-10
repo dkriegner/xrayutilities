@@ -114,11 +114,11 @@ class EDFFile(object):
                 print("XU.io.EDFFile.Parse: file: %s" % self.full_filename)
 
             if self.headerflag:
-                while True: # until end of file
+                while True:  # until end of file
                     hdr_flag = False
                     ml_value_flag = False  # marks a multiline header
                     byte_order = ""
-                    while True: # until end of header
+                    while True:  # until end of header
                         line_buffer = fid.readline().decode('ascii')
                         if config.VERBOSITY >= config.DEBUG:
                             print(line_buffer)
@@ -127,16 +127,18 @@ class EDFFile(object):
                         # remove leading and trailing whitespace symbols
                         line_buffer = line_buffer.strip()
 
-                        if line_buffer == "{" and not hdr_flag:  # start with header
+                        if line_buffer == "{" and not hdr_flag:
+                            # start with header
                             hdr_flag = True
                             header = {}
                             continue
 
                         if hdr_flag:
-                            # stop reading when the end of the header is reached
+                            # stop reading when the end of the header
+                            # is reached
                             if line_buffer == "}":
                                 # place offset reading here - here we get the
-                                # real starting position of the binary data!!!!
+                                # real starting position of the binary data!!
                                 offset = fid.tell()
                                 break
 
@@ -147,16 +149,17 @@ class EDFFile(object):
                             # split key and value of the header entry
                             if not ml_value_flag:
                                 try:
-                                    [key, value] = edf_kv_split.split(line_buffer, 1)
+                                    [key, value] = edf_kv_split.split(
+                                        line_buffer, 1)
                                 except:
-                                    print("XU.io.EDFFile.ReadData: line_buffer: %s"
-                                          % line_buffer)
+                                    print("XU.io.EDFFile.ReadData: "
+                                          "line_buffer: %s" % line_buffer)
 
                                 key = key.strip()
                                 value = value.strip()
 
-                                # if the value extends over multiple lines set the
-                                # multiline value flag
+                                # if the value extends over multiple lines set
+                                # the multiline value flag
                                 if value[-1] != ";":
                                     ml_value_flag = True
                                 else:
@@ -184,7 +187,9 @@ class EDFFile(object):
                         self._data_offsets.append(offset)
                         # jump over data block
                         tot_nofp = self._dimx[-1] * self._dimy[-1]
-                        fid.seek(fid.tell()+struct.calcsize(tot_nofp * self._fmt_str[-1]), 0)
+                        fid.seek(fid.tell() +
+                                 struct.calcsize(tot_nofp * self._fmt_str[-1]),
+                                 0)
 
             else:  # in case of no header also save one set of defaults
                 self._byte_order.append('LowByteFirst')
@@ -343,7 +348,7 @@ class EDFFile(object):
             f = tables.Filters(complevel=7, complib="zlib", fletcher32=True)
             if self.nimages != 1:
                 ca_name += '_{n:04d}'
-            
+
             d = self.data
             for n in range(self.nimages):
                 if self.nimages != 1:

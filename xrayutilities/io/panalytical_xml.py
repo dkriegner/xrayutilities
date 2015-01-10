@@ -81,7 +81,8 @@ class XRDMLMeasurement(object):
                 # if present read beamAttenuationFactors
                 # they are already corrected in the data file, but may be
                 # interesting
-                attfact = points.find(self.namespace + "beamAttenuationFactors")
+                attfact = points.find(self.namespace +
+                                      "beamAttenuationFactors")
                 if attfact:
                     data = attfact.text
                     data_list = numpy.fromstring(data, sep=" ")
