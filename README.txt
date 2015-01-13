@@ -4,12 +4,12 @@ xrayutilities
 =============
 
 xrayutilities is a collection of scripts used to analyze x-ray diffraction data. 
-It consists of a python package and several routines coded in C. It especially 
+It consists of a Python package and several routines coded in C. It especially 
 useful for the reciprocal space conversion of diffraction data taken with linear 
 and area detectors.
 
 
-Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
@@ -19,7 +19,7 @@ Contents
 --------
 
 * examples:           directory with example scripts and configurations
-* python:             directory with the sources for the python package
+* python:             directory with the sources for the Python package
 * setup.py:           distutils install script used for the package installation
 * xrayutilities.pdf:  pdf-file with documentation of the package
 
@@ -55,9 +55,9 @@ system
 
 refer to your operating system documentation to find out how to install
 those packages. On Microsoft Windows refer to the Documentation for the 
-easiest way of the installation (python(x,y)).
+easiest way of the installation (Python(x,y) or WinPython).
 
-On Microsoft Windows with python(x,y) it is furthermore necessary to manually
+On Microsoft Windows it might be necessary to manually
 specify the C compiler used for building the extension modules using
 
   $> python setup.py build -c mingw32
@@ -75,7 +75,7 @@ The python package configuration
 ================================
 
 The following steps should only be necessary for user local installation to
-ensure the python module is found by the python interpreter:
+ensure the Python module is found by the Python interpreter:
 In this case the module is installed under 
 <prefix>/lib[64]/python?.?/site-packages on Unix systems and
 <prefix>/Lib/site-packages on Windows systems. 
@@ -121,7 +121,7 @@ its source folder and obtain the new sources by ::
  
 or download the new tarball from sourceforge
 (http://sf.net/projects/xrayutilities) if any code changed during the update you
-need to reinstall the python package.  To determine the path in which
+need to reinstall the Python package.  To determine the path in which
 xrayutilities where installed previously use ::
 
   $> python -c "import xrayutilities as xu; print xu.__file__"

@@ -1,7 +1,13 @@
-Notes about origin of files:
+Notes about origin/copyright of files:
 
-nist_atom.dat: included from NIST > Physical Reference Data > Atomic Weights; http://www.nist.gov/pml/data/comp.cfm
+*.cif .... structure files created by the webform [1] from available
+           data (Journal articles)
 
-f[01]*.dat.xz: database files from XOP project; http://ftp.esrf.eu/pub/scisoft/xop2.3/
+f[01]*.dat.xz: database files from XOP/DABAX project [2]
 
-*.cif .... structure files from the American Mineralogist database http://rruff.geo.arizona.edu/AMS/amcsd.php
+nist_atom.dat: included from NIST > Physical Reference Data 
+               > Atomic Weights [3]
+
+[1] http://www.cryst.ehu.es/cgi-bin/cryst/programs/mcif2vesta/index.php
+[2] http://ftp.esrf.eu/pub/scisoft/xop2.3/
+[3] http://www.nist.gov/pml/data/comp.cfm
