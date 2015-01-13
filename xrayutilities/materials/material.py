@@ -14,7 +14,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2012,2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2012,2014-2015
+#               Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -914,7 +915,7 @@ def CubicElasticTensor(c11, c12, c44):
 
     Returns
     -------
-     6x6 materix with elastic constants
+     6x6 matrix with elastic constants
     """
     m = numpy.zeros((6, 6), dtype=numpy.double)
     m[0, 0] = c11
@@ -942,7 +943,7 @@ def HexagonalElasticTensor(c11, c12, c13, c33, c44):
 
     Returns
     -------
-     6x6 materix with elastic constants
+     6x6 matrix with elastic constants
 
     """
     m = numpy.zeros((6, 6), dtype=numpy.double)
@@ -951,9 +952,46 @@ def HexagonalElasticTensor(c11, c12, c13, c33, c44):
     m[3, 3] = m[4, 4] = c44
     m[5, 5] = 0.5 * (c11 - c12)
     m[0, 1] = m[1, 0] = c12
-    m[0, 2] = m[1, 2] = m[2, 0] = m[2, 1] = c12
+    m[0, 2] = m[1, 2] = m[2, 0] = m[2, 1] = c13
 
     return m
+
+
+def WZTensorFromCub(c11ZB,c12ZB,c44ZB):
+    """
+    Determines the hexagonal elastic tensor from the values of the cubic
+    elastic tensor under the assumptions presented in Phys. Rev. B 6, 4546
+    (1972), which are valid for the WZ <-> ZB polymorphs.
+
+    Parameter
+    ---------
+     c11,c12,c44:   independent components of the elastic tensor of cubic
+                    materials
+
+    Returns
+    -------
+     6x6 matrix with elastic constants
+
+    Implementation according to a patch submitted by Julian Stangl
+    """
+    # matrix conversions: cubic (111) to hexagonal (001) direction
+    P = (1 / 6.) * numpy.array([[3, 3, 6],
+                                [2, 4, 8],
+                                [1, 5, -2],
+                                [2, 4, -4],
+                                [2, -2, 2],
+                                [1, -1, 4]])
+    Q = (1 / (3 * numpy.sqrt(2))) * numpy.array([1, -1, -2])
+
+    cZBvec = numpy.array([c11ZB, c12ZB, c44ZB])
+    cWZvec_BAR = numpy.dot(P, cZBvec)
+    delta = numpy.dot(Q, cZBvec)
+    D = numpy.array([delta**2 / cWZvec_BAR[2], 0, -delta**2 / cWZvec_BAR[2],
+                     0, delta**2 / cWZvec_BAR[0], delta**2 / cWZvec_BAR[2]])
+    cWZvec = cWZvec_BAR - D.T
+
+    return HexagonalElasticTensor(cWZvec[0], cWZvec[2], cWZvec[3],
+                                  cWZvec[1], cWZvec[4])
 
 
 # define general material usefull for peak position calculations

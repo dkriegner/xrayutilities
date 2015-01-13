@@ -13,14 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013,2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 import numpy
 
 from . import __path__
-from .material import Material, CubicElasticTensor
-from .material import HexagonalElasticTensor, CubicAlloy
+from .material import Material, CubicElasticTensor, CubicAlloy
+from .material import HexagonalElasticTensor, WZTensorFromCub
 from . import lattice
 from . import elements
 from .cif import CIFFile
@@ -59,7 +59,46 @@ GaSb = Material("GaSb",
                 lattice.ZincBlendeLattice(elements.Ga, elements.Sb, 6.09593),
                 CubicElasticTensor(8.83e+10, 4.02e+10, 4.32e+10),
                 thetaDebye=266)
-# ? Unit of elastic constants for CdTe ?
+# from unpublished
+GaAsWZ = Material("GaAs(WZ)",
+                  lattice.WurtziteLattice(elements.Ga, elements.As,
+                                          3.9845, 6.5701),
+                  WZTensorFromCub(11.9e+10, 5.34e+10, 5.96e+10))
+GaAs4H = Material("GaAs(4H)", lattice.WurtziteLattice(elements.Ga, elements.As,
+                                                      3.9900, 13.0964))
+# from Phys. Rev. B 88, 115315 (2013)
+GaPWZ = Material("GaP(WZ)",
+                 lattice.WurtziteLattice(elements.Ga, elements.P,
+                                         3.8419, 6.3353, u=0.37385),
+                 WZTensorFromCub(14.05e+10, 6.20e+10, 7.03e+10))
+# from Nanotechnology 22 425704 (2011)
+InPWZ = Material("InP(WZ)",
+                 lattice.WurtziteLattice(elements.In, elements.P,
+                                         4.1423, 6.8013),
+                 WZTensorFromCub(10.11e+10, 5.61e+10, 4.56e+10))
+# from Nano Lett., 2011, 11 (4), pp 1483-1489
+InAsWZ = Material("InAs(WZ)",
+                  lattice.WurtziteLattice(elements.In, elements.As,
+                                          4.2742, 7.0250),
+                  WZTensorFromCub(8.34e+10, 4.54e+10, 3.95e+10))
+InAs4H = Material("InAs(4H)", lattice.WurtziteLattice(elements.In, elements.As,
+                                                      4.2780, 14.0171))
+InSbWZ = Material("InSb(WZ)",
+                  lattice.WurtziteLattice(elements.In, elements.Sb,
+                                          4.5712, 7.5221),
+                  WZTensorFromCub(6.66e+10, 3.65e+10, 3.02e+10))
+InSb4H = Material("InSb(4H)", lattice.WurtziteLattice(elements.In, elements.Sb,
+                                                      4.5753, 15.0057))
+
+# ? Unit of elastic constants for CdTe,PbTe,PbSe ?
+PbTe = Material(
+    "PbTe",
+    lattice.RockSalt_Cubic_Lattice(elements.Pb, elements.Te, 6.464),
+    CubicElasticTensor(93.6, 7.7, 13.4))
+PbSe = Material(
+    "PbSe",
+    lattice.RockSalt_Cubic_Lattice(elements.Pb, elements.Se, 6.128),
+    CubicElasticTensor(123.7, 19.3, 15.9))
 CdTe = Material("CdTe",
                 lattice.ZincBlendeLattice(elements.Cd, elements.Te, 6.482),
                 CubicElasticTensor(53.5, 36.7, 19.9))
@@ -72,14 +111,7 @@ CdSe_ZB = Material("CdSe ZB",
 HgSe = Material("HgSe",
                 lattice.ZincBlendeLattice(elements.Hg, elements.Se, 6.085),
                 CubicElasticTensor(6.1e10, 4.4e10, 2.2e10))
-PbTe = Material(
-    "PbTe",
-    lattice.RockSalt_Cubic_Lattice(elements.Pb, elements.Te, 6.464),
-    CubicElasticTensor(93.6, 7.7, 13.4))
-PbSe = Material(
-    "PbSe",
-    lattice.RockSalt_Cubic_Lattice(elements.Pb, elements.Se, 6.128),
-    CubicElasticTensor(123.7, 19.3, 15.9))
+
 NaCl = Material(
     "NaCl",
     lattice.RockSalt_Cubic_Lattice(elements.Na, elements.Cl, 5.6402))
@@ -154,9 +186,8 @@ except:
         print("XU.materials: Warning: import of CIF "
               "file based material failed")
 
+
 # Alloys with special properties
-
-
 class SiGe(CubicAlloy):
 
     def __init__(self, x):
