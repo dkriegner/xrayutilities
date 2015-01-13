@@ -569,13 +569,11 @@ class Material(object):
 
     def __str__(self):
         ostr = "Material: %s\n" % self.name
-        ostr += "Elastic constants:\n"
-        ostr += "c11 = %e\n" % self.c11
-        ostr += "c12 = %e\n" % self.c12
-        ostr += "c44 = %e\n" % self.c44
-        ostr += "mu  = %e\n" % self.mu
-        ostr += "lam = %e\n" % self.lam
-        ostr += "nu  = %e\n" % self.nu
+        ostr += "Elastic tensor (6x6):\n"
+        d = numpy.get_printoptions()
+        numpy.set_printoptions(precision=2, linewidth=78, suppress=False)
+        ostr += str(self.cij) + '\n'
+        numpy.set_printoptions(d)
         ostr += "Lattice:\n"
         ostr += self.lattice.__str__()
         ostr += "Reciprocal lattice:\n"
