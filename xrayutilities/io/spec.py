@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a threaded class for observing a SPEC data file
@@ -33,6 +33,7 @@ import os
 import time
 import tables
 import gzip
+import warnings
 
 # relative imports from xrayutilities
 from .helper import xu_open, xu_h5open
@@ -72,6 +73,13 @@ SPEC_errorbm20 = re.compile(r"^MI:")
 scan_status_flags = ["OK", "NODATA", "ABORTED", "CORRUPTED"]
 
 
+def makeNaturalName(name):
+    ret = name.replace(" ", "_")
+    ret = ret.replace("-", "_")
+    ret = ret.replace(".", "_")
+    return ret
+
+
 class SPECScan(object):
 
     """
@@ -91,6 +99,7 @@ class SPECScan(object):
          date ............. starting date of the scan
          time ............. starting time of the scan
          itime ............ integration time
+         colnames ......... list of names of the data columns
          hoffset .......... file byte offset to the header of the scan
          doffset .......... file byte offset to the data section of the scan
          fname ............ file name of the SPEC file the scan belongs to
@@ -120,11 +129,6 @@ class SPECScan(object):
                 print("XU.io.spec.SPECScan: unknown scan status flag - "
                       "set to CORRUPTED")
 
-        def makeNaturalName(name):
-            ret = name.replace(" ", "_")
-            ret = ret.replace("-", "_")
-            ret = ret.replace(".", "_")
-            return ret
         # setup the initial motor positions dictionary - set the motor names
         # dictionary holding the initial motor positions
         self.init_motor_pos = {}
@@ -526,11 +530,13 @@ class SPECScan(object):
                         group_title = group_title + "_%i" % (copy_count)
                         copy_count = copy_count + 1
 
-            if comp:
-                tab = h5.createTable(g, "data", tab_desc_dict, "scan data",
-                                     filters=f)
-            else:
-                tab = h5.createTable(g, "data", tab_desc_dict, "scan data")
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', tables.NaturalNameWarning)
+                if comp:
+                    tab = h5.createTable(g, "data", tab_desc_dict, "scan data",
+                                         filters=f)
+                else:
+                    tab = h5.createTable(g, "data", tab_desc_dict, "scan data")
 
             for rec in self.data:
                 for cname in rec.dtype.names:
