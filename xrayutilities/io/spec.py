@@ -503,7 +503,7 @@ class SPECScan(object):
             tab_desc_dict = {}
             col_name_list = []
             for d in self.data.dtype.descr:
-                cname = d[0]
+                cname = d[0].encode('ascii', 'ignore')
                 col_name_list.append(cname)
                 if len(d[1:]) == 1:
                     ctype = numpy.dtype((d[1]))
