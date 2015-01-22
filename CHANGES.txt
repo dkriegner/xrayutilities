@@ -1,3 +1,5 @@
+v1.1.1, 2015-01-22
+
 * new PseudoVoigt1dasym function implementing an asymmetric PseudoVoigt peak
 * FuzzyGridder1D: improved 1D gridder using a range of value for each data
   point
