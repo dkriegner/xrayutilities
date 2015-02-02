@@ -1,3 +1,5 @@
+* added new material AlAs
+
 v1.1.1, 2015-01-22
 
 * new PseudoVoigt1dasym function implementing an asymmetric PseudoVoigt peak

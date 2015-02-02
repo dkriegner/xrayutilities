@@ -55,6 +55,10 @@ GaAs = Material("GaAs",
                 lattice.ZincBlendeLattice(elements.Ga, elements.As, 5.65325),
                 CubicElasticTensor(11.9e+10, 5.34e+10, 5.96e+10),
                 thetaDebye=360)
+AlAs = Material("AlAs",
+                lattice.ZincBlendeLattice(elements.Al, elements.As, 5.6611),
+                CubicElasticTensor(12.02e+10, 5.70e+10, 5.99e+10),
+                thetaDebye=446)
 GaSb = Material("GaSb",
                 lattice.ZincBlendeLattice(elements.Ga, elements.Sb, 6.09593),
                 CubicElasticTensor(8.83e+10, 4.02e+10, 4.32e+10),
