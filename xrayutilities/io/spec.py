@@ -1076,3 +1076,77 @@ def geth5_scan(h5f, scans, *args, **kwargs):
         return MAP
     else:
         return retval, MAP
+
+
+def getspec_scan(specf, scans, *args):
+    """
+    function to obtain the angular cooridinates as well as intensity values
+    saved in a SPECFile. Especially useful to combine the data from multiple
+    scans.
+
+    further more it is possible to obtain even more positions from
+    the data file if more than two string arguments with its names are given
+
+    Parameters
+    ----------
+     specf:   SPECFile object
+     scans:   number of the scans of the reciprocal space map (int,tuple or
+              list)
+
+     *args:   names of the motors and counters (strings)
+
+    Returns
+    -------
+     [ang1,ang2,...]:
+                coordinates and counters from the SPEC file
+
+    Example
+    -------
+    >>> [om, tt] = xu.io.getspec_scan(s, 36, 'omega', 'gamma', 'Counter2')
+    """
+    if numpy.iterable(scans):
+        scanlist = scans
+    else:
+        scanlist = list([scans])
+
+    angles = dict.fromkeys(args)
+    for key in angles.keys():
+        if not isinstance(key, str):
+            raise InputError("*arg values need to be strings with "
+                             "motornames")
+        angles[key] = numpy.zeros(0)
+        buf = numpy.zeros(0)
+
+    for nr in scanlist:
+        sscan = specf.__getattr__("scan%d" %nr)
+        command = sscan.command
+        sscan.ReadData()
+        sdata = sscan.data
+        # check type of scan
+        notscanmotors = []
+        for i in range(len(args)):
+            motname = args[i]
+            try:
+                buf = sdata[motname]
+                scanshape = buf.shape
+                angles[motname] = numpy.concatenate((angles[motname], buf))
+            except:
+                notscanmotors.append(i)
+        if len(notscanmotors) == len(args):
+            scanshape = len(sdata)
+        for i in notscanmotors:
+            motname = args[i]
+            buf = numpy.ones(scanshape) * \
+                  sscan.init_motor_pos["INIT_MOPO_%s" % motname]
+        angles[motname] = numpy.concatenate((angles[motname], buf))
+
+    retval = []
+    for motname in args:
+        # create return values in correct order
+        retval.append(angles[motname])
+
+    if len(args) == 0:
+        #return MAP
+        return
+    else:
+        return retval
