@@ -242,8 +242,7 @@ class Gridder2DList(Gridder2D):
         if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the
             # gridder more often and obtain a reasonable result
-            self.dataRange((x.min(), x.max()), (y.min(), y.max()),
-                           self.keep_data)
+            self.dataRange(x.min(), x.max(), y.min(), y.max(), self.keep_data)
 
         # perform gridding this should be moved to native code if possible
         def gindex(x, min, delt):
