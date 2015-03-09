@@ -439,7 +439,8 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
 def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                         cut_off=0.7, start=(0, 0, 0, 0),
                         fix=(False, False, False, False),
-                        fig=None, wl=None, plotlog=False, debug=False):
+                        fig=None, wl=None, plotlog=False, debug=False,
+                        nwindow=50):
     """
     function to calibrate the detector parameters of an area detector
     it determines the detector tilt possible rotations and offsets in the
@@ -472,6 +473,10 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                   affect the scaling of the error
         plotlog . flag to specify if the created error plot should be on
                   log-scale
+        nwindow . window size for determination of the center of mass position
+                  after the center of mass of every full image is determined,
+                  the center of mass is determined again using a window of
+                  size nwindow in order to reduce the effect of hot pixels. 
         debug ... flag to specify that you want to see verbose output and
                   saving of images to show if the CEN determination works
 
@@ -512,15 +517,23 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     if debug:
         print("average intensity per image: %.1f" % avg)
 
+    nw = nwindow // 2
     for i in range(Npoints):
         img = ccdimages[i]
         if numpy.sum(img) > cut_off * avg:
-            [cen1, cen2] = center_of_mass(img)
+            [cen1r, cen2r] = center_of_mass(img)
+            [cen1, cen2] = center_of_mass(
+                               img[max(int(cen1r) - nw, 0):
+                                   min(int(cen1r) + nw, img.shape[0]),
+                                   max(int(cen2r) - nw, 0):
+                                   min(int(cen2r) + nw, img.shape[1])])
+            cen1 += max(int(cen1r) - nw, 0)
+            cen2 += max(int(cen2r) - nw, 0)
             if debug:
                 plt.figure("_ccd")
                 plt.imshow(utilities.maplog(img), origin='low')
                 plt.plot(cen2, cen1, "wo", mfc='none')
-                plt.axis([cen2 - 25, cen2 + 25, cen1 - 25, cen1 + 25])
+                plt.axis([cen2 - nw, cen2 + nw, cen1 - nw, cen1 + nw])
                 plt.savefig("xu_calib_ccd_img%d.png" % i)
                 plt.close("_ccd")
 
@@ -528,9 +541,9 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
             n2 = numpy.append(n2, cen2)
             ang1 = numpy.append(ang1, angle1[i])
             ang2 = numpy.append(ang2, angle2[i])
-            # if debug:
-            #     print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-            #           cen1, cen2))
+            if debug:
+                print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
+                      cen1, cen2))
     Nused = len(ang1)
 
     if debug:
