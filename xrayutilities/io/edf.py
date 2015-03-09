@@ -14,7 +14,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2012,2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2012,2014-2015 
+#               Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 # module for handling files stored in the EDF data format developed by the ESRF
@@ -61,7 +62,7 @@ DataTypeDict = {"SignedByte": "b",
 class EDFFile(object):
 
     def __init__(self, fname, nxkey="Dim_1", nykey="Dim_2",
-                 dtkey="DataType", path="", header=True):
+                 dtkey="DataType", path="", header=True, keep_open=False):
         """
         required arguments:
         fname ....... name of the EDF file of type .edf or .edf.gz
@@ -75,6 +76,8 @@ class EDFFile(object):
                       for the binary data
         path ........ path to the EDF file
         header ...... has header (default true)
+        keep_open ... if True the file handle is kept open between multiple
+                      calls which can cause significant speed-ups
         """
 
         self.filename = fname
@@ -98,6 +101,11 @@ class EDFFile(object):
         self._dtype = []
 
         self.Parse()
+        if keep_open:
+            self.fid = xu_open(self.full_filename, 'rb')
+        else:
+            self.fid = None
+
         self.nimages = len(self._data_offsets)
         self.header = self._headers[0]
 
@@ -152,7 +160,7 @@ class EDFFile(object):
                                     [key, value] = edf_kv_split.split(
                                         line_buffer, 1)
                                 except:
-                                    print("XU.io.EDFFile.ReadData: "
+                                    print("XU.io.EDFFile.Parse: "
                                           "line_buffer: %s" % line_buffer)
 
                                 key = key.strip()
@@ -233,18 +241,26 @@ class EDFFile(object):
         ----------
          nimg:      number of the image which should be read (starts with 0)
         """
-        # to read the data we have to open the file in binary mode
-        with xu_open(self.full_filename, 'rb') as binfid:
+        if self.fid:
+            binfid = self.fid
             # move to the data section - jump over the header
             binfid.seek(self._data_offsets[nimg], 0)
             # read the data
             tot_nofp = self._dimx[nimg] * self._dimy[nimg]
             fmt_str = self._fmt_str[nimg]
             bindata = binfid.read(struct.calcsize(tot_nofp * fmt_str))
-            if config.VERBOSITY >= config.DEBUG:
-                print("XU.io.EDFFile: read binary data: nofp: %d len: %d"
-                      % (tot_nofp, len(bindata)))
-                print("XU.io.EDFFile: format: %s" % fmt_str)
+        else:
+            with xu_open(self.full_filename, 'rb') as binfid:
+                # move to the data section - jump over the header
+                binfid.seek(self._data_offsets[nimg], 0)
+                # read the data
+                tot_nofp = self._dimx[nimg] * self._dimy[nimg]
+                fmt_str = self._fmt_str[nimg]
+                bindata = binfid.read(struct.calcsize(tot_nofp * fmt_str))
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.io.EDFFile: read binary data: nofp: %d len: %d"
+                  % (tot_nofp, len(bindata)))
+            print("XU.io.EDFFile: format: %s" % fmt_str)
 
         try:
             num_data = struct.unpack(tot_nofp * fmt_str, bindata)
