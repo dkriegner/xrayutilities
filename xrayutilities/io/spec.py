@@ -1104,6 +1104,9 @@ def getspec_scan(specf, scans, *args):
     -------
     >>> [om, tt] = xu.io.getspec_scan(s, 36, 'omega', 'gamma', 'Counter2')
     """
+    if len(args) == 0:
+        return
+
     if numpy.iterable(scans):
         scanlist = scans
     else:
@@ -1118,7 +1121,7 @@ def getspec_scan(specf, scans, *args):
         buf = numpy.zeros(0)
 
     for nr in scanlist:
-        sscan = specf.__getattr__("scan%d" %nr)
+        sscan = specf.__getattr__("scan%d" % nr)
         command = sscan.command
         sscan.ReadData()
         sdata = sscan.data
@@ -1136,8 +1139,8 @@ def getspec_scan(specf, scans, *args):
             scanshape = len(sdata)
         for i in notscanmotors:
             motname = args[i]
-            buf = numpy.ones(scanshape) * \
-                  sscan.init_motor_pos["INIT_MOPO_%s" % motname]
+            buf = (numpy.ones(scanshape) *
+                   sscan.init_motor_pos["INIT_MOPO_%s" % motname])
         angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []
@@ -1145,8 +1148,4 @@ def getspec_scan(specf, scans, *args):
         # create return values in correct order
         retval.append(angles[motname])
 
-    if len(args) == 0:
-        #return MAP
-        return
-    else:
-        return retval
+    return retval

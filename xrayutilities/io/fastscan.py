@@ -50,6 +50,7 @@ from ..gridder2d import Gridder2D
 from ..gridder2d import Gridder2DList
 from ..gridder3d import Gridder3D
 from ..normalize import blockAverage2D
+from .. import config
 
 # python 2to3 compatibility
 try:
@@ -58,6 +59,7 @@ except NameError:
     basestring = str
 
 SPEC_ImageFile = re.compile(r"^#C imageFile")
+
 
 class FastScan(object):
 
@@ -296,7 +298,7 @@ class FastScanCCD(FastScan):
                         elif t[0] == 'suffix':
                             suffix = t[1].strip(']')
 
-        ccdtmp = os.path.join(dir,prefix + numfmt + suffix)
+        ccdtmp = os.path.join(dir, prefix + numfmt + suffix)
         return ccdtmp
 
     def gridCCD(self, nx, ny, ccdnr, roi=None, path="",
@@ -338,7 +340,7 @@ class FastScanCCD(FastScan):
         self.ccdtemplate = self.getccdFileTemplate(self.specscan)
 
         # read ccd shape from first image
-        filename = glob.glob(self.ccdtemplate.replace('%04d','*'))[0]
+        filename = glob.glob(self.ccdtemplate.replace('%04d', '*'))[0]
         e = EDFFile(filename, keep_open=True)
         ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
         self.ccddata = numpy.zeros((nx, ny, ccdshape[0], ccdshape[1]))
@@ -357,7 +359,9 @@ class FastScanCCD(FastScan):
                         imgindex = int((imgnum - imgoffset) % nimage)
                         newfile = self.ccdtemplate % (filenumber)
                         if e.filename != newfile:
-                            #print('open new file %s' %newfile)
+                            if config.VERBOSITY >= config.INFO_ALL:
+                                print('XU.io.FastScanCCD: open new file %s'
+                                      % newfile)
                             e = EDFFile(newfile, keep_open=True)
                         if filterfunc:
                             ccdfilt = filterfunc(e.ReadData(imgindex))
@@ -651,7 +655,7 @@ class FastScanSeries(object):
             imgoffset = kwargs['imgoffset']
             kwargs.pop("imgoffset")
         else:
-            imgoffset=0
+            imgoffset = 0
 
         # get CCDframe numbers and motor values
         valuelist = self.getCCDFrames(posx, posy, typ)
@@ -659,7 +663,7 @@ class FastScanSeries(object):
         fsccd = self.fastscans[0]
         self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan)
         # read ccd shape from first image
-        filename = glob.glob(self.ccdtemplate.replace('%04d','*'))[0]
+        filename = glob.glob(self.ccdtemplate.replace('%04d', '*'))[0]
         e = EDFFile(filename, keep_open=True)
         ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
         ccddata = numpy.zeros((len(self.fastscans), ccdshape[0], ccdshape[1]))
@@ -800,4 +804,3 @@ class FastScanSeries(object):
 
         # return gridded data
         return g2d
-

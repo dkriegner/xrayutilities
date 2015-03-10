@@ -476,7 +476,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         nwindow . window size for determination of the center of mass position
                   after the center of mass of every full image is determined,
                   the center of mass is determined again using a window of
-                  size nwindow in order to reduce the effect of hot pixels. 
+                  size nwindow in order to reduce the effect of hot pixels.
         debug ... flag to specify that you want to see verbose output and
                   saving of images to show if the CEN determination works
 
@@ -523,10 +523,10 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         if numpy.sum(img) > cut_off * avg:
             [cen1r, cen2r] = center_of_mass(img)
             [cen1, cen2] = center_of_mass(
-                               img[max(int(cen1r) - nw, 0):
-                                   min(int(cen1r) + nw, img.shape[0]),
-                                   max(int(cen2r) - nw, 0):
-                                   min(int(cen2r) + nw, img.shape[1])])
+                img[max(int(cen1r) - nw, 0):
+                    min(int(cen1r) + nw, img.shape[0]),
+                    max(int(cen2r) - nw, 0):
+                    min(int(cen2r) + nw, img.shape[1])])
             cen1 += max(int(cen1r) - nw, 0)
             cen2 += max(int(cen2r) - nw, 0)
             if debug:
