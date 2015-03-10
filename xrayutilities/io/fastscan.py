@@ -38,6 +38,8 @@ see examples/xrayutilities_kmap_ESRF.py for an example script
 
 import os.path
 import numpy
+import re
+import glob
 
 # relative imports
 from . import SPECFile
@@ -55,6 +57,7 @@ try:
 except NameError:
     basestring = str
 
+SPEC_ImageFile = re.compile(r"^#C imageFile")
 
 class FastScan(object):
 
@@ -265,8 +268,39 @@ class FastScanCCD(FastScan):
 
         return g2l
 
-    def gridCCD(self, nx, ny, ccdtemplate, ccdnr, roi=None, path="",
-                nav=[1, 1], gridrange=None, filterfunc=None):
+    def getccdFileTemplate(self, specscan, numfmt='%04d'):
+        """
+        function to extract the CCD file template string from the comment
+        in the SPEC-file scan-header
+
+        Parameters
+        ----------
+         specscan:  spec-scan object from which header the CCD directory should
+                    be extracted
+         numfmt:    format string for the CCD file number (optional)
+
+        Returns
+        -------
+         fmtstr:    format string for the CCD file name using one number to
+                    build the real file name
+        """
+        for line in specscan.header:
+            if SPEC_ImageFile.match(line):
+                for substr in line.split(' '):
+                    t = substr.split('[')
+                    if len(t) == 2:
+                        if t[0] == 'dir':
+                            dir = t[1].strip(']')
+                        elif t[0] == 'prefix':
+                            prefix = t[1].strip(']')
+                        elif t[0] == 'suffix':
+                            suffix = t[1].strip(']')
+
+        ccdtmp = os.path.join(dir,prefix + numfmt + suffix)
+        return ccdtmp
+
+    def gridCCD(self, nx, ny, ccdnr, roi=None, path="",
+                nav=[1, 1], gridrange=None, filterfunc=None, imgoffset=0):
         """
         function to grid the internal data and ccd files and return the gridded
         X,Y and DATA values. DATA represents a 4D with first two dimensions
@@ -276,7 +310,6 @@ class FastScanCCD(FastScan):
         Parameters
         ----------
          nx,ny:         number of bins in x,y direction
-         ccdtemplate:   template string for the ccdfilenames
          ccdnr:         array with ccd file numbers of length
                         length(FastScanCCD.data) OR a string with the data
                         column name for the file ccd-numbers
@@ -285,7 +318,6 @@ class FastScanCCD(FastScan):
          roi:          region of interest on the 2D detector. should be a list
                        of lower and upper bounds of detector channels for the
                        two pixel directions (default: None)
-         path:         common path of the CCDframe
          nav:          number of detector pixel which will be averaged together
                        (reduces the date size)
          gridrange:    range for the gridder: format: ((xmin,xmax),(ymin,ymax))
@@ -300,32 +332,37 @@ class FastScanCCD(FastScan):
          X,Y,DATA:      regular x,y-grid as well as 4-dimensional data object
         """
 
-        g2l = _gridCCDnumbers(self, nx, ny, ccdnr, gridrange=gridrange)
+        g2l = self._gridCCDnumbers(nx, ny, ccdnr, gridrange=gridrange)
         gdata = g2l.data
 
-        self.ccdtemplate = os.path.join(path, ccdtemplate)
-        # get CCDframe numbers and motor values
-        valuelist = self.getCCDFrames(posx, posy, typ)
+        self.ccdtemplate = self.getccdFileTemplate(self.specscan)
+
         # read ccd shape from first image
-        ccdshape = blockAverage2D(
-            EDFFile(self.ccdtemplate % (0, valuelist[0][-1][0])).data,
-            nav[0], nav[1], roi=roi).shape
+        filename = glob.glob(self.ccdtemplate.replace('%04d','*'))[0]
+        e = EDFFile(filename, keep_open=True)
+        ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
         self.ccddata = numpy.zeros((nx, ny, ccdshape[0], ccdshape[1]))
+        nimage = e.nimages
 
         # go through the gridded data and average the ccdframes
-        for i in range(gdata.shape[0]):
-            for j in range(gdata.shape[1]):
+        for j in range(gdata.shape[1]):
+            for i in range(gdata.shape[0]):
                 if len(gdata[i, j]) == 0:
                     continue
                 else:
                     framecount = 0
                     # read ccdframes and average them
-                    for k in range(len(gdata[i, j])):
-                        e = EDFFile(self.ccdtemplate % gdata[i, j][k])
+                    for imgnum in gdata[i, j]:
+                        filenumber = (imgnum - imgoffset) // nimage
+                        imgindex = int((imgnum - imgoffset) % nimage)
+                        newfile = self.ccdtemplate % (filenumber)
+                        if e.filename != newfile:
+                            #print('open new file %s' %newfile)
+                            e = EDFFile(newfile, keep_open=True)
                         if filterfunc:
-                            ccdfilt = filterfunc(e.data)
+                            ccdfilt = filterfunc(e.ReadData(imgindex))
                         else:
-                            ccdfilt = e.data
+                            ccdfilt = e.ReadData(imgindex)
                         ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1],
                                                   roi=roi)
                         self.ccddata[i, j, :, :] += ccdframe
@@ -418,6 +455,20 @@ class FastScanSeries(object):
             raise ValueError("argument 'filenames' is not of "
                              "appropriate type!")
 
+        self.xmin = numpy.min(self.fastscans[0].xvalues)
+        self.ymin = numpy.min(self.fastscans[0].yvalues)
+        self.xmax = numpy.max(self.fastscans[0].xvalues)
+        self.ymax = numpy.max(self.fastscans[0].yvalues)
+        for fs in self.fastscans:
+            if numpy.max(fs.xvalues) > self.xmax:
+                self.xmax = numpy.max(fs.xvalues)
+            if numpy.max(fs.yvalues) > self.ymax:
+                self.ymax = numpy.max(fs.yvalues)
+            if numpy.min(fs.xvalues) < self.xmin:
+                self.xmin = numpy.min(fs.xvalues)
+            if numpy.min(fs.yvalues) < self.ymin:
+                self.ymin = numpy.min(fs.yvalues)
+
     def retrace_clean(self):
         """
         perform retrace clean for every FastScan in the series
@@ -443,7 +494,7 @@ class FastScanSeries(object):
     def align(self, deltax, deltay):
         """
         Since a sample drift or shift due to rotation often occurs between
-        different FastScans it should be correct before combining them. Since
+        different FastScans it should be corrected before combining them. Since
         determining such a shift is not straight-forward in general the user
         needs to supply the routine with the shifts in order correct the
         x,y-values for the different FastScans. Such a routine could for
@@ -552,8 +603,8 @@ class FastScanSeries(object):
 
         return ret
 
-    def rawRSM(self, posx, posy, qconv, ccdtemp, path, roi=None,
-               nav=[1, 1], typ='real', filterfunc=None, **kwargs):
+    def rawRSM(self, posx, posy, qconv, roi=None, nav=[1, 1], typ='real',
+               filterfunc=None, **kwargs):
         """
         function to return the reciprocal space map data at a certain
         x,y-position from a series of FastScan measurements. It necessary to
@@ -567,10 +618,8 @@ class FastScanSeries(object):
          posy:          real space y-position or index in y direction
          qconv:         QConversion-object to be used for the conversion of the
                         CCD-data to reciprocal space
-         ccdtemp:       template string for the ccdfilenames
 
         optional:
-         path:          common path of the CCDframes
          roi:           region of interest on the 2D detector. should be a list
                         of lower and upper bounds of detector channels for the
                         two pixel directions (default: None)
@@ -598,36 +647,51 @@ class FastScanSeries(object):
         else:
             U = numpy.identity(3)
 
+        if 'imgoffset' in kwargs:
+            imgoffset = kwargs['imgoffset']
+            kwargs.pop("imgoffset")
+        else:
+            imgoffset=0
+
         # get CCDframe numbers and motor values
         valuelist = self.getCCDFrames(posx, posy, typ)
         # load ccd frames and convert to reciprocal space
-        self.ccdtemplate = os.path.join(path, ccdtemp)
+        fsccd = self.fastscans[0]
+        self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan)
         # read ccd shape from first image
-        ccdshape = blockAverage2D(
-            EDFFile(self.ccdtemplate % (valuelist[0][1][0])).data,
-            nav[0], nav[1], roi=roi).shape
+        filename = glob.glob(self.ccdtemplate.replace('%04d','*'))[0]
+        e = EDFFile(filename, keep_open=True)
+        ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
         ccddata = numpy.zeros((len(self.fastscans), ccdshape[0], ccdshape[1]))
         motors = []
+        nimage = e.nimages
+
         for i in range(len(self.gonio_motors)):
             motors.append(numpy.zeros(0))
         # go through the gridded data and average the ccdframes
         for i in range(len(self.fastscans)):
             imotors, ccdnrs = valuelist[i]
+            fsccd = self.fastscans[i]
+            # append motor positions
+            for j in range(len(self.gonio_motors)):
+                motors[j] = numpy.append(motors[j], imotors[j])
             # read CCD
             if len(ccdnrs) == 0:
                 continue
             else:
-                # append motors
-                for j in range(len(self.gonio_motors)):
-                    motors[j] = numpy.append(motors[j], imotors[j])
+                self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan)
                 framecount = 0
                 # read ccdframes and average them
-                for k in range(len(ccdnrs)):
-                    edf = EDFFile(self.ccdtemplate % ccdnrs[k])
+                for imgnum in ccdnrs:
+                    filenumber = (imgnum - imgoffset) // nimage
+                    imgindex = int((imgnum - imgoffset) % nimage)
+                    newfile = self.ccdtemplate % (filenumber)
+                    if e.filename != newfile:
+                        e = EDFFile(newfile, keep_open=True)
                     if filterfunc:
-                        ccdfilt = filterfunc(edf.data)
+                        ccdfilt = filterfunc(e.ReadData(imgindex))
                     else:
-                        ccdfilt = edf.data
+                        ccdfilt = e.ReadData(imgindex)
                     ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1], roi=roi)
                     ccddata[i, :, :] += ccdframe
                     framecount += 1
@@ -636,8 +700,8 @@ class FastScanSeries(object):
         qx, qy, qz = qconv.area(*motors, roi=roi, Nav=nav, UB=U)
         return qx, qy, qz, ccddata, valuelist
 
-    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, ccdtemp, path="",
-                roi=None, nav=[1, 1], typ='real', filterfunc=None, **kwargs):
+    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, roi=None, nav=[1, 1],
+                typ='real', filterfunc=None, **kwargs):
         """
         function to calculate the reciprocal space map at a certain
         x,y-position from a series of FastScan measurements it is necessary to
@@ -656,10 +720,8 @@ class FastScanSeries(object):
          qnz:       same for z directino
          qconv:     QConversion-object to be used for the conversion of the
                     CCD-data to reciprocal space
-         ccdtemp:   template string for the ccdfilenames
 
         optional:
-         path:      common path of the CCDframes
          roi:       region of interest on the 2D detector. should be a list
                     of lower and upper bounds of detector channels for the
                     two pixel directions (default: None)
@@ -680,9 +742,62 @@ class FastScanSeries(object):
         Gridder3D object with gridded reciprocal space map
         """
         qx, qy, qz, ccddata, vallist = self.rawRSM(
-            posx, posy, qconv, ccdtemp, path, roi=roi, nav=nav,
+            posx, posy, qconv, roi=roi, nav=nav,
             typ=typ, filterfunc=filterfunc, **kwargs)
         # perform 3D gridding and return the data or gridder
         g = Gridder3D(qnx, qny, qnz)
         g(qx, qy, qz, ccddata)
         return g
+
+    def grid2Dall(self, nx, ny, **kwargs):
+        """
+        function to grid the counter data and return the gridded X,Y and
+        Intensity values from all the FastScanSeries.
+
+        Parameters
+        ----------
+         nx,ny:     number of bins in x,y direction
+
+        optional keyword arguments:
+         counter:   name of the counter to use for gridding (default: 'mpx4int'
+                    (ID01))
+         gridrange: range for the gridder: format: ((xmin,xmax),(ymin,ymax))
+
+        Returns
+        -------
+         Gridder2D object with X,Y,data on regular x,y-grid
+        """
+        if 'counter' in kwargs:
+            counter = kwargs['counter']
+            kwargs.pop("counter")
+        else:
+            counter = 'mpx4int'
+
+        if 'gridrange' in kwargs:
+            gridrange = kwargs['gridrange']
+            kwargs.pop("gridrange")
+        else:
+            gridrange = ((self.xmin, self.xmax), (self.ymin, self.ymax))
+
+        # define gridder
+        g2d = Gridder2D(nx, ny)
+        if gridrange:
+            g2d.dataRange(gridrange[0][0], gridrange[0][1],
+                          gridrange[1][0], gridrange[1][1])
+        g2d.KeepData(True)
+
+        for fs in self.fastscans:
+            # check if counter is in data fields
+            try:
+                inte = fs.data[counter]
+            except ValueError:
+                raise ValueError("field named '%s' not found in data parsed "
+                                 "from scan #%d in file %s"
+                                 % (counter, fs.scannr, fs.filename))
+
+            # grid data
+            g2d(fs.xvalues, fs.yvalues, fs.data[counter])
+
+        # return gridded data
+        return g2d
+
