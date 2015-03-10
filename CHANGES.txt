@@ -1,3 +1,7 @@
+* huge set of improvements for working with FastScans (ESRF ID01)
+* keep_open option in EDFFile to speed up reading of multiple images
+* new convenience function for parsing data from spec-files
+* improve peak position finding in area-detector calibration
 * added new material AlAs
 
 v1.1.1, 2015-01-22
