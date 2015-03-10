@@ -51,6 +51,7 @@ from ..gridder2d import Gridder2DList
 from ..gridder3d import Gridder3D
 from ..normalize import blockAverage2D
 from .. import config
+from .. import utilities
 
 # python 2to3 compatibility
 try:
@@ -270,7 +271,8 @@ class FastScanCCD(FastScan):
 
         return g2l
 
-    def getccdFileTemplate(self, specscan, numfmt='%04d'):
+    def getccdFileTemplate(self, specscan, datadir=None, keepdir=0,
+                           numfmt='%04d'):
         """
         function to extract the CCD file template string from the comment
         in the SPEC-file scan-header
@@ -279,6 +281,15 @@ class FastScanCCD(FastScan):
         ----------
          specscan:  spec-scan object from which header the CCD directory should
                     be extracted
+         datadir:   the CCD filenames are usually parsed from the scan object.
+                    With this option the directory used for the data can be
+                    overwritten.  Specify the datadir as simple string.
+                    Alternatively the innermost directory structure can be
+                    automatically taken from the specfile. If this is needed
+                    specify the number of directories which should be kept
+                    using the keepdir option.
+         keepdir:   number of directories which should be taken from the
+                    specscan. (default: 0)
          numfmt:    format string for the CCD file number (optional)
 
         Returns
@@ -299,9 +310,9 @@ class FastScanCCD(FastScan):
                             suffix = t[1].strip(']')
 
         ccdtmp = os.path.join(dir, prefix + numfmt + suffix)
-        return ccdtmp
+        return utilities.exchange_filepath(ccdtmp, datadir, keepdir)
 
-    def gridCCD(self, nx, ny, ccdnr, roi=None, path="",
+    def gridCCD(self, nx, ny, ccdnr, roi=None, dataroot=None, keepdir=0,
                 nav=[1, 1], gridrange=None, filterfunc=None, imgoffset=0):
         """
         function to grid the internal data and ccd files and return the gridded
@@ -320,6 +331,15 @@ class FastScanCCD(FastScan):
          roi:          region of interest on the 2D detector. should be a list
                        of lower and upper bounds of detector channels for the
                        two pixel directions (default: None)
+         datadir:      the CCD filenames are usually parsed from the SPEC file.
+                       With this option the directory used for the data can be
+                       overwritten.  Specify the datadir as simple string.
+                       Alternatively the innermost directory structure can be
+                       automatically taken from the specfile. If this is needed
+                       specify the number of directories which should be kept
+                       using the keepdir option.
+         keepdir:      number of directories which should be taken from the
+                       SPEC file. (default: 0)
          nav:          number of detector pixel which will be averaged together
                        (reduces the date size)
          gridrange:    range for the gridder: format: ((xmin,xmax),(ymin,ymax))
@@ -337,7 +357,8 @@ class FastScanCCD(FastScan):
         g2l = self._gridCCDnumbers(nx, ny, ccdnr, gridrange=gridrange)
         gdata = g2l.data
 
-        self.ccdtemplate = self.getccdFileTemplate(self.specscan)
+        self.ccdtemplate = self.getccdFileTemplate(self.specscan, datadir,
+                                                   keepdir)
 
         # read ccd shape from first image
         filename = glob.glob(self.ccdtemplate.replace('%04d', '*'))[0]
@@ -608,7 +629,7 @@ class FastScanSeries(object):
         return ret
 
     def rawRSM(self, posx, posy, qconv, roi=None, nav=[1, 1], typ='real',
-               filterfunc=None, **kwargs):
+               filterfunc=None, **kwargs, datadir=None, keepdir=0):
         """
         function to return the reciprocal space map data at a certain
         x,y-position from a series of FastScan measurements. It necessary to
@@ -638,6 +659,15 @@ class FastScanSeries(object):
                         same shape!  e.g. remove hot pixels, flat/darkfield
                         correction
          UB:            sample orientation matrix
+         datadir:       the CCD filenames are usually parsed from the SPEC file.
+                        With this option the directory used for the data can be
+                        overwritten.  Specify the datadir as simple string.
+                        Alternatively the innermost directory structure can be
+                        automatically taken from the specfile. If this is
+                        needed specify the number of directories which should
+                        be kept using the keepdir option.
+         keepdir:       number of directories which should be taken from the
+                        SPEC file. (default: 0)
 
         Returns
         -------
@@ -661,7 +691,8 @@ class FastScanSeries(object):
         valuelist = self.getCCDFrames(posx, posy, typ)
         # load ccd frames and convert to reciprocal space
         fsccd = self.fastscans[0]
-        self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan)
+        self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan, datadir,
+                                                    keepdir)
         # read ccd shape from first image
         filename = glob.glob(self.ccdtemplate.replace('%04d', '*'))[0]
         e = EDFFile(filename, keep_open=True)

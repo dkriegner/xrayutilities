@@ -23,6 +23,7 @@ this part of utilities does not need the config class
 import numbers
 import numpy
 import scipy.constants
+import os
 
 from .exception import InputError
 
@@ -84,7 +85,7 @@ def en2lam(inp):
 
     Examples
     --------
-     >>> lambda = lam2en(8048)
+     >>> wavelength = en2lam(8048)
     """
     #  lambda(A) = h*c/(e * E(eV)) *1e10
     inp = energy(inp)
@@ -101,7 +102,6 @@ def energy(en):
 
     Parameter
     ---------
-
      en: energy either as scalar or array with value in eV, which
          will be returned unchanged; or string with name of emission line
 
@@ -128,7 +128,6 @@ def wavelength(wl):
 
     Parameter
     ---------
-
      wl: wavelength; If scalar or array the wavelength in Angstrom will be
          returned unchanged, string with emission name is converted to
          wavelength
@@ -147,3 +146,67 @@ def wavelength(wl):
         return en2lam(energies[wl])
     else:
         raise InputError("wrong type for argument wavelength")
+
+
+def exchange_path(orig, new, keep=0):
+    """
+    function to exchange the root of a path with the option of keeping the
+    inner directory structure. This for example includes such a conversion
+    /dir_a/subdir/images/sample -> /home/user/data/images/sample
+    where the two innermost directory names are kept (keep=2)
+
+    Parameter
+    ---------
+     orig:  original path which should be replaced by the new path
+     new:   new path which should be used instead
+     keep:  (optional) number of inner most directory names which should be
+            kept the same in the output (default = 0)
+
+    Returns
+    -------
+     directory path string
+
+    Examples
+    --------
+    >>> exchange_path('/dir_a/subdir/img/sam', '/home/user/data', 2)
+    '/home/user/data/img/sam'
+    """
+    subdirs = []
+    o = orig
+    for i in range(keep):
+        o, s = os.path.split(o)
+        subdirs.append(s)
+    out = new
+    subdirs.reverse()
+    for s in subdirs:
+        out = os.path.join(out, s)
+    return out
+
+def exchange_filepath(orig, new, keep=0):
+    """
+    function to exchange the root of a filename with the option of keeping the
+    inner directory structure. This for example includes such a conversion
+    /dir_a/subdir/sample/file.txt -> /home/user/data/sample/file.txt
+    where the innermost directory name is kept (keep=1)
+
+    Parameter
+    ---------
+     orig:  original filename which should have its data root replaced
+     new:   new path which should be used instead
+     keep:  (optional) number of inner most directory names which should be
+            kept the same in the output (default = 0). Note that the filename
+            is always return unchanged also with keep=0.
+
+    Returns
+    -------
+     filename string
+
+    Examples
+    --------
+    >>> exchange_filepath('/dir_a/subdir/sam/file.txt', '/data', 1)
+    '/data/sam/file.txt'
+    """
+    if new:
+        return exchange_path(orig, new, keep+1)
+    else:
+        return orig
