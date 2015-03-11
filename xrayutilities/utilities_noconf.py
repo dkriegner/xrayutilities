@@ -182,6 +182,7 @@ def exchange_path(orig, new, keep=0):
         out = os.path.join(out, s)
     return out
 
+
 def exchange_filepath(orig, new, keep=0):
     """
     function to exchange the root of a filename with the option of keeping the

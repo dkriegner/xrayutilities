@@ -629,7 +629,7 @@ class FastScanSeries(object):
         return ret
 
     def rawRSM(self, posx, posy, qconv, roi=None, nav=[1, 1], typ='real',
-               filterfunc=None, **kwargs, datadir=None, keepdir=0):
+               datadir=None, keepdir=0, filterfunc=None, **kwargs):
         """
         function to return the reciprocal space map data at a certain
         x,y-position from a series of FastScan measurements. It necessary to

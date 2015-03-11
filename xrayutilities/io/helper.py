@@ -29,11 +29,12 @@ import bz2
 import sys
 import tables
 
+from .. import config
+from ..exception import InputError
+
 if sys.version_info >= (3, 3):
     import lzma  # new in python 3.3
 
-from .. import config
-from ..exception import InputError
 
 # python 2to3 compatibility
 try:
