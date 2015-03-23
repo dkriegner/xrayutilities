@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -1436,26 +1436,27 @@ class Experiment(object):
         Parameters
         ----------
 
-        **kwargs:   optional keyword arguments
-            B:      reciprocal space conversion matrix of a Material.
-                    you can specify the matrix B (default identiy matrix)
-                    shape needs to be (3,3)
-            mat:    Material object to use to obtain a B matrix
-                    (e.g. xu.materials.Si)
-                    can be used as alternative to the B keyword argument
-                    B is favored in case both are given
-            U:      orientation matrix U can be given
-                    if none is given the orientation defined in the Experiment
-                    class is used.
-            dettype:detector type: one of ('point', 'linear', 'area')
-                    decides which routine of Ang2Q to call
-                    default 'point'
-            delta:  giving delta angles to correct the given ones for
-                    misalignment. delta must be an numpy array or list of
-                    length 2. used angles are than om,tt - delta
-            wl:     x-ray wavelength in angstroem (default: self._wl)
-            en:     x-ray energy in eV (default: converted self._wl)
-            deg:    flag to tell if angles are passed as degree (default: True)
+        **kwargs:       optional keyword arguments
+            B:          reciprocal space conversion matrix of a Material.  you
+                        can specify the matrix B (default identiy matrix) shape
+                        needs to be (3,3)
+            mat:        Material object to use to obtain a B matrix
+                        (e.g. xu.materials.Si) can be used as alternative to
+                        the B keyword argument B is favored in case both are
+                        given
+            U:          orientation matrix U can be given. If none is given the
+                        orientation defined in the Experiment class is used.
+            dettype:    detector type: one of ('point', 'linear', 'area')
+                        decides which routine of Ang2Q to call. default 'point'
+            delta:      giving delta angles to correct the given ones for
+                        misalignment. delta must be an numpy array or list of
+                        length 2. used angles are than om,tt - delta
+            wl:         x-ray wavelength in angstroem (default: self._wl)
+            en:         x-ray energy in eV (default: converted self._wl)
+            deg:        flag to tell if angles are passed as degree (default:
+                        True)
+            sampledis:  sample displacement vector in relative units of the
+                        detector distance (default: (0,0,0))
 
         Returns
         -------
@@ -1466,13 +1467,13 @@ class Experiment(object):
 
         for k in kwargs.keys():
             if k not in ['U', 'B', 'mat', 'dettype', 'delta', 'wl', 'en',
-                         'deg']:
+                         'deg', 'sampledis']:
                 raise Exception("unknown keyword argument given: allowed are "
                                 "'B': orthonormalization matrix, "
                                 "'U': orientation matrix, "
                                 "'mat': material object, "
                                 "'dettype': string with detector type, "
-                                "'delta,wl,en,deg' from Ang2Q")
+                                "'delta,wl,en,deg,sampledis' from Ang2Q")
 
         if "B" in kwargs:
             B = numpy.array(kwargs['B'])

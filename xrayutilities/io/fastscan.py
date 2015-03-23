@@ -659,13 +659,13 @@ class FastScanSeries(object):
                         same shape!  e.g. remove hot pixels, flat/darkfield
                         correction
          UB:            sample orientation matrix
-         datadir:       the CCD filenames are usually parsed from the SPEC file.
-                        With this option the directory used for the data can be
-                        overwritten.  Specify the datadir as simple string.
-                        Alternatively the innermost directory structure can be
-                        automatically taken from the specfile. If this is
-                        needed specify the number of directories which should
-                        be kept using the keepdir option.
+         datadir:       the CCD filenames are usually parsed from the SPEC
+                        file.  With this option the directory used for the data
+                        can be overwritten.  Specify the datadir as simple
+                        string.  Alternatively the innermost directory
+                        structure can be automatically taken from the specfile.
+                        If this is needed specify the number of directories
+                        which should be kept using the keepdir option.
          keepdir:       number of directories which should be taken from the
                         SPEC file. (default: 0)
 
