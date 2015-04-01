@@ -71,7 +71,7 @@ The current developement focues Python-3.X and we ask all users to update to
 Python-3 if possible, however, xrayutilies can be used with Python-2.7 as well.
 Care was taken to make this possible from the same code-base
 
-The python package configuration
+The Python package configuration
 ================================
 
 The following steps should only be necessary for user local installation to

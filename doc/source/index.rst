@@ -11,7 +11,7 @@ Installation instructions you find further down `Installation`_.
 
 Read more about *xrayutilities* below or in `Journal of Applied Crystallography 2013, Volume 46, 1162-1170 <http://dx.doi.org/10.1107/S0021889813017214>`_
 
-  
+
 Introduction
 ============
 
@@ -30,25 +30,25 @@ Concept of usage
     :align: right
     :alt: Flow diagram showing how to analyze x-ray diffraction data using xrayutilities
 
-*xrayutilities* provides a set of functions to read experimental data from various data file formats. 
+*xrayutilities* provides a set of functions to read experimental data from various data file formats.
 All of them are gathered in the :mod:`io`-subpackage.
-After reading data with a function from the io-submodule the data might be corrected for monitor counts and/or absorption factor of a beam attenuator.  
+After reading data with a function from the io-submodule the data might be corrected for monitor counts and/or absorption factor of a beam attenuator.
 A special set of functions is provided to perform this for point, linear and area detectors.
 
-Since the amount of data taken with modern detectors often is too large to be able to work with them properly, a functions for reducing the data from linear and area detectors are provided. 
-They use block-averaging to reduce the amount of data. 
+Since the amount of data taken with modern detectors often is too large to be able to work with them properly, a functions for reducing the data from linear and area detectors are provided.
+They use block-averaging to reduce the amount of data.
 Use those carefully not to loose the features you are interested in in your measurements.
 
-After the pre-treatment of the data, the core part of the package is the transformation of the angular data to reciprocal space. 
-This is done as described in more detail below using the :mod:`experiment`-module`. 
+After the pre-treatment of the data, the core part of the package is the transformation of the angular data to reciprocal space.
+This is done as described in more detail below using the :mod:`experiment`-module`.
 The classes provided within the experiment module provide routines to help performing X-ray diffraction experiments.
 This includes methods to calculate the diffraction angles (described below) needed to align crystalline samples and to convert data between angular and reciprocal space.
-The conversion from angular to reciprocal space is implemented very general for various goniometer geometries. 
-It is especially useful in combination with linear and area detectors as described in this `article <http://dx.doi.org/10.1107/S0021889813017214>`_. 
+The conversion from angular to reciprocal space is implemented very general for various goniometer geometries.
+It is especially useful in combination with linear and area detectors as described in this `article <http://dx.doi.org/10.1107/S0021889813017214>`_.
 In standard cases, Users will only need the initialized routines, which predefine a certain goniometer geometry like the popular four-cirlce and six-circle geometries.
 
-After the conversion to reciprocal space, it is convenient to transform the data to a regular grid for visualization. 
-For this purpose the :mod:`gridder`-module has been included into *xrayutilities*. 
+After the conversion to reciprocal space, it is convenient to transform the data to a regular grid for visualization.
+For this purpose the :mod:`gridder`-module has been included into *xrayutilities*.
 For the visualization of the data in reciprocal space the usage of `matplotlib <http://matplotlib.org>`_ is recommended.
 
 A practical example showing the usage is given below.
@@ -63,11 +63,11 @@ Angle calculation using the material classes
 
 Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the :mod:`materials`-package.
 This package provides a set of classes to describe crystal lattices and materials.
-Once such a material is properly defined one can calculate its properties, which includes the reciprocal lattice points, lattice plane distances, optical properties like 
+Once such a material is properly defined one can calculate its properties, which includes the reciprocal lattice points, lattice plane distances, optical properties like
 the refractive index, the structure factor (including the atomic scattering factor) and the complex polarizability.
 These atomic properties are extracted from a database included in *xrayutilities*.
 
-Using such a material and an experimental class from the :mod:`experiment`-module, describing the experimental setup, the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries. 
+Using such a material and an experimental class from the :mod:`experiment`-module, describing the experimental setup, the needed diffraction angles can be calculated for certain coplanar diffraction (high, low incidence), grazing incidence diffraction and also special non-coplanar diffraction geometries.
 In the predefined experimental classes fixed geometries are used. For angle calculation of custom geometries using arbitrary geometries (max. of three free angles) the :mod:`q2ang_fit`-module can be used as described in one of the included example files.
 
 .. _helloworld:
@@ -107,10 +107,10 @@ Express instructions
  * open a command line and navigate to the downloaded sources and execute:
 
 .. code-block:: bash
-    
+
  > python setup.py install
 
-which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in python scripts. 
+which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in python scripts.
 
 .. note:: The python package of *xrayutilities* was formerly called ''xrutils''
 
@@ -119,16 +119,16 @@ Detailed instructions
 
 Installing *xrayutilities* is done using Python's distutils
 
-The package can be installed on Linux, Mac OS X and Microsoft Windows, however, it is mostly tested on Linux/Unix platforms. 
+The package can be installed on Linux, Mac OS X and Microsoft Windows, however, it is mostly tested on Linux/Unix platforms.
 Please inform one of the authors in case the installation fails!
 
 Required third party software
 -----------------------------
 
-To keep the coding effort as small as possible *xrayutilities* depends on a 
-large number of third party libraries and Python modules. 
+To keep the coding effort as small as possible *xrayutilities* depends on a
+large number of third party libraries and Python modules.
 
-The needed dependencies are: 
+The needed dependencies are:
  * **GCC** Gnu Compiler Collection or any compatible C compiler. On windows you most probably should use MinGW or CygWin. Others might work but are untested.
  * **HDF5** a versatile binary data format (library is implemented in C).
    Although the library is not called directly, it is needed by the pytables Python
@@ -139,7 +139,7 @@ The needed dependencies are:
 Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
  * **Numpy** a Python module providing numerical array objects
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays
- * **Python-Tables** a powerful Python interface to HDF5. 
+ * **Python-Tables** a powerful Python interface to HDF5.
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optionally)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
 
@@ -149,10 +149,10 @@ building the C library.
 Building and installing the library and python package
 ------------------------------------------------------
 
-*xrayutilities* uses the distutils packaging system to build and install all of its components. You can perform the installation by executing 
+*xrayutilities* uses the distutils packaging system to build and install all of its components. You can perform the installation by executing
 
 .. code-block:: bash
- 
+
  >python setup.py install
 
 or
@@ -161,7 +161,7 @@ or
 
  >python setup.py install --prefix=INSTALLPATH
 
-in the root directory of the source distribution. 
+in the root directory of the source distribution.
 
 The *--prefix* option sets the root directory for the installation. If it is omitted
 the libary is installed under /usr/lib/ on Unix systems or in the Python installation directory on Windows.
@@ -171,20 +171,20 @@ Setup of the Python package
 
 You need to make your Python installation aware of where to look for the module.
 This is usually only needed when installing in non-standard *<install path>* locations.
-For this case append the installation directory to your *PYTHONPATH* environment variable by 
+For this case append the installation directory to your *PYTHONPATH* environment variable by
 
 .. code-block:: bash
- 
+
  >export PYTHONPATH=$PYTHONPATH:<local install path>/lib64/python2.7/site-packages
 
 on a Unix/Linux terminal. Or, to make this configuration persistent append this line to
-your local *.bashrc* file in your home directory. 
-On MS Windows you would like to create a environment variable in the 
-system preferences under system in the advanced tab (Using pythonxy this is done automatically).
-Be sure to use the correct directory which might be similar to 
+your local *.bashrc* file in your home directory.
+On MS Windows you would like to create a environment variable in the
+system preferences under system in the advanced tab (Using Python(x,y) this is done automatically).
+Be sure to use the correct directory which might be similar to
 
 .. code-block:: bash
- 
+
  <local install path>/Lib/site-packages
 
 on Windows systems.
@@ -192,23 +192,23 @@ on Windows systems.
 Notes for installing on Windows
 -------------------------------
 
-Since there is no packages manager on Windows the packages need to be installed manual 
+Since there is no packages manager on Windows the packages need to be installed manual
 (including all the dependecies) or a pre-packed solution needs two be used. We strongly suggest to
-use the `Python(x,y) <https://code.google.com/p/pythonxy/>`_ or 
-`WinPython <http://winpython.sourceforge.net/>`_ python distributions, 
+use the `Python(x,y) <https://code.google.com/p/pythonxy/>`_ or
+`WinPython <https://winpython.github.io/>`_ Python distributions,
 which include already all of the needed dependencies for installing *xrayutilities*.
 
-The setup of the environment variables is also done by the python distributions.
+The setup of the environment variables is also done by the Python distributions.
 One can proceed with the installation of *xrayutilities* directly!
-The easiest way to do this on windows is to use the binaries distributed on the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_, otherwise one can follow the general installation instructions. 
-Depending on your compiler on Microsoft Windows it might be necessary to perform the building of the Python extension separately and specify the compiler manually. 
+The easiest way to do this on windows is to use the binaries distributed on the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_, otherwise one can follow the general installation instructions.
+Depending on your compiler on Microsoft Windows it might be necessary to perform the building of the Python extension separately and specify the compiler manually.
 This is done by
 
 .. code-block:: bash
 
   python setup.py build -c <compiler_name>
 
-Using Python(x,y) you want to specify 'mingw32' as compiler name. With the WinPython it 
+Using Python(x,y) you want to specify 'mingw32' as compiler name. With the WinPython it
 is recommended to use the MS Visual Studio Express 2008 (which is freely available for download)
 and can also build the code for 64bit Windows. In this case us 'msvc' as compiler name.
 
@@ -222,7 +222,7 @@ In case you want to do it the hard way install all of the following (versions in
  * matplotlib (1.1.0)
 
 It is suggested to add the MinGW binary directory, as well as the Python and Python-scripts directory
-to the Path environment variable as described above! Installation is done as described above. 
+to the Path environment variable as described above! Installation is done as described above.
 
 .. _expapi:
 
@@ -231,16 +231,16 @@ Examples and API-documentation
 
 .. toctree::
    :maxdepth: 2
-    
-   examples 
+
+   examples
    xrayutilities
    xrayutilities.analysis
    xrayutilities.io
    xrayutilities.materials
    xrayutilities.math
    modules
-   
-   
+
+
 Indices and tables
 ==================
 
