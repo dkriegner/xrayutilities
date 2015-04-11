@@ -1092,23 +1092,33 @@ class Alloy(Material):
         # test if inplane direction of hkl is the same as the one for the
         # experiment otherwise warn the user
         hklinplane = numpy.cross(numpy.cross(exp.ndir, hkl), exp.ndir)
-        if (numpy.linalg.norm(numpy.cross(hklinplane, exp.idir))
-                > config.EPSILON):
+        if (numpy.linalg.norm(numpy.cross(hklinplane, exp.idir)) >
+                config.EPSILON):
             warnings.warn("Alloy: given hkl differs from the geometry of the "
                           "Experiment instance in the azimuthal direction")
 
         # calculate relaxed points for matA and matB as general as possible:
-        a1 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a1, self.matB.lattice.a1, x)
-        a2 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a2, self.matB.lattice.a2, x)
-        a3 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a3, self.matB.lattice.a3, x)
-        V = lambda x: numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
-        b1 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
-        b2 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
-        b3 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
-        qhklx = lambda x: hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        def a1(x):
+            return self.lattice_const_AB(self.matA.lattice.a1,
+                                         self.matB.lattice.a1, x)
+
+        def a2(x):
+            return self.lattice_const_AB(self.matA.lattice.a2,
+                                         self.matB.lattice.a2, x)
+
+        def a3(x):
+            return self.lattice_const_AB(self.matA.lattice.a3,
+                                         self.matB.lattice.a3, x)
+
+        def V(x): return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
+
+        def b1(x): return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
+
+        def b2(x): return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
+
+        def b3(x): return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
+
+        def qhklx(x): return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
 
         qr_i = numpy.abs(transform(qhklx(self.x))[1])
         qr_p = numpy.abs(transform(qhklx(self.x))[2])
@@ -1119,14 +1129,17 @@ class Alloy(Material):
         # transform elastic constants to correct coordinate frame
         cijA = Cijkl2Cij(transform(self.matA.cijkl))
         cijB = Cijkl2Cij(transform(self.matB.cijkl))
-        abulk = lambda x: numpy.linalg.norm(a1(x))
-        frac = lambda x: (
-            (cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-             (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
-            (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1]))\
-            / (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
-        aperp = lambda x: abulk(self.x) * (1 + frac(x) *
-                                           (1 - asub / abulk(self.x)))
+
+        def abulk(x): return numpy.linalg.norm(a1(x))
+
+        def frac(x):
+            return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
+                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
+                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
+                    (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
+
+        def aperp(x):
+            return abulk(self.x) * (1 + frac(x) * (1 - asub / abulk(self.x)))
 
         qp_i = 2 * numpy.pi / asub * numpy.linalg.norm(numpy.cross(ndir, hkl))
         qp_p = 2 * numpy.pi / aperp(self.x) * numpy.abs(numpy.dot(ndir, hkl))
@@ -1212,37 +1225,50 @@ class CubicAlloy(Alloy):
         cijA = Cijkl2Cij(trans(self.matA.cijkl))
         cijB = Cijkl2Cij(trans(self.matB.cijkl))
 
-        # define lambda functions for all things in the equation to solve
-        a1 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a1, self.matB.lattice.a1, x)
-        a2 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a2, self.matB.lattice.a2, x)
-        a3 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a3, self.matB.lattice.a3, x)
-        V = lambda x: numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
-        b1 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
-        b2 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
-        b3 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
-        qhklx = lambda x: hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        # define functions for all things in the equation to solve
+        def a1(x):
+            return self.lattice_const_AB(self.matA.lattice.a1,
+                                         self.matB.lattice.a1, x)
+
+        def a2(x):
+            return self.lattice_const_AB(self.matA.lattice.a2,
+                                         self.matB.lattice.a2, x)
+
+        def a3(x):
+            return self.lattice_const_AB(self.matA.lattice.a3,
+                                         self.matB.lattice.a3, x)
+
+        def V(x): return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
+
+        def b1(x): return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
+
+        def b2(x): return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
+
+        def b3(x): return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
+
+        def qhklx(x): return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
 
         # the following line is not generally true! only cubic materials
-        abulk_perp = lambda x: numpy.abs(
-            2 * numpy.pi / numpy.inner(qhklx(x), n) * numpy.inner(n, hkl))
+        def abulk_perp(x):
+            return numpy.abs(2 * numpy.pi / numpy.inner(qhklx(x), n) *
+                             numpy.inner(n, hkl))
+
         # can we use abulk_perp here? for cubic materials this should work?!
-        ainp = lambda x: asub + relax * (abulk_perp(x) - asub)
+        def ainp(x): return asub + relax * (abulk_perp(x) - asub)
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.materials.Alloy.ContentB: abulk_perp: %8.5g"
                   % (abulk_perp(0.)))
 
-        frac = lambda x: (
-            (cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-             (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
-            (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1]))\
-            / (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
+        def frac(x):
+            return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
+                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
+                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
+                    (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
 
-        equation = lambda x: (aperp - abulk_perp(x)) + \
-            (ainp(x) - abulk_perp(x)) * frac(x)
+        def equation(x):
+            return ((aperp - abulk_perp(x)) +
+                    (ainp(x) - abulk_perp(x)) * frac(x))
 
         x = scipy.optimize.brentq(equation, -0.1, 1.1)
 
@@ -1318,38 +1344,53 @@ class CubicAlloy(Alloy):
         cijA = Cijkl2Cij(trans(self.matA.cijkl))
         cijB = Cijkl2Cij(trans(self.matB.cijkl))
 
-        # define lambda functions for all things in the equation to solve
-        a1 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a1, self.matB.lattice.a1, x)
-        a2 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a2, self.matB.lattice.a2, x)
-        a3 = lambda x: self.lattice_const_AB(
-            self.matA.lattice.a3, self.matB.lattice.a3, x)
-        V = lambda x: numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
-        b1 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
-        b2 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
-        b3 = lambda x: 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
-        qsurx = lambda x: sur[0] * b1(x) + sur[1] * b2(x) + sur[2] * b3(x)
-        qhklx = lambda x: hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        # define functions for all things in the equation to solve
+        def a1(x):
+            return self.lattice_const_AB(self.matA.lattice.a1,
+                                         self.matB.lattice.a1, x)
+
+        def a2(x):
+            return self.lattice_const_AB(self.matA.lattice.a2,
+                                         self.matB.lattice.a2, x)
+
+        def a3(x):
+            return self.lattice_const_AB(self.matA.lattice.a3,
+                                         self.matB.lattice.a3, x)
+
+        def V(x): return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
+
+        def b1(x): return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
+
+        def b2(x): return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
+
+        def b3(x): return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
+
+        def qsurx(x): return sur[0] * b1(x) + sur[1] * b2(x) + sur[2] * b3(x)
+
+        def qhklx(x): return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
 
         # the following two lines are not generally true! only cubic materials
-        abulk_inp = lambda x: numpy.abs(
-            2 * numpy.pi / numpy.inner(qhklx(x), inp2) *
-            numpy.linalg.norm(numpy.cross(n, hkl)))
-        abulk_perp = lambda x: numpy.abs(
-            2 * numpy.pi / numpy.inner(qhklx(x), n) * numpy.inner(n, hkl))
+        def abulk_inp(x):
+            return numpy.abs(2 * numpy.pi / numpy.inner(qhklx(x), inp2) *
+                             numpy.linalg.norm(numpy.cross(n, hkl)))
+
+        def abulk_perp(x):
+            return numpy.abs(2 * numpy.pi / numpy.inner(qhklx(x), n) *
+                             numpy.inner(n, hkl))
+
         if config.VERBOSITY >= config.DEBUG:
             print("XU.materials.Alloy.ContentB: abulk_inp/perp: %8.5g %8.5g"
                   % (abulk_inp(0.), abulk_perp(0.)))
 
-        frac = lambda x: (
-            (cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-             (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
-            (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1]))\
-            / (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
+        def frac(x):
+            return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
+                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
+                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
+                    (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
 
-        equation = lambda x: (aperp - abulk_perp(x)) + \
-                             (ainp - abulk_inp(x)) * frac(x)
+        def equation(x):
+            return ((aperp - abulk_perp(x)) +
+                    (ainp - abulk_inp(x)) * frac(x))
 
         x = scipy.optimize.brentq(equation, -0.1, 1.1)
 

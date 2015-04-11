@@ -239,8 +239,8 @@ class CIFFile(object):
         a3 = self.lattice_const[2] * numpy.array([
             cb,
             (ca - cb * cg) / sg,
-            numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2
-                       + 2 * ca * cb * cg) / sg],
+            numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 +
+                       2 * ca * cb * cg) / sg],
             dtype=numpy.double)
         # create lattice
         l = Lattice(a1, a2, a3, base=lb)

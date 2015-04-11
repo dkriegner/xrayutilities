@@ -676,8 +676,8 @@ class SPECFile(object):
                                os.path.splitext(self.filename)[0])[0])
 
             for s in self.scan_list:
-                if (((not g.__contains__(s.name)) or s.ischanged)
-                        and s.scan_status != "NODATA"):
+                if (((not g.__contains__(s.name)) or s.ischanged) and
+                        s.scan_status != "NODATA"):
                     s.ReadData()
                     if s.data is not None:
                         s.Save2HDF5(h5, group=g, comp=comp)

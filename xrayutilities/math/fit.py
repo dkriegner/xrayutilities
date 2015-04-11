@@ -79,23 +79,28 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
     gfunc_dp = None
     if peaktype == 'Gauss':
         if background == 'linear':
-            gfunc = lambda param, x: Gauss1d(x, *param) + x * param[-1]
+            def gfunc(param, x): return Gauss1d(x, *param) + x * param[-1]
         else:
-            gfunc = lambda param, x: Gauss1d(x, *param)
-            gfunc_dx = lambda param, x: Gauss1d_der_x(x, *param)
-            gfunc_dp = lambda param, x: Gauss1d_der_p(x, *param)
+            def gfunc(param, x): return Gauss1d(x, *param)
+
+            def gfunc_dx(param, x): return Gauss1d_der_x(x, *param)
+
+            def gfunc_dp(param, x): return Gauss1d_der_p(x, *param)
     elif peaktype == 'Lorentz':
         if background == 'linear':
-            gfunc = lambda param, x: Lorentz1d(x, *param) + x * param[-1]
+            def gfunc(param, x): return Lorentz1d(x, *param) + x * param[-1]
         else:
-            gfunc = lambda param, x: Lorentz1d(x, *param)
-            gfunc_dx = lambda param, x: Lorentz1d_der_x(x, *param)
-            gfunc_dp = lambda param, x: Lorentz1d_der_p(x, *param)
+            def gfunc(param, x): return Lorentz1d(x, *param)
+
+            def gfunc_dx(param, x): return Lorentz1d_der_x(x, *param)
+
+            def gfunc_dp(param, x): return Lorentz1d_der_p(x, *param)
     elif peaktype == 'PseudoVoigt':
         if background == 'linear':
-            gfunc = lambda param, x: PseudoVoigt1d(x, *param) + x * param[-1]
+            def gfunc(param, x):
+                return PseudoVoigt1d(x, *param) + x * param[-1]
         else:
-            gfunc = lambda param, x: PseudoVoigt1d(x, *param)
+            def gfunc(param, x): return PseudoVoigt1d(x, *param)
     else:
         raise InputError("keyword rgument peaktype takes invalid value!")
 
@@ -227,8 +232,10 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     ly = ly[mask]
     lx = lx[mask]
     ldata = data.flatten()[mask]
-    # /(numpy.abs(numpy.sqrt(data))+numpy.abs(numpy.sqrt(data[data!=0].min())))
-    errfunc = lambda p, x, z, data: (fit_function(x, z, *p) - data)
+
+    def errfunc(p, x, z, data):
+        return fit_function(x, z, *p) - data
+
     p, cov, infodict, errmsg, success = optimize.leastsq(
         errfunc, start, args=(lx, ly, ldata), full_output=1, maxfev=maxfev)
 

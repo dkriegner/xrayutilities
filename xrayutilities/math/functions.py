@@ -365,8 +365,9 @@ def PseudoVoigt1dasym(x, *p):
         lx = numpy.asarray(x)
         f = numpy.zeros(lx.shape)
         f[lx < p[0]] = (p[4] + pv *
-                        Lorentz1d(lx[x < p[0]], p[0], p[1], p[3], 0) + (1 - pv)
-                        * Gauss1d(lx[x < p[0]], p[0], sigmal, p[3], 0))
+                        Lorentz1d(lx[x < p[0]], p[0], p[1], p[3], 0) +
+                        (1 - pv) *
+                        Gauss1d(lx[x < p[0]], p[0], sigmal, p[3], 0))
         f[lx >= p[0]] = (p[4] + pv *
                          Lorentz1d(lx[x >= p[0]], p[0], p[2], p[3], 0) +
                          (1 - pv) *
