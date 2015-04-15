@@ -3,10 +3,10 @@
 xrayutilities
 =============
 
-xrayutilities is a collection of scripts used to analyze x-ray diffraction data. 
-It consists of a Python package and several routines coded in C. It especially 
-useful for the reciprocal space conversion of diffraction data taken with linear 
-and area detectors.
+xrayutilities is a collection of scripts used to analyze x-ray diffraction
+data.  It consists of a Python package and several routines coded in C. It is
+especially useful for the reciprocal space conversion of diffraction data taken
+with linear and area detectors.
 
 
 Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
