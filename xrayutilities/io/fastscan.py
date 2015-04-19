@@ -87,15 +87,22 @@ class FastScan(object):
           ymotor:   motor name of the y-motor (default: 'adcY' (ID01))
           path:     optional path of the FastScan spec file
         """
-        self.filename = filename
-        self.full_filename = os.path.join(path, filename)
-        self.filename = os.path.basename(self.full_filename)
-
         self.scannr = scannr
         self.xmotor = xmotor
         self.ymotor = ymotor
+
+        if isinstance(filename, SPECFile):
+            self.specfile = filename
+            self.filename = self.specfile.filename
+            self.full_filename = self.specfile.full_filename
+            self.specscan = self.specfile.__getattr__('scan%d' % self.scannr)
+        else:
+            self.filename = filename
+            self.full_filename = os.path.join(path, filename)
+            self.filename = os.path.basename(self.full_filename)
+            self.specscan = None
+
         # read the scan
-        self.specscan = None
         self.parse()
 
     def parse(self):
@@ -105,8 +112,9 @@ class FastScan(object):
         """
 
         # parse the file
-        self.specfile = SPECFile(self.full_filename)
-        self.specscan = self.specfile.__getattr__('scan%d' % self.scannr)
+        if not self.specscan:
+            self.specfile = SPECFile(self.full_filename)
+            self.specscan = self.specfile.__getattr__('scan%d' % self.scannr)
         self.specscan.ReadData()
 
         self.xvalues = self.specscan.data[self.xmotor]
@@ -312,7 +320,7 @@ class FastScanCCD(FastScan):
         ccdtmp = os.path.join(dir, prefix + numfmt + suffix)
         return utilities.exchange_filepath(ccdtmp, datadir, keepdir)
 
-    def gridCCD(self, nx, ny, ccdnr, roi=None, dataroot=None, keepdir=0,
+    def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
                 nav=[1, 1], gridrange=None, filterfunc=None, imgoffset=0):
         """
         function to grid the internal data and ccd files and return the gridded
@@ -361,7 +369,9 @@ class FastScanCCD(FastScan):
                                                    keepdir)
 
         # read ccd shape from first image
-        filename = glob.glob(self.ccdtemplate.replace('%04d', '*'))[0]
+        filename = sorted(glob.glob(self.ccdtemplate.replace('%04d', '*')))[0]
+        if config.VERBOSITY >= config.INFO_ALL:
+            print('XU.io.FastScanCCD: open file %s' % filename)
         e = EDFFile(filename, keep_open=True)
         ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
         self.ccddata = numpy.zeros((nx, ny, ccdshape[0], ccdshape[1]))
@@ -381,7 +391,7 @@ class FastScanCCD(FastScan):
                         newfile = self.ccdtemplate % (filenumber)
                         if e.filename != newfile:
                             if config.VERBOSITY >= config.INFO_ALL:
-                                print('XU.io.FastScanCCD: open new file %s'
+                                print('XU.io.FastScanCCD: open file %s'
                                       % newfile)
                             e = EDFFile(newfile, keep_open=True)
                         if filterfunc:
@@ -454,6 +464,12 @@ class FastScanSeries(object):
         else:
             self.counter = 'ccdint1'
 
+        if 'path' in kwargs:
+            self.path = kwargs['path']
+            kwargs.pop("path")
+        else:
+            self.path = ''
+
         self.fastscans = []
         self.nx = nx
         self.ny = ny
@@ -474,8 +490,10 @@ class FastScanSeries(object):
             scannrs = [scannrs]
         if isinstance(filenames, (tuple, list)):
             for fname in filenames:
+                full_filename = os.path.join(self.path, fname)
+                specfile = SPECFile(full_filename)
                 for snrs in scannrs[filenames.index(fname)]:
-                    self.fastscans.append(FastScanCCD(fname, snrs, **kwargs))
+                    self.fastscans.append(FastScanCCD(specfile, snrs, **kwargs))
         else:
             raise ValueError("argument 'filenames' is not of "
                              "appropriate type!")
