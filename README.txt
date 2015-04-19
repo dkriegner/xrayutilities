@@ -5,8 +5,8 @@ xrayutilities
 
 xrayutilities is a collection of scripts used to analyze x-ray diffraction
 data.  It consists of a Python package and several routines coded in C. It is
-especially useful for the reciprocal space conversion of diffraction data taken
-with linear and area detectors.
+especially useful for the reciprocal space conversion of diffraction data
+taken with linear and area detectors.
 
 
 Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
@@ -54,7 +54,7 @@ system
 - matplotlib (optionally)
 
 refer to your operating system documentation to find out how to install
-those packages. On Microsoft Windows refer to the Documentation for the 
+those packages. On Microsoft Windows refer to the Documentation for the
 easiest way of the installation (Python(x,y) or WinPython).
 
 On Microsoft Windows it might be necessary to manually
@@ -76,24 +76,24 @@ The Python package configuration
 
 The following steps should only be necessary for user local installation to
 ensure the Python module is found by the Python interpreter:
-In this case the module is installed under 
+In this case the module is installed under
 <prefix>/lib[64]/python?.?/site-packages on Unix systems and
-<prefix>/Lib/site-packages on Windows systems. 
+<prefix>/Lib/site-packages on Windows systems.
 
 If you have installed the Python package in a directory unknown to your local
 Python distribution, you have to tell Python where to look for the Package.
 There are several ways how to do this:
 
-- add the directory where the package is installed to your 
+- add the directory where the package is installed to your
   *PYTHONPATH* environment variable.
 
-- add the path to sys.path in the .pythonrc file placed in your home 
+- add the path to sys.path in the .pythonrc file placed in your home
   directory ::
 
     import sys
     sys.path.append("path to the xrayutilities package")
 
-- simply apply the previous method in every script where you want to 
+- simply apply the previous method in every script where you want to
   use the xrayutilities package before importing the package ::
 
     import sys
@@ -108,7 +108,7 @@ Use ::
 
   $> git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
 
-to clone the git repository. If you would like to have commit rights 
+to clone the git repository. If you would like to have commit rights
 contact one of the administrators.
 
 UPDATE
@@ -118,7 +118,7 @@ if you already installed xrayutilities you can update it by navigating into
 its source folder and obtain the new sources by ::
 
   $> git pull
- 
+
 or download the new tarball from sourceforge
 (http://sf.net/projects/xrayutilities) if any code changed during the update you
 need to reinstall the Python package.  To determine the path in which
@@ -140,26 +140,25 @@ DOCUMENTATION
 =============
 
 Documention for xrayutilities is found in the xrayutilities.pdf file or on the
-webpage http://xrayutilities.sourceforge.net 
+webpage http://xrayutilities.sourceforge.net
 
 The API-documentation can also be browsed by ::
 
   $> pydoc -p PORT
- 
+
 in any web-browser, after the installation is finished.
 
 To build the PDF documentation from the docu-sources use:
 
-  python setup.py build_doc -b latex
-  cd build/sphinx/latex; make 
-  
-You will need sphinx and pdflatex including latex-recommended, latex-extra 
+  $> python setup.py build build_doc -b pdf
+
+You will need sphinx and pdflatex including latex-recommended, latex-extra
 and fonts-recommended.
 
-Or generate a texinfo file using 
+Or generate a texinfo file using
 
   python setup.py build_doc -b texinfo
-  cd build/sphinx/texinfo; make 
+  cd build/sphinx/texinfo; make
 
 
 PACKAGING
