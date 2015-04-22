@@ -74,7 +74,7 @@ rebuild the html documents and upload them to the sourceforge webserver
 to have the correct style the style file needs to patched
 
   python setup.py build_doc -b html
-  cp doc/css.patch build/sphinx/; cd build/sphinx; patch -p0 < css.patch; cd ../.. 
+  patch -p0 < doc/webpage.patch
 
 to upload new web-documentation connect to the sourceforge server via:
 
