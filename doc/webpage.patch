@@ -1,15 +1,24 @@
---- build/sphinx/html/index_orig.html	2015-04-22 13:26:37.733649058 +0200
-+++ build/sphinx/html/index.html	2015-04-22 13:27:03.161877444 +0200
+--- build/sphinx/html/index_orig.html	2015-04-22 16:26:57.491985929 +0200
++++ build/sphinx/html/index.html	2015-04-22 16:24:48.050874699 +0200
+@@ -55,7 +55,7 @@
+ 
+         
+           
+-          <img src="_static/xray-logo.png" class="logo" />
++          <img src="_static/xray-logo.png" class="logo" style="width: 100%; max-width:265px;"/>
+         
+         </a>
+ 
 @@ -192,6 +192,12 @@
              
    <div class="section" id="welcome-to-xrayutilities-s-documentation">
  <h1>Welcome to xrayutilities&#8217;s documentation!<a class="headerlink" href="#welcome-to-xrayutilities-s-documentation" title="Permalink to this headline">¶</a></h1>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Latest Version" src="https://pypip.in/version/xrayutilities/badge.svg?text=version" style="max-height: 25px;" /></a>
-+<a class="reference external image-reference" href="https://sourceforge.net/p/xrayutilities/code"><img alt="Git-rep on sourceforge" style="max-height: 25px;" src="https://img.shields.io/badge/development-GIT-green.svg" /></a>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Downloads" style="max-height: 25px;" src="https://pypip.in/download/xrayutilities/badge.svg" /></a>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Supported Python versions" style="max-height: 25px;" src="https://pypip.in/py_versions/xrayutilities/badge.svg" /></a>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Development Status" style="max-height: 25px;" src="https://pypip.in/status/xrayutilities/badge.svg" /></a>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="License" style="max-height: 25px;" src="https://pypip.in/license/xrayutilities/badge.svg" /></a>
++<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Latest Version" style="max-height: 25px; max-width:114px;" src="https://pypip.in/version/xrayutilities/badge.svg?text=version"/></a>
++<a class="reference external image-reference" href="https://sourceforge.net/p/xrayutilities/code"><img alt="Git-rep on sourceforge" style="max-height: 25px; max-width:144px;" src="https://img.shields.io/badge/development-GIT-green.svg"/></a>
++<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Downloads" style="max-height: 25px; max-width:181px;" src="https://pypip.in/download/xrayutilities/badge.svg" /></a>
++<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Supported Python versions" style="max-height: 25px; max-width:193px;" src="https://pypip.in/py_versions/xrayutilities/badge.svg" /></a>
++<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Development Status" style="max-height: 25px; max-width:114px;" src="https://pypip.in/status/xrayutilities/badge.svg" /></a>
++<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="License" style="max-height: 25px; max-width:119px;" src="https://pypip.in/license/xrayutilities/badge.svg" /></a>
  <p>If you look for downloading the package go to <a class="reference external" href="https://sourceforge.net/projects/xrayutilities">Sourceforge</a> (source distribution) or the <a class="reference external" href="https://pypi.python.org/pypi/xrayutilities">Python package index</a> (MS Windows binary).
  Installation instructions you find further down <a class="reference internal" href="#installation">Installation</a>.</p>
  <p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
