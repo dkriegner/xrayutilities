@@ -493,7 +493,8 @@ class FastScanSeries(object):
                 full_filename = os.path.join(self.path, fname)
                 specfile = SPECFile(full_filename)
                 for snrs in scannrs[filenames.index(fname)]:
-                    self.fastscans.append(FastScanCCD(specfile, snrs, **kwargs))
+                    self.fastscans.append(FastScanCCD(specfile,
+                                                      snrs, **kwargs))
         else:
             raise ValueError("argument 'filenames' is not of "
                              "appropriate type!")

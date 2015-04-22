@@ -15,6 +15,7 @@
 import sys
 import os
 import sphinx_rtd_theme
+import re
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -363,8 +364,6 @@ pdf_default_dpi = 120
 # my additions for pre-processing the docstring
 # parameter list of functions should be found and changed to be properly
 # formated in the output
-import re
-
 
 def process_docstring(app, what, name, obj, options, lines):
     # highlight parameters names
