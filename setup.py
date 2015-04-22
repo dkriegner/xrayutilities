@@ -124,9 +124,14 @@ setup(
     author="Eugen Wintersberger, Dominik Kriegner",
     description="package for x-ray diffraction data evaluation",
     classifiers=[
+        "Programming Language :: C",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
         "Topic :: Scientific/Engineering :: Physics",
         "Intended Audience :: Science/Research",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: GNU General Public License v2 or later "
         "(GPLv2+)"
         ],
