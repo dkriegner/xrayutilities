@@ -19,7 +19,7 @@ Contents
 --------
 
 * examples:           directory with example scripts and configurations
-* python:             directory with the sources for the Python package
+* xrayutilities:      directory with the sources for the Python package
 * setup.py:           distutils install script used for the package installation
 * xrayutilities.pdf:  pdf-file with documentation of the package
 
@@ -47,7 +47,6 @@ system
 
 - Python
 - C-compiler (preferential with OpenMP support)
-- HDF5
 - pytables
 - scipy
 - numpy
