@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
@@ -120,7 +120,7 @@ except ImportError:
 
 setup(
     name="xrayutilities",
-    version="1.1.1",
+    version="1.1.2",
     author="Eugen Wintersberger, Dominik Kriegner",
     description="package for x-ray diffraction data evaluation",
     classifiers=[

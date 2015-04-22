@@ -75,6 +75,8 @@ to have the correct style the style file needs to patched
 
   python setup.py build_doc -b html
   patch -p0 < doc/webpage.patch
+  cp doc/source/pics/xu_usage.svg build/sphinx/html/_images/
+  cp doc/source/pics/xu_usage_planning.svg build/sphinx/html/_images/
 
 to upload new web-documentation connect to the sourceforge server via:
 
