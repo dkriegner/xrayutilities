@@ -374,7 +374,7 @@ class FastScanCCD(FastScan):
             print('XU.io.FastScanCCD: open file %s' % filename)
         e = EDFFile(filename, keep_open=True)
         ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
-        self.ccddata = numpy.zeros((nx, ny, ccdshape[0], ccdshape[1]))
+        ccddata = numpy.zeros((nx, ny, ccdshape[0], ccdshape[1]))
         nimage = e.nimages
 
         # go through the gridded data and average the ccdframes
@@ -400,12 +400,12 @@ class FastScanCCD(FastScan):
                             ccdfilt = e.ReadData(imgindex)
                         ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1],
                                                   roi=roi)
-                        self.ccddata[i, j, :, :] += ccdframe
+                        ccddata[i, j, :, :] += ccdframe
                         framecount += 1
-                    self.ccddata[i, j, :, :] = self.ccddata[i, j, :, :] / \
+                        ccddata[i, j, :, :] = ccddata[i, j, :, :] / \
                         float(framecount)
 
-        return g2l.xmatrix, g2l.ymatrix, self.ccddata
+        return g2l.xmatrix, g2l.ymatrix, ccddata
 
 
 class FastScanSeries(object):
