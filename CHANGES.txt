@@ -1,3 +1,4 @@
+* add PseudoVoigtAsym option in xu.math.peakfit
 * memory usage optimization in FastScanCCD
 
 v1.1.2, 2015-04-22
