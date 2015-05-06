@@ -134,6 +134,8 @@ GeTe = Material(
     lattice.GeTeRhombohedral(elements.Ge, elements.Te, 5.996, 88.18, 0.237))
 Al = Material("Al", lattice.FCCLattice(elements.Al, 4.04958))
 Au = Material("Au", lattice.FCCLattice(elements.Au, 4.0782))
+Fe = Material("Fe", lattice.BCCLattice(elements.Fe, 2.8665))
+Rh = Material("Rh", lattice.FCCLattice(elements.Rh, 3.8034))
 V = Material("V", lattice.BCCLattice(elements.V, 3.024))
 Ta = Material("Ta", lattice.BCCLattice(elements.Ta, 3.306))
 Ag2Se = Material(
