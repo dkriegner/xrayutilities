@@ -155,7 +155,7 @@ class LatticeBase(list):
             raise TypeError("atom must be an instance of class "
                             "xrayutilities.materials.Atom")
 
-        if isinstance(pos, list):
+        if isinstance(pos, (list, tuple)):
             pos = numpy.array(pos, dtype=numpy.double)
         elif isinstance(pos, numpy.ndarray):
             pos = pos
@@ -170,7 +170,7 @@ class LatticeBase(list):
             raise TypeError("atom must be an instance of class "
                             "xrayutilities.materials.Atom!")
 
-        if isinstance(pos, list):
+        if isinstance(pos, (list, tuple)):
             p = numpy.array(pos, dtype=numpy.double)
         elif isinstance(pos, numpy.ndarray):
             p = pos

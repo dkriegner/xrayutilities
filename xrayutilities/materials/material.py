@@ -465,7 +465,7 @@ class Material(object):
             exponentf = 3 / 2. * hbar ** 2 * 1.0e20 / \
                 (m * kb * self.thetaDebye) * (math.Debye1(x) / x + 0.25)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"
+                print("XU.materials.chih: DWF = exp(-W*q**2) W= %g"
                       % exponentf)
             dwf = numpy.exp(-exponentf * math.VecNorm(q) ** 2)
         else:
