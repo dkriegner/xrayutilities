@@ -38,7 +38,9 @@ energies = {
     'CuKa2': 8027.9117,
     'CuKa12': 8041.18,
     'CuKb': 8905.337,
-    'MoKa1': 17479.374}
+    'MoKa1': 17479.374,
+    'CoKa1': 6930.32,
+    'CoKa2': 6915.30}
 # wavelength values from International Tables of Crystallography:
 # Vol C, 2nd Ed. page 203
 # CuKa1: 1.54059292(45) the value in bracket is the uncertainty
@@ -46,7 +48,8 @@ energies = {
 # CuKa12: mixture 2:1 a1 and a2
 # CuKb:  1.392246(14)
 # MoKa1: 0.70931713(41)
-
+# Xray data booklet:
+# CoKa1,2 energies
 
 def lam2en(inp):
     """
