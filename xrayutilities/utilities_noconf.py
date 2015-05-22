@@ -51,6 +51,7 @@ energies = {
 # Xray data booklet:
 # CoKa1,2 energies
 
+
 def lam2en(inp):
     """
     converts the input wavelength in Angstrom to an energy in eV

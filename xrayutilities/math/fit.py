@@ -56,7 +56,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
     keyword parameters:
      iparams:   initial paramters for the fit,
                 determined automatically if not specified
-     peaktype:  type of peak to fit: 'Gauss', 'Lorentz', 'PseudoVoigt', 
+     peaktype:  type of peak to fit: 'Gauss', 'Lorentz', 'PseudoVoigt',
                 'PseudoVoigtAsym'
      maxit:     maximal iteration number of the fit
      background:    type of background, either 'constant' or 'linear'

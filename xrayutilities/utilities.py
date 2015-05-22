@@ -52,7 +52,6 @@ def maplog(inte, dynlow="config", dynhigh="config", **keyargs):
     -------
      >>> lint = maplog(int,5,2)
     """
-
     if dynlow == "config":
         dynlow = config.DYNLOW
     if dynhigh == "config":

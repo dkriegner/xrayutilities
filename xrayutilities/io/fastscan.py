@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014 Raphael Grifone <raphael.grifone@esrf.fr>
-# Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2014-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 modules to help with the analysis of FastScan data acquired at the ESRF.
@@ -403,7 +403,7 @@ class FastScanCCD(FastScan):
                         ccddata[i, j, :, :] += ccdframe
                         framecount += 1
                         ccddata[i, j, :, :] = ccddata[i, j, :, :] / \
-                        float(framecount)
+                            float(framecount)
 
         return g2l.xmatrix, g2l.ymatrix, ccddata
 
