@@ -154,13 +154,14 @@ class DataBase(object):
         self.h5group.create_dataset('f0/%s' % subset, data=p)
         self.h5file.flush()
 
-    def SetF1(self, en, f1):
+    def SetF1F2(self, en, f1, f2):
         """
-        Set f1 tabels values  for the active material.
+        Set f1, f2 values for the active material.
 
         required input arguments:
          en ................ list or numpy array with energy in (eV)
          f1 ................ list or numpy array with f1 values
+         f2 ................ list or numpy array with f2 values
         """
         if isinstance(en, (list, tuple)):
             end = numpy.array(en, dtype=numpy.float32)
@@ -176,35 +177,6 @@ class DataBase(object):
         else:
             raise TypeError("f1 values must be a list or a numpy array!")
 
-        try:
-            del self.h5group['en_f1']
-        except:
-            pass
-
-        try:
-            del self.h5group['f1']
-        except:
-            pass
-
-        self.h5group.create_dataset('en_f1', data=end)
-        self.h5group.create_dataset('f1', data=f1d)
-        self.h5file.flush()
-
-    def SetF2(self, en, f2):
-        """
-        Set f2 tabels values  for the active material.
-
-        required input arguments:
-         en ................ list or numpy array with energy in (eV)
-         f2 ................ list or numpy array with f2 values
-        """
-        if isinstance(en, (list, tuple)):
-            end = numpy.array(en, dtype=numpy.float32)
-        elif isinstance(en, numpy.ndarray):
-            end = en.astype(numpy.float32)
-        else:
-            raise TypeError("energy values must be a list or a numpy array!")
-
         if isinstance(f2, (list, tuple)):
             f2d = numpy.array(f2, dtype=numpy.float32)
         elif isinstance(f2, numpy.ndarray):
@@ -213,16 +185,22 @@ class DataBase(object):
             raise TypeError("f2 values must be a list or a numpy array!")
 
         try:
-            del self.h5group['en_f2']
+            del self.h5group['en_f12']
         except:
             pass
 
         try:
-            del self.h5group["f2"]
+            del self.h5group['f1']
         except:
             pass
 
-        self.h5group.create_dataset('en_f2', data=end)
+        try:
+            del self.h5group['f2']
+        except:
+            pass
+
+        self.h5group.create_dataset('en_f12', data=end)
+        self.h5group.create_dataset('f1', data=f1d)
         self.h5group.create_dataset('f2', data=f2d)
         self.h5file.flush()
 
@@ -245,13 +223,13 @@ class DataBase(object):
         except:
             self.f0_params = None
         try:
-            self.f1_en = self.h5group['en_f1']
+            self.f1_en = self.h5group['en_f12']
             self.f1 = self.h5group['f1']
         except:
             self.f1_en = None
             self.f1 = None
         try:
-            self.f2_en = self.h5group['en_f2']
+            self.f2_en = self.h5group['en_f12']
             self.f2 = self.h5group['f2']
         except:
             self.f2_en = None
@@ -587,8 +565,7 @@ def add_f1f2_from_henkedb(db, hf):
                     f1_list.append(f1)
                     f2_list.append(f2)
                     if en == 30000.:
-                        db.SetF1(en_list, f1_list)
-                        db.SetF2(en_list, f2_list)
+                        db.SetF1F2(en_list, f1_list, f2_list)
                         break
 
 
@@ -639,8 +616,7 @@ def add_f1f2_from_kissel(db, kf):
                         f1_list.append(f1)
                         f2_list.append(f2)
                         if en == 10000000.:
-                            db.SetF1(en_list, f1_list)
-                            db.SetF2(en_list, f2_list)
+                            db.SetF1F2(en_list, f1_list, f2_list)
                             break
                     except:
                         print(lb)
@@ -664,8 +640,7 @@ def add_f1f2_from_ascii_file(db, asciifile, element):
     en = af[:, 0]
     f1 = af[:, 1]
     f2 = af[:, 2]
-    db.SetF1(en, f1)
-    db.SetF2(en, f2)
+    db.SetF1F2(en, f1, f2)
 
 
 def add_mass_from_NIST(db, nistfile):

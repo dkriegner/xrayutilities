@@ -1,3 +1,6 @@
+* added different oxidation states of the chemical elements to the database
+* huge speed improvements for the database access, especially when querying 
+  multiple values at the same time
 * add PseudoVoigtAsym option in xu.math.peakfit
 * memory usage optimization in FastScanCCD
 

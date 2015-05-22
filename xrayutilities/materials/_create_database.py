@@ -35,8 +35,7 @@ init_material_db(dbf)
 # shows how the a database entry can be generated manually
 dbf.SetMaterial('dummy')
 dbf.SetF0([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # atomic structure factors
-dbf.SetF1((0, 1e5), (0, 0))  # zero dispersion correction
-dbf.SetF2((0, 1e5), (0, 0))
+dbf.SetF1F2((0, 1e5), (0, 0), (0, 0))  # zero dispersion correction
 
 add_mass_from_NIST(dbf, os.path.join('data', 'nist_atom.dat'))
 
