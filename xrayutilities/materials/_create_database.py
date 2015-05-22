@@ -13,38 +13,50 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 script to create the HDF5 database from the raw data of XOP
 this file is only needed for administration
 """
 
 import os
+import lzma
+exec(open('database.py', 'rb').read())
 
-# if __name__ == "__main__" and __package__ is None:
-#        __package__ = "xrayutilities"
-# from . import database as db
-execfile('database.py')
-
-filename = os.path.join("data", "elements.db")
-
+filename = os.path.join('data', 'elements.db')
 dbf = DataBase(filename)
-dbf.Create(filename,
-           "Database with elemental data from XOP and Kissel databases")
+dbf.Create('elementdata',
+           'Database with elemental data from XOP and Kissel databases')
 
 init_material_db(dbf)
 
-add_mass_from_NIST(dbf, os.path.join("data", "nist_atom.dat"))
-add_f0_from_xop(dbf, os.path.join("data", "f0_xop.dat"))
-add_f1f2_from_kissel(dbf, os.path.join("data", "f1f2_asf_Kissel.dat"))
-# alternative use the Henke database
-# add_f1f2_from_henkedb(dbf,os.path.join("data","f1f2_Henke.dat"))
+# add a dummy element, this is useful not only for testing and should be
+# kept in future! It can be used for structure factor calculation tests, and
+# shows how the a database entry can be generated manually
+dbf.SetMaterial('dummy')
+dbf.SetF0([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # atomic structure factors
+dbf.SetF1((0, 1e5), (0, 0))  # zero dispersion correction
+dbf.SetF2((0, 1e5), (0, 0))
+
+add_mass_from_NIST(dbf, os.path.join('data', 'nist_atom.dat'))
+
+# add F0(Q) for every element
+# with lzma.open(os.path.join('data', 'f0_xop.dat.xz'), 'r') as xop:
+#    add_f0_from_xop(dbf, xop)
+with lzma.open(os.path.join('data', 'f0_InterTables.dat.xz'), 'r') as itf:
+    add_f0_from_intertab(dbf, itf)
+
+# add F1 and F2 from database
+with lzma.open(os.path.join('data', 'f1f2_asf_Kissel.dat.xz'), 'r') as kf:
+    add_f1f2_from_kissel(dbf, kf)
+# with lzma.open(os.path.join('data','f1f2_Henke.dat'), 'r') as hf:
+#    add_f1f2_from_henkedb(dbf, hf)
 
 # Also its possible to add costum data from different databases; e.g.
 # created by Hepaestus (http://bruceravel.github.io/demeter/). This is also
 # possible for specific elements only, therefore extract the data from
 # Hephaestus or any other source producing ASCII files with three columns
 # (energy (eV), f1, f2). To import such data use:
-# add_f1f2_from_ascii_file(dbf,os.path.join("data","Ga.f1f2"),'Ga')
+# add_f1f2_from_ascii_file(dbf, os.path.join('data','Ga.f1f2'), 'Ga')
 
 dbf.Close()

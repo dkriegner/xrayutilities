@@ -18,7 +18,7 @@
 
 # import module objects
 
-from .lattice import Atom
+from .atom import Atom
 from .lattice import LatticeBase
 from .lattice import Lattice
 from .lattice import CubicLattice
