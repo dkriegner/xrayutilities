@@ -17,114 +17,19 @@
 # Copyright (C) 2009-2010 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-module handling crystal lattice structures
+module handling crystal lattice structures. A Lattice consists of unit cell
+parameters and a LatticeBase. It offers methods to calculate the reciprocal
+space position of Bragg peaks and their structure factor.
 """
 
 import numpy
 from numpy.linalg import norm
 import numbers
-import atexit
-import os.path
 
-from . import __path__
-from . import database
+from .atom import Atom
 from .. import math
 from .. import config
-from .. import utilities
 from ..exception import InputError
-
-_db = database.DataBase(os.path.join(__path__[0], "data", config.DBNAME))
-_db.Open()
-
-
-def _db_cleanup():
-    _db.Close()
-
-atexit.register(_db_cleanup)
-
-
-class Atom(object):
-
-    def __init__(self, name, num):
-        self.name = name
-        self.num = num
-        _db.SetMaterial(self.name)
-        self.weight = _db.weight
-
-    def __key__(self):
-        """ key function to return the elements number """
-        return self.num
-
-    def __lt__(self, other_el):
-        """ make elements sortable by their key """
-        return self.__key__() < other_el.__key__()
-
-    def f0(self, q):
-        _db.SetMaterial(self.name)
-
-        if isinstance(q, numpy.ndarray) or isinstance(q, list):
-            d = numpy.zeros((len(q)), dtype=numpy.double)
-            for i in range(len(q)):
-                d[i] = _db.GetF0(q[i])
-
-            return d
-        else:
-            return _db.GetF0(q)
-
-    def f1(self, en="config"):
-        if en == "config":
-            en = utilities.energy(config.ENERGY)
-
-        _db.SetMaterial(self.name)
-
-        if isinstance(en, numpy.ndarray) or isinstance(en, list):
-            d = numpy.zeros((len(en)), dtype=numpy.double)
-            for i in range(len(en)):
-                d[i] = _db.GetF1(utilities.energy(en[i]))
-
-            return d
-        else:
-            return _db.GetF1(utilities.energy(en))
-
-    def f2(self, en="config"):
-        if en == "config":
-            en = utilities.energy(config.ENERGY)
-
-        _db.SetMaterial(self.name)
-
-        if isinstance(en, numpy.ndarray) or isinstance(en, list):
-            d = numpy.zeros((len(en)), dtype=numpy.double)
-            for i in range(len(en)):
-                d[i] = _db.GetF2(utilities.energy(en[i]))
-
-            return d
-        else:
-            return _db.GetF2(utilities.energy(en))
-
-    def f(self, q, en="config"):
-        """
-        function to calculate the atomic structure factor F
-
-        Parameter
-        ---------
-         q:     momentum transfer
-         en:    energy for which F should be calculated, if omitted the value
-                from the xrayutilities configuration is used
-
-        Returns
-        -------
-         f (float)
-        """
-        f = self.f0(norm(q)) + self.f1(en) + 1.j * self.f2(en)
-        return f
-
-    def __str__(self):
-        ostr = self.name
-        ostr += " (%2d)" % self.num
-        return ostr
-
-    def __repr__(self):
-        return self.__str__()
 
 
 class LatticeBase(list):

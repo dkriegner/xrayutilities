@@ -14,13 +14,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2010,2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-module to handle access to the optical parameters database
+module to handle the access to the optical parameters database
 """
 
-import tables
+import h5py
 import numpy
 import scipy.interpolate
 import scipy.constants
@@ -38,6 +38,7 @@ class DataBase(object):
         self.f1 = None
         self.f2_en = None
         self.f2 = None
+        self.weight = None
 
     def Create(self, dbname, dbdesc):
         """
@@ -55,30 +56,29 @@ class DataBase(object):
 
         # tryp to open the database file
         try:
-            self.h5file = tables.openFile(self.fname, mode="w")
+            self.h5file = h5py.File(self.fname, 'w')
         except:
-            print("cannot create database file %s!" % (self.fname))
+            print('cannot create database file %s!' % (self.fname))
             return None
 
         # set attributes to the root group with database name and
         # description
-        self.h5file.setNodeAttr("/", "DBName", dbname)
-        self.h5file.setNodeAttr("/", "DBDesc", dbdesc)
+        self.h5file.attrs['DBName'] = dbname
+        self.h5file.attrs['DBDesc'] = dbdesc
 
-    def Open(self, mode="r"):
+    def Open(self, mode='r'):
         """
         Open an existing database file.
         """
         if self.h5file is not None:
-            print("database already opened - "
-                  "close first to open new database!")
-            return None
+            print('database already opened - '
+                  'close first to open new database!')
+            return
 
         try:
-            self.h5file = tables.openFile(self.fname, mode=mode)
+            self.h5file = h5py.File(self.fname, mode)
         except:
             print("cannot open database file %s!" % (self.fname))
-            return None
 
     def Close(self):
         """
@@ -86,7 +86,7 @@ class DataBase(object):
         """
         if self.h5file is None:
             print("no database file opened!")
-            return None
+            return
 
         self.h5file.close()
         self.h5file = None
@@ -102,18 +102,14 @@ class DataBase(object):
         """
         if self.h5file is None:
             print("no database file opened!")
-            return None
+            return
 
-        try:
-            g = self.getNode("/", name)
-            # if this operation succeeds the material node already exists and
-            # a warning message is printed
+        if name in self.h5file:
+            # if the material node already exists a warning message is printed
             print("material node already exists")
-            return None
-        except:
-            pass
-
-        g = self.h5file.createGroup("/", name, title=description)
+        else:
+            g = self.h5file.create_group(name)
+            g.attrs['name'] = description
 
     def SetWeight(self, weight):
         """
@@ -125,10 +121,10 @@ class DataBase(object):
         if not isinstance(weight, float):
             raise TypeError("weight parameter must be a float!")
 
-        self.h5group._v_attrs.atomic_standard_weight = weight
+        self.h5group.attrs['atomic_standard_weight'] = weight
         self.h5file.flush()
 
-    def SetF0(self, parameters):
+    def SetF0(self, parameters, subset='default'):
         """
         Save f0 fit parameters for the set material. The fit parameters
         are stored in the following order:
@@ -136,6 +132,8 @@ class DataBase(object):
 
         required input argument:
          parameters ........ list or numpy array with the fit parameters
+         subset ............ specifies under which name the f0 values should
+                             be saved
         """
         if isinstance(parameters, list):
             p = numpy.array(parameters, dtype=numpy.float32)
@@ -145,12 +143,15 @@ class DataBase(object):
             raise TypeError("f0 fit parameters must be a "
                             "list or a numpy array!")
 
+        if not subset:
+            subset = 'default'
+
         try:
-            self.h5file.removeNode(self.h5group, "f0")
+            del self.h5group['f0/%s' % subset]
         except:
             pass
 
-        c = self.h5file.createArray(self.h5group, "f0", p, "f0 fit parameters")
+        self.h5group.create_dataset('f0/%s' % subset, data=p)
         self.h5file.flush()
 
     def SetF1(self, en, f1):
@@ -161,37 +162,32 @@ class DataBase(object):
          en ................ list or numpy array with energy in (eV)
          f1 ................ list or numpy array with f1 values
         """
-        if isinstance(en, list):
+        if isinstance(en, (list, tuple)):
             end = numpy.array(en, dtype=numpy.float32)
         elif isinstance(en, numpy.ndarray):
             end = en.astype(numpy.float32)
         else:
             raise TypeError("energy values must be a list or a numpy array!")
 
-        if isinstance(f1, list):
+        if isinstance(f1, (list, tuple)):
             f1d = numpy.array(f1, dtype=numpy.float32)
         elif isinstance(f1, numpy.ndarray):
             f1d = f1.astype(numpy.float32)
         else:
             raise TypeError("f1 values must be a list or a numpy array!")
 
-        a = tables.Float32Atom()
-
         try:
-            self.h5file.removeNode(self.h5group, "en_f1")
+            del self.h5group['en_f1']
         except:
             pass
 
         try:
-            self.h5file.removeNode(self.h5group, "f1")
+            del self.h5group['f1']
         except:
             pass
 
-        c = self.h5file.createArray(self.h5group, "en_f1",
-                                    end, "f1 energy scale in (eV)")
-        self.h5file.flush()
-
-        c = self.h5file.createArray(self.h5group, "f1", f1d, "f1 data")
+        self.h5group.create_dataset('en_f1', data=end)
+        self.h5group.create_dataset('f1', data=f1d)
         self.h5file.flush()
 
     def SetF2(self, en, f2):
@@ -202,37 +198,32 @@ class DataBase(object):
          en ................ list or numpy array with energy in (eV)
          f2 ................ list or numpy array with f2 values
         """
-        if isinstance(en, list):
+        if isinstance(en, (list, tuple)):
             end = numpy.array(en, dtype=numpy.float32)
         elif isinstance(en, numpy.ndarray):
             end = en.astype(numpy.float32)
         else:
             raise TypeError("energy values must be a list or a numpy array!")
 
-        if isinstance(f2, list):
+        if isinstance(f2, (list, tuple)):
             f2d = numpy.array(f2, dtype=numpy.float32)
         elif isinstance(f2, numpy.ndarray):
             f2d = f2.astype(numpy.float32)
         else:
             raise TypeError("f2 values must be a list or a numpy array!")
 
-        a = tables.Float32Atom()
-
         try:
-            self.h5file.removeNode(self.h5group, "en_f2")
+            del self.h5group['en_f2']
         except:
             pass
 
         try:
-            self.h5file.removeNode(self.h5group, "f2")
+            del self.h5group["f2"]
         except:
             pass
 
-        c = self.h5file.createArray(self.h5group, "en_f2",
-                                    end, "f2 energy scale in (eV)")
-        self.h5file.flush()
-
-        c = self.h5file.createArray(self.h5group, "f2", f2d, "f2 data")
+        self.h5group.create_dataset('en_f2', data=end)
+        self.h5group.create_dataset('f2', data=f2d)
         self.h5file.flush()
 
     def SetMaterial(self, name):
@@ -241,50 +232,64 @@ class DataBase(object):
         operations like setting and getting optical constants are done for this
         particular material.
 
-        requiered input arguments:
+        required input arguments:
          name ............... string with the name of the material
         """
         try:
-            self.h5group = self.h5file.getNode("/", name)
+            self.h5group = self.h5file[name]
         except:
-            print("XU.materials.database: material does not exist!")
+            print("XU.materials.database: material '%s' not existing!" % name)
 
         try:
-            self.f0_params = self.h5group.f0
-            self.f1_en = self.h5group.en_f1
-            self.f1 = self.h5group.f1
-            self.f2_en = self.h5group.en_f2
-            self.f2 = self.h5group.f2
-            self.weight = self.h5group._v_attrs.atomic_standard_weight
+            self.f0_params = self.h5group['f0']
         except:
-            print("XU.materials.database: some (optical|other) "
-                  "constants are missing!")
-            # self.f0_params = None
-            # self.f1_en     = None
-            # self.f1        = None
-            # self.f2_en     = None
-            # self.f2        = None
+            self.f0_params = None
+        try:
+            self.f1_en = self.h5group['en_f1']
+            self.f1 = self.h5group['f1']
+        except:
+            self.f1_en = None
+            self.f1 = None
+        try:
+            self.f2_en = self.h5group['en_f2']
+            self.f2 = self.h5group['f2']
+        except:
+            self.f2_en = None
+            self.f2 = None
+        try:
+            self.weight = self.h5group.attrs['atomic_standard_weight']
+        except:
+            self.weight = None
 
-    def GetF0(self, q):
+    def GetF0(self, q, dset='default'):
         """
         Obtain the f0 scattering factor component for a particular
         momentum transfer q.
 
         required input argument:
          q ......... single float value or numpy array
+         dset ...... specifies which dataset (different oxidation states)
+                     should be used
         """
-        # get parameters
-        f0_params = self.f0_params.read()
-        c = f0_params[0]
-        k = q / (4. * numpy.pi)
-        f0 = 0.
+        # get parameters from file
+        if not dset:
+            dset = 'default'
+        f0_params = self.f0_params[dset]
+        # calculate f0
+        if isinstance(q, (numpy.ndarray, list, tuple)):
+            ql = numpy.asarray(q)
+            f0 = f0_params[0] * numpy.ones(ql.shape)
+        else:
+            ql = q
+            f0 = f0_params[0]
+        k = ql / (4. * numpy.pi)
 
         for i in range(1, len(f0_params) - 1, 2):
             a = f0_params[i]
             b = f0_params[i + 1]
             f0 += a * numpy.exp(-b * k ** 2)
 
-        return f0 + c
+        return f0
 
     def GetF1(self, en):
         """
@@ -294,14 +299,10 @@ class DataBase(object):
         required input arguments:
          en ............. float or numpy array with the energy
         """
-        # check if energy is covered by database data
-        endb = self.f1_en.read()
-        f1db = self.f1.read()
+        if1 = numpy.interp(en, self.f1_en, self.f1,
+                           left=numpy.nan, right=numpy.nan)
 
-        if1 = scipy.interpolate.interp1d(endb, f1db, kind=1)
-        f1 = if1(en)
-
-        return f1
+        return if1
 
     def GetF2(self, en):
         """
@@ -311,18 +312,17 @@ class DataBase(object):
         required input arguments:
          en ............. float or numpy array with the energy
         """
-        # check if energy is covered by database data
-        endb = self.f2_en.read()
-        f2db = self.f2.read()
+        if2 = numpy.interp(en, self.f2_en, self.f2,
+                           left=numpy.nan, right=numpy.nan)
 
-        if2 = scipy.interpolate.interp1d(endb, f2db, kind=1)
-        f2 = if2(en)
-
-        return f2
+        return if2
 
 
 def init_material_db(db):
+    db.CreateMaterial("dummy", "Dummy atom")
     db.CreateMaterial("H", "Hydrogen")
+    db.CreateMaterial("D", "Deuterium")
+    db.CreateMaterial("T", "Tritium")
     db.CreateMaterial("He", "Helium")
     db.CreateMaterial("Li", "Lithium")
     db.CreateMaterial("Be", "Berylium")
@@ -414,29 +414,45 @@ def init_material_db(db):
     db.CreateMaterial("Th", "Thorium")
     db.CreateMaterial("Pa", "Protactinium")
     db.CreateMaterial("U", "Urianium")
+    db.CreateMaterial("Np", "Neptunium")
+    db.CreateMaterial("Pu", "Plutonium")
+    db.CreateMaterial("Am", "Americium")
+    db.CreateMaterial("Cm", "Curium")
+    db.CreateMaterial("Bk", "Berkelium")
+    db.CreateMaterial("Cf", "Californium")
+    db.CreateMaterial("Es", "Einsteinium")
+    db.CreateMaterial("Fm", "Fermium")
+    db.CreateMaterial("Md", "Mendelevium")
+    db.CreateMaterial("No", "Nobelium")
+    db.CreateMaterial("Lr", "Lawrencium")
+    db.CreateMaterial("Rf", "Rutherfordium")
+    db.CreateMaterial("Db", "Dubnium")
+    db.CreateMaterial("Sg", "Seaborgium")
+    db.CreateMaterial("Bh", "Bohrium")
+    db.CreateMaterial("Hs", "Hassium")
+    db.CreateMaterial("Mt", "Meitnerium")
+    db.CreateMaterial("Ds", "Darmstadtium")
+    db.CreateMaterial("Rg", "Roentgenium")
+    db.CreateMaterial("Cn", "Copernicium")
+    db.CreateMaterial("Uut", "Ununtrium")
+    db.CreateMaterial("Uuq", "Flerovium")
+    db.CreateMaterial("Uup", "Ununpentium")
+    db.CreateMaterial("Uuh", "Livermorium")
+    db.CreateMaterial("Uus", "Ununseptium")
+    db.CreateMaterial("Uuo", "Ununoctium")
 
 
 # functions to read database files
-def add_f0_from_intertab(db, itabfile):
+def add_f0_from_intertab(db, itf):
     """
-    Read f0 data from international tables of crystallography and add
+    Read f0 data from International Tables of Crystallography and add
     it to the database.
     """
-
-    # parse the inter. tab. file
-    try:
-        itf = open(itabfile, "r")
-    except:
-        print("cannot open f0 database file")
-        return None
-
     # some regular expressions
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
-    invalidelem = re.compile(r"[^A-Za-z]")
-
     while True:
-        lb = itf.readline()
+        lb = itf.readline().decode("utf-8")
         if lb == "":
             break
         lb = lb.strip()
@@ -444,53 +460,49 @@ def add_f0_from_intertab(db, itabfile):
         if elementstr.match(lb):
             # found new element
             lb = multiblank.split(lb)
-            ename = lb[2]
-            # check if this is not some funny isotope
 
-            if invalidelem.findall(ename) == []:
-                print("set element %s" % ename)
-                db.SetMaterial(ename)
-                # make one dummy read
+            # determine oxidation state and element name
+            elemstate = re.sub('[A-Za-z]', '', lb[2])
+            for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+                elemstate = elemstate.replace(o, r)
+            if elemstate == 'p2':  # fix wrong name in the source file
+                elemstate = '2p'
+            ename = re.sub('[^A-Za-z]', '', lb[2])
+
+            print("{pyname} = Atom('{name}', {num})".format(
+                pyname=ename+elemstate, name=lb[2], num=lb[1]))
+            db.SetMaterial(ename)
+            # make two dummy reads
+            for i in range(2):
                 itf.readline()
-                itf.readline()
-                # read fit parameters
-                lb = itf.readline()
-                lb = lb.strip()
-                lb = multiblank.split(lb)
-                a1 = float(lb[0])
-                a2 = float(lb[1])
-                a3 = float(lb[2])
-                a4 = float(lb[3])
-                c = float(lb[4])
-                b1 = float(lb[5])
-                b2 = float(lb[6])
-                b3 = float(lb[7])
-                b4 = float(lb[8])
-                db.SetF0([c, a1, b1, a2, b2, a3, b3, a4, b4])
-
-    itf.close()
+            # read fit parameters
+            lb = itf.readline().decode("utf-8")
+            lb = lb.strip()
+            lb = multiblank.split(lb)
+            a1 = float(lb[0])
+            a2 = float(lb[1])
+            a3 = float(lb[2])
+            a4 = float(lb[3])
+            c = float(lb[4])
+            b1 = float(lb[5])
+            b2 = float(lb[6])
+            b3 = float(lb[7])
+            b4 = float(lb[8])
+            db.SetF0([c, a1, b1, a2, b2, a3, b3, a4, b4], subset=elemstate)
 
 
-def add_f0_from_xop(db, xopfile):
+def add_f0_from_xop(db, xop):
     """
     Read f0 data from f0_xop.dat and add
     it to the database.
     """
-
-    # parse the xop file
-    try:
-        xop = open(xopfile, "r")
-    except:
-        print("cannot open f0 database file")
-        return None
-
     # some regular expressions
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
     invalidelem = re.compile(r"[^A-Za-z]")
 
     while True:
-        lb = xop.readline()
+        lb = xop.readline().decode("utf-8")
         if lb == "":
             break
         lb = lb.strip()
@@ -498,62 +510,49 @@ def add_f0_from_xop(db, xopfile):
         if elementstr.match(lb):
             # found new element
             lb = multiblank.split(lb)
-            ename = lb[2]
-            # check if this is not some funny isotope
+            # determine oxidation state and element name
+            elemstate = re.sub('[A-Za-z]', '', lb[2])
+            for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+                elemstate = elemstate.replace(o, r)
+            ename = re.sub('[^A-Za-z]', '', lb[2])
 
-            if invalidelem.findall(ename) == []:
-                print("set element %s" % ename)
-                db.SetMaterial(ename)
-                # make nine dummy reads
-                xop.readline()
-                xop.readline()
-                xop.readline()
-                xop.readline()
-                xop.readline()
-                xop.readline()
-                xop.readline()
-                xop.readline()
-                xop.readline()
-                # read fit parameters
-                lb = xop.readline()
-                lb = lb.strip()
-                lb = multiblank.split(lb)
-                a1 = float(lb[0])
-                a2 = float(lb[1])
-                a3 = float(lb[2])
-                a4 = float(lb[3])
-                a5 = float(lb[4])
-                c = float(lb[5])
-                b1 = float(lb[6])
-                b2 = float(lb[7])
-                b3 = float(lb[8])
-                b4 = float(lb[9])
-                b5 = float(lb[10])
-                db.SetF0([c, a1, b1, a2, b2, a3, b3, a4, b4, a5, b5])
+            print("{pyname} = Atom('{name}', {num})".format(
+                pyname=ename+elemstate, name=lb[2], num=lb[1]))
+            db.SetMaterial(ename)
 
-    xop.close()
+            # make nine dummy reads
+            for i in range(9):
+                xop.readline()
+            # read fit parameters
+            lb = xop.readline().decode("utf-8")
+            lb = lb.strip()
+            lb = multiblank.split(lb)
+            a1 = float(lb[0])
+            a2 = float(lb[1])
+            a3 = float(lb[2])
+            a4 = float(lb[3])
+            a5 = float(lb[4])
+            c = float(lb[5])
+            b1 = float(lb[6])
+            b2 = float(lb[7])
+            b3 = float(lb[8])
+            b4 = float(lb[9])
+            b5 = float(lb[10])
+            db.SetF0([c, a1, b1, a2, b2, a3, b3, a4, b4, a5, b5])
 
 
-def add_f1f2_from_henkedb(db, henkefile):
+def add_f1f2_from_henkedb(db, hf):
     """
     Read f1 and f2 data from Henke database and add
     it to the database.
     """
-
-    # parse the inter. tab. file
-    try:
-        hf = open(henkefile, "r")
-    except:
-        print("cannot open f1f2 database file")
-        return None
-
     # some regular expressions
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
     invalidelem = re.compile(r"[^A-Za-z]")
 
     while True:
-        lb = hf.readline()
+        lb = hf.readline().decode("utf-8")
         if lb == "":
             break
         lb = lb.strip()
@@ -577,7 +576,7 @@ def add_f1f2_from_henkedb(db, henkefile):
                 f1_list = []
                 f2_list = []
                 while True:
-                    lb = hf.readline()
+                    lb = hf.readline().decode("utf-8")
                     lb = lb.strip()
                     lb = multiblank.split(lb)
                     en = float(lb[0])
@@ -592,29 +591,19 @@ def add_f1f2_from_henkedb(db, henkefile):
                         db.SetF2(en_list, f2_list)
                         break
 
-    hf.close()
 
-
-def add_f1f2_from_kissel(db, kisselfile):
+def add_f1f2_from_kissel(db, kf):
     """
     Read f1 and f2 data from Henke database and add
     it to the database.
     """
-
-    # parse the f1f2 file
-    try:
-        kf = open(kisselfile, "r")
-    except:
-        print("cannot open f1f2 database file")
-        return None
-
     # some regular expressions
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
     invalidelem = re.compile(r"[^A-Za-z]")
 
     while True:
-        lb = kf.readline()
+        lb = kf.readline().decode("utf-8")
         if lb == "":
             break
         lb = lb.strip()
@@ -638,7 +627,7 @@ def add_f1f2_from_kissel(db, kisselfile):
                 f1_list = []
                 f2_list = []
                 while True:
-                    lb = kf.readline()
+                    lb = kf.readline().decode("utf-8")
                     lb = lb.strip()
                     lb = multiblank.split(lb)
                     try:
@@ -656,8 +645,6 @@ def add_f1f2_from_kissel(db, kisselfile):
                     except:
                         print(lb)
                         break
-
-    kf.close()
 
 
 def add_f1f2_from_ascii_file(db, asciifile, element):
@@ -684,15 +671,8 @@ def add_f1f2_from_ascii_file(db, asciifile, element):
 def add_mass_from_NIST(db, nistfile):
     """
     Read atoms standard mass and save it to the database.
+    The mass of the natural isotope mixture is taken from the NIST data!
     """
-
-    # parse the nist file
-    try:
-        nf = open(nistfile, "r")
-    except:
-        print("cannot open NIST data file")
-        return None
-
     # some regular expressions
     commentline = re.compile(r"^#")
     isotope = re.compile(r"^Atomic Number =")
@@ -700,36 +680,37 @@ def add_mass_from_NIST(db, nistfile):
     number = re.compile(r"[0-9.]+")
     multiblank = re.compile(r"\s+")
 
-    while True:
-        lb = nf.readline()
-        if lb == "":
-            break
-        lb = lb.strip()
-
-        if isotope.match(lb):
-            # found new element
-            lb = multiblank.split(lb)
-            enum = int(lb[-1])
+    # parse the nist file
+    with open(nistfile, "r") as nf:
+        while True:
             lb = nf.readline()
+            if lb == "":
+                break
             lb = lb.strip()
-            lb = multiblank.split(lb)
-            ename = lb[-1]
 
-            print("set element %s" % ename)
-            db.SetMaterial(ename)
-
-            # read data
-            while True:
+            if isotope.match(lb):
+                # found new element
+                lb = multiblank.split(lb)
+                enum = int(lb[-1])
                 lb = nf.readline()
                 lb = lb.strip()
-                if standardw.match(lb):
-                    lb = multiblank.split(lb)
-                    try:
-                        w = float(number.findall(lb[-1])[0])  # extract weight
-                        db.SetWeight(w * scipy.constants.atomic_mass)
-                        break
-                    except:
-                        print(lb)
-                        break
+                lb = multiblank.split(lb)
+                ename = lb[-1]
 
-    nf.close()
+                print("set element %s" % ename)
+                db.SetMaterial(ename)
+
+                # read data
+                while True:
+                    lb = nf.readline()
+                    lb = lb.strip()
+                    if standardw.match(lb):
+                        lb = multiblank.split(lb)
+                        try:
+                            # extract weight
+                            w = float(number.findall(lb[-1])[0])
+                            db.SetWeight(w * scipy.constants.atomic_mass)
+                            break
+                        except:
+                            print(lb)
+                            break
