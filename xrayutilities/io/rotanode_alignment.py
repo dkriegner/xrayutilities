@@ -25,13 +25,6 @@ import re
 from .. import config
 from .helper import xu_open
 
-try:
-    from matplotlib import pylab as plt
-except ImportError:
-    if config.VERBOSITY >= config.INFO_ALL:
-        print("rotanode_alignment: warning; plotting functionality "
-              "not available")
-
 LOG_comment = re.compile(r"^#C")
 LOG_peakname = re.compile(r"^#P")
 LOG_motorname = re.compile(r"^#M")
@@ -209,11 +202,12 @@ class RA_Alignment(object):
         ----------
          pname:  peakname for which the alignment should be plotted
         """
-
         try:
-            plt.__version__
-        except NameError:
-            print("RA_Alignment.plot: error: plot functionality not available")
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.io.RA_Alignment: Warning: plot "
+                      "functionality not available")
             return
 
         if pname not in self.peaks:

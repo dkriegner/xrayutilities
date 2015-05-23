@@ -33,12 +33,33 @@ from .functions import Gauss1d, Gauss1d_der_x, Gauss1d_der_p
 from .functions import Lorentz1d, Lorentz1d_der_x, Lorentz1d_der_p
 from .functions import PseudoVoigt1d, PseudoVoigt1dasym
 
-try:
-    from matplotlib import pyplot as plt
-except ImportError:
-    if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.analysis.sample_align: warning; plotting functionality not"
-              "available")
+
+def linregress(x, y):
+    """
+    fast linregress to avoid usage of scipy.stats which is slow!
+
+    Parameters
+    ----------
+     x,y:   data coordinates and values
+
+    Returns
+    -------
+     p, rsq: parameters of the linear fit (slope, offest) and the R^2 value
+
+    Example
+    -------
+     >>> (k, d), R2 = xu.math.linregress(x, y)
+    """
+    p = numpy.polyfit(x, y, 1)
+
+    # calculation of r-squared
+    f = numpy.polyval(p, x)
+    fbar = numpy.sum(y) / len(y)
+    ssreg = numpy.sum((f-fbar)**2)
+    sstot = numpy.sum((y - fbar)**2)
+    rsq = ssreg / sstot
+
+    return p, rsq
 
 
 def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
@@ -75,6 +96,14 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
     the case of a successful fit is added by default. Further the function
     used in the fit can be returned (see func_out).
     """
+    if plot:
+        try:
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.math.peak_fit: Warning: plot "
+                      "functionality not available")
+            plot = False
 
     gfunc_dx = None
     gfunc_dp = None
@@ -162,17 +191,11 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
                   "do not trust the result!")
 
     if plot:
-        try:
-            plt.__name__
-        except NameError:
-            print("XU.math.peak_fit: Warning: plot functionality not "
-                  "available")
-        else:
-            plt.figure('XU:peak_fit')
-            plt.plot(xdata, ydata, 'ko', label='data', mew=2)
-            plt.plot(xdata, gfunc(fit.beta, xdata), 'r-',
-                     label='%s-fit' % peaktype)
-            plt.legend()
+        plt.figure('XU:peak_fit')
+        plt.plot(xdata, ydata, 'ko', label='data', mew=2)
+        plt.plot(xdata, gfunc(fit.beta, xdata), 'r-',
+                 label='%s-fit' % peaktype)
+        plt.legend()
 
     if func_out:
         return fit.beta, fit.sd_beta, itlim, lambda x: gfunc(fit.beta, x)
@@ -489,12 +512,12 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
      fig:  matplotlib figure number or name
      fact: factor to use as multiplicator in the plot
     """
-
     try:
-        plt.__name__
-    except NameError:
-        print("XU.math.multPeakPlot: Warning: plot functionality not "
-              "available")
+        from matplotlib import pyplot as plt
+    except ImportError:
+        if config.VERBOSITY >= config.INFO_ALL:
+            print("XU.math.multPeakPlot: Warning: plot "
+                  "functionality not available")
         return
 
     plt.figure(fig)

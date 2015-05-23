@@ -29,23 +29,15 @@ a reread of the file starting from a stored offset (last known scan position)
 
 import re
 import numpy
-import os
+import os.path
 import time
 import tables
-import gzip
 import warnings
 
 # relative imports from xrayutilities
 from .helper import xu_open, xu_h5open
 from .. import config
 from ..exception import InputError
-
-try:
-    from matplotlib import pylab
-except ImportError:
-    if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.io.spec: warning; spec class plotting "
-              "functionality not available")
 
 # define some uesfull regular expressions
 SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")
@@ -391,12 +383,12 @@ class SPECScan(object):
                    existing one will be used
           logy:    if True a semilogy plot will be done
         """
-
         try:
-            pylab.__version__
-        except NameError:
-            print("XU.io.SPECScan.plot: ERROR: plot functionality not "
-                  "available")
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.io.SPECScan: Warning: plot "
+                      "functionality not available")
             return
 
         if "newfig" in keyargs:
@@ -422,8 +414,8 @@ class SPECScan(object):
             raise InputError("wrong number of yname/style arguments!")
 
         if newfig:
-            pylab.figure()
-            pylab.subplots_adjust(left=0.08, right=0.95)
+            plt.figure()
+            plt.subplots_adjust(left=0.08, right=0.95)
 
         for i in range(0, len(alist), 2):
             yname = alist[i]
@@ -434,19 +426,19 @@ class SPECScan(object):
                 raise InputError("no column with name %s exists!" % yname)
                 continue
             if logy:
-                pylab.semilogy(xdata, ydata, ystyle)
+                plt.semilogy(xdata, ydata, ystyle)
             else:
-                pylab.plot(xdata, ydata, ystyle)
+                plt.plot(xdata, ydata, ystyle)
 
             leglist.append(yname)
 
-        pylab.xlabel("%s" % xname)
-        pylab.legend(leglist)
-        pylab.title("scan %i %s\n%s %s"
-                    % (self.nr, self.command, self.date, self.time))
+        plt.xlabel("%s" % xname)
+        plt.legend(leglist)
+        plt.title("scan %i %s\n%s %s"
+                  % (self.nr, self.command, self.date, self.time))
         # need to adjust axis limits properly
-        lim = pylab.axis()
-        pylab.axis([xdata.min(), xdata.max(), lim[2], lim[3]])
+        lim = plt.axis()
+        plt.axis([xdata.min(), xdata.max(), lim[2], lim[3]])
 
     def Save2HDF5(self, h5f, group="/", title="", desc="",
                   optattrs={}, comp=True):

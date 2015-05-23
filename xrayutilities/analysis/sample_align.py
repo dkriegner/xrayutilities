@@ -24,7 +24,6 @@ import re
 import numpy
 import numbers
 import scipy
-import scipy.stats
 import scipy.optimize as optimize
 import time
 from scipy.odr import odrpack as odr
@@ -37,13 +36,6 @@ from .. import utilities
 from .line_cuts import fwhm_exp
 from ..exception import InputError
 from .. import cxrayutilities
-
-try:
-    from matplotlib import pyplot as plt
-except ImportError:
-    if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.analysis.sample_align: warning; plotting functionality "
-              "not available")
 
 # regular expression to check goniometer circle syntax
 circleSyntax = re.compile("[xyz][+-]")
@@ -178,12 +170,14 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         my_odr.set_job(fit_type=2)
         fittilt = my_odr.run()
 
-    try:
-        plt.__name__
-    except NameError:
-        print("XU.analyis.psd_chdeg: Warning: plot functionality not "
-              "available")
-        plot = False
+    if plot:
+        try:
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.analysis.psd_chdeg: warning; plotting "
+                      "functionality not available")
+            plot = False
 
     if plot:
         markersize = 6.0
@@ -484,10 +478,11 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
 
     if plot:
         try:
-            plt.__name__
-        except NameError:
-            print("XU.analyis.area_detector_calib: Warning: plot functionality"
-                  " not available")
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.analysis.area_detector_calib: warning; plotting "
+                      "functionality not available")
             plot = False
 
     if wl is None:
@@ -529,7 +524,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                     min(int(cen2r) + nw, img.shape[1])])
             cen1 += max(int(cen1r) - nw, 0)
             cen2 += max(int(cen2r) - nw, 0)
-            if debug:
+            if debug and plot:
                 plt.figure("_ccd")
                 plt.imshow(utilities.maplog(img), origin='low')
                 plt.plot(cen2, cen1, "wo", mfc='none')
@@ -693,27 +688,11 @@ def _determine_detdir(ang1, ang2, n1, n2, detaxis, r_i):
     determines detector pixel direction from correlation analysis of linear
     fits to the observed pixel numbers of the primary beam.
     """
-    debug = False
     # center channel and detector pixel direction and pixel size
-    (s1, i1, r1, dummy, dummy) = scipy.stats.linregress(ang1, n1)
-    (s2, i2, r2, dummy, dummy) = scipy.stats.linregress(ang1, n2)
-    (s3, i3, r3, dummy, dummy) = scipy.stats.linregress(ang2, n1)
-    (s4, i4, r4, dummy, dummy) = scipy.stats.linregress(ang2, n2)
-    if debug:
-        print("%.2f %.2f %.2f %.2f" % (s1, s2, s3, s4))
-        print("%.2f %.2f %.2f %.2f" % (r1, r2, r3, r4))
-        if plot:
-            plt.figure()
-            plt.subplot(211)
-            plt.plot(ang1, n1, 'bx', label='channel 1')
-            plt.plot(ang1, n2, 'rx', label='channel 2')
-            plt.legend()
-            plt.xlabel('angle 1')
-            plt.subplot(212)
-            plt.plot(ang2, n1, 'bx', label='channel 1')
-            plt.plot(ang2, n2, 'rx', label='channel 2')
-            plt.legend()
-            plt.xlabel('angle 2')
+    (s1, i1), r1 = math.linregress(ang1, n1)
+    (s2, i2), r2 = math.linregress(ang1, n2)
+    (s3, i3), r3 = math.linregress(ang2, n1)
+    (s4, i4), r4 = math.linregress(ang2, n2)
 
     # determine detector directions
     s = ord('x') + ord('y') + ord('z')
@@ -1071,10 +1050,10 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
 
     # guess initial parameters
     # center channel and detector pixel direction and pixel size
-    (s1, i1, r1, dummy, dummy) = scipy.stats.linregress(ang1 - start[3], n1)
-    (s2, i2, r2, dummy, dummy) = scipy.stats.linregress(ang1 - start[3], n2)
-    (s3, i3, r3, dummy, dummy) = scipy.stats.linregress(ang2, n1)
-    (s4, i4, r4, dummy, dummy) = scipy.stats.linregress(ang2, n2)
+    (s1, i1), r1 = math.linregress(ang1 - start[3], n1)
+    (s2, i2), r2 = math.linregress(ang1 - start[3], n2)
+    (s3, i3), r3 = math.linregress(ang2, n1)
+    (s4, i4), r4 = math.linregress(ang2, n2)
 
     if r1 ** 2 > r2 ** 2:
         cch1 = i1
@@ -1141,24 +1120,6 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
                     x, detdir1, detdir2, r_i,
                     detaxis, wl)
     final_error = numpy.mean(final_q)
-
-    if False:  # inactive code path
-        if fig:
-            plt.figure(fig.number)
-        else:
-            plt.figure("CCD Calib fit")
-        plt.grid(True)
-        plt.xlabel("Image number")
-        plt.ylabel(r"|$\Delta$Q|")
-        errp1, = plt.semilogy(afunc(my_odr.beta0, x, detdir1, detdir2, r_i,
-                                    detaxis, wl),
-                              'x-', label='initial param')
-        errp2, = plt.semilogy(afunc(fit.beta, x, detdir1, detdir2, r_i,
-                                    detaxis, wl),
-                              'x-', label='param: %.1f %.1f %5.2g %5.2g %.1f '
-                              '%.2f %.3f %.3f'
-                              % (cch1, cch2, pwidth1, pwidth2, tiltazimuth,
-                                 tilt, detrot, outerangle_offset))
 
     if debug:
         print("fitted parameters: (%d,%s) " % (fit.info, repr(fit.stopreason)))
@@ -1235,13 +1196,13 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         debug ... flag to tell if you want to see debug output of the script
                   (switch this to true only if you can handle it :))
     """
-
     if plot:
         try:
-            plt.__name__
-        except NameError:
-            print("XU.analyis.area_detector_calib_hkl: Warning: plot "
-                  "functionality not available")
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.analyis.area_detector_calib_hkl: Warning: plot "
+                      "functionality not available")
             plot = False
 
     if start[-1] == 'config':
@@ -1287,7 +1248,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         if ((numpy.sum(img) > cut_off * avg) or
                 (numpy.all(hkls[i] != (0, 0, 0)))):
             [cen1, cen2] = center_of_mass(img)
-            if debug:
+            if debug and plot:
                 plt.figure("_ccd")
                 plt.imshow(utilities.maplog(img), origin='low')
                 plt.plot(cen2, cen1, "wo", mfc='none')
@@ -1769,19 +1730,6 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
             sang, angle1, angle2, n1, n2, delta=[0, param[7], 0.],
             distance=1., UB=ubmat, wl=wl)
 
-#        f= plt.figure("afunc")
-#        plt.ion()
-#        f.clear()
-#        plt.plot(qx-h,'k-',label='x')
-#        plt.plot(qy-k,'r-',label='y')
-#        plt.plot(qz-l,'g-',label='z')
-#        print("param: (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt, "
-#              "detrot, outerangle_offset)")
-#        print(param)
-#        plt.legend()
-#        plt.draw()
-#        plt.waitforbuttonpress()
-
         return (qx - h) ** 2 + (qy - k) ** 2 + (qz - l) ** 2
 
     Npoints = len(ang1)
@@ -1811,10 +1759,10 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
             sangs = numpy.append(sangs, sang[i])
 
     # center channel and detector pixel direction and pixel size
-    (s1, i1, r1, dummy, dummy) = scipy.stats.linregress(ang10 - start[3], n10)
-    (s2, i2, r2, dummy, dummy) = scipy.stats.linregress(ang10 - start[3], n20)
-    (s3, i3, r3, dummy, dummy) = scipy.stats.linregress(ang20, n10)
-    (s4, i4, r4, dummy, dummy) = scipy.stats.linregress(ang20, n20)
+    (s1, i1), r1 = math.linregress(ang10 - start[3], n10)
+    (s2, i2), r2 = math.linregress(ang10 - start[3], n20)
+    (s3, i3), r3 = math.linregress(ang20, n10)
+    (s4, i4), r4 = math.linregress(ang20, n20)
 
     if r1 ** 2 > r2 ** 2:
         cch1 = i1
@@ -1913,24 +1861,6 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
                     x, detdir1, detdir2, r_i, detaxis)
     final_error = numpy.mean(final_q)
 
-    if False:  # inactive code path
-        f = plt.figure("CCD Calib fit")
-        f.clear()
-        plt.grid(True)
-        plt.xlabel("Image number")
-        plt.ylabel(r"|$\Delta$Q|")
-        errp1, = plt.semilogy(afunc(my_odr.beta0, x, detdir1, detdir2, r_i,
-                                    detaxis), 'x-', label='initial param')
-        errp2, = plt.semilogy(afunc(fit.beta, x, detdir1, detdir2, r_i,
-                                    detaxis),
-                              'x-', label='param: %.1f %.1f %5.2g %5.2g %.1f '
-                                          '%.2f %.3f %.3f %.3f %.2f %.4f'
-                                          % (cch1, cch2, pwidth1, pwidth2,
-                                             tiltazimuth, tilt, detrot,
-                                             outerangle_offset, sampletilt,
-                                             stazimuth, wavelength))
-        plt.waitforbuttonpress()
-
     if debug:
         print("fitted parameters: (%d,%s) " % (fit.info, repr(fit.stopreason)))
         print("primary beam / detector pixel directions / distance: %s / %s "
@@ -1975,17 +1905,17 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
     -------
     >>> psd_refl_align(500,[0,0.1,0.2,0.3],[550,600,640,700])
     """
+    if plot:
+        try:
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.analyis.psd_refl_align: Warning: plot "
+                      "functionality not available")
+            plot = False
 
-    (a_s, b_s, r, tt, stderr) = scipy.stats.linregress(channels, angles)
-
-    zeropos = scipy.polyval(numpy.array([a_s, b_s]), primarybeam)
-
-    try:
-        plt.__name__
-    except NameError:
-        print("XU.analyis.psd_refl_align: Warning: plot functionality not "
-              "available")
-        plot = False
+    p, rsq = math.linregress(channels, angles)
+    zeropos = numpy.polyval(p, primarybeam)
 
     if plot:
         xmin = min(min(channels), primarybeam)
@@ -1996,7 +1926,7 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
         plt.figure()
         plt.plot(channels, angles, 'kx', ms=8., mew=2.)
         plt.plot([xmin - (xmax - xmin) * 0.1, xmax + (xmax - xmin) * 0.1],
-                 scipy.polyval(numpy.array([a_s, b_s]),
+                 numpy.polyval(p,
                                [xmin - (xmax - xmin) * 0.1,
                                 xmax + (xmax - xmin) * 0.1]),
                  'g-',
@@ -2014,15 +1944,14 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.psd_refl_align: sample is parallel to beam at "
-              "goniometer angle %8.4f (R=%6.4f)" % (zeropos, r))
+              "goniometer angle %8.4f (R^2=%6.4f)" % (zeropos, rsq))
     return zeropos
+
 
 #################################################
 #  miscut calculation from alignment in 2 and
 #  more azimuths
 #################################################
-
-
 def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
     """
     function to calculate the miscut direction and miscut angle of a sample
@@ -2055,6 +1984,14 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
      phi0:      the azimuth in which the primary beam looks upstairs
      miscut:    amplitude of the sinusoidal variation == miscut angle
     """
+    if plot:
+        try:
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.analyis.miscut_calc: Warning: plot "
+                      "functionality not available")
+            plot = False
 
     if zeros is not None:
         om = (numpy.array(aomega) - numpy.array(zeros))
@@ -2088,14 +2025,6 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
               "%d" % success)
 
     if plot:
-        try:
-            plt.__name__
-        except NameError:
-            print("XU.analyis.misfit_calc: Warning: plot functionality not "
-                  "available")
-            plot = False
-
-    if plot:
         plt.figure()
         plt.plot(a, om, 'kx', mew=2, ms=8)
         linx = numpy.linspace(a.min() - 45, a.min() + 360 - 45, num=1000)
@@ -2117,12 +2046,11 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
     return ret
 
+
 #################################################
 #  correct substrate Bragg peak position in
 #  reciprocal space maps
 #################################################
-
-
 def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
                    peaktype='Gauss', plot=True):
     """
@@ -2157,6 +2085,15 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
     omfit,ttfit,params,covariance: fitted angular values, and the fit
             parameters (of the Gaussian/Lorentzian) as well as their errors
     """
+    if plot:
+        try:
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.analyis.fit_bragg_peak: Warning: plot "
+                      "functionality not available")
+            plot = False
+
     if peaktype == 'Gauss':
         func = math.Gauss2d
     elif peaktype == 'Lorentz':
