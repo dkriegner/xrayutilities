@@ -17,7 +17,7 @@
 
 import numpy
 import time
-import os
+import os.path
 import subprocess
 
 # relative imports from xrayutilities

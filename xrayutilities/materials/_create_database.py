@@ -19,7 +19,7 @@ script to create the HDF5 database from the raw data of XOP
 this file is only needed for administration
 """
 
-import os
+import os.path
 import lzma
 exec(open('database.py', 'rb').read())
 

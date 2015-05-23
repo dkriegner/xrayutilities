@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2013,2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import os
+import os.path
 import numpy
 
 from . import __path__

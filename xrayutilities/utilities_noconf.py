@@ -23,7 +23,7 @@ this part of utilities does not need the config class
 import numbers
 import numpy
 import scipy.constants
-import os
+import os.path
 
 from .exception import InputError
 

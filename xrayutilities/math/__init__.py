@@ -57,6 +57,7 @@ from .functions import PseudoVoigt1dArea
 from .functions import multPeak1d
 from .functions import multPeak2d
 
+from .fit import linregress
 from .fit import fit_peak2d
 from .fit import gauss_fit
 from .fit import peak_fit

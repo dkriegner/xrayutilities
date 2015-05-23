@@ -22,7 +22,6 @@ module to handle the access to the optical parameters database
 
 import h5py
 import numpy
-import scipy.interpolate
 import scipy.constants
 import re
 

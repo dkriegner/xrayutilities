@@ -30,7 +30,7 @@ In the first case the data ist stored
 import re
 import tables
 import numpy
-import os
+import os.path
 import itertools
 
 from .helper import xu_open
@@ -229,12 +229,6 @@ class SeifertMultiScan(object):
         c = h5.createCArray(g, m2name, a, self.m2_pos.shape, filters=f)
         c[...] = self.m2_pos[...]
         h5.flush()
-
-    def dump2mlab(self, fname, *args):
-        """
-        Store the data in a matlab file.
-        """
-        pass
 
 
 class SeifertScan(object):

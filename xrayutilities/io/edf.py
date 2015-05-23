@@ -24,12 +24,9 @@ import numpy
 import re
 import struct
 import tables
-import os
 import os.path
 import glob
-import gzip
 
-from .helper import xu_open
 from .helper import xu_open, xu_h5open
 from .. import config
 
@@ -470,5 +467,4 @@ class EDFDirectory(object):
                 # read EDFFile and save to hdf5
                 filename = os.path.split(infile)[1]
                 e = EDFFile(filename, path=self.datapath, **self.init_keyargs)
-                # e.ReadData()
                 e.Save2HDF5(h5, group=g)

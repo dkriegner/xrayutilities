@@ -23,7 +23,7 @@ these functions should be used in new parsers since they transparently allow to
 open gzipped and bzipped files
 """
 
-import os
+import os.path
 import gzip
 import bz2
 import sys
