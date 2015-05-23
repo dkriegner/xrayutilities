@@ -118,7 +118,7 @@ class ImageReader(object):
         else:
             self.darkc = False
 
-    def readImage(self, filename):
+    def readImage(self, filename, path=None):
         """
         read image file
         and correct for dark- and flatfield in case the necessary data are
@@ -130,49 +130,34 @@ class ImageReader(object):
         ---------
          filename: filename of the image to be read. so far only single
                    filenames are supported. The data might be compressed.
-                   supported extensions: .tiff, .bin and .bin.xz
+                   supported extensions: .tif, .bin and .bin.xz
         """
+        if path:
+            full_filename = os.path.join(path, filename)
+        else:
+            full_filename = filename
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.io.ImageReader.readImage: file %s" % (filename))
+            print("XU.io.ImageReader.readImage: file %s" % (full_filename))
             t1 = time.time()
 
-        if filename[-2:] == 'xz':
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.ImageReader.readImage: uncompressing file %s"
-                      % (filename))
-
-            subprocess.call("xz --decompress --verbose --keep %s"
-                            % (filename), shell=True)
-            fh = open(filename[:-3], 'rb')
-        else:
-            fh = xu_open(filename)
-
-        # jump over header
-        fh.seek(self.hdrlen)
-        # read image
-        if filename[-2:] == 'gz':
+        with xu_open(full_filename) as fh:
+            # jump over header
+            fh.seek(self.hdrlen)
+            # read image
             img = numpy.fromstring(fh.read(), dtype=self.dtype,
                                    count=self.nop1 * self.nop2)
-        else:
-            img = numpy.fromfile(fh, dtype=self.dtype,
-                                 count=self.nop1 * self.nop2)
-        if self.byteswap:
-            img = img.byteswap()
-        img.shape = (self.nop1, self.nop2)  # reshape the data
-        # darkfield correction
-        if self.darkc:
-            imgf = (img - self.darkfield).astype(numpy.float32)
-        else:
-            imgf = img.astype(numpy.float32)
-        # kill negativ pixels
-        # numpy.clip(imgf,1e-6,numpy.Inf,out=imgf)
-        # flatfield correction
-        if self.flatc:
-            imgf = imgf / self.flatfield
-        fh.close()
-        if os.path.splitext(filename)[1] == '.xz':
-            subprocess.call(["rm", "%s" % (filename[:-3])])
+            if self.byteswap:
+                img = img.byteswap()
+            img.shape = (self.nop1, self.nop2)  # reshape the data
+            # darkfield correction
+            if self.darkc:
+                imgf = (img - self.darkfield).astype(numpy.float32)
+            else:
+                imgf = img.astype(numpy.float32)
+            # flatfield correction
+            if self.flatc:
+                imgf = imgf / self.flatfield
 
         if config.VERBOSITY >= config.INFO_ALL:
             t2 = time.time()
@@ -185,7 +170,7 @@ class ImageReader(object):
 class PerkinElmer(ImageReader):
 
     """
-    parse PerkinElmer CCD frames (*.bin) to numpy arrays
+    parse PerkinElmer CCD frames (*.tif) to numpy arrays
     Ignore the header since it seems to contain no useful data
 
     The routine was tested only for files with 2048x2048 pixel images
