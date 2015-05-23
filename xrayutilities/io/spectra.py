@@ -21,21 +21,14 @@ module to handle spectra data
 """
 
 import numpy
-import os
+import numpy.lib.recfunctions
 import re
 import tables
-import os.path
+import os
 from numpy import rec
 import glob
 
 from .. import config
-
-try:
-    import matplotlib
-except ImportError:
-    if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.io.spectra: warning; spectra class plotting "
-              "functionality not available")
 
 re_wspaces = re.compile(r"\s+")
 re_colname = re.compile(r"^Col")
@@ -944,14 +937,6 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
                 data values as stored in the data file (includes the
                 intensities e.g. MAP['MCA']).
     """
-
-    try:
-        matplotlib.__version__
-    except NameError:
-        print("XU.io.spectra.geth5_spectra_map: ERROR: matplotlib "
-              "functionality not available")
-        return
-
     if isinstance(h5file, str):
         try:
             h5 = tables.openFile(h5file, mode="r")
@@ -997,10 +982,10 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
             mcadata = mcanode.read()
 
         # append scan data to MAP, where all data are stored
-        sdtmp = matplotlib.mlab.rec_append_fields(
-            sdata,
-            [mca, ], [mcadata, ],
-            dtypes=[(numpy.double, mcadata.shape[1])])
+        sdtmp = numpy.lib.recfunctions.append_fields(
+            sdata, [mca, ], [mcadata, ],
+            dtypes=[(numpy.double, mcadata.shape[1])], usemask=False,
+            asrecarray=True)
         if MAP.dtype == numpy.float64:
             MAP.dtype = sdtmp.dtype
         MAP = numpy.append(MAP, sdtmp)

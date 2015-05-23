@@ -27,8 +27,8 @@ header
 
 import re
 import numpy
-import os
-import matplotlib
+import os.path
+import numpy.lib.recfunctions
 
 # relative imports from xrayutilities
 from .helper import xu_open
@@ -99,9 +99,10 @@ class tty08File(object):
                 dlist.append(data.tolist())
 
         self.mca = mca
-        self.data = matplotlib.mlab.rec_append_fields(
+        self.data = numpy.lib.recfunctions.append_fields(
             self.data, 'MCA', self.mca,
-            dtypes=[(numpy.double, self.mca.shape[1])])
+            dtypes=[(numpy.double, self.mca.shape[1])], usemask=False,
+            asrecarray=True)
 
     def Read(self):
         """
