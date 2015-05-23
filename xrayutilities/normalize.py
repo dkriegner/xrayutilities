@@ -166,7 +166,7 @@ class IntensityNormalizer(object):
     single CCD frames) for count time and absorber factors
     the class must be supplied with a absorber correction function
     and works with data structures provided by xrayutilities.io classes or the
-    corresponding objects from hdf5 files read by pytables
+    corresponding objects from hdf5 files
     """
 
     def __init__(self, det, **keyargs):

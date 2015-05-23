@@ -17,9 +17,11 @@
 
 # module for handling files stored in the CBF data format
 
-import numpy
 import os.path
 import re
+
+import numpy
+import tables
 
 from .helper import xu_open, xu_h5open
 from .. import cxrayutilities
