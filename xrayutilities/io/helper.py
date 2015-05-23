@@ -107,9 +107,9 @@ class xu_h5open(object):
     def __enter__(self):
         if self.fid:
             if not self.fid.isopen:
-                self.fid = tables.openFile(self.filename, mode=self.mode)
+                self.fid = tables.open_file(self.filename, mode=self.mode)
         else:
-            self.fid = tables.openFile(self.filename, mode=self.mode)
+            self.fid = tables.open_file(self.filename, mode=self.mode)
         return self.fid
 
     def __exit__(self, type, value, traceback):
