@@ -19,6 +19,7 @@
 
 import os.path
 import re
+import glob
 
 import numpy
 import tables
@@ -206,13 +207,8 @@ class CBFDirectory(object):
             else:
                 g = group
 
-            if "comp" in keyargs:
-                compflag = keyargs["comp"]
-            else:
-                compflag = True
-
             for infile in self.files:
                 # read CBFFile and save to hdf5
                 filename = os.path.split(infile)[1]
                 e = CBFFile(filename, path=self.datapath, **self.init_keyargs)
-                e.Save2HDF5(h5, group=g)
+                e.Save2HDF5(h5, group=g, comp=comp)

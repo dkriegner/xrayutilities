@@ -20,12 +20,13 @@
 
 # module for handling files stored in the EDF data format developed by the ESRF
 
-import numpy
 import re
 import struct
-import tables
 import os.path
 import glob
+
+import numpy
+import tables
 
 from .helper import xu_open, xu_h5open
 from .. import config
@@ -458,13 +459,8 @@ class EDFDirectory(object):
             else:
                 g = group
 
-            if "comp" in keyargs:
-                compflag = keyargs["comp"]
-            else:
-                compflag = True
-
             for infile in self.files:
                 # read EDFFile and save to hdf5
                 filename = os.path.split(infile)[1]
                 e = EDFFile(filename, path=self.datapath, **self.init_keyargs)
-                e.Save2HDF5(h5, group=g)
+                e.Save2HDF5(h5, group=g, comp=comp)
