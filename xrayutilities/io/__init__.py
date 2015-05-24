@@ -51,8 +51,6 @@ from .fastscan import FastScan
 from .fastscan import FastScanCCD
 from .fastscan import FastScanSeries
 
-from .spectra import Spectra
-
 from .panalytical_xml import XRDMLFile
 from .panalytical_xml import getxrdml_map
 from .panalytical_xml import getxrdml_scan

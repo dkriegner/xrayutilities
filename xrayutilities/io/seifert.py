@@ -28,10 +28,10 @@ In the first case the data ist stored
 """
 
 import re
-import tables
-import numpy
 import os.path
 import itertools
+
+import numpy
 
 from .helper import xu_open
 from .. import config
@@ -78,7 +78,9 @@ def repair_key(key):
 
 
 class SeifertHeader(object):
-
+    """
+    helper class to represent a Seifert (NJA) scan file header
+    """
     def __init__(self):
         pass
 
@@ -93,14 +95,11 @@ class SeifertHeader(object):
 
         return ostr
 
-    def save_h5_attribs(self, obj):
-        for a in self.__dict__.keys():
-            value = self.__getattribute__(a)
-            obj._v_attrs.__setattr__(a, value)
-
 
 class SeifertMultiScan(object):
-
+    """
+    Class to parse a Seifert (NJA) multiscan file
+    """
     def __init__(self, filename, m_scan, m2, path=None):
         """
         Parse data from a multiscan Seifert file.
@@ -195,44 +194,11 @@ class SeifertMultiScan(object):
         self.m2_pos.shape = (self.nscans, self.n_sm_pos)
         self.sm_pos.shape = (self.nscans, self.n_sm_pos)
 
-    def dump2hdf5(self, h5, iname="INT", group="/"):
-        """
-        Saves the content of a multi-scan file to a HDF5 file. By default the
-        data is stored in the root group of the file. To save data somewhere
-        else the keyword argument "group" must be used.
-
-        required arguments:
-         h5 .............. a HDF5 file object
-
-        optional keyword arguments:
-         iname ........... name for the intensity matrix
-         group ........... path to the HDF5 group where to store the data
-        """
-
-        iname = args[0]
-        smname = self.scan_motor_name
-        m2name = self.sec_motor_name
-
-        g = group
-
-        a = tables.Float32Atom()
-        f = tables.Filters(complevel=9, complib="zlib", fletcher32=True)
-
-        c = h5.createCArray(g, iname, a, self.int.shape, filters=f)
-        c[...] = self.int[...]
-        h5.flush()
-
-        c = h5.createCArray(g, smname, a, self.sm_pos.shape, filters=f)
-        c[...] = self.sm_pos[...]
-        h5.flush()
-
-        c = h5.createCArray(g, m2name, a, self.m2_pos.shape, filters=f)
-        c[...] = self.m2_pos[...]
-        h5.flush()
-
 
 class SeifertScan(object):
-
+    """
+    Class to parse a single Seifert (NJA) scan file
+    """
     def __init__(self, filename, path=None):
         """
         Constructor for a SeifertScan object.
@@ -327,69 +293,6 @@ class SeifertScan(object):
         self.data = numpy.array(self.data, dtype=numpy.float)
         for key in self.axispos:
             self.axispos[key] = numpy.array(self.axispos[key])
-
-    def dump2h5(self, h5, *args, **keyargs):
-        """
-        Save the data stored in the Seifert ASCII file to a HDF5 file.
-
-        required input arguments:
-         h5 ............. HDF5 file object
-
-        optional arguments:
-
-        names to use to store the motors. The first must be the name for the
-        intensity array. The number of names must be equal to the second
-        element of the shape of the data object.
-
-        optional keyword arguments:
-         group .......... HDF5 group object where to store the data.
-        """
-
-        # handle optional arguments:
-        motor_names = []
-        if len(args) != 0:
-            for name in args:
-                motor_names.append(name)
-        else:
-            for i in range(self.data.shape[1] - 1):
-                motor_names.append("motor_%i" % i)
-            motor_names.append("Int")
-
-        # evaluate optional keyword arguments:
-        if "group" in keyargs:
-            g = keyargs["group"]
-        else:
-            g = h5.root
-
-        a = tables.FloatAtom()
-        s = [self.data.shape[0]]
-        if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.io.SeifertScan.dump2h5: shape of data %d" % s)
-
-        for i in range(self.data.shape[1]):
-            title = "SEIFERT data from %s" % self.Filename
-            c = h5.createCArray(g, motor_names[i], a, s, title)
-            c[...] = self.data[:, i][...]
-
-        # dump the header data
-        self.hdr.save_h5_attribs(g)
-
-        h5.flush()
-
-    def dump2mlab(self, fname, *args):
-        """
-        Save the data from a Seifert scan to a matlab file.
-
-        required input arugments:
-         fname .................. name of the matlab file
-
-        optional position arguments:
-
-        names to use to store the motors. The first must be the name for the
-        intensity array. The number of names must be equal to the second
-        element of the shape of the data object.
-        """
-        pass
 
 
 def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",

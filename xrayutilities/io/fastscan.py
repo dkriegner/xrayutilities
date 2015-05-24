@@ -37,9 +37,10 @@ see examples/xrayutilities_kmap_ESRF.py for an example script
 """
 
 import os.path
-import numpy
 import re
 import glob
+
+import numpy
 
 # relative imports
 from . import SPECFile
