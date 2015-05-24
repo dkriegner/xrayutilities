@@ -78,7 +78,6 @@ class tty08File(object):
                 self.ReadMCA()
 
     def ReadMCA(self):
-
         mca = numpy.empty((len(raws), numpy.loadtxt(raws[0]).shape[0]),
                           dtype=numpy.float)
         for i in range(len(raws)):
@@ -99,10 +98,8 @@ class tty08File(object):
                 dlist.append(data.tolist())
 
         self.mca = mca
-        self.data = numpy.lib.recfunctions.append_fields(
-            self.data, 'MCA', self.mca,
-            dtypes=[(numpy.double, self.mca.shape[1])], usemask=False,
-            asrecarray=True)
+        mcatemp = mca.view([('MCA', (mca.dtype, mca.shape[1]))])
+        self.data = numpy.lib.recfunctions.merge_arrays([self.data, mcatemp], flatten=True)
 
     def Read(self):
         """

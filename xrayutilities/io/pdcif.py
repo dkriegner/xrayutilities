@@ -15,10 +15,11 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import numpy
 import re
 import copy
 import shlex
+
+import numpy
 
 from . import xu_open
 
@@ -76,7 +77,6 @@ class pdCIF(object):
         parser of the pdCIF file. the method reads the data from the file and
         fills the data and header attributes with content
         """
-
         with xu_open(self.filename) as fh:
             self._parse_single(fh)
 
@@ -261,7 +261,6 @@ class pdESG(pdCIF):
         parser of the pdCIF file. the method reads the data from the file and
         fills the data and header attributes with content
         """
-
         with xu_open(self.filename) as fh:
             # parse first header and loop
             self._parse_single(fh)
