@@ -28,11 +28,12 @@ a reread of the file starting from a stored offset (last known scan position)
 """
 
 import re
-import numpy
 import os.path
 import time
-import tables
 import warnings
+
+import numpy
+import tables
 
 # relative imports from xrayutilities
 from .helper import xu_open, xu_h5open
@@ -73,7 +74,6 @@ def makeNaturalName(name):
 
 
 class SPECScan(object):
-
     """
     Represents a single SPEC scan. This class is usually not called by the
     user directly but used via the SPECFile class.
@@ -933,10 +933,18 @@ class SPECCmdLine(object):
 
 
 class SPECLog(object):
-
+    """
+    class to parse a SPEC log file to find the command history
+    """
     def __init__(self, filename, prompt, path=""):
         """
         init routine for a class to read a SPEC log file
+
+        Parameters
+        ----------
+         filename:  SPEC log file name
+         prompt:    SPEC command prompt (e.g. 'PSIC' or 'SPEC')
+         path:      (optional) directory where the SPEC log can be found
         """
         self.filename = filename
         self.full_filename = os.path.join(path, self.filename)
@@ -961,6 +969,12 @@ class SPECLog(object):
                     [line, cmd] = self.prompt_re.split(line_buffer)
                     self.cmdl_list.append(SPECCmdLine(int(float(line)),
                                                       self.prompt, cmd))
+
+    def __getitem__(self, index):
+        """
+        function to return the n-th cmd in the spec-log.
+        """
+        return self.cmdl_list[index]
 
     def __str__(self):
         ostr = "%s with %d lines\n" % (self.filename, self.line_counter)
@@ -1094,7 +1108,7 @@ def getspec_scan(specf, scans, *args):
 
     Example
     -------
-    >>> [om, tt] = xu.io.getspec_scan(s, 36, 'omega', 'gamma', 'Counter2')
+    >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma', 'Counter2')
     """
     if len(args) == 0:
         return
@@ -1133,7 +1147,7 @@ def getspec_scan(specf, scans, *args):
             motname = args[i]
             buf = (numpy.ones(scanshape) *
                    sscan.init_motor_pos["INIT_MOPO_%s" % motname])
-        angles[motname] = numpy.concatenate((angles[motname], buf))
+            angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []
     for motname in args:
