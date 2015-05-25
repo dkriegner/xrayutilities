@@ -382,19 +382,19 @@ class SPECTRAFile(object):
         Read the data from the file.
         """
         try:
-            fid = open(self.filename, "r")
+            fid = open(self.filename, 'rb')
         except:
             print("XU.io.SPECTRAFile.Read: cannot open data file %s for "
                   "reading!" % (self.filename))
             return None
 
-        col_names = ""
+        col_names = []
         col_units = []
-        col_types = ""
+        col_types = []
         rec_list = []
 
         while True:
-            lbuffer = fid.readline()
+            lbuffer = fid.readline().decode('utf8', 'ignore')
             if lbuffer == "":
                 break
             lbuffer = lbuffer.strip()
@@ -526,11 +526,11 @@ class SPECTRAFile(object):
                     self.data.append(
                         SPECTRAFileDataColumn(index, name, unit, dtype))
 
-                    if name in col_names.split(","):
+                    if name in col_names:
                         name += "%s_1" % name
 
-                    col_names += "%s," % name
-                    col_types += "%s," % (dtype_map[dtype])
+                    col_names.append("%s" % name)
+                    col_types.append("%s" % (dtype_map[dtype]))
 
                 else:
                     # read data
@@ -540,8 +540,6 @@ class SPECTRAFile(object):
 
                     rec_list.append(dlist)
 
-        col_names = col_names[:-1]
-        col_types = col_types[:-1]
         if config.VERBOSITY >= config.DEBUG:
             print("XU.io.SPECTRAFile.Read: data columns: name,type: %s, %s"
                   % (col_names, col_types))
