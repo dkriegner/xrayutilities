@@ -15,7 +15,6 @@
 module containing the Atom class which handles the database access for atomic
 scattering factors and the atomic mass.
 """
-import numpy
 import atexit
 import os.path
 import re
@@ -91,7 +90,7 @@ class Atom(object):
         -------
          f (float)
         """
-        f = self.f0(norm(q)) + self.f1(en) + 1.j * self.f2(en)
+        f = self.f0(q) + self.f1(en) + 1.j * self.f2(en)
         return f
 
     def __str__(self):

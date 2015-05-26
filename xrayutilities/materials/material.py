@@ -636,12 +636,13 @@ class Material(object):
 
         s = 0. + 0.j
         # a: atom, p: position, o: occupancy, b: temperatur-factor
+        qnorm = math.VecNorm(q)
         for a, p, o, b in self.lattice.base:
             r = self.lattice.GetPoint(p)
             if temp == 0:
-                dwf = numpy.exp(-b * math.VecNorm(q) ** 2 /
+                dwf = numpy.exp(-b * qnorm ** 2 /
                                 (4 * numpy.pi) ** 2)
-            f = a.f(q, en) * o
+            f = a.f(qnorm, en) * o
             s += f * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
 
         return s
@@ -795,8 +796,7 @@ class Material(object):
             except ValueError:
                 # add atom type to list and calculate the scattering factor
                 types.append(len(atoms))
-                f_q = at[0].f0(qnorm)
-                f.append((f_q + at[0].f1(en0) + 1.j * at[0].f2(en0)))
+                f.append(at[0].f(qnorm, en0))
                 atoms.append(at[0])
 
         s = 0. + 0.j

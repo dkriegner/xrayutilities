@@ -23,7 +23,6 @@ space position of Bragg peaks and their structure factor.
 """
 
 import numpy
-from numpy.linalg import norm
 import numbers
 
 from .atom import Atom
