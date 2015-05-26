@@ -15,19 +15,20 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 
 
 class TestQ2Ang_HXRD(unittest.TestCase):
-
-    def setUp(self):
-        self.mat = xu.materials.GeTe
+    @classmethod
+    def setUpClass(cls):
+        cls.mat = xu.materials.GeTe
         qconv = xu.QConversion(['x+', 'y+', 'z-'], 'x+', [0, 1, 0])
-        inp = numpy.cross(self.mat.Q(1, -1, 0), self.mat.Q(1, 1, 1))
-        self.hxrd = xu.HXRD(inp, self.mat.Q(1, 1, 1), qconv=qconv)
-        self.hkltest = (1, 3, 2)
+        inp = numpy.cross(cls.mat.Q(1, -1, 0), cls.mat.Q(1, 1, 1))
+        cls.hxrd = xu.HXRD(inp, cls.mat.Q(1, 1, 1), qconv=qconv)
+        cls.hkltest = (1, 3, 2)
 
     def test_Q2Ang_hxrd_point(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hkltest))

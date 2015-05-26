@@ -15,26 +15,27 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 
 
 class TestGridder3D(unittest.TestCase):
-
-    def setUp(self):
-        self.nx = 10
+    @classmethod
+    def setUpClass(cls):
+        cls.nx = 10
         # do not change this here unless you fix also the tests cases
-        self.ny = 19
-        self.nz = 10
-        self.xmin = 1
-        self.xmax = 10
-        self.x = numpy.linspace(self.xmin, self.xmax, num=self.nx)
-        self.y = self.x.copy()
-        self.z = self.x.copy()
-        self.data = numpy.random.rand(self.nx)
-        self.gridder = xu.Gridder3D(self.nx, self.ny, self.nz)
-        self.gridder(self.x, self.y, self.z, self.data)
+        cls.ny = 19
+        cls.nz = 10
+        cls.xmin = 1
+        cls.xmax = 10
+        cls.x = numpy.linspace(cls.xmin, cls.xmax, num=cls.nx)
+        cls.y = cls.x.copy()
+        cls.z = cls.x.copy()
+        cls.data = numpy.random.rand(cls.nx)
+        cls.gridder = xu.Gridder3D(cls.nx, cls.ny, cls.nz)
+        cls.gridder(cls.x, cls.y, cls.z, cls.data)
 
     def test_gridder3d_xaxis(self):
         # test length of xaxis

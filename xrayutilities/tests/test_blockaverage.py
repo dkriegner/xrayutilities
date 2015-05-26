@@ -15,9 +15,10 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 
 
 class TestBlockAverageFunctions(unittest.TestCase):

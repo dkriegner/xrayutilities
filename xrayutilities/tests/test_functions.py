@@ -15,22 +15,23 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 from scipy.integrate import quad, dblquad
 
 
 class TestMathFunctions(unittest.TestCase):
-
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         amp = numpy.random.rand(1)[0]
         fwhm = numpy.random.rand(1)[0] * 1.5 + 0.1
-        self.x = numpy.arange(-3, 3, 0.0003)
-        self.p = [0., fwhm, amp, 0.]
-        self.p2d = [0., 0., fwhm, fwhm, amp, 0.,
-                    2 * numpy.pi * numpy.random.rand(1)]
-        self.sigma = fwhm / (2 * numpy.sqrt(2 * numpy.log(2)))
+        cls.x = numpy.arange(-3, 3, 0.0003)
+        cls.p = [0., fwhm, amp, 0.]
+        cls.p2d = [0., 0., fwhm, fwhm, amp, 0.,
+                   2 * numpy.pi * numpy.random.rand(1)]
+        cls.sigma = fwhm / (2 * numpy.sqrt(2 * numpy.log(2)))
 
     def test_gauss1dwidth(self):
         p = numpy.copy(self.p)

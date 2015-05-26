@@ -15,18 +15,19 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 
 
 class TestQ2Ang_nonCOP(unittest.TestCase):
-
-    def setUp(self):
-        self.mat = xu.materials.Al2O3
-        self.hxrd = xu.NonCOP(self.mat.Q(1, 1, 0), self.mat.Q(0, 0, 1))
-        self.hkltest = (1, 2, 3)
-        self.hkltest2 = (-1.5, 3.1, 3)
+    @classmethod
+    def setUpClass(cls):
+        cls.mat = xu.materials.Al2O3
+        cls.hxrd = xu.NonCOP(cls.mat.Q(1, 1, 0), cls.mat.Q(0, 0, 1))
+        cls.hkltest = (1, 2, 3)
+        cls.hkltest2 = (-1.5, 3.1, 3)
 
     def test_Q2Ang_nonCOP_point(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hkltest))

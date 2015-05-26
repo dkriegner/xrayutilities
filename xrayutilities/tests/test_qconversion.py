@@ -15,18 +15,19 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 
 
 class TestQConversion(unittest.TestCase):
-
-    def setUp(self):
-        self.mat = xu.materials.Si
-        self.hxrd = xu.HXRD(self.mat.Q(1, 1, 0), self.mat.Q(0, 0, 1))
-        self.hklsym = (0, 0, 4)
-        self.hklasym = (2, 2, 4)
+    @classmethod
+    def setUpClass(cls):
+        cls.mat = xu.materials.Si
+        cls.hxrd = xu.HXRD(cls.mat.Q(1, 1, 0), cls.mat.Q(0, 0, 1))
+        cls.hklsym = (0, 0, 4)
+        cls.hklasym = (2, 2, 4)
 
     def test_qconversion_point(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))

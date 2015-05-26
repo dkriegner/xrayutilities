@@ -15,21 +15,22 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 
 
 class TestNpyGridder1D(unittest.TestCase):
-
-    def setUp(self):
-        self.num = numpy.random.randint(10, 99)
-        self.xmin = 1
-        self.xmax = self.num
-        self.x = numpy.linspace(self.xmin, self.xmax, num=self.num)
-        self.data = numpy.random.rand(self.num)
-        self.gridder = xu.npyGridder1D(self.num)
-        self.gridder(self.x, self.data)
+    @classmethod
+    def setUpClass(cls):
+        cls.num = numpy.random.randint(10, 99)
+        cls.xmin = 1
+        cls.xmax = cls.num
+        cls.x = numpy.linspace(cls.xmin, cls.xmax, num=cls.num)
+        cls.data = numpy.random.rand(cls.num)
+        cls.gridder = xu.npyGridder1D(cls.num)
+        cls.gridder(cls.x, cls.data)
 
     def test_npygridder1d_axis(self):
         hist, bins = numpy.histogram(self.x, bins=self.num)

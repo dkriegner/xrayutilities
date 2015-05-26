@@ -15,33 +15,33 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import unittest
+
 import xrayutilities as xu
 import numpy
-import unittest
 
 
 class TestQConversionTrans(unittest.TestCase):
-
-    def setUp(self):
-        self.nch = 9
-        self.ncch = 4
-        self.nch2d = (9, 13)
-        self.ncch1 = 4
-        self.ncch2 = 6
+    @classmethod
+    def setUpClass(cls):
+        cls.nch = 9
+        cls.ncch = 4
+        cls.nch2d = (9, 13)
+        cls.ncch1 = 4
+        cls.ncch2 = 6
         # standard 1S+1D goniometer
         qconv = xu.QConversion('x+', 'x+', (0, 1, 0))
-        self.hxrd = xu.HXRD((1., 1., 0.), (0., 0., 1.), qconv=qconv)
+        cls.hxrd = xu.HXRD((1., 1., 0.), (0., 0., 1.), qconv=qconv)
         # comparable goniometer with translations
         qconv = xu.QConversion('x+', ['ty', 'tz'], (0, 1e-15, 0))
-        self.hxrdtrans = xu.HXRD((1., 1., 0.), (0., 0., 1.), qconv=qconv,
-                                 sampleor='z+')
-        self.hxrdtrans.Ang2Q.init_linear('z+', self.ncch, self.nch,
-                                         1e-15, 50e-6)
-        self.hxrdtrans.Ang2Q.init_area('z+', 'x+', self.ncch1, self.ncch2,
-                                       self.nch2d[0], self.nch2d[1],
-                                       1e-15, 50e-6, 50e-6)
+        cls.hxrdtrans = xu.HXRD((1., 1., 0.), (0., 0., 1.), qconv=qconv,
+                                sampleor='z+')
+        cls.hxrdtrans.Ang2Q.init_linear('z+', cls.ncch, cls.nch, 1e-15, 50e-6)
+        cls.hxrdtrans.Ang2Q.init_area('z+', 'x+', cls.ncch1, cls.ncch2,
+                                      cls.nch2d[0], cls.nch2d[1],
+                                      1e-15, 50e-6, 50e-6)
 
-        self.angle = numpy.random.rand() * 45
+        cls.angle = numpy.random.rand() * 45
 
     def test_qtrans0(self):
         qvec1 = self.hxrd.Ang2Q(self.angle, 0)
