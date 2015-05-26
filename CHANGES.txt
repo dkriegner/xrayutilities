@@ -1,3 +1,5 @@
+* bug fixes/improvements in the file parsers (discovered by the unit tests!)
+* new unittests for file parsers (spec, edf, xrdml, esg, nja, fio, cbf, tif)
 * added different oxidation states of the chemical elements to the database
 * huge speed improvements for the database access, especially when querying 
   multiple values at the same time

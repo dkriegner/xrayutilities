@@ -15,37 +15,32 @@
 #
 # Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import os.path
 import unittest
-import math
 
 import xrayutilities as xu
 import numpy
 
+xu.config.VERBOSITY = 0  # make no output during test
+testfile = 'speclog.log.gz'
+datadir = 'data'
+fullfilename = os.path.join(datadir, testfile)
 
-class TestDatabase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.el = xu.materials.elements.dummy
 
-    def test_db_f0(self):
-        f0 = self.el.f0(0)
-        self.assertAlmostEqual(f0, 1.0, places=10)
+@unittest.skipIf(not os.path.isfile(fullfilename),
+                 "additional test data needed (http://xrayutilities.sf.net)")
+class TestIO_SPECLog(unittest.TestCase):
+    prompt = 'PSIC'
+    line_cnt = 2046542
+    testcmd = '84.PSIC>  mvr mu -.075; ct'
+    testcmdline = 25
 
-    def test_db_f1_neg(self):
-        f1 = self.el.f1(-1)
-        self.assertTrue(math.isnan(f1))
+    def setUp(self):
+        self.logfile = xu.io.SPECLog(testfile, self.prompt, path=datadir)
 
-    def test_db_f1(self):
-        f1 = self.el.f1(1000)
-        self.assertAlmostEqual(f1, 0.0, places=10)
-
-    def test_db_f2_neg(self):
-        f2 = self.el.f2(-1)
-        self.assertTrue(math.isnan(f2))
-
-    def test_db_f2(self):
-        f2 = self.el.f2(1000)
-        self.assertAlmostEqual(f2, 0.0, places=10)
+    def test_linenumber(self):
+        self.assertEqual(self.line_cnt, self.logfile.line_counter)
+        self.assertEqual(self.testcmd, str(self.logfile[self.testcmdline]))
 
 
 if __name__ == '__main__':

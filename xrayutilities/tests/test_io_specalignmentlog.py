@@ -15,38 +15,34 @@
 #
 # Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import os.path
 import unittest
-import math
 
 import xrayutilities as xu
 import numpy
 
+xu.config.VERBOSITY = 0  # make no output during test
+testfile = 'alignment.log.gz'
+datadir = 'data'
+fullfilename = os.path.join(datadir, testfile)
 
-class TestDatabase(unittest.TestCase):
+
+@unittest.skipIf(not os.path.isfile(fullfilename),
+                 "additional test data needed (http://xrayutilities.sf.net)")
+class TestIO_SPEC_RA_Log(unittest.TestCase):
+    peaks = [u'asymaz1', u'symaz1']
+    niterations = 639
+
     @classmethod
     def setUpClass(cls):
-        cls.el = xu.materials.elements.dummy
+        cls.logfile = xu.io.RA_Alignment(fullfilename)
 
-    def test_db_f0(self):
-        f0 = self.el.f0(0)
-        self.assertAlmostEqual(f0, 1.0, places=10)
+    def test_peaknames(self):
+        self.assertEqual(self.peaks, self.logfile.peaks)
 
-    def test_db_f1_neg(self):
-        f1 = self.el.f1(-1)
-        self.assertTrue(math.isnan(f1))
-
-    def test_db_f1(self):
-        f1 = self.el.f1(1000)
-        self.assertAlmostEqual(f1, 0.0, places=10)
-
-    def test_db_f2_neg(self):
-        f2 = self.el.f2(-1)
-        self.assertTrue(math.isnan(f2))
-
-    def test_db_f2(self):
-        f2 = self.el.f2(1000)
-        self.assertAlmostEqual(f2, 0.0, places=10)
-
+    def test_iterations(self):
+        self.assertEqual(self.niterations,
+                         numpy.sum(numpy.sum(self.logfile.iterations)))
 
 if __name__ == '__main__':
     unittest.main()
