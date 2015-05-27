@@ -1108,7 +1108,8 @@ def getspec_scan(specf, scans, *args):
 
     Example
     -------
-    >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma', 'Counter2')
+    >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma',
+                                            'Counter2')
     """
     if len(args) == 0:
         return

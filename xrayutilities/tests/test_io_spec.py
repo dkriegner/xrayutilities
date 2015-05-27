@@ -45,12 +45,12 @@ class TestIO_SPEC(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.specfile = xu.io.SPECFile(testfile, path=datadir)
-        cls.specfile.Update() # this should be a noop
+        cls.specfile.Update()  # this should be a noop
         cls.specfile.scan43.ReadData()
         cls.sdata = cls.specfile.scan43.data
         cls.motor, cls.inte = xu.io.getspec_scan(cls.specfile, cls.scannr,
                                                  cls.motorname,
-                                                 cls.countername) 
+                                                 cls.countername)
 
     @classmethod
     def tearDownClass(cls):

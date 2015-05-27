@@ -23,7 +23,7 @@ import numpy
 
 class TestGetAngles(unittest.TestCase):
     chi111 = 70.528779365509308
-    
+
     @classmethod
     def setUpClass(cls):
         amp = numpy.random.rand(1)[0]

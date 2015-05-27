@@ -26,7 +26,7 @@ class TestStructureFactor(unittest.TestCase):
     def setUpClass(cls):
         cls.at = xu.materials.elements.dummy
         cls.mat = xu.materials.Material('test',
-            xu.materials.DiamondLattice(cls.at, 4))
+                                        xu.materials.DiamondLattice(cls.at, 4))
 
     def test_StructureFactor(self):
         f = self.mat.StructureFactor(self.mat.Q(1, 3, 1))
@@ -40,11 +40,11 @@ class TestStructureFactor(unittest.TestCase):
         q = (self.mat.Q(1, 1, 1), self.mat.Q(0, 4, 0), self.mat.Q(1, 2, 1))
         f = self.mat.StructureFactorForQ(q)
         for i in range(3):
-            self.assertAlmostEqual(f[i], (4 + 4j, 8 , 0)[i], places=10)
+            self.assertAlmostEqual(f[i], (4 + 4j, 8, 0)[i], places=10)
 
     def test_StructureFactorE(self):
         q = self.mat.Q(1, 1, 1)
-        f = self.mat.StructureFactorForEnergy(q, (1000,2000,3000))
+        f = self.mat.StructureFactorForEnergy(q, (1000, 2000, 3000))
         for i in range(3):
             self.assertAlmostEqual(f[i], 4 + 4j, places=10)
 

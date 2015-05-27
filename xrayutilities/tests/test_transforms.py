@@ -59,7 +59,7 @@ class TestTransforms(unittest.TestCase):
 
     def test_Axis2Z(self):
         a = numpy.random.rand(3)
-        a[2] = 2 # ensure non-zero vector 
+        a[2] = 2  # ensure non-zero vector
         r = xu.math.AxisToZ(a)
         for i in range(3):
             self.assertAlmostEqual(r(a)[i],
@@ -75,7 +75,6 @@ class TestTransforms(unittest.TestCase):
             self.assertAlmostEqual(r.inverse(self.z)[i],
                                    a[i] / numpy.linalg.norm(a),
                                    places=10)
-
 
 
 if __name__ == '__main__':

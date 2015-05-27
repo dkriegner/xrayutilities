@@ -26,9 +26,9 @@ class Test_maplog(unittest.TestCase):
     def setUpClass(cls):
         cls.dmin = xu.config.DYNLOW
         cls.dmax = xu.config.DYNHIGH
-                
+
     def test_maplog(self):
-        d = numpy.logspace(1,6,100)
+        d = numpy.logspace(1, 6, 100)
         # make noop
         dm = xu.maplog(d, numpy.inf, -numpy.inf)
         self.assertTrue(numpy.all(numpy.log10(d) == dm))
@@ -60,7 +60,6 @@ class Test_maplog(unittest.TestCase):
                                10.0**dm.max(), places=10)
         self.assertAlmostEqual(d.max()/10.0**self.dmin,
                                10**dm.min(), places=10)
- 
 
 
 if __name__ == '__main__':

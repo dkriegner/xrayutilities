@@ -26,8 +26,9 @@ header
 """
 
 import re
-import numpy
 import os.path
+
+import numpy
 import numpy.lib.recfunctions
 
 # relative imports from xrayutilities
@@ -99,7 +100,8 @@ class tty08File(object):
 
         self.mca = mca
         mcatemp = mca.view([('MCA', (mca.dtype, mca.shape[1]))])
-        self.data = numpy.lib.recfunctions.merge_arrays([self.data, mcatemp], flatten=True)
+        self.data = numpy.lib.recfunctions.merge_arrays([self.data, mcatemp],
+                                                        flatten=True)
 
     def Read(self):
         """

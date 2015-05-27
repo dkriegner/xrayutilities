@@ -630,7 +630,8 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
 
         # append scan data to MAP, where all data are stored
         mcatemp = mcadata.view([(mca, (mcadata.dtype, mcadata.shape[1]))])
-        sdtmp = numpy.lib.recfunctions.merge_arrays([sdata, mcatemp], flatten=True)
+        sdtmp = numpy.lib.recfunctions.merge_arrays([sdata, mcatemp],
+                                                    flatten=True)
         if MAP.dtype == numpy.float64:
             MAP.dtype = sdtmp.dtype
         MAP = numpy.append(MAP, sdtmp)
