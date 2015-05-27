@@ -17,11 +17,11 @@
 
 
 """
-class for reading data+header information from tty08 data files
+class for reading data + header information from tty08 data files
 
-tty08 is system used at beamline P08 at Hasylab Hamburg and creates simple
+tty08 is a system used at beamline P08 at Hasylab Hamburg and creates simple
 ASCII files to save the data. Information is easily read from the multicolumn
-data file.  the functions below enable also to parse the information of the
+data file. the functions below enable also to parse the information of the
 header
 """
 
@@ -143,7 +143,7 @@ class tty08File(object):
         self.data = numpy.rec.fromrecords(self.data, names=self.columns)
 
 
-def gettty08_scan(scanname, scannumbers, *args):
+def gettty08_scan(scanname, scannumbers, *args, **keyargs):
     """
     function to obtain the angular cooridinates as well as intensity values
     saved in TTY08 datafiles. Especially usefull for reciprocal space map
@@ -163,6 +163,8 @@ def gettty08_scan(scanname, scannumbers, *args):
      to read reciprocal space maps measured in coplanar diffraction give:
      omname:  e.g. name of the omega motor (or its equivalent)
      ttname:  e.g. name of the two theta motor (or its equivalent)
+
+     **keyargs: keyword arguments are passed on to tty08File
 
     Returns
     -------
@@ -195,7 +197,7 @@ def gettty08_scan(scanname, scannumbers, *args):
     MAP = numpy.zeros(0)
 
     for nr in scanlist:
-        scan = tty08File(scanname % nr)
+        scan = tty08File(scanname % nr, **keyargs)
         sdata = scan.data
         if MAP.dtype == numpy.float64:
             MAP.dtype = sdata.dtype
@@ -218,5 +220,7 @@ def gettty08_scan(scanname, scannumbers, *args):
 
     if len(args) == 0:
         return MAP
+    elif len(args) == 1:
+        return retval[0], MAP
     else:
         return retval, MAP
