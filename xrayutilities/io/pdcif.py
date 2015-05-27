@@ -22,6 +22,7 @@ import shlex
 import numpy
 
 from . import xu_open
+from .. import config
 
 re_label = re.compile(r'^\s*_')
 re_default = re.compile(r'^\s*_('
@@ -34,6 +35,12 @@ re_default = re.compile(r'^\s*_('
 re_loop = re.compile(r'^\s*loop_')
 re_nop = re.compile(r'^\s*_(pd_meas_number_of_points|pd_meas_detector_id)')
 re_multiline = re.compile(r';')
+
+
+def remove_comments(line, sep='#'):
+    for s in sep:
+        line = line.split(s)[0]
+    return line
 
 
 class pdCIF(object):
@@ -80,16 +87,19 @@ class pdCIF(object):
         with xu_open(self.filename) as fh:
             self._parse_single(fh)
 
-    def _parse_single(self, fh):
+    def _parse_single(self, fh, breakAfterData=False):
         """
         internal routine to parse a single loop of the pdCIF file
 
         Parameters
         ----------
          fh:    file handle
+         breakAfterData:    (optional) allowing to stop the parsing after
+                            data loop was found (default:False)
         """
         loopStart = False
         dataLoop = False
+        dataDone = False
         loopheader = []
         numOfEntries = -1
         multiline = None
@@ -99,8 +109,15 @@ class pdCIF(object):
             if not line:
                 break
 
+            line = remove_comments(line)
             if re_loop.match(line):
                 loopStart = True
+                remainingline = re.sub('loop_', '', line).strip()
+                if re_label.match(remainingline):
+                    if ((self.datacolumn is None and re_default.match(line)) or
+                            line.strip() == self.datacolumn):
+                        dataLoop = True
+                    loopheader.append(remainingline)
                 continue
 
             if multiline:
@@ -130,10 +147,8 @@ class pdCIF(object):
                     line2 = fh.readline().decode('ascii')
                     if re_multiline.match(line2):
                         multiline = line2
-                    else:
-                        fh.seek(fh.tell() - len(line2))
-                        raise ValueError('a value is missing for label %s'
-                                         % label)
+                    else:  # single value must be in second line
+                        self.header[label] = line2
 
             elif re_label.match(line) and loopStart:
                 # read loop entries
@@ -144,23 +159,33 @@ class pdCIF(object):
 
             elif loopStart:
                 fh.seek(fh.tell() - len(line))
-                if numOfEntries != -1 and dataLoop:
+                if numOfEntries != -1 and dataLoop and not dataDone:
                     self.data = self._parse_loop_numpy(fh, loopheader,
                                                        numOfEntries)
-                    break
-                elif dataLoop:
+                    dataDone = True
+                    if breakAfterData:
+                        break
+                elif dataLoop and not dataDone:
                     self._parse_loop(fh, loopheader)
                     length = len(self.header[loopheader[0]])
-                    dtypes = [(entry, type(self.header[entry][0]))
+                    dtypes = [(str(entry), type(self.header[entry][0]))
                               for entry in loopheader]
                     for i in range(len(dtypes)):
-                        if dtypes[i][1] == str:
-                            dtypes[i] = (dtypes[i][0], numpy.str_, 64)
+                        if dtypes[i][1] is str:
+                            dtypes[i] = (str(dtypes[i][0]), numpy.str_, 64)
                     self.data = numpy.zeros(length, dtype=dtypes)
                     for entry in loopheader:
                         self.data[entry] = self.header.pop(entry)
+                    dataDone = True
+                    if breakAfterData:
+                        break
                 else:
-                    self._parse_loop(fh, loopheader)
+                    try:
+                        self._parse_loop(fh, loopheader)
+                    except ValueError:
+                        if config.VERBOSITY >= config.INFO_LOW:
+                            print('XU.io.pdCIF: unable to handle loop at %d'
+                                  % fh.tell())
                 dataLoop = False
                 loopStart = False
                 loopheader = []
@@ -211,7 +236,7 @@ class pdCIF(object):
             if re_label.match(line) or line.strip() == '':
                 fh.seek(fh.tell() - len(line))
                 break
-            row = shlex.split(line)
+            row = shlex.split(line, comments=True)
             for i in range(len(fields)):
                 try:
                     self.header[fields[i]].append(float(row[i]))
@@ -219,13 +244,16 @@ class pdCIF(object):
                     self.header[fields[i]].append(row[i])
                 except IndexError:  # maybe multiline field
                     line2 = fh.readline().decode('ascii')
+                    line2 = remove_comments(line2)
                     if re_multiline.match(line2):
                         multiline = line2
                         while True:
                             line = fh.readline().decode('ascii')
+                            line = remove_comments(line)
                             if not line:
+                                fh.seek(fh.tell() - len(line))
                                 break
-                            if not re_multiline.match(line):
+                            if re_multiline.match(line) and line.strip()[1:]:
                                 multiline += line
                             else:
                                 self.header[fields[i]].append(multiline)
@@ -263,7 +291,7 @@ class pdESG(pdCIF):
         """
         with xu_open(self.filename) as fh:
             # parse first header and loop
-            self._parse_single(fh)
+            self._parse_single(fh, breakAfterData=True)
             self.fileheader = copy.deepcopy(self.header)
             self.header = {}
             fdata = self.data
@@ -273,7 +301,7 @@ class pdESG(pdCIF):
             while True:  # try to parse all scans
                 tell = fh.tell()
                 try:
-                    self._parse_single(fh)
+                    self._parse_single(fh, breakAfterData=True)
                 except:
                     break
                 if tell == fh.tell():
