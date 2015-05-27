@@ -154,7 +154,7 @@ class SeifertMultiScan(object):
             lb = list(itertools.islice(self.fid, 1))
             if not lb:
                 break
-            lb = lb[0].strip()
+            lb = lb[0].decode('ascii').strip()
 
             # the first thing needed is the number of scans in the file (in
             # file header)
