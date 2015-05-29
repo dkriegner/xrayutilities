@@ -1181,7 +1181,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         plot .... flag to determine if results and intermediate results should
                   be plotted. default: True
         cut_off . cut off intensity to decide if image is used for the
-                  determination or not. default: 0.7 = 70%
+                  determination or not. default: 0.1 = 10%
         start ... sequence of start values of the fit for parameters,
                   which can not be estimated automatically.  these are:
                   tiltazimuth, tilt, detector_rotation, outerangle_offset,
@@ -1358,7 +1358,11 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         if fig:
             plt.figure(fig.number)
         else:
-            plt.figure("CCD Calib fit")
+            figlabel = "CCD Calib fit %d"
+            i = 1
+            while figlabel % i in plt.get_figlabels():
+                i += 1
+            plt.figure(figlabel % i)
         nparams = numpy.array(paramlist)
         neps = numpy.array(epslist)
         labels = (
@@ -1425,7 +1429,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
               "OUTER DETECTOR ANGLE!" % (outerangle_offset))
 
     return (cch1, cch2, pwidth1, pwidth2, tiltazimuth,
-            tilt, detrot, outerangle_offset), eps
+            tilt, detrot, outerangle_offset, stilt, stazimuth, wavelength), eps
 
 
 def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
