@@ -989,7 +989,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
     """
     function to obtain the angular cooridinates as well as intensity values
     saved in an HDF5 file, which was created from a spec file by the Save2HDF5
-    method. Especially usefull for reciprocal space map measurements.
+    method. Especially useful for reciprocal space map measurements.
 
     further more it is possible to obtain even more positions from
     the data file if more than two string arguments with its names are given
