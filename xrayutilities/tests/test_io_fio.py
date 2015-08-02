@@ -32,7 +32,7 @@ class TestIO_FIO(unittest.TestCase):
     dshape = (601,)
     dmax = 2272108.0
     dmin = 66133.0
-    dmaxcorr = 216583897088.0
+    dmaxcorr = 216583893672.0
     dmincorr = 0.0
     motmax = 8.000001
     motmin = 0.0
@@ -83,8 +83,8 @@ class TestIO_FIO(unittest.TestCase):
 
     def test_normalizer(self):
         mcac = self.P08_normalizer(self.h5data)
-        self.assertAlmostEqual(self.dmaxcorr, mcac.max(), places=8)
-        self.assertAlmostEqual(self.dmincorr, mcac.min(), places=8)
+        self.assertAlmostEqual(self.dmaxcorr, mcac.max(), places=6)
+        self.assertAlmostEqual(self.dmincorr, mcac.min(), places=6)
 
 
 if __name__ == '__main__':
