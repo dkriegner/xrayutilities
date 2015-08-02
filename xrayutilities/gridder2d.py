@@ -246,7 +246,7 @@ class Gridder2DList(Gridder2D):
 
         # perform gridding this should be moved to native code if possible
         def gindex(x, min, delt):
-            return numpy.round((x - min) / delt)
+            return numpy.round((x - min) / delt).astype(numpy.int)
 
         xdelta = delta(self.xmin, self.xmax, self.nx)
         ydelta = delta(self.ymin, self.ymax, self.ny)
