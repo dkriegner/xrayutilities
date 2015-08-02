@@ -19,10 +19,6 @@
 from .helper import xu_open
 from .helper import xu_h5open
 
-from .radicon import rad2hdf5
-from .radicon import hst2hdf5
-from .radicon import selecthst
-
 from .seifert import SeifertScan
 from .seifert import SeifertMultiScan
 from .seifert import getSeifert_map
