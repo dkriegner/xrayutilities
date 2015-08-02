@@ -131,7 +131,7 @@ large number of third party libraries and Python modules.
 The needed dependencies are:
  * **GCC** Gnu Compiler Collection or any compatible C compiler. On windows you most probably should use MinGW or CygWin. Others might work but are untested.
  * **HDF5** a versatile binary data format (library is implemented in C).
-   Although the library is not called directly, it is needed by the pytables Python
+   Although the library is not called directly, it is needed by the h5py Python
    module (see below).
  * **Python** the scripting language in which most of *xrayutilities* code is written in.
  * **git** a version control system used to keep track on the *xrayutilities* development. (only needed for development)
@@ -139,7 +139,7 @@ The needed dependencies are:
 Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
  * **Numpy** a Python module providing numerical array objects
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays
- * **Python-Tables** a powerful Python interface to HDF5.
+ * **h5py** a powerful Python interface to HDF5.
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optionally)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
 
@@ -211,15 +211,6 @@ This is done by
 Using Python(x,y) you want to specify 'mingw32' as compiler name. With the WinPython it
 is recommended to use the MS Visual Studio Express 2008 (which is freely available for download)
 and can also build the code for 64bit Windows. In this case us 'msvc' as compiler name.
-
-In case you want to do it the hard way install all of the following (versions in brackets indicate the tested set of versions by the author (2.3.2012)):
- * MinGW (0.4alpha)
- * Python (2.7.2)
- * numpy (1.6.1)
- * scipy (0.10.1)
- * numexpr (1.4.2) needed for pytables
- * pytables (2.3.1)
- * matplotlib (1.1.0)
 
 It is suggested to add the MinGW binary directory, as well as the Python and Python-scripts directory
 to the Path environment variable as described above! Installation is done as described above.

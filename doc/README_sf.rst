@@ -35,8 +35,7 @@ on the various can be found in the README shipped with the package's sources.
    requirements are:
    
    - C-compiler
-   - HDF5
-   - pytables
+   - h5py (for HDF5 file access)
    - scipy
    - numpy
    - matplotlib (optionally)

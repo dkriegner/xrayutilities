@@ -47,7 +47,7 @@ system
 
 - Python
 - C-compiler (preferential with OpenMP support)
-- pytables
+- h5py
 - scipy
 - numpy
 - matplotlib (optionally)

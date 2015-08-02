@@ -1,3 +1,5 @@
+* Radicon file support was removed (no test scripts available!)
+* replace pytables by faster and more convenient h5py
 * bug fixes/improvements in the file parsers (discovered by the unit tests!)
 * new unittests for file parsers (spec, edf, xrdml, esg, nja, fio, cbf, tif)
 * added different oxidation states of the chemical elements to the database
