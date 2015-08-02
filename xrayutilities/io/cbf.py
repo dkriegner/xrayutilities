@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013, 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # module for handling files stored in the CBF data format
 
@@ -22,13 +22,20 @@ import re
 import glob
 
 import numpy
-import tables
+import h5py
 
 from .helper import xu_open, xu_h5open
 from .. import cxrayutilities
 from .. import config
 
 cbf_name_start_num = re.compile(r"^\d")
+
+
+def makeNaturalName(name):
+    ret = name.replace(" ", "_")
+    ret = ret.replace("-", "_")
+    ret = ret.replace(".", "_")
+    return ret
 
 
 class CBFFile(object):
@@ -102,7 +109,7 @@ class CBFFile(object):
         """
         with xu_h5open(h5f, 'a') as h5:
             if isinstance(group, str):
-                g = h5.getNode(group)
+                g = h5.get(group)
             else:
                 g = group
 
@@ -111,36 +118,27 @@ class CBFFile(object):
             name = os.path.splitext(name)[0]
             # perform a second time for case of .cbf.gz files
             name = os.path.splitext(name)[0]
-            name = name.replace("-", "_")
+            name = makeNaturalName(name)
             if cbf_name_start_num.match(name):
                 name = "ccd_" + name
             if config.VERBOSITY >= config.INFO_ALL:
                 print("xu.io.CBFFile: HDF5 group name: %s" % name)
-            name = name.replace(" ", "_")
 
             # create the array description
             desc = "CBF CCD data from file %s " % (self.filename)
 
-            # create the Atom for the array
-            a = tables.Atom.from_dtype(self.data.dtype)
-            f = tables.Filters(complevel=7, complib="zlib", fletcher32=True)
+            # create the dataset for the array
+            kwds = {'fletcher32': True}
             if comp:
-                try:
-                    ca = h5.createCArray(g, name, a, self.data.shape,
-                                         desc, filters=f)
-                except:
-                    h5.removeNode(g, name, recursive=True)
-                    ca = h5.createCArray(g, name, a, self.data.shape,
-                                         desc, filters=f)
-            else:
-                try:
-                    ca = h5.createCArray(g, name, a, self.data.shape, desc)
-                except:
-                    h5.removeNode(g, name, recursive=True)
-                    ca = h5.createCArray(g, name, a, self.data.shape, desc)
+                kwds['compression'] = 'gzip'
 
-            # write the data
-            ca[...] = self.data[...]
+            try:
+                ca = g.create_dataset(name, data=self.data, **kwds)
+            except ValueError:
+                del g[name]
+                ca = g.create_dataset(name, data=self.data, **kwds)
+
+            ca.attrs['TITLE'] = desc
 
 
 class CBFDirectory(object):
@@ -200,10 +198,9 @@ class CBFDirectory(object):
             if isinstance(group, str):
                 if group == "":
                     group = os.path.split(self.datapath)[1]
-                try:
-                    g = h5.getNode(h5.root, group)
-                except:
-                    g = h5.createGroup(h5.root, group)
+                g = h5.get(group)
+                if not g:
+                    g = h5.create_group(group)
             else:
                 g = group
 

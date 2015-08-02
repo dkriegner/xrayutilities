@@ -179,7 +179,8 @@ class XRDMLFile(object):
 
         """
         self.filename = fname
-        d = ElementTree.parse(xu_open(fname))
+        with xu_open(fname) as fid:
+            d = ElementTree.parse(fid)
         root = d.getroot()
         try:
             namespace = root.tag[:root.tag.index('}')+1]

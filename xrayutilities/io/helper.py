@@ -27,7 +27,7 @@ import os.path
 import gzip
 import bz2
 import sys
-import tables
+import h5py
 
 from .. import config
 from ..exception import InputError
@@ -87,14 +87,14 @@ class xu_h5open(object):
         """
         Parameters
         ----------
-         f:     filename or tables.file.File instance
+         f:     filename or h5py.File instance
          mode:  mode in which the file should be opened. ignored in case a
                 file handle is passed as f
         """
         self.closeFile = True
         self.fid = None
         self.mode = mode
-        if isinstance(f, tables.file.File):
+        if isinstance(f, h5py.File):
             self.fid = f
             self.closeFile = False
             self.filename = f.filename
@@ -106,10 +106,10 @@ class xu_h5open(object):
 
     def __enter__(self):
         if self.fid:
-            if not self.fid.isopen:
-                self.fid = tables.open_file(self.filename, mode=self.mode)
+            if not self.fid.fid.valid:
+                self.fid = h5py.File(self.filename, self.mode)
         else:
-            self.fid = tables.open_file(self.filename, mode=self.mode)
+            self.fid = h5py.File(self.filename, self.mode)
         return self.fid
 
     def __exit__(self, type, value, traceback):
