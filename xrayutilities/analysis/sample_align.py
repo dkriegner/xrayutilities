@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
@@ -21,11 +21,12 @@ for experiments with linear and area detectors
 """
 
 import re
-import numpy
 import numbers
+import time
+
+import numpy
 import scipy
 import scipy.optimize as optimize
-import time
 from scipy.odr import odrpack as odr
 from scipy.odr import models
 from scipy.ndimage.measurements import center_of_mass
@@ -424,17 +425,16 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
 
     return detparam
 
+
 ######################################################
 # detector parameter calculation from scan with
 # area detector (determine maximum by center of mass)
 ######################################################
-
-
 def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                         cut_off=0.7, start=(0, 0, 0, 0),
                         fix=(False, False, False, False),
-                        fig=None, wl=None, plotlog=False, debug=False,
-                        nwindow=50):
+                        fig=None, wl=None, plotlog=False, nwindow=50,
+                        debug=False):
     """
     function to calibrate the detector parameters of an area detector
     it determines the detector tilt possible rotations and offsets in the
@@ -512,26 +512,10 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     if debug:
         print("average intensity per image: %.1f" % avg)
 
-    nw = nwindow // 2
     for i in range(Npoints):
         img = ccdimages[i]
         if numpy.sum(img) > cut_off * avg:
-            [cen1r, cen2r] = center_of_mass(img)
-            [cen1, cen2] = center_of_mass(
-                img[max(int(cen1r) - nw, 0):
-                    min(int(cen1r) + nw, img.shape[0]),
-                    max(int(cen2r) - nw, 0):
-                    min(int(cen2r) + nw, img.shape[1])])
-            cen1 += max(int(cen1r) - nw, 0)
-            cen2 += max(int(cen2r) - nw, 0)
-            if debug and plot:
-                plt.figure("_ccd")
-                plt.imshow(utilities.maplog(img), origin='low')
-                plt.plot(cen2, cen1, "wo", mfc='none')
-                plt.axis([cen2 - nw, cen2 + nw, cen1 - nw, cen1 + nw])
-                plt.savefig("xu_calib_ccd_img%d.png" % i)
-                plt.close("_ccd")
-
+            cen1, cen2 = _peak_position(img, nwindow, plot=debug and plot)
             n1 = numpy.append(n1, cen1)
             n2 = numpy.append(n2, cen2)
             ang1 = numpy.append(ang1, angle1[i])
@@ -681,6 +665,47 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
 
     return (cch1, cch2, pwidth1, pwidth2, tiltazimuth,
             tilt, detrot, outerangle_offset), eps
+
+
+def _peak_position(img, nwindow, plot=False):
+    """
+    function to determine the peak position on the detector using the center of
+    mass (COM)
+
+    Parameters
+    ----------
+     img:       detector image data as 2D array
+     nwindow:   to avoid influence of hot pixels far away from the peak
+                position the center of mass approach is repeated with a window
+                around the COM of the full image.
+     COM of the size (nwindow, nwindow)
+     plot:      (optional) the result of the of the determination can be saved
+                as a plot
+    """
+    nw = nwindow // 2
+    [cen1r, cen2r] = center_of_mass(img)
+    [cen1, cen2] = center_of_mass(
+        img[max(int(cen1r) - nw, 0):
+            min(int(cen1r) + nw, img.shape[0]),
+            max(int(cen2r) - nw, 0):
+            min(int(cen2r) + nw, img.shape[1])])
+    cen1 += max(int(cen1r) - nw, 0)
+    cen2 += max(int(cen2r) - nw, 0)
+    if plot:
+        try:
+            from matplotlib import pyplot as plt
+        except ImportError:
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.analysis._peak_position: warning; plotting "
+                      "functionality not available")
+
+        plt.figure("_ccd")
+        plt.imshow(utilities.maplog(img), origin='low')
+        plt.plot(cen2, cen1, "wo", mfc='none')
+        plt.axis([cen2 - nw, cen2 + nw, cen1 - nw, cen1 + nw])
+        plt.savefig("xu_calib_ccd_img%d.png" % i)
+        plt.close("_ccd")
+    return cen1, cen2
 
 
 def _determine_detdir(ang1, ang2, n1, n2, detaxis, r_i):
@@ -1147,7 +1172,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
                             cut_off=0.1, start=(0, 0, 0, 0, 0, 0, 'config'),
                             fix=(False, False, False, False, False, False,
                                  False),
-                            fig=None, plotlog=False, debug=False):
+                            fig=None, plotlog=False, nwindow=50, debug=False):
     """
     function to calibrate the detector parameters of an area detector
     it determines the detector tilt possible rotations and offsets in the
@@ -1193,6 +1218,10 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
                   default: None (creates own figure)
         plotlog . flag to specify if the created error plot should be on
                   log-scale
+        nwindow . window size for determination of the center of mass position
+                  after the center of mass of every full image is determined,
+                  the center of mass is determined again using a window of
+                  size nwindow in order to reduce the effect of hot pixels.
         debug ... flag to tell if you want to see debug output of the script
                   (switch this to true only if you can handle it :))
     """
@@ -1247,23 +1276,18 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         img = ccdimages[i]
         if ((numpy.sum(img) > cut_off * avg) or
                 (numpy.all(hkls[i] != (0, 0, 0)))):
-            [cen1, cen2] = center_of_mass(img)
-            if debug and plot:
-                plt.figure("_ccd")
-                plt.imshow(utilities.maplog(img), origin='low')
-                plt.plot(cen2, cen1, "wo", mfc='none')
-                plt.axis([cen2 - 25, cen2 + 25, cen1 - 25, cen1 + 25])
-                plt.savefig("xu_calib_hkl_ccd_img%d.png" % i)
-                plt.close("_ccd")
+            cen1, cen2 = _peak_position(img, nwindow, plot=debug and plot)
+
             n1 = numpy.append(n1, cen1)
             n2 = numpy.append(n2, cen2)
             ang1 = numpy.append(ang1, angle1[i])
             ang2 = numpy.append(ang2, angle2[i])
             sang = numpy.append(sang, sampleang[i])
             usedhkls.append(hkls[i])
-            # if debug:
-            #     print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-            #                                        cen1, cen2))
+            if debug:
+                print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
+                      cen1, cen2))
+
     Nused = len(ang1)
     usedhkls = numpy.array(usedhkls)
 
