@@ -5,7 +5,7 @@ xrayutilities
 **a package with useful scripts for X-ray diffraction**
  
  
-Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
@@ -17,10 +17,9 @@ The sources are hosted on sourceforge in git repository and are made
 available as tarballs from time to time. 
 Download the latest tarball or use:
 
-.. code-block:: bash
+    git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
 
- $> git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
- 
+
 to clone the git repository. If you would like to have commit rights 
 contact one of the administrators.
 
@@ -45,9 +44,8 @@ on the various can be found in the README shipped with the package's sources.
     
 2. install *xrayutilities* using distutils by executing
 
-.. code-block:: bash
+    python setup.py install
 
- $> python setup.py install
 
 For details of how to setup your Python installation to find xrayutilities
 after the installation please refer to the documention.
