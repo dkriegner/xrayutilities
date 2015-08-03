@@ -1,3 +1,5 @@
+v1.2.0, 2015-08-03
+
 * Radicon file support was removed (no test scripts available!)
 * replace pytables by faster and more convenient h5py
 * bug fixes/improvements in the file parsers (discovered by the unit tests!)

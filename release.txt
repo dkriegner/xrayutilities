@@ -9,6 +9,9 @@ Is everything running fine? perform the tests and run the examples
 
   cd xrayutilities/tests
   python -m unittest discover
+  # optionally check the coverage
+  # coverage run -m unittest discover
+  # coverage html --include='PREFIX/*' --omit='test_*'
   cd ../..
 
 run the examples

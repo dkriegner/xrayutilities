@@ -120,7 +120,7 @@ except ImportError:
 
 setup(
     name="xrayutilities",
-    version="1.1.2",
+    version="1.2.0",
     author="Eugen Wintersberger, Dominik Kriegner",
     description="package for x-ray diffraction data evaluation",
     classifiers=[
@@ -150,7 +150,7 @@ setup(
             os.path.join("data", "*.cif")
             ]
         },
-    requires=['numpy', 'scipy', 'matplotlib', 'tables'],
+    requires=['numpy', 'scipy', 'matplotlib', 'h5py'],
     include_dirs=[numpy.get_include()],
     ext_modules=[extmodul],
     cmdclass=cmdclass,

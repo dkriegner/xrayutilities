@@ -28,7 +28,6 @@ Both methods work incremental, so they do not start at the beginning of the file
 
 An working example for both methods is given in the following.::
 
-    import tables
     import xrayutilities as xu
     import os
 
@@ -76,26 +75,22 @@ Reading EDF files
 
 EDF files are mostly used to store CCD frames at ESRF recorded from various different detectors. This format is therefore used in combination with SPEC files. In an example the EDFFile class is used to parse the data from EDF files and store them to an HDF5 file. HDF5 if perfectly suited because it can handle large amount of data and compression.::
 
-    import tables
     import xrayutilities as xu
     import numpy
 
     specfile = "specfile.spec"
     h5file = "h5file.h5"
-    h5 = tables.openFile(h5file, mode='a')
 
-    s = xu.io.SPECFile(specfile, path=specdir)
-    s.Save2HDF5(h5) # save to hdf5 file
+    s = xu.io.SPECFile(specfile)
+    s.Save2HDF5(h5file) # save to hdf5 file
 
     # read ccd frames from EDF files
-    for i in range(1, 1000, 1):
-        efile = "edfdir/sample_%04d.edf" %i
-        e = xu.io.edf.EDFFile(efile, path=specdir)
+    for i in range(1, 1001, 1):
+        efile = "edfdir/sample_%04d.edf" % i
+        e = xu.io.edf.EDFFile(efile)
         e.ReadData()
-        g5 = h5.createGroup(h5.root, "frelon_%04d" %i)
-        e.Save2HDF5(h5, group=g5)
+        e.Save2HDF5(h5file, group="/frelon_%04d" % i)
 
-    h5.close()
 
 .. seealso::
    the fully working example provided in the ``examples`` directory perfectly suited for reading data from beamline ID01

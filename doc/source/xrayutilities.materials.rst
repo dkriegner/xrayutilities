@@ -4,6 +4,14 @@ xrayutilities.materials package
 Submodules
 ----------
 
+xrayutilities.materials.atom module
+-----------------------------------
+
+.. automodule:: xrayutilities.materials.atom
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.materials.cif module
 ----------------------------------
 

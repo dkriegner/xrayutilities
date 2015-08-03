@@ -68,14 +68,6 @@ xrayutilities.io.pdcif module
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.radicon module
--------------------------------
-
-.. automodule:: xrayutilities.io.radicon
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 xrayutilities.io.rotanode_alignment module
 ------------------------------------------
 
