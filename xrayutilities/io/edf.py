@@ -345,7 +345,12 @@ class EDFFile(object):
         """
         with xu_h5open(h5f, 'a') as h5:
             if isinstance(group, str):
-                g = h5.get(group)
+                if group == '/':
+                    g = h5
+                else:
+                    if group in h5:
+                        del h5[group]
+                    g = h5.create_group(group)
             else:
                 g = group
 
