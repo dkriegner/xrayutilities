@@ -53,7 +53,6 @@ dtype_map = {"FLOAT": "f4"}
 
 
 class SPECTRAFileComments(dict):
-
     """
     Class that describes the comments in the header of a SPECTRA file.
     The different comments are accessible via the comment keys.
@@ -341,31 +340,48 @@ class SPECTRAFile(object):
         """
         Read the data from the file.
         """
+
+        def addkeyval(l, k, v):
+            """
+            add new key to a list. if key already exists a number will be
+            appended to the key name
+
+            Parameters
+            ----------
+             l:     list
+             k:     key
+             v:     value
+            """
+            kcnt = 0
+            key = k
+            while key in l:
+                key = k + "_%i" % (kcnt + 1)
+                kcnt += 1
+            l[key] = v
+
         col_names = []
         col_units = []
         col_types = []
         rec_list = []
         with open(self.filename, 'rb') as fid:
-            while True:
-                lbuffer = fid.readline().decode('utf8', 'ignore')
-                if lbuffer == "":
-                    break
-                lbuffer = lbuffer.strip()
+            for line in fid:
+                line = line.decode('utf8', 'ignore')
+                line = line.strip()
 
                 # read the next line if the line starts with a "!"
-                if re_end_section.match(lbuffer):
+                if re_end_section.match(line):
                     continue
 
                 # select the which section to read
-                if re_comment_section.match(lbuffer):
+                if re_comment_section.match(line):
                     read_mode = 1
                     continue
 
-                if re_parameter_section.match(lbuffer):
+                if re_parameter_section.match(line):
                     read_mode = 2
                     continue
 
-                if re_data_section.match(lbuffer):
+                if re_data_section.match(line):
                     read_mode = 3
                     continue
 
@@ -373,12 +389,12 @@ class SPECTRAFile(object):
                 if read_mode == 1:
                     # read the file comments
                     try:
-                        (key, value) = lbuffer.split("=")
+                        (key, value) = line.split("=")
                     except:
                         # avoid annoying output
                         if config.VERBOSITY >= config.INFO_ALL:
                             print("XU.io.SPECTRAFile.Read: cannot interpret "
-                                  "the comment string: %s" % (lbuffer))
+                                  "the comment string: %s" % (line))
                         continue
 
                     key = key.strip()
@@ -400,25 +416,15 @@ class SPECTRAFile(object):
 
                     # need to handle the case, that a key may appear several
                     # times in the list
-                    kcnt = 0
-                    while True:
-                        try:
-                            self.comments[key] = value
-                            # if adding the key/value pair to the dictionary
-                            # was successful - leave the loop
-                            break
-                        except:
-                            key += "_%i" % (kcnt + 2)
-
-                        kcnt += 1
+                    addkeyval(self.comments, key, value)
 
                 elif read_mode == 2:
                     # read scan parameters
                     try:
-                        (key, value) = lbuffer.split("=")
+                        (key, value) = line.split("=")
                     except:
                         print("XU.io.SPECTRAFile.Read: cannot interpret the "
-                              "parameter string: %s" % (lbuffer))
+                              "parameter string: %s" % (line))
 
                     key = key.strip()
                     # remove whitespaces to be conform with natural naming
@@ -441,35 +447,25 @@ class SPECTRAFile(object):
 
                     # need to handle the case, that a key may appear several
                     # times in the list
-                    kcnt = 0
-                    while True:
-                        try:
-                            self.params[key] = value
-                            # if adding the key/value pair to the dictionary
-                            # was successful - leave the loop
-                            break
-                        except:
-                            key += "_%i" % (kcnt + 2)
-
-                        kcnt += 1
+                    addkeyval(self.params, key, value)
 
                 elif read_mode == 3:
-                    if re_column.match(lbuffer):
+                    if re_column.match(line):
                         try:
-                            unit = re_unit.findall(lbuffer)[0]
+                            unit = re_unit.findall(line)[0]
                         except IndexError:
                             unit = "NONE"
 
                         try:
-                            lval = re_obracket.split(lbuffer)[0]
-                            rval = re_cbracket.split(lbuffer)[-1]
+                            lval = re_obracket.split(line)[0]
+                            rval = re_cbracket.split(line)[-1]
                             dtype = rval.strip()
                             l = re_wspaces.split(lval)
                             index = int(l[1])
                             name = "".join(l[2:])
                             name = name.replace(':', '_')
                         except IndexError:
-                            l = re_wspaces.split(lbuffer)
+                            l = re_wspaces.split(line)
                             index = int(l[1])
                             dtype = l[-1]
                             name = "".join(l[2:-1])
@@ -487,7 +483,7 @@ class SPECTRAFile(object):
 
                     else:
                         # read data
-                        dlist = re_wspaces.split(lbuffer)
+                        dlist = re_wspaces.split(line)
                         for i in range(len(dlist)):
                             dlist[i] = float(dlist[i])
 

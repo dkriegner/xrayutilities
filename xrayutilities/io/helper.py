@@ -23,7 +23,6 @@ these functions should be used in new parsers since they transparently allow to
 open gzipped and bzipped files
 """
 
-import os.path
 import gzip
 import bz2
 import sys
@@ -62,11 +61,11 @@ def xu_open(filename, mode='rb'):
     is not caught within the function
     """
 
-    if os.path.splitext(filename)[-1] == '.gz':
+    if filename.endswith('.gz'):
         fid = gzip.open(filename, mode)
-    elif os.path.splitext(filename)[-1] == '.bz2':
+    elif filename.endswith('.bz2'):
         fid = bz2.BZ2File(filename, mode)
-    elif os.path.splitext(filename)[-1] == '.xz':
+    elif filename.endswith('.xz'):
         if sys.version_info >= (3, 3):
             fid = lzma.open(filename, mode)
         else:

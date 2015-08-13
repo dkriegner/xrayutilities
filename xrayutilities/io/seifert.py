@@ -150,11 +150,8 @@ class SeifertMultiScan(object):
         # flag to check if all header information was parsed
         header_complete = False
 
-        while True:
-            lb = list(itertools.islice(self.fid, 1))
-            if not lb:
-                break
-            lb = lb[0].decode('ascii').strip()
+        for line in self.fid:
+            lb = line.decode('ascii').strip()
 
             # the first thing needed is the number of scans in the file (in
             # file header)
@@ -241,10 +238,8 @@ class SeifertScan(object):
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.io.SeifertScan.parse: starting the parser")
         self.data = []
-        while True:
-            lb = self.fid.readline().decode('ascii')
-            if not lb:
-                break
+        for line in self.fid:
+            lb = line.decode('ascii')
             # remove leading and trailing whitespace and newline characeters
             lb = lb.strip()
 

@@ -130,16 +130,16 @@ class EDFFile(object):
                     hdr_flag = False
                     ml_value_flag = False  # marks a multiline header
                     byte_order = ""
-                    while True:  # until end of header
-                        line_buffer = fid.readline().decode('ascii')
+                    for line in fid:  # until end of header
+                        line = line.decode('ascii')
                         if config.VERBOSITY >= config.DEBUG:
-                            print(line_buffer)
-                        if line_buffer == "":
+                            print(line)
+                        if line == "":
                             break
                         # remove leading and trailing whitespace symbols
-                        line_buffer = line_buffer.strip()
+                        line = line.strip()
 
-                        if line_buffer == "{" and not hdr_flag:
+                        if line == "{" and not hdr_flag:
                             # start with header
                             hdr_flag = True
                             header = {}
@@ -148,24 +148,24 @@ class EDFFile(object):
                         if hdr_flag:
                             # stop reading when the end of the header
                             # is reached
-                            if line_buffer == "}":
+                            if line == "}":
                                 # place offset reading here - here we get the
                                 # real starting position of the binary data!!
                                 offset = fid.tell()
                                 break
 
                             # continue if the line has no content
-                            if line_buffer == "":
+                            if line == "":
                                 continue
 
                             # split key and value of the header entry
                             if not ml_value_flag:
                                 try:
                                     [key, value] = edf_kv_split.split(
-                                        line_buffer, 1)
+                                        line, 1)
                                 except:
                                     print("XU.io.EDFFile.Parse: "
-                                          "line_buffer: %s" % line_buffer)
+                                          "line: %s" % line)
 
                                 key = key.strip()
                                 value = value.strip()
@@ -179,29 +179,29 @@ class EDFFile(object):
                                     value = value.strip()
                                     header[key] = value
                             else:
-                                value = value + line_buffer
+                                value = value + line
                                 if value[-1] == ";":
                                     ml_value_flag = False
 
                                     value = value[:-1]
                                     value = value.strip()
                                     header[key] = value
-                    if line_buffer == "":
+                    else:
                         break
-                    else:  # append header to class variables
-                        self._byte_order.append(header["ByteOrder"])
-                        self._fmt_str.append(DataTypeDict[header[self.dtkey]])
-                        self._dimx.append(int(header[self.nxkey]))
-                        self._dimy.append(int(header[self.nykey]))
-                        self._dtype.append(header[self.dtkey])
+                    # append header to class variables
+                    self._byte_order.append(header["ByteOrder"])
+                    self._fmt_str.append(DataTypeDict[header[self.dtkey]])
+                    self._dimx.append(int(header[self.nxkey]))
+                    self._dimy.append(int(header[self.nykey]))
+                    self._dtype.append(header[self.dtkey])
 
-                        self._headers.append(header)
-                        self._data_offsets.append(offset)
-                        # jump over data block
-                        tot_nofp = self._dimx[-1] * self._dimy[-1]
-                        fid.seek(fid.tell() +
-                                 struct.calcsize(tot_nofp * self._fmt_str[-1]),
-                                 0)
+                    self._headers.append(header)
+                    self._data_offsets.append(offset)
+                    # jump over data block
+                    tot_nofp = self._dimx[-1] * self._dimy[-1]
+                    fid.seek(fid.tell() +
+                             struct.calcsize(tot_nofp * self._fmt_str[-1]),
+                             0)
 
             else:  # in case of no header also save one set of defaults
                 self._byte_order.append('LowByteFirst')

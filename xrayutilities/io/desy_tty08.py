@@ -111,11 +111,8 @@ class tty08File(object):
         with xu_open(self.full_filename) as fid:
             # read header
             self.init_mopo = {}
-            while True:
-                line = fid.readline().decode('ascii')
-                # if DEGUG: print line
-                if not line:
-                    break
+            for line in fid:
+                line = line.decode('ascii')
 
                 if re_command.match(line):
                     m = line.split(':')
