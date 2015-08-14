@@ -225,3 +225,27 @@ class RoperCCD(ImageReader):
 
         ImageReader.__init__(self, 4096, 4096, hdrlen=216, dtype=numpy.int16,
                              byte_swap=False, **keyargs)
+
+class Pilatus100K(ImageReader):
+    """
+    parse Dectris Pilatus 100k frames (*.tiff) to numpy arrays
+    Ignore the header since it seems to contain no useful data
+    """
+
+    def __init__(self, **keyargs):
+        """
+        initialize the Piulatus100k reader, which includes setting the dimension of
+        the images as well as defining the data used for flat- and darkfield
+        correction!
+        Parameter
+        ---------
+         optional keywords arguments keyargs:
+          flatfield: filename or data for flatfield correction. supported file
+                     types include (*.bin *.bin.xz and *.npy files). otherwise
+                     a 2D numpy array should be given
+          darkfield: filename or data for darkfield correction. same types as
+                     for flat field are supported.
+        """
+
+        ImageReader.__init__(self, 195, 487, hdrlen=4096, dtype=numpy.int32,
+                             byte_swap=False, **keyargs)

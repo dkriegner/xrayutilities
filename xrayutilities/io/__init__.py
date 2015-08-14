@@ -28,6 +28,7 @@ from .spectra import geth5_spectra_map
 
 from .imagereader import RoperCCD
 from .imagereader import PerkinElmer
+from .imagereader import Pilatus100K
 from .imagereader import ImageReader
 
 from .spec import SPECFile
