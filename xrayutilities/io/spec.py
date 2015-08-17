@@ -1021,7 +1021,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
             for i in notscanmotors:
                 motname = args[i]
                 buf = numpy.ones(scanshape) * \
-                    h5scan.attrs["INIT_MOPO_%s" % motname]
+                    h5scan.attrs["INIT_MOPO_%s" % makeNaturalName(motname)]
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []
@@ -1097,7 +1097,7 @@ def getspec_scan(specf, scans, *args):
         for i in notscanmotors:
             motname = args[i]
             buf = (numpy.ones(scanshape) *
-                   sscan.init_motor_pos["INIT_MOPO_%s" % motname])
+                   sscan.init_motor_pos["INIT_MOPO_%s" % makeNaturalName(motname)])
             angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []
