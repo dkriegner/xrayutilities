@@ -169,7 +169,7 @@ class IntensityNormalizer(object):
     corresponding objects from hdf5 files
     """
 
-    def __init__(self, det, **keyargs):
+    def __init__(self, det='', **keyargs):
         """
         initialization of the corrector class
 
@@ -192,7 +192,7 @@ class IntensityNormalizer(object):
 
         Example
         -------
-        >>> detcorr = IntensityNormalizer(det="MCA", time="Seconds",
+        >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
                 absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
         """
 
@@ -410,20 +410,28 @@ class IntensityNormalizer(object):
     flatfield = property(_getflatfield, _setflatfield)
     darkfield = property(_getdarkfield, _setdarkfield)
 
-    def __call__(self, data):
+    def __call__(self, data, ccd=None):
         """
         apply the correction method which was initialized to the measured data
 
         Parameter
         ---------
          data: data object from xrayutilities.io classes (numpy.recarray)
+         ccd:  optionally CCD data can be given as separate ndarray of
+               shape (len(data), n1, n2), where n1, n2 is the shape of the
+               CCD image.
 
         Returns
         -------
          corrint: corrected intensity as numpy.ndarray of the same shape as
-                  data[det]
+                  data[det] (or ccd.shape)
         """
-        corrint = numpy.zeros(data[self._det].shape, dtype=numpy.float)
+        if numpy.any(ccd):
+            rawdata = ccd
+        else:
+            rawdata = data[self._det]
+
+        corrint = numpy.zeros(rawdata.shape, dtype=numpy.float)
 
         # set needed variables
         # monitor intensity
@@ -463,23 +471,23 @@ class IntensityNormalizer(object):
             if numpy.isnan(c) or numpy.isinf(c) or c == 0:
                 c = 1.0
 
-        if len(data[self._det].shape) == 1:
-            corrint = data[self._det] * c
-        elif len(data[self._det].shape) == 2 and isinstance(c, numpy.ndarray):
-            # 1D detector c.shape[0] should be data[self._det].shape[0]
+        if len(rawdata.shape) == 1:
+            corrint = rawdata * c
+        elif len(rawdata.shape) == 2 and isinstance(c, numpy.ndarray):
+            # 1D detector c.shape[0] should be rawdata.shape[0]
             if self._darkfield is not None:
-                if self._darkfield.shape[0] != data[self._det].shape[1]:
+                if self._darkfield.shape[0] != rawdata.shape[1]:
                     raise InputError("data[det] second dimension must have "
                                      "the same length as darkfield")
 
                 if isinstance(time, numpy.ndarray):
                     # darkfield correction
-                    corrint = (data[self._det] -
+                    corrint = (rawdata -
                                self._darkfield[numpy.newaxis, :] *
                                time[:, numpy.newaxis])
                 elif isinstance(time, float):
                     # darkfield correction
-                    corrint = (data[self._det] -
+                    corrint = (rawdata -
                                self._darkfield[numpy.newaxis, :] * time)
                 else:
                     print("XU.normalize.IntensityNormalizer: check "
@@ -488,24 +496,28 @@ class IntensityNormalizer(object):
                 corrint[corrint < 0.] = 0.
 
             else:
-                corrint = data[self._det]
+                corrint = rawdata
 
             corrint = corrint * c[:, numpy.newaxis]
 
             if self._flatfield is not None:
-                if self._flatfield.shape[0] != data[self._det].shape[1]:
+                if self._flatfield.shape[0] != rawdata.shape[1]:
                     raise InputError("data[det] second dimension must have "
                                      "the same length as flatfield")
                 # flatfield correction
                 corrint = (corrint / self._flatfield[numpy.newaxis, :] *
                            self._flatfieldav)
 
-        elif len(data[self._det].shape) == 2 and isinstance(c, numpy.float):
+        elif len(rawdata.shape) == 2 and isinstance(c, numpy.float):
             # single 2D detector frame
-            corrint = data[self._det] * c
+            corrint = rawdata * c
+
+        elif len(rawdata.shape) == 3:
+            # darkfield and flatfield correction is still missing!
+            corrint = rawdata * c[:, numpy.newaxis, numpy.newaxis]
 
         else:
             raise InputError("data[det] must be an array of dimension one "
-                             "or two")
+                             "or two or three")
 
         return corrint
