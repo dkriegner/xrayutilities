@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 import time
@@ -311,8 +311,8 @@ class TIFFRead(ImageReader):
                 fdata = fh.read(flength * dlen[dtypes[ftype]]).decode("ASCII")
                 fdata = fdata.rstrip('\0')
             else:
-                dlen = flength * dlen[dtypes[ftype]]
-                fdata = numpy.fromstring(fh.read(dlen), dtype=nptyp[ftype])
+                rlen = flength * dlen[dtypes[ftype]]
+                fdata = numpy.fromstring(fh.read(rlen), dtype=nptyp[ftype])
             if flength == 1:
                 fdata = fdata[0]
             fh.seek(pos)
