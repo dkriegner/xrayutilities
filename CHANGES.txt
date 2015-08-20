@@ -1,3 +1,6 @@
+* much improved TIFF file parser
+* IntensityNormalizer gained possibility to normalize CCD data
+
 v1.2.0, 2015-08-03
 
 * Radicon file support was removed (no test scripts available!)

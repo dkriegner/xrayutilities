@@ -145,30 +145,187 @@ class ImageReader(object):
             # jump over header
             fh.seek(self.hdrlen)
             # read image
-            img = numpy.fromstring(fh.read(), dtype=self.dtype,
-                                   count=self.nop1 * self.nop2)
+            rlen = numpy.dtype(self.dtype).itemsize * self.nop1 * self.nop2
+            img = numpy.fromstring(fh.read(rlen), dtype=self.dtype)
             if self.byteswap:
                 img = img.byteswap()
             img.shape = (self.nop1, self.nop2)  # reshape the data
             # darkfield correction
             if self.darkc:
-                imgf = (img - self.darkfield).astype(numpy.float32)
-            else:
-                imgf = img.astype(numpy.float32)
+                img = (img - self.darkfield).astype(numpy.float32)
             # flatfield correction
             if self.flatc:
-                imgf = imgf / self.flatfield
+                img = img.astype(numpy.float32) / self.flatfield
 
         if config.VERBOSITY >= config.INFO_ALL:
             t2 = time.time()
             print("XU.io.ImageReader.readImage: parsing time %8.3f"
                   % (t2 - t1))
 
-        return imgf
+        return img
+
+
+dlen = {'char': 1,
+        'byte': 1,
+        'word': 2,
+        'dword': 4,
+        'rational': 8, # not implemented correctly
+        'float': 4,
+        'double': 8} 
+
+dtypes= {1: 'byte',
+         2: 'char',
+         3: 'word',
+         4: 'dword',
+         5: 'rational', # not implemented correctly
+         6: 'byte',
+         7: 'byte',
+         8: 'word',
+         9: 'dword',
+         10: 'rational', # not implemented correctly
+         11: 'float',
+         12: 'double'}
+
+nptyp= {1: numpy.byte,
+        2: numpy.char,
+        3: numpy.uint16,
+        4: numpy.uint32,
+        5: numpy.uint32,
+        6: numpy.int8,
+        7: numpy.byte,
+        8: numpy.int16,
+        9: numpy.int32,
+        10: numpy.int32,
+        11: numpy.float32,
+        12: numpy.float64}
+
+tiffdtype = {1: {8:  numpy.uint8, 16: numpy.uint16, 32: numpy.uint32},
+             2: {8:  numpy.int8, 16: numpy.int16, 32: numpy.int32},
+             3: {16: numpy.float16, 32: numpy.float32}}
+
+tifftags = {256: 'ImageWidth',  #width
+            257: 'ImageLength', #height
+            258: 'BitsPerSample',
+            259: 'Compression',
+            262: 'PhotometricInterpretation',
+            272: 'Model',
+            273: 'StripOffsets',
+            282: 'XResolution',
+            283: 'YResolution',
+            305: 'Software',
+            339: 'SampleFormat'}
+
+class TIFFRead(ImageReader):
+    """
+    class to Parse a TIFF file including extraction of information from the
+    file header in order to determine the image size and data type
+
+    The data stored in the image are available in the 'data' property.
+    """
+    def __init__(self, filename, path=None):
+        """
+        initialization of the class which will prepare the parser and parse
+        the files content into class properties
+
+        Parameters
+        ----------
+         filename:  file name of the TIFF-like image file
+
+        Returns
+        -------
+         
+        """
+        if path:
+            full_filename = os.path.join(path, filename)
+        else:
+            full_filename = filename
+        
+        with xu_open(full_filename, 'rb') as fh:
+            self.byteorder = fh.read(2*dlen['char'])
+            self.version = numpy.fromstring(fh.read(dlen['word']),
+                                            dtype=numpy.uint16)[0]
+            if self.byteorder not in (b'II', b'MM') or self.version != 42:
+                raise TypeError("Not a TIFF file (%s)" % filename)
+            if self.byteorder != b'II':
+                raise NotImplementedError("The 'MM' byte order is not yet "
+                                          "implemented, please file a bug!")
+
+            fh.seek(4)
+            self.ifdoffset = numpy.fromstring(fh.read(dlen['dword']), 
+                                              dtype=numpy.uint32)[0]
+            fh.seek(self.ifdoffset)
+
+            self.ntags = numpy.fromstring(fh.read(dlen['word']),
+                                          dtype=numpy.uint16)[0]
+
+            self._parseImgTags(fh, self.ntags)
+
+            fh.seek(self.ifdoffset + 2 + 12 * self.ntags)
+            nextimgoffset = numpy.fromstring(fh.read(dlen['dword']), 
+                                             dtype=numpy.uint32)[0]
+            if nextimgoffset != 0:
+                raise NotImplementedError("Multiple images per file are not "
+                                          "supported, please file a bug!")
+
+            # check if image type is supported
+            if self.imgtags.get('Compression', 1) != 1:
+                raise NotImplementedError("Compression is not supported, "
+                                          "please file a bug report!")
+            if self.imgtags.get('PhotometricInterpretation', 0) not in (0, 1):
+                raise NotImplementedError("RGB and colormap is not supported")
+
+        sf = self.imgtags.get('SampleFormat', 1)
+        bs = self.imgtags.get('BitsPerSample', 1)
+        ImageReader.__init__(self,
+                             self.imgtags['ImageLength'],
+                             self.imgtags['ImageWidth'],
+                             hdrlen=self.imgtags['StripOffsets'],
+                             dtype=tiffdtype[sf][bs],
+                             byte_swap=False)
+
+        self.data = self.readImage(filename, path)
+
+             
+    def _parseImgTags(self, fh, ntags):
+        """
+        parse TIFF image tags from Image File Directory header
+
+        Parameters
+        ----------
+         fh:    file handle
+         ntags: number of tags in the Image File Directory
+        """
+        
+        self.imgtags = {}
+        for i in range(ntags):
+            ftag = numpy.fromstring(fh.read(dlen['word']),
+                                    dtype=numpy.uint16)[0]
+            ftype = numpy.fromstring(fh.read(dlen['word']),
+                                     dtype=numpy.uint16)[0]
+            flength = numpy.fromstring(fh.read(dlen['dword']),
+                                       dtype=numpy.uint32)[0]
+            fdoffset = numpy.fromstring(fh.read(dlen['dword']),
+                                        dtype=numpy.uint32)[0]
+
+            pos = fh.tell()
+            if flength*dlen[dtypes[ftype]] <= 4:
+                fdoffset = pos - dlen['dword']
+            fh.seek(fdoffset)
+            if ftype == 2:
+                fdata = fh.read(flength * dlen[dtypes[ftype]]).decode("ASCII") 
+                fdata = fdata.rstrip('\0')
+            else:
+                fdata = numpy.fromstring(fh.read(flength * dlen[dtypes[ftype]]),
+                                     dtype=nptyp[ftype])
+            if flength==1:
+                fdata = fdata[0]
+            fh.seek(pos)
+
+            # add field to tags
+            self.imgtags[tifftags.get(ftag,ftag)] = fdata
 
 
 class PerkinElmer(ImageReader):
-
     """
     parse PerkinElmer CCD frames (*.tif) to numpy arrays
     Ignore the header since it seems to contain no useful data
@@ -225,6 +382,7 @@ class RoperCCD(ImageReader):
 
         ImageReader.__init__(self, 4096, 4096, hdrlen=216, dtype=numpy.int16,
                              byte_swap=False, **keyargs)
+
 
 class Pilatus100K(ImageReader):
     """

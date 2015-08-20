@@ -18,6 +18,7 @@
 import unittest
 import os.path
 
+import numpy
 import xrayutilities as xu
 
 testfile = 'perkinelmer.tif.bz2'
@@ -48,6 +49,10 @@ class TestIO_PerkinElmer(unittest.TestCase):
         self.assertAlmostEqual(self.dtpos,
                                self.data[self.tpos[0], self.tpos[1]],
                                places=10)
+    
+    def test_tiffread(self):
+        t = xu.io.TIFFRead(testfile, path=datadir)
+        self.assertTrue(numpy.all(t.data==self.data))
 
 
 if __name__ == '__main__':
