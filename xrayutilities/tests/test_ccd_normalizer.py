@@ -40,7 +40,7 @@ class TestCCD_Normalizer(unittest.TestCase):
         cls.img = imgreader.readImage(testfile, path=datadir)
         cls.ccddata = numpy.asarray((cls.img, 2*cls.img))
         cls.fakedata = numpy.array([(1.0, 10.0), (2.0, 21.0)],
-                                   dtype=[('time', float), 
+                                   dtype=[('time', float),
                                           ('moni', float)])
         cls.normalizer = xu.IntensityNormalizer(mon='moni', time='time',
                                                 av_mon=1.0)

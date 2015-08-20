@@ -169,42 +169,42 @@ dlen = {'char': 1,
         'byte': 1,
         'word': 2,
         'dword': 4,
-        'rational': 8, # not implemented correctly
+        'rational': 8,  # not implemented correctly
         'float': 4,
-        'double': 8} 
+        'double': 8}
 
-dtypes= {1: 'byte',
-         2: 'char',
-         3: 'word',
-         4: 'dword',
-         5: 'rational', # not implemented correctly
-         6: 'byte',
-         7: 'byte',
-         8: 'word',
-         9: 'dword',
-         10: 'rational', # not implemented correctly
-         11: 'float',
-         12: 'double'}
+dtypes = {1: 'byte',
+          2: 'char',
+          3: 'word',
+          4: 'dword',
+          5: 'rational',  # not implemented correctly
+          6: 'byte',
+          7: 'byte',
+          8: 'word',
+          9: 'dword',
+          10: 'rational',  # not implemented correctly
+          11: 'float',
+          12: 'double'}
 
-nptyp= {1: numpy.byte,
-        2: numpy.char,
-        3: numpy.uint16,
-        4: numpy.uint32,
-        5: numpy.uint32,
-        6: numpy.int8,
-        7: numpy.byte,
-        8: numpy.int16,
-        9: numpy.int32,
-        10: numpy.int32,
-        11: numpy.float32,
-        12: numpy.float64}
+nptyp = {1: numpy.byte,
+         2: numpy.char,
+         3: numpy.uint16,
+         4: numpy.uint32,
+         5: numpy.uint32,
+         6: numpy.int8,
+         7: numpy.byte,
+         8: numpy.int16,
+         9: numpy.int32,
+         10: numpy.int32,
+         11: numpy.float32,
+         12: numpy.float64}
 
 tiffdtype = {1: {8:  numpy.uint8, 16: numpy.uint16, 32: numpy.uint32},
              2: {8:  numpy.int8, 16: numpy.int16, 32: numpy.int32},
              3: {16: numpy.float16, 32: numpy.float32}}
 
-tifftags = {256: 'ImageWidth',  #width
-            257: 'ImageLength', #height
+tifftags = {256: 'ImageWidth',  # width
+            257: 'ImageLength',  # height
             258: 'BitsPerSample',
             259: 'Compression',
             262: 'PhotometricInterpretation',
@@ -214,6 +214,7 @@ tifftags = {256: 'ImageWidth',  #width
             283: 'YResolution',
             305: 'Software',
             339: 'SampleFormat'}
+
 
 class TIFFRead(ImageReader):
     """
@@ -230,16 +231,12 @@ class TIFFRead(ImageReader):
         Parameters
         ----------
          filename:  file name of the TIFF-like image file
-
-        Returns
-        -------
-         
         """
         if path:
             full_filename = os.path.join(path, filename)
         else:
             full_filename = filename
-        
+
         with xu_open(full_filename, 'rb') as fh:
             self.byteorder = fh.read(2*dlen['char'])
             self.version = numpy.fromstring(fh.read(dlen['word']),
@@ -251,7 +248,7 @@ class TIFFRead(ImageReader):
                                           "implemented, please file a bug!")
 
             fh.seek(4)
-            self.ifdoffset = numpy.fromstring(fh.read(dlen['dword']), 
+            self.ifdoffset = numpy.fromstring(fh.read(dlen['dword']),
                                               dtype=numpy.uint32)[0]
             fh.seek(self.ifdoffset)
 
@@ -261,7 +258,7 @@ class TIFFRead(ImageReader):
             self._parseImgTags(fh, self.ntags)
 
             fh.seek(self.ifdoffset + 2 + 12 * self.ntags)
-            nextimgoffset = numpy.fromstring(fh.read(dlen['dword']), 
+            nextimgoffset = numpy.fromstring(fh.read(dlen['dword']),
                                              dtype=numpy.uint32)[0]
             if nextimgoffset != 0:
                 raise NotImplementedError("Multiple images per file are not "
@@ -285,7 +282,6 @@ class TIFFRead(ImageReader):
 
         self.data = self.readImage(filename, path)
 
-             
     def _parseImgTags(self, fh, ntags):
         """
         parse TIFF image tags from Image File Directory header
@@ -295,7 +291,7 @@ class TIFFRead(ImageReader):
          fh:    file handle
          ntags: number of tags in the Image File Directory
         """
-        
+
         self.imgtags = {}
         for i in range(ntags):
             ftag = numpy.fromstring(fh.read(dlen['word']),
@@ -312,17 +308,17 @@ class TIFFRead(ImageReader):
                 fdoffset = pos - dlen['dword']
             fh.seek(fdoffset)
             if ftype == 2:
-                fdata = fh.read(flength * dlen[dtypes[ftype]]).decode("ASCII") 
+                fdata = fh.read(flength * dlen[dtypes[ftype]]).decode("ASCII")
                 fdata = fdata.rstrip('\0')
             else:
-                fdata = numpy.fromstring(fh.read(flength * dlen[dtypes[ftype]]),
-                                     dtype=nptyp[ftype])
-            if flength==1:
+                dlen = flength * dlen[dtypes[ftype]]
+                fdata = numpy.fromstring(fh.read(dlen), dtype=nptyp[ftype])
+            if flength == 1:
                 fdata = fdata[0]
             fh.seek(pos)
 
             # add field to tags
-            self.imgtags[tifftags.get(ftag,ftag)] = fdata
+            self.imgtags[tifftags.get(ftag, ftag)] = fdata
 
 
 class PerkinElmer(ImageReader):
@@ -392,9 +388,10 @@ class Pilatus100K(ImageReader):
 
     def __init__(self, **keyargs):
         """
-        initialize the Piulatus100k reader, which includes setting the dimension of
-        the images as well as defining the data used for flat- and darkfield
-        correction!
+        initialize the Piulatus100k reader, which includes setting the
+        dimension of the images as well as defining the data used for flat- and
+        darkfield correction!
+
         Parameter
         ---------
          optional keywords arguments keyargs:

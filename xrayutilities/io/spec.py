@@ -1097,7 +1097,8 @@ def getspec_scan(specf, scans, *args):
         for i in notscanmotors:
             motname = args[i]
             buf = (numpy.ones(scanshape) *
-                   sscan.init_motor_pos["INIT_MOPO_%s" % makeNaturalName(motname)])
+                   sscan.init_motor_pos["INIT_MOPO_%s"
+                                        % makeNaturalName(motname)])
             angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []
