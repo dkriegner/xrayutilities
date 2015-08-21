@@ -31,6 +31,7 @@ from .imagereader import PerkinElmer
 from .imagereader import Pilatus100K
 from .imagereader import ImageReader
 from .imagereader import TIFFRead
+from .imagereader import get_tiff
 
 from .spec import SPECFile
 from .spec import SPECScan

@@ -37,8 +37,7 @@ class TestIO_Pilatus(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        imgreader = xu.io.TIFFRead(testfile, path=datadir)
-        cls.data = imgreader.data
+        cls.data = xu.io.get_tiff(testfile, path=datadir)
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.data.shape)

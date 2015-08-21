@@ -404,3 +404,26 @@ class Pilatus100K(ImageReader):
 
         ImageReader.__init__(self, 195, 487, hdrlen=4096, dtype=numpy.int32,
                              byte_swap=False, **keyargs)
+
+
+def get_tiff(filename, path=None):
+    """
+    read tiff image file and return the data
+
+    Parameter
+    ---------
+     filename: filename of the image to be read. so far only single
+               filenames are supported. The data might be compressed.
+    """
+
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU.io.get_tiff: file %s" % (filename))
+        t1 = time.time()
+
+    t = TIFFRead(filename, path=path)
+
+    if config.VERBOSITY >= config.INFO_ALL:
+        t2 = time.time()
+        print("XU.io.get_tiff: parsing time %8.3f" % (t2 - t1))
+
+    return t.data
