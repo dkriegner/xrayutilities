@@ -275,6 +275,8 @@ class SPECScan(object):
             for line in self.fid:
                 line = line.decode('ascii')
                 line = line.strip()
+                if not line:
+                    continue
 
                 # Bugfix for ESRF/BM20 data
                 # the problem is that they store messages from automatic
@@ -667,6 +669,7 @@ class SPECFile(object):
                 print('XU.io.SPECFile: start parsing')
 
             for line in self.fid:
+                linelength = len(line)
                 line = line.decode('ascii')
                 if config.VERBOSITY >= config.DEBUG:
                     print('parsing line: %s' % line)
@@ -867,7 +870,7 @@ class SPECFile(object):
                               "..." % scannr)
 
                 # store the position of the file pointer
-                self.last_offset = self.fid.tell()
+                self.last_offset += linelength
 
             # if reading of the file is finished store the data offset of the
             # last scan as the last offset for the next parsing run of the file
