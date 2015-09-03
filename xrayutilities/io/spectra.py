@@ -49,7 +49,8 @@ re_col_index = re.compile(r"\d+\s+")
 re_col_type = re.compile(r"\[.+\]")
 re_num = re.compile(r"[0-9]")
 
-dtype_map = {"FLOAT": "f4"}
+dtype_map = {"FLOAT": "f4",
+             "DOUBLE": "f8"}
 
 
 class SPECTRAFileComments(dict):
@@ -457,7 +458,10 @@ class SPECTRAFile(object):
                             unit = "NONE"
 
                         try:
-                            lval = re_obracket.split(line)[0]
+                            sline = re_obracket.split(line)
+                            if len(sline) == 1:
+                                raise IndexError
+                            lval = sline[0]
                             rval = re_cbracket.split(line)[-1]
                             dtype = rval.strip()
                             l = re_wspaces.split(lval)
@@ -477,7 +481,6 @@ class SPECTRAFile(object):
 
                         if name in col_names:
                             name += "%s_1" % name
-
                         col_names.append("%s" % name)
                         col_types.append("%s" % (dtype_map[dtype]))
 
