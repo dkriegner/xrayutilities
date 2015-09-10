@@ -1110,15 +1110,20 @@ class Alloy(Material):
             return self.lattice_const_AB(self.matA.lattice.a3,
                                          self.matB.lattice.a3, x)
 
-        def V(x): return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
+        def V(x):
+            return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
 
-        def b1(x): return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
+        def b1(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
 
-        def b2(x): return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
+        def b2(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
 
-        def b3(x): return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
+        def b3(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
 
-        def qhklx(x): return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        def qhklx(x):
+            return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
 
         qr_i = numpy.abs(transform(qhklx(self.x))[1])
         qr_p = numpy.abs(transform(qhklx(self.x))[2])
@@ -1130,13 +1135,14 @@ class Alloy(Material):
         cijA = Cijkl2Cij(transform(self.matA.cijkl))
         cijB = Cijkl2Cij(transform(self.matB.cijkl))
 
-        def abulk(x): return numpy.linalg.norm(a1(x))
+        def abulk(x):
+            return numpy.linalg.norm(a1(x))
 
         def frac(x):
             return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
+                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
-                    (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
+                   (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
 
         def aperp(x):
             return abulk(self.x) * (1 + frac(x) * (1 - asub / abulk(self.x)))
@@ -1238,15 +1244,20 @@ class CubicAlloy(Alloy):
             return self.lattice_const_AB(self.matA.lattice.a3,
                                          self.matB.lattice.a3, x)
 
-        def V(x): return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
+        def V(x):
+            return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
 
-        def b1(x): return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
+        def b1(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
 
-        def b2(x): return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
+        def b2(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
 
-        def b3(x): return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
+        def b3(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
 
-        def qhklx(x): return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        def qhklx(x):
+            return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
 
         # the following line is not generally true! only cubic materials
         def abulk_perp(x):
@@ -1254,7 +1265,8 @@ class CubicAlloy(Alloy):
                              numpy.inner(n, hkl))
 
         # can we use abulk_perp here? for cubic materials this should work?!
-        def ainp(x): return asub + relax * (abulk_perp(x) - asub)
+        def ainp(x):
+            return asub + relax * (abulk_perp(x) - asub)
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.materials.Alloy.ContentB: abulk_perp: %8.5g"
@@ -1262,9 +1274,9 @@ class CubicAlloy(Alloy):
 
         def frac(x):
             return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
+                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
-                    (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
+                   (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
 
         def equation(x):
             return ((aperp - abulk_perp(x)) +
@@ -1357,17 +1369,23 @@ class CubicAlloy(Alloy):
             return self.lattice_const_AB(self.matA.lattice.a3,
                                          self.matB.lattice.a3, x)
 
-        def V(x): return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
+        def V(x):
+            return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
 
-        def b1(x): return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
+        def b1(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
 
-        def b2(x): return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
+        def b2(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
 
-        def b3(x): return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
+        def b3(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
 
-        def qsurx(x): return sur[0] * b1(x) + sur[1] * b2(x) + sur[2] * b3(x)
+        def qsurx(x):
+            return sur[0] * b1(x) + sur[1] * b2(x) + sur[2] * b3(x)
 
-        def qhklx(x): return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        def qhklx(x):
+            return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
 
         # the following two lines are not generally true! only cubic materials
         def abulk_inp(x):
@@ -1384,9 +1402,9 @@ class CubicAlloy(Alloy):
 
         def frac(x):
             return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
+                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
-                    (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
+                   (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
 
         def equation(x):
             return ((aperp - abulk_perp(x)) +

@@ -109,34 +109,44 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
     gfunc_dp = None
     if peaktype == 'Gauss':
         if background == 'linear':
-            def gfunc(param, x): return Gauss1d(x, *param) + x * param[-1]
+            def gfunc(param, x):
+                return Gauss1d(x, *param) + x * param[-1]
         else:
-            def gfunc(param, x): return Gauss1d(x, *param)
+            def gfunc(param, x):
+                return Gauss1d(x, *param)
 
-            def gfunc_dx(param, x): return Gauss1d_der_x(x, *param)
+            def gfunc_dx(param, x):
+                return Gauss1d_der_x(x, *param)
 
-            def gfunc_dp(param, x): return Gauss1d_der_p(x, *param)
+            def gfunc_dp(param, x):
+                return Gauss1d_der_p(x, *param)
     elif peaktype == 'Lorentz':
         if background == 'linear':
-            def gfunc(param, x): return Lorentz1d(x, *param) + x * param[-1]
+            def gfunc(param, x):
+                return Lorentz1d(x, *param) + x * param[-1]
         else:
-            def gfunc(param, x): return Lorentz1d(x, *param)
+            def gfunc(param, x):
+                return Lorentz1d(x, *param)
 
-            def gfunc_dx(param, x): return Lorentz1d_der_x(x, *param)
+            def gfunc_dx(param, x):
+                return Lorentz1d_der_x(x, *param)
 
-            def gfunc_dp(param, x): return Lorentz1d_der_p(x, *param)
+            def gfunc_dp(param, x):
+                return Lorentz1d_der_p(x, *param)
     elif peaktype == 'PseudoVoigt':
         if background == 'linear':
             def gfunc(param, x):
                 return PseudoVoigt1d(x, *param) + x * param[-1]
         else:
-            def gfunc(param, x): return PseudoVoigt1d(x, *param)
+            def gfunc(param, x):
+                return PseudoVoigt1d(x, *param)
     elif peaktype == 'PseudoVoigtAsym':
         if background == 'linear':
             def gfunc(param, x):
                 return PseudoVoigt1dasym(x, *param) + x * param[-1]
         else:
-            def gfunc(param, x): return PseudoVoigt1dasym(x, *param)
+            def gfunc(param, x):
+                return PseudoVoigt1dasym(x, *param)
     else:
         raise InputError("keyword rgument peaktype takes invalid value!")
 

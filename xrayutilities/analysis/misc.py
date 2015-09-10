@@ -74,8 +74,6 @@ def getangles(peak, sur, inp):
     # calculate angles
     r2d = 180. / numpy.pi
     chi = numpy.arccos(numpy.dot(sur, peak)) * r2d
-    # print
-    # numpy.dot(sur,peak),numpy.dot(sur,numpy.cross(inplane,pinp)),numpy.sign(numpy.dot(sur,numpy.cross(inplane,pinp))),numpy.dot(pinp,inplane)
     if(numpy.dot(sur, peak) >= 1. - config.EPSILON):
         chi = 0.
         phi = 0.
