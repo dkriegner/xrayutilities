@@ -23,6 +23,7 @@ for experiments with linear and area detectors
 import re
 import numbers
 import time
+import glob
 
 import numpy
 import scipy
@@ -343,10 +344,8 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
     ang = []
     nignored = 0
     for i in range(len(mca_spectra)):
-        # print(i)
         row = mca_spectra[i, :]
         row_int = row.sum()
-        # print(row_int)
         if ((numpy.abs(row_int - mca_avg) > 3 * mca_std) or
                 (row_int - mca_rowmax * 0.7 < 0)):
             if config.VERBOSITY >= config.DEBUG:
@@ -362,7 +361,6 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         # fit beam position
         # determine maximal usable length of array around peak position
         Nuse = min(maxp + N // 2, len(row) - 1) - max(maxp - N // 2, 0)
-        # print("%d %d %d"%(N,max(maxp-N//2,0),min(maxp+N//2,len(row)-1)))
         param, perr, itlim = math.peak_fit(
             numpy.arange(Nuse),
             row[max(maxp - N // 2, 0):min(maxp + N // 2, len(row) - 1)],
@@ -513,6 +511,8 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         print("average intensity per image: %.1f" % avg)
 
     for i in range(Npoints):
+        if debug and i == 0:
+            print("angle1, angle2, cen1, cen2")
         img = ccdimages[i]
         if numpy.sum(img) > cut_off * avg:
             cen1, cen2 = _peak_position(img, nwindow, plot=debug and plot)
@@ -540,7 +540,6 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
     print("------------------------------------------------------------")
     # find optimal detector rotation (however keep other parameters free)
-    detrot = start[2]
     if not fix[2]:
         for detrotstart in numpy.linspace(start[2] - 1, start[2] + 1, 20):
             start = start[:2] + (detrotstart,) + (start[3],)
@@ -553,10 +552,8 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                 epsmin = epslist[-1]
                 parammin = param
                 fitmin = fit
-                detrot = param[6]
             if debug:
-                print("single fit")
-                print(param)
+                print(eps, param)
 
     Ntiltaz = 1 if fix[0] else 5
     Ntilt = 1 if fix[1] else 6
@@ -565,8 +562,12 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         Ntilt = Ntilt * 5 if not fix[1] else Ntilt
         Ntiltaz = Ntiltaz * 5 if not fix[0] else Ntiltaz
 
-    startparam = start[:2] + (detrot,) + (start[3],)
+    startparam = start[:2] + (parammin[6],) + (start[3],)
+    if debug:
+        print("start params: %s" % str(startparam))
 
+    Ntot = Ntiltaz * Ntilt * Noffset
+    ict = 0
     for tiltazimuth in numpy.linspace(startparam[0] if fix[0] else 0,
                                       360, Ntiltaz, endpoint=False):
         for tilt in numpy.linspace(startparam[1] if fix[1] else 0, 4, Ntilt):
@@ -574,15 +575,17 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                     startparam[3] if fix[3] else - 3 + startparam[3],
                     3 + startparam[3], Noffset):
                 t1 = time.time()
-                start = (tiltazimuth, tilt, detrot, offset)
+                start = (tiltazimuth, tilt, startparam[2], offset)
                 eps, param, fit = _area_detector_calib_fit(
                     ang1, ang2, n1, n2, detaxis, r_i, detdir1, detdir2,
                     start=start, fix=fix, full_output=True, wl=wl)
                 epslist.append(eps)
                 paramlist.append(param)
                 t2 = time.time()
-                print("%6.1f %6.2f %8.3f %8.3f: %10.4e (%4.2f) (%5.2fsec)" %
-                      (start + (epslist[-1], epslist[-1] / epsmin, t2 - t1)))
+                print("%d/%d\t%6.1f %6.2f %8.3f %8.3f: %10.4e (%4.2f) "
+                      "(%5.2fsec)" % ((ict, Ntot) + start + (epslist[-1],
+                                      epslist[-1] / epsmin, t2 - t1)))
+                ict += 1
 
                 if epslist[-1] < epsmin:
                     print("************************")
@@ -608,15 +611,12 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
             'cch1 (1)',
             'cch2 (1)',
             r'pwidth1 ($\mu$m@1m)',
-            'pwidth2 ($\mu$m@1m)',
+            r'pwidth2 ($\mu$m@1m)',
             'tiltazimuth (deg)',
             'tilt (deg)',
             'detrot (deg)',
             'outerangle offset (deg)')
         xscale = (1., 1., 1.e6, 1.e6, 1., 1., 1., 1.)
-        # plt.suptitle("best fit: %.2f %.2f %10.4e %10.4e %.1f %.2f %.3f %.3f"
-        #              % (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt,
-        #                 detrot, outerangle_offset))
         for p in range(8):
             plt.subplot(3, 3, p + 1)
             if plotlog:
@@ -684,13 +684,21 @@ def _peak_position(img, nwindow, plot=False):
     """
     nw = nwindow // 2
     [cen1r, cen2r] = center_of_mass(img)
-    [cen1, cen2] = center_of_mass(
-        img[max(int(cen1r) - nw, 0):
-            min(int(cen1r) + nw, img.shape[0]),
-            max(int(cen2r) - nw, 0):
-            min(int(cen2r) + nw, img.shape[1])])
-    cen1 += max(int(cen1r) - nw, 0)
-    cen2 += max(int(cen2r) - nw, 0)
+    for i in range(11):  # refine center of mass multiple times
+        [cen1, cen2] = center_of_mass(
+            img[max(int(cen1r) - nw, 0):
+                min(int(cen1r) + nw, img.shape[0]),
+                max(int(cen2r) - nw, 0):
+                min(int(cen2r) + nw, img.shape[1])])
+        cen1 += max(int(cen1r) - nw, 0)
+        cen2 += max(int(cen2r) - nw, 0)
+        if numpy.linalg.norm((cen1 - cen1r, cen2 - cen2r)) > 3:
+            cen1r, cen2r = (cen1, cen2)
+        else:
+            break
+    if i == 10 and config.VERBOSITY >= config.INFO_LOW:
+        print("XU.analysis._peak_position: Warning: peak position "
+              "determination not converged, consider debug mode!")
     if plot:
         try:
             from matplotlib import pyplot as plt
@@ -703,7 +711,9 @@ def _peak_position(img, nwindow, plot=False):
         plt.imshow(utilities.maplog(img), origin='low')
         plt.plot(cen2, cen1, "wo", mfc='none')
         plt.axis([cen2 - nw, cen2 + nw, cen1 - nw, cen1 + nw])
-        plt.savefig("xu_calib_ccd_img%d.png" % i)
+        plt.colorbar()
+        fnr = len(glob.glob('xu_calib_ccd_img*.png'))
+        plt.savefig("xu_calib_ccd_img%d.png" % (fnr + 1))
         plt.close("_ccd")
     return cen1, cen2
 
@@ -820,7 +830,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         eps   final epsilon of the fit
 
     if full_output:
-        eps,param,fit
+        eps, param, fit
     """
 
     def areapixel(params, detectorDir1, detectorDir2, r_i, detectorAxis,
@@ -1122,11 +1132,13 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         ifixb += (int(not fix[i]),)
 
     my_odr = odr.ODR(data, model, beta0=param, ifixb=(1, 1, 1, 1) + ifixb,
-                     ifixx=(0, 0, 0, 0), stpb=(0.4, 0.4, pwidth1 / 50.,
-                     pwidth2 / 50., 2, 0.125, 0.01, 0.01),
+                     ifixx=(0, 0, 0, 0),
+                     stpb=(0.4, 0.4, pwidth1 / 50., pwidth2 / 50., 2,
+                           0.125, 0.01, 0.01),
                      sclb=(1 / numpy.abs(cch1), 1 / numpy.abs(cch2),
-                     1 / pwidth1, 1 / pwidth2, 1 / 90., 1 / 0.2, 1 / 0.2,
-                     1 / 0.2), maxit=1000, ndigit=12, sstol=1e-11,
+                           1 / pwidth1, 1 / pwidth2, 1 / 90., 1 / 0.2, 1 / 0.2,
+                           1 / 0.2),
+                     maxit=1000, ndigit=12, sstol=1e-11,
                      partol=1e-11)
     if debug:
         my_odr.set_iprint(final=1)
@@ -1273,6 +1285,8 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         print("average intensity per image in the primary beam: %.1f" % avg)
 
     for i in range(Npoints):
+        if debug and i == 0:
+            print("angle1, angle2, cen1, cen2")
         img = ccdimages[i]
         if ((numpy.sum(img) > cut_off * avg) or
                 (numpy.all(hkls[i] != (0, 0, 0)))):
@@ -1346,6 +1360,8 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
 
     startparam = start[:2] + (detrot,) + start[3:]
 
+    Ntot = Ntiltaz * Ntilt * Noffset
+    ict = 0
     for tiltazimuth in numpy.linspace(startparam[0] if fix[0] else 0, 360,
                                       Ntiltaz, endpoint=False):
         for tilt in numpy.linspace(startparam[1] if fix[1] else 0, 4, Ntilt):
@@ -1361,9 +1377,11 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
                 epslist.append(eps)
                 paramlist.append(param)
                 t2 = time.time()
-                print("%6.1f %6.2f %8.3f %8.3f %8.3f %7.2f %8.4f: "
+                print("%d/%d\t%6.1f %6.2f %8.3f %8.3f %8.3f %7.2f %8.4f: "
                       "%10.4e (%4.2f) (%5.2fsec)"
-                      % (start + (epslist[-1], epslist[-1] / epsmin, t2 - t1)))
+                      % ((ict, Ntot) + start +
+                         (epslist[-1], epslist[-1] / epsmin, t2 - t1)))
+                ict += 1
 
                 if epslist[-1] < epsmin:
                     print("************************")
@@ -2045,7 +2063,8 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
             return numpy.abs(p[1]) * \
                 numpy.cos(numpy.radians(phi - (p[0] % 360.))) + omega0
 
-    def errfunc(p, phi, om): return fitfunc(p, phi) - om
+    def errfunc(p, phi, om):
+        return fitfunc(p, phi) - om
 
     p1, success = optimize.leastsq(errfunc, p0, args=(a, om), maxfev=10000)
     if config.VERBOSITY >= config.INFO_ALL:
