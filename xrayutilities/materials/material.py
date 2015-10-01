@@ -583,7 +583,7 @@ class Material(object):
 
     def StructureFactor(self, q, en="config", temp=0):
         """
-        caluclates the structure factor of a material
+        calculates the structure factor of a material
         for a certain momentum transfer and energy
         at a certain temperature of the material
 
@@ -649,7 +649,7 @@ class Material(object):
 
     def StructureFactorForEnergy(self, q0, en, temp=0):
         """
-        caluclates the structure factor of a material
+        calculates the structure factor of a material
         for a certain momentum transfer and a bunch of energies
 
         Parameter
@@ -729,7 +729,7 @@ class Material(object):
 
     def StructureFactorForQ(self, q, en0="config", temp=0):
         """
-        caluclates the structure factor of a material
+        calculates the structure factor of a material
         for a bunch of momentum transfers and a certain energy
 
         Parameter
