@@ -1,3 +1,5 @@
+* add Carbon(diamond), HOPG materials
+* enhancement in FIO file parser
 * much improved TIFF file parser
 * IntensityNormalizer gained possibility to normalize CCD data
 
