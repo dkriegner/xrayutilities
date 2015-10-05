@@ -30,6 +30,11 @@ from .. import config
 # PLEASE use N/m^2 as unit for cij for newly entered material ( 1 dyn/cm^2 =
 # 0.1 N/m^2 = 0.1 GPa)
 # Use Kelvin as unit for the Debye temperature
+# ref http://www.semiconductors.co.uk/propiviv5431.htm
+C = Material("C", lattice.DiamondLattice(elements.C, 3.5668),
+              CubicElasticTensor(1.0764e12, 0.125e12, 0.577e12))
+C_HOPG = Material('HOPG',lattice.GeneralPrimitiveLattice(2.4612, 2.4612,
+                                                         6.7079, 90, 90, 120))
 Si = Material("Si", lattice.DiamondLattice(elements.Si, 5.43104),
               CubicElasticTensor(165.77e+9, 63.93e+9, 79.62e+9),
               thetaDebye=640)
