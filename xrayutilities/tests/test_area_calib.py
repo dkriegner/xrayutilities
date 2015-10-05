@@ -84,13 +84,13 @@ ccdfile = os.path.join(datadir, name, name + "_%05d_eiger",
 fullfilename = ccdfile % (2, 2, 104)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename) or True,  # skip by default!
+@unittest.skipIf(not os.path.isfile(fullfilename) or False,  # skip by default!
                  "additional test data needed -> ask the authors")
 class TestCCD_Normalizer(unittest.TestCase):
     en = 10000.0  # x-ray energy in eV
     roi = (551, 1065, 0, 1030)  # get data of the good part of the detector
     hkls = ((0, 0, 0), (0, 0, 0), (0, 0, 4), (0, 0, 4), (0, 0, 2), (0, 0, 2))
-    step = 16  # take only every 8'th point
+    step = 8  # take only every 8'th point
     slices = (numpy.s_[108::step], numpy.s_[::step],
               numpy.s_[57::step], numpy.s_[::step],
               numpy.s_[56:95:step], numpy.s_[::step])
@@ -122,9 +122,9 @@ class TestCCD_Normalizer(unittest.TestCase):
 
         # start calibration
         param, eps = xu.analysis.sample_align.area_detector_calib(
-            ang1, ang2, detdata, ['z-', 'y-'], 'x+',
-            start=(125.2, 5.23, 0, 2.7),
-            fix=(True, True, False, False),
+            ang1, ang2, detdata, ['z+', 'y-'], 'x+',
+            start=(0, 0, 0, 0),
+            fix=(False, False, False, False),
             debug=False, plot=False)
 
         self.assertTrue(True)
@@ -146,7 +146,10 @@ class TestCCD_Normalizer(unittest.TestCase):
                 fname = ccdfile % (scannr, scannr, nr)
                 intensity[i] = getimage(fname, self.hotpixelmap, roi=self.roi)
 
-            sang = numpy.concatenate((sang, om[sl]))
+            if scanhkl == (0, 0, 0):
+                sang = numpy.concatenate((sang, (0,)*len(angles[sl])))
+            else:
+                sang = numpy.concatenate((sang, om[sl]))
             ang1 = numpy.concatenate((ang1, tth[sl]))
             ang2 = numpy.concatenate((ang2, tt[sl]))
             detdata = numpy.concatenate((detdata, intensity))
@@ -154,15 +157,15 @@ class TestCCD_Normalizer(unittest.TestCase):
 
         # start calibration
         GaAs = xu.materials.GaAs
-        qconv = xu.experiment.QConversion(['z+', 'y-', 'x+', 'z+'],
-                                          ['z-', 'y-'], [1, 0, 0])
+        qconv = xu.experiment.QConversion(['z+', 'y-', 'x+', 'z-'],
+                                          ['z+', 'y-'], [1, 0, 0])
         hxrd = xu.HXRD(GaAs.Q(1, 1, 0), GaAs.Q(0, 0, 1),
                        en=self.en, qconv=qconv)
 
         param, eps = xu.analysis.sample_align.area_detector_calib_hkl(
             sang, ang1, ang2, detdata, imghkl, hxrd, GaAs,
-            ['z-', 'y-'], 'x+',
-            start=(0, 0, -0.3, 0, 0, 0, xu.en2lam(self.en)),
+            ['z+', 'y-'], 'x+',
+            start=(0, 0, 0, 0, 0, 0, xu.en2lam(self.en)),
             fix=(False, False, False, False, False, False, False),
             debug=False, plot=False)
 
