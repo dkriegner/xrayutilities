@@ -440,7 +440,7 @@ def get_omega_scan_q(qx, qz, intensity, qxcenter, qzcenter,
       lam:      wavelength for use in the conversion to angular coordinates
       relative: determines if absolute or relative omega positions are returned
                 (default: True)
-      bounds:   flag to specify if the scan bounds should be returne;
+      bounds:   flag to specify if the scan bounds should be returned;
                 (default: False)
 
     Returns
