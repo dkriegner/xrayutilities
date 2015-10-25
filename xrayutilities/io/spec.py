@@ -964,6 +964,9 @@ def geth5_scan(h5f, scans, *args, **kwargs):
      **kwargs (optional):
        samplename:  string with the hdf5-group containing the scan data
                     if ommited the first child node of h5f.root will be used
+       rettype:     how to return motor positions. by default a list of arrays
+                    is returned. when rettype == 'numpy' a record array will
+                    be returned.
 
     Returns
     -------
@@ -1027,10 +1030,21 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                     h5scan.attrs["INIT_MOPO_%s" % makeNaturalName(motname)]
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
-    retval = []
-    for motname in args:
-        # create return values in correct order
-        retval.append(angles[motname])
+    # create return values in correct order
+    def create_retval():
+        retval = []
+        for motname in args:
+            retval.append(angles[motname])
+        return retval
+
+    if "rettype" in kwargs:
+        if kwargs['rettype'] == 'numpy':
+            retval = numpy.core.records.fromarrays([angles[m] for m in args],
+                                                   names=args)
+        else:
+            retval = create_retval()
+    else:
+        retval = create_retval()
 
     if len(args) == 0:
         return MAP
@@ -1038,7 +1052,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
         return retval, MAP
 
 
-def getspec_scan(specf, scans, *args):
+def getspec_scan(specf, scans, *args, **kwargs):
     """
     function to obtain the angular cooridinates as well as intensity values
     saved in a SPECFile. Especially useful to combine the data from multiple
@@ -1054,6 +1068,10 @@ def getspec_scan(specf, scans, *args):
               list)
 
      *args:   names of the motors and counters (strings)
+     keyword arguments:
+      rettype:     how to return motor positions. by default a list of arrays
+                   is returned. when rettype == 'numpy' a record array will
+                   be returned.
 
     Returns
     -------
@@ -1104,9 +1122,20 @@ def getspec_scan(specf, scans, *args):
                                         % makeNaturalName(motname)])
             angles[motname] = numpy.concatenate((angles[motname], buf))
 
-    retval = []
-    for motname in args:
-        # create return values in correct order
-        retval.append(angles[motname])
+    # create return values in correct order
+    def create_retval():
+        retval = []
+        for motname in args:
+            retval.append(angles[motname])
+        return retval
+
+    if "rettype" in kwargs:
+        if kwargs['rettype'] == 'numpy':
+            retval = numpy.core.records.fromarrays([angles[m] for m in args],
+                                                   names=args)
+        else:
+            retval = create_retval()
+    else:
+        retval = create_retval()
 
     return retval
