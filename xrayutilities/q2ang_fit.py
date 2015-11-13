@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Module provides functions to convert a q-vector from reciprocal space to
@@ -36,6 +36,7 @@ import numpy
 import numbers
 
 from . import config
+from . import math
 from .exception import InputError
 
 
@@ -99,8 +100,30 @@ def _errornorm_q2ang(angles, qvec, hxrd, U=numpy.identity(3)):
     return dq
 
 
+def exitAngleConst(angles, alphaf, hxrd):
+    """
+    helper function for an pseudo-angle constraint for the Q2AngFit-routine.
+
+    Parameters
+    ----------
+     angles:    fit parameters of Q2AngFit
+     alphaf:    the exit angle which should be fixed
+     hxrd:      the Experiment object to use for qconversion
+    """
+    qconv = hxrd._A2QConversion
+    # calc kf
+    detangles = [a for a in angles[-len(qconv.detectorAxis):]]
+    kf = qconv.getDetectorPos(*detangles)
+    if numpy.linalg.norm(kf) == 0:
+        af = 0
+    else:
+        ndirlab = qconv.transformSample2Lab(hxrd.Transform(hxrd.ndir), *angles)
+        af = 90 - math.VecAngle(kf, ndirlab, deg=True) - alphaf
+    return af
+
+
 def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
-             startvalues=None):
+             startvalues=None, constraints=()):
     """
     Functions to convert a q-vector from reciprocal space to angular space.
     This implementation uses scipy optimize routines to perform a fit for a
@@ -127,6 +150,11 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
       startvalues:  start values for the fit, which can significantly speed up
                     the conversion. The number of values must correspond to the
                     number of angles in the goniometer of the expclass
+      constraints:  sequence of constraint dictionaries. This allows applying
+                    arbitrary (e.g. pseudo-angle) contraints by supplying
+                    according constraint functions. (see
+                    scipy.optimize.minimize). The supplied function will be
+                    called with the arguments (angles, qvec, Experiment, U).
 
     Returns
     -------
@@ -147,6 +175,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     # generate starting position for optimization
     if startvalues is None:
         start = numpy.zeros(nangles)
+        start[-1] = expclass.Q2Ang(qvec, trans=False)[-1]
     else:
         start = startvalues
 
@@ -159,29 +188,32 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         raise ValueError("XU.Q2AngFit: number of specified bounds invalid")
 
     # perform optimization
-    x, nfun, errcode = scipy.optimize.fmin_tnc(
-        _errornorm_q2ang, start, args=(qvec, expclass, ormat),
-        bounds=_makebounds(bounds), approx_grad=True, maxfun=1000, disp=False)
+    res = scipy.optimize.minimize(_errornorm_q2ang, start,
+                                  args=(qvec, expclass, ormat),
+                                  method='SLSQP', bounds=_makebounds(bounds),
+                                  constraints=constraints,
+                                  options={'maxiter': 1000})
+    x, errcode = (res.x, res.status)
 
     qerror = _errornorm_q2ang(x, qvec, expclass, ormat)
-    if qerror >= 1e-6:
+    if qerror >= 1e-7:
         if config.VERBOSITY >= config.DEBUG:
             print("XU.Q2AngFit: info: need second run")
         # make a second run
-        x, nfun, errcode = scipy.optimize.fmin_tnc(
-            _errornorm_q2ang, x, args=(qvec, expclass, ormat),
-            bounds=_makebounds(bounds), approx_grad=True,
-            maxfun=1000, disp=False)
+        res = scipy.optimize.minimize(_errornorm_q2ang, start,
+                                      args=(qvec, expclass, ormat),
+                                      method='SLSQP',
+                                      bounds=_makebounds(bounds),
+                                      constraints=constraints,
+                                      tol=config.EPSILON,
+                                      options={'maxiter': 1000})
+        x, errcode = (res.x, res.status)
 
     qerror = _errornorm_q2ang(x, qvec, expclass, ormat)
-    if config.VERBOSITY >= config.DEBUG:
+    if ((config.VERBOSITY >= config.DEBUG) or (qerror > 10*config.EPSILON and
+                                               config.VERBOSITY >=
+                                               config.INFO_LOW)):
         print("XU.Q2AngFit: q-error=%.4g with error-code %d (%s)"
-              % (qerror, errcode, scipy.optimize.tnc.RCSTRINGS[errcode]))
-
-    if (errcode >= 3 and
-            qerror > config.EPSILON and
-            config.VERBOSITY >= config.INFO_LOW):
-        print("xu.Q2AngFit: qerror=%.4g with error-code %d (%s)"
-              % (qerror, errcode, scipy.optimize.tnc.RCSTRINGS[errcode]))
+              % (qerror, errcode, res.message))
 
     return x, qerror, errcode

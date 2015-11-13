@@ -1182,6 +1182,52 @@ class QConversion(object):
             qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
             return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
 
+    def transformSample2Lab(self, vector, *args):
+        """
+        transforms a vector from the sample coordinate frame to the laboratory
+        coordinate system by applying the sample rotations from inner to outer
+        circle.
+
+        Parameters
+        ----------
+         vector:  vector to transform (sequence, list, numpy array)
+         *args:   goniometer angles (sample angles or full goniometer angles
+                  can be given. If more angles than the sample circles are
+                  given they will be ignored)
+
+        Returns
+        -------
+         rotated vector as numpy.array
+        """
+        rotvec = vector
+        for i in range(len(self.sampleAxis)-1, -1, -1):
+            a = args[i]
+            axis = self.sampleAxis[i]
+            rota = math.getVector(axis)
+            rotvec = math.rotarb(rotvec, rota, a)
+        return rotvec
+
+    def getDetectorPos(self, *args):
+        """
+        obtains the detector position vector by applying the detector arm
+        rotations.
+
+        Parameters
+        ----------
+         *args:   detector angles. Only detector arm angles as described by the
+                  detectorAxis attribute must be given.
+
+        Returns
+        -------
+         numpy array of length 3 with vector components of the detector
+         direction. The length of the vector is k.
+        """
+        detangles = [0, ]*len(self.sampleAxis) + [a for a in args]
+        ki = (2 * numpy.pi / self.wavelength *
+              self.r_i / numpy.linalg.norm(self.r_i))
+        kf = self.point(*detangles) + ki
+        return kf
+
 
 class Experiment(object):
 
