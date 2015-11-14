@@ -183,7 +183,9 @@ class FuzzyGridder2D(Gridder2D):
          data ............ numpy array of arbitrary shape with data values
         keyword arguments:
          width ........... width of one data point. If not given half the bin
-                           size will be used.
+                           size will be used. The width can be given as scalar
+                           if it is equal for both data dimensions, or as
+                           sequence of length 2.
         """
 
         for k in kwargs.keys():
@@ -206,8 +208,8 @@ class FuzzyGridder2D(Gridder2D):
             data = numpy.array(data)
 
         if x.size != y.size or y.size != data.size:
-            raise exception.InputError("XU.Gridder2D: size of given datasets "
-                                       "(x,y,data) is not equal!")
+            raise exception.InputError("XU.FuzzyGridder2D: size of given "
+                                       "datasets (x,y,data) is not equal!")
         x = x.reshape(x.size)
         y = y.reshape(y.size)
         data = data.reshape(data.size)
@@ -229,7 +231,7 @@ class FuzzyGridder2D(Gridder2D):
                 wy = wx
         else:
             wx = delta(self.xmin, self.xmax, self.nx) / 2.
-            wy = delta(self.xmin, self.xmax, self.nx) / 2.
+            wy = delta(self.ymin, self.ymax, self.ny) / 2.
         # remove normalize flag for C-code, normalization is always performed
         # in python
         flags = self.flags ^ 4
