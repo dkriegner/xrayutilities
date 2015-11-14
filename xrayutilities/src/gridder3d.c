@@ -15,7 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
- * Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013, 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
  *
  ******************************************************************************
  *
@@ -177,7 +177,7 @@ int gridder3d(double *x, double *y, double *z, double *data, unsigned int n,
     /* warn the user in case more than half the data points where out
      * of the gridding area */
     if (noutofbounds > n / 2) {
-        fprintf(stdout, "XU.Gridder2D(c): more than half of the datapoints "
+        fprintf(stdout, "XU.Gridder3D(c): more than half of the datapoints "
                 "out of the data range, consider regridding with extended "
                 "range!\n");
     }
