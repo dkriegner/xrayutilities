@@ -95,7 +95,7 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
     double dx = delta(xmin, xmax, nx);
     double fraction, dwidth; /* fuzzy fraction and data width */
 
-    unsigned int i, j; /* loop index */
+    unsigned int i, j; /* loop indices */
 
     /* initialize data if requested */
     if (!(flags & NO_DATA_INIT)) set_array(odata, nx, 0.);
@@ -104,7 +104,7 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
     if (norm == NULL) {
         gnorm = malloc(sizeof(double) * nx);
         if (gnorm == NULL) {
-            fprintf(stderr, "XU.Gridder1D(c): Cannot allocate memory for "
+            fprintf(stderr, "XU.FuzzyGridder1D(c): Cannot allocate memory for "
                             "normalization buffer!\n");
             return -1;
         }
@@ -113,8 +113,8 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
     }
     else {
         if (flags & VERBOSE) {
-            fprintf(stdout, "XU.Gridder1D(c): use user provided buffer for "
-                            "normalization data\n");
+            fprintf(stdout, "XU.FuzzyGridder1D(c): use user provided buffer "
+                            "for normalization data\n");
         }
         gnorm = norm;
     }
@@ -122,8 +122,8 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
     /* the master loop over all data points */
     dwidth = fuzzywidth / dx;
     if (flags & VERBOSE) {
-        fprintf(stdout, "XU.Gridder1D(c): fuzzyness: %f %f\n", fuzzywidth,
-                dwidth);
+        fprintf(stdout, "XU.FuzzyGridder1D(c): fuzzyness: %f %f\n",
+                fuzzywidth, dwidth);
     }
     for (i = 0; i < n; i++) {
         /* if data point is nan ignore it */
@@ -161,7 +161,7 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
     /* perform normalization */
     if (!(flags & NO_NORMALIZATION)) {
         if (flags & VERBOSE) {
-            fprintf(stdout, "XU.Gridder1D(c): perform normalization ...\n");
+            fprintf(stdout, "XU.FuzzyGridder1D(c): perform normalization\n");
         }
 
         for (i = 0; i < nx; i++) {
@@ -177,12 +177,12 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
     /* warn the user in case more than half the data points where out
      *  of the gridding area */
     if (noutofbounds > n / 2) {
-        fprintf(stdout, "XU.Gridder1D(c): more than half of the datapoints "
-                        "out of the data range, consider regridding with "
-                        "extended range!\n");
+        fprintf(stdout, "XU.FuzzyGridder1D(c): more than half of the "
+                        "datapoints out of the data range, consider regridding"
+                        " with extended range!\n");
     }
     else if (flags & VERBOSE) {
-        fprintf(stdout, "XU.Gridder1D(c): %d datapoints out of the data "
+        fprintf(stdout, "XU.FuzzyGridder1D(c): %d datapoints out of the data "
                         "range!\n", noutofbounds);
     }
 
