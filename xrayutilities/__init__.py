@@ -54,6 +54,7 @@ from .gridder import npyGridder1D
 from .gridder import Gridder1D
 from .gridder import FuzzyGridder1D
 from .gridder2d import Gridder2D
+from .gridder2d import FuzzyGridder2D
 from .gridder2d import Gridder2DList
 from .gridder3d import Gridder3D
 

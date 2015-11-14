@@ -16,7 +16,7 @@
 # Copyright (C) 2009-2010,2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -157,6 +157,86 @@ class Gridder2D(Gridder):
                                  self.xmin, self.xmax,
                                  self.ymin, self.ymax,
                                  self._gdata, self._gnorm, flags)
+
+
+class FuzzyGridder2D(Gridder2D):
+    """
+    An 2D binning class considering every data point to have a finite area.
+    If necessary one data point will be split fractionally over different
+    data bins. This is numerically more effort but represents better the
+    typical case of a experimental data, which do not represent a mathematical
+    point but have a finite size (e.g. X-ray data from a 2D detector or
+    reciprocal space maps measured with point/linear detector).
+
+    Currently only a rectangular area can be considered during the gridding.
+    """
+
+    def __call__(self, *args, **kwargs):
+        """
+        Perform gridding on a set of data. After running the gridder
+        the 'data' object in the class is holding the gridded data.
+
+        Parameters
+        ----------
+         x ............... numpy array of arbitrary shape with x positions
+         y ............... numpy array of arbitrary shape with y positions
+         data ............ numpy array of arbitrary shape with data values
+        keyword arguments:
+         width ........... width of one data point. If not given half the bin
+                           size will be used.
+        """
+
+        for k in kwargs.keys():
+            if k not in ['width']:
+                raise Exception("unknown keyword argument given: allowed is"
+                                "'width': specifiying fuzzy data size")
+
+        if not self.keep_data:
+            self.Clear()
+
+        x = args[0]
+        y = args[1]
+        data = args[2]
+
+        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
+            x = numpy.array(x)
+        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
+            y = numpy.array(y)
+        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
+            data = numpy.array(data)
+
+        if x.size != y.size or y.size != data.size:
+            raise exception.InputError("XU.Gridder2D: size of given datasets "
+                                       "(x,y,data) is not equal!")
+        x = x.reshape(x.size)
+        y = y.reshape(y.size)
+        data = data.reshape(data.size)
+
+        if not self.fixed_range:
+            # assume that with setting keep_data the user wants to call the
+            # gridder more often and obtain a reasonable result
+            self.dataRange(x.min(), x.max(), y.min(), y.max(), self.keep_data)
+
+        if 'width' in kwargs:
+            try:
+                l = len(kwargs['width'])
+            except:
+                l = 1
+            if l == 2:
+                wx, wy = kwargs['width']
+            else:
+                wx = kwargs['width']
+                wy = wx
+        else:
+            wx = delta(self.xmin, self.xmax, self.nx) / 2.
+            wy = delta(self.xmin, self.xmax, self.nx) / 2.
+        # remove normalize flag for C-code, normalization is always performed
+        # in python
+        flags = self.flags ^ 4
+        cxrayutilities.fuzzygridder2d(x, y, data, self.nx, self.ny,
+                                      self.xmin, self.xmax,
+                                      self.ymin, self.ymax,
+                                      self._gdata, self._gnorm, wx, wy, flags)
 
 
 class Gridder2DList(Gridder2D):

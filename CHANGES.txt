@@ -1,3 +1,5 @@
+* add FuzzyGridder2D class (see mailing-list for details)
+* add possibility of Pseudo-Angle (basically arbitrary contraints) to Q2AngFit
 * add Carbon(diamond), HOPG materials
 * enhancement in FIO file parser
 * much improved TIFF file parser

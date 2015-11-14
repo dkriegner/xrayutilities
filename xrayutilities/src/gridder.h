@@ -132,6 +132,44 @@ int gridder2d(double *x, double *y, double *data, unsigned int n,
               double ymin, double ymax,
               double *odata, double *norm, int flags);
 
+/*!
+\brief python interface function
+
+Python interface function for fuzzygridder2d. This function is virtually doing
+all the Python related stuff to run the fuzzygridder2d function.
+\param self reference to the module
+\param args function arguments
+\return return value of the function
+*/
+PyObject* pyfuzzygridder2d(PyObject *self, PyObject *args);
+
+/*---------------------------------------------------------------------------*/
+/*!
+\brief 2D single threaded fuzzy gridder
+
+\param x input x-values
+\param y input y-values
+\param data input data
+\param n number of input points
+\param nx number of steps in x-direction
+\param ny number of steps in y-direction
+\param xmin minimm along x-direction
+\param xmax maximum along x-direction
+\param ymin minimum along y-direction
+\param ymax maximum along y-direction
+\param odata output data
+\param norm normalization data
+\param wx fuzzy size of data along x-direction
+\param wy fuzzy size of data along y-direction
+\param flags control falgs
+*/
+int fuzzygridder2d(double *x, double *y, double *data, unsigned int n,
+                   unsigned int nx, unsigned int ny,
+                   double xmin, double xmax,
+                   double ymin, double ymax,
+                   double *odata, double *norm,
+                   double wx, double wy, int flags);
+
 /*---------------------------------------------------------------------------*/
 /*!
 \brief 3D gridder python interface function
