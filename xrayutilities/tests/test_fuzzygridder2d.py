@@ -51,7 +51,7 @@ class TestFuzzyGridder2D(unittest.TestCase):
             self.assertAlmostEqual(self.gridder.yaxis[i], self.axis[i],
                                    places=12)
 
-    def test_gridder2d_data(self):
+    def test_fuzzygridder2d_data(self):
         # test shape of data
         self.assertEqual(self.gridder.data.shape[0], self.n)
         self.assertEqual(self.gridder.data.shape[1], self.n)
@@ -68,22 +68,14 @@ class TestFuzzyGridder2D(unittest.TestCase):
                     n /= 2.
                 if abs(j - iy) > 0:
                     n /= 2.
-                if i < 0 or j < 0:
-                    if i < 0 and j < 0:
-                        idx1 = 0
-                        idx2 = 0
-                    elif i < 0:
-                        idx1 = 0
-                    elif j < 0:
-                        idx2 = 0
-                elif i >= self.n or j >= self.n:
-                    if i >= self.n and j >= self.n:
-                        idx1 = -1
-                        idx2 = -1
-                    elif i >= self.n:
-                        idx1 = -1
-                    elif j >= self.n:
-                        idx2 = -1
+                if i < 0:
+                    idx1 = 0
+                elif i >= self.n:
+                    idx1 = -1
+                if j < 0:
+                    idx2 = 0
+                elif j >= self.n:
+                    idx2 = -1
                 norm[idx1, idx2] += n
                 vg[idx1, idx2] = self.data
 

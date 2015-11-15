@@ -175,7 +175,52 @@ int fuzzygridder2d(double *x, double *y, double *data, unsigned int n,
 \brief 3D gridder python interface function
 
 Python interface function for gridder3d. This function is virtually doing all
-the Python related stuff to run gridder2d function.
+the Python related stuff to run gridder3d function.
+\param self reference to the module
+\param args function arguments
+\return return value of the function
+*/
+PyObject* pyfuzzygridder3d(PyObject *self, PyObject *args);
+
+/*---------------------------------------------------------------------------*/
+/*!
+\brief single threaded 3d gridder
+
+Gridder code rebinning scatterd data onto a regular grid in 3 dimensions.
+
+\param x pointer to x-coordinates of input data
+\param y pointer to y-coordinates of input data
+\param z pointer to z-coordinates of input data
+\param data pointer to input data
+\param n number of input points
+\param nx number of grid points along the x-direction
+\param ny number of grid points along the y-direction
+\param nz number of grid points along the z-direction
+\param xmin minimum value of x-axis on the grid
+\param xmax maximum value of x-axis on the grid
+\param ymin minimum value of y-axis on the grid
+\param ymax maximum value of y-axis on the grid
+\param zmin minimum value of z-axis on the grid
+\param zmax maximum value of z-axis on the grid
+\param odata pointer to grid data (output data)
+\param norm pointer to optional normalization from previous run
+\param wx fuzzy width parameter in x-direction
+\param wy fuzzy width parameter in y-direction
+\param wz fuzzy width parameter in z-direction
+\param flags gridder flags
+*/
+int fuzzygridder3d(double *x, double *y, double *z, double *data,
+                   unsigned int n, unsigned int nx, unsigned int ny,
+                   unsigned int nz, double xmin, double xmax, double ymin,
+                   double ymax, double zmin, double zmax, double *odata,
+                   double *norm, double wx, double wy, double wz, int flags);
+
+/*---------------------------------------------------------------------------*/
+/*!
+\brief 3D gridder python interface function
+
+Python interface function for gridder3d. This function is virtually doing all
+the Python related stuff to run gridder3d function.
 \param self reference to the module
 \param args function arguments
 \return return value of the function

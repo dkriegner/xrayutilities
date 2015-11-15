@@ -169,3 +169,93 @@ class Gridder3D(Gridder):
                                  self.ymin, self.ymax,
                                  self.zmin, self.zmax,
                                  self._gdata, self._gnorm, flags)
+
+
+class FuzzyGridder3D(Gridder3D):
+    """
+    An 3D binning class considering every data point to have a finite volume.
+    If necessary one data point will be split fractionally over different
+    data bins. This is numerically more effort but represents better the
+    typical case of a experimental data, which do not represent a mathematical
+    point but have a finite size.
+
+    Currently only a quader can be considered as volume during the gridding.
+    """
+
+    def __call__(self, x, y, z, data, **kwargs):
+        """
+        Perform gridding on a set of data. After running the gridder
+        the 'data' object in the class is holding the gridded data.
+
+        Parameters
+        ----------
+         x ............... numpy array of arbitrary shape with x positions
+         y ............... numpy array of arbitrary shape with y positions
+         z ............... numpy array fo arbitrary shape with z positions
+         data ............ numpy array of arbitrary shape with data values
+        keyword arguments:
+         width ........... width of one data point. If not given half the bin
+                           size will be used. The width can be given as scalar
+                           if it is equal for all three dimensions, or as
+                           sequence of length 3.
+        """
+
+        for k in kwargs.keys():
+            if k not in ['width']:
+                raise Exception("unknown keyword argument given: allowed is"
+                                "'width': specifiying fuzzy data size")
+
+        if not self.keep_data:
+            self.Clear()
+
+        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
+            x = numpy.array(x)
+        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
+            y = numpy.array(y)
+        if isinstance(z, (list, tuple, numpy.float, numpy.int)):
+            z = numpy.array(z)
+        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
+            data = numpy.array(data)
+
+        x = x.reshape(x.size)
+        y = y.reshape(y.size)
+        z = z.reshape(z.size)
+        data = data.reshape(data.size)
+
+        if x.size != y.size or y.size != z.size or z.size != data.size:
+            raise exception.InputError("XU.FuzzyGridder3D: size of given "
+                                       "datasets (x,y,z,data) is not equal!")
+
+        if not self.fixed_range:
+            # assume that with setting keep_data the user wants to call the
+            # gridder more often and obtain a reasonable result
+            self.dataRange(x.min(), x.max(),
+                           y.min(), y.max(),
+                           z.min(), z.max(),
+                           self.keep_data)
+
+        if 'width' in kwargs:
+            try:
+                l = len(kwargs['width'])
+            except:
+                l = 1
+            if l == 3:
+                wx, wy, wz = kwargs['width']
+            else:
+                wx = kwargs['width']
+                wy = wx
+                wz = wx
+        else:
+            wx = delta(self.xmin, self.xmax, self.nx) / 2.
+            wy = delta(self.ymin, self.ymax, self.ny) / 2.
+            wz = delta(self.zmin, self.zmax, self.nz) / 2.
+
+        # remove normalize flag for C-code, normalization is always performed
+        # in python
+        flags = self.flags ^ 4
+        cxrayutilities.fuzzygridder3d(x, y, z, data, self.nx, self.ny, self.nz,
+                                      self.xmin, self.xmax,
+                                      self.ymin, self.ymax,
+                                      self.zmin, self.zmax,
+                                      self._gdata, self._gnorm,
+                                      wx, wy, wz, flags)

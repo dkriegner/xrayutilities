@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities is a Python package for assisting with x-ray diffraction
@@ -57,6 +57,7 @@ from .gridder2d import Gridder2D
 from .gridder2d import FuzzyGridder2D
 from .gridder2d import Gridder2DList
 from .gridder3d import Gridder3D
+from .gridder3d import FuzzyGridder3D
 
 from .utilities import maplog
 from .utilities import lam2en
