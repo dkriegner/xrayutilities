@@ -1,3 +1,4 @@
+* add FuzzyGridder3D class
 * add FuzzyGridder2D class (see mailing-list for details)
 * add possibility of Pseudo-Angle (basically arbitrary contraints) to Q2AngFit
 * add Carbon(diamond), HOPG materials
