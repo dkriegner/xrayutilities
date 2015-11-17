@@ -53,6 +53,7 @@ qx, qy, qz, gint, gridder = id01.gridmap(h5file, SCANNR, ccdfiletmp,
 # prepare data for export to VTK image file
 INT = xu.maplog(gint, 3.0, 0)
 
+# export variables qx, qy, qz, INT 
 qx0 = qx.min()
 dqx = (qx.max() - qx.min()) / nx
 
@@ -66,11 +67,18 @@ INT = numpy.transpose(INT).reshape((INT.size))
 data_array = numpy_support.numpy_to_vtk(INT)
 
 image_data = vtk.vtkImageData()
-image_data.SetNumberOfScalarComponents(1)
+
+if vtk.vtkVersion.GetVTKMajorVersion() < 6:
+    image_data.SetNumberOfScalarComponents(1)
+    image_data.SetScalarTypeToDouble()
+else:
+    vtkinfo = image_data.GetInformation()
+    image_data.SetPointDataActiveScalarInfo(vtkinfo, vtk.VTK_DOUBLE, 1)
+
 image_data.SetOrigin(qx0, qy0, qz0)
 image_data.SetSpacing(dqx, dqy, dqz)
 image_data.SetExtent(0, nx - 1, 0, ny - 1, 0, nz - 1)
-image_data.SetScalarTypeToDouble()
+
 
 pd = image_data.GetPointData()
 pd.SetScalars(data_array)
@@ -78,5 +86,9 @@ pd.SetScalars(data_array)
 # export data to file
 writer = vtk.vtkXMLImageDataWriter()
 writer.SetFileName("output.vti")
-writer.SetInput(image_data)
+if vtk.vtkVersion.GetVTKMajorVersion() < 6:
+    writer.SetInput(image_data)
+else:
+    writer.SetInputData(image_data)
+
 writer.Write()

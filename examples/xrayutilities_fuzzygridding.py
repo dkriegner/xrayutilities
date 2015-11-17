@@ -52,6 +52,7 @@ plt.figure(figsize=(12,6))
 MIN = 1
 MAX = 3e5
 plt.subplot(131)
+plt.title('Gridder2D')
 # data on a regular grid of 200x800 points
 gridder = xu.Gridder2D(200, 300)
 gridder(qy, qz, psd)
@@ -59,6 +60,7 @@ cf = plt.pcolormesh(gridder.xaxis, gridder.yaxis, gridder.data.T,
                     norm=LogNorm(MIN, MAX))
 
 plt.subplot(132)
+plt.title('FuzzyGridder2D')
 # data on a regular grid with FuzzyGridding
 gridder = xu.FuzzyGridder2D(200, 300)
 gridder(qy, qz, psd, width=(0.0008, 0.0003))
@@ -66,6 +68,7 @@ cf = plt.pcolormesh(gridder.xaxis, gridder.yaxis, gridder.data.T,
                     norm=LogNorm(MIN, MAX))
 
 plt.subplot(133)
+plt.title('pcolormesh')
 # using pcolor-variants
 npixel = 255
 qy.shape = (qy.size/npixel, npixel)
