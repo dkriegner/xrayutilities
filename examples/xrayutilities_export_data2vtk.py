@@ -53,7 +53,7 @@ qx, qy, qz, gint, gridder = id01.gridmap(h5file, SCANNR, ccdfiletmp,
 # prepare data for export to VTK image file
 INT = xu.maplog(gint, 3.0, 0)
 
-# export variables qx, qy, qz, INT 
+# export variables qx, qy, qz, INT
 qx0 = qx.min()
 dqx = (qx.max() - qx.min()) / nx
 
