@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2010-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
 /* ######################################
@@ -359,16 +359,13 @@ int print_vector(double *m) {
 
 int determine_detector_pixel(double *rpixel, char *dir, double dpixel,
                              double *r_i, double tilt) {
-    /* determine the direction of linear direction or one of the directions
-     * of an area detector.
-     * the function returns the vector containing the distance from one to
-     * the next pixel
-     * a tilt of the detector axis with respect to the coordinate axis can
-     * be considered as well! rotation of pixel direction around the
-     * crossproduct of primary beam and detector axis.
-     * this is mainly usefull for linear detectors, since the tilt of area
-     * detectors is handled different.
-     * */
+    /* determine the direction of a linear detector or one of the directions of
+     * an area detector.  the function returns the vector containing the
+     * distance from one to the next pixel a tilt of the detector axis with
+     * respect to the coordinate axis can be considered as well! rotation of
+     * pixel direction around the crossproduct of primary beam and detector
+     * axis.  this is mainly usefull for linear detectors, since the tilt of
+     * area detectors is handled different.  */
 
     double tiltaxis[3], tiltmat[9];
     unsigned int i;
@@ -3647,6 +3644,403 @@ PyObject* ang2q_conversion_area_sdtrans(PyObject *self, PyObject *args)
     Py_DECREF(UBArr);
     Py_DECREF(sampledisArr);
     Py_DECREF(lambdaArr);
+
+    /* return output array */
+    return PyArray_Return(qposArr);
+}
+
+/* ###########################################
+ *  detector position functions (incl. translations)
+ * ###########################################*/
+
+PyObject* ang2q_detpos(PyObject *self, PyObject *args)
+   /* conversion of Npoints of detector angles positions to vectorial position
+    * of the detector in real space for a setup with point detector and
+    * possible detector translations
+    *
+    *   Parameters
+    *   ----------
+    *    detectorAngles. angular positions of the detector goniometer
+    *                    (Npoints, Nd)
+    *    ri ............ direction of primary beam (length specifies distance
+    *                    of the detector)
+    *    detectorAxis .. string with detector axis directions
+    *    nthreads ...... number of threads to use in parallel section of the
+    *                    code
+    *
+    *   Returns
+    *   -------
+    *    dpos .......... real space detector position (Npoints, 3)
+    *
+    *   */
+{
+    double rd[3];  /* local detector direction */
+    int i, j;  /* needed indices */
+    int Nd;  /* number of detector circles */
+    int Npoints;  /* number of angular positions */
+    unsigned int nthreads;  /* number of threads to use */
+    char *detectorAxis;  /* str with sample and detector axis */
+    /* c-array pointers for further usage */
+    double *detectorAngles, *ri, *qpos;
+    npy_intp nout[2];
+    /* arrays with function pointers to rotation matrix functions */
+    fp_rot *detectorRotation;
+
+    /* numpy arrays */
+    PyArrayObject *detectorAnglesArr = NULL, *riArr = NULL, *qposArr = NULL;
+
+    /* Python argument conversion code */
+    if (!PyArg_ParseTuple(args, "O!O!sI",
+                          &PyArray_Type, &detectorAnglesArr,
+                          &PyArray_Type, &riArr,
+                          &detectorAxis,
+                          &nthreads)) {
+        return NULL;
+    }
+
+    /* check Python array dimensions and types */
+    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
+                  "detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(riArr, 1, NPY_DOUBLE,
+                  "r_i must be a 1D double array");
+    if (PyArray_SIZE(riArr) != 3) {
+        PyErr_SetString(PyExc_ValueError, "r_i needs to be of length 3");
+        return NULL;
+    }
+
+    Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
+
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    ri = (double *) PyArray_DATA(riArr);
+
+    /* create output ndarray */
+    nout[0] = Npoints;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr);
+
+    #ifdef __OPENMP__
+    /* set openmp thread numbers dynamically */
+    OMPSETNUMTHREADS(nthreads);
+    #endif
+
+    /* arrays with function pointers to rotation matrix functions */
+    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
+
+    /* determine axes directions */
+    if (determine_axes_directions_apply(detectorRotation,
+                                        detectorAxis, Nd) != 0) {
+        return NULL;
+    }
+
+    /* calculate rotation matices and perform rotations */
+    #pragma omp parallel for default(shared) \
+            private(i, j, rd) schedule(static)
+    for (i = 0; i < Npoints; ++i) {
+        /* determine detector rotations */
+        veccopy(rd, ri);
+        for (j = Nd - 1; j >= 0; --j) {
+            detectorRotation[j](detectorAngles[Nd * i + j], rd);
+        }
+        veccopy(&qpos[3 * i], rd);
+    }
+
+    /* clean up */
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(riArr);
+
+    /* return output array */
+    return PyArray_Return(qposArr);
+}
+
+
+PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args)
+   /* conversion of Npoints of detector angles to real space detector
+    * positions for a linear detector with a given pixel size mounted
+    * along one of the coordinate axis, and translation motors on the
+    * detector arm
+    *
+    *   Parameters
+    *   ----------
+    *   detectorAngles .. angular positions of the detector goniometer
+    *                     (Npoints, Nd)
+    *   rcch ............ direction + distance of center channel (angles zero)
+    *   detectorAxis .... string with detector axis directions
+    *   cch ............. center channel of the detector
+    *   dpixel .......... width of one pixel, same unit as distance rcch
+    *   roi ............. region of interest of the detector
+    *   dir ............. direction of the detector, e.g.: "x+"
+    *   tilt ............ tilt of the detector direction from dir
+    *   nthreads ........ number of threads to use in parallel section of the
+    *                     code
+    *
+    *   Returns
+    *   -------
+    *   dpos ............ real space detector position (Npoints * Nch, 3)
+    *   */
+{
+    double rd[3], rpixel[3], rcchp[3];  /* detector position */
+    int i, j, k;  /* needed indices */
+    int Nd;  /* number of detector circles */
+    int Npoints;  /* number of angular positions */
+    int Nch;  /* number of channels in region of interest */
+    unsigned int nthreads;  /* number of threads to use */
+    double cch, dpixel, tilt;  /* detector parameters */
+    char *detectorAxis, *dir;  /* string with detector axis, and detector
+                                * direction */
+    double *detectorAngles, *rcch, *qpos;
+    int *roi;  /* region of interest integer array */
+    npy_intp nout[2];
+    fp_rot *detectorRotation;
+
+    /* numpy arrays */
+    PyArrayObject *detectorAnglesArr = NULL, *rcchArr = NULL,
+                  *roiArr = NULL, *qposArr = NULL;
+
+    /* Python argument conversion code */
+    if (!PyArg_ParseTuple(args, "O!O!sddO!sdI",
+                          &PyArray_Type, &detectorAnglesArr,
+                          &PyArray_Type, &rcchArr,
+                          &detectorAxis,
+                          &cch, &dpixel, &PyArray_Type, &roiArr,
+                          &dir, &tilt, &nthreads)) {
+        return NULL;
+    }
+
+    /* check Python array dimensions and types */
+    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
+                  "detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE,
+                  "rcch must be a 1D double array");
+    if (PyArray_SIZE(rcchArr) != 3) {
+        PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
+        return NULL;
+    }
+    PYARRAY_CHECK(roiArr, 1, NPY_INT32, "roi must be a 1D int array");
+    if (PyArray_SIZE(roiArr) != 2) {
+        PyErr_SetString(PyExc_ValueError, "roi must be of length 2");
+        return NULL;
+    }
+
+    Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
+
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    rcch = (double *) PyArray_DATA(rcchArr);
+    roi = (int *) PyArray_DATA(roiArr);
+
+    /* derived values from input parameters */
+    Nch = roi[1] - roi[0];  /* number of channels */
+
+    /* create output ndarray */
+    nout[0] = Npoints * Nch;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr);
+
+    #ifdef __OPENMP__
+    /* set openmp thread numbers dynamically */
+    OMPSETNUMTHREADS(nthreads);
+    #endif
+
+    /* arrays with function pointers to rotation matrix functions */
+    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
+
+    /* determine axes directions */
+    if (determine_axes_directions_apply(detectorRotation,
+                                        detectorAxis, Nd) != 0) {
+        return NULL;
+    }
+
+    /* determine detector pixel vector */
+    if (determine_detector_pixel(rpixel, dir, dpixel, rcch, tilt) != 0) {
+        return NULL;
+    }
+    for (k = 0; k < 3; ++k) {
+        rcchp[k] = rpixel[k] * cch;
+    }
+
+    /* calculate rotation matices and perform rotations */
+    #pragma omp parallel for default(shared) \
+            private(i, j, k, rd) schedule(static)
+    for (i = 0; i < Npoints; ++i) {
+        for (j = roi[0]; j < roi[1]; ++j) {
+            for (k = 0; k < 3; ++k) {
+                rd[k] = j * rpixel[k] - rcchp[k];
+            }
+            sumvec(rd, rcch);
+            /* determine detector rotations */
+            for (k = Nd - 1; k >= 0; --k) {
+                detectorRotation[k](detectorAngles[Nd * i + k], rd);
+            }
+
+            veccopy(&qpos[3 * (i * Nch + j - roi[0])], rd);
+        }
+    }
+
+    /* clean up */
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(rcchArr);
+    Py_DECREF(roiArr);
+
+    /* return output array */
+    return PyArray_Return(qposArr);
+}
+
+
+PyObject* ang2q_detpos_area(PyObject *self, PyObject *args)
+   /* conversion of Npoints of detector arm angles to real space position
+    * of the detector for an area detector with a given pixel size
+    * mounted along one of the coordinate axis including translation axis
+    * on the detector arm
+    *
+    *   Parameters
+    *   ----------
+    *   detectorAngles .. angular positions of the detector goniometer
+    *                     (Npoints, Nd)
+    *   rcch ............ direction + distance of center pixel (angles zero)
+    *   detectorAxis .... string with detector axis directions
+    *   cch1 ............ center channel of the detector
+    *   cch2 ............ center channel of the detector
+    *   dpixel1 ......... width of one pixel in first direction, same unit as
+    *                     distance rcch
+    *   dpixel2 ......... width of one pixel in second direction, same unit as
+    *                     distance rcch
+    *   roi ............. region of interest for the area detector
+    *                     [dir1min, dir1max, dir2min, dir2max]
+    *   dir1 ............ first direction of the detector, e.g.: "x+"
+    *   dir2 ............ second direction of the detector, e.g.: "z+"
+    *   tiltazimuth ..... azimuth of the tilt
+    *   tilt ............ tilt of the detector plane (rotation around axis
+    *                     normal to the direction
+    *                     given by the tiltazimuth
+    *   nthreads ........ number of threads to use in parallelization
+    *
+    *   Returns
+    *   -------
+    *   dpos ............ detector position vector (Npoints * Npix1 * Npix2, 3)
+    *   */
+{
+    double rd[3], rpixel1[3], rpixel2[3], rcchp[3];  /* detector position */
+    int i, j, j1, j2, k;  /* loop indices */
+    int idxh1, idxh2;  /* temporary index helper */
+    int Nd;  /* number of sample and detector circles */
+    int Npoints;  /* number of angular positions */
+    unsigned int nthreads;  /* number threads for OpenMP */
+    /* detector parameters */
+    double cch1, cch2, dpixel1, dpixel2, tilt, tiltazimuth;
+    /* string with detector axis, and detector direction */
+    char *detectorAxis, *dir1, *dir2;
+    double *detectorAngles, *rcch, *qpos;
+    int *roi;  /* region of interest integer array */
+    fp_rot *detectorRotation;
+    npy_intp nout[2];
+
+    /* numpy arrays */
+    PyArrayObject *detectorAnglesArr = NULL, *rcchArr = NULL,
+                  *roiArr = NULL, *qposArr = NULL;
+
+    /* Python argument conversion code */
+    if (!PyArg_ParseTuple(args, "O!O!sddddO!ssddI",
+                          &PyArray_Type, &detectorAnglesArr,
+                          &PyArray_Type, &rcchArr,
+                          &detectorAxis,
+                          &cch1, &cch2, &dpixel1, &dpixel2,
+                          &PyArray_Type, &roiArr,
+                          &dir1, &dir2, &tiltazimuth, &tilt,
+                          &nthreads)) {
+        return NULL;
+    }
+
+    /* check Python array dimensions and types */
+    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
+                  "detectorAngles must be a 2D double array");
+    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE,
+                  "rcch must be a 1D double array");
+    if (PyArray_SIZE(rcchArr) != 3) {
+        PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
+        return NULL;
+    }
+    PYARRAY_CHECK(roiArr, 1, NPY_INT32, "roi must be a 1D int array");
+    if (PyArray_SIZE(roiArr) != 4) {
+        PyErr_SetString(PyExc_ValueError, "roi must be of length 4");
+        return NULL;
+    }
+
+    Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
+    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
+
+    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
+    rcch = (double *) PyArray_DATA(rcchArr);
+    roi = (int *) PyArray_DATA(roiArr);
+
+    /* calculate some index shortcuts */
+    idxh1 = (roi[1] - roi[0]) * (roi[3] - roi[2]);
+    idxh2 = roi[3] - roi[2];
+
+    /* create output ndarray */
+    nout[0] = Npoints * idxh1;
+    nout[1] = 3;
+    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    qpos = (double *) PyArray_DATA(qposArr);
+
+    #ifdef __OPENMP__
+    /* set openmp thread numbers dynamically */
+    OMPSETNUMTHREADS(nthreads);
+    #endif
+
+    /* arrays with function pointers to rotation matrix functions */
+    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
+
+    /* determine axes directions */
+    if (determine_axes_directions_apply(detectorRotation,
+                                        detectorAxis, Nd) != 0) {
+        return NULL;
+    }
+
+    /* determine detector pixel vector */
+    if (determine_detector_pixel(rpixel1, dir1, dpixel1, rcch, 0.) != 0) {
+        return NULL;
+    }
+    if (determine_detector_pixel(rpixel2, dir2, dpixel2, rcch, 0.) != 0) {
+        return NULL;
+    }
+
+    /* rotate detector pixel vectors according to tilt */
+    tilt_detector_axis(tiltazimuth, tilt, rpixel1, rpixel2);
+
+    /* calculate center channel position in detector plane */
+    for (k = 0; k < 3; ++k) {
+        rcchp[k] = rpixel1[k] * cch1 + rpixel2[k] * cch2;
+    }
+
+    /* calculate rotation matices and perform rotations */
+    #pragma omp parallel for default(shared) \
+            private(i, j, j1, j2, k, rd) schedule(static)
+    for (i = 0; i < Npoints; ++i) {
+        for (j1 = roi[0]; j1 < roi[1]; ++j1) {
+            for (j2 = roi[2]; j2 < roi[3]; ++j2) {
+                for (k = 0; k < 3; ++k) {
+                    rd[k] = j1 * rpixel1[k] + j2 * rpixel2[k] - rcchp[k];
+                }
+                sumvec(rd, rcch);
+                /* apply detector rotations/translations, starting with the
+                 * inner most */
+                for (j = Nd - 1; j >= 0; --j) {
+                    detectorRotation[j](detectorAngles[Nd * i + j], rd);
+                }
+
+                veccopy(&qpos[3 * (i * idxh1 + idxh2 * (j1 - roi[0]) +
+                              (j2 - roi[2]))], rd);
+            }
+        }
+    }
+
+    /* clean up */
+    Py_DECREF(detectorAnglesArr);
+    Py_DECREF(rcchArr);
+    Py_DECREF(roiArr);
 
     /* return output array */
     return PyArray_Return(qposArr);

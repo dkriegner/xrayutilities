@@ -1207,7 +1207,7 @@ class QConversion(object):
             rotvec = math.rotarb(rotvec, rota, a)
         return rotvec
 
-    def getDetectorPos(self, *args):
+    def getDetectorPos(self, *args, **kwargs):
         """
         obtains the detector position vector by applying the detector arm
         rotations.
@@ -1216,17 +1216,186 @@ class QConversion(object):
         ----------
          *args:   detector angles. Only detector arm angles as described by the
                   detectorAxis attribute must be given.
+         **kwargs: optional keyword arguments
+          dim:    dimension of the detector for which the position should be
+                  determined
+          roi:    region of interest for the detector pixels;
+                  (default: self._area_roi/self._linear_roi)
+          Nav:    number of channels to average to reduce data size;
+                  (default: self._area_nav/self._linear_nav)
+          deg:    flag to tell if angles are passed as degree (default: True)
 
         Returns
         -------
          numpy array of length 3 with vector components of the detector
          direction. The length of the vector is k.
         """
-        detangles = [0, ]*len(self.sampleAxis) + [a for a in args]
-        ki = (2 * numpy.pi / self.wavelength *
-              self.r_i / numpy.linalg.norm(self.r_i))
-        kf = self.point(*detangles) + ki
-        return kf
+
+        for k in kwargs.keys():
+            if k not in ['dim', 'deg', 'Nav', 'roi']:
+                raise Exception("unknown keyword argument given: allowed are "
+                                "'dim': dimensionality of the detector"
+                                "'deg': True if angles are in degrees, "
+                                "'Nav': number of channels for block-average, "
+                                "'roi': region of interest, ")
+
+        if 'dim' in kwargs:
+            dim = kwargs['dim']
+        else:
+            dim = 0
+
+        if dim == 1 and not self._linear_init:
+            raise Exception("QConversion: linear detector not initialized -> "
+                            "call Ang2Q.init_linear(...)")
+        elif dim == 2 and not self._area_init:
+            raise Exception("QConversion: area detector not initialized -> "
+                            "call Ang2Q.init_area(...)")
+
+        Ns = len(self.sampleAxis)
+        Nd = len(self.detectorAxis)
+        if self._area_detrotaxis_set:
+            Nd = Nd - 1
+        Ncirc = Ns + Nd
+
+        # kwargs
+        if 'deg' in kwargs:
+            deg = kwargs['deg']
+        else:
+            deg = True
+
+        if 'roi' in kwargs:
+            oroi = kwargs['roi']
+        else:
+            if dim == 1:
+                oroi = self._linear_roi
+            elif dim == 2:
+                oroi = self._area_roi
+
+        if 'Nav' in kwargs:
+            nav = kwargs['Nav']
+        else:
+            if dim == 1:
+                nav = self._linear_nav
+            elif dim == 2:
+                nav = self._area_nav
+
+        # prepare angular arrays from *args
+        # need one sample angle and one detector angle array
+        if len(args) != Nd:
+            raise InputError("QConversion: wrong amount (%d) of arguments "
+                             "given, number of arguments should be %d"
+                             % (len(args), Nd))
+
+        # determine the number of points and reshape input arguments
+        Npoints = self._checkInput(*args)
+
+        if dim == 2 and self._area_detrotaxis_set:
+            Nd = Nd + 1
+            if deg:
+                a = args + (numpy.degrees(self._area_detrot),)
+            else:
+                a = args + (self._area_detrot,)
+            dAngles, retshape = self._reshapeInput(
+                Npoints, numpy.append(numpy.zeros(Nd), 0),
+                self.detectorAxis, *a, deg=deg)
+        else:
+            dAngles, retshape = self._reshapeInput(Npoints, numpy.zeros(Nd),
+                                                   self.detectorAxis, *args,
+                                                   deg=deg)
+
+        dAngles = dAngles.transpose()
+
+        if dim == 2:
+            # initialize ccd geometry to for C subroutine (include Nav and roi
+            # possibility)
+            cch1 = self._area_cch1 / float(nav[0])
+            cch2 = self._area_cch2 / float(nav[1])
+            pwidth1 = self._area_pwidth1 * nav[0]
+            pwidth2 = self._area_pwidth2 * nav[1]
+            roi = numpy.array(oroi)
+            roi[0] = numpy.floor(oroi[0] / float(nav[0]))
+            roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav[0])) + roi[0]
+            roi[2] = numpy.floor(oroi[2] / float(nav[1]))
+            roi[3] = numpy.ceil((oroi[3] - oroi[2]) / float(nav[1])) + roi[2]
+            roi = roi.astype(numpy.int32)
+        elif dim == 1:
+            # initialize psd geometry to for C subprogram (include Nav and roi
+            # possibility)
+            cch = self._linear_cch / float(nav)
+            pwidth = self._linear_pixwidth * nav
+            # roi = numpy.ceil(numpy.array(roi)/float(nav)).astype(numpy.int32)
+            roi = numpy.array(oroi)
+            roi[0] = numpy.floor(oroi[0] / float(nav))
+            roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav)) + roi[0]
+            roi = roi.astype(numpy.int32)
+
+        dAxis = self._detectorAxis_str
+
+        if dim == 2:
+            cfunc = cxrayutilities.ang2q_detpos_area
+            dpos = cfunc(dAngles, self.r_i, dAxis, cch1, cch2, pwidth1,
+                         pwidth2, roi, self._area_detdir1, self._area_detdir2,
+                         self._area_tiltazimuth, self._area_tilt,
+                         config.NTHREADS)
+
+            # reshape output
+            if Npoints == 1:
+                dpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+                return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
+            else:
+                dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+                return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
+
+        elif dim == 1:
+            cfunc = cxrayutilities.ang2q_detpos_linear
+            dpos = cfunc(dAngles, self.r_i, dAxis, cch, pwidth, roi,
+                         self._linear_detdir, self._linear_tilt,
+                         config.NTHREADS)
+
+            # reshape output
+            if Npoints == 1:
+                dpos.shape = (Npoints * (roi[1] - roi[0]), 3)
+                return dpos[:, 0], dpos[:, 1], dpos[:, 2]
+            else:
+                dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+                return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
+
+        else:
+            cfunc = cxrayutilities.ang2q_detpos
+            dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
+
+            if Npoints == 1:
+                return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
+            else:
+                return numpy.reshape(dpos[:, 0], retshape),\
+                    numpy.reshape(dpos[:, 1], retshape),\
+                    numpy.reshape(dpos[:, 2], retshape)
+
+    def getDetectorDistance(self, *args, **kwargs):
+        """
+        obtains the detector distance by applying the detector arm movements.
+        This is especially interesting for the case of 1 or 2D detectors to
+        perform certain geometric corrections.
+
+        Parameters
+        ----------
+         *args:   detector angles. Only detector arm angles as described by the
+                  detectorAxis attribute must be given.
+         **kwargs: optional keyword arguments
+          dim:    dimension of the detector for which the position should be
+                  determined
+          roi:    region of interest for the detector pixels;
+                  (default: self._area_roi/self._linear_roi)
+          Nav:    number of channels to average to reduce data size;
+                  (default: self._area_nav/self._linear_nav)
+          deg:    flag to tell if angles are passed as degree (default: True)
+
+        Returns
+        -------
+         numpy array with the detector distance
+        """
+        x, y, z = self.getDetectorPos(*args, **kwargs)
+        return numpy.sqrt(x**2 + y**2 + z**2)
 
 
 class Experiment(object):

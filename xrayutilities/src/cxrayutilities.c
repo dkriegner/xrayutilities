@@ -61,6 +61,10 @@ extern PyObject* ang2q_conversion_linear_sdtrans(PyObject *self,
 extern PyObject* ang2q_conversion_area_trans(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_sdtrans(PyObject *self, PyObject *args);
 
+extern PyObject* ang2q_detpos(PyObject *self, PyObject *args);
+extern PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args);
+extern PyObject* ang2q_detpos_area(PyObject *self, PyObject *args);
+
 /* functions from file_io.c */
 extern PyObject* cbfread(PyObject *self, PyObject *args);
 
@@ -689,6 +693,79 @@ static PyMethodDef XRU_Methods[] = {
      "Returns\n"
      "-------\n"
      " qpos ............ momentum transfer (Npoints * Npix1 * Npix2, 3)\n"
+     "\n"
+    },
+    {"ang2q_detpos", ang2q_detpos, METH_VARARGS,
+     "conversion of Npoints of detector arm angles to real space position\n"
+     "for a setup with point detector\n"
+     "\n"
+     "Parameters\n"
+     "----------\n"
+     "  detectorAngles .. angular positions of the detector goniometer\n"
+     "                    (Npoints, Nd)\n"
+     "  ri .............. direction and distance of detector at zero angles\n"
+     "  detectorAxis .... string with detector axis directions\n"
+     "  nthreads ........ number of threads to use in parallel section of\n"
+     "                    the code\n"
+     "\n"
+     "Returns\n"
+     "-------\n"
+     " dpos .......... real space detector position (Npoints, 3)\n"
+    },
+    {"ang2q_detpos_linear", ang2q_detpos_linear, METH_VARARGS,
+     "conversion of Npoints of detector arm angles to real space\n"
+     "position for a linear detector\n"
+     "\n"
+     "Parameters\n"
+     "----------\n"
+     " detectorAngles .. angular positions of the detector goniometer\n"
+     "                   (Npoints, Nd)\n"
+     " rcch ............ direction + distance of center channel\n"
+     "                   (angles zero)\n"
+     " detectorAxis .... string with detector axis directions\n"
+     " cch ............. center channel of the detector\n"
+     " dpixel .......... width of one pixel, same unit as distance rcch\n"
+     " roi ............. region of interest of the detector\n"
+     " dir ............. direction of the detector, e.g.: 'x+'\n"
+     " tilt ............ tilt of the detector direction from dir\n"
+     " nthreads ........ number of threads to use in parallel section of\n"
+     "                   the code\n"
+     "\n"
+     "Returns\n"
+     "-------\n"
+     " dpos ............ real space detector position (Npoints * Nch, 3)\n"
+     " \n"
+    },
+    {"ang2q_detpos_area", ang2q_detpos_area, METH_VARARGS,
+     "conversion of Npoints of detector arm angles to reciprocal space\n"
+     "position for an area detector with a given pixel size\n"
+     "\n"
+     "Parameters\n"
+     "----------\n"
+     "  detectorAngles .. angular positions of the detector goniometer\n"
+     "                    (Npoints, Nd)\n"
+     "  rcch ............ direction + distance of center pixel (angles zero)\n"
+     "  detectorAxis .... string with detector axis directions\n"
+     "  cch1 ............ center channel of the detector\n"
+     "  cch2 ............ center channel of the detector\n"
+     "  dpixel1 ......... width of one pixel in first direction, same unit\n"
+     "                    as distance rcch\n"
+     "  dpixel2 ......... width of one pixel in second direction, same unit\n"
+     "                    as distance rcch\n"
+     "  roi ............. region of interest for the area detector\n"
+     "                    [dir1min, dir1max, dir2min, dir2max]\n"
+     "  dir1 ............ first direction of the detector, e.g.: 'x+'\n"
+     "  dir2 ............ second direction of the detector, e.g.: 'z+'\n"
+     "  tiltazimuth ..... azimuth of the tilt\n"
+     "  tilt ............ tilt of the detector plane (rotation around axis\n"
+     "                    normal to the direction given by the tiltazimuth\n"
+     "  nthreads ........ number of threads to use in parallel section of\n"
+     "                    the code\n"
+     "\n"
+     "Returns\n"
+     "-------\n"
+     " dpos ............ real space detector position\n"
+     "                   (Npoints * Npix1 * Npix2, 3)\n"
      "\n"
     },
     {"cbfread", cbfread, METH_VARARGS,
