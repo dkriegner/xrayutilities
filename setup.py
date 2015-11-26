@@ -19,9 +19,11 @@
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 from distutils.fancy_getopt import FancyGetopt
+import glob
 import os.path
-import numpy
 import sys
+
+import numpy
 
 cliopts = []
 cliopts.append(("without-openmp", None, "build without OpenMP support"))
@@ -81,15 +83,7 @@ with open('README.txt') as f:
 
 extmodul = Extension(
     'xrayutilities.cxrayutilities',
-    sources=[os.path.join('xrayutilities', 'src', 'cxrayutilities.c'),
-             os.path.join('xrayutilities', 'src', 'gridder_utils.c'),
-             os.path.join('xrayutilities', 'src', 'gridder1d.c'),
-             os.path.join('xrayutilities', 'src', 'gridder2d.c'),
-             os.path.join('xrayutilities', 'src', 'block_average.c'),
-             os.path.join('xrayutilities', 'src', 'qconversion.c'),
-             os.path.join('xrayutilities', 'src', 'gridder3d.c'),
-             os.path.join('xrayutilities', 'src', 'file_io.c')
-             ],
+    sources=glob.glob(os.path.join('xrayutilities', 'src', '*.c')),
     define_macros=user_macros
     )
 
