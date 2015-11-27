@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2014-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import unittest
 
@@ -50,6 +50,17 @@ class TestQConversion(unittest.TestCase):
         for i in range(3):
             self.assertAlmostEqual(qout[i][0], self.hklsym[i], places=10)
             self.assertAlmostEqual(qout[i][1], self.hklsym[i], places=10)
+
+    def test_qconversion_detpos(self):
+        tt = numpy.random.rand(1) * 90
+        dpos = self.hxrd.Ang2Q.getDetectorPos(tt, dim=0)
+        dpos = numpy.asarray(dpos)
+        kf = dpos / numpy.linalg.norm(dpos) * self.hxrd.k0
+        ki = self.hxrd._A2QConversion.r_i / \
+            numpy.linalg.norm(self.hxrd._A2QConversion.r_i) * self.hxrd.k0
+        qout = self.hxrd.Ang2Q(0, tt)
+        for i in range(3):
+            self.assertAlmostEqual(qout[i], kf[i]-ki[i], places=10)
 
 
 if __name__ == '__main__':

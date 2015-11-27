@@ -1,3 +1,6 @@
+* new getDetectorPos/Distance routines in QConversion
+  This can be used for all types of detectors to determine their position and
+  distance for data normalization purposes
 * add FuzzyGridder3D class
 * add FuzzyGridder2D class (see mailing-list for details)
 * add possibility of Pseudo-Angle (basically arbitrary contraints) to Q2AngFit

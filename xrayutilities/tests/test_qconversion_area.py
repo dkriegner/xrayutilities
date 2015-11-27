@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2014-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import unittest
 
@@ -29,8 +29,11 @@ class TestQConversion(unittest.TestCase):
         cls.nch = (9, 13)
         cls.ncch1 = 4
         cls.ncch2 = 6
+        cls.distance = 0.5
+        cls.dpix = 50e-6
         cls.hxrd.Ang2Q.init_area('z+', 'x+', cls.ncch1, cls.ncch2,
-                                 cls.nch[0], cls.nch[1], 1.0, 50e-6, 50e-6)
+                                 cls.nch[0], cls.nch[1], cls.distance,
+                                 cls.dpix, cls.dpix)
         cls.hklsym = (0, 0, 4)
         cls.hklasym = (2, 2, 4)
 
@@ -62,6 +65,32 @@ class TestQConversion(unittest.TestCase):
                                    self.hklsym[i], places=10)
             self.assertAlmostEqual(q[1, self.ncch1, self.ncch2],
                                    self.hklsym[i], places=10)
+
+    def test_qconversion_area_detpos(self):
+        tt = numpy.random.rand(1) * 90
+        dpos = self.hxrd.Ang2Q.getDetectorPos(tt, dim=2)
+        dp = [p.flat for p in dpos]
+        ki = self.hxrd._A2QConversion.r_i / \
+            numpy.linalg.norm(self.hxrd._A2QConversion.r_i) * self.hxrd.k0
+        qout = self.hxrd.Ang2Q.area(0, tt)
+        J1, J2 = numpy.indices(qout[0].shape)
+        for j1, j2, x, y, z in zip(J1.flat, J2.flat, dp[0], dp[1], dp[2]):
+            vpos = numpy.asarray((x, y, z))
+            kf = vpos / numpy.linalg.norm(vpos) * self.hxrd.k0
+            for i in range(3):
+                self.assertAlmostEqual(qout[i][j1, j2], kf[i]-ki[i], places=10)
+
+    def test_qconversion_area_distance(self):
+        tt = numpy.random.rand(1) * 140
+        ddis = self.hxrd.Ang2Q.getDetectorDistance(tt, dim=2)
+        J1, J2 = numpy.indices(ddis.shape)
+        for j1, j2, d in zip(J1.flat, J2.flat, ddis.flat):
+            dpos = ((j1 - self.ncch1) * self.dpix,
+                    self.distance,
+                    (j2 - self.ncch2) * self.dpix)
+            dis = numpy.linalg.norm(dpos)
+            self.assertAlmostEqual(d, dis, places=10)
+
 
 if __name__ == '__main__':
     unittest.main()
