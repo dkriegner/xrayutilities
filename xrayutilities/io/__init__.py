@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .helper import xu_open
 from .helper import xu_h5open
@@ -53,6 +53,10 @@ from .fastscan import FastScanSeries
 from .panalytical_xml import XRDMLFile
 from .panalytical_xml import getxrdml_map
 from .panalytical_xml import getxrdml_scan
+
+from .rigaku_ras import RASScan
+from .rigaku_ras import RASFile
+from .rigaku_ras import getras_scan
 
 # parser for the alignment log file of the rotating anode
 from .rotanode_alignment import RA_Alignment
