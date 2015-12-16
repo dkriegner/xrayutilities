@@ -49,6 +49,7 @@ re_initmoponame = re.compile(r"^\*MEAS_COND_AXIS_NAME_INTERNAL")
 re_initmopovalue = re.compile(r"^\*MEAS_COND_AXIS_POSITION")
 re_datacount = re.compile(r"^\*MEAS_DATA_COUNT")
 
+
 class RASFile(object):
 
     """
@@ -68,7 +69,7 @@ class RASFile(object):
             self.full_filename = self.filename
         else:
             self.full_filename = os.path.join(path, self.filename)
-    
+
         self.scans = []
         self.Read()
 
@@ -105,7 +106,7 @@ class RASScan(object):
 
     Required constructor arguments:
     ------------------------------
-     filename:  file name of the data file 
+     filename:  file name of the data file
      pos:       seek position of the RAS_HEADER_START line
     """
 
@@ -164,7 +165,7 @@ class RASScan(object):
         for k in keys:
             self.init_mopo[keys[k]] = position[k]
         self.fid.seek(offset)
-        
+
     def _parse_data(self):
         line = self.fid.readline().decode('ascii', 'ignore')
         if re_datastart.match(line):

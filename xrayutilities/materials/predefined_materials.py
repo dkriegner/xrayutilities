@@ -189,7 +189,8 @@ Ir20Mn80 = Material(
 # materials defined from cif file
 try:
     Al2O3 = Material.fromCIF(os.path.join(__path__[0], "data", "Al2O3.cif"))
-    CuMnAs = Material.fromCIF(os.path.join(__path__[0], "data", "CuMnAs_tetragonal.cif"))
+    CuMnAs = Material.fromCIF(os.path.join(__path__[0], "data",
+                                           "CuMnAs_tetragonal.cif"))
 except:
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.materials: Warning: import of CIF "

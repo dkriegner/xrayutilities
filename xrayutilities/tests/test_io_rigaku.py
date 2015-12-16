@@ -47,7 +47,7 @@ class TestIO_Rigaku(unittest.TestCase):
         cls.rasfile = xu.io.RASFile(testfile, path=datadir)
         cls.sdata = cls.rasfile.scans[cls.scannr].data
         cls.motor, data = xu.io.getras_scan(testfile+'%s', '',
-                                               cls.motorname, path=datadir)
+                                            cls.motorname, path=datadir)
         cls.inte = data[cls.countername]
 
     def test_datashape_ras(self):
