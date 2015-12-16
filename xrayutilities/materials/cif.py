@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import re
 import numpy
@@ -32,6 +32,8 @@ re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)")
 re_atomx = re.compile(r"^\s*_atom_site_fract_x")
 re_atomy = re.compile(r"^\s*_atom_site_fract_y")
 re_atomz = re.compile(r"^\s*_atom_site_fract_z")
+re_uiso = re.compile(r"^\s*_atom_site_U_iso_or_equiv")
+re_atomocc = re.compile(r"^\s*_atom_site_occupancy")
 re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
 re_quote = re.compile(r"'")
@@ -145,20 +147,27 @@ class CIFFile(object):
                         if config.VERBOSITY >= config.DEBUG:
                             print('XU.material: symop-loop identified')
                         symop_loop = True
-                        loop_start = False
                         symop_idx = len(loop_labels) - 1
                     elif re_atom.match(line):  # start of atom position loop
                         if config.VERBOSITY >= config.DEBUG:
                             print('XU.material: atom position-loop identified')
                         atom_loop = True
                         alab_idx = len(loop_labels) - 1
+                        ax_idx = None
+                        ay_idx = None
+                        az_idx = None
+                        uiso_idx = None
+                        occ_idx = None
                     elif re_atomx.match(line):
                         ax_idx = len(loop_labels) - 1
                     elif re_atomy.match(line):
                         ay_idx = len(loop_labels) - 1
                     elif re_atomz.match(line):
                         az_idx = len(loop_labels) - 1
-                        loop_start = False
+                    elif re_uiso.match(line):
+                        uiso_idx = len(loop_labels) - 1
+                    elif re_atomocc.match(line):
+                        occ_idx = len(loop_labels) - 1
 
             elif re_emptyline.match(line):
                 loop_start = False
@@ -166,6 +175,7 @@ class CIFFile(object):
                 atom_loop = False
                 continue
             elif symop_loop:  # symmetry operation entry
+                loop_start = False
                 entry = shlex.split(line)[symop_idx]
                 if re_quote.match(line):
                     opstr = entry
@@ -177,12 +187,16 @@ class CIFFile(object):
                 opstr = re.sub(r"/([1-9])", r"/\1.", opstr)
                 self.symops.append(opstr)
             elif atom_loop:  # atom label and position
+                loop_start = False
                 asplit = line.split()
                 alabel = asplit[alab_idx]
                 apos = (floatconv(asplit[ax_idx]),
                         floatconv(asplit[ay_idx]),
                         floatconv(asplit[az_idx]))
-                self.atoms.append((alabel, apos))
+                occ = floatconv(asplit[occ_idx]) if occ_idx else 1
+                uiso = floatconv(asplit[uiso_idx]) if uiso_idx else 0
+                biso = 8 * numpy.pi**2 * uiso
+                self.atoms.append((alabel, apos, occ, biso))
 
     def SymStruct(self):
         """
@@ -212,7 +226,7 @@ class CIFFile(object):
                 if unique:
                     unique_pos.append(pos)
             element = getattr(elements, el)
-            self.unique_positions.append((element, unique_pos))
+            self.unique_positions.append((element, unique_pos, a[2], a[3]))
 
     def Lattice(self):
         """
@@ -220,10 +234,9 @@ class CIFFile(object):
         """
 
         lb = LatticeBase()
-        for atom in self.unique_positions:
-            element = atom[0]
-            for pos in atom[1]:
-                lb.append(element, pos)
+        for element, positions, occ, biso in self.unique_positions:
+            for pos in positions:
+                lb.append(element, pos, occ=occ, b=biso)
 
         # unit cell vectors
         ca = numpy.cos(numpy.radians(self.lattice_angles[0]))

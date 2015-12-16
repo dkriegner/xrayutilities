@@ -45,7 +45,6 @@ from .lattice import TetragonalIndiumLattice
 from .lattice import TetragonalTinLattice
 from .lattice import TrigonalR3mh
 from .lattice import CubicFm3mBaF2
-from .lattice import CuMnAsLattice
 from .lattice import PerovskiteTypeRhombohedral
 
 from . import elements
