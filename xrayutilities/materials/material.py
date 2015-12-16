@@ -14,8 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2012,2014-2015
-#               Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -443,9 +442,13 @@ class Material(object):
             pass
         else:
             raise TypeError("q must be a list or numpy array!")
+        qnorm = math.VecNorm(q)
 
         if en == "config":
             en = utilities.energy(config.ENERGY)
+
+        if polarization not in ('S', 'P'):
+            raise ValueError("polarization must be 'S':sigma or 'P': pi!")
 
         if self.lattice.base is None:
             return (0, 0)
@@ -467,7 +470,7 @@ class Material(object):
             if config.VERBOSITY >= config.DEBUG:
                 print("XU.materials.chih: DWF = exp(-W*q**2) W= %g"
                       % exponentf)
-            dwf = numpy.exp(-exponentf * math.VecNorm(q) ** 2)
+            dwf = numpy.exp(-exponentf * qnorm ** 2)
         else:
             dwf = 1.0
 
@@ -477,10 +480,10 @@ class Material(object):
         for a, p, o, b in self.lattice.base:
             r = self.lattice.GetPoint(p)
             if temp == 0:
-                dwf = numpy.exp(-b * math.VecNorm(q) ** 2 /
-                                (4 * numpy.pi) ** 2)
-            fr = numpy.real(a.f(q, en)) * o
-            fi = numpy.imag(a.f(q, en)) * o
+                dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
+            F = a.f(qnorm, en)
+            fr = numpy.real(F) * o
+            fi = numpy.imag(F) * o
             sr += fr * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
             si += fi * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
 
@@ -493,6 +496,10 @@ class Material(object):
         f = -lam ** 2 * r_e / (numpy.pi * self.lattice.UnitCellVolume())
         rchi = numpy.abs(f * sr)
         ichi = numpy.abs(f * si)
+        if polarization == 'P':
+            theta = numpy.arcsin(qnorm * utilities.en2lam(en) / (4*numpy.pi))
+            rchi *= numpy.cos(2 * theta)
+            ichi *= numpy.cos(2 * theta)
 
         return rchi, ichi
 
