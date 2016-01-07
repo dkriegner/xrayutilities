@@ -273,10 +273,14 @@ class TIFFRead(ImageReader):
 
         sf = self.imgtags.get('SampleFormat', 1)
         bs = self.imgtags.get('BitsPerSample', 1)
+        if isinstance(self.imgtags['StripOffsets'], numpy.ndarray):
+            hdrlen = self.imgtags['StripOffsets'][0]
+        else:
+            hdrlen = self.imgtags['StripOffsets']
         ImageReader.__init__(self,
                              self.imgtags['ImageLength'],
                              self.imgtags['ImageWidth'],
-                             hdrlen=self.imgtags['StripOffsets'],
+                             hdrlen=hdrlen,
                              dtype=tiffdtype[sf][bs],
                              byte_swap=False)
 
