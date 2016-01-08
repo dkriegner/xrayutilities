@@ -68,6 +68,14 @@ xrayutilities.io.pdcif module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.io.rigaku_ras module
+----------------------------------
+
+.. automodule:: xrayutilities.io.rigaku_ras
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.io.rotanode_alignment module
 ------------------------------------------
 

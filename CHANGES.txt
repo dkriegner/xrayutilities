@@ -1,3 +1,5 @@
+v1.2.1, 2016-01-08
+
 * Uiso parsing from CIF files for better structure factors
 * support for parsing Rigaku RAS files (Smartlab Guidance)
 * new getDetectorPos/Distance routines in QConversion
