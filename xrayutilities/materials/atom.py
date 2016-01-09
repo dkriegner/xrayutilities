@@ -9,7 +9,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module containing the Atom class which handles the database access for atomic
@@ -23,6 +23,13 @@ from . import __path__
 from . import database
 from .. import config
 from .. import utilities
+
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 _db = database.DataBase(os.path.join(__path__[0], "data", config.DBNAME))
 _db.Open()
@@ -62,21 +69,21 @@ class Atom(object):
         _db.SetMaterial(self.basename)
         return _db.GetF0(q, self.ostate)
 
-    def f1(self, en="config"):
-        if en == "config":
+    def f1(self, en='config'):
+        if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)
         return _db.GetF1(utilities.energy(en))
 
-    def f2(self, en="config"):
-        if en == "config":
+    def f2(self, en='config'):
+        if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)
         return _db.GetF2(utilities.energy(en))
 
-    def f(self, q, en="config"):
+    def f(self, q, en='config'):
         """
         function to calculate the atomic structure factor F
 

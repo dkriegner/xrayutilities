@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -35,6 +35,12 @@ from .. import math
 from .. import utilities
 from .. import config
 from ..exception import InputError
+
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
 
 numpy.seterr(divide='ignore', invalid='ignore')
 
@@ -353,7 +359,7 @@ class Material(object):
 
         return d
 
-    def delta(self, en="config"):
+    def delta(self, en='config'):
         """
         function to calculate the real part of the deviation of the
         refractive index from 1 (n=1-delta+i*beta)
@@ -372,7 +378,7 @@ class Material(object):
         # 1/(4pi*eps_0)*e^2/(m_e*c^2)
         r_e = 2.8179402894e-15 * 1e10
 
-        if en == "config":
+        if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         lam = utilities.en2lam(en)
@@ -386,7 +392,7 @@ class Material(object):
             self.lattice.UnitCellVolume()
         return delta
 
-    def beta(self, en="config"):
+    def beta(self, en='config'):
         """
         function to calculate the imaginary part of the deviation
         of the refractive index from 1 (n=1-delta+i*beta)
@@ -405,7 +411,7 @@ class Material(object):
             (c.electron_mass * c.speed_of_light ** 2) * 1e10
         # angstrom (classical electron radius) r_e =
         # 1/(4pi*eps_0)*e^2/(m_e*c^2)
-        if en == "config":
+        if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         lam = utilities.en2lam(en)
@@ -418,7 +424,7 @@ class Material(object):
         beta *= r_e / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
         return beta
 
-    def chih(self, q, en="config", temp=0, polarization='S'):
+    def chih(self, q, en='config', temp=0, polarization='S'):
         """
         calculates the complex polarizability of a material for a certain
         momentum transfer and energy
@@ -444,7 +450,7 @@ class Material(object):
             raise TypeError("q must be a list or numpy array!")
         qnorm = math.VecNorm(q)
 
-        if en == "config":
+        if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         if polarization not in ('S', 'P'):
@@ -503,7 +509,7 @@ class Material(object):
 
         return rchi, ichi
 
-    def chi0(self, en="config"):
+    def chi0(self, en='config'):
         """
         calculates the complex chi_0 values often needed in simulations.
         They are closely related to delta and beta
@@ -528,7 +534,7 @@ class Material(object):
         n = 1. - self.delta(en) + 1.j * self.beta(en)
         return n
 
-    def critical_angle(self, en="config", deg=True):
+    def critical_angle(self, en='config', deg=True):
         """
         calculate critical angle for total external reflection
 
@@ -551,7 +557,7 @@ class Material(object):
 
         return alphac
 
-    def dTheta(self, Q, en="config"):
+    def dTheta(self, Q, en='config'):
         """
         function to calculate the refractive peak shift
 
@@ -566,7 +572,7 @@ class Material(object):
          deltaTheta: peak shift in degree
         """
 
-        if en == "config":
+        if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
         lam = utilities.en2lam(en)
         dth = numpy.degrees(
@@ -588,7 +594,7 @@ class Material(object):
 
         return ostr
 
-    def StructureFactor(self, q, en="config", temp=0):
+    def StructureFactor(self, q, en='config', temp=0):
         """
         calculates the structure factor of a material
         for a certain momentum transfer and energy
@@ -614,7 +620,7 @@ class Material(object):
         else:
             raise TypeError("q must be a list or numpy array!")
 
-        if en == "config":
+        if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         if self.lattice.base is None:
@@ -734,7 +740,7 @@ class Material(object):
 
         return s
 
-    def StructureFactorForQ(self, q, en0="config", temp=0):
+    def StructureFactorForQ(self, q, en0='config', temp=0):
         """
         calculates the structure factor of a material
         for a bunch of momentum transfers and a certain energy
@@ -766,7 +772,7 @@ class Material(object):
         for j in range(len(q)):
             qnorm[j] = numpy.linalg.norm(q[j])
 
-        if en0 == "config":
+        if isinstance(en0, basestring) and en0 == 'config':
             en0 = utilities.energy(config.ENERGY)
 
         if self.lattice.base is None:
