@@ -9,7 +9,7 @@ especially useful for the reciprocal space conversion of diffraction data
 taken with linear and area detectors.
 
 
-Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 

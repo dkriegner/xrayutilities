@@ -123,6 +123,7 @@ setup(
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Topic :: Scientific/Engineering :: Physics",
         "Intended Audience :: Science/Research",
         "Development Status :: 5 - Production/Stable",
