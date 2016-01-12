@@ -254,30 +254,30 @@ def _check_iparams(iparams, peaktype, background):
         return
     else:
         if not all(numpy.isreal(iparams)):
-            InputError("XU.math.peak_fit: all initial parameters need to be"
-                       " real!")
+            raise InputError("XU.math.peak_fit: all initial parameters need to"
+                             "be real!")
         elif peaktype in ('Gauss', 'Lorentz') and background == 'constant':
             if len(iparams) != 4:
-                InputError("XU.math.peak_fit: four initial parameters are "
-                           "needed for %s-peak with %s background."
-                           % (peaktype, background))
+                raise InputError("XU.math.peak_fit: four initial parameters "
+                                 "are needed for %s-peak with %s background."
+                                 % (peaktype, background))
         elif ((peaktype in ('Gauss', 'Lorentz') and background == 'linear') or
               (peaktype == 'PseudoVoigt' and background == 'constant')):
             if len(iparams) != 5:
-                InputError("XU.math.peak_fit: five initial parameters are "
-                           "needed for %s-peak with %s background."
-                           % (peaktype, background))
+                raise InputError("XU.math.peak_fit: five initial parameters "
+                                 "are needed for %s-peak with %s background."
+                                 % (peaktype, background))
         elif ((peaktype == 'PseudoVoigt' and background == 'linear') or
               (peaktype == 'PseudoVoigtAsym' and background == 'constant')):
             if len(iparams) != 6:
-                InputError("XU.math.peak_fit: six initial parameters are "
-                           "needed for %s-peak with %s background."
-                           % (peaktype, background))
+                raise InputError("XU.math.peak_fit: six initial parameters are"
+                                 " needed for %s-peak with %s background."
+                                 % (peaktype, background))
         elif peaktype == 'PseudoVoigtAsym' and background == 'linear':
             if len(iparams) != 7:
-                InputError("XU.math.peak_fit: seven initial parameters are "
-                           "needed for %s-peak with %s background."
-                           % (peaktype, background))
+                raise InputError("XU.math.peak_fit: seven initial parameters "
+                                 "are needed for %s-peak with %s background."
+                                 % (peaktype, background))
 
 
 def _guess_iparams(xdata, ydata, peaktype, background):

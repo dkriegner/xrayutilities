@@ -1,3 +1,6 @@
+* fwhm_exp function was moved to math's subpackage! This was necessary in
+  order to avoid circular dependencies, but anyhow the function also
+  fits better there!
 * improvements of peak_fit function
   - better ability to handle linear background
   - more stable fitting due to use of deriavitives (PseudoVoigt)
