@@ -37,20 +37,20 @@ class TestMathFunctions(unittest.TestCase):
         p = numpy.copy(self.p)
         p[1] = self.sigma
         f = xu.math.Gauss1d(self.x, *p)
-        fwhm = xu.analysis.fwhm_exp(self.x, f)
+        fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
 
     def test_lorentz1dwidth(self):
         p = numpy.copy(self.p)
         f = xu.math.Lorentz1d(self.x, *p)
-        fwhm = xu.analysis.fwhm_exp(self.x, f)
+        fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
 
     def test_pvoigt1dwidth(self):
         p = list(numpy.copy(self.p))
         p += [numpy.random.rand(1), ]
         f = xu.math.PseudoVoigt1d(self.x, *p)
-        fwhm = xu.analysis.fwhm_exp(self.x, f)
+        fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
 
     def test_gauss1darea(self):

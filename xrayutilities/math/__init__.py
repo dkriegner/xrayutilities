@@ -65,3 +65,5 @@ from .fit import multPeakFit
 from .fit import multPeakPlot
 from .fit import multGaussFit
 from .fit import multGaussPlot
+
+from .misc import fwhm_exp

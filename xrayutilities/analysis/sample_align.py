@@ -35,7 +35,7 @@ from scipy.ndimage.measurements import center_of_mass
 from .. import config
 from .. import math
 from .. import utilities
-from .line_cuts import fwhm_exp
+from ..math import fwhm_exp
 from ..exception import InputError
 from .. import cxrayutilities
 

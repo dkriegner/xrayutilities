@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities.analysis is a package for assisting with the analysis of
@@ -46,8 +46,6 @@ from .line_cuts import get_radial_scan_ang
 
 from .line_cuts import get_ttheta_scan_q
 from .line_cuts import get_ttheta_scan_ang
-
-from .line_cuts import fwhm_exp
 
 # functions from line_cuts3d.py
 from .line_cuts3d import get_qx_scan3d
