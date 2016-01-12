@@ -327,6 +327,68 @@ def PseudoVoigt1d(x, *p):
     return f
 
 
+def PseudoVoigt1d_der_x(x, *p):
+    """
+    function to calculate the derivative of a PseudoVoigt with respect to x
+
+    for parameter description see PseudoVoigt1d
+    """
+    if p[4] > 1.0:
+        pv = 1.0
+    elif p[4] < 0.:
+        pv = 0.0
+    else:
+        pv = p[4]
+
+    lp = numpy.copy(p)
+    lp[3] = 0
+    lp[1] = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
+
+    gdx = 2 * (p[0] - x) * Gauss1d(x, *lp)
+    ldx = 4 * (p[0] - x) * p[2] / p[1] / \
+        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2
+    return pv * ldx + (1 - pv) * gdx
+
+
+def PseudoVoigt1d_der_p(x, *p):
+    """
+    function to calculate the derivative of a PseudoVoigt with respect the
+    parameters p
+
+    for parameter description see PseudoVoigt1d
+    """
+
+    if p[4] > 1.0:
+        pv = 1.0
+    elif p[4] < 0.:
+        pv = 0.0
+    else:
+        pv = p[4]
+
+    lpg = numpy.copy(p)  # local parameters for gaussian
+    lpg[3] = 0
+    lpl = numpy.copy(lpg)  # local parameters for lorentzian
+    lpg[1] = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
+
+    rl = numpy.vstack((
+        4 * (x - p[0]) * p[2] / p[1] / (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
+        4 * (p[0] - x) * p[2] / p[1] ** 2 /
+        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
+        1 / (1 + (2 * (x - p[0]) / p[1]) ** 2)))
+
+    rg = numpy.vstack((-2 * (lpg[0] - x) * Gauss1d(x, *lpg),
+                      (lpg[0] - x) ** 2 / (2 * lpg[1] ** 3) * Gauss1d(x, *lpg),
+                      Gauss1d(x, *lpg) / lpg[2]))
+
+    r = pv * rl + (1 - pv) * rg
+    f = Lorentz1d(x, *lpl) + \
+        -  Gauss1d(x, *lpg)
+    r = numpy.vstack((r,
+                      numpy.ones(x.shape),
+                      Lorentz1d(x, *lpl) - Gauss1d(x, *lpg)))
+    return r
+
+
 def PseudoVoigt1dasym(x, *p):
     """
     function to calculate an asymmetric pseudo Voigt function as linear
