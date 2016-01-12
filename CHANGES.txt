@@ -1,3 +1,8 @@
+* improvements of peak_fit function
+  - better ability to handle linear background
+  - more stable fitting due to use of deriavitives (PseudoVoigt)
+* minor improvement in peak_fit's plotting
+
 v1.2.1, 2016-01-08
 
 * Uiso parsing from CIF files for better structure factors
@@ -20,7 +25,7 @@ v1.2.0, 2015-08-03
 * bug fixes/improvements in the file parsers (discovered by the unit tests!)
 * new unittests for file parsers (spec, edf, xrdml, esg, nja, fio, cbf, tif)
 * added different oxidation states of the chemical elements to the database
-* huge speed improvements for the database access, especially when querying 
+* huge speed improvements for the database access, especially when querying
   multiple values at the same time
 * add PseudoVoigtAsym option in xu.math.peakfit
 * memory usage optimization in FastScanCCD
