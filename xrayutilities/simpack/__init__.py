@@ -14,3 +14,14 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+"""
+simulation subpackage of xrayutilities.
+
+This package provides possibilities to simulation X-ray diffraction and
+reflectivity curves of thin film samples. It could be extended for more
+general use in future if there is demand for that.
+"""
+
+from .smaterials import SMaterial, MaterialList
+from .smaterials import Layer, LayerStack
+
