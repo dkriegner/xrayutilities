@@ -136,7 +136,8 @@ setup(
     maintainer_email="dominik.kriegner@gmail.com",
     packages=[
         "xrayutilities", "xrayutilities.math", "xrayutilities.io",
-        "xrayutilities.materials", "xrayutilities.analysis"
+        "xrayutilities.materials", "xrayutilities.analysis",
+        "xrayutilities.simpack"
         ],
     package_data={
         "xrayutilities": ["*.conf"],

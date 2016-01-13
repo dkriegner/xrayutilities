@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities is a Python package for assisting with x-ray diffraction
@@ -34,6 +34,7 @@ from . import math
 from . import io
 from . import materials
 from . import analysis
+from . import simpack
 
 from .experiment import Experiment
 from .experiment import HXRD
