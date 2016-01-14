@@ -47,7 +47,7 @@ om, tt, psd = xu.io.getxrdml_map(sample + '_%d.xrdml.bz2', 1,
 #############################################
 # three different visualization possibilities
 # plot the intensity as contour plot
-plt.figure(figsize=(12,6))
+plt.figure(figsize=(12, 6))
 
 MIN = 1
 MAX = 3e5
@@ -76,11 +76,11 @@ qz.shape = qy.shape
 psd.shape = qy.shape
 plt.pcolormesh(qy, qz, psd, norm=LogNorm(MIN, MAX))
 
-for i in range(1,4):
-    plt.subplot(1,3,i)
+for i in range(1, 4):
+    plt.subplot(1, 3, i)
     plt.xlabel(r'$Q_{[110]}$ ($\AA^{-1}$)')
     plt.ylabel(r'$Q_{[001]}$ ($\AA^{-1}$)')
-    plt.xlim(-0.13,0.13)
+    plt.xlim(-0.13, 0.13)
     plt.ylim(4.538, 4.654)
-    plt.xticks((-0.1,0.0,0.1))
+    plt.xticks((-0.1, 0.0, 0.1))
 plt.tight_layout()
