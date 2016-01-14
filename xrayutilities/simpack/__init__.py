@@ -25,3 +25,6 @@ general use in future if there is demand for that.
 from .smaterials import SMaterial, MaterialList
 from .smaterials import Layer, LayerStack
 
+from .models import Model, LayerModel
+from .models import KinematicalModel
+from .models import SpecularReflectivityModel
