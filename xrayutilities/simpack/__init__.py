@@ -17,9 +17,12 @@
 """
 simulation subpackage of xrayutilities.
 
-This package provides possibilities to simulation X-ray diffraction and
+This package provides possibilities to simulate X-ray diffraction and
 reflectivity curves of thin film samples. It could be extended for more
 general use in future if there is demand for that.
+
+In addition it provides a fitting routine for reflectivity data which is based
+on lmfit.
 """
 
 from .smaterials import SMaterial, MaterialList
@@ -28,3 +31,5 @@ from .smaterials import Layer, LayerStack
 from .models import Model, LayerModel
 from .models import KinematicalModel
 from .models import SpecularReflectivityModel
+
+from .fit import fit_xrr
