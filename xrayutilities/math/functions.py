@@ -114,6 +114,27 @@ def Gauss1d(x, *p):
     return g
 
 
+def NormGauss1d(x, *p):
+    """
+    function to calculate a normalized one dimensional Gaussian
+
+    Parameters
+    ----------
+     p:     list of parameters of the Gaussian
+            [XCEN,SIGMA]
+            for information: SIGMA = FWHM / (2*sqrt(2*log(2)))
+     x:     coordinate(s) where the function should be evaluated
+
+    Returns
+    -------
+    the value of the normalized Gaussian described by the parameters p
+    at position x
+    """
+    g = numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
+    a = numpy.sqrt(2 * numpy.pi) * p[1]
+    return g / a
+
+
 def Gauss1d_der_x(x, *p):
     """
     function to calculate the derivative of a Gaussian with respect to x
@@ -684,3 +705,18 @@ def multPeak2d(x, y, *args):
             raise ValueError('invalid function type given!')
 
     return f
+
+
+def heaviside(x):
+    """
+    Heaviside step function for numpy arrays
+
+    Parameters
+    ----------
+     x: any scalar of ndarray object
+
+    Returns
+    -------
+     s: Heaviside step function evaluated for all values of x
+    """
+    return numpy.sign(x)/2. + 0.5

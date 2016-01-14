@@ -38,6 +38,7 @@ from .functions import smooth
 from .functions import kill_spike
 from .functions import Debye1
 from .functions import Gauss1d
+from .functions import NormGauss1d
 from .functions import Gauss1d_der_x
 from .functions import Gauss1d_der_p
 from .functions import Gauss2d
@@ -56,6 +57,7 @@ from .functions import Lorentz1dArea
 from .functions import PseudoVoigt1dArea
 from .functions import multPeak1d
 from .functions import multPeak2d
+from .functions import heaviside
 
 from .fit import linregress
 from .fit import fit_peak2d
