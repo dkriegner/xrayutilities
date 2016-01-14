@@ -1652,10 +1652,10 @@ class Experiment(object):
         ----------
 
         **kwargs:       optional keyword arguments
-            B:          reciprocal space conversion matrix of a Material.  you
+            B:          reciprocal space conversion matrix of a Crystal. You
                         can specify the matrix B (default identiy matrix) shape
                         needs to be (3,3)
-            mat:        Material object to use to obtain a B matrix
+            mat:        Crystal object to use to obtain a B matrix
                         (e.g. xu.materials.Si) can be used as alternative to
                         the B keyword argument B is favored in case both are
                         given
@@ -1880,7 +1880,7 @@ class HXRD(Experiment):
          refrac:     boolean to determine if refraction is taken into account
                      default: False
                      if True then also a material must be given
-         mat:        Material object; needed to obtain its optical properties
+         mat:        Crystal object; needed to obtain its optical properties
                      for refraction correction, otherwise not used
          full_output:boolean to determine if additional output is given to
                      determine scattering angles more accurately in case
@@ -2532,20 +2532,20 @@ class Powder(Experiment):
 
     def __init__(self, mat, **keyargs):
         """
-        the class is initialized with xrayutilities.materials.Material instance
+        the class is initialized with xrayutilities.materials.Crystal instance
 
         Parameters
         ----------
-         mat:        xrayutilities.material.Material instance
+         mat:        xrayutilities.material.Crystal instance
                      giving the material for the experimental class
          keyargs:    optional keyword arguments
                      same as for the Experiment base class
         """
-        if isinstance(mat, materials.Material):
+        if isinstance(mat, materials.Crystal):
             self.mat = mat
         else:
             raise TypeError("mat must be an instance of class "
-                            "xrayutilities.materials.Material")
+                            "xrayutilities.materials.Crystal")
 
         # number of significant digits, needed to identify equal floats
         self.digits = 5

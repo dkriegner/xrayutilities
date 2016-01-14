@@ -18,7 +18,10 @@
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
-class module implements a certain material
+Classes decribing materials. Materials are devided with respect to their
+crystalline state in either Amorphous or Crystal types.  While for most
+materials their crystalline state is defined few materials are also included as
+amorphous which can be useful for calculation of their optical properties.
 """
 
 import copy
@@ -31,6 +34,7 @@ import numbers
 from . import lattice
 from . import elements
 from . import cif
+from .atom import Atom
 from .. import math
 from .. import utilities
 from .. import config
@@ -119,8 +123,12 @@ def Cijkl2Cij(cijkl):
 
 
 class Material(object):
-
-    def __init__(self, name, lat, cij=None, thetaDebye=None):
+    """
+    base class for all Materials. common properties of amorphous and
+    crystalline materials are described by this class from which Amorphous and
+    Crystal are derived from.
+    """
+    def __init__(self, name, cij=None):
         if cij is None:
             self.cij = numpy.zeros((6, 6), dtype=numpy.double)
         elif isinstance(cij, list):
@@ -131,31 +139,8 @@ class Material(object):
             raise TypeError("Elastic constants must be a list or numpy array!")
 
         self.name = name
-        self.lattice = lat
-        self.rlattice = lat.ReciprocalLattice()
         self.cijkl = Cij2Cijkl(self.cij)
         self.transform = None
-        if isinstance(thetaDebye, numbers.Number):
-            self.thetaDebye = float(thetaDebye)
-        else:
-            self.thetaDebye = thetaDebye
-
-    @classmethod
-    def fromCIF(cls, ciffilename):
-        """
-        Create a Material from a CIF file. Name and
-
-        Parameters
-        ----------
-         ciffilename:  filename of the CIF file
-
-        Returns
-        -------
-         Material instance
-        """
-        cf = cif.CIFFile(ciffilename)
-        lat = cf.Lattice()
-        return cls(cf.name, lat)
 
     def __getattr__(self, name):
         if name.startswith("c"):
@@ -185,6 +170,208 @@ class Material(object):
     def _getnu(self):
         return self.lam / 2. / (self.mu + self.lam)
 
+    mu = property(_getmu)
+    lam = property(_getlam)
+    nu = property(_getnu)
+
+    def delta(self, en='config'):
+        pass
+
+    def beta(self, en='config'):
+        pass
+
+    def chi0(self, en='config'):
+        """
+        calculates the complex chi_0 values often needed in simulations.
+        They are closely related to delta and beta
+        (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
+        """
+        return (-2 * self.delta(en) + 2j * self.beta(en))
+
+    def idx_refraction(self, en="config"):
+        """
+        function to calculate the complex index of refraction of a material
+        in the x-ray range
+
+        Parameter
+        ---------
+         en:    energy of the x-rays, if omitted the value from the
+                xrayutilities configuration is used
+
+        Returns
+        -------
+         n (complex)
+        """
+        n = 1. - self.delta(en) + 1.j * self.beta(en)
+        return n
+
+    def critical_angle(self, en='config', deg=True):
+        """
+        calculate critical angle for total external reflection
+
+        Parameter
+        ---------
+         en:    energy of the x-rays, if omitted the value from the
+                xrayutilities configuration is used
+         deg:   return angle in degree if True otherwise radians (default:True)
+
+        Returns
+        -------
+         Angle of total external reflection
+
+        """
+        rn = 1. - self.delta(en)
+
+        alphac = numpy.arccos(rn)
+        if deg:
+            alphac = numpy.degrees(alphac)
+
+        return alphac
+
+
+    def __str__(self):
+        ostr = "%s: %s\n" % (self.__class__.__name__, self.name)
+        if numpy.any(self.cij):
+            ostr += "Elastic tensor (6x6):\n"
+            d = numpy.get_printoptions()
+            numpy.set_printoptions(precision=2, linewidth=78, suppress=False)
+            ostr += str(self.cij) + '\n'
+            numpy.set_printoptions(d)
+
+        return ostr
+
+
+class Amorphous(Material):
+    """
+    amorphous materials are described by this class
+    """
+    def __init__(self, name, density, atoms, cij=None):
+        """
+        constructor of an amorphous material. The amorphous material is
+        described by its density and atom composition.
+
+        Parameters
+        ----------
+         name:      name of the material
+         density:   mass density in kg/m^3
+         atoms:     list of atoms together with their fractional content.
+                    To specify Ir0.2Mn0.8 use [('Ir', 0.2), ('Mn', 0.8)].
+                    Instead of the elements as string you can also use an
+                    Atom object. If the contents to not add up to 1 they
+                    will be corrected.
+        """
+        super(self.__class__, self).__init__(name, cij)
+        self.density = density
+        self.base = list()
+        frsum = numpy.sum([at[1] for at in atoms])
+        for at, fr in atoms:
+            if not isinstance(at, Atom):
+                a = getattr(elements, at)
+            else:
+                a = at
+            self.base.append((a, fr/frsum))
+
+    def delta(self, en='config'):
+        """
+        function to calculate the real part of the deviation of the
+        refractive index from 1 (n=1-delta+i*beta)
+
+        Parameter
+        ---------
+         en:    x-ray energy eV, if omitted the value from the xrayutilities
+                configuration is used
+
+        Returns
+        -------
+         delta (float)
+        """
+        re = scipy.constants.physical_constants['classical electron radius'][0]
+        re *= 1e10
+        if isinstance(en, basestring) and en == 'config':
+            en = utilities.energy(config.ENERGY)
+
+        lam = utilities.en2lam(en)
+        delta = 0.
+        m = 0.
+        for at, occ in self.base:
+            delta += numpy.real(at.f(0., en)) * occ
+            m += at.weight * occ
+
+        delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density)
+        return delta
+
+    def beta(self, en='config'):
+        """
+        function to calculate the imaginary part of the deviation
+        of the refractive index from 1 (n=1-delta+i*beta)
+
+        Parameter
+        ---------
+         en:    x-ray energy eV, if omitted the value from the xrayutilities
+                configuration is used
+
+        Returns
+        -------
+         beta (float)
+        """
+        re = scipy.constants.physical_constants['classical electron radius'][0]
+        re *= 1e10
+        if isinstance(en, basestring) and en == 'config':
+            en = utilities.energy(config.ENERGY)
+
+        lam = utilities.en2lam(en)
+        beta = 0.
+        m = 0.
+        for at, occ in self.base:
+            beta += numpy.imag(at.f(0., en)) * occ
+            m += at.weight * occ
+
+        beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density)
+        return beta
+
+    def __str__(self):
+        ostr = super(self.__class__, self).__str__()
+        ostr += "density: %.2f\n" % self.density
+        if len(self.base) > 0:
+            ostr += "atoms: " 
+            for at, o in self.base:
+                ostr += "(%s, %.3f) " % (at.name, o)
+            ostr += "\n"
+
+        return ostr
+
+
+class Crystal(Material):
+    """
+    Crystalline materials are described by this class
+    """
+    def __init__(self, name, lat, cij=None, thetaDebye=None):
+        super(Crystal, self).__init__(name, cij)
+
+        self.lattice = lat
+        self.rlattice = lat.ReciprocalLattice()
+        if isinstance(thetaDebye, numbers.Number):
+            self.thetaDebye = float(thetaDebye)
+        else:
+            self.thetaDebye = thetaDebye
+
+    @classmethod
+    def fromCIF(cls, ciffilename):
+        """
+        Create a Crystal from a CIF file. Name and
+
+        Parameters
+        ----------
+         ciffilename:  filename of the CIF file
+
+        Returns
+        -------
+         Crystal instance
+        """
+        cf = cif.CIFFile(ciffilename)
+        lat = cf.Lattice()
+        return cls(cf.name, lat)
+
     def _geta1(self):
         return self.lattice.a1
 
@@ -206,9 +393,6 @@ class Material(object):
     def _get_matrixB(self):
         return self.rlattice.transform.matrix
 
-    mu = property(_getmu)
-    lam = property(_getlam)
-    nu = property(_getnu)
     a1 = property(_geta1)
     a2 = property(_geta2)
     a3 = property(_geta3)
@@ -359,6 +543,21 @@ class Material(object):
 
         return d
 
+    def density(self):
+        """
+        calculates the mass density of an material from the mass of the atoms
+        in the unit cell.
+
+        Returns
+        -------
+        mass density in kg/m^3
+        """
+        m = 0.
+        for at, pos, occ, b in self.lattice.base:
+            m += at.weight * occ
+
+        return m / self.lattice.UnitCellVolume() * 1e30
+
     def delta(self, en='config'):
         """
         function to calculate the real part of the deviation of the
@@ -373,10 +572,8 @@ class Material(object):
         -------
          delta (float)
         """
-
-        # angstrom (classical electron radius) r_e =
-        # 1/(4pi*eps_0)*e^2/(m_e*c^2)
-        r_e = 2.8179402894e-15 * 1e10
+        re = scipy.constants.physical_constants['classical electron radius'][0]
+        re *= 1e10
 
         if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
@@ -384,11 +581,10 @@ class Material(object):
         lam = utilities.en2lam(en)
         delta = 0.
 
-        for atpos in self.lattice.base:
-            at = atpos[0]
-            delta += numpy.real(at.f(0., en))
+        for at, pos, occ, b in self.lattice.base:
+            delta += numpy.real(at.f(0., en)) * occ
 
-        delta *= r_e / (2 * numpy.pi) * lam ** 2 / \
+        delta *= re / (2 * numpy.pi) * lam ** 2 / \
             self.lattice.UnitCellVolume()
         return delta
 
@@ -406,11 +602,8 @@ class Material(object):
         -------
          beta (float)
         """
-        c = scipy.constants
-        r_e = 1 / (4 * numpy.pi * c.epsilon_0) * c.e ** 2 / \
-            (c.electron_mass * c.speed_of_light ** 2) * 1e10
-        # angstrom (classical electron radius) r_e =
-        # 1/(4pi*eps_0)*e^2/(m_e*c^2)
+        re = scipy.constants.physical_constants['classical electron radius'][0]
+        re *= 1e10
         if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
@@ -418,10 +611,10 @@ class Material(object):
         beta = 0.
 
         for atpos in self.lattice.base:
-            at = atpos[0]
-            beta += numpy.imag(at.f(0., en))
+            at, pos, occ, b = atpos
+            beta += numpy.imag(at.f(0., en)) * occ
 
-        beta *= r_e / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
+        beta *= re / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
         return beta
 
     def chih(self, q, en='config', temp=0, polarization='S'):
@@ -581,12 +774,7 @@ class Material(object):
         return dth
 
     def __str__(self):
-        ostr = "Material: %s\n" % self.name
-        ostr += "Elastic tensor (6x6):\n"
-        d = numpy.get_printoptions()
-        numpy.set_printoptions(precision=2, linewidth=78, suppress=False)
-        ostr += str(self.cij) + '\n'
-        numpy.set_printoptions(d)
+        ostr = super(self.__class__, self).__str__()
         ostr += "Lattice:\n"
         ostr += self.lattice.__str__()
         ostr += "Reciprocal lattice:\n"
@@ -1019,16 +1207,16 @@ def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90, name="General"):
      beta       angle between unit cell vectors a,c
      gamma      angle between unit cell vectors a,b
 
-    returns a Material object with the specified properties
+    returns a Crystal object with the specified properties
     """
-    return Material(name, lattice.GeneralPrimitiveLattice(
-                    a, b, c, alpha, beta, gamma))
+    return Crystal(name, lattice.GeneralPrimitiveLattice(
+                   a, b, c, alpha, beta, gamma))
 
 
-class Alloy(Material):
+class Alloy(Crystal):
 
     def __init__(self, matA, matB, x):
-        Material.__init__(self, "None", copy.copy(matA.lattice), matA.cij)
+        Crystal.__init__(self, "None", copy.copy(matA.lattice), matA.cij)
         self.matA = matA
         self.matB = matB
         self._xb = 0
@@ -1072,7 +1260,7 @@ class Alloy(Material):
         Parameter
         ---------
          hkl : Miller Indices
-         sub : substrate material or lattice constant (Instance of Material
+         sub : substrate material or lattice constant (Instance of Crystal
                class or float)
          exp : Experiment class from which the Transformation object and ndir
                are needed
@@ -1094,13 +1282,13 @@ class Alloy(Material):
         transform = exp.Transform
         ndir = exp.ndir / numpy.linalg.norm(exp.ndir)
 
-        if isinstance(sub, Material):
+        if isinstance(sub, Crystal):
             asub = numpy.linalg.norm(sub.lattice.a1)
         elif isinstance(sub, float):
             asub = sub
         else:
             raise TypeError("Second argument (sub) must be of type float or "
-                            "an instance of xrayutilities.materials.Material")
+                            "an instance of xrayutilities.materials.Crystal")
 
         # test if inplane direction of hkl is the same as the one for the
         # experiment otherwise warn the user
@@ -1444,7 +1632,7 @@ def PseudomorphicMaterial(submat, layermat):
      layermat .................. bulk material of the layer
 
     return value:
-     An instance of Material holding the new pseudomorphically strained
+     An instance of Crystal holding the new pseudomorphically strained
      material.
     """
 
@@ -1463,6 +1651,6 @@ def PseudomorphicMaterial(submat, layermat):
     pmlatt = lattice.Lattice(a1, a2, a3)
 
     # create the new material
-    pmat = Material("layermat.name", pmlatt, layermat.cij)
+    pmat = Crystal("layermat.name", pmlatt, layermat.cij)
 
     return pmat

@@ -52,6 +52,8 @@ from .material import Alloy
 from .material import CubicAlloy
 from .material import PseudomorphicMaterial
 from .material import Material
+from .material import Amorphous
+from .material import Crystal
 from .material import CubicElasticTensor
 from .material import HexagonalElasticTensor
 from .material import WZTensorFromCub

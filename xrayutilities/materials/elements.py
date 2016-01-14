@@ -16,7 +16,7 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from .lattice import Atom
+from .atom import Atom
 
 dummy = Atom('dummy', 0)
 H = Atom('H', 1)
