@@ -76,6 +76,7 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
         try:
             from matplotlib import pyplot as plt
         except ImportError:
+            plot = False
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.simpack: Warning: plot "
                       "functionality not available")
@@ -154,8 +155,8 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
         ax.set_yscale("log", nonposy='clip')
         if data is not None:
             if eps is not None:
-                plt.errorbar(ai, data, yerr=eps, ecolor='0.3',
-                             errorevery=int(ai.size/80))
+                plt.errorbar(ai, data, yerr=eps, ecolor='0.3', fmt='ko',
+                             errorevery=int(ai.size/80), label='data')
             else:
                 plt.semilogy(ai, data, 'ko', label='data')
         init, = plt.semilogy(ai, xrr_residual(params, ai, reflmod, data=None),
@@ -164,6 +165,8 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
                 ai[mask], xrr_residual(params, ai[mask], reflmod, data=None),
                 'r-', lw=2, label='fit', zorder=init.zorder+2)
         plt.legend()
+        plt.xlabel('incidence angle (deg)')
+        plt.ylabel('Intensity (arb. u.)')
         plt.show(block=False)
     else:
         fline = None
