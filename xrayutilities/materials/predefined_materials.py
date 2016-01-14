@@ -141,6 +141,7 @@ GeTe = Crystal(
 Al = Crystal("Al", lattice.FCCLattice(elements.Al, 4.04958))
 Au = Crystal("Au", lattice.FCCLattice(elements.Au, 4.0782))
 Fe = Crystal("Fe", lattice.BCCLattice(elements.Fe, 2.8665))
+Ru = Crystal("Ru", lattice.HCPLattice(elements.Ru, 2.7059, 4.2815))
 Rh = Crystal("Rh", lattice.FCCLattice(elements.Rh, 3.8034))
 V = Crystal("V", lattice.BCCLattice(elements.V, 3.024))
 Ta = Crystal("Ta", lattice.BCCLattice(elements.Ta, 3.306))

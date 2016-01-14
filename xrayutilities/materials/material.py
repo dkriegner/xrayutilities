@@ -245,7 +245,7 @@ class Amorphous(Material):
     """
     amorphous materials are described by this class
     """
-    def __init__(self, name, density, atoms, cij=None):
+    def __init__(self, name, density, atoms=None, cij=None):
         """
         constructor of an amorphous material. The amorphous material is
         described by its density and atom composition.
@@ -255,21 +255,26 @@ class Amorphous(Material):
          name:      name of the material
          density:   mass density in kg/m^3
          atoms:     list of atoms together with their fractional content.
-                    To specify Ir0.2Mn0.8 use [('Ir', 0.2), ('Mn', 0.8)].
-                    Instead of the elements as string you can also use an
-                    Atom object. If the contents to not add up to 1 they
-                    will be corrected.
+                    For elemental materials, where name matches the element
+                    shortcut, this can be None.  To specify alloys, e.g.
+                    Ir0.2Mn0.8 use [('Ir', 0.2), ('Mn', 0.8)].  Instead of the
+                    elements as string you can also use an Atom object. If the
+                    contents to not add up to 1 they will be corrected without
+                    notice.
         """
         super(self.__class__, self).__init__(name, cij)
         self.density = density
         self.base = list()
-        frsum = numpy.sum([at[1] for at in atoms])
-        for at, fr in atoms:
-            if not isinstance(at, Atom):
-                a = getattr(elements, at)
-            else:
-                a = at
-            self.base.append((a, fr/frsum))
+        if atoms is None:
+            self.base.append((getattr(elements, name), 1))
+        else:
+            frsum = numpy.sum([at[1] for at in atoms])
+            for at, fr in atoms:
+                if not isinstance(at, Atom):
+                    a = getattr(elements, at)
+                else:
+                    a = at
+                self.base.append((a, fr/frsum))
 
     def delta(self, en='config'):
         """
@@ -297,7 +302,7 @@ class Amorphous(Material):
             delta += numpy.real(at.f(0., en)) * occ
             m += at.weight * occ
 
-        delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density)
+        delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         return delta
 
     def beta(self, en='config'):
@@ -326,7 +331,7 @@ class Amorphous(Material):
             beta += numpy.imag(at.f(0., en)) * occ
             m += at.weight * occ
 
-        beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density)
+        beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         return beta
 
     def __str__(self):
