@@ -17,6 +17,7 @@
 
 import numpy
 import scipy.constants as constants
+from scipy.special import erf
 
 from . import Layer, LayerStack
 from .. import utilities
@@ -266,3 +267,83 @@ class SpecularReflectivityModel(LayerModel):
         R = shape * abs(ER / ET)**2
 
         return self.scale_simulation(self.convolute_resolution(alphai, R))
+
+    def densityprofile(self, nz, plot=False):
+        """
+        calculates the electron density of the layerstack from the thickness
+        and roughness of the individual layers
+
+        Parameters
+        ----------
+         nz:    number of values on which the profile should be calculated
+         plot:  flag to tell if a plot of the profile should be created
+
+        Returns
+        -------
+         z, eprof:  coordinates and electron profile. z = 0 corresponds to the
+                    surface
+        """
+        if plot:
+            try:
+                from matplotlib import pyplot as plt
+            except ImportError:
+                plot = False
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.simpack: Warning: plot "
+                          "functionality not available")
+
+        rel = constants.physical_constants['classical electron radius'][0]
+        rel *= 1e10
+        nl = len(self.lstack)
+
+        # get layer properties
+        t = numpy.asarray([l.thickness for l in self.lstack])
+        sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
+        rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
+        delta = numpy.real(self.cd)
+
+        totT = numpy.sum(t[1:])
+        zmin = -totT - 10 * sig[0]
+        zmax = 5 * sig[-1]
+
+        z = numpy.linspace(zmin, zmax, nz)
+        pre_factor = 2 * numpy.pi / self.exp.wavelength**2 / rel * 1e24
+
+        # generate delta-rho values and interface positions
+        zz = numpy.zeros(nl)
+        dr = numpy.zeros(nl)
+        dr[-1] = delta[-1] * rho[-1] * pre_factor
+        for i in range(nl-1, 0, -1):
+            zz[i-1] = zz[i] - t[i]
+            dr[i-1] = delta[i-1] * rho[i-1] * pre_factor
+
+        # calculate profile from contribution of all interfaces
+        prof = numpy.zeros(nz)
+        w = numpy.zeros((nl, nz))
+        for i in range(nl):
+            s = (1 + erf((z - zz[i]) / sig[i] / numpy.sqrt(2))) / 2
+            mask = s < (1 - 1e-10)
+            w[i, mask] = s[mask] / (1 - s[mask])
+            mask = numpy.logical_not(mask)
+            w[i, mask] = 1e10
+
+        c = numpy.ones((nl, nz))
+        for i in range(1, nl):
+            c[i, :] = w[i-1, :] * c[i-1, :]
+        c0 = w[-1, :] * c[-1, :]
+        norm = numpy.sum(c, axis=0) + c0
+
+        for i in range(nl):
+            c[i] /= norm
+
+        for j in range(nz):
+            prof[j] = numpy.sum(dr * c[:, j])
+
+        if plot:
+            plt.figure('XU:density_profile', figsize=(5, 3))
+            plt.plot(z, prof, 'k-', lw=2, label='electron density')
+            plt.xlabel(r'z ($\AA$)')
+            plt.ylabel(r'electron density (e$^-$ cm$^{-3}$)')
+            plt.tight_layout()
+
+        return z, prof
