@@ -35,8 +35,7 @@ plt.xlabel('scattering angle (deg)')
 
 # load materials
 # structure cif from Pearson's crystal data database
-ciff = xu.materials.CIFFile(os.path.join('data', '1216385.cif'))
-st = xu.materials.Material("Sb2Te3", ciff.Lattice())
+st = xu.materials.Crystal.fromCIF(os.path.join('data', '1216385.cif'))
 pst = xu.Powder(st, en='CuKa12')
 pst.PowderIntensity(tt_cutoff=90)
 

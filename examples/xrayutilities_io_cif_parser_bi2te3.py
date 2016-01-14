@@ -13,17 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import xrayutilities as xu
 import numpy
 import os
 
-# parse cif file to get unit cell structure
-ciff = xu.materials.CIFFile(os.path.join("data", "bi2te3.cif"))
-
-# create material
-bite = xu.materials.Material("Bi2Te3", ciff.Lattice())
+bite = xu.materials.Crystal.fromCIF(os.path.join("data", "bi2te3.cif"))
 
 # structure factor calculation
 # bite= bite.StructureFactor(bite.Q(h,k,l),energy)

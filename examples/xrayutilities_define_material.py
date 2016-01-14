@@ -44,8 +44,8 @@ def ZincBlendeLattice(aa, ab, a):
 # defining InP, no elastic properties are given,
 # helper functions exist to create the (6,6) elastic tensor for cubic materials
 # which can be given as optional argument to the material class
-InP = xu.materials.Material("InP",
-                            ZincBlendeLattice(xu.materials.elements.In,
-                                              xu.materials.elements.P, 5.8687))
+InP = xu.materials.Crystal("InP",
+                           ZincBlendeLattice(xu.materials.elements.In,
+                                             xu.materials.elements.P, 5.8687))
 # InP is of course already included in the xu.materials module
 print(InP)

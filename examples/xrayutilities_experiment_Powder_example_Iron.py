@@ -25,7 +25,7 @@ peak_width = 2 * numpy.pi / 100.
 resolution = peak_width / 10.
 
 # create Fe BCC with a=2.87Angstrom
-FeBCC = xu.materials.Material(
+FeBCC = xu.materials.Crystal(
     "Fe", xu.materials.BCCLattice(xu.materials.elements.Fe, 2.87))
 
 print("Creating Fe powder ...")

@@ -29,10 +29,10 @@ InP = xu.materials.InP
 
 # hexagonal polytypes
 ainp = 5.8687
-InP_WZ = xu.materials.Material(
+InP_WZ = xu.materials.Crystal(
     "InP(wz)", xu.materials.WurtziteLattice(In, P, ainp / numpy.sqrt(2),
                                             numpy.sqrt(4 / 3.) * ainp))
-InP_4H = xu.materials.Material(
+InP_4H = xu.materials.Crystal(
     "InP(4H)", xu.materials.Hexagonal4HLattice(In, P, ainp / numpy.sqrt(2),
                                                2 * numpy.sqrt(4 / 3.) * ainp))
 
