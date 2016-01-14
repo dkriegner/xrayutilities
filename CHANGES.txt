@@ -1,3 +1,11 @@
+* fitting of x-ray reflectivity using the lmfit package.
+  If you want to use this new feature you have to install lmfit
+  see https://pypi.python.org/pypi/lmfit/
+* new subpackage simpack for diffraction and reflectivity simulations from
+  thin film samples. So far implemented are
+  - a basic kinematical diffraction model
+  - a model for specular reflectivity calculations using a Parrat-like
+    formalism
 * fwhm_exp function was moved to math's subpackage! This was necessary in
   order to avoid circular dependencies, but anyhow the function also
   fits better there!
