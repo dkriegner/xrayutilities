@@ -192,12 +192,16 @@ class SpecularReflectivityModel(LayerModel):
         ----------
          *args:     either one LayerStack or several Layer objects can be given
          *kwargs:   optional parameters for the simulation; supported are:
-                    'resolution_width' defines the width of the resolution
-                    'I0' is the primary beam flux/intensity
+                    'I0' is the primary beam intensity
                     'background' is the background added to the simulation
-                    'energy' sets the experimental energy (in eV)
+                    'sample_width' width of the sample along the beam
+                    'beam_width' beam width in the same units as the sample width
+                    'resolution_width' defines the width of the resolution (deg)
+                    'energy' sets the experimental energy (eV)
         """
         super(self.__class__, self).__init__(*args, **kwargs)
+        self.sample_width = kwargs.get('sample_width', numpy.inf)
+        self.beam_width = kwargs.get('beam_width', 0)
         # precalc optical properties
         self.init_chi0()
 
@@ -210,7 +214,7 @@ class SpecularReflectivityModel(LayerModel):
         """
         self.cd = numpy.asarray([-l.material.chi0()/2 for l in self.lstack])
 
-    def simulate(self, alphai, sample_width=numpy.inf, beam_width=0):
+    def simulate(self, alphai):
         """
         performs the actual reflectivity calculation for the specified
         incidence angles
@@ -218,9 +222,6 @@ class SpecularReflectivityModel(LayerModel):
         Parameters
         ----------
          alphai: vector of incidence angles
-        optional keyword arguments:
-         sample_width:  width of the sample along the beam
-         beam_width:    beam width in the same units as the sample width
 
         Returns
         -------
@@ -236,8 +237,8 @@ class SpecularReflectivityModel(LayerModel):
 
         sai = numpy.sin(numpy.radians(alphai))
 
-        if beam_width > 0:
-            shape = sample_width * sai / beam_width
+        if self.beam_width > 0:
+            shape = self.sample_width * sai / self.beam_width
             shape[shape > 1] = 1
         else:
             shape = numpy.ones(np)

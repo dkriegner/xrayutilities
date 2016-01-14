@@ -38,6 +38,7 @@ class SMaterial(object):
          kwargs:    optional properties of the material needed for the
                     simulation
         """
+        self.name = material.name
         self.material = material
         for kw in kwargs:
             self.__setattr__(kw, kwargs[kw])
@@ -62,12 +63,24 @@ class MaterialList(collections.MutableSequence):
     def __init__(self, name, *args):
         self.name = name
         self.list = list()
+        self.namelist = list()
         self.extend(list(args))
 
     def check(self, v):
         if not isinstance(v, SMaterial):
             raise TypeError('%s can only contain SMaterial as entries!'
                             % self.__class__.__name__)
+
+    def _get_unique_name(self, v):
+        if v.name not in self.namelist:
+            return v.name
+        else:
+            num = 1
+            name = '{name}_{num:d}'.format(name=v.name, num=num)
+            while name in self.namelist:
+                num += 1
+                name = '{name}_{num:d}'.format(name=v.name, num=num)
+            return name
 
     def __len__(self): return len(self.list)
 
@@ -77,10 +90,12 @@ class MaterialList(collections.MutableSequence):
 
     def __setitem__(self, i, v):
         self.check(v)
+        self.namelist[i] = self._get_unique_name(v)
         self.list[i] = v
 
     def insert(self, i, v):
         self.check(v)
+        self.namelist.insert(i, self._get_unique_name(v))
         self.list.insert(i, v)
 
     def __str__(self):
@@ -108,10 +123,12 @@ class Layer(SMaterial):
                     layer
          thickness: thickness of the layer in Angstrom
          kwargs:    optional keyword arguments with further layer properties.
-                    currently only 'roughness' is supported
+                    'roughness' is the root mean square roughness (\AA)
+                    'density' relativ density of the material; 1 for nominal
+                    density
         """
         for kw in kwargs:
-            if kw not in ('roughness',):
+            if kw not in ('roughness', 'density'):
                 raise TypeError('%s is an invalid keyword argument' % kw)
         kwargs['thickness'] = thickness
         super(self.__class__, self).__init__(material, **kwargs)
