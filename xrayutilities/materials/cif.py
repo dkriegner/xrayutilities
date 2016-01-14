@@ -18,6 +18,7 @@
 import re
 import numpy
 import shlex
+import os
 
 from .lattice import LatticeBase, Lattice
 from . import elements
@@ -64,7 +65,7 @@ class CIFFile(object):
          filename:  filename of the CIF file
          digits:    number of digits to check if position is unique (optional)
         """
-        self.name = filename
+        self.name = os.path.splitext(os.path.split(filename)[-1])[0]
         self.filename = filename
         self.digits = digits
 

@@ -28,8 +28,8 @@ except NameError:
     basestring = str
 
 
-def fit_xrr(reflmod, params, ai, data=None, eps=None,
-        xmin=-numpy.inf, xmax=numpy.inf, plot=False, verbose=False):
+def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
+            xmax=numpy.inf, plot=False, verbose=False, elog=True):
     """
     optimize function for a Reflectivity Model using lmfit. The fitting
     parameters must be specified as instance of lmfits Parameters class.
@@ -57,6 +57,7 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None,
                 name, which makes reusing the figures easier.
      verbose:   flag to tell if the variation of the fitting error should be
                 output during the fit.
+     elog:      logarithmic error during the fit
 
     Returns
     -------
@@ -124,7 +125,8 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None,
         reflmod.background = pvals.get('background', reflmod.background)
         reflmod.sample_width = pvals.get('sample_width', reflmod.sample_width)
         reflmod.beam_width = pvals.get('beam_width', reflmod.beam_width)
-        reflmod.resolution_width = pvals.get('resolution_width', reflmod.resolution_width)
+        reflmod.resolution_width = pvals.get('resolution_width',
+                                             reflmod.resolution_width)
         shift = pvals.get('shift', 0)
         # update layer properties
         for lname, l in zip(reflmod.lstack.namelist, reflmod.lstack):
@@ -135,6 +137,8 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None,
         model = reflmod.simulate(ai - shift)
         if data is None:
             return model
+        if kwargs['elog']:
+            return numpy.log10(model) - numpy.log10(data)
         if eps is None:
             return (model - data)
         return (model - data)/eps
@@ -146,8 +150,14 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None,
             plt.figure(plot)
         else:
             plt.figure('XU:fit_xrr')
+        ax = plt.subplot(111)
+        ax.set_yscale("log", nonposy='clip')
         if data is not None:
-            plt.semilogy(ai, data, 'ko', label='data', mew=2)
+            if eps is not None:
+                plt.errorbar(ai, data, yerr=eps, ecolor='0.3',
+                             errorevery=int(ai.size/80))
+            else:
+                plt.semilogy(ai, data, 'ko', label='data')
         init, = plt.semilogy(ai, xrr_residual(params, ai, reflmod, data=None),
                              '-', color='0.5', label='initial')
         fline, = plt.semilogy(
@@ -161,9 +171,10 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None,
     # create and run minimizer/minimization
     if eps is None:
         eps = numpy.ones(ai.shape)
+
     def cb_func(params, niter, resid, ai, reflmod, **kwargs):
         if kwargs.get('verbose', False):
-            print('{:04d} {:12.3g}'.format(niter, numpy.sum(resid**2)))
+            print('{:04d} {:12.3e}'.format(niter, numpy.sum(resid**2)))
         if kwargs.get('plot', False) and niter % 5 == 0:
             fl = kwargs['fline']
             fl.set_ydata(xrr_residual(params, ai, reflmod, data=None))
@@ -172,7 +183,7 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None,
     minimizer = lmfit.Minimizer(
             xrr_residual, params, fcn_args=(ai[mask], reflmod),
             fcn_kws={'data': data[mask], 'eps': eps[mask], 'fline': fline,
-                'verbose':verbose, 'plot':plot},
+                     'verbose': verbose, 'plot': plot, 'elog': elog},
             iter_cb=cb_func)
     res = minimizer.minimize()
 

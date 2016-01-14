@@ -195,8 +195,10 @@ class SpecularReflectivityModel(LayerModel):
                     'I0' is the primary beam intensity
                     'background' is the background added to the simulation
                     'sample_width' width of the sample along the beam
-                    'beam_width' beam width in the same units as the sample width
-                    'resolution_width' defines the width of the resolution (deg)
+                    'beam_width' beam width in the same units as the sample
+                                 width
+                    'resolution_width' defines the width of the resolution
+                                       (deg)
                     'energy' sets the experimental energy (eV)
         """
         super(self.__class__, self).__init__(*args, **kwargs)
