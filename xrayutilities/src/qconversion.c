@@ -2367,7 +2367,7 @@ int ang2q_conversion_area_trans(
     *   Nd .............. number of detector axes
     *   flags ........... general flags integer (verbosity)
     *   qpos ............ momentum transfer (Npoints * Nch, 3) (OUTPUT array)
-    *   
+    *
     *   */
 {
     double mtemp[9], mtemp2[9], ms[9];  /* matrices */
