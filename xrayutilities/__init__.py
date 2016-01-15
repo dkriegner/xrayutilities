@@ -64,3 +64,5 @@ from .utilities import lam2en
 from .utilities import en2lam
 from .utilities import wavelength
 from .utilities import energy
+from .utilities import set_bit
+from .utilities import clear_bit

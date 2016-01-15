@@ -52,6 +52,22 @@ energies = {
 # CoKa1,2 energies
 
 
+def set_bit(f, offset):
+    """
+    sets the bit at an offset
+    """
+    mask = 1 << offset
+    return(f | mask)
+
+
+def clear_bit(f, offset):
+    """
+    clears the bet at an offset
+    """
+    mask = ~(1 << offset)
+    return(int_type & mask)
+
+
 def lam2en(inp):
     """
     converts the input wavelength in Angstrom to an energy in eV
