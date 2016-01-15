@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2013-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
  * Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
  *
 */
@@ -43,23 +43,20 @@ extern PyObject* pygridder3d(PyObject *self, PyObject *args);
 extern PyObject* pyfuzzygridder3d(PyObject *self, PyObject *args);
 
 /* functions from qconversion.c */
-extern PyObject* ang2q_conversion(PyObject *self, PyObject *args);
+extern PyObject* py_ang2q_conversion(PyObject *self, PyObject *args);
+
 extern PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args);
-
-extern PyObject* ang2q_conversion_sd(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args);
-
-extern PyObject* ang2q_conversion_trans(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_sdtrans(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_linear_trans(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_linear_sdtrans(PyObject *self,
                                                  PyObject *args);
+
+extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
+extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
+extern PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_trans(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_sdtrans(PyObject *self, PyObject *args);
+extern PyObject* ang2q_conversion_area_sd(PyObject *self, PyObject *args);
 
 extern PyObject* ang2q_detpos(PyObject *self, PyObject *args);
 extern PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args);
@@ -217,7 +214,7 @@ static PyMethodDef XRU_Methods[] = {
      "  wz ..... fuzzy width of data points in z-direction\n"
      "  flags .. flags to specify behavior\n"
     },
-    {"ang2q_conversion", ang2q_conversion, METH_VARARGS,
+    {"ang2q_conversion", py_ang2q_conversion, METH_VARARGS,
      "conversion of Npoints of goniometer positions to reciprocal space\n"
      "for a setup with point detector\n"
      "\n"
@@ -234,6 +231,8 @@ static PyMethodDef XRU_Methods[] = {
      "  kappadir ........ rotation axis of a possible kappa circle\n"
      "  UB .............. orientation matrix and reciprocal space conversion\n"
      "                    of investigated crystal (3, 3)\n"
+     "  sampledis ....... sample displacement vector in relative units of\n"
+     "                    the detector distance\n"
      "  lambda .......... wavelength of the used x-rays (Angstreom)\n"
      "  nthreads ........ number of threads to use in parallel section of\n"
      "                    the code\n"
@@ -390,34 +389,6 @@ static PyMethodDef XRU_Methods[] = {
      "-------\n"
      " qpos ............ momentum transfer (Npoints, 3)\n"
     },
-    {"ang2q_conversion_sd", ang2q_conversion_sd, METH_VARARGS,
-     "conversion of Npoints of goniometer positions to reciprocal space\n"
-     "for a setup with point detector considering a sample displacement\n"
-     "error\n"
-     "\n"
-     "Parameters\n"
-     "----------\n"
-     "  sampleAngles .... angular positions of the sample goniometer\n"
-     "                    (Npoints, Ns)\n"
-     "  detectorAngles .. angular positions of the detector goniometer\n"
-     "                    (Npoints, Nd)\n"
-     "  ri .............. direction of primary beam (length specifies the\n"
-     "                    detector distance)\n"
-     "  sampleAxis ...... string with sample axis directions\n"
-     "  detectorAxis .... string with detector axis directions\n"
-     "  kappadir ........ rotation axis of a possible kappa circle\n"
-     "  UB .............. orientation matrix and reciprocal space conversion\n"
-     "                    of investigated crystal (3, 3)\n"
-     "  sampledis ....... sample displacement vector in relative units of\n"
-     "                    the detector distance\n"
-     "  lambda .......... wavelength of the used x-rays (Angstreom)\n"
-     "  nthreads ........ number of threads to use in parallel section of\n"
-     "                    the code\n"
-     "\n"
-     "Returns\n"
-     "-------\n"
-     " qpos .......... momentum transfer (Npoints, 3)\n"
-    },
     {"ang2q_conversion_linear_sd", ang2q_conversion_linear_sd, METH_VARARGS,
      "conversion of Npoints of goniometer positions to reciprocal space\n"
      "for a linear detector with a given pixel size mounted along one of\n"
@@ -491,59 +462,6 @@ static PyMethodDef XRU_Methods[] = {
      "-------\n"
      " qpos ............ momentum transfer (Npoints * Npix1 * Npix2, 3)\n"
      "\n"
-    },
-    {"ang2q_conversion_trans", ang2q_conversion_trans, METH_VARARGS,
-     "conversion of Npoints of goniometer positions to reciprocal space\n"
-     "for a setup with point detector and detector translation-axis\n"
-     "\n"
-     "Parameters\n"
-     "----------\n"
-     "  sampleAngles .... angular positions of the sample goniometer\n"
-     "                    (Npoints, Ns)\n"
-     "  detectorAngles .. angular positions of the detector goniometer\n"
-     "                    (Npoints, Nd)\n"
-     "  ri .............. direction of primary beam (length specifies the\n"
-     "                    detector distance)\n"
-     "  sampleAxis ...... string with sample axis directions\n"
-     "  detectorAxis .... string with detector axis directions\n"
-     "  kappadir ........ rotation axis of a possible kappa circle\n"
-     "  UB .............. orientation matrix and reciprocal space conversion\n"
-     "                    of investigated crystal (3, 3)\n"
-     "  lambda .......... wavelength of the used x-rays (Angstreom)\n"
-     "  nthreads ........ number of threads to use in parallel section of\n"
-     "                    the code\n"
-     "\n"
-     "Returns\n"
-     "-------\n"
-     " qpos .......... momentum transfer (Npoints, 3)\n"
-    },
-    {"ang2q_conversion_sdtrans", ang2q_conversion_sdtrans, METH_VARARGS,
-     "conversion of Npoints of goniometer positions to reciprocal space\n"
-     "for a setup with point detector considering a sample displacement\n"
-     "error as well as detector translation-axis\n"
-     "\n"
-     "Parameters\n"
-     "----------\n"
-     "  sampleAngles .... angular positions of the sample goniometer\n"
-     "                    (Npoints, Ns)\n"
-     "  detectorAngles .. angular positions of the detector goniometer\n"
-     "                    (Npoints, Nd)\n"
-     "  ri .............. direction of primary beam (length specifies the\n"
-     "                    detector distance)\n"
-     "  sampleAxis ...... string with sample axis directions\n"
-     "  detectorAxis .... string with detector axis directions\n"
-     "  kappadir ........ rotation axis of a possible kappa circle\n"
-     "  UB .............. orientation matrix and reciprocal space conversion\n"
-     "                    of investigated crystal (3, 3)\n"
-     "  sampledis ....... sample displacement vector in relative units of\n"
-     "                    the detector distance\n"
-     "  lambda .......... wavelength of the used x-rays (Angstreom)\n"
-     "  nthreads ........ number of threads to use in parallel section of\n"
-     "                    the code\n"
-     "\n"
-     "Returns\n"
-     "-------\n"
-     " qpos .......... momentum transfer (Npoints, 3)\n"
     },
     {"ang2q_conversion_linear_trans", ang2q_conversion_linear_trans,
      METH_VARARGS,

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2013-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 #pragma once
 
@@ -26,6 +26,10 @@
 #define deg2rad(ang) (ang * cdeg2rad)
 #define rad2deg(rad) (rad * crad2deg)
 
+/* define flags for the qconversion functions */
+#define HAS_TRANSLATIONS 1
+#define HAS_SAMPLEDIS 4
+#define VERBOSE 16
 
 /* ###################################
  * matrix vector operations for
@@ -127,3 +131,29 @@ int tilt_detector_axis(double tiltazimuth, double tilt,
 int print_matrix(double *m);
 int print_vector(double *m);
 
+/*################################################
+#   reciprocal space converions worker functions
+##################################################*/
+
+int ang2q_conversion(double *sampleAngles, double *detectorAngles,
+                     double *ri, char *sampleAxis, char *detectorAxis,
+                     double *kappadir, double *UB, double *lambda,
+                     int Npoints, int Ns, int Nd, int flags,
+                     double *qpos);
+
+int ang2q_conversion_sd(
+        double *sampleAngles, double *detectorAngles, double *ri,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double *UB,
+        double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
+        int flags, double *qpos);
+
+int ang2q_conversion_trans(
+        double *sampleAngles, double *detectorAngles, double *ri,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double *UB,
+        double *lambda, int Npoints, int Ns, int Nd, int flags, double *qpos);
+
+int ang2q_conversion_sdtrans(
+        double *sampleAngles, double *detectorAngles, double *ri,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double *UB,
+        double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
+        int flags, double *qpos);

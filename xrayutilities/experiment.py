@@ -518,6 +518,10 @@ class QConversion(object):
                                 "'deg': True if angles are in degrees, "
                                 "'sampledis': sample displacement vector")
 
+        flags = 0
+        if self._has_translations:
+            flags = utilities.set_bit(flags, 0)
+
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
@@ -552,6 +556,7 @@ class QConversion(object):
 
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
+            flags = utilities.set_bit(flags, 2)
         else:
             sd = numpy.zeros(3)
 
@@ -593,20 +598,9 @@ class QConversion(object):
             print("XU.QConversion: sAngles / dAngles %s / %s"
                   % (str(sAngles), str(dAngles)))
 
-        if numpy.any(sd):
-            cfunc = cxrayutilities.ang2q_conversion_sd
-            if self._has_translations:
-                cfunc = cxrayutilities.ang2q_conversion_sdtrans
-            qpos = cfunc(
+        qpos = cxrayutilities.ang2q_conversion(
                 sAngles, dAngles, self.r_i, sAxis, dAxis,
-                self._kappa_dir, UB, sd, wl, config.NTHREADS)
-        else:
-            cfunc = cxrayutilities.ang2q_conversion
-            if self._has_translations:
-                cfunc = cxrayutilities.ang2q_conversion_trans
-            qpos = cfunc(
-                sAngles, dAngles, self.r_i, sAxis, dAxis,
-                self._kappa_dir, UB, wl, config.NTHREADS)
+                self._kappa_dir, UB, sd, wl, config.NTHREADS, flags)
 
         if Npoints == 1:
             return (qpos[0, 0], qpos[0, 1], qpos[0, 2])
