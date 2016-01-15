@@ -16,13 +16,14 @@
 # Copyright (C) 2009-2010,2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
 from . import cxrayutilities
 from . import exception
 from . import config
+from . import utilities
 
 from .gridder import Gridder
 from .gridder import delta
@@ -161,9 +162,8 @@ class Gridder3D(Gridder):
                            z.min(), z.max(),
                            self.keep_data)
 
-        # remove normalize flag for C-code, normalization is always performed
-        # in python
-        flags = self.flags ^ 4
+        # remove normalize flag for C-code
+        flags = utilities.set_bit(self.flags, 2)
         cxrayutilities.gridder3d(x, y, z, data, self.nx, self.ny, self.nz,
                                  self.xmin, self.xmax,
                                  self.ymin, self.ymax,
@@ -250,9 +250,8 @@ class FuzzyGridder3D(Gridder3D):
             wy = delta(self.ymin, self.ymax, self.ny) / 2.
             wz = delta(self.zmin, self.zmax, self.nz) / 2.
 
-        # remove normalize flag for C-code, normalization is always performed
-        # in python
-        flags = self.flags ^ 4
+        # remove normalize flag for C-code
+        flags = utilities.set_bit(self.flags, 2)
         cxrayutilities.fuzzygridder3d(x, y, z, data, self.nx, self.ny, self.nz,
                                       self.xmin, self.xmax,
                                       self.ymin, self.ymax,

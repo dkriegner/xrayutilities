@@ -16,13 +16,14 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
 from . import cxrayutilities
 from . import exception
 from . import config
+from . import utilities
 
 
 def delta(min_value, max_value, n):
@@ -104,10 +105,10 @@ class Gridder(object):
         self.fixed_range = False
 
         # no data initialization necessary in c-code
-        self.flags = self.flags | 1
+        self.flags = utilities.set_bit(self.flags, 0)
 
         if config.VERBOSITY >= config.INFO_ALL:
-            self.flags = self.flags | 16  # set verbosity flag
+            self.flags = utilities.set_bit(self.flags, 3)
 
     def Normalize(self, bool):
         """
@@ -120,9 +121,9 @@ class Gridder(object):
                             "(True/False)!")
         self.normalize = bool
         if bool:
-            self.flags = self.flags & (255 - 4)
+            self.flags = utilities.clear_bit(self.flags, 2)
         else:
-            self.flags = self.flags ^ 4
+            self.flags = utilities.set_bit(self.flags, 2)
 
     def KeepData(self, bool):
         if bool not in [False, True]:
@@ -233,7 +234,7 @@ class Gridder1D(Gridder):
 
         # remove normalize flag for C-code, normalization is always performed
         # in python
-        flags = self.flags ^ 4
+        flags = utilities.set_bit(self.flags, 2)
         cxrayutilities.gridder1d(x, data, self.nx, self.xmin, self.xmax,
                                  self._gdata, self._gnorm, flags)
 
@@ -285,7 +286,7 @@ class FuzzyGridder1D(Gridder1D):
 
         # remove normalize flag for C-code, normalization is always performed
         # in python
-        flags = self.flags ^ 4
+        flags = utilities.set_bit(self.flags, 2)
         cxrayutilities.fuzzygridder1d(x, data, self.nx, self.xmin, self.xmax,
                                       self._gdata, self._gnorm, width, flags)
 
