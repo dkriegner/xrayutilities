@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -756,6 +756,10 @@ class QConversion(object):
                                 "'roi': region of interest, "
                                 "'sampledis': sample displacement vector")
 
+        flags = 0
+        if self._has_translations:
+            flags = utilities.set_bit(flags, 0)
+
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
         Ncirc = Ns + Nd
@@ -798,6 +802,7 @@ class QConversion(object):
 
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
+            flags = utilities.set_bit(flags, 2)
         else:
             sd = numpy.zeros(3)
         # prepare angular arrays from *args
@@ -837,22 +842,10 @@ class QConversion(object):
         sAxis = self._sampleAxis_str
         dAxis = self._detectorAxis_str
 
-        if numpy.any(sd):
-            cfunc = cxrayutilities.ang2q_conversion_linear_sd
-            if self._has_translations:
-                cfunc = cxrayutilities.ang2q_conversion_linear_sdtrans
-            qpos = cfunc(
+        qpos = cxrayutilities.ang2q_conversion_linear(
                 sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                 cch, pwidth, roi, self._linear_detdir, self._linear_tilt,
-                UB, sd, wl, config.NTHREADS)
-        else:
-            cfunc = cxrayutilities.ang2q_conversion_linear
-            if self._has_translations:
-                cfunc = cxrayutilities.ang2q_conversion_linear_trans
-            qpos = cfunc(
-                sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
-                cch, pwidth, roi, self._linear_detdir, self._linear_tilt,
-                UB, wl, config.NTHREADS)
+                UB, sd, wl, config.NTHREADS, flags)
 
         # reshape output
         if Npoints == 1:

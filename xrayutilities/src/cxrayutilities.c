@@ -45,11 +45,7 @@ extern PyObject* pyfuzzygridder3d(PyObject *self, PyObject *args);
 /* functions from qconversion.c */
 extern PyObject* py_ang2q_conversion(PyObject *self, PyObject *args);
 
-extern PyObject* ang2q_conversion_linear(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_linear_sd(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_linear_trans(PyObject *self, PyObject *args);
-extern PyObject* ang2q_conversion_linear_sdtrans(PyObject *self,
-                                                 PyObject *args);
+extern PyObject* py_ang2q_conversion_linear(PyObject *self, PyObject *args);
 
 extern PyObject* ang2q_conversion_area(PyObject *self, PyObject *args);
 extern PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args);
@@ -236,12 +232,13 @@ static PyMethodDef XRU_Methods[] = {
      "  lambda .......... wavelength of the used x-rays (Angstreom)\n"
      "  nthreads ........ number of threads to use in parallel section of\n"
      "                    the code\n"
+     "  flags ........... integer flags to select sub-function\n"
      "\n"
      "Returns\n"
      "-------\n"
      " qpos .......... momentum transfer (Npoints, 3)\n"
     },
-    {"ang2q_conversion_linear", ang2q_conversion_linear, METH_VARARGS,
+    {"ang2q_conversion_linear", py_ang2q_conversion_linear, METH_VARARGS,
      "conversion of Npoints of goniometer positions to reciprocal space\n"
      "for a linear detector with a given pixel size mounted along one of\n"
      "the coordinate axis\n"
@@ -251,8 +248,8 @@ static PyMethodDef XRU_Methods[] = {
      " sampleAngles .... angular positions of the goniometer (Npoints, Ns)\n"
      " detectorAngles .. angular positions of the detector goniometer\n"
      "                   (Npoints, Nd)\n"
-     " rcch ............ direction + distance of center channel\n"
-     "                   (angles zero)\n"
+     " rcch ............ direction + distance of center channel (angles\n"
+     "                   zero)\n"
      " sampleAxis ...... string with sample axis directions\n"
      " detectorAxis .... string with detector axis directions\n"
      " kappadir ........ rotation axis of a possible kappa circle\n"
@@ -263,9 +260,12 @@ static PyMethodDef XRU_Methods[] = {
      " tilt ............ tilt of the detector direction from dir\n"
      " UB .............. orientation matrix and reciprocal space conversion\n"
      "                   of investigated crystal (9)\n"
+     " sampledis ....... sample displacement vector in same unit as the\n"
+     "                   detector distance\n"
      " lambda .......... wavelength of the used x-rays in Angstroem\n"
-     " nthreads ........ number of threads to use in parallel section of\n"
-     "                   the code\n"
+     " nthreads ........ number of threads to use in parallel section of the\n"
+     "                   code\n"
+     " flags ........... integer flags to select sub-function\n"
      "\n"
      "Returns\n"
      "-------\n"
@@ -389,39 +389,6 @@ static PyMethodDef XRU_Methods[] = {
      "-------\n"
      " qpos ............ momentum transfer (Npoints, 3)\n"
     },
-    {"ang2q_conversion_linear_sd", ang2q_conversion_linear_sd, METH_VARARGS,
-     "conversion of Npoints of goniometer positions to reciprocal space\n"
-     "for a linear detector with a given pixel size mounted along one of\n"
-     "the coordinate axis considering a sample displacement error\n"
-     "\n"
-     "Parameters\n"
-     "----------\n"
-     " sampleAngles .... angular positions of the goniometer (Npoints, Ns)\n"
-     " detectorAngles .. angular positions of the detector goniometer\n"
-     "                   (Npoints, Nd)\n"
-     " rcch ............ direction + distance of center channel (angles\n"
-     "                   zero)\n"
-     " sampleAxis ...... string with sample axis directions\n"
-     " detectorAxis .... string with detector axis directions\n"
-     " kappadir ........ rotation axis of a possible kappa circle\n"
-     " cch ............. center channel of the detector\n"
-     " dpixel .......... width of one pixel, same unit as distance rcch\n"
-     " roi ............. region of interest of the detector\n"
-     " dir ............. direction of the detector, e.g.: 'x+'\n"
-     " tilt ............ tilt of the detector direction from dir\n"
-     " UB .............. orientation matrix and reciprocal space conversion\n"
-     "                   of investigated crystal (9)\n"
-     " sampledis ....... sample displacement vector in same unit as the\n"
-     "                   detector distance\n"
-     " lambda .......... wavelength of the used x-rays in Angstroem\n"
-     " nthreads ........ number of threads to use in parallel section of the\n"
-     "                   code\n"
-     "\n"
-     "Returns\n"
-     "-------\n"
-     " qpos ............ momentum transfer (Npoints * Nch, 3)\n"
-     " \n"
-    },
     {"ang2q_conversion_area_sd", ang2q_conversion_area_sd, METH_VARARGS,
      "conversion of Npoints of goniometer positions to reciprocal space\n"
      "for an area detector with a given pixel size mounted along one of\n"
@@ -462,73 +429,6 @@ static PyMethodDef XRU_Methods[] = {
      "-------\n"
      " qpos ............ momentum transfer (Npoints * Npix1 * Npix2, 3)\n"
      "\n"
-    },
-    {"ang2q_conversion_linear_trans", ang2q_conversion_linear_trans,
-     METH_VARARGS,
-     "conversion of Npoints of goniometer positions to reciprocal space\n"
-     "for a linear detector with a given pixel size mounted along one of\n"
-     "the coordinate axis and detector translation axis.\n"
-     "\n"
-     "Parameters\n"
-     "----------\n"
-     " sampleAngles .... angular positions of the goniometer (Npoints, Ns)\n"
-     " detectorAngles .. angular positions of the detector goniometer\n"
-     "                   (Npoints, Nd)\n"
-     " rcch ............ direction + distance of center channel\n"
-     "                   (angles zero)\n"
-     " sampleAxis ...... string with sample axis directions\n"
-     " detectorAxis .... string with detector axis directions\n"
-     " kappadir ........ rotation axis of a possible kappa circle\n"
-     " cch ............. center channel of the detector\n"
-     " dpixel .......... width of one pixel, same unit as distance rcch\n"
-     " roi ............. region of interest of the detector\n"
-     " dir ............. direction of the detector, e.g.: 'x+'\n"
-     " tilt ............ tilt of the detector direction from dir\n"
-     " UB .............. orientation matrix and reciprocal space conversion\n"
-     "                   of investigated crystal (9)\n"
-     " lambda .......... wavelength of the used x-rays in Angstroem\n"
-     " nthreads ........ number of threads to use in parallel section of\n"
-     "                   the code\n"
-     "\n"
-     "Returns\n"
-     "-------\n"
-     " qpos ............ momentum transfer (Npoints * Nch, 3)\n"
-     " \n"
-    },
-    {"ang2q_conversion_linear_sdtrans", ang2q_conversion_linear_sdtrans,
-     METH_VARARGS,
-     "conversion of Npoints of goniometer positions to reciprocal space\n"
-     "for a linear detector with a given pixel size mounted along one of\n"
-     "the coordinate axis considering a sample displacement error and\n"
-     "detector translation-axis.\n"
-     "\n"
-     "Parameters\n"
-     "----------\n"
-     " sampleAngles .... angular positions of the goniometer (Npoints, Ns)\n"
-     " detectorAngles .. angular positions of the detector goniometer\n"
-     "                   (Npoints, Nd)\n"
-     " rcch ............ direction + distance of center channel (angles\n"
-     "                   zero)\n"
-     " sampleAxis ...... string with sample axis directions\n"
-     " detectorAxis .... string with detector axis directions\n"
-     " kappadir ........ rotation axis of a possible kappa circle\n"
-     " cch ............. center channel of the detector\n"
-     " dpixel .......... width of one pixel, same unit as distance rcch\n"
-     " roi ............. region of interest of the detector\n"
-     " dir ............. direction of the detector, e.g.: 'x+'\n"
-     " tilt ............ tilt of the detector direction from dir\n"
-     " UB .............. orientation matrix and reciprocal space conversion\n"
-     "                   of investigated crystal (9)\n"
-     " sampledis ....... sample displacement vector in same unit as the\n"
-     "                   detector distance\n"
-     " lambda .......... wavelength of the used x-rays in Angstroem\n"
-     " nthreads ........ number of threads to use in parallel section of the\n"
-     "                   code\n"
-     "\n"
-     "Returns\n"
-     "-------\n"
-     " qpos ............ momentum transfer (Npoints * Nch, 3)\n"
-     " \n"
     },
     {"ang2q_conversion_area_trans", ang2q_conversion_area_trans, METH_VARARGS,
      "conversion of Npoints of goniometer positions to reciprocal space\n"

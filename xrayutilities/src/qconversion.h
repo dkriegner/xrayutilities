@@ -133,13 +133,14 @@ int print_vector(double *m);
 
 /*################################################
 #   reciprocal space converions worker functions
+#                point detector
 ##################################################*/
 
-int ang2q_conversion(double *sampleAngles, double *detectorAngles,
-                     double *ri, char *sampleAxis, char *detectorAxis,
-                     double *kappadir, double *UB, double *lambda,
-                     int Npoints, int Ns, int Nd, int flags,
-                     double *qpos);
+int ang2q_conversion(
+	double *sampleAngles, double *detectorAngles,
+        double *ri, char *sampleAxis, char *detectorAxis,
+        double *kappadir, double *UB, double *lambda,
+        int Npoints, int Ns, int Nd, int flags, double *qpos);
 
 int ang2q_conversion_sd(
         double *sampleAngles, double *detectorAngles, double *ri,
@@ -157,3 +158,35 @@ int ang2q_conversion_sdtrans(
         char *sampleAxis, char *detectorAxis, double *kappadir, double *UB,
         double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
         int flags, double *qpos);
+
+/*################################################
+#   reciprocal space converions worker functions
+#                linear detector
+##################################################*/
+
+int ang2q_conversion_linear(
+        double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch,
+        double dpixel, int *roi, char *dir, double tilt, double *UB,
+        double *lambda, int Npoints, int Ns, int Nd, int Nch,
+        int flags, double *qpos);
+
+int ang2q_conversion_linear_sd(
+        double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch,
+        double dpixel, int *roi, char *dir, double tilt, double *UB,
+        double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
+        int Nch, int flags, double *qpos);
+
+int ang2q_conversion_linear_trans(
+        double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch,
+        double dpixel, int *roi, char *dir, double tilt, double *UB,
+        double *lambda, int Npoints, int Ns, int Nd, int Nch,
+        int flags, double *qpos);
+
+int ang2q_conversion_linear_sdtrans(double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch,
+        double dpixel, int *roi, char *dir, double tilt, double *UB,
+        double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
+        int Nch, int flags, double *qpos);
