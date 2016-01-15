@@ -1041,6 +1041,10 @@ class QConversion(object):
                                 "'roi': region of interest, "
                                 "'sampledis': sample displacement vector")
 
+        flags = 0
+        if self._has_translations:
+            flags = utilities.set_bit(flags, 0)
+
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
@@ -1085,6 +1089,7 @@ class QConversion(object):
 
         if 'sampledis' in kwargs:
             sd = numpy.array(kwargs['sampledis'])
+            flags = utilities.set_bit(flags, 2)
         else:
             sd = numpy.zeros(3)
         # prepare angular arrays from *args
@@ -1142,24 +1147,11 @@ class QConversion(object):
         sAxis = self._sampleAxis_str
         dAxis = self._detectorAxis_str
 
-        if numpy.any(sd):
-            cfunc = cxrayutilities.ang2q_conversion_area_sd
-            if self._has_translations:
-                cfunc = cxrayutilities.ang2q_conversion_area_sdtrans
-            qpos = cfunc(
+        qpos = cxrayutilities.ang2q_conversion_area(
                 sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
                 cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
                 self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
-                UB, sd, wl, config.NTHREADS)
-        else:
-            cfunc = cxrayutilities.ang2q_conversion_area
-            if self._has_translations:
-                cfunc = cxrayutilities.ang2q_conversion_area_trans
-            qpos = cfunc(
-                sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
-                cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
-                self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
-                UB, wl, config.NTHREADS)
+                UB, sd, wl, config.NTHREADS, flags)
 
         # reshape output
         if Npoints == 1:

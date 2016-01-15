@@ -190,3 +190,38 @@ int ang2q_conversion_linear_sdtrans(double *sampleAngles, double *detectorAngles
         double dpixel, int *roi, char *dir, double tilt, double *UB,
         double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
         int Nch, int flags, double *qpos);
+
+/*################################################
+#   reciprocal space converions worker functions
+#                 area detector
+##################################################*/
+
+int ang2q_conversion_area(
+        double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch1,
+        double cch2, double dpixel1, double dpixel2, int *roi, char *dir1,
+        char *dir2, double tiltazimuth, double tilt, double *UB,
+        double *lambda, int Npoints, int Ns, int Nd, int flags, double *qpos);
+
+int ang2q_conversion_area_sd(
+        double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch1,
+        double cch2, double dpixel1, double dpixel2, int *roi, char *dir1,
+        char *dir2, double tiltazimuth, double tilt, double *UB,
+        double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
+        int flags, double *qpos);
+
+int ang2q_conversion_area_trans(
+        double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch1,
+        double cch2, double dpixel1, double dpixel2, int *roi, char *dir1,
+        char *dir2, double tiltazimuth, double tilt, double *UB,
+        double *lambda, int Npoints, int Ns, int Nd, int flags, double *qpos);
+
+int ang2q_conversion_area_sdtrans(
+        double *sampleAngles, double *detectorAngles, double *rcch,
+        char *sampleAxis, char *detectorAxis, double *kappadir, double cch1,
+        double cch2, double dpixel1, double dpixel2, int *roi, char *dir1,
+        char *dir2, double tiltazimuth, double tilt, double *UB,
+        double *sampledis, double *lambda, int Npoints, int Ns, int Nd,
+        int flags, double *qpos);
