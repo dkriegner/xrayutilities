@@ -141,6 +141,7 @@ class Material(object):
         self.name = name
         self.cijkl = Cij2Cijkl(self.cij)
         self.transform = None
+        self._density = None
 
     def __getattr__(self, name):
         if name.startswith("c"):
@@ -170,6 +171,10 @@ class Material(object):
     def _getnu(self):
         return self.lam / 2. / (self.mu + self.lam)
 
+    def _getdensity(self):
+        return self._density
+
+    density = property(_getdensity)
     mu = property(_getmu)
     lam = property(_getlam)
     nu = property(_getnu)
@@ -262,7 +267,7 @@ class Amorphous(Material):
                     notice.
         """
         super(self.__class__, self).__init__(name, cij)
-        self.density = density
+        self._density = density
         self.base = list()
         if atoms is None:
             self.base.append((getattr(elements, name), 1))
@@ -547,7 +552,7 @@ class Crystal(Material):
 
         return d
 
-    def density(self):
+    def _getdensity(self):
         """
         calculates the mass density of an material from the mass of the atoms
         in the unit cell.
@@ -561,6 +566,8 @@ class Crystal(Material):
             m += at.weight * occ
 
         return m / self.lattice.UnitCellVolume() * 1e30
+
+    density = property(_getdensity)
 
     def delta(self, en='config'):
         """
