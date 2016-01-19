@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -48,6 +48,8 @@ re_datestop = re.compile(r"^\*MEAS_SCAN_END_TIME")
 re_initmoponame = re.compile(r"^\*MEAS_COND_AXIS_NAME_INTERNAL")
 re_initmopovalue = re.compile(r"^\*MEAS_COND_AXIS_POSITION")
 re_datacount = re.compile(r"^\*MEAS_DATA_COUNT")
+re_measspeed = re.compile(r"^\*MEAS_SCAN_SPEED ")
+re_measstep = re.compile(r"^\*MEAS_SCAN_STEP ")
 
 
 class RASFile(object):
@@ -157,6 +159,12 @@ class RASScan(object):
             elif re_datacount.match(line):
                 l = line.split(' ', 1)[-1].strip().strip('"')
                 self.length = int(float(l))
+            elif re_measspeed.match(line):
+                l = line.split(' ', 1)[-1].strip().strip('"')
+                self.meas_speed = float(l)
+            elif re_measstep.match(line):
+                l = line.split(' ', 1)[-1].strip().strip('"')
+                self.meas_step = float(l)
             elif re_headerend.match(line):
                 break
 
