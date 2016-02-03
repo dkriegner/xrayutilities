@@ -17,7 +17,7 @@
 # Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
-a threaded class for observing a SPEC data file
+a class for observing a SPEC data file
 
 Motivation:
 
@@ -537,7 +537,6 @@ class SPECFile(object):
          filename:  filename of the spec file
          path:      path to the specfile (optional)
         """
-        self.filename = filename
         self.full_filename = os.path.join(path, filename)
         self.filename = os.path.basename(self.full_filename)
 

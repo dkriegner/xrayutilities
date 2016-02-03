@@ -166,7 +166,7 @@ class XRDMLFile(object):
     file
     """
 
-    def __init__(self, fname):
+    def __init__(self, fname, path=""):
         """
         initialization routine supplied with a filename
         the file is automatically parsed and the data are available
@@ -176,10 +176,11 @@ class XRDMLFile(object):
         Parameter
         ---------
          fname:     filename of the XRDML file
-
+         path:      path to the XRDML file (optional)
         """
-        self.filename = fname
-        with xu_open(fname) as fid:
+        self.full_filename = os.path.join(path, fname)
+        self.filename = os.path.basename(self.full_filename)
+        with xu_open(self.full_filename) as fid:
             d = ElementTree.parse(fid)
         root = d.getroot()
         try:
