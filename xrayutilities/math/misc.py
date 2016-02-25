@@ -20,6 +20,44 @@ import numpy
 from .. import config
 
 
+def center_of_mass(pos, data, background='none', full_output=False):
+    """
+    function to determine the center of mass of an array
+
+    Parameter
+    ---------
+     pos:  position of the data points
+     data: data values
+     background: type of background, either 'none', 'constant' or 'linear'
+     full_output: return background cleaned data and background-parameters
+
+    Returns
+    -------
+     center of mass position (single float)
+    """
+    # subtract background
+    slope = 0
+    back = 0
+    if background == 'linear':
+        dx = float(pos[-1] - pos[0])
+        if abs(dx) > 0:
+            slope = (float(data[-1]) - float(data[0])) / dx
+        back = (data[0] - slope * pos[0] +
+                data[-1] - slope * pos[-1]) / 2.0
+        ld = data - (slope * pos + back)
+    elif background =='constant':
+        back = numpy.median(data)
+        ld = data - numpy.min(data)
+    else:
+        ld = data
+
+    ipos = numpy.sum(pos * ld) / numpy.sum(ld)
+    if full_output:
+        return ipos, ld, back, slope
+    else:
+        return ipos
+
+
 def fwhm_exp(pos, data):
     """
     function to determine the full width at half maximum value of experimental

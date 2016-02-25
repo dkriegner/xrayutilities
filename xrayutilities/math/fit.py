@@ -30,6 +30,7 @@ from scipy.odr import models
 from .. import config
 from .. exception import InputError
 from .misc import fwhm_exp
+from .misc import center_of_mass
 from .functions import Gauss1d, Gauss1d_der_x, Gauss1d_der_p
 from .functions import Lorentz1d, Lorentz1d_der_x, Lorentz1d_der_p
 from .functions import PseudoVoigt1d, PseudoVoigt1d_der_x, PseudoVoigt1d_der_p
@@ -297,18 +298,10 @@ def _guess_iparams(xdata, ydata, peaktype, background):
     -------
      list of initial parameters estimated from the data
     """
-    # try to subtract background
-    if background == 'linear':
-        slope = (ydata[-1] - ydata[0]) / (xdata[-1] - xdata[0])
-        back = (ydata[0] - slope * xdata[0] +
-                ydata[-1] - slope * xdata[-1]) / 2
-        ld = ydata - (slope * xdata + back)
-    else:
-        back = numpy.median(ydata)
-        ld = ydata - numpy.min(ydata)
-
+    ld = numpy.empty(len(ydata))
     # estimate peak position
-    ipos = numpy.sum(xdata * ld) / numpy.sum(ld)
+    ipos, ld, back, slope = center_of_mass(xdata, ydata, background,
+                                           full_output=True)
     maxpos = xdata[numpy.argmax(ld)]
     avx = numpy.average(xdata)
     if numpy.abs(ipos - avx) < numpy.abs(maxpos-avx):
