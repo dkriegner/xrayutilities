@@ -76,13 +76,13 @@ def fwhm_exp(pos, data):
 
     m = data.max()
     p0 = numpy.argmax(data)
-    datal = data[:p0]
+    datal = data[:p0+1]
     datar = data[p0:]
 
     # determine left side half value position
     try:
-        pls = pos[:p0][datal < m / 2.][-1]
-        pll = pos[:p0][datal > m / 2.][0]
+        pls = pos[:p0+1][datal < m / 2.][-1]
+        pll = pos[:p0+1][datal > m / 2.][0]
         ds = data[pos == pls][0]
         dl = data[pos == pll][0]
         pl = pls + (pll - pls) * (m / 2. - ds) / (dl - ds)
