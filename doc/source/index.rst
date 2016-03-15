@@ -212,9 +212,6 @@ Using Python(x,y) you want to specify 'mingw32' as compiler name. With the WinPy
 is recommended to use the MS Visual Studio Express 2008 (which is freely available for download)
 and can also build the code for 64bit Windows. In this case us 'msvc' as compiler name.
 
-It is suggested to add the MinGW binary directory, as well as the Python and Python-scripts directory
-to the Path environment variable as described above! Installation is done as described above.
-
 .. _expapi:
 
 Examples and API-documentation

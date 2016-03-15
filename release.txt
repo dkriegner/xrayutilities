@@ -56,7 +56,6 @@ If not done previously you need to build the extenstion modules using
   python setup.py build -c <compiler_name>
 
 The compiler name can be omitted if the default is working. 
-Using Python(x,y) you want to specify "mingw32".
 
 To build for 64-bit Windows, a known way to do it was reported by RG is 
 using MS Visual Studio Express 2008 (which is freely available for download). 

@@ -56,13 +56,6 @@ refer to your operating system documentation to find out how to install
 those packages. On Microsoft Windows refer to the Documentation for the
 easiest way of the installation (Python(x,y) or WinPython).
 
-On Microsoft Windows it might be necessary to manually
-specify the C compiler used for building the extension modules using
-
-  $> python setup.py build -c mingw32
-
-before the installation can be performed as described above.
-
 Python-2.7 and Python-3.X compatibility
 =======================================
 
