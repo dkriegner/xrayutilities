@@ -84,13 +84,15 @@ class RASFile(object):
                 t = fid.tell()
                 line = fid.readline()
                 line = line.decode('ascii', 'ignore')
+                if config.VERBOSITY >= config.DEBUG:
+                    print("XU.io.RASFile: %d: '%s'" % (t, line))
                 if re_measstart.match(line):
                     continue
                 elif re_headerstart.match(line):
                     s = RASScan(self.full_filename, t)
                     self.scans.append(s)
                     fid.seek(s.fidend)  # set handle to after scan
-                elif re_measend.match(line) or line is None:
+                elif re_measend.match(line) or line in (None, ''):
                     break
                 else:
                     continue
@@ -135,6 +137,8 @@ class RASScan(object):
             offset += len(line)
             line = line.decode('ascii', 'ignore')
             self.header.append(line)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.io.RASScan: %d: '%s'" % (offset, line))
 
             if re_datestart.match(line):
                 m = line.split(' ', 1)[-1].strip()
@@ -176,6 +180,7 @@ class RASScan(object):
 
     def _parse_data(self):
         line = self.fid.readline().decode('ascii', 'ignore')
+        offset = self.fid.tell()
         if re_datastart.match(line):
             lines = islice(self.fid, self.length)
             self.data = numpy.genfromtxt(lines)
@@ -183,6 +188,12 @@ class RASScan(object):
                                               names=[self.scan_axis,
                                                      'int',
                                                      'att'])
+            self.fid.seek(offset)
+            lines = islice(self.fid, self.length)
+            dlength = numpy.sum([len(line) for line in lines])
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.io.RASScan: offset %d; data-length %d" % (offset, dlength))
+            self.fid.seek(offset + dlength)
         else:
             raise IOError('File handle at wrong position to read data!')
 
