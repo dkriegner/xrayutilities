@@ -145,6 +145,7 @@ Ru = Crystal("Ru", lattice.HCPLattice(elements.Ru, 2.7059, 4.2815))
 Rh = Crystal("Rh", lattice.FCCLattice(elements.Rh, 3.8034))
 V = Crystal("V", lattice.BCCLattice(elements.V, 3.024))
 Ta = Crystal("Ta", lattice.BCCLattice(elements.Ta, 3.306))
+Pt = Crystal("Pt", lattice.FCCLattice(elements.Pt, 3.9242))
 Ag2Se = Crystal(
     "Ag2Se",
     lattice.NaumanniteLattice(elements.Ag, elements.Se, 4.333, 7.062, 7.764))

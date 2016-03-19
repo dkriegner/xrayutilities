@@ -1632,34 +1632,36 @@ class CubicAlloy(Alloy):
         return x, [ainp, aperp, abulk_perp(x), eps_inplane, eps_perp]
 
 
-def PseudomorphicMaterial(submat, layermat):
+def PseudomorphicMaterial(submat, layermat, relaxation=0):
     """
     This function returns a material whos lattice is pseudomorphic on a
     particular substrate material.
     This function works meanwhile only for cubic materials on (001) substrates
 
     required input arguments:
-     submat .................... substrate material
-     layermat .................. bulk material of the layer
+     submat ........ substrate material
+     layermat ...... bulk material of the layer
+     relaxation .... degree of relaxation 0: pseudomorphic, 1: relaxed
+                     (default: 0)
 
     return value:
      An instance of Crystal holding the new pseudomorphically strained
      material.
     """
 
-    a1 = submat.lattice.a1
-    a2 = submat.lattice.a2
+    asub = submat.lattice.a1[0]
 
     # calculate the normal lattice parameter
 
     abulk = layermat.lattice.a1[0]
-    ap = a1[0]
+    ap = asub + (abulk - asub) * relaxation
     c11 = layermat.cij[0, 0]
     c12 = layermat.cij[0, 1]
     a3 = numpy.zeros(3, dtype=numpy.double)
     a3[2] = abulk - 2.0 * c12 * (ap - abulk) / c11
     # create the pseudomorphic lattice
-    pmlatt = lattice.Lattice(a1, a2, a3)
+    pmlatt = lattice.Lattice([ap, 0, 0], [0, ap, 0], a2, a3,
+                             base=layermat.lattice.base)
 
     # create the new material
     pmat = Crystal("layermat.name", pmlatt, layermat.cij)
