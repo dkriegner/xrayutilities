@@ -29,7 +29,7 @@ re_symop = re.compile(r"^\s*("
                       "_space_group_symop_operation_xyz|"
                       "_symmetry_equiv_pos_as_xyz)")
 re_name = re.compile(r"^\s*_chemical_formula_sum")
-re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)")
+re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)\s*$")
 re_atomx = re.compile(r"^\s*_atom_site_fract_x")
 re_atomy = re.compile(r"^\s*_atom_site_fract_y")
 re_atomz = re.compile(r"^\s*_atom_site_fract_z")
@@ -48,7 +48,6 @@ re_comment = re.compile(r"^\s*#")
 
 
 class CIFFile(object):
-
     """
     class for parsing CIF (Crystallographic Information File) files. The class
     aims to provide an additional way of creating material classes instead of
@@ -70,7 +69,7 @@ class CIFFile(object):
         self.digits = digits
 
         try:
-            self.fid = open(self.filename, "r")
+            self.fid = open(self.filename, "rb")
         except:
             raise IOError("cannot open CIF file %s" % self.filename)
 
@@ -106,10 +105,14 @@ class CIFFile(object):
             helper function to convert string with possible error
             given in brackets to float
             """
-            f = float(re.sub(r"\(.+\)", r"", string))
+            try:
+                f = float(re.sub(r"\(.+\)", r"", string))
+            except ValueError:
+                f = numpy.nan
             return f
 
         for line in self.fid.readlines():
+            line = line.decode('ascii', 'ignore')
             if config.VERBOSITY >= config.DEBUG:
                 print(line)
 
@@ -161,6 +164,8 @@ class CIFFile(object):
                         occ_idx = None
                     elif re_atomx.match(line):
                         ax_idx = len(loop_labels) - 1
+                        if config.VERBOSITY >= config.DEBUG:
+                            print('XU.material: atom position x: col%d' %ax_idx)
                     elif re_atomy.match(line):
                         ay_idx = len(loop_labels) - 1
                     elif re_atomz.match(line):
@@ -212,7 +217,8 @@ class CIFFile(object):
             x = a[1][0]
             y = a[1][1]
             z = a[1][2]
-            el = re.sub(r"([0-9])", r"", a[0])
+            el = re.sub(r"['\"]", r"", a[0])
+            el = re.sub(r"([0-9])", r"", el)
             el = re.sub(r"\(\w*\)", r"", el)
             for symop in self.symops:
                 pos = eval("numpy.array(" + symop + ")")
