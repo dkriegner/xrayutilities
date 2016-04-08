@@ -29,7 +29,7 @@ except NameError:
 
 
 def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
-            xmax=numpy.inf, plot=False, verbose=False, elog=True):
+            xmax=numpy.inf, plot=False, verbose=False, elog=True, maxfev=500):
     """
     optimize function for a Reflectivity Model using lmfit. The fitting
     parameters must be specified as instance of lmfits Parameters class.
@@ -58,6 +58,8 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
      verbose:   flag to tell if the variation of the fitting error should be
                 output during the fit.
      elog:      logarithmic error during the fit
+     maxfev:    maximum number of function evaluations during the leastsq
+                optimization
 
     Returns
     -------
@@ -155,15 +157,22 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
         ax.set_yscale("log", nonposy='clip')
         if data is not None:
             if eps is not None:
-                plt.errorbar(ai, data, yerr=eps, ecolor='0.3', fmt='ko',
-                             errorevery=int(ai.size/80), label='data')
+                eline = plt.errorbar(ai, data, yerr=eps, ecolor='0.3',
+                                     fmt='ko', errorevery=int(ai.size/80),
+                                     label='data')[0]
             else:
-                plt.semilogy(ai, data, 'ko', label='data')
-        init, = plt.semilogy(ai, xrr_residual(params, ai, reflmod, data=None),
-                             '-', color='0.5', label='initial')
+                eline, = plt.semilogy(ai, data, 'ko', label='data')
+        if verbose:
+            init, = plt.semilogy(ai,
+                                 xrr_residual(params, ai, reflmod, data=None),
+                                 '-', color='0.5', label='initial')
+        if eline:
+            zord = eline.zorder+2
+        else:
+            zord = 1
         fline, = plt.semilogy(
                 ai[mask], xrr_residual(params, ai[mask], reflmod, data=None),
-                'r-', lw=2, label='fit', zorder=init.zorder+2)
+                'r-', lw=2, label='fit', zorder=zord)
         plt.legend()
         plt.xlabel('incidence angle (deg)')
         plt.ylabel('Intensity (arb. u.)')
@@ -178,8 +187,9 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
     def cb_func(params, niter, resid, ai, reflmod, **kwargs):
         if kwargs.get('verbose', False):
             print('{:04d} {:12.3e}'.format(niter, numpy.sum(resid**2)))
-        if kwargs.get('plot', False) and niter % 5 == 0:
+        if kwargs.get('plot', False) and niter % 20 == 0:
             fl = kwargs['fline']
+            plt.sca(ax)
             fl.set_ydata(xrr_residual(params, ai, reflmod, data=None))
             plt.draw()
 
@@ -187,11 +197,12 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
             xrr_residual, params, fcn_args=(ai[mask], reflmod),
             fcn_kws={'data': data[mask], 'eps': eps[mask], 'fline': fline,
                      'verbose': verbose, 'plot': plot, 'elog': elog},
-            iter_cb=cb_func)
+            iter_cb=cb_func, maxfev=maxfev)
     res = minimizer.minimize()
 
     # final update of plot
     if plot:
+        plt.sca(ax)
         plt.semilogy(ai, xrr_residual(res.params, ai, reflmod, data=None),
                      'g-', lw=1, label='fit', zorder=fline.zorder-1)
         cb_func(res.params, 0, res.residual, ai[mask], reflmod, fline=fline,

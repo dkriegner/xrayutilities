@@ -1,3 +1,5 @@
+* add relaxation parameter to PseudomoprhicMaterial to model partially relaxed
+  material
 * fix fwhm_exp for very narrow peaks
 * fitting of x-ray reflectivity using the lmfit package.
   If you want to use this new feature you have to install lmfit
