@@ -277,7 +277,6 @@ def ZincBlendeLattice(aa, ab, a):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, a]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -286,6 +285,61 @@ def ZincBlendeLattice(aa, ab, a):
 def DiamondLattice(aa, a):
     # Diamond is ZincBlende with two times the same atom
     return ZincBlendeLattice(aa, aa, a)
+
+
+def SiGeLattice(asi, age, a, xge):
+    # create lattice base
+    lb = LatticeBase()
+    lb.append(asi, [0, 0, 0], occ=1-xge)
+    lb.append(asi, [0.5, 0.5, 0], occ=1-xge)
+    lb.append(asi, [0.5, 0, 0.5], occ=1-xge)
+    lb.append(asi, [0, 0.5, 0.5], occ=1-xge)
+    lb.append(asi, [0.25, 0.25, 0.25], occ=1-xge)
+    lb.append(asi, [0.75, 0.75, 0.25], occ=1-xge)
+    lb.append(asi, [0.75, 0.25, 0.75], occ=1-xge)
+    lb.append(asi, [0.25, 0.75, 0.75], occ=1-xge)
+
+    lb.append(age, [0, 0, 0], occ=xge)
+    lb.append(age, [0.5, 0.5, 0], occ=xge)
+    lb.append(age, [0.5, 0, 0.5], occ=xge)
+    lb.append(age, [0, 0.5, 0.5], occ=xge)
+    lb.append(age, [0.25, 0.25, 0.25], occ=xge)
+    lb.append(age, [0.75, 0.75, 0.25], occ=xge)
+    lb.append(age, [0.75, 0.25, 0.75], occ=xge)
+    lb.append(age, [0.25, 0.75, 0.75], occ=xge)
+
+    # create lattice vectors
+    a1 = [a, 0, 0]
+    a2 = [0, a, 0]
+    a3 = [0, 0, a]
+    l = Lattice(a1, a2, a3, base=lb)
+
+    return l
+
+
+def AlGaAsLattice(aal, aga, aas, a, x):
+    # create lattice base
+    lb = LatticeBase()
+    lb.append(aal, [0, 0, 0], occ=1-x)
+    lb.append(aal, [0.5, 0.5, 0], occ=1-x)
+    lb.append(aal, [0.5, 0, 0.5], occ=1-x)
+    lb.append(aal, [0, 0.5, 0.5], occ=1-x)
+    lb.append(aga, [0, 0, 0], occ=x)
+    lb.append(aga, [0.5, 0.5, 0], occ=x)
+    lb.append(aga, [0.5, 0, 0.5], occ=x)
+    lb.append(aga, [0, 0.5, 0.5], occ=x)
+    lb.append(aas, [0.25, 0.25, 0.25])
+    lb.append(aas, [0.75, 0.75, 0.25])
+    lb.append(aas, [0.75, 0.25, 0.75])
+    lb.append(aas, [0.25, 0.75, 0.75])
+
+    # create lattice vectors
+    a1 = [a, 0, 0]
+    a2 = [0, a, 0]
+    a3 = [0, 0, a]
+    l = Lattice(a1, a2, a3, base=lb)
+
+    return l
 
 
 def FCCLattice(aa, a):
@@ -300,7 +354,6 @@ def FCCLattice(aa, a):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, a]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -322,7 +375,6 @@ def FCCSharedLattice(aa, ab, occa, occb, a):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, a]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -338,7 +390,6 @@ def BCCLattice(aa, a):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, a]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -354,7 +405,6 @@ def HCPLattice(aa, a, c):
     a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
     a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
     a3 = numpy.array([0., 0., c], dtype=numpy.double)
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -371,7 +421,6 @@ def BCTLattice(aa, a, c):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, c]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -395,7 +444,6 @@ def RockSaltLattice(aa, ab, a):
     a1 = [0, 0.5 * a, 0.5 * a]
     a2 = [0.5 * a, 0, 0.5 * a]
     a3 = [0.5 * a, 0.5 * a, 0]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -417,7 +465,6 @@ def RockSalt_Cubic_Lattice(aa, ab, a):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, a]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -433,7 +480,6 @@ def CsClLattice(aa, ab, a):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, a]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -455,7 +501,6 @@ def RutileLattice(aa, ab, a, c, u):
     a1 = [a, 0., 0.]
     a2 = [0., a, 0.]
     a3 = [0., 0., c]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -669,7 +714,6 @@ def TetragonalIndiumLattice(aa, a, c):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, c]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -688,7 +732,6 @@ def TetragonalTinLattice(aa, a, c):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, c]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -718,7 +761,6 @@ def NaumanniteLattice(aa, ab, a, b, c):
     a1 = [a, 0, 0]
     a2 = [0, b, 0]
     a3 = [0, 0, c]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -746,7 +788,6 @@ def CubicFm3mBaF2(aa, ab, a):
     a1 = [a, 0, 0]
     a2 = [0, a, 0]
     a3 = [0, 0, a]
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l
@@ -807,7 +848,6 @@ def GeTeRhombohedral(aa, ab, a, ang, x=0.237):
         (ca - cb * cg) / sg,
         numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 + 2 * ca * cb * cg) / sg],
         dtype=numpy.double)
-
     l = Lattice(a1, a2, a3, base=lb)
 
     return l

@@ -266,7 +266,7 @@ class Amorphous(Material):
                     contents to not add up to 1 they will be corrected without
                     notice.
         """
-        super(self.__class__, self).__init__(name, cij)
+        super(Amorphous, self).__init__(name, cij)
         self._density = density
         self.base = list()
         if atoms is None:
@@ -339,7 +339,7 @@ class Amorphous(Material):
         return beta
 
     def __str__(self):
-        ostr = super(self.__class__, self).__str__()
+        ostr = super(Amorphous, self).__str__()
         ostr += "density: %.2f\n" % self.density
         if len(self.base) > 0:
             ostr += "atoms: "
@@ -785,7 +785,7 @@ class Crystal(Material):
         return dth
 
     def __str__(self):
-        ostr = super(self.__class__, self).__str__()
+        ostr = super(Crystal, self).__str__()
         ostr += "Lattice:\n"
         ostr += self.lattice.__str__()
         ostr += "Reciprocal lattice:\n"
@@ -1227,10 +1227,9 @@ def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90, name="General"):
 class Alloy(Crystal):
 
     def __init__(self, matA, matB, x):
-        Crystal.__init__(self, "None", copy.copy(matA.lattice), matA.cij)
+        super(Alloy, self).__init__("None", copy.copy(matA.lattice), matA.cij)
         self.matA = matA
         self.matB = matB
-        self._xb = 0
         self._setxb(x)
 
     def lattice_const_AB(self, latA, latB, x):
@@ -1660,10 +1659,10 @@ def PseudomorphicMaterial(submat, layermat, relaxation=0):
     a3 = numpy.zeros(3, dtype=numpy.double)
     a3[2] = abulk - 2.0 * c12 * (ap - abulk) / c11
     # create the pseudomorphic lattice
-    pmlatt = lattice.Lattice([ap, 0, 0], [0, ap, 0], a2, a3,
+    pmlatt = lattice.Lattice([ap, 0, 0], [0, ap, 0], a3,
                              base=layermat.lattice.base)
 
     # create the new material
-    pmat = Crystal("layermat.name", pmlatt, layermat.cij)
+    pmat = Crystal(layermat.name, pmlatt, layermat.cij)
 
     return pmat

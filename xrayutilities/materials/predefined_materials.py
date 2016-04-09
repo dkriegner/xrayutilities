@@ -204,7 +204,10 @@ except:
 class SiGe(CubicAlloy):
 
     def __init__(self, x):
-        CubicAlloy.__init__(self, Si, Ge, x)
+        """
+        Si_{1-x} Ge_x cubic compound
+        """
+        super(SiGe, self).__init__(Si, Ge, x)
 
     def lattice_const_AB(self, latA, latB, x):
         """
@@ -215,18 +218,19 @@ class SiGe(CubicAlloy):
             latA / numpy.linalg.norm(latA)
 
     def _setxb(self, x):
-        """
-        method to set the composition of SiGe to Si_{1-x}Ge_x
-        """
-        if config.VERBOSITY >= config.DEBUG:
-            print("XU.materials.SiGe._setxb: jump to base class")
-        CubicAlloy._setxb(self, x)
-        if config.VERBOSITY >= config.DEBUG:
-            print("back from base class")
-        # the lattice parameters need to be done in a different way
-        a = self.lattice_const_AB(
-            self.matA.lattice.a1[0], self.matB.lattice.a1[0], x)
-        self.lattice = lattice.CubicLattice(a)
-        self.rlattice = self.lattice.ReciprocalLattice()
+        self.lattice = lattice.SiGeLattice(elements.Si, elements.Ge, 1, x)
+        super(SiGe, self)._setxb(x)
 
-    x = property(CubicAlloy._getxb, _setxb)
+
+class AlGaAs(CubicAlloy):
+
+    def __init__(self, x):
+        """
+        Al_{1-x} Ga_x As cubic compound
+        """
+        super(AlGaAs, self).__init__(AlAs, GaAs, x)
+
+    def _setxb(self, x):
+        self.lattice = lattice.AlGaAsLattice(elements.Al, elements.Ga,
+                                             elements.As, 1, x)
+        super(AlGaAs, self)._setxb(x)
