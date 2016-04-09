@@ -192,7 +192,8 @@ class RASScan(object):
             lines = islice(self.fid, self.length)
             dlength = numpy.sum([len(line) for line in lines])
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.io.RASScan: offset %d; data-length %d" % (offset, dlength))
+                print("XU.io.RASScan: offset %d; data-length %d"
+                      % (offset, dlength))
             self.fid.seek(offset + dlength)
         else:
             raise IOError('File handle at wrong position to read data!')

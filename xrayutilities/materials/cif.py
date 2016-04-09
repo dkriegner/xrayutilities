@@ -165,7 +165,8 @@ class CIFFile(object):
                     elif re_atomx.match(line):
                         ax_idx = len(loop_labels) - 1
                         if config.VERBOSITY >= config.DEBUG:
-                            print('XU.material: atom position x: col%d' %ax_idx)
+                            print('XU.material: atom position x: col%d'
+                                  % ax_idx)
                     elif re_atomy.match(line):
                         ay_idx = len(loop_labels) - 1
                     elif re_atomz.match(line):

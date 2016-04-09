@@ -45,7 +45,7 @@ def center_of_mass(pos, data, background='none', full_output=False):
         back = (data[0] - slope * pos[0] +
                 data[-1] - slope * pos[-1]) / 2.0
         ld = data - (slope * pos + back)
-    elif background =='constant':
+    elif background == 'constant':
         back = numpy.median(data)
         ld = data - numpy.min(data)
     else:
