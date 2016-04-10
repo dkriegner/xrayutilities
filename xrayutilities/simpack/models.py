@@ -199,9 +199,8 @@ class KinematicalModel(LayerModel):
         E = numpy.zeros(nq, dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
             q = qz - t(l.material.Q(*hkl))[-1]
-            dE = (numpy.exp(-1j * z[i] * q) / q *
+            E += (numpy.exp(-1j * z[i] * q) / q *
                   (1 - numpy.exp(1j * q * l.thickness)) * f[i, :])
-            E += dE
 
         w = valid * rel**2 / (numpy.sin(alphai) * numpy.sin(alphaf)) *\
             numpy.abs(E)**2
