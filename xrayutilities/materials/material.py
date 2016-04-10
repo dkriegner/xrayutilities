@@ -713,14 +713,6 @@ class Crystal(Material):
 
         return rchi, ichi
 
-    def chi0(self, en='config'):
-        """
-        calculates the complex chi_0 values often needed in simulations.
-        They are closely related to delta and beta
-        (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
-        """
-        return (-2 * self.delta(en) + 2j * self.beta(en))
-
     def idx_refraction(self, en="config"):
         """
         function to calculate the complex index of refraction of a material
