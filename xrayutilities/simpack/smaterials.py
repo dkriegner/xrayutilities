@@ -16,9 +16,11 @@
 # Copyright (C) 2015-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import collections
+import copy
+import numpy
 
 from ..exception import InputError
-from ..materials import Material
+from ..materials import Material, Crystal, PseudomorphicMaterial
 
 
 class SMaterial(object):
@@ -126,9 +128,11 @@ class Layer(SMaterial):
                     'roughness' is the root mean square roughness (\AA)
                     'density' relativ density of the material; 1 for nominal
                     density
+                    'relaxation' is the degree of relaxation in case of
+                    crystalline thin films
         """
         for kw in kwargs:
-            if kw not in ('roughness', 'density'):
+            if kw not in ('roughness', 'density', 'relaxation'):
                 raise TypeError('%s is an invalid keyword argument' % kw)
         kwargs['thickness'] = thickness
         super(self.__class__, self).__init__(material, **kwargs)
@@ -142,3 +146,49 @@ class LayerStack(MaterialList):
     def check(self, v):
         if not isinstance(v, Layer):
             raise TypeError('LayerStack can only contain Layer as entries!')
+
+
+class CrystalStack(LayerStack):
+    """
+    extends the built in list type to enable building a stack of crystalline
+    Layers by various methods.
+    """
+    def check(self, v):
+        super(CrystalStack, self).check(v)
+        if not isinstance(v.material, Crystal):
+            raise TypeError('CrystalStack can only contain crystalline Layers'
+                            ' as entries!')
+
+
+class PseudomorphicStack001(CrystalStack):
+    """
+    generate a sequence of pseudomorphic crystalline Layers. Surface
+    orientation is assumed to be 001 and materials should be cubic/tetragonal.
+    """
+
+    def make_epitaxial(self, i):
+        l = self.list[i]
+        if i == 0:
+            return l
+        psub = self.list[i-1].material
+        mpseudo = PseudomorphicMaterial(psub, l.material, l.relaxation)
+        self.list[i].material = mpseudo
+
+    def __delitem__(self, i):
+        del self.list[i]
+        for j in range(i, len(self)):
+            self.make_epitaxial(j)
+
+    def __setitem__(self, i, v):
+        self.check(v)
+        self.namelist[i] = self._get_unique_name(v)
+        self.list[i] = v
+        for j in range(i, len(self)):
+            self.make_epitaxial(j)
+
+    def insert(self, i, v):
+        self.check(v)
+        self.namelist.insert(i, self._get_unique_name(v))
+        self.list.insert(i, copy.copy(v))
+        for j in range(i, len(self)):
+            self.make_epitaxial(j)
