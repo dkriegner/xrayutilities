@@ -20,7 +20,7 @@ import copy
 import numpy
 
 from ..exception import InputError
-from ..materials import Material, Crystal, PseudomorphicMaterial
+from ..materials import Material, Crystal, PseudomorphicMaterial, Alloy
 
 
 class SMaterial(object):
@@ -48,11 +48,17 @@ class SMaterial(object):
     def __setattr__(self, name, value):
         self.__dict__[name] = value
 
+    def __radd__(self, other):
+        return MaterialList('%s + %s' % (other.name, self.name), other, self)
+
+    def __add__(self, other):
+        return MaterialList('%s + %s' % (self.name, other.name), self, other)
+
     def __repr__(self):
-        s = '{cls}-{name} ('.format(name=self.material.name,
-                                    cls=self.__class__.__name__)
+        s = '\n{cls}-{name} ('.format(name=self.material.name,
+                                      cls=self.__class__.__name__)
         for k in self.__dict__:
-            if k != 'material':
+            if k not in ('material', 'name'):
                 s += '{key}: {value}, '.format(key=k, value=getattr(self, k))
         return s + ')'
 
@@ -96,13 +102,46 @@ class MaterialList(collections.MutableSequence):
         self.list[i] = v
 
     def insert(self, i, v):
-        self.check(v)
-        self.namelist.insert(i, self._get_unique_name(v))
-        self.list.insert(i, v)
+        if isinstance(v, MaterialList):
+            vs = v
+        else:
+            vs = [v, ]
+        for j, val in enumerate(vs):
+            self.check(val)
+            self.namelist.insert(i+j, self._get_unique_name(val))
+            self.list.insert(i+j, val)
+
+    def __radd__(self, other):
+        ml = MaterialList('%s + %s' % (other.name, self.name))
+        ml.append(other)
+        ml.append(self)
+        return ml
+
+    def __add__(self, other):
+        ml = MaterialList('%s + %s' % (self.name, other.name))
+        ml.append(self)
+        ml.append(other)
+        return ml
+
+    def __mul__(self, other):
+        if not isinstance(other, int):
+            raise TypeError("unsupported operand type(s) for *: "
+                            "'MaterialList' and '%s'" % type(other))
+        if other < 1:
+            raise ValueError("multiplication factor needs to be positive!")
+        m = MaterialList('%d * (%s)' % (other, self.name), self)
+        for i in range(other-1):
+            m.append(self)
+        return m
+
+    __rmul__ = __mul__
 
     def __str__(self):
         s = '{name}\n{l}'.format(name=self.name, l=str(self.list))
         return s
+
+    def __repr__(self):
+        return self.name
 
 
 class Layer(SMaterial):
@@ -135,7 +174,7 @@ class Layer(SMaterial):
             if kw not in ('roughness', 'density', 'relaxation'):
                 raise TypeError('%s is an invalid keyword argument' % kw)
         kwargs['thickness'] = thickness
-        super(self.__class__, self).__init__(material, **kwargs)
+        super(Layer, self).__init__(material, **kwargs)
 
 
 class LayerStack(MaterialList):
@@ -158,6 +197,32 @@ class CrystalStack(LayerStack):
         if not isinstance(v.material, Crystal):
             raise TypeError('CrystalStack can only contain crystalline Layers'
                             ' as entries!')
+
+
+class GradedLayerStack(CrystalStack):
+    """
+    generates a sequence of layers with a gradient in chemical composition
+    """
+    def __init__(self, alloy, xfrom, xto, nsteps, thickness, **kwargs):
+        """
+        constructor for a graded buffer of the material 'alloy' with chemical
+        composition from 'xfrom' to 'xto' with 'nsteps' number of sublayers.
+        The total thickness of the graded buffer is 'thickness'
+
+        Parameters
+        ----------
+         alloy:     Alloy function which allows to create a material with
+                    chemical composition 'x' by alloy(x)
+         xfrom/xto: chemical composition from the bottom to top
+         nsteps:    number of sublayers in the graded buffer
+         thickness: total thickness of the graded stack
+        """
+        nfrom = alloy(xfrom).name
+        nto = alloy(xto).name
+        super(GradedLayerStack, self).__init__('(' + nfrom + '-' + nto + ')')
+        for x in numpy.linspace(xfrom, xto, nsteps):
+            l = Layer(alloy(x), thickness/nsteps, **kwargs)
+            self.append(l)
 
 
 class PseudomorphicStack001(CrystalStack):
@@ -187,8 +252,13 @@ class PseudomorphicStack001(CrystalStack):
             self.make_epitaxial(j)
 
     def insert(self, i, v):
-        self.check(v)
-        self.namelist.insert(i, self._get_unique_name(v))
-        self.list.insert(i, copy.copy(v))
-        for j in range(i, len(self)):
-            self.make_epitaxial(j)
+        if isinstance(v, MaterialList):
+            vs = v
+        else:
+            vs = [v, ]
+        for j, val in enumerate(vs):
+            self.check(val)
+            self.namelist.insert(i+j, self._get_unique_name(val))
+            self.list.insert(i+j, copy.copy(val))
+            for k in range(i+j, len(self)):
+                self.make_epitaxial(k)

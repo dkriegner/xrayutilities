@@ -27,7 +27,8 @@ on lmfit.
 
 from .smaterials import SMaterial, MaterialList
 from .smaterials import Layer, LayerStack
-from .smaterials import CrystalStack, PseudomorphicStack001
+from .smaterials import CrystalStack, GradedLayerStack
+from .smaterials import PseudomorphicStack001
 
 from .models import Model, LayerModel
 from .models import KinematicalModel
