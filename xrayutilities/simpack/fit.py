@@ -153,6 +153,7 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
             plt.figure(plot)
         else:
             plt.figure('XU:fit_xrr')
+        plt.clf()
         ax = plt.subplot(111)
         ax.set_yscale("log", nonposy='clip')
         if data is not None:
@@ -192,6 +193,7 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
             plt.sca(ax)
             fl.set_ydata(xrr_residual(params, ai, reflmod, data=None))
             plt.draw()
+            plt.pause(0.001)  # enable better mpl backend compatibility
 
     minimizer = lmfit.Minimizer(
             xrr_residual, params, fcn_args=(ai[mask], reflmod),
