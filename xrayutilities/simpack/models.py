@@ -131,11 +131,12 @@ class LayerModel(Model):
         Parameters
         ----------
          *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation
-                    supported are: 'experiment': Experiment class containing
-                    geometry and energy of the experiment
+         *kwargs:   optional parameters for the simulation. supported are:
+            'experiment': Experiment class containing geometry and energy of
+                          the experiment.
+            'surface_hkl': Miller indices of the surface (default: (001))
         """
-        exp = kwargs.get('experiment', None)
+        exp = kwargs.pop('experiment', None)
         super(LayerModel, self).__init__(exp, **kwargs)
         if len(args) == 1:
             self.lstack = args[0]
@@ -149,10 +150,37 @@ class KinematicalModel(LayerModel):
     Kinematical diffraction model for specular and off-specular qz-scans. The
     model calculates the kinematical contribution of one (hkl) Bragg peak,
     however considers the variation of the structure factor for different 'q'.
-    The surface geometry is specified using the Experiment-object given to
-    the constructor.
+    The surface geometry is specified using the Experiment-object given to the
+    constructor.
     """
-    def simulate(self, qz, hkl):
+    def __init__(self, *args, **kwargs):
+        """
+        constructor for a kinematic thin film model. The arguments consist of a
+        LayerStack or individual Layer(s). Optional parameters are specified in
+        the keyword arguments.
+
+        Parameters
+        ----------
+         *args:     either one LayerStack or several Layer objects can be given
+         *kwargs:   optional parameters for the simulation. supported are:
+            'experiment': Experiment class containing geometry and energy of
+                          the experiment.
+        """
+        super(KinematicalModel, self).__init__(*args, **kwargs)
+        # precalc optical properties
+        self.init_chi0()
+
+    def init_chi0(self):
+        """
+        calculates the needed optical parameters for the simulation. If any of
+        the materials/layers is changing its properties this function needs to
+        be called again before another correct simulation is made. (Changes of
+        thickness does NOT require this!)
+        """
+        self.chi0 = numpy.asarray([l.material.chi0(en=self.exp.energy)
+                                   for l in self.lstack])
+
+    def simulate(self, qz, hkl, absorption=False, refraction=False):
         """
         performs the actual kinematical diffraction calculation on the Qz
         positions specified considering the contribution from a single Bragg
@@ -160,13 +188,17 @@ class KinematicalModel(LayerModel):
 
         Parameters
         ----------
-         qz:    simulation positions along qz
-         hkl:   Miller indices of the Bragg peak whos surrounding should be
-                calculated
+         qz:            simulation positions along qz
+         hkl:           Miller indices of the Bragg peak whos truncation rod
+                        should be calculated
+         absorption:    flag to tell if absorption correction should be used
+         refraction:    flag to tell if basic refraction correction should be
+                        performed. If refraction is True absorption correction
+                        is also included independent of the absorption flag.
 
         Returns
         -------
-        vector of the ratios of the diffracted and primary fluxes
+         vector of the ratios of the diffracted and primary fluxes
         """
         nl, nq = (len(self.lstack), len(qz))
         rel = constants.physical_constants['classical electron radius'][0]
@@ -187,27 +219,149 @@ class KinematicalModel(LayerModel):
         valid = heaviside(alphai) * heaviside(alphaf)
 
         # calculate structure factors
-        z = numpy.zeros(nl + 1)
         f = numpy.empty((nl, nq), dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
             m = l.material
-            z[i+1] = z[i] - l.thickness
             f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
                 m.lattice.UnitCellVolume()
+
+        # calculate interface positions
+        z = numpy.zeros(nl)
+        for i, l in enumerate(self.lstack[-1:0:-1]):
+            z[-i-2] = z[-i-1] - l.thickness
 
         # perform kinematical calculation
         E = numpy.zeros(nq, dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
-            q = qz - t(l.material.Q(*hkl))[-1]
-            E += (numpy.exp(-1j * z[i] * q) / q *
-                  (1 - numpy.exp(1j * q * l.thickness)) * f[i, :])
+            q = qz.astype(numpy.complex)
+            if absorption and not refraction:
+                q += 1j * k * numpy.imag(self.chi0[i]) / numpy.sin(theta)
+            if refraction:
+                q = k * (numpy.sqrt(numpy.sin(alphai)**2 + self.chi0[i]) +
+                         numpy.sqrt(numpy.sin(alphaf)**2 + self.chi0[i]))
+            q -= t(l.material.Q(*hkl))[-1]
+
+            if l.thickness == numpy.inf:
+                E += f[i, :] * numpy.exp(-1j * z[i] * q) / (1j * q)
+            else:
+                E += - f[i, :] * numpy.exp(-1j * q * z[i]) * \
+                    (1 - numpy.exp(1j * q * l.thickness)) / (1j * q)
 
         w = valid * rel**2 / (numpy.sin(alphai) * numpy.sin(alphaf)) *\
             numpy.abs(E)**2
         return self.scale_simulation(self.convolute_resolution(qz, w))
 
 
-class SimpleDynamicalCoplanarModel(LayerModel):
+class KinematicalMultiBeamModel(KinematicalModel):
+    """
+    Kinematical diffraction model for specular and off-specular qz-scans. The
+    model calculates the kinematical contribution of several Bragg peaks on
+    the truncation rod and considers the variation of the structure factor.
+    In order to use a analytical description for the kinematic diffraction
+    signal all layer thicknesses are changed to a multiple of the respective
+    lattice parameter along qz. Therefore this description only works for (001)
+    surfaces.
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        constructor for a kinematic thin film model. The arguments consist of a
+        LayerStack or individual Layer(s). Optional parameters are specified in
+        the keyword arguments.
+
+        Parameters
+        ----------
+         *args:     either one LayerStack or several Layer objects can be given
+         *kwargs:   optional parameters for the simulation. supported are:
+            'experiment': Experiment class containing geometry and energy of
+                          the experiment.
+            'surface_hkl': Miller indices of the surface (default: (001))
+        """
+        self.surface_hkl = kwargs.pop('surface_hkl', (0, 0, 1))
+        super(KinematicalMultiBeamModel, self).__init__(*args, **kwargs)
+
+    def simulate(self, qz, hkl, absorption=False, refraction=True):
+        """
+        performs the actual kinematical diffraction calculation on the Qz
+        positions specified considering the contribution from a full
+        truncation rod
+
+        Parameters
+        ----------
+         qz:            simulation positions along qz
+         hkl:           Miller indices of the Bragg peak whos truncation rod
+                        should be calculated
+         absorption:    flag to tell if absorption correction should be used
+         refraction:    flag to tell if basic refraction correction should be
+                        performed. If refraction is True absorption correction
+                        is also included independent of the absorption flag.
+
+        Returns
+        -------
+         vector of the ratios of the diffracted and primary fluxes
+        """
+        nl, nq = (len(self.lstack), len(qz))
+        rel = constants.physical_constants['classical electron radius'][0]
+        rel *= 1e10
+        k = self.exp.k0
+
+        # determine q-inplane
+        t = self.exp._transform
+        ql0 = t(self.lstack[0].material.Q(*hkl))
+        qinp = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
+
+        # prepare calculation
+        qv = numpy.asarray([t.inverse((ql0[0], ql0[1], q)) for q in qz])
+        Q = numpy.linalg.norm(qv, axis=1)
+        theta = numpy.arcsin(Q / (2 * k))
+        omega = numpy.arctan(qinp / Q)
+        alphai, alphaf = (theta + omega, theta-omega)
+        valid = heaviside(alphai) * heaviside(alphaf)
+
+        # calculate structure factors
+        f = numpy.empty((nl, nq), dtype=numpy.complex)
+        for i, l in enumerate(self.lstack):
+            m = l.material
+            f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
+                m.lattice.UnitCellVolume()
+
+        # calculate interface positions
+        z = numpy.zeros(nl)
+        for i, l in enumerate(self.lstack[-1:0:-1]):
+            lat = l.material.lattice
+            a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
+            n3 = l.thickness // a3
+            z[-i-2] = z[-i-1] - a3 * n3
+            if config.VERBOSITY >= config.INFO_LOW:
+                print('XU.KinematicMultiBeamModel: %s thickness changed to'
+                      ' %.2f\AA (%d UCs)' % (l.name, a3 * n3, n3))
+
+        # perform kinematical calculation
+        E = numpy.zeros(nq, dtype=numpy.complex)
+        for i, l in enumerate(self.lstack):
+            q = qz.astype(numpy.complex)
+            if absorption and not refraction:
+                q += 1j * k * numpy.imag(self.chi0[i]) / numpy.sin(theta)
+            if refraction:
+                q = k * (numpy.sqrt(numpy.sin(alphai)**2 + self.chi0[i]) +
+                         numpy.sqrt(numpy.sin(alphaf)**2 + self.chi0[i]))
+            lat = l.material.lattice
+            a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
+
+            if l.thickness == numpy.inf:
+                E += f[i, :] * a3 * numpy.exp(-1j * z[i] * q) /\
+                    (1 - numpy.exp(1j * q * a3))
+            else:
+                n3 = l.thickness // a3
+                E += f[i, :] * a3 * numpy.exp(-1j * z[i] * q) * \
+                    (1 - numpy.exp(1j * q * a3 * n3)) /\
+                    (1 - numpy.exp(1j * q * a3))
+
+        w = valid * rel**2 / (numpy.sin(alphai) * numpy.sin(alphaf)) *\
+            numpy.abs(E)**2
+        return self.scale_simulation(self.convolute_resolution(qz, w))
+
+
+class SimpleDynamicalCoplanarModel(KinematicalModel):
     """
     Dynamical diffraction model for specular and off-specular qz-scans.
     Calculation of the flux of reflected and diffracted waves for general
@@ -216,6 +370,13 @@ class SimpleDynamicalCoplanarModel(LayerModel):
     polarizations)
 
     No restrictions are made for the surface orientation.
+
+    The first layer in the model is always assumed to be the semiinfinite
+    substrate indepentent of its given thickness
+
+    Note: This model should not be used in real life scenarios since the made
+          approximations severely fail for distances far from the reference
+          position.
     """
     def __init__(self, *args, **kwargs):
         """
@@ -240,24 +401,12 @@ class SimpleDynamicalCoplanarModel(LayerModel):
                     'experiment': Experiment class containing geometry of the
                                   sample; surface orientation!
         """
+        self.polarization = kwargs.pop('polarization', 'S')
+        self.Cmono = kwargs.pop('Cmono', 1)
         super(SimpleDynamicalCoplanarModel, self).__init__(*args, **kwargs)
-        self.polarization = kwargs.get('polarization', 'S')
-        self.Cmono = kwargs.get('Cmono', 1)
-        # precalc optical properties
-        self.init_chi0()
         self.hkl = None
         self.chih = None
         self.chimh = None
-
-    def init_chi0(self):
-        """
-        calculates the needed optical parameters for the simulation. If any of
-        the materials/layers is changing its properties this function needs to
-        be called again before another correct simulation is made. (Changes of
-        thickness and roughness do NOT require this!)
-        """
-        self.chi0 = numpy.asarray([l.material.chi0(en=self.exp.energy)
-                                   for l in self.lstack])
 
     def set_hkl(self, *hkl):
         """
@@ -406,6 +555,9 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
     asymmetric coplanar diffraction from an arbitrary pseudomorphic multilayer
     is performed by a generalized 2-beam theory (4 tiepoints, S and P
     polarizations)
+
+    The first layer in the model is always assumed to be the semiinfinite
+    substrate indepentent of its given thickness
     """
     def simulate(self, alphai, hkl=None, geometry='hi_lo'):
         """
@@ -522,112 +674,115 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         return self.scale_simulation(self.convolute_resolution(alphai, ret))
 
 
-class DynamicalSKinematicalLModel(SimpleDynamicalCoplanarModel):
-    """
-    Mixed dynamical and kinematical diffraction model for specular and
-    off-specular qz-scans.  Calculation of the flux of reflected and diffracted
-    waves for general asymmetric coplanar diffraction from an arbitrary
-    pseudomorphic multilayer.  Signal from the semi-infinite substrate is
-    calculated using dynamical theory (2-beam theory (2 tiepoints, S and P
-    polarizations)) and the signal from the other layers is calculated
-    kinematically.
-
-    No restrictions are made for the surface orientation.
-    """
-    def simulate(self, alphai, hkl=None, geometry='hi_lo', layerpos='kin'):
-        """
-        performs the actual diffraction calculation for the specified
-        incidence angles.
-
-        Parameters
-        ----------
-         alphai:    vector of incidence angles (deg)
-         hkl:       Miller indices of the diffraction vector (preferable use
-                    set_hkl method to speed up repeated calculations of the
-                    same peak!)
-         geometry:  'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
-                    incidence
-         layerpos:  either 'kin' or 'dyn'. Determines how the diffraction
-                    position of the layers is calculated. default 'kin' for
-                    kinematical.  'dyn' uses a dynamical formular which is more
-                    accurate close to the substrate.
-
-        Returns
-        -------
-         vector of intensities of the diffracted signal
-        """
-        if hkl is not None:
-            self.set_hkl(hkl)
-
-        # return values
-        Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
-
-        # determine q-inplane
-        t = self.exp._transform
-        ql0 = t(self.lstack[0].material.Q(*self.hkl))
-        hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
-        if geometry == 'lo_hi':
-            hx = -hx
-
-        # calculate vertical diffraction vector components and strain
-        hz = numpy.zeros(len(self.lstack))
-        for i, l in enumerate(self.lstack):
-            hz[i] = t(l.material.Q(*self.hkl))[2]
-        epsilon = (hz[0] - hz) / hz
-
-        k = self.exp.k0
-        thetaB = numpy.arcsin(numpy.sqrt(hx**2 + hz[0]**2) / 2 / k)
-        # asymmetry angle
-        asym = numpy.arctan2(hx, hz[0])
-        gamma0 = numpy.sin(asym + thetaB)
-        gammah = numpy.sin(asym - thetaB)
-
-        # deviation of the incident beam from the kinematical maximum
-        ai = numpy.radians(alphai)
-        eta = ai - thetaB - asym
-
-        # calculate Interface positions
-        z = numpy.zeros(len(self.lstack) + 1)
-        for i, l in enumerate(self.lstack):
-            if i == 0:
-                continue
-            z[i+1] = z[i] - l.thickness
-
-        for pol in self.get_polarizations():
-            x = numpy.zeros(len(alphai), dtype=numpy.complex)
-            for i, l in enumerate(self.lstack):
-                beta = (2 * eta * numpy.sin(2 * thetaB) +
-                        self.chi0[i] * (1 - gammah / gamma0) -
-                        2 * gammah * (gamma0 - gammah) * epsilon[i])
-                if i == 0:  # substrate
-                    y = beta / 2 /\
-                        numpy.sqrt(self.chih[pol][i] * self.chimh[pol][i]) /\
-                        numpy.sqrt(numpy.abs(gammah) / gamma0)
-                    c1 = -numpy.sqrt(self.chih[pol][i] / self.chih[pol][i] *
-                                     gamma0 / numpy.abs(gammah)) *\
-                        (y + numpy.sqrt(y**2 - 1))
-                    c2 = -numpy.sqrt(self.chih[pol][i] / self.chimh[pol][i] *
-                                     gamma0 / numpy.abs(gammah)) *\
-                        (y - numpy.sqrt(y**2 - 1))
-                    pp = numpy.abs(gammah) / gamma0 * numpy.abs(c1)**2
-                    m = pp < 1
-                    x[m] = c1[m]
-                    m = pp >= 1
-                    x[m] = c2[m]
-                else:  # layers
-                    if layerpos == 'dyn':
-                        qz = -k / 2 / gammah * beta
-                    else:  # kinematical alternative
-                        th = (numpy.arccos(hx / k + numpy.cos(ai)) + ai) / 2
-                        qz = 2 * k * numpy.sin(th) * numpy.cos(ai - th) -\
-                            t(l.material.Q(*self.hkl))[-1]
-                    x += -k / 2 / gammah * self.chih[pol][i] / qz *\
-                        (numpy.exp(-1j * qz * l.thickness) - 1) *\
-                        numpy.exp(-1j * z[i] * qz)
-            Ih[pol] = numpy.abs(x)**2
-
-        ret = self.join_polarizations(Ih['S'], Ih['P'])
-        return self.scale_simulation(self.convolute_resolution(alphai, ret))
+# CODE NOT FULLY TESTED AND ANYHOW USELESS
+# class DynamicalSKinematicalLModel(SimpleDynamicalCoplanarModel):
+#    """
+#    Mixed dynamical and kinematical diffraction model for specular and
+#    off-specular qz-scans. Calculation of the flux of reflected and diffracted
+#    waves for general asymmetric coplanar diffraction from an arbitrary
+#    pseudomorphic multilayer.  Signal from the semi-infinite substrate is
+#    calculated using dynamical theory (2-beam theory (2 tiepoints, S and P
+#    polarizations)) and the signal from the other layers is calculated
+#    kinematically.
+#
+#    No restrictions are made for the surface orientation.
+#
+#    The first layer in the model is always assumed to be the semiinfinite
+#    substrate indepentent of its given thickness
+#    """
+#    def simulate(self, alphai, hkl=None, geometry='hi_lo', layerpos='kin'):
+#        """
+#        performs the actual diffraction calculation for the specified
+#        incidence angles.
+#
+#        Parameters
+#        ----------
+#         alphai:    vector of incidence angles (deg)
+#         hkl:       Miller indices of the diffraction vector (preferable use
+#                    set_hkl method to speed up repeated calculations of the
+#                    same peak!)
+#         geometry:  'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
+#                    incidence
+#         layerpos:  either 'kin' or 'dyn'. Determines how the diffraction
+#                    position of the layers is calculated. default 'kin' for
+#                    kinematical. 'dyn' uses a dynamical formular which is more
+#                    accurate close to the substrate.
+#
+#        Returns
+#        -------
+#         vector of intensities of the diffracted signal
+#        """
+#        if hkl is not None:
+#            self.set_hkl(hkl)
+#
+#        # return values
+#        Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
+#
+#        # determine q-inplane
+#        t = self.exp._transform
+#        ql0 = t(self.lstack[0].material.Q(*self.hkl))
+#        hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
+#        if geometry == 'lo_hi':
+#            hx = -hx
+#
+#        # calculate vertical diffraction vector components and strain
+#        hz = numpy.zeros(len(self.lstack))
+#        for i, l in enumerate(self.lstack):
+#            hz[i] = t(l.material.Q(*self.hkl))[2]
+#        epsilon = (hz[0] - hz) / hz
+#
+#        k = self.exp.k0
+#        thetaB = numpy.arcsin(numpy.sqrt(hx**2 + hz[0]**2) / 2 / k)
+#        # asymmetry angle
+#        asym = numpy.arctan2(hx, hz[0])
+#        gamma0 = numpy.sin(asym + thetaB)
+#        gammah = numpy.sin(asym - thetaB)
+#
+#        # deviation of the incident beam from the kinematical maximum
+#        ai = numpy.radians(alphai)
+#        eta = ai - thetaB - asym
+#
+#        # calculate Interface positions
+#        z = numpy.zeros(len(self.lstack))
+#        for i, l in enumerate(self.lstack[-1:0:-1]):
+#            z[-i-2] = z[-i-1] - l.thickness
+#
+#        for pol in self.get_polarizations():
+#            x = numpy.zeros(len(alphai), dtype=numpy.complex)
+#            for i, l in enumerate(self.lstack):
+#                beta = (2 * eta * numpy.sin(2 * thetaB) +
+#                        self.chi0[i] * (1 - gammah / gamma0) -
+#                        2 * gammah * (gamma0 - gammah) * epsilon[i])
+#                if i == 0:  # substrate
+#                    y = beta / 2 /\
+#                        numpy.sqrt(self.chih[pol][i] * self.chimh[pol][i]) /\
+#                        numpy.sqrt(numpy.abs(gammah) / gamma0)
+#                    c1 = -numpy.sqrt(self.chih[pol][i] / self.chih[pol][i] *
+#                                     gamma0 / numpy.abs(gammah)) *\
+#                        (y + numpy.sqrt(y**2 - 1))
+#                    c2 = -numpy.sqrt(self.chih[pol][i] / self.chimh[pol][i] *
+#                                     gamma0 / numpy.abs(gammah)) *\
+#                        (y - numpy.sqrt(y**2 - 1))
+#                    pp = numpy.abs(gammah) / gamma0 * numpy.abs(c1)**2
+#                    m = pp < 1
+#                    x[m] = c1[m]
+#                    m = pp >= 1
+#                    x[m] = c2[m]
+#                else:  # layers
+#                    if layerpos == 'dyn':
+#                        qz = -k / 2 / gammah * beta
+#                    else:  # kinematical alternative
+#                        th = (numpy.arccos(hx / k + numpy.cos(ai)) + ai) / 2
+#                        qz = 2 * k * numpy.sin(th) * numpy.cos(ai - th) -\
+#                            t(l.material.Q(*self.hkl))[-1]
+#                    x += k / 2 / gammah * self.chih[pol][i] / qz *\
+#                        (1 - numpy.exp(-1j * qz * l.thickness)) *\
+#                        numpy.exp(1j * z[i] * qz)
+#
+#            Ih[pol] = numpy.abs(x)**2
+#
+#        ret = self.join_polarizations(Ih['S'], Ih['P'])
+#        return self.scale_simulation(self.convolute_resolution(alphai, ret))
 
 
 class SpecularReflectivityModel(LayerModel):
@@ -653,9 +808,9 @@ class SpecularReflectivityModel(LayerModel):
                                        (deg)
                     'energy' sets the experimental energy (eV)
         """
+        self.sample_width = kwargs.pop('sample_width', numpy.inf)
+        self.beam_width = kwargs.pop('beam_width', 0)
         super(SpecularReflectivityModel, self).__init__(*args, **kwargs)
-        self.sample_width = kwargs.get('sample_width', numpy.inf)
-        self.beam_width = kwargs.get('beam_width', 0)
         # precalc optical properties
         self.init_cd()
 

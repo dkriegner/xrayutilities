@@ -54,6 +54,19 @@ class SMaterial(object):
     def __add__(self, other):
         return MaterialList('%s + %s' % (self.name, other.name), self, other)
 
+    def __mul__(self, other):
+        if not isinstance(other, int):
+            raise TypeError("unsupported operand type(s) for *: "
+                            "'SMaterial' and '%s'" % type(other))
+        if other < 1:
+            raise ValueError("multiplication factor needs to be positive!")
+        m = MaterialList('%d * (%s)' % (other, self.name), self)
+        for i in range(other-1):
+            m.append(self)
+        return m
+
+    __rmul__ = __mul__
+
     def __repr__(self):
         s = '\n{cls}-{name} ('.format(name=self.material.name,
                                       cls=self.__class__.__name__)

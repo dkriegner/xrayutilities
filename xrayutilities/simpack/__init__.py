@@ -32,9 +32,10 @@ from .smaterials import PseudomorphicStack001
 
 from .models import Model, LayerModel
 from .models import KinematicalModel
+from .models import KinematicalMultiBeamModel
 from .models import SpecularReflectivityModel
 from .models import SimpleDynamicalCoplanarModel
-from .models import DynamicalSKinematicalLModel
+# from .models import DynamicalSKinematicalLModel
 from .models import DynamicalModel
 
 from .fit import fit_xrr
