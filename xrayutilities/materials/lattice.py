@@ -108,26 +108,10 @@ class Lattice(object):
     """
 
     def __init__(self, a1, a2, a3, base=None):
-        if isinstance(a1, list):
-            self.a1 = numpy.array(a1, dtype=numpy.double)
-        elif isinstance(a1, numpy.ndarray):
-            self.a1 = a1
-        else:
-            raise TypeError("a1 must be a list or a numpy array")
-
-        if isinstance(a2, list):
-            self.a2 = numpy.array(a2, dtype=numpy.double)
-        elif isinstance(a1, numpy.ndarray):
-            self.a2 = a2
-        else:
-            raise TypeError("a2 must be a list or a numpy array")
-
-        if isinstance(a3, list):
-            self.a3 = numpy.array(a3, dtype=numpy.double)
-        elif isinstance(a3, numpy.ndarray):
-            self.a3 = a3
-        else:
-            raise TypeError("a3 must be a list or a numpy array")
+        self._ai = numpy.identity(3)
+        self.a1 = a1
+        self.a2 = a2
+        self.a3 = a3
 
         if base is not None:
             if not isinstance(base, LatticeBase):
@@ -138,8 +122,36 @@ class Lattice(object):
         else:
             self.base = None
 
-        m = numpy.transpose(numpy.array([self.a1, self.a2, self.a3]))
-        self.transform = math.Transform(m)
+    @property
+    def a1(self):
+        return self._ai[0, :]
+
+    @property
+    def a2(self):
+        return self._ai[1, :]
+
+    @property
+    def a3(self):
+        return self._ai[2, :]
+
+    @a1.setter
+    def a1(self, value):
+        self._setlat(1, value)
+
+    @a2.setter
+    def a2(self, value):
+        self._setlat(2, value)
+
+    @a3.setter
+    def a3(self, value):
+        self._setlat(3, value)
+
+    def _setlat(self, i, value):
+        if isinstance(value, (list, tuple, numpy.ndarray)):
+            self._ai[i-1, :] = value[:]
+        else:
+            raise TypeError("a%d must be a list, tuple or a numpy array" % i)
+        self.transform = math.Transform(self._ai.T)
 
     def ApplyStrain(self, eps):
         """
