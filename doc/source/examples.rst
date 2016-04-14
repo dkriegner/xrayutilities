@@ -280,9 +280,9 @@ First defining a new material from scratch is shown. This consists of an lattice
     atom_P = xu.materials.elements.P
     elastictensor = xu.materials.CubicElasticTensor(10.11e+10, 5.61e+10,
                                                     4.56e+10)
-    InP  = xu.materials.Material("InP",
-                                 ZincBlendeLattice(atom_In, atom_P, 5.8687),
-                                 elastictensor)
+    InP  = xu.materials.Crystal("InP",
+                                ZincBlendeLattice(atom_In, atom_P, 5.8687),
+                                elastictensor)
 
 
 InP is of course already included in the xu.materials module and can be loaded by::
@@ -332,7 +332,7 @@ It is also possible to calculate the components of the structure factor of atoms
     Fe = xu.materials.elements.Fe # iron atom
     Q = numpy.array([0, 0, 1.9], dtype=numpy.double)
     en = 10000 # energy in eV
-    
+
     print("Iron (Fe): E: %9.1f eV" % en)
     print("f0: %8.4g" % Fe.f0(numpy.linalg.norm(Q)))
     print("f1: %8.4g" % Fe.f1(en))
@@ -362,7 +362,7 @@ The example below shows the necessary code to perform such an angle calculation 
         return l
 
     latticeConstants=[5.600, 7.706, 5.3995]
-    SmFeO3 = xu.materials.Material("SmFeO3", Pnma(*latticeConstants))
+    SmFeO3 = xu.materials.Crystal("SmFeO3", Pnma(*latticeConstants))
     # 2S+2D goniometer
     qconv=xu.QConversion(('x+', 'z+'), ('z+', 'x+'), (0, 1, 0))
     # [1,1,0] surface normal
