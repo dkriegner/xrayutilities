@@ -41,17 +41,19 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
                 parameters '{}_thickness', '{}_roughness', '{}_density', with
                 '{}' representing the layer name are supported. In addition the
                 setup parameters:
-                 - 'I0' primary beam intensity
-                 - 'background' background added to the simulation
-                 - 'sample_width' size of the sample along the beam
-                 - 'beam_width' width of the beam in the same units
-                 - 'resolution_width' width of the resolution function in deg
-                 - 'shift' experimental shift of the incidence angle array
+                - 'I0' primary beam intensity
+                - 'background' background added to the simulation
+                - 'sample_width' size of the sample along the beam
+                - 'beam_width' width of the beam in the same units
+                - 'resolution_width' width of the resolution function in deg
+                - 'shift' experimental shift of the incidence angle array
      ai:        array of incidence angles for the calculation
      data:      experimental data which should be fitted
      eps:       (optional) error bar of the data
-     xmin, xmax: minimum and maximum values of ai which should be used. a mask
-                 is generated to cut away other data
+     xmin:      minimum value of ai which should be used. a mask
+                is generated to cut away other data
+     xmax:      maximum value of ai which should be used. a mask
+                is generated to cut away other data
      plot:      flag to decide wheter an plot should be created showing the
                 fit's progress. If plot is a string it will be used as figure
                 name, which makes reusing the figures easier.

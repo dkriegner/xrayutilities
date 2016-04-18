@@ -85,7 +85,7 @@ class Model(object):
             return y
         else:
             dx = numpy.mean(numpy.gradient(x))
-            nres = int(10 * self.resolution_width / dx)
+            nres = int(10 * numpy.abs(self.resolution_width / dx))
             xres = startdelta(-5*self.resolution_width, dx, nres + 1)
             # the following works only exactly for equally spaced data points
             resf = NormGauss1d(xres, numpy.mean(xres), self.resolution_width)
@@ -214,17 +214,15 @@ class KinematicalModel(LayerModel):
         qv = numpy.asarray([t.inverse((ql0[0], ql0[1], q)) for q in qz])
         Q = numpy.linalg.norm(qv, axis=1)
         theta = numpy.arcsin(Q / (2 * k))
-        omega = numpy.arctan(qinp / Q)
-        alphai, alphaf = (theta + omega, theta-omega)
+        domega = numpy.arctan2(qinp, qz)
+        alphai, alphaf = (theta + domega, theta - domega)
         valid = heaviside(alphai) * heaviside(alphaf)
-
         # calculate structure factors
         f = numpy.empty((nl, nq), dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
             m = l.material
             f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
                 m.lattice.UnitCellVolume()
-
         # calculate interface positions
         z = numpy.zeros(nl)
         for i, l in enumerate(self.lstack[-1:0:-1]):
@@ -313,8 +311,8 @@ class KinematicalMultiBeamModel(KinematicalModel):
         qv = numpy.asarray([t.inverse((ql0[0], ql0[1], q)) for q in qz])
         Q = numpy.linalg.norm(qv, axis=1)
         theta = numpy.arcsin(Q / (2 * k))
-        omega = numpy.arctan(qinp / Q)
-        alphai, alphaf = (theta + omega, theta-omega)
+        domega = numpy.arctan2(qinp, qz)
+        alphai, alphaf = (theta + domega, theta - domega)
         valid = heaviside(alphai) * heaviside(alphaf)
 
         # calculate structure factors
@@ -331,9 +329,11 @@ class KinematicalMultiBeamModel(KinematicalModel):
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
             n3 = l.thickness // a3
             z[-i-2] = z[-i-1] - a3 * n3
-            if config.VERBOSITY >= config.INFO_LOW:
-                print('XU.KinematicMultiBeamModel: %s thickness changed to'
-                      ' %.2f\AA (%d UCs)' % (l.name, a3 * n3, n3))
+            if config.VERBOSITY >= config.INFO_LOW and \
+                    numpy.abs(l.thickness/a3 - n3) > 0.01:
+                print('XU.KinematicMultiBeamModel: %s thickness changed from'
+                      ' %.2fÅ to %.2fÅ (%d UCs)' % (l.name, l.thickness,
+                                                    a3 * n3, n3))
 
         # perform kinematical calculation
         E = numpy.zeros(nq, dtype=numpy.complex)
