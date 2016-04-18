@@ -40,26 +40,26 @@ m = xu.simpack.SpecularReflectivityModel(lSiO2, lRu, lCoFe, lIrMn, lAl2O3,
                                          energy='CuKa1')
 
 p = lmfit.Parameters()
-#          (Name                ,     Value,  Vary,   Min,  Max, Expr)
-p.add_many(('SiO2_thickness'    , numpy.inf, False,  None, None, None),
-           ('SiO2_roughness'    ,       2.5,  True,     0,    8, None),
-           ('Ru_thickness'      ,      47.0,  True,    25,   70, None),
-           ('Ru_roughness'      ,       2.8,  True,     0,    8, None),
-           ('Ru_density'        ,       1.0,  True,   0.8,  1.0, None),
-           ('CoFe_thickness'    ,      27.0,  True,    15,   50, None),
-           ('CoFe_roughness'    ,       4.6,  True,     0,    8, None),
-           ('CoFe_density'      ,       1.0,  True,   0.8,  1.2, None),
-           ('Ir20Mn80_thickness',      21.0,  True,    15,   40, None),
-           ('Ir20Mn80_roughness',       3.0,  True,     0,    8, None),
-           ('Ir20Mn80_density'  ,       1.1,  True,   0.8,  1.2, None),
-           ('Al2O3_thickness'   ,     100.0,  True,    70,  130, None),
-           ('Al2O3_roughness'   ,       5.5,  True,     0,    8, None),
-           ('Al2O3_density'     ,       1.0,  True,   0.8,  1.2, None),
-           ('I0'                ,    6.75e9,  True,   3e9,  8e9, None),
-           ('background'        ,        81,  True,    40,  100, None),
-           ('sample_width'      ,       6.0, False,     2,    8, None),
-           ('beam_width'        ,      0.25, False,   0.2,  0.4, None),
-           ('resolution_width'  ,      0.02, False,  0.01, 0.05, None))
+#          (Name,                  Value,  Vary,   Min,  Max, Expr)
+p.add_many(('SiO2_thickness',  numpy.inf, False,  None, None, None),
+           ('SiO2_roughness',        2.5,  True,     0,    8, None),
+           ('Ru_thickness',         47.0,  True,    25,   70, None),
+           ('Ru_roughness',          2.8,  True,     0,    8, None),
+           ('Ru_density',            1.0,  True,   0.8,  1.0, None),
+           ('CoFe_thickness',       27.0,  True,    15,   50, None),
+           ('CoFe_roughness',        4.6,  True,     0,    8, None),
+           ('CoFe_density',          1.0,  True,   0.8,  1.2, None),
+           ('Ir20Mn80_thickness',   21.0,  True,    15,   40, None),
+           ('Ir20Mn80_roughness',    3.0,  True,     0,    8, None),
+           ('Ir20Mn80_density',      1.1,  True,   0.8,  1.2, None),
+           ('Al2O3_thickness',     100.0,  True,    70,  130, None),
+           ('Al2O3_roughness',       5.5,  True,     0,    8, None),
+           ('Al2O3_density',         1.0,  True,   0.8,  1.2, None),
+           ('I0',                 6.75e9,  True,   3e9,  8e9, None),
+           ('background',             81,  True,    40,  100, None),
+           ('sample_width',          6.0, False,     2,    8, None),
+           ('beam_width',           0.25, False,   0.2,  0.4, None),
+           ('resolution_width',     0.02, False,  0.01, 0.05, None))
 
 res = xu.simpack.fit_xrr(m, p, ai, data=edata, eps=eps, xmin=0.05, xmax=8.0,
                          plot=True, verbose=True)

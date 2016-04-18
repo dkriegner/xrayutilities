@@ -1065,12 +1065,12 @@ def getspec_scan(specf, scans, *args, **kwargs):
      specf:   SPECFile object
      scans:   number of the scans of the reciprocal space map (int,tuple or
               list)
+     args:   names of the motors and counters (strings)
 
-     *args:   names of the motors and counters (strings)
-     keyword arguments:
-      rettype:     how to return motor positions. by default a list of arrays
-                   is returned. when rettype == 'numpy' a record array will
-                   be returned.
+    keyword arguments:
+     rettype:     how to return motor positions. by default a list of arrays
+                  is returned. when rettype == 'numpy' a record array will
+                  be returned.
 
     Returns
     -------

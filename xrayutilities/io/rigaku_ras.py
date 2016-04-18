@@ -61,7 +61,8 @@ class RASFile(object):
     Required constructor arguments:
     ------------------------------
      filename:  a string with the name of the ras-file
-     keyword argument (optional):
+
+    keyword argument (optional):
      path:      path to the data file
     """
 

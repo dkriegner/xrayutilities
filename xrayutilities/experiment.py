@@ -1170,7 +1170,7 @@ class QConversion(object):
         Parameters
         ----------
          vector:  vector to transform (sequence, list, numpy array)
-         *args:   goniometer angles (sample angles or full goniometer angles
+         args:    goniometer angles (sample angles or full goniometer angles
                   can be given. If more angles than the sample circles are
                   given they will be ignored)
 
