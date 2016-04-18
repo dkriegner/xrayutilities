@@ -15,12 +15,13 @@ Read more about *xrayutilities* below or in `Journal of Applied Crystallography 
 Introduction
 ============
 
-*xrayutilities* is a collection of scripts used to analyze x-ray diffraction data. It consists of a python package and several routines coded in C.
-It especially useful for the reciprocal space conversion of diffraction data taken with linear and area detectors.
+*xrayutilities* is a collection of scripts used to analyze and simulate x-ray diffraction data. It consists of a python package and several routines coded in C.
+It especially useful for the reciprocal space conversion of diffraction data taken with linear and area detectors. Several models for the simulation of thin film reflectivity and diffraction curves are included.
 
-In the following two concepts of usage for the *xrayutilities* package will be described.
+In the following few concepts of usage for the *xrayutilities* package will be described.
 First one should get a brief idea of how to analyze x-ray diffraction data with *xrayutilities*.
-After that the concept of how angular coordinates of Bragg reflections are calculated is presented.
+Following that the concept of how angular coordinates of Bragg reflections are calculated is presented.
+Before describing in detail the installation a minimal example for thin film simulations is shown.
 
 Concept of usage
 ----------------
@@ -86,6 +87,32 @@ the result as reciprocal space map using matplotlib.
 
 More such examples can be found on the :ref:`examplespage` page.
 
+X-ray diffraction and reflectivity simulations
+----------------------------------------------
+
+**xrayutilties** includes a database with optical properties of materials and therefore simulation of reflectivity and diffraction data can be accomplished with relatively litte additional input. When the stack of layers is defined along with the layer thickness and material several models for calculation of X-ray reflectivity and dynamical/kinematical X-ray diffraction are provided.
+
+A minimal example for an AlGaAs superlattice structure is shown below. It shows how a basic stack of a superlattice is built from its ingredients and how the reflectivity and dynamical diffraction model are initialized in the most basic form::
+
+    import xrayutilities as xu
+    # Build the pseudomorphic sample stack using the elastic parameters
+    sub = xu.simpack.Layer(xu.materials.GaAs, inf)
+    lay1 = xu.simpack.Layer(xu.materials.AlGaAs(0.25), 75, relaxation=0.0)
+    lay2 = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 25, relaxation=0.0)
+    pls = xu.simpack.PseudomorphicStack001('pseudo', sub+10*(lay1+lay2))
+    # simulate reflectivity
+    m = xu.simpack.SpecularReflectivityModel(pls, sample_width=5, beam_width=0.3)
+    alphai = linspace(0, 10, 1000)
+    Ixrr = m.simulate(alphai)
+    # simulate dynamical diffraction curve
+    alphai = linspace(29, 38, 1000)
+    md = xu.simpack.DynamicalModel(pls)
+    Idyn = md.simulate(alphai, hkl=(0, 0, 4))
+
+
+More detailed examples and description of model parameters can be found on the :ref:`simulationspage` page or in the ``examples`` directory.
+
+
 xrayutilities Python package
 ============================
 
@@ -129,7 +156,7 @@ To keep the coding effort as small as possible *xrayutilities* depends on a
 large number of third party libraries and Python modules.
 
 The needed dependencies are:
- * **GCC** Gnu Compiler Collection or any compatible C compiler. On windows you most probably should use MinGW or CygWin. Others might work but are untested.
+ * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.
  * **HDF5** a versatile binary data format (library is implemented in C).
    Although the library is not called directly, it is needed by the h5py Python
    module (see below).
@@ -141,6 +168,7 @@ Additionally, the following Python modules are needed in order to make *xrayutil
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays
  * **h5py** a powerful Python interface to HDF5.
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optionally)
+ * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR data)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
 
 After installing all required packages you can continue with installing and
@@ -221,11 +249,13 @@ Examples and API-documentation
    :maxdepth: 2
 
    examples
+   simulations
    xrayutilities
    xrayutilities.analysis
    xrayutilities.io
    xrayutilities.materials
    xrayutilities.math
+   xrayutilities.simpack   
    modules
 
 

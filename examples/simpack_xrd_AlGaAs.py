@@ -31,7 +31,6 @@ qz = linspace(4.40, 4.50, 2e3)
 
 sub = xu.simpack.Layer(xu.materials.GaAs, inf)
 lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 995.64, relaxation=0.0)
-lay2 = xu.simpack.Layer(xu.materials.AlGaAs(1.0), 497.49, relaxation=0.0)
 # pseudomorphic stack -> adjusts lattice parameters!
 pls = xu.simpack.PseudomorphicStack001('AlGaAs on GaAs', sub, lay)
 

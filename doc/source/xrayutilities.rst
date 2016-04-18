@@ -10,6 +10,7 @@ Subpackages
     xrayutilities.io
     xrayutilities.materials
     xrayutilities.math
+    xrayutilities.simpack
 
 Submodules
 ----------

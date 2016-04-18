@@ -20,6 +20,14 @@ xrayutilities.math.functions module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.math.misc module
+------------------------------
+
+.. automodule:: xrayutilities.math.misc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.math.transforms module
 ------------------------------------
 

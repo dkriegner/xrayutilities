@@ -332,7 +332,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
             if config.VERBOSITY >= config.INFO_LOW and \
                     numpy.abs(l.thickness/a3 - n3) > 0.01:
                 print('XU.KinematicMultiBeamModel: %s thickness changed from'
-                      ' %.2fÅ to %.2fÅ (%d UCs)' % (l.name, l.thickness,
+                      ' %.2fA to %.2fA (%d UCs)' % (l.name, l.thickness,
                                                     a3 * n3, n3))
 
         # perform kinematical calculation
