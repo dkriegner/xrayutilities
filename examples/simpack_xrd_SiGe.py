@@ -19,37 +19,46 @@ from matplotlib.pylab import *
 import xrayutilities as xu
 mpl.rcParams['font.size'] = 16.0
 
-en = 10000  # eV
-resol = 0.001  # resolution in degree
+
+def alpha_i(qx, qz):
+    th = arcsin(sqrt(qx**2 + qz**2) / (4 * pi) * xu.en2lam(en))
+    return degrees(arctan2(qx, qz) + th)
+
+en = 8500  # eV
+resol = 0.0004  # resolution in q
+h, k, l = (0, 0, 4)
+qz = linspace(4.2, 5.0, 5e3)
 
 sub = xu.simpack.Layer(xu.materials.Si, inf)
-lay = xu.simpack.Layer(xu.materials.SiGe(0.6), 150, relaxation=0.5)
+lay = xu.simpack.Layer(xu.materials.SiGe(0.6), 145.87, relaxation=0.5)
 # pseudomorphic stack -> adjusts lattice parameters!
 pls = xu.simpack.PseudomorphicStack001('pseudo', sub, lay)
 
-qz = linspace(4.2, 5.0, 5e3)
-ai = degrees(arcsin(xu.en2lam(en)*qz/(4*pi)))
+# calculate incidence angle for dynamical diffraction models
+qx = sqrt(sub.material.Q(h, k, l)[0]**2 + sub.material.Q(h, k, l)[1]**2)
+ai = alpha_i(qx, qz)
+resolai = abs(alpha_i(qx, mean(qz) + resol) - alpha_i(qx, mean(qz)))
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
-mk = xu.simpack.KinematicalModel(pls, energy=en, resolution_width=0.0004)
-Ikin = mk.simulate(qz, hkl=(0, 0, 4), refraction=True)
+mk = xu.simpack.KinematicalModel(pls, energy=en, resolution_width=resol)
+Ikin = mk.simulate(qz, hkl=(h, k, l), refraction=True)
 
 # kinematic multibeam diffraction model
 mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
                                           surface_hkl=(0, 0, 1),
-                                          resolution_width=0.0004)
-Imult = mk.simulate(qz, hkl=(0, 0, 4), refraction=True)
+                                          resolution_width=resol)
+Imult = mk.simulate(qz, hkl=(h, k, l), refraction=True)
 
 # simplified dynamical diffraction model
 mds = xu.simpack.SimpleDynamicalCoplanarModel(pls, energy=en,
-                                              resolution_width=resol)
-Idynsub = mds.simulate(ai, hkl=(0, 0, 4), idxref=0)
-Idynlay = mds.simulate(ai, hkl=(0, 0, 4), idxref=1)
+                                              resolution_width=resolai)
+Idynsub = mds.simulate(ai, hkl=(h, k, l), idxref=0)
+Idynlay = mds.simulate(ai, hkl=(h, k, l), idxref=1)
 
 # general 2-beam theory based dynamical diffraction model
-md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resol)
-Idyn = md.simulate(ai, hkl=(0, 0, 4))
+md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai)
+Idyn = md.simulate(ai, hkl=(h, k, l))
 
 # plot of calculated intensities
 figure('XU-simpack SiGe')

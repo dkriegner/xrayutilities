@@ -19,39 +19,47 @@ from matplotlib.pylab import *
 import xrayutilities as xu
 mpl.rcParams['font.size'] = 16.0
 
-en = 'CuKa1'
-Ts = inf  # substrate thickness for kinematical simulation
-resol = 0.001  # resolution in degree
 
-sub = xu.simpack.Layer(xu.materials.GaAs, Ts)
-lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 995.632, relaxation=0.0)
-lay2 = xu.simpack.Layer(xu.materials.AlGaAs(1.0), 497.486, relaxation=0.0)
+def alpha_i(qx, qz):
+    th = arcsin(sqrt(qx**2 + qz**2) / (4 * pi) * xu.en2lam(en))
+    return degrees(arctan2(qx, qz) + th)
+
+en = 'CuKa1'
+resol = 0.0001  # resolution in qz
+h, k, l = (0, 0, 4)
+qz = linspace(4.40, 4.50, 2e3)
+
+sub = xu.simpack.Layer(xu.materials.GaAs, inf)
+lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 995.64, relaxation=0.0)
+lay2 = xu.simpack.Layer(xu.materials.AlGaAs(1.0), 497.49, relaxation=0.0)
 # pseudomorphic stack -> adjusts lattice parameters!
 pls = xu.simpack.PseudomorphicStack001('AlGaAs on GaAs', sub, lay)
 
-qz = linspace(4.40, 4.50, 2e3)
-ai = degrees(arcsin(xu.en2lam(en)*qz/(4*pi)))
+# calculate incidence angle for dynamical diffraction models
+qx = sqrt(sub.material.Q(h, k, l)[0]**2 + sub.material.Q(h, k, l)[1]**2)
+ai = alpha_i(qx, qz)
+resolai = abs(alpha_i(qx, mean(qz) + resol) - alpha_i(qx, mean(qz)))
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
-mk = xu.simpack.KinematicalModel(pls, energy=en, resolution_width=0.0001)
-Ikin = mk.simulate(qz, hkl=(0, 0, 4), refraction=True)
+mk = xu.simpack.KinematicalModel(pls, energy=en, resolution_width=resol)
+Ikin = mk.simulate(qz, hkl=(h, k, l), refraction=True)
 
 # kinematic multibeam diffraction model
 mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
                                           surface_hkl=(0, 0, 1),
-                                          resolution_width=0.0001)
-Imult = mk.simulate(qz, hkl=(0, 0, 4), refraction=True)
+                                          resolution_width=resol)
+Imult = mk.simulate(qz, hkl=(h, k, l), refraction=True)
 
-## simplified dynamical diffraction model
+# simplified dynamical diffraction model
 mds = xu.simpack.SimpleDynamicalCoplanarModel(pls, energy=en,
-                                              resolution_width=resol)
-Idynsub = mds.simulate(ai, hkl=(0, 0, 4), idxref=0)
-Idynlay = mds.simulate(ai, hkl=(0, 0, 4), idxref=1)
+                                              resolution_width=resolai)
+Idynsub = mds.simulate(ai, hkl=(h, k, l), idxref=0)
+Idynlay = mds.simulate(ai, hkl=(h, k, l), idxref=1)
 
 # general 2-beam theory based dynamical diffraction model
-md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resol)
-Idyn = md.simulate(ai, hkl=(0, 0, 4))
+md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai)
+Idyn = md.simulate(ai, hkl=(h, k, l))
 
 # plot of calculated intensities
 figure('XU-simpack AlGaAs')

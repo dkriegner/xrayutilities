@@ -20,9 +20,16 @@ import xrayutilities as xu
 import time
 mpl.rcParams['font.size'] = 16.0
 
-en = 9000  # eV
+
+def alpha_i(qx, qz):
+    th = arcsin(sqrt(qx**2 + qz**2) / (4 * pi) * xu.en2lam(en))
+    return degrees(arctan2(qx, qz) + th)
+
+en = 'CuKa1'  # eV
 lam = xu.en2lam(en)
-resol = 2*pi/5000  # resolution in q
+resol = 2*pi/4998  # resolution in q; to suppress buffer oscillations
+h, k, l = (0, 0, 4)
+qz = linspace(4.0, 5.0, 5e3)
 
 sub = xu.simpack.Layer(xu.materials.Si, inf)
 buf1 = xu.simpack.Layer(xu.materials.SiGe(0.5), 4995.10, relaxation=1.0)
@@ -34,36 +41,37 @@ lay2 = xu.simpack.Layer(xu.materials.SiGe(1.0), 45.57, relaxation=0.0)
 # Note that to create a superlattice you can use summation and multiplication
 pls = xu.simpack.PseudomorphicStack001('SL 5/5', sub+buf1+buf2+5*(lay1+lay2))
 
-qz = linspace(4.0, 5.0, 5e3)
-ai = degrees(arcsin(lam * qz / (4 * pi)))
-resolai = degrees(arcsin(lam * (mean(qz) + 2*pi/5000) / (4 * pi)) -
-                  arcsin(lam * mean(qz) / (4 * pi)))
+# calculate incidence angle for dynamical diffraction models
+qx = sqrt(sub.material.Q(h, k, l)[0]**2 + sub.material.Q(h, k, l)[1]**2)
+ai = alpha_i(qx, qz)
+resolai = alpha_i(qx, mean(qz) + resol) - alpha_i(qx, mean(qz))
+
 # comparison of different diffraction models
 # simplest kinematical diffraction model
 t0 = time.time()
 mk = xu.simpack.KinematicalModel(pls, energy=en, resolution_width=resol)
 Ikin = mk.simulate(qz, hkl=(0, 0, 4))
 t1 = time.time()
-print("%.3f sec for kinematical calculation"% (t1-t0))
+print("%.3f sec for kinematical calculation" % (t1-t0))
 
 # dynamical diffraction model for substrate and kinematical for the layer(s)
 t0 = time.time()
 mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
                                           surface_hkl=(0, 0, 1),
                                           resolution_width=resol)
-Imult = mk.simulate(qz, hkl=(0, 0, 4), refraction=True)
+Imult = mk.simulate(qz, hkl=(h, k, l), refraction=True)
 t1 = time.time()
-print("%.3f sec for kinematical multibeam calculation"% (t1-t0))
+print("%.3f sec for kinematical multibeam calculation" % (t1-t0))
 
 # general 2-beam theory based dynamical diffraction model
 t0 = time.time()
 md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai)
-Idyn = md.simulate(ai, hkl=(0, 0, 4))
+Idyn = md.simulate(ai, hkl=(h, k, l))
 t1 = time.time()
-print("%.3f sec for acurate dynamical calculation"% (t1-t0))
+print("%.3f sec for acurate dynamical calculation" % (t1-t0))
 
 # plot of calculated intensities
-figure('XU-simpack SiGe')
+figure('XU-simpack SiGe2')
 clf()
 semilogy(qz, Ikin, label='kinematical')
 semilogy(qz, Imult, label='multibeam')
