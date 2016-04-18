@@ -24,10 +24,10 @@ UPDATE DOCUMENTATION
 ====================
 
 to build the documentation from scratch first one needs to rebuild the API
-documentation sources (which is done from the installed module, so make sure 
+documentation sources (which is done from the installed module, so make sure
 you have the latest version installed!)
 
-  sphinx-apidoc -f -o doc/source xrayutilities  
+  sphinx-apidoc -f -o doc/source xrayutilities
 
 In the root directory of the package execute the following to rebuild the documentation pdf
 
@@ -55,11 +55,11 @@ If not done previously you need to build the extenstion modules using
 
   python setup.py build -c <compiler_name>
 
-The compiler name can be omitted if the default is working. 
+The compiler name can be omitted if the default is working.
 
-To build for 64-bit Windows, a known way to do it was reported by RG is 
-using MS Visual Studio Express 2008 (which is freely available for download). 
-To perform the installation or build a installer package perform the 
+To build for 64-bit Windows, a known way to do it was reported by RG is
+using MS Visual Studio Express 2008 (which is freely available for download).
+To perform the installation or build a installer package perform the
 following steps:
  * open an administrator shell
  * execute: 'set DISTUTILS_USE_SDK=1'
@@ -87,7 +87,7 @@ to upload new web-documentation connect to the sourceforge server via:
 
   sftp://USERNAME@web.sourceforge.net
   /home/project-web/xrayutilities/htdocs
-  
+
 files on sourceforge can be moved/archived using
 
 sftp://USERNAME@frs.sourceforge.net/home/frs/project/x/xr/xrayutilities
@@ -100,7 +100,7 @@ UPDATE PyPI PACKAGE
 Upload new version to the Python package index by
 
   python setup.py sdist upload
-  
-On a windows machine run 
+
+On a windows machine run
 
   python setup.py bdist_wininst upload
