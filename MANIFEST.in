@@ -1,5 +1,6 @@
 include LICENSE.txt
 include CHANGES.txt
+include VERSION
 
 # documentation files
 include xrayutilities.pdf

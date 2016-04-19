@@ -7,6 +7,7 @@ CHECK EVERYTHING
 
 Is everything running fine? perform the tests and run the examples
 
+  # change the version in VERSION
   cd xrayutilities/tests
   python -m unittest discover
   # optionally check the coverage
@@ -15,10 +16,6 @@ Is everything running fine? perform the tests and run the examples
   cd ../..
 
 run the examples
-
-change the version and copyright in the doc/source/conf.py file
-and the version in setup.py
-
 
 UPDATE DOCUMENTATION
 ====================

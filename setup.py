@@ -19,6 +19,7 @@
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 from distutils.fancy_getopt import FancyGetopt
+from distutils.command.install import INSTALL_SCHEMES
 import glob
 import os.path
 import sys
@@ -29,6 +30,10 @@ cliopts = []
 cliopts.append(("without-openmp", None, "build without OpenMP support"))
 
 options = FancyGetopt(option_table=cliopts)
+
+# Modify the data install dir to match the source install dir
+for scheme in INSTALL_SCHEMES.values():
+    scheme['data'] = scheme['purelib']
 
 # first read all the arguments passed to the script
 # we need to do this otherwise the --help commands would not work
@@ -87,6 +92,9 @@ extmodul = Extension(
     define_macros=user_macros
     )
 
+with open('VERSION') as version_file:
+    version = version_file.read().strip()
+
 try:
     import sphinx
     from sphinx.setup_command import BuildDoc
@@ -114,7 +122,7 @@ except ImportError:
 
 setup(
     name="xrayutilities",
-    version="1.3rc1",
+    version=version,
     author="Eugen Wintersberger, Dominik Kriegner",
     description="package for x-ray diffraction data evaluation",
     classifiers=[
@@ -146,6 +154,7 @@ setup(
             os.path.join("data", "*.cif")
             ]
         },
+    data_files=[('xrayutilities', ['VERSION'])],
     requires=['numpy', 'scipy', 'matplotlib', 'h5py'],
     include_dirs=[numpy.get_include()],
     ext_modules=[extmodul],
