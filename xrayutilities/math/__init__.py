@@ -16,6 +16,8 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+from .algebra import solve_quartic
+
 from .transforms import Transform
 from .transforms import CoordinateTransform
 from .transforms import AxisToZ

@@ -4,6 +4,14 @@ xrayutilities.math package
 Submodules
 ----------
 
+xrayutilities.math.algebra module
+---------------------------------
+
+.. automodule:: xrayutilities.math.algebra
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.math.fit module
 -----------------------------
 
