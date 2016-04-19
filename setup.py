@@ -114,7 +114,7 @@ except ImportError:
 
 setup(
     name="xrayutilities",
-    version="1.2.1",
+    version="1.3rc1",
     author="Eugen Wintersberger, Dominik Kriegner",
     description="package for x-ray diffraction data evaluation",
     classifiers=[

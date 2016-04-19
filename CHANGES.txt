@@ -1,3 +1,4 @@
+* new examples using the new XRR and XRD simulation-code
 * improve handling of SiGe and AlGaAs alloy: alloying on atomic level
 * add relaxation parameter to PseudomoprhicMaterial to model partially relaxed
   material

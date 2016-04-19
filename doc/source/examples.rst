@@ -472,8 +472,6 @@ The misalignment parameters can be fixed during the fitting.
 
 A possible output of this script could be
 
-.. code-block:: python
-
     fitted parameters: epsilon: 8.0712e-08 (2,['Parameter convergence'])
     param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,outerangle_offset)
     param: 140.07 998.34 4.4545e-05 4.4996e-05 72.0 1.97 -0.792 -1.543
