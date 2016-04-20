@@ -233,8 +233,8 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
                 together with all the data values as stored in the data file
                 (includes the intensities e.g. rasdata['int']).
 
-    Example
-    -------
+    Examples
+    --------
     >>> [om,tt],MAP = xu.io.getras_scan('text%05d.ras',36,'Omega','TwoTheta')
     """
 

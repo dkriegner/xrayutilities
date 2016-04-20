@@ -24,8 +24,8 @@ def center_of_mass(pos, data, background='none', full_output=False):
     """
     function to determine the center of mass of an array
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      pos:  position of the data points
      data: data values
      background: type of background, either 'none', 'constant' or 'linear'
@@ -64,8 +64,8 @@ def fwhm_exp(pos, data):
     data. Please check the obtained value visually (noise influences the
     result)
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      pos:  position of the data points
      data: data values
 

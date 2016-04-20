@@ -87,8 +87,8 @@ class Atom(object):
         """
         function to calculate the atomic structure factor F
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          q:     momentum transfer
          en:    energy for which F should be calculated, if omitted the value
                 from the xrayutilities configuration is used

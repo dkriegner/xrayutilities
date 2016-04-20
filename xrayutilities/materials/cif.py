@@ -59,8 +59,8 @@ class CIFFile(object):
         """
         initialization of the CIFFile class
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          filename:  filename of the CIF file
          digits:    number of digits to check if position is unique (optional)
         """

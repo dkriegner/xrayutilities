@@ -979,8 +979,8 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                 data values as stored in the data file (includes the
                 intensities e.g. MAP['MCA']).
 
-    Example
-    -------
+    Examples
+    --------
     >>> [om, tt], MAP = xu.io.geth5_scan(h5file, 36, 'omega', 'gamma')
     """
 
@@ -1077,8 +1077,8 @@ def getspec_scan(specf, scans, *args, **kwargs):
      [ang1,ang2,...]:
                 coordinates and counters from the SPEC file
 
-    Example
-    -------
+    Examples
+    --------
     >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma',
                                             'Counter2')
     """

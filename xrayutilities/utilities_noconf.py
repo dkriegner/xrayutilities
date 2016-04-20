@@ -72,8 +72,8 @@ def lam2en(inp):
     """
     converts the input wavelength in Angstrom to an energy in eV
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      inp : wavelength in Angstrom
 
     Returns
@@ -95,8 +95,8 @@ def en2lam(inp):
     """
     converts the input energy in eV to a wavelength in Angstrom
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      inp : energy in eV
 
     Returns
@@ -120,8 +120,8 @@ def energy(en):
 
     so far this works with CuKa1, CuKa2, CuKa12, CuKb, MoKa1
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      en: energy either as scalar or array with value in eV, which
          will be returned unchanged; or string with name of emission line
 
@@ -146,8 +146,8 @@ def wavelength(wl):
 
     so far this works with CuKa1, CuKa2, CuKa12, CuKb, MoKa1
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      wl: wavelength; If scalar or array the wavelength in Angstrom will be
          returned unchanged, string with emission name is converted to
          wavelength
@@ -175,8 +175,8 @@ def exchange_path(orig, new, keep=0):
     /dir_a/subdir/images/sample -> /home/user/data/images/sample
     where the two innermost directory names are kept (keep=2)
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      orig:  original path which should be replaced by the new path
      new:   new path which should be used instead
      keep:  (optional) number of inner most directory names which should be
@@ -210,8 +210,8 @@ def exchange_filepath(orig, new, keep=0):
     /dir_a/subdir/sample/file.txt -> /home/user/data/sample/file.txt
     where the innermost directory name is kept (keep=1)
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      orig:  original filename which should have its data root replaced
      new:   new path which should be used instead
      keep:  (optional) number of inner most directory names which should be

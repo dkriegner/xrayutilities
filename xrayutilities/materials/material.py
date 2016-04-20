@@ -198,8 +198,8 @@ class Material(object):
         function to calculate the complex index of refraction of a material
         in the x-ray range
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    energy of the x-rays, if omitted the value from the
                 xrayutilities configuration is used
 
@@ -214,8 +214,8 @@ class Material(object):
         """
         calculate critical angle for total external reflection
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    energy of the x-rays, if omitted the value from the
                 xrayutilities configuration is used
          deg:   return angle in degree if True otherwise radians (default:True)
@@ -285,8 +285,8 @@ class Amorphous(Material):
         function to calculate the real part of the deviation of the
         refractive index from 1 (n=1-delta+i*beta)
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    x-ray energy eV, if omitted the value from the xrayutilities
                 configuration is used
 
@@ -314,8 +314,8 @@ class Amorphous(Material):
         function to calculate the imaginary part of the deviation
         of the refractive index from 1 (n=1-delta+i*beta)
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    x-ray energy eV, if omitted the value from the xrayutilities
                 configuration is used
 
@@ -574,8 +574,8 @@ class Crystal(Material):
         function to calculate the real part of the deviation of the
         refractive index from 1 (n=1-delta+i*beta)
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    x-ray energy eV, if omitted the value from the xrayutilities
                 configuration is used
 
@@ -604,8 +604,8 @@ class Crystal(Material):
         function to calculate the imaginary part of the deviation
         of the refractive index from 1 (n=1-delta+i*beta)
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    x-ray energy eV, if omitted the value from the xrayutilities
                 configuration is used
 
@@ -633,8 +633,8 @@ class Crystal(Material):
         calculates the complex polarizability of a material for a certain
         momentum transfer and energy
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          q:     momentum transfer in (1/A)
          en:    xray energy in eV, if omitted the value from the xrayutilities
                 configuration is used
@@ -718,8 +718,8 @@ class Crystal(Material):
         function to calculate the complex index of refraction of a material
         in the x-ray range
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    energy of the x-rays, if omitted the value from the
                 xrayutilities configuration is used
 
@@ -734,8 +734,8 @@ class Crystal(Material):
         """
         calculate critical angle for total external reflection
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          en:    energy of the x-rays, if omitted the value from the
                 xrayutilities configuration is used
          deg:   return angle in degree if True otherwise radians (default:True)
@@ -757,8 +757,8 @@ class Crystal(Material):
         """
         function to calculate the refractive peak shift
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          Q:     momentum transfer (1/A)
          en:    x-ray energy (eV), if omitted the value from the xrayutilities
                 configuration is used
@@ -791,8 +791,8 @@ class Crystal(Material):
         for a certain momentum transfer and energy
         at a certain temperature of the material
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          q:     vectorial momentum transfer (vectors as list,tuple
                 or numpy array are valid)
          en:    energy in eV, if omitted the value from the xrayutilities
@@ -856,8 +856,8 @@ class Crystal(Material):
         calculates the structure factor of a material
         for a certain momentum transfer and a bunch of energies
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          q0:    vectorial momentum transfer (vectors as list,tuple
                 or numpy array are valid)
          en:    list, tuple or array of energy values in eV
@@ -936,8 +936,8 @@ class Crystal(Material):
         calculates the structure factor of a material
         for a bunch of momentum transfers and a certain energy
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          q:     vectorial momentum transfers;
                 list of vectores (list, tuple or array) of length 3
                 e.g.: (Si.Q(0,0,4),Si.Q(0,0,4.1),...) or
@@ -1111,8 +1111,8 @@ def CubicElasticTensor(c11, c12, c44):
     Assemble the 6x6 matrix of elastic constants for a cubic material from the
     three independent components of a cubic crystal
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      c11,c12,c44:   independent components of the elastic tensor of cubic
                     materials
 
@@ -1139,8 +1139,8 @@ def HexagonalElasticTensor(c11, c12, c13, c33, c44):
     Assemble the 6x6 matrix of elastic constants for a hexagonal material from
     the five independent components of a hexagonal crystal
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      c11,c12,c13,c33,c44:   independent components of the elastic tensor of
                             a hexagonal material
 
@@ -1166,8 +1166,8 @@ def WZTensorFromCub(c11ZB, c12ZB, c44ZB):
     elastic tensor under the assumptions presented in Phys. Rev. B 6, 4546
     (1972), which are valid for the WZ <-> ZB polymorphs.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      c11,c12,c44:   independent components of the elastic tensor of cubic
                     materials
 
@@ -1259,8 +1259,8 @@ class Alloy(Crystal):
         Alloy of given composition. Reciprocal space coordinates are
         calculated using the user-supplied experimental class
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          hkl : Miller Indices
          sub : substrate material or lattice constant (Instance of Crystal
                class or float)
@@ -1373,8 +1373,8 @@ class CubicAlloy(Alloy):
         of a symetric peak. As an additional input the substrates
         lattice parameter and the degree of relaxation must be given
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          q_perp : perpendicular peak position of the reflection
                   hkl of the alloy in reciprocal space
          hkl : Miller indices of the measured symmetric reflection (also
@@ -1496,8 +1496,8 @@ class CubicAlloy(Alloy):
         of an asymmetric peak and also sets the content
         in the current material
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          q_inp : inplane peak position of reflection hkl of
                  the alloy in reciprocal space
          q_perp : perpendicular peak position of the reflection

@@ -34,6 +34,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+    'numpydoc',
     'rst2pdf.pdfbuilder']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -98,6 +100,8 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
 
+# solve "toctree contains reference to nonexisting document" warnings
+numpydoc_show_class_members = False
 
 # -- Options for HTML output ---------------------------------------------
 
@@ -383,9 +387,7 @@ def process_docstring(app, what, name, obj, options, lines):
                 lines[i] = re.sub(
                     r'^([a-zA-Z0-9_,:\s]*)',
                     r'\1:',
-                    lines[
-                        i -
-                        1])
+                    lines[i - 1])
                 lines[i] = ' '
             except:
                 pass

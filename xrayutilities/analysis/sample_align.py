@@ -1947,8 +1947,8 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
     -------
      omega : angle at which the sample is parallel to the beam
 
-    Example
-    -------
+    Examples
+    --------
     >>> psd_refl_align(500,[0,0.1,0.2,0.3],[550,600,640,700])
     """
     if plot:
@@ -2109,8 +2109,8 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
 
     PLEASE ALWAYS CHECK THE RESULT CAREFULLY!
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      om,tt: angular coordinates of the measurement (numpy.ndarray)
             either with size of psd or of psd.shape[0]
      psd:   intensity values needed for fitting

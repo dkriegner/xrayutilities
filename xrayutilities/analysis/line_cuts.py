@@ -81,8 +81,8 @@ def get_qx_scan(qx, qz, intensity, qzpos, **kwargs):
      qx,qxint,(qxb,qyb): qx scan coordinates and intensities + scan bounds for
                          plotting
 
-    Example
-    -------
+    Examples
+    --------
     >>> qxcut,qxcut_int = get_qx_scan(qx,qz,inten,5.0,qrange=0.03)
     """
 
@@ -176,8 +176,8 @@ def get_qz_scan_int(qx, qz, intensity, qxpos, **kwargs):
      qz,qzint,(qzb,qzb): qz scan coordinates and intensities + scan bounds for
                          plotting
 
-    Example
-    -------
+    Examples
+    --------
     >>> qzcut,qzcut_int = get_qz_scan_int(qx,qz,inten,5.0,omrange=0.3)
     """
 
@@ -351,8 +351,8 @@ def get_qz_scan(qx, qz, intensity, qxpos, **kwargs):
     -------
      qz,qzint: qz scan coordinates and intensities
 
-    Example
-    -------
+    Examples
+    --------
     >>> qzcut,qzcut_int = get_qz_scan(qx,qz,inten,1.5,qrange=0.03)
     """
 
@@ -401,8 +401,8 @@ def get_omega_scan_q(qx, qz, intensity, qxcenter, qzcenter,
                          reciprocal space bounds of the extraced scan
                          (bounds=True)
 
-    Example
-    -------
+    Examples
+    --------
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
 
@@ -452,8 +452,8 @@ def get_omega_scan_ang(qx, qz, intensity, omcenter, ttcenter,
                          reciprocal space bounds of the extraced scan
                          (bounds=True)
 
-    Example
-    -------
+    Examples
+    --------
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
 
@@ -561,8 +561,8 @@ def get_omega_scan_bounds_ang(omcenter, ttcenter, omrange, npoints, **kwargs):
     -------
      qx,qz: reciprocal space coordinates of the omega scan boundaries
 
-    Example
-    -------
+    Examples
+    --------
     >>> qxb,qzb = get_omega_scan_bounds_ang(1.0,4.0,2.4,240,qrange=0.1)
     """
     if 'lam' in kwargs:
@@ -654,8 +654,8 @@ def get_radial_scan_q(qx, qz, intensity, qxcenter, qzcenter,
      om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
                    reciprocal space bounds of the extraced scan (bounds=True)
 
-    Example
-    -------
+    Examples
+    --------
     >>> omc, ttc, cut_int = get_radial_scan_q(qx, qz, intensity, 0.0, 5.0,
                                               1.0, 100, omrange = 0.01)
     """
@@ -706,8 +706,8 @@ def get_radial_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
      om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
                    reciprocal space bounds of the extraced scan (bounds=True)
 
-    Example
-    -------
+    Examples
+    --------
     >>> omc, ttc, cut_int = get_radial_scan_ang(qx, qz, intensity, 32.0, 64.0,
                                                 30.0, 800, omrange = 0.2)
     """
@@ -803,8 +803,8 @@ def get_radial_scan_bounds_ang(omcenter, ttcenter, ttrange, npoints, **kwargs):
     -------
      qxrad,qzrad: reciprocal space boundaries of radial scan
 
-    Example
-    -------
+    Examples
+    --------
     >>>
     """
 
@@ -881,8 +881,8 @@ def get_ttheta_scan_q(qx, qz, intensity, qxcenter, qzcenter, ttrange,
      om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
                reciprocal space bounds of the extraced scan (bounds=True)
 
-    Example
-    -------
+    Examples
+    --------
     >>> ttc,cut_int = get_ttheta_scan_q(qx,qz,intensity,0.0,4.0,4.4,440)
     """
 
@@ -931,8 +931,8 @@ def get_ttheta_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
      tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities +
                reciprocal space bounds of the extraced scan (bounds=True)
 
-    Example
-    -------
+    Examples
+    --------
     >>> ttc,cut_int = get_ttheta_scan_ang(qx,qz,intensity,32.0,64.0,4.0,400)
     """
 
@@ -1028,8 +1028,8 @@ def get_ttheta_scan_bounds_ang(omcenter, ttcenter, ttrange, npoints, **kwargs):
      tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities +
                 reciprocal space bounds of the extraced scan (bounds=True)
 
-    Example
-    -------
+    Examples
+    --------
     >>>
     """
 

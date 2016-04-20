@@ -48,8 +48,8 @@ def maplog(inte, dynlow="config", dynhigh="config", **keyargs):
      numpy.array of the same shape as inte, where values smaller/larger then
      10^(-dynlow,dynhigh) were replaced by 10^(-dynlow,dynhigh)
 
-    Example
-    -------
+    Examples
+    --------
      >>> lint = maplog(int,5,2)
     """
     if dynlow == "config":

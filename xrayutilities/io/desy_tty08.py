@@ -175,8 +175,8 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
                 data values as stored in the data file (includes the
                 intensities e.g. MAP['MCA']).
 
-    Example
-    -------
+    Examples
+    --------
     >>> [om,tt],MAP = xu.io.gettty08_scan('text%05d.dat',36,'omega','gamma')
     """
 

@@ -452,8 +452,8 @@ def rotarb(vec, axis, ang, deg=True):
     positive rotation is anti-clockwise when looking from positive end of axis
     vector
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      vec:   numpy.array or list of length 3
      axis:  numpy.array or list of length 3
      ang:   rotation angle in degree (deg=True) or in rad (deg=False)
@@ -463,8 +463,8 @@ def rotarb(vec, axis, ang, deg=True):
     -------
      rotvec:  rotated vector as numpy.array
 
-    Example
-    -------
+    Examples
+    --------
     >>> rotarb([1,0,0],[0,0,1],90)
     array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
     """

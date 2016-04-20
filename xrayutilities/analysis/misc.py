@@ -29,8 +29,8 @@ def getangles(peak, sur, inp):
     """
     calculates the chi and phi angles for a given peak
 
-    Parameter
-    ---------
+    Parameters
+    ----------
 
      peak:  array which gives hkl for the peak of interest
      sur:   hkl of the surface
@@ -41,8 +41,8 @@ def getangles(peak, sur, inp):
      [chi,phi] for the given peak on surface sur with inplane direction inp
                as reference
 
-    Example
-    -------
+    Examples
+    --------
      To get the angles for the -224 peak on a 111 surface type
       [chi,phi] = getangles([-2,2,4],[1,1,1],[2,2,4])
 

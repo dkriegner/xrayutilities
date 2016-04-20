@@ -164,8 +164,8 @@ class QConversion(object):
         property handler for _sampleAxis
         checks if a syntactically correct list of sample circles is given
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          sampleAxis:     list or tuple of sample circles, e.g. ['x+','z+']
         """
 
@@ -254,8 +254,8 @@ class QConversion(object):
         property handler for _detectorAxis_
         checks if a syntactically correct list of detector circles is given
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          detectorAxis:     list or tuple of detector circles, e.g. ['x+']
          detrot:           flag to tell that the detector rotation is going to
                            be added (used internally to avoid double adding of
@@ -1644,13 +1644,13 @@ class Experiment(object):
                         decides which routine of Ang2Q to call. default 'point'
             delta:      giving delta angles to correct the given ones for
                         misalignment. delta must be an numpy array or list of
-                        length 2. used angles are than om,tt - delta
+                        length 2. used angles are than (om,tt)-delta
             wl:         x-ray wavelength in angstroem (default: self._wl)
             en:         x-ray energy in eV (default: converted self._wl)
             deg:        flag to tell if angles are passed as degree (default:
                         True)
             sampledis:  sample displacement vector in relative units of the
-                        detector distance (default: (0,0,0))
+                        detector distance (default: (0, 0, 0))
 
         Returns
         -------

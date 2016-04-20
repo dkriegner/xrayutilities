@@ -55,8 +55,8 @@ def linregress(x, y):
     -------
      p, rsq: parameters of the linear fit (slope, offest) and the R^2 value
 
-    Example
-    -------
+    Examples
+    --------
      >>> (k, d), R2 = xu.math.linregress(x, y)
     """
     p = numpy.polyfit(x, y, 1)

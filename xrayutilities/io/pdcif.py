@@ -195,14 +195,14 @@ class pdCIF(object):
         """
         function to parse a loop using numpy routines
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          filehandle:    filehandle object to use as data source
          fields:        field names in the loop
          nentry:        number of entries in the loop
 
-        Return
-        ------
+        Returns
+        -------
          data:          data read from the file as numpy record array
         """
         tmp = numpy.fromfile(filehandle, count=nentry * len(fields), sep=' ')
@@ -215,13 +215,13 @@ class pdCIF(object):
         function to parse a loop using python loops routines. the fields are
         added to the fileheader dictionary
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          filehandle:    filehandle object to use as data source
          fields:        field names in the loop
 
-        Return
-        ------
+        Returns
+        -------
          nothing
         """
         fh = filehandle

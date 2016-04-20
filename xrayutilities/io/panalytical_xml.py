@@ -173,8 +173,8 @@ class XRDMLFile(object):
         in the "scan" object. If more <xrdMeasurement> tags are present, which
         should not be the case, their data is present in the "scans" object.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          fname:     filename of the XRDML file
          path:      path to the XRDML file (optional)
         """
@@ -222,8 +222,8 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     parsing maps measured with the PIXCel 1D detector (and in limited way also
     for data acquired with a point detector -> see getxrdml_scan instead).
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      filetemplate: template string for the file names, can contain
                    a %d which is replaced by the scan number or be a
                    list of filenames
@@ -236,8 +236,8 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     -------
      om,tt,psd: as flattened numpy arrays
 
-    Example
-    -------
+    Examples
+    --------
      >>> om,tt,psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",
                                                    [1,2], path="./data")
     """
@@ -294,8 +294,8 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     motor and additionally the positions of the motors given by in the
     "*motors" argument
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      filetemplate: template string for the file names, can contain
                    a %d which is replaced by the scan number or be a
                    list of filenames given by the scannrs keyword argument
@@ -315,8 +315,8 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     -------
      scanmot,mot1,mot2,...,detectorint: as flattened numpy arrays
 
-    Example
-    -------
+    Examples
+    --------
      >>> scanmot,om,tt,inte = xrayutilities.io.getxrdml_scan(
              "samplename_1.xrdml", 'om', 'tt', path="./data")
     """

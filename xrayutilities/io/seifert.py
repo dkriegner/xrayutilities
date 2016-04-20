@@ -297,8 +297,8 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
     parsing the xrayutilities.io.SeifertMultiScan class is used. The function
     can be used for parsing maps measured with the Meteor1D and point detector.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      filetemplate:  template string for the file names, can contain
                     a %d which is replaced by the scan number or be a
                     list of filenames
@@ -315,8 +315,8 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
     -------
      om,tt,psd: as flattened numpy arrays
 
-    Example
-    -------
+    Examples
+    --------
      >>> om,tt,psd = xrayutilities.io.getSeifert_map("samplename_%d.xrdml",
                                                      [1,2], path="./data")
     """

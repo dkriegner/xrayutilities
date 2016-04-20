@@ -47,8 +47,8 @@ class ImageReader(object):
         of the images as well as defining the data used for flat- and darkfield
         correction!
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          nop1,nop2: number of pixels in the first and second dimension of the
                     image
          hdrlen:    length of the file header which should be ignored
@@ -126,8 +126,8 @@ class ImageReader(object):
 
         returned data = ((image data)-(darkfield))/flatfield*average(flatfield)
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          filename: filename of the image to be read. so far only single
                    filenames are supported. The data might be compressed.
                    supported extensions: .tif, .bin and .bin.xz
@@ -340,8 +340,8 @@ class PerkinElmer(ImageReader):
         of the images as well as defining the data used for flat- and darkfield
         correction!
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          optional keywords arguments keyargs:
           flatfield: filename or data for flatfield correction. supported file
                      types include (*.bin *.bin.xz and *.npy files). otherwise
@@ -370,8 +370,8 @@ class RoperCCD(ImageReader):
         the images as well as defining the data used for flat- and darkfield
         correction!
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          optional keywords arguments keyargs:
           flatfield: filename or data for flatfield correction. supported file
                      types include (*.bin *.bin.xz and *.npy files). otherwise
@@ -396,8 +396,8 @@ class Pilatus100K(ImageReader):
         dimension of the images as well as defining the data used for flat- and
         darkfield correction!
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          optional keywords arguments keyargs:
           flatfield: filename or data for flatfield correction. supported file
                      types include (*.bin *.bin.xz and *.npy files). otherwise
@@ -414,8 +414,8 @@ def get_tiff(filename, path=None):
     """
     read tiff image file and return the data
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      filename: filename of the image to be read. so far only single
                filenames are supported. The data might be compressed.
     """

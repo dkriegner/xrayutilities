@@ -103,8 +103,8 @@ def Gauss1d(x, *p):
     the value of the Gaussian described by the parameters p
     at position x
 
-    Example
-    -------
+    Examples
+    --------
     Calling with a list of parameters needs a call looking as shown below
     (note the '*') or explicit listing of the parameters:
     >>> Gauss1d(x,*p)
@@ -228,8 +228,8 @@ def TwoGauss2d(x, y, *p):
             ANGLE = rotation of the X,Y direction of the Gaussian in radians
      x,y:   coordinate(s) where the function should be evaluated
 
-    Return
-    ------
+    Returns
+    -------
     the value of the Gaussian described by the parameters p
     at position (x,y)
     """

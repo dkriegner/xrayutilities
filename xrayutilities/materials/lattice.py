@@ -46,8 +46,8 @@ class LatticeBase(list):
         """
         add new Atom to the lattice base
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          atom:   atom object to be added
          pos:    position of the atom
          occ:    occupancy (default=1.0)

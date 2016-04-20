@@ -50,8 +50,8 @@ def blockAverage1D(data, Nav):
     all data are used. at the end of the array a smaller cell
     may be used by the averaging algorithm
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      data:   data which should be contracted (length N)
      Nav:    number of values which should be averaged
 
@@ -76,8 +76,8 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
     perform a block average for 2D array of Scalar values
     all data are used therefore the margin cells may differ in size
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      data2d:    array of 2D data shape (N,M)
      Nav1,2:    a field of (Nav1 x Nav2) values is contracted
 
@@ -124,8 +124,8 @@ def blockAveragePSD(psddata, Nav, **kwargs):
     all data are used therefore the last cell used for
     averaging may differ in size
 
-    Parameter
-    ---------
+    Parameters
+    ----------
      psddata:   array of 2D data shape (Nspectra,Nchannels)
      Nav:       number of channels which should be averaged
 
@@ -173,8 +173,8 @@ class IntensityNormalizer(object):
         """
         initialization of the corrector class
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          det : detector field name of the data structure
 
         **keyargs:
@@ -190,8 +190,8 @@ class IntensityNormalizer(object):
           darkfield: darkfield of the detector; shape must be the same as
                      data[det], and is only applied for MCA detectors
 
-        Example
-        -------
+        Examples
+        --------
         >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
                 absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
         """
@@ -414,8 +414,8 @@ class IntensityNormalizer(object):
         """
         apply the correction method which was initialized to the measured data
 
-        Parameter
-        ---------
+        Parameters
+        ----------
          data: data object from xrayutilities.io classes (numpy.recarray)
          ccd:  optionally CCD data can be given as separate ndarray of
                shape (len(data), n1, n2), where n1, n2 is the shape of the
