@@ -26,7 +26,7 @@ Before describing in detail the installation a minimal example for thin film sim
 Concept of usage
 ----------------
 
-.. image:: pics/xu_usage.png
+.. image:: pics/xu_usage.svg
     :width: 400px
     :align: right
     :alt: Flow diagram showing how to analyze x-ray diffraction data using xrayutilities
@@ -57,7 +57,7 @@ A practical example showing the usage is given below.
 Angle calculation using the material classes
 --------------------------------------------
 
-.. image:: pics/xu_usage_planning.png
+.. image:: pics/xu_usage_planning.svg
     :width: 400px
     :align: right
     :alt: Flow diagram showing how to calculate angular positions of Bragg reflection using xrayutilities

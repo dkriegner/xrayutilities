@@ -9,7 +9,7 @@
            
            </a>
  
-@@ -139,6 +139,14 @@
+@@ -141,6 +141,14 @@
              
    <div class="section" id="welcome-to-xrayutilities-s-documentation">
  <h1>Welcome to xrayutilities&#8217;s documentation!<a class="headerlink" href="#welcome-to-xrayutilities-s-documentation" title="Permalink to this headline">¶</a></h1>
@@ -24,28 +24,3 @@
  <p>If you look for downloading the package go to <a class="reference external" href="https://sourceforge.net/projects/xrayutilities">Sourceforge</a> (source distribution) or the <a class="reference external" href="https://pypi.python.org/pypi/xrayutilities">Python package index</a> (MS Windows binary).
  Installation instructions you find further down <a class="reference internal" href="#installation">Installation</a>.</p>
  <p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
-@@ -152,7 +160,7 @@
- After that the concept of how angular coordinates of Bragg reflections are calculated is presented.</p>
- <div class="section" id="concept-of-usage">
- <h2>Concept of usage<a class="headerlink" href="#concept-of-usage" title="Permalink to this headline">¶</a></h2>
--<a class="reference internal image-reference" href="_images/xu_usage.png"><img alt="Flow diagram showing how to analyze x-ray diffraction data using xrayutilities" class="align-right" src="_images/xu_usage.png" style="width: 400px;" /></a>
-+<a class="reference internal image-reference" href="_images/xu_usage.svg"><img alt="Flow diagram showing how to analyze x-ray diffraction data using xrayutilities" class="align-right" src="_images/xu_usage.svg" style="width: 400px;" /></a>
- <p><em>xrayutilities</em> provides a set of functions to read experimental data from various data file formats.
- All of them are gathered in the <code class="xref py py-mod docutils literal"><span class="pre">io</span></code>-subpackage.
- After reading data with a function from the io-submodule the data might be corrected for monitor counts and/or absorption factor of a beam attenuator.
-@@ -174,7 +182,7 @@
- </div>
- <div class="section" id="angle-calculation-using-the-material-classes">
- <h2>Angle calculation using the material classes<a class="headerlink" href="#angle-calculation-using-the-material-classes" title="Permalink to this headline">¶</a></h2>
--<a class="reference internal image-reference" href="_images/xu_usage_planning.png"><img alt="Flow diagram showing how to calculate angular positions of Bragg reflection using xrayutilities" class="align-right" src="_images/xu_usage_planning.png" style="width: 400px;" /></a>
-+<a class="reference internal image-reference" href="_images/xu_usage_planning.svg"><img alt="Flow diagram showing how to calculate angular positions of Bragg reflection using xrayutilities" class="align-right" src="_images/xu_usage_planning.svg" style="width: 400px;" /></a>
- <p>Calculation of angles needed to align Bragg reflections in various diffraction geometries is done using the Materials defined in the <code class="xref py py-mod docutils literal"><span class="pre">materials</span></code>-package.
- This package provides a set of classes to describe crystal lattices and materials.
- Once such a material is properly defined one can calculate its properties, which includes the reciprocal lattice points, lattice plane distances, optical properties like
-@@ -660,4 +668,4 @@
-    
- 
- </body>
--</html>
-\ No newline at end of file
-+</html>
