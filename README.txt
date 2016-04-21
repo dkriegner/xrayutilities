@@ -144,8 +144,7 @@ To build the PDF documentation from the docu-sources use:
 
   $> python setup.py build build_doc -b pdf
 
-You will need sphinx and pdflatex including latex-recommended, latex-extra
-and fonts-recommended.
+You will need sphinx, numpydoc and rst2pdf.
 
 Or generate a texinfo file using
 

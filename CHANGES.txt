@@ -1,3 +1,4 @@
+* documentation building now requires numpydoc
 * central version number in VERSION file (also available in the package after
   importing: import xrayutilities as xu; xu.__version__
 * new examples using the new XRR and XRD simulation-code
