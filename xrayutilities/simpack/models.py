@@ -25,6 +25,7 @@ from .. import utilities
 from .. import config
 from ..math import heaviside
 from ..math import NormGauss1d
+from ..math import solve_quartic
 from ..experiment import Experiment
 
 
@@ -415,7 +416,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
 
         Parameters
         ----------
-         hkl:   Miller indices of the Bragg peak for the calculation
+         hkl:       Miller indices of the Bragg peak for the calculation
         """
         if len(hkl) < 3:
             hkl = hkl[0]
@@ -429,11 +430,16 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         self.chimh = {'S': [], 'P': []}
         for l in self.lstack:
             q = l.material.Q(self.hkl)
-            for pol in ('S', 'P'):
-                ch = l.material.chih(q, en=self.exp.energy, polarization=pol)
-                self.chih[pol].append(-ch[0] + 1j*ch[1])
-                ch = l.material.chih(-q, en=self.exp.energy, polarization=pol)
-                self.chimh[pol].append(-ch[0] + 1j*ch[1])
+            thetaB = numpy.arcsin(numpy.linalg.norm(q) / 2 / self.exp.k0)
+            ch = l.material.chih(q, en=self.exp.energy, polarization='S')
+            self.chih['S'].append(-ch[0] + 1j*ch[1])
+            self.chih['P'].append((-ch[0] + 1j*ch[1]) *
+                                  abs(numpy.cos(2*thetaB)))
+            if not getattr(l, 'inversion_sym', False):
+                ch = l.material.chih(-q, en=self.exp.energy, polarization='S')
+            self.chimh['S'].append(-ch[0] + 1j*ch[1])
+            self.chimh['P'].append((-ch[0] + 1j*ch[1]) *
+                                   abs(numpy.cos(2*thetaB)))
 
         for pol in ('S', 'P'):
             self.chih[pol] = numpy.asarray(self.chih[pol])
@@ -559,10 +565,12 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
     The first layer in the model is always assumed to be the semiinfinite
     substrate indepentent of its given thickness
     """
+
     def simulate(self, alphai, hkl=None, geometry='hi_lo'):
         """
         performs the actual diffraction calculation for the specified
-        incidence angles.
+        incidence angles and uses an analytic solution for the quartic
+        dispersion equation
 
         Parameters
         ----------
@@ -599,190 +607,80 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         k = self.exp.k0
         kc = k * numpy.sqrt(1 + self.chi0)
         ai = numpy.radians(alphai)
-        thetaB = numpy.arcsin(numpy.sqrt(hx**2 + hz[0]**2) / 2 / k)
         Kix = k * numpy.cos(ai)
         Kiz = -k * numpy.sin(ai)
         Khz = numpy.sqrt(k**2 - (Kix + hx)**2)
         pp = Khz / k
         mask = numpy.logical_and(pp > 0, pp < 1)
-        # alphah = numpy.zeros(len(ai))  # exit angles
-        # alphah[mask] = degrees(numpy.arcsin(pp[mask]))
+        ah = numpy.zeros(len(ai))  # exit angles
+        ah[mask] = numpy.arcsin(pp[mask])
 
-        P = numpy.zeros((4, 4), dtype=numpy.complex)
-        A = numpy.zeros(5, dtype=numpy.complex)
+        nal = len(ai)
         for pol in self.get_polarizations():
-            pom = k**4 * self.chih[pol] * self.chimh[pol]
+            if pol == 'S':
+                CC = 1.0
+            else:
+                CC = abs(numpy.cos(ai+ah))
+            pom = k**4 * self.chih['S'] * self.chimh['S']
             if config.VERBOSITY >= config.INFO_ALL:
                 print('XU.DynamicalModel: calc. %s-polarization...' % (pol))
-            for jal in range(len(mask)):
-                if config.VERBOSITY >= config.DEBUG and jal % 1000 == 0:
-                    print('%d / %d' % (jal, len(mask)))
-                if not mask[jal]:
-                    continue
-                M = numpy.identity(4, dtype=numpy.complex)
 
-                for i, l in enumerate(self.lstack[-1::-1]):
-                    jL = len(self.lstack) - 1 - i
-                    A[0] = 1.0
-                    A[1] = 2 * hz[jL]
-                    A[2] = (Kix[jal] + hx)**2 + hz[jL]**2 + Kix[jal]**2 -\
-                        2 * kc[jL]**2
-                    A[3] = 2 * hz[jL] * (Kix[jal]**2 - kc[jL]**2)
-                    A[4] = (Kix[jal]**2 - kc[jL]**2) *\
-                        ((Kix[jal] + hx)**2 + hz[jL]**2 - kc[jL]**2) - pom[jL]
-                    X = numpy.roots(A)
+            M = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
+            for j in range(4):
+                M[:, j, j] = numpy.ones(nal)
 
-                    jneg = numpy.imag(X) <= 0
-                    jpos = numpy.imag(X) > 0
-                    if numpy.sum(jneg) != 2 or numpy.sum(jpos) != 2:
-                        raise ValueError("XU.DynamicalModel: wrong number of "
-                                         "pos/neg solutions %d / %d ... "
-                                         "aborting!" % (numpy.sum(jpos),
-                                                        numpy.sum(jneg)))
-                    kz = numpy.zeros(4, dtype=numpy.complex)
-                    kz[:2] = X[jneg]
-                    kz[2:] = X[jpos]
-                    c = (Kix[jal]**2 + kz**2 - kc[jL]**2) / k**2 /\
-                        self.chimh[pol][jL]
-                    if jL > 0:
-                        phi = numpy.diag(numpy.exp(1j * kz * l.thickness))
-                    else:
-                        phi = numpy.identity(4)
+            for i, l in enumerate(self.lstack[-1::-1]):
+                jL = len(self.lstack) - 1 - i
+                A4 = numpy.ones(nal)
+                A3 = 2 * hz[jL] * numpy.ones(nal)
+                A2 = (Kix + hx)**2 + hz[jL]**2 + Kix**2 - 2 * kc[jL]**2
+                A1 = 2 * hz[jL] * (Kix**2 - kc[jL]**2)
+                A0 = (Kix**2 - kc[jL]**2) *\
+                     ((Kix + hx)**2 + hz[jL]**2 - kc[jL]**2) - pom[jL] * CC**2
+                X = solve_quartic(A4, A3, A2, A1, A0)
+                X = numpy.asarray(X).T
 
-                    P[0, :] = [1, 1, 1, 1]
-                    P[1, :] = c
-                    P[2, :] = kz
-                    P[3, :] = c * (kz + hz[jL])
-                    if i == 0:
-                        R = numpy.copy(P)
-                    else:
-                        R = numpy.linalg.inv(Ps).dot(P)
-                    M = M.dot(R).dot(phi)
-                    Ps = numpy.copy(P)
+                kz = numpy.zeros((nal, 4), dtype=numpy.complex)
+                kz[:, :2] = X[numpy.imag(X) <= 0].reshape(nal, 2)
+                kz[:, 2:] = X[numpy.imag(X) > 0].reshape(nal, 2)
 
-                B = numpy.asarray([[M[0, 0], M[0, 1], -1, 0],
-                                   [M[1, 0], M[1, 1], 0, -1],
-                                   [M[2, 0], M[2, 1], Kiz[jal], 0],
-                                   [M[3, 0], M[3, 1], 0, -Khz[jal]]])
-                C = numpy.asarray([1, 0, Kiz[jal], 0])
-                E = numpy.linalg.inv(B).dot(C)
-                Ir[pol][jal] = numpy.abs(E[2])**2
-                Ih[pol][jal] = numpy.abs(E[3])**2 *\
-                    numpy.abs(Khz[jal] / Kiz[jal])
+                P = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
+                phi = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
+                c = ((Kix**2)[:, numpy.newaxis] + kz**2 - kc[jL]**2) / k**2 /\
+                    self.chimh['S'][jL] / CC
+                if jL > 0:
+                    for j in range(4):
+                        phi[:, j, j] = numpy.exp(1j * kz[:, j] * l.thickness)
+                else:
+                    phi = numpy.tile(numpy.identity(4), (nal, 1, 1))
+                P[:, 0, :] = numpy.ones((nal, 4))
+                P[:, 1, :] = c
+                P[:, 2, :] = kz
+                P[:, 3, :] = c * (kz + hz[jL])
+
+                if i == 0:
+                    R = numpy.copy(P)
+                else:
+                    R = numpy.matmul(numpy.linalg.inv(Ps), P)
+                M = numpy.matmul(numpy.matmul(M, R), phi)
+                Ps = numpy.copy(P)
+
+            B = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
+            B[:, :, :2] = M[:, :, :2]
+            B[:, 0, 2] = -numpy.ones(nal)
+            B[:, 1, 3] = -numpy.ones(nal)
+            B[:, 2, 2] = Kiz
+            B[:, 3, 3] = -Khz
+            C = numpy.zeros((nal, 4))
+            C[:, 0] = numpy.ones(nal)
+            C[:, 2] = Kiz
+
+            E = numpy.einsum('...ij,...j', numpy.linalg.inv(B), C)
+            Ir[pol] = numpy.abs(E[:, 2])**2  # reflected intensity
+            Ih[pol] = numpy.abs(E[:, 3])**2 * numpy.abs(Khz / Kiz) * mask
 
         ret = self.join_polarizations(Ih['S'], Ih['P'])
         return self.scale_simulation(self.convolute_resolution(alphai, ret))
-
-
-# CODE NOT FULLY TESTED AND ANYHOW USELESS
-# class DynamicalSKinematicalLModel(SimpleDynamicalCoplanarModel):
-#    """
-#    Mixed dynamical and kinematical diffraction model for specular and
-#    off-specular qz-scans. Calculation of the flux of reflected and diffracted
-#    waves for general asymmetric coplanar diffraction from an arbitrary
-#    pseudomorphic multilayer.  Signal from the semi-infinite substrate is
-#    calculated using dynamical theory (2-beam theory (2 tiepoints, S and P
-#    polarizations)) and the signal from the other layers is calculated
-#    kinematically.
-#
-#    No restrictions are made for the surface orientation.
-#
-#    The first layer in the model is always assumed to be the semiinfinite
-#    substrate indepentent of its given thickness
-#    """
-#    def simulate(self, alphai, hkl=None, geometry='hi_lo', layerpos='kin'):
-#        """
-#        performs the actual diffraction calculation for the specified
-#        incidence angles.
-#
-#        Parameters
-#        ----------
-#         alphai:    vector of incidence angles (deg)
-#         hkl:       Miller indices of the diffraction vector (preferable use
-#                    set_hkl method to speed up repeated calculations of the
-#                    same peak!)
-#         geometry:  'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
-#                    incidence
-#         layerpos:  either 'kin' or 'dyn'. Determines how the diffraction
-#                    position of the layers is calculated. default 'kin' for
-#                    kinematical. 'dyn' uses a dynamical formular which is more
-#                    accurate close to the substrate.
-#
-#        Returns
-#        -------
-#         vector of intensities of the diffracted signal
-#        """
-#        if hkl is not None:
-#            self.set_hkl(hkl)
-#
-#        # return values
-#        Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
-#
-#        # determine q-inplane
-#        t = self.exp._transform
-#        ql0 = t(self.lstack[0].material.Q(*self.hkl))
-#        hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
-#        if geometry == 'lo_hi':
-#            hx = -hx
-#
-#        # calculate vertical diffraction vector components and strain
-#        hz = numpy.zeros(len(self.lstack))
-#        for i, l in enumerate(self.lstack):
-#            hz[i] = t(l.material.Q(*self.hkl))[2]
-#        epsilon = (hz[0] - hz) / hz
-#
-#        k = self.exp.k0
-#        thetaB = numpy.arcsin(numpy.sqrt(hx**2 + hz[0]**2) / 2 / k)
-#        # asymmetry angle
-#        asym = numpy.arctan2(hx, hz[0])
-#        gamma0 = numpy.sin(asym + thetaB)
-#        gammah = numpy.sin(asym - thetaB)
-#
-#        # deviation of the incident beam from the kinematical maximum
-#        ai = numpy.radians(alphai)
-#        eta = ai - thetaB - asym
-#
-#        # calculate Interface positions
-#        z = numpy.zeros(len(self.lstack))
-#        for i, l in enumerate(self.lstack[-1:0:-1]):
-#            z[-i-2] = z[-i-1] - l.thickness
-#
-#        for pol in self.get_polarizations():
-#            x = numpy.zeros(len(alphai), dtype=numpy.complex)
-#            for i, l in enumerate(self.lstack):
-#                beta = (2 * eta * numpy.sin(2 * thetaB) +
-#                        self.chi0[i] * (1 - gammah / gamma0) -
-#                        2 * gammah * (gamma0 - gammah) * epsilon[i])
-#                if i == 0:  # substrate
-#                    y = beta / 2 /\
-#                        numpy.sqrt(self.chih[pol][i] * self.chimh[pol][i]) /\
-#                        numpy.sqrt(numpy.abs(gammah) / gamma0)
-#                    c1 = -numpy.sqrt(self.chih[pol][i] / self.chih[pol][i] *
-#                                     gamma0 / numpy.abs(gammah)) *\
-#                        (y + numpy.sqrt(y**2 - 1))
-#                    c2 = -numpy.sqrt(self.chih[pol][i] / self.chimh[pol][i] *
-#                                     gamma0 / numpy.abs(gammah)) *\
-#                        (y - numpy.sqrt(y**2 - 1))
-#                    pp = numpy.abs(gammah) / gamma0 * numpy.abs(c1)**2
-#                    m = pp < 1
-#                    x[m] = c1[m]
-#                    m = pp >= 1
-#                    x[m] = c2[m]
-#                else:  # layers
-#                    if layerpos == 'dyn':
-#                        qz = -k / 2 / gammah * beta
-#                    else:  # kinematical alternative
-#                        th = (numpy.arccos(hx / k + numpy.cos(ai)) + ai) / 2
-#                        qz = 2 * k * numpy.sin(th) * numpy.cos(ai - th) -\
-#                            t(l.material.Q(*self.hkl))[-1]
-#                    x += k / 2 / gammah * self.chih[pol][i] / qz *\
-#                        (1 - numpy.exp(-1j * qz * l.thickness)) *\
-#                        numpy.exp(1j * z[i] * qz)
-#
-#            Ih[pol] = numpy.abs(x)**2
-#
-#        ret = self.join_polarizations(Ih['S'], Ih['P'])
-#        return self.scale_simulation(self.convolute_resolution(alphai, ret))
 
 
 class SpecularReflectivityModel(LayerModel):
