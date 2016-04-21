@@ -280,6 +280,27 @@ class Amorphous(Material):
                     a = at
                 self.base.append((a, fr/frsum))
 
+    def _get_f(self, q, en):
+        """
+        optimized method to calculate the atomic scattering factor for all
+        atoms in the unit cell by calling the database only as much as needed.
+
+        Parameters
+        ----------
+         q:     momentum transfer for which the atomic scattering factor
+                should be calculated
+         en:    x-ray energy (eV)
+
+        Returns
+        -------
+         list of atomic scattering factors for every atom in the unit cell
+        """
+        f = {}
+        for at, occ in self.base:
+            if at.num not in f:
+                f[at.num] = at.f(q, en)
+        return [f[a.num] for a, p, o, b in self.lattice.base]
+
     def delta(self, en='config'):
         """
         function to calculate the real part of the deviation of the
@@ -302,8 +323,9 @@ class Amorphous(Material):
         lam = utilities.en2lam(en)
         delta = 0.
         m = 0.
-        for at, occ in self.base:
-            delta += numpy.real(at.f(0., en)) * occ
+        f = self._get_f(0., en)
+        for (at, occ), fa in zip(self.base, f):
+            delta += numpy.real(fa) * occ
             m += at.weight * occ
 
         delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
@@ -331,12 +353,38 @@ class Amorphous(Material):
         lam = utilities.en2lam(en)
         beta = 0.
         m = 0.
-        for at, occ in self.base:
-            beta += numpy.imag(at.f(0., en)) * occ
+        f = self._get_f(0., en)
+        for (at, occ), fa in zip(self.base, f):
+            beta += numpy.imag(fa) * occ
             m += at.weight * occ
 
         beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         return beta
+
+    def chi0(self, en='config'):
+        """
+        calculates the complex chi_0 values often needed in simulations.
+        They are closely related to delta and beta
+        (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
+        """
+        re = scipy.constants.physical_constants['classical electron radius'][0]
+        re *= 1e10
+        if isinstance(en, basestring) and en == 'config':
+            en = utilities.energy(config.ENERGY)
+
+        lam = utilities.en2lam(en)
+        beta = 0.
+        delta = 0.
+        m = 0.
+        f = self._get_f(0., en)
+        for (at, occ), f0 in zip(self.base, f):
+            beta += numpy.imag(f0) * occ
+            delta += numpy.real(f0) * occ
+            m += at.weight * occ
+
+        beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
+        delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
+        return (-2 * delta + 2j * beta)
 
     def __str__(self):
         ostr = super(Amorphous, self).__str__()
@@ -569,6 +617,27 @@ class Crystal(Material):
 
     density = property(_getdensity)
 
+    def _get_f(self, q, en):
+        """
+        optimized method to calculate the atomic scattering factor for all
+        atoms in the unit cell by calling the database only as much as needed.
+
+        Parameters
+        ----------
+         q:     momentum transfer for which the atomic scattering factor
+                should be calculated
+         en:    x-ray energy (eV)
+
+        Returns
+        -------
+         list of atomic scattering factors for every atom in the unit cell
+        """
+        f = {}
+        for at, pos, occ, b in self.lattice.base:
+            if at.num not in f:
+                f[at.num] = at.f(q, en)
+        return [f[a.num] for a, p, o, b in self.lattice.base]
+
     def delta(self, en='config'):
         """
         function to calculate the real part of the deviation of the
@@ -591,9 +660,9 @@ class Crystal(Material):
 
         lam = utilities.en2lam(en)
         delta = 0.
-
-        for at, pos, occ, b in self.lattice.base:
-            delta += numpy.real(at.f(0., en)) * occ
+        f = self._get_f(0, en)
+        for (at, pos, occ, b), fa in zip(self.lattice.base, f):
+            delta += numpy.real(fa) * occ
 
         delta *= re / (2 * numpy.pi) * lam ** 2 / \
             self.lattice.UnitCellVolume()
@@ -621,12 +690,36 @@ class Crystal(Material):
         lam = utilities.en2lam(en)
         beta = 0.
 
-        for atpos in self.lattice.base:
-            at, pos, occ, b = atpos
-            beta += numpy.imag(at.f(0., en)) * occ
+        f = self._get_f(0, en)
+        for (at, pos, occ, b), fa in zip(self.lattice.base, f):
+            beta += numpy.imag(fa) * occ
 
         beta *= re / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
         return beta
+
+    def chi0(self, en='config'):
+        """
+        calculates the complex chi_0 values often needed in simulations.
+        They are closely related to delta and beta
+        (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
+        """
+        re = scipy.constants.physical_constants['classical electron radius'][0]
+        re *= 1e10
+        if isinstance(en, basestring) and en == 'config':
+            en = utilities.energy(config.ENERGY)
+
+        lam = utilities.en2lam(en)
+        beta = 0.
+        delta = 0.
+        f = self._get_f(0, en)
+        for (at, pos, occ, b), f0 in zip(self.lattice.base, f):
+            beta += numpy.imag(f0) * occ
+            delta += numpy.real(f0) * occ
+
+        beta *= re / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
+        delta *= re / (2 * numpy.pi) * lam ** 2 / \
+            self.lattice.UnitCellVolume()
+        return (-2 * delta + 2j * beta)
 
     def chih(self, q, en='config', temp=0, polarization='S'):
         """
@@ -686,12 +779,12 @@ class Crystal(Material):
 
         sr = 0. + 0.j
         si = 0. + 0.j
-        # a: atom, p: position, o: occupancy, b: temperatur-factor
-        for a, p, o, b in self.lattice.base:
+        # a: atom, p: position, o: occupancy, b: temperature-factor
+        f = self._get_f(qnorm, en)
+        for (a, p, o, b), F in zip(self.lattice.base, f):
             r = self.lattice.GetPoint(p)
             if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
-            F = a.f(qnorm, en)
             fr = numpy.real(F) * o
             fi = numpy.imag(F) * o
             sr += fr * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
@@ -703,55 +796,15 @@ class Crystal(Material):
             (c.electron_mass * c.speed_of_light ** 2) * 1e10
         lam = utilities.en2lam(en)
 
-        f = -lam ** 2 * r_e / (numpy.pi * self.lattice.UnitCellVolume())
-        rchi = numpy.abs(f * sr)
-        ichi = numpy.abs(f * si)
+        fact = -lam ** 2 * r_e / (numpy.pi * self.lattice.UnitCellVolume())
+        rchi = numpy.abs(fact * sr)
+        ichi = numpy.abs(fact * si)
         if polarization == 'P':
             theta = numpy.arcsin(qnorm * utilities.en2lam(en) / (4*numpy.pi))
             rchi *= numpy.cos(2 * theta)
             ichi *= numpy.cos(2 * theta)
 
         return rchi, ichi
-
-    def idx_refraction(self, en="config"):
-        """
-        function to calculate the complex index of refraction of a material
-        in the x-ray range
-
-        Parameters
-        ----------
-         en:    energy of the x-rays, if omitted the value from the
-                xrayutilities configuration is used
-
-        Returns
-        -------
-         n (complex)
-        """
-        n = 1. - self.delta(en) + 1.j * self.beta(en)
-        return n
-
-    def critical_angle(self, en='config', deg=True):
-        """
-        calculate critical angle for total external reflection
-
-        Parameters
-        ----------
-         en:    energy of the x-rays, if omitted the value from the
-                xrayutilities configuration is used
-         deg:   return angle in degree if True otherwise radians (default:True)
-
-        Returns
-        -------
-         Angle of total external reflection
-
-        """
-        rn = 1. - self.delta(en)
-
-        alphac = numpy.arccos(rn)
-        if deg:
-            alphac = numpy.degrees(alphac)
-
-        return alphac
 
     def dTheta(self, Q, en='config'):
         """
@@ -839,15 +892,15 @@ class Crystal(Material):
             dwf = 1.0
 
         s = 0. + 0.j
-        # a: atom, p: position, o: occupancy, b: temperatur-factor
         qnorm = math.VecNorm(q)
-        for a, p, o, b in self.lattice.base:
+        f = self._get_f(qnorm, en)
+        # a: atom, p: position, o: occupancy, b: temperature-factor
+        for (a, p, o, b), fq in zip(self.lattice.base, f):
             r = self.lattice.GetPoint(p)
             if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 /
                                 (4 * numpy.pi) ** 2)
-            f = a.f(qnorm, en) * o
-            s += f * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
+            s += fq * o * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
 
         return s
 
@@ -907,27 +960,14 @@ class Crystal(Material):
         else:
             dwf = 1.0
 
-        # create list of different atoms and buffer the scattering factors
-        atoms = []
-        f = []
-        types = []
-        for at in self.lattice.base:
-            try:
-                idx = atoms.index(at[0])
-                types.append(idx)
-            except ValueError:
-                # add atom type to list and calculate the scattering factor
-                types.append(len(atoms))
-                f.append(at[0].f(qnorm, en))
-                atoms.append(at[0])
-
         s = 0. + 0.j
-        for i in range(len(self.lattice.base)):
-            a, p, o, b = self.lattice.base[i]
+        f = self._get_f(qnorm, en)
+        # a: atom, p: position, o: occupancy, b: temperature-factor
+        for (a, p, o, b), fq in zip(self.lattice.base, f):
             if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
             r = self.lattice.GetPoint(p)
-            s += f[types[i]] * o * dwf * numpy.exp(-1.j * math.VecDot(q, r))
+            s += fq * o * dwf * numpy.exp(-1.j * math.VecDot(q, r))
 
         return s
 
@@ -989,38 +1029,19 @@ class Crystal(Material):
         else:
             exponentf = 1.0
 
-        # create list of different atoms and buffer the scattering factors
-        atoms = []
-        f = []
-        types = []
-        for at in self.lattice.base:
-            try:
-                idx = atoms.index(at[0])
-                types.append(idx)
-            except ValueError:
-                # add atom type to list and calculate the scattering factor
-                types.append(len(atoms))
-                f.append(at[0].f(qnorm, en0))
-                atoms.append(at[0])
-
         s = 0. + 0.j
-        for i in range(len(self.lattice.base)):
-            a, p, o, b = self.lattice.base[i]
-
+        f = self._get_f(qnorm, en0)
+        # a: atom, p: position, o: occupancy, b: temperature-factor
+        for (a, p, o, b), fq in zip(self.lattice.base, f):
             if temp != 0 and self.thetaDebye:
                 dwf = numpy.exp(-exponentf * qnorm ** 2)
             else:
                 dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
 
             r = self.lattice.GetPoint(p)
-            s += f[types[i]] * o * numpy.exp(-1.j * numpy.dot(q, r)) * dwf
+            s += fq * o * numpy.exp(-1.j * numpy.dot(q, r)) * dwf
 
         return s
-        # still a lot of overhead, because normally we do have 2 different
-        # types of atoms in a 8 atom base, but we calculate all 8 times which
-        # is obviously not necessary. One would have to reorganize the things
-        # in the LatticeBase class, and introduce something like an atom type
-        # and than only store the type in the List.
 
     def ApplyStrain(self, strain):
         """
