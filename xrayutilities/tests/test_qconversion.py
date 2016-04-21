@@ -52,7 +52,7 @@ class TestQConversion(unittest.TestCase):
             self.assertAlmostEqual(qout[i][1], self.hklsym[i], places=10)
 
     def test_qconversion_detpos(self):
-        tt = numpy.random.rand(1) * 90
+        tt = numpy.random.rand() * 90
         dpos = self.hxrd.Ang2Q.getDetectorPos(tt, dim=0)
         dpos = numpy.asarray(dpos)
         kf = dpos / numpy.linalg.norm(dpos) * self.hxrd.k0

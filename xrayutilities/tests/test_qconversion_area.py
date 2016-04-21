@@ -67,7 +67,7 @@ class TestQConversion(unittest.TestCase):
                                    self.hklsym[i], places=10)
 
     def test_qconversion_area_detpos(self):
-        tt = numpy.random.rand(1) * 90
+        tt = numpy.random.rand() * 90
         dpos = self.hxrd.Ang2Q.getDetectorPos(tt, dim=2)
         dp = [p.flat for p in dpos]
         ki = self.hxrd._A2QConversion.r_i / \
@@ -81,7 +81,7 @@ class TestQConversion(unittest.TestCase):
                 self.assertAlmostEqual(qout[i][j1, j2], kf[i]-ki[i], places=10)
 
     def test_qconversion_area_distance(self):
-        tt = numpy.random.rand(1) * 140
+        tt = numpy.random.rand() * 140
         ddis = self.hxrd.Ang2Q.getDetectorDistance(tt, dim=2)
         J1, J2 = numpy.indices(ddis.shape)
         for j1, j2, d in zip(J1.flat, J2.flat, ddis.flat):

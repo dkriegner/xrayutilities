@@ -26,12 +26,12 @@ class TestGetAngles(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        amp = numpy.random.rand(1)[0]
-        fwhm = numpy.random.rand(1)[0] * 1.5 + 0.1
+        amp = numpy.random.rand()
+        fwhm = numpy.random.rand() * 1.5 + 0.1
         cls.x = numpy.arange(-3, 3, 0.0003)
         cls.p = [0., fwhm, amp, 0.]
         cls.p2d = [0., 0., fwhm, fwhm, amp, 0.,
-                   2 * numpy.pi * numpy.random.rand(1)]
+                   2 * numpy.pi * numpy.random.rand()]
         cls.sigma = fwhm / (2 * numpy.sqrt(2 * numpy.log(2)))
 
     def test_getang111(self):

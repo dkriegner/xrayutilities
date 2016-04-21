@@ -25,12 +25,12 @@ from scipy.integrate import quad, dblquad
 class TestMathFunctions(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        amp = numpy.random.rand(1)[0]
-        fwhm = numpy.random.rand(1)[0] * 1.5 + 0.1
+        amp = numpy.random.rand() + 0.1
+        fwhm = numpy.random.rand() * 1.5 + 0.1
         cls.x = numpy.arange(-3, 3, 0.0003)
         cls.p = [0., fwhm, amp, 0.]
         cls.p2d = [0., 0., fwhm, fwhm, amp, 0.,
-                   2 * numpy.pi * numpy.random.rand(1)]
+                   2 * numpy.pi * numpy.random.rand()]
         cls.sigma = fwhm / (2 * numpy.sqrt(2 * numpy.log(2)))
 
     def test_gauss1dwidth(self):
@@ -48,7 +48,7 @@ class TestMathFunctions(unittest.TestCase):
 
     def test_pvoigt1dwidth(self):
         p = list(numpy.copy(self.p))
-        p += [numpy.random.rand(1), ]
+        p += [numpy.random.rand(), ]
         f = xu.math.PseudoVoigt1d(self.x, *p)
         fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
@@ -74,7 +74,7 @@ class TestMathFunctions(unittest.TestCase):
 
     def test_pvoigt1darea(self):
         p = list(numpy.copy(self.p))
-        p += [numpy.random.rand(1)[0], ]
+        p += [numpy.random.rand(), ]
         area = xu.math.PseudoVoigt1dArea(*p)
         (numarea, err) = quad(
             xu.math.PseudoVoigt1d, -numpy.inf, numpy.inf, args=tuple(p))
@@ -85,7 +85,7 @@ class TestMathFunctions(unittest.TestCase):
     def test_gauss2darea(self):
         p = numpy.copy(self.p2d)
         p[2] = self.sigma
-        p[3] = numpy.random.rand(1) * self.sigma
+        p[3] = (numpy.random.rand() + 0.1) * self.sigma
         area = xu.math.Gauss2dArea(*p)
         (numarea, err) = dblquad(xu.math.Gauss2d, -numpy.inf, numpy.inf,
                                  lambda x: -numpy.inf, lambda x: numpy.inf,
