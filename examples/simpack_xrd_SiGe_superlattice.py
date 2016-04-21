@@ -29,10 +29,12 @@ en = 'CuKa1'  # eV
 lam = xu.en2lam(en)
 resol = 2*pi/4998  # resolution in q; to suppress buffer oscillations
 h, k, l = (0, 0, 4)
-qz = linspace(4.0, 5.0, 5e3)
+qz = linspace(4.0, 5.0, 3e3)
 
 sub = xu.simpack.Layer(xu.materials.Si, inf)
-buf1 = xu.simpack.Layer(xu.materials.SiGe(0.5), 4995.10, relaxation=1.0)
+#                                                   xfrom xto nsteps thickness
+buf1 = xu.simpack.GradedLayerStack(xu.materials.SiGe, 0.2, 0.8, 100, 10000,
+                                   relaxation=1.0)
 buf2 = xu.simpack.Layer(xu.materials.SiGe(0.8), 4997.02, relaxation=1.0)
 lay1 = xu.simpack.Layer(xu.materials.SiGe(0.6), 49.73, relaxation=0.0)
 lay2 = xu.simpack.Layer(xu.materials.SiGe(1.0), 45.57, relaxation=0.0)
@@ -54,7 +56,7 @@ Ikin = mk.simulate(qz, hkl=(0, 0, 4))
 t1 = time.time()
 print("%.3f sec for kinematical calculation" % (t1-t0))
 
-# dynamical diffraction model for substrate and kinematical for the layer(s)
+# kinematical multibeam model
 t0 = time.time()
 mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
                                           surface_hkl=(0, 0, 1),
@@ -65,18 +67,23 @@ print("%.3f sec for kinematical multibeam calculation" % (t1-t0))
 
 # general 2-beam theory based dynamical diffraction model
 t0 = time.time()
-md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai)
+qGe220 = linalg.norm(xu.materials.Ge.Q(2, 2, 0))
+thMono = arcsin(qGe220 * lam / (4*pi))
+md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai,
+                               Cmono=cos(2 * thMono),
+                               polarization='both')
 Idyn = md.simulate(ai, hkl=(h, k, l))
 t1 = time.time()
 print("%.3f sec for acurate dynamical calculation" % (t1-t0))
 
 # plot of calculated intensities
-figure('XU-simpack SiGe2')
+figure('XU-simpack SiGe SL')
 clf()
 semilogy(qz, Ikin, label='kinematical')
 semilogy(qz, Imult, label='multibeam')
 semilogy(qz, Idyn, label='full dynamical')
-vlines([4*2*pi/l.material.a3[-1] for l in pls], 1e-9, 1, linestyles='dashed')
+vlines([4*2*pi/l.material.a3[-1] for l in pls[-2:]], 1e-9, 1,
+       linestyles='dashed')
 legend(fontsize='small')
 xlim(qz.min(), qz.max())
 xlabel('Qz ($1/\AA$)')

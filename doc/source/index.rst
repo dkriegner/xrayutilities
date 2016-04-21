@@ -171,6 +171,11 @@ Additionally, the following Python modules are needed in order to make *xrayutil
  * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR data)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
 
+For building the documention (which you do not need to do) the requirements are:
+ * **sphinx** the Python documentation generator
+ * **numpydoc** sphinx-extension needed to parse the API-documention
+ * **rst2pdf** pdf-generation using sphinx
+
 After installing all required packages you can continue with installing and
 building the C library.
 

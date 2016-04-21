@@ -62,10 +62,23 @@ If you would like to check the resulting lattice objects of the different layers
     for l in pls:
         print(l.material.lattice)
 
+Special layer types
+~~~~~~~~~~~~~~~~~~~
+
+So far one special layer mimicking a layer with gradually changing chemical composition is implemented. It consists of several thin sublayers of constant composition. So in order to obtain a smooth grading one has to select enough sublayers. This however has a negativ impact on the performance of all simulation models. A tradeoff needs to found! Below a graded SiGe buffer is shown which consists of 100 sublayers and has total thickness of 1µm.::
+
+    buf = xu.simpack.GradedLayerStack(xu.materials.SiGe,
+                                      0.2,  # xfrom Si0.8Ge0.2
+                                      0.7,  # xto Si0.3Ge0.7
+                                      100,  # number of sublayers
+                                      10000,  # total thickness
+                                      relaxation=1.0)
+
+
 Setting up a model
 ------------------
 
-This section describes the parameters which are common for all diffraction models in *xrayutilties*-``simpack``. All models need a list of Layers for which the reflected/diffracted signal will be calculated. Further all models have some common parameters which allow scaling and background addition in the model output and contain general information about the calculation which are model-independent. These are
+This sectiondescribes the parameters which are common for all diffraction models in *xrayutilties*-``simpack``. All models need a list of Layers for which the reflected/diffracted signal will be calculated. Further all models have some common parameters which allow scaling and background addition in the model output and contain general information about the calculation which are model-independent. These are
 
  * 'experiment': an :class:`~xrayutilities.experiment.Experiment`/:class:`~xrayutilities.experiment.HXRD` object which defines the surface geometry of the model. If none is given a default class with (001) surface is generated.
  * 'resolution_width': width of the Gaussian resolution function used to convolute with the data. The unit of this parameters depends on the model and can be either in degree or 1/\AA.
@@ -202,6 +215,15 @@ Acurate description of the diffraction from thin films in close vicinity to the 
     Idyn = md.simulate(ai, hkl=(0, 0, 4))
 
 A second simplified dynamical model (:class:`~xrayutilities.simpack.models.SimpleDynamicalCoplanarModel`) is also implemented should, however, not be used since its approximations cause mistakes in almost all relevant cases.
+
+The :class:`~xrayutilities.simpack.models.DynamicalModel` supports the calculation of diffracted signal for 'S' and 'P' polarization geometry. To simulate diffraction data of laboratory sources with Ge(220) monochromator crystal one should use::
+
+    qGe220 = linalg.norm(xu.materials.Ge.Q(2, 2, 0))
+    thMono = arcsin(qGe220 * lam / (4*pi))
+    md = xu.simpack.DynamicalModel(pls, energy='CuKa1',
+                                   Cmono=cos(2 * thMono),
+                                   polarization='both')
+    Idyn = md.simulate(ai, hkl=(0, 0, 4))
 
 
 Comparison of diffraction models
