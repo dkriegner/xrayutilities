@@ -618,7 +618,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         nal = len(ai)
         for pol in self.get_polarizations():
             if pol == 'S':
-                CC = 1.0
+                CC = numpy.ones(nal)
             else:
                 CC = abs(numpy.cos(ai+ah))
             pom = k**4 * self.chih['S'] * self.chimh['S']
@@ -647,7 +647,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 P = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
                 phi = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
                 c = ((Kix**2)[:, numpy.newaxis] + kz**2 - kc[jL]**2) / k**2 /\
-                    self.chimh['S'][jL] / CC
+                    self.chimh['S'][jL] / CC[:, numpy.newaxis]
                 if jL > 0:
                     for j in range(4):
                         phi[:, j, j] = numpy.exp(1j * kz[:, j] * l.thickness)
