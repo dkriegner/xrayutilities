@@ -38,6 +38,12 @@ def solve_quartic(a4, a3, a2, a1, a0):
 
     [1] http://mathworld.wolfram.com/QuarticEquation.html
     """
+    a4 = numpy.asarray(a4)
+    a3 = numpy.asarray(a3)
+    a2 = numpy.asarray(a2)
+    a1 = numpy.asarray(a1)
+    a0 = numpy.asarray(a0)
+
     t01 = 1. / a4
     t02 = a3**2
     t04 = t01 * t01
@@ -71,11 +77,11 @@ def solve_quartic(a4, a3, a2, a1, a0):
     t36 = 16 * t17 * t27
     t37 = 144 * t07 * t12 * t17
     t30 = t26 + t28 + t29 - t35 - t36 - t37
-    t31 = numpy.complex(t30)**(1./2)
+    t31 = t30.astype(numpy.complex)**(1./2)
     t32 = (t24 * t31) / 18
     t34 = (4 * t07 * t17) / 3
     t33 = t22 + t23 + t32 - t34
-    t38 = 1 / numpy.complex(t33)**(1./6)
+    t38 = 1 / t33.astype(numpy.complex)**(1./6)
     t39 = t33**(1./3)
     t40 = 12 * a0 * t01
     t41 = t33**(2./3)
@@ -85,25 +91,25 @@ def solve_quartic(a4, a3, a2, a1, a0):
     t47 = (9 * t14 * t15) / 64
     t48 = 3 * a3 * a1 * t04
     t44 = t08 + t40 + t42 + t43 - t46 - t47 - t48
-    t45 = numpy.complex(t44)**(1./2)
+    t45 = t44.astype(numpy.complex)**(1./2)
     t49 = 6.**(1./2)
     t50 = 27 * t12
     t51 = 2 * t07 * t08
     t52 = 3 * t24 * t31
     t62 = 72 * t07 * t17
     t53 = t50 + t51 + t52 - t62
-    t54 = numpy.complex(t53)**(1./2)
+    t54 = t53.astype(numpy.complex)**(1./2)
     t55 = 3 * t03 * t49 * t54
     t59 = t08 * t45
     t60 = 12 * t17 * t45
     t61 = 9 * t41 * t45
     t63 = 12 * t07 * t39 * t45
     t56 = t55 - t59 - t60 - t61 - t63
-    t57 = numpy.complex(t56)**(1./2)
-    t58 = 1. / numpy.complex(t44)**(1./4)
+    t57 = t56.astype(numpy.complex)**(1./2)
+    t58 = 1. / t44.astype(numpy.complex)**(1./4)
     t64 = (t38 * t45) / 6
     t65 = - t55 - t59 - t60 - t61 - t63
-    t66 = numpy.complex(t65)**(1./2)
+    t66 = t65.astype(numpy.complex)**(1./2)
 
     return (-(a3 * t01) / 4 - (t38 * t45) / 6 - (t38 * t57 * t58) / 6,
             (t38 * t57 * t58) / 6 - (t38 * t45) / 6 - (a3 * t01) / 4,
