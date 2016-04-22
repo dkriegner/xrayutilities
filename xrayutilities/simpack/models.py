@@ -92,8 +92,7 @@ class Model(object):
             resf = NormGauss1d(xres, numpy.mean(xres), self.resolution_width)
             resf /= numpy.sum(resf)  # proper normalization for discrete conv.
             # pad y to avoid edge effects
-            interp = interpolate.InterpolatedUnivariateSpline(
-                x, y, k=1, ext=0, check_finite=False)
+            interp = interpolate.InterpolatedUnivariateSpline(x, y, k=1)
             nextmin = numpy.ceil(nres/2.)
             nextpos = numpy.floor(nres/2.)
             xext = numpy.concatenate(
@@ -661,8 +660,16 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 if i == 0:
                     R = numpy.copy(P)
                 else:
-                    R = numpy.matmul(numpy.linalg.inv(Ps), P)
-                M = numpy.matmul(numpy.matmul(M, R), phi)
+                    temp = numpy.linalg.inv(Ps)
+                    try:
+                        R = numpy.matmul(temp, P)
+                    except AttributeError:
+                        R = numpy.einsum('...ij,...jk', temp, P)
+                try:
+                    M = numpy.matmul(numpy.matmul(M, R), phi)
+                except AttributeError:
+                    M = numpy.einsum('...ij,...jk',
+                                     numpy.einsum('...ij,...jk', M, R), phi)
                 Ps = numpy.copy(P)
 
             B = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
