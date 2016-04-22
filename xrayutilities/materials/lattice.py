@@ -153,6 +153,30 @@ class Lattice(object):
             raise TypeError("a%d must be a list, tuple or a numpy array" % i)
         self.transform = math.Transform(self._ai.T)
 
+    @property
+    def a(self):
+        return math.VecNorm(self.a1)
+
+    @property
+    def b(self):
+        return math.VecNorm(self.a2)
+
+    @property
+    def c(self):
+        return math.VecNorm(self.a3)
+
+    @property
+    def alpha(self):
+        return math.VecAngle(self.a2, self.a3, deg=True)
+
+    @property
+    def beta(self):
+        return math.VecAngle(self.a1, self.a3, deg=True)
+
+    @property
+    def gamma(self):
+        return math.VecAngle(self.a1, self.a2, deg=True)
+
     def ApplyStrain(self, eps):
         """
         Applies a certain strain on a lattice. The result is a change
@@ -216,15 +240,13 @@ class Lattice(object):
     def __str__(self):
         ostr = ""
         ostr += "a1 = (%f %f %f), %f\n" % (self.a1[0], self.a1[1], self.a1[2],
-                                           math.VecNorm(self.a1))
+                                           self.a)
         ostr += "a2 = (%f %f %f), %f\n" % (self.a2[0], self.a2[1], self.a2[2],
-                                           math.VecNorm(self.a2))
+                                           self.b)
         ostr += "a3 = (%f %f %f), %f\n" % (self.a3[0], self.a3[1], self.a3[2],
-                                           math.VecNorm(self.a3))
-        ostr += "alpha = %f, beta = %f, gamma = %f\n" % (
-            math.VecAngle(self.a2, self.a3, deg=True),
-            math.VecAngle(self.a1, self.a3, deg=True),
-            math.VecAngle(self.a1, self.a2, deg=True))
+                                           self.c)
+        ostr += "alpha = %f, beta = %f, gamma = %f\n" % (self.alpha, self.beta,
+                                                         self.gamma)
 
         if self.base:
             ostr += "Lattice base:\n"

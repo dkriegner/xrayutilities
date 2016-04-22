@@ -462,19 +462,13 @@ class Crystal(Material):
         """
         Return the Q-space position for a certain material.
 
-        required input arguments:
-         hkl ............. list or numpy array with the Miller indices
-                           ( or Q(h,k,l) is also possible)
+        Parameters
+        ----------
+         hkl:   list or numpy array with the Miller indices
+                (or Q(h,k,l) is also possible)
 
         """
-        if len(hkl) < 3:
-            hkl = hkl[0]
-            if len(hkl) < 3:
-                raise InputError("need 3 indices for the lattice point")
-
-        p = self.rlattice.GetPoint(hkl[0], hkl[1], hkl[2])
-
-        return p
+        return self.rlattice.GetPoint(*hkl)
 
     def environment(self, *pos, **kwargs):
         """
@@ -990,18 +984,14 @@ class Crystal(Material):
         -------
          complex valued structure factor array
         """
-        if isinstance(q, (list, tuple)):
-            q = numpy.array(q, dtype=numpy.double)
-        elif isinstance(q, numpy.ndarray):
-            pass
+        if isinstance(q, (list, tuple, numpy.ndarray)):
+            q = numpy.asarray(q, dtype=numpy.double)
         else:
             raise TypeError("q must be a list or numpy array!")
         if len(q.shape) != 2:
             raise ValueError("q does not have the correct shape (shape = %s)"
                              % str(q.shape))
-        qnorm = numpy.zeros(len(q))
-        for j in range(len(q)):
-            qnorm[j] = numpy.linalg.norm(q[j])
+        qnorm = numpy.linalg.norm(q, axis=1)
 
         if isinstance(en0, basestring) and en0 == 'config':
             en0 = utilities.energy(config.ENERGY)
