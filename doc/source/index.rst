@@ -160,12 +160,12 @@ The needed dependencies are:
  * **HDF5** a versatile binary data format (library is implemented in C).
    Although the library is not called directly, it is needed by the h5py Python
    module (see below).
- * **Python** the scripting language in which most of *xrayutilities* code is written in.
+ * **Python** the scripting language in which most of *xrayutilities* code is written in. (version 2.7 or >= 3.2)
  * **git** a version control system used to keep track on the *xrayutilities* development. (only needed for development)
 
 Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
- * **Numpy** a Python module providing numerical array objects
- * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays
+ * **Numpy** a Python module providing numerical array objects (version >= 1.8)
+ * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.11.0)
  * **h5py** a powerful Python interface to HDF5.
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optionally)
  * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR data)
