@@ -16,8 +16,8 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from distutils.core import setup, Extension
-from distutils.command.build_ext import build_ext
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
 from distutils.fancy_getopt import FancyGetopt
 from distutils.command.install import INSTALL_SCHEMES
 import glob
