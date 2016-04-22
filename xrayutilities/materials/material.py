@@ -1218,8 +1218,9 @@ def WZTensorFromCub(c11ZB, c12ZB, c44ZB):
                                   cWZvec[1], cWZvec[4])
 
 
-# define general material usefull for peak position calculations
-def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90, name="General"):
+# define general material useful for peak position calculations
+def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90,
+              name="General", base=None):
     """
     general material with primitive unit cell but possibility for different
     a,b,c and alpha,beta,gamma
@@ -1230,11 +1231,12 @@ def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90, name="General"):
      alpha      angle between unit cell vectors b,c
      beta       angle between unit cell vectors a,c
      gamma      angle between unit cell vectors a,b
+     base       instance of LatticeBase
 
     returns a Crystal object with the specified properties
     """
-    return Crystal(name, lattice.GeneralPrimitiveLattice(
-                   a, b, c, alpha, beta, gamma))
+    return Crystal(name, lattice.TriclinicLattice(
+                   a, b, c, alpha, beta, gamma, base=base))
 
 
 class Alloy(Crystal):

@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module handling crystal lattice structures. A Lattice consists of unit cell
@@ -235,23 +235,112 @@ class Lattice(object):
 # some idiom functions to simplify lattice creation
 
 
-def CubicLattice(a):
+def CubicLattice(a, base=None):
     """
-    Returns a Lattice object representing a simple cubic lattice.
+    Returns a Lattice object representing a cubic lattice.
 
-    required input arguments:
-     a ................ lattice parameter
+    Parameters
+    ----------
+     a:     lattice parameter
+     base:  instance of LatticeBase, representing the internal structure of the
+            unit cell
 
-    return value:
+    Returns
+    -------
      an instance of Lattice class
     """
 
-    return Lattice([a, 0, 0], [0, a, 0], [0, 0, a])
+    return Lattice([a, 0, 0], [0, a, 0], [0, 0, a], base=base)
 
 
-def GeneralPrimitiveLattice(a, b, c, alpha, beta, gamma):
+def TetragonalLattice(a, c, base=None):
+    """
+    Returns a Lattice object representing a tetragonal lattice.
 
-    # create lattice vectors
+    Parameters
+    ----------
+     a:     lattice parameter a
+     c:     lattice parameter c
+     base:  instance of LatticeBase, representing the internal structure of the
+            unit cell
+
+    Returns
+    -------
+     an instance of Lattice class
+    """
+
+    return Lattice([a, 0, 0], [0, a, 0], [0, 0, c], base=base)
+
+
+def OrthorhombicLattice(a, b, c, base=None):
+    """
+    Returns a Lattice object representing a tetragonal lattice.
+
+    Parameters
+    ----------
+     a:     lattice parameter a
+     b:     lattice parameter b
+     c:     lattice parameter c
+     base:  instance of LatticeBase, representing the internal structure of the
+            unit cell
+
+    Returns
+    -------
+     an instance of Lattice class
+    """
+
+    return Lattice([a, 0, 0], [0, b, 0], [0, 0, c], base=base)
+
+
+def HexagonalLattice(a, c, base=None):
+    """
+    Returns a Lattice object representing a hexagonal lattice.
+
+    Parameters
+    ----------
+     a:     lattice parameter a
+     c:     lattice parameter c
+     base:  instance of LatticeBase, representing the internal structure of the
+            unit cell
+
+    Returns
+    -------
+     an instance of Lattice class
+    """
+    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
+    a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
+    a3 = numpy.array([0., 0., c], dtype=numpy.double)
+
+    return Lattice(a1, a2, a3, base=base)
+
+
+def MonoclinicLattice(a, b, c, beta, base=None):
+    """
+    Returns a Lattice object representing a hexagonal lattice.
+
+    Parameters
+    ----------
+     a:     lattice parameter a
+     b:     lattice parameter b
+     c:     lattice parameter c
+     beta:  monoclinic unit cell angle beta (deg)
+     base:  instance of LatticeBase, representing the internal structure of the
+            unit cell
+
+    Returns
+    -------
+     an instance of Lattice class
+    """
+    bet = numpy.radians(beta)
+    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
+    a2 = numpy.array([0., b, 0.], dtype=numpy.double)
+    a3 = numpy.array([c * numpy.cos(bet), 0., c * numpy.sin(bet)],
+                     dtype=numpy.double)
+
+    return Lattice(a1, a2, a3, base=base)
+
+
+def TriclinicLattice(a, b, c, alpha, beta, gamma, base=None):
     ca = numpy.cos(numpy.radians(alpha))
     cb = numpy.cos(numpy.radians(beta))
     cg = numpy.cos(numpy.radians(gamma))
@@ -266,11 +355,8 @@ def GeneralPrimitiveLattice(a, b, c, alpha, beta, gamma):
         (ca - cb * cg) / sg,
         numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 + 2 * ca * cb * cg) / sg],
         dtype=numpy.double)
-    l = Lattice(a1, a2, a3)
 
-    return l
-
-# some lattice related functions
+    return Lattice(a1, a2, a3, base=base)
 
 
 def ZincBlendeLattice(aa, ab, a):
@@ -285,13 +371,7 @@ def ZincBlendeLattice(aa, ab, a):
     lb.append(ab, [0.75, 0.25, 0.75])
     lb.append(ab, [0.25, 0.75, 0.75])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def DiamondLattice(aa, a):
@@ -320,13 +400,7 @@ def SiGeLattice(asi, age, a, xge):
     lb.append(age, [0.75, 0.25, 0.75], occ=xge)
     lb.append(age, [0.25, 0.75, 0.75], occ=xge)
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def AlGaAsLattice(aal, aga, aas, a, x):
@@ -345,13 +419,7 @@ def AlGaAsLattice(aal, aga, aas, a, x):
     lb.append(aas, [0.75, 0.25, 0.75])
     lb.append(aas, [0.25, 0.75, 0.75])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def FCCLattice(aa, a):
@@ -362,13 +430,7 @@ def FCCLattice(aa, a):
     lb.append(aa, [0.5, 0, 0.5])
     lb.append(aa, [0, 0.5, 0.5])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def FCCSharedLattice(aa, ab, occa, occb, a):
@@ -383,13 +445,7 @@ def FCCSharedLattice(aa, ab, occa, occb, a):
     lb.append(ab, [0.5, 0, 0.5], occ=occb)
     lb.append(ab, [0, 0.5, 0.5], occ=occb)
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def BCCLattice(aa, a):
@@ -398,13 +454,7 @@ def BCCLattice(aa, a):
     lb.append(aa, [0, 0, 0])
     lb.append(aa, [0.5, 0.5, 0.5])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def HCPLattice(aa, a, c):
@@ -413,13 +463,7 @@ def HCPLattice(aa, a, c):
     lb.append(aa, [0, 0, 0])
     lb.append(aa, [1 / 3., 2 / 3., 0.5])
 
-    # create lattice vectors
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
-    a3 = numpy.array([0., 0., c], dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return HexagonalLattice(a, c, base=lb)
 
 
 def BCTLattice(aa, a, c):
@@ -429,13 +473,7 @@ def BCTLattice(aa, a, c):
     lb.append(aa, [0, 0, 0])
     lb.append(aa, [0.5, 0.5, 0.5])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, c]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return TetragonalLattice(a, c, base=lb)
 
 
 def RockSaltLattice(aa, ab, a):
@@ -456,9 +494,8 @@ def RockSaltLattice(aa, ab, a):
     a1 = [0, 0.5 * a, 0.5 * a]
     a2 = [0.5 * a, 0, 0.5 * a]
     a3 = [0.5 * a, 0.5 * a, 0]
-    l = Lattice(a1, a2, a3, base=lb)
 
-    return l
+    return Lattice(a1, a2, a3, base=lb)
 
 
 def RockSalt_Cubic_Lattice(aa, ab, a):
@@ -473,13 +510,7 @@ def RockSalt_Cubic_Lattice(aa, ab, a):
     lb.append(ab, [0, 0, 0.5])
     lb.append(ab, [0.5, 0.5, 0.5])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def CsClLattice(aa, ab, a):
@@ -488,13 +519,7 @@ def CsClLattice(aa, ab, a):
     lb.append(aa, [0, 0, 0])
     lb.append(ab, [0.5, 0.5, 0.5])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def RutileLattice(aa, ab, a, c, u):
@@ -509,16 +534,10 @@ def RutileLattice(aa, ab, a, c, u):
     lb.append(ab, [0.5 + u, 0.5 - u, 0.5])
     lb.append(ab, [0.5 - u, 0.5 + u, 0.5])
 
-    # create lattice vectors
-    a1 = [a, 0., 0.]
-    a2 = [0., a, 0.]
-    a3 = [0., 0., c]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return TetragonalLattice(a, c, base=lb)
 
 
-def BaddeleyiteLattice(aa, ab, a, b, c, beta, deg=True):
+def BaddeleyiteLattice(aa, ab, a, b, c, beta):
     # create lattice base; data from
     # http://cst-www.nrl.navy.mil/lattice/index.html
     # P2_1/c(14), aa=4e,ab=2*4e
@@ -538,17 +557,7 @@ def BaddeleyiteLattice(aa, ab, a, b, c, beta, deg=True):
     lb.append(ab, [-0.39, -0.69, -0.29])
     lb.append(ab, [0.39, -0.69 + 0.5, 0.29 + 0.5])
 
-    # create lattice vectors
-    d2r = numpy.pi / 180.
-    if deg:
-        beta = beta * d2r
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([0., b, 0.], dtype=numpy.double)
-    a3 = numpy.array([c * numpy.cos(beta), 0., c * numpy.sin(beta)],
-                     dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return MonoclinicLattice(a, b, c, beta, base=lb)
 
 
 def WurtziteLattice(aa, ab, a, c, u=3 / 8., biso=0.):
@@ -561,13 +570,7 @@ def WurtziteLattice(aa, ab, a, c, u=3 / 8., biso=0.):
     lb.append(ab, [0., 0, u], b=biso)
     lb.append(ab, [1 / 3., 2 / 3., u + 0.5], b=biso)
 
-    # create lattice vectors
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
-    a3 = numpy.array([0., 0., c], dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return HexagonalLattice(a, c, base=lb)
 
 
 def NiAsLattice(aa, ab, a, c, biso=0.):
@@ -580,13 +583,7 @@ def NiAsLattice(aa, ab, a, c, biso=0.):
     lb.append(ab, [1 / 3., 2 / 3., 0.25], b=biso)
     lb.append(ab, [2 / 3., 1 / 3., 0.75], b=biso)
 
-    # create lattice vectors
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
-    a3 = numpy.array([0., 0., c], dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return HexagonalLattice(a, c, base=lb)
 
 
 def Hexagonal4HLattice(aa, ab, a, c, u=3 / 16., v1=1 / 4., v2=7 / 16.):
@@ -604,13 +601,7 @@ def Hexagonal4HLattice(aa, ab, a, c, u=3 / 16., v1=1 / 4., v2=7 / 16.):
     lb.append(ab, [2 / 3., 1 / 3., 0.5 + u])  # C
     lb.append(ab, [1 / 3., 2 / 3., 0.5 + v2])  # B
 
-    # create lattice vectors
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
-    a3 = numpy.array([0., 0., c], dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return HexagonalLattice(a, c, base=lb)
 
 
 def Hexagonal6HLattice(aa, ab, a, c):
@@ -633,13 +624,7 @@ def Hexagonal6HLattice(aa, ab, a, c):
     lb.append(ab, [2 / 3., 1 / 3., 4 / 6. + 3 / 24.])  # C
     lb.append(ab, [1 / 3., 2 / 3., 5 / 6. + 3 / 24.])  # B
 
-    # create lattice vectors
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
-    a3 = numpy.array([0., 0., c], dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return HexagonalLattice(a, c, base=lb)
 
 
 def TrigonalR3mh(aa, a, c):
@@ -650,13 +635,7 @@ def TrigonalR3mh(aa, a, c):
     lb.append(aa, [2 / 3., 1 / 3., 1 / 3. + 0.23349])
     lb.append(aa, [1 / 3., 2 / 3., 2 / 3. + 0.23349])
 
-    # create lattice vectors
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
-    a3 = numpy.array([0., 0., c], dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return HexagonalLattice(a, c, base=lb)
 
 
 def Hexagonal3CLattice(aa, ab, a, c):
@@ -671,13 +650,7 @@ def Hexagonal3CLattice(aa, ab, a, c):
     lb.append(ab, [1 / 3., 2 / 3., 1 / 3. + 1 / 4.])
     lb.append(ab, [2 / 3., 1 / 3., 2 / 3. + 1 / 4.])
 
-    # create lattice vectors
-    a1 = numpy.array([a, 0., 0.], dtype=numpy.double)
-    a2 = numpy.array([-a / 2., numpy.sqrt(3) * a / 2., 0.], dtype=numpy.double)
-    a3 = numpy.array([0., 0., c], dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return HexagonalLattice(a, c, base=lb)
 
 
 def QuartzLattice(aa, ab, a, b, c):
@@ -694,24 +667,7 @@ def QuartzLattice(aa, ab, a, b, c):
     lb.append(ab, [-0.4135 + 0.2669, -0.4135, 1 / 3. + 0.1191])
     lb.append(ab, [0.4135 - 0.2669, -0.2669, -0.1191])
 
-    # create lattice vectors alpha=beta=90 gamma=120
-    ca = numpy.cos(numpy.radians(90))
-    cb = numpy.cos(numpy.radians(90))
-    cg = numpy.cos(numpy.radians(120))
-    sa = numpy.sin(numpy.radians(90))
-    sb = numpy.sin(numpy.radians(90))
-    sg = numpy.sin(numpy.radians(120))
-
-    a1 = a * numpy.array([1, 0, 0], dtype=numpy.double)
-    a2 = b * numpy.array([cg, sg, 0], dtype=numpy.double)
-    a3 = c * numpy.array([
-        cb,
-        (ca - cb * cg) / sg,
-        numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 + 2 * ca * cb * cg) / sg],
-        dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return TriclinicLattice(a, b, c, 90, 90, 120, base=lb)
 
 
 def TetragonalIndiumLattice(aa, a, c):
@@ -722,13 +678,7 @@ def TetragonalIndiumLattice(aa, a, c):
     lb.append(aa, [0, 0, 0])
     lb.append(aa, [0.5, 0.5, 0.5])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, c]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return TetragonalLattice(a, c, base=lb)
 
 
 def TetragonalTinLattice(aa, a, c):
@@ -740,13 +690,7 @@ def TetragonalTinLattice(aa, a, c):
     lb.append(aa, [0.0, 0.5, 0.25])
     lb.append(aa, [0.5, 0.0, 0.75])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, c]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return TetragonalLattice(a, c, base=lb)
 
 
 def NaumanniteLattice(aa, ab, a, b, c):
@@ -769,13 +713,7 @@ def NaumanniteLattice(aa, ab, a, b, c):
     lb.append(ab, [0.5 + 0.358, -0.235, -0.149])
     lb.append(ab, [-0.358, 0.5 - 0.235, 0.5 + 0.149])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, b, 0]
-    a3 = [0, 0, c]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return OrthorhombicLattice(a, b, c, base=lb)
 
 
 def CubicFm3mBaF2(aa, ab, a):
@@ -796,13 +734,7 @@ def CubicFm3mBaF2(aa, ab, a):
     lb.append(ab, [0.75, 0.75, 0.75])
     lb.append(ab, [0.75, 0.25, 0.25])
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return CubicLattice(a, base=lb)
 
 
 def PerovskiteTypeRhombohedral(aa, ab, ac, a, ang):
@@ -814,23 +746,7 @@ def PerovskiteTypeRhombohedral(aa, ab, ac, a, ang):
     lb.append(ac, [0., 0.5, 0.5])
     lb.append(ac, [0.5, 0., 0.5])
 
-    ca = numpy.cos(numpy.radians(ang))
-    cb = numpy.cos(numpy.radians(ang))
-    cg = numpy.cos(numpy.radians(ang))
-    sa = numpy.sin(numpy.radians(ang))
-    sb = numpy.sin(numpy.radians(ang))
-    sg = numpy.sin(numpy.radians(ang))
-
-    a1 = a * numpy.array([1, 0, 0], dtype=numpy.double)
-    a2 = a * numpy.array([cg, sg, 0], dtype=numpy.double)
-    a3 = a * numpy.array([
-        cb,
-        (ca - cb * cg) / sg,
-        numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 + 2 * ca * cb * cg) / sg],
-        dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return TriclinicLattice(a, a, a, ang, ang, ang, base=lb)
 
 
 def GeTeRhombohedral(aa, ab, a, ang, x=0.237):
@@ -845,24 +761,7 @@ def GeTeRhombohedral(aa, ab, a, ang, x=0.237):
     lb.append(ab, [0.5 + x, 0. + x, 0.5 + x])
     lb.append(ab, [0.0 + x, 0.5 + x, 0.5 + x])
 
-    # create lattice vectors
-    ca = numpy.cos(numpy.radians(ang))
-    cb = numpy.cos(numpy.radians(ang))
-    cg = numpy.cos(numpy.radians(ang))
-    sa = numpy.sin(numpy.radians(ang))
-    sb = numpy.sin(numpy.radians(ang))
-    sg = numpy.sin(numpy.radians(ang))
-
-    a1 = a * numpy.array([1, 0, 0], dtype=numpy.double)
-    a2 = a * numpy.array([cg, sg, 0], dtype=numpy.double)
-    a3 = a * numpy.array([
-        cb,
-        (ca - cb * cg) / sg,
-        numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 + 2 * ca * cb * cg) / sg],
-        dtype=numpy.double)
-    l = Lattice(a1, a2, a3, base=lb)
-
-    return l
+    return TriclinicLattice(a, a, a, ang, ang, ang, base=lb)
 
 
 def MagnetiteLattice(aa, ab, ac, a, x=0.255):
@@ -927,8 +826,4 @@ def MagnetiteLattice(aa, ab, ac, a, x=0.255):
     lb.append(ac, [.5 + x, .5 + x, x])
     lb.append(ac, [.5 - x, .5 - x, 1 - x])
 
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
-    l = Lattice(a1, a2, a3, base=lb)
-    return l
+    return CubicLattice(a, base=lb)

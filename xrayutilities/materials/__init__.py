@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2011,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # import module objects
 
@@ -22,7 +22,11 @@ from .atom import Atom
 from .lattice import LatticeBase
 from .lattice import Lattice
 from .lattice import CubicLattice
-from .lattice import GeneralPrimitiveLattice
+from .lattice import TetragonalLattice
+from .lattice import HexagonalLattice
+from .lattice import OrthorhombicLattice
+from .lattice import MonoclinicLattice
+from .lattice import TriclinicLattice
 from .lattice import ZincBlendeLattice
 from .lattice import DiamondLattice
 from .lattice import FCCLattice
