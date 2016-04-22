@@ -108,15 +108,17 @@ class Transform(object):
                       " - seems to be singular")
             self.imatrix = None
 
-    def inverse(self, *args):
+    def inverse(self, args, rank=1):
         """
         performs inverse transformation a vector, matrix or tensor of rank 4
 
         Parameters
         ----------
-         *args:     object to transform, list or numpy array of shape
-                    (n,) (n,n), (n,n,n,n) where n is the rank of the
-                    transformation matrix
+         args:     object to transform, list or numpy array of shape
+                    (...,n) (...,n,n), (...,n,n,n,n) where n is the size of
+                    the transformation matrix.
+         rank:      rank of the supplied object. allowed values are 1, 2,
+                    and 4
         """
 
         if self.imatrix is None:
@@ -124,92 +126,38 @@ class Transform(object):
                             " - seems to be singular")
 
         it = Transform(self.imatrix)
-        return it(*args)
+        return it(args, rank)
 
-    def __call__(self, *args):
+    def __call__(self, args, rank=1):
         """
         transforms a vector, matrix or tensor of rank 4
         (e.g. elasticity tensor)
 
         Parameters
         ----------
-         *args:     object to transform, list or numpy array of shape
-                    (n,) (n,n), (n,n,n,n) where n is the rank of the
-                    transformation matrix
+         args:     object to transform, list or numpy array of shape
+                    (...,n) (...,n,n), (...,n,n,n,n) where n is the size of
+                    the transformation matrix.
+         rank:      rank of the supplied object. allowed values are 1, 2,
+                    and 4
         """
 
         m = self.matrix
+        if rank == 1:  # argument is a vector
+            # out_i = m_ij * args_j
+            out = numpy.einsum('ij,...j', m, args)
+        elif rank == 2:  # argument is a matrix
+            # out_ij = m_ik * m_jl * args_kl
+            out = numpy.einsum('ik,jl,...kl', m, m, args)
+        elif rank == 4:
+            # cp_ijkl = m_in * m_jo * m_kp * m_lq * args_nopq
+            out = numpy.einsum('in,jo,kq,lr,...nopq', m, m, m, m, args)
 
-        olist = []
-        for a in args:
-            if isinstance(a, (list, tuple)):
-                p = numpy.array(a, dtype=numpy.double)
-            elif isinstance(a, numpy.ndarray):
-                p = a
-            else:
-                raise TypeError("Argument must be a list, tuple "
-                                "or numpy array!")
-
-            # matrix product in pure array notation
-            if len(p.shape) == 1:
-                # argument is a vector
-                if (config.VERBOSITY >= config.DEBUG):
-                    print("XU.math.Transform: transform a vector ...")
-                # b = (self.matrix*p[numpy.newaxis,:]).sum(axis=1)
-                b = numpy.dot(m, p)
-                olist.append(b)
-            elif len(p.shape) == 2 and p.shape[0] == 3 and p.shape[1] == 3:
-                # argument is a matrix
-                if (config.VERBOSITY >= config.DEBUG):
-                    print("XU.math.Transform: transform a matrix ...")
-                b = numpy.zeros(p.shape, dtype=numpy.double)
-                # b_ij = m_ik * m_jl * p_kl
-                for i in range(3):
-                    for j in range(3):
-                        # loop over the sums
-                        for k in range(3):
-                            for l in range(3):
-                                b[i, j] += m[i, k] * m[j, l] * p[k, l]
-
-                olist.append(b)
-
-            elif len(p.shape) == 4 and p.shape[0] == 3 and p.shape[1] == 3 and\
-                    p.shape[2] == 3 and p.shape[3] == 3:
-                if (config.VERBOSITY >= config.DEBUG):
-                    print("XU.math.Transform: transform a tensor of rank 4")
-                # transformation of a
-                cp = numpy.zeros(p.shape, dtype=numpy.double)
-                # cp_ikkl = m_ig * m_jh * m_kr * m_ls * p_ghrs
-                for i in range(0, 3):
-                    for j in range(0, 3):
-                        for k in range(0, 3):
-                            for l in range(0, 3):
-                                # run over the double sums
-                                for g in range(0, 3):
-                                    for h in range(0, 3):
-                                        for r in range(0, 3):
-                                            for s in range(0, 3):
-                                                cp[i, j, k, l] += m[i, g] * \
-                                                    m[j, h] * m[k, r] * \
-                                                    m[l, s] * p[g, h, r, s]
-
-                olist.append(cp)
-
-        if len(args) == 1:
-            return olist[0]
-        else:
-            return olist
+        return out
 
     def __str__(self):
-        ostr = ""
-        ostr += "Transformation matrix:\n"
-        ostr += "%f %f %f\n" % (self.matrix[0, 0], self.matrix[0, 1],
-                                self.matrix[0, 2])
-        ostr += "%f %f %f\n" % (self.matrix[1, 0], self.matrix[1, 1],
-                                self.matrix[1, 2])
-        ostr += "%f %f %f\n" % (self.matrix[2, 0], self.matrix[2, 1],
-                                self.matrix[2, 2])
-
+        ostr = "Transformation matrix:\n"
+        ostr += str(self.matrix)
         return ostr
 
 
