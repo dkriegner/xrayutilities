@@ -1444,8 +1444,8 @@ class CubicAlloy(Alloy):
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.materials.Alloy.ContentB: inp1/inp2: ", inp1, inp2)
-        cijA = Cijkl2Cij(trans(self.matA.cijkl))
-        cijB = Cijkl2Cij(trans(self.matB.cijkl))
+        cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
+        cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
         # define functions for all things in the equation to solve
         def a1(x):
@@ -1569,8 +1569,8 @@ class CubicAlloy(Alloy):
         inp2 = numpy.cross(n, inp1)
         trans = math.CoordinateTransform(inp1, inp2, n)
 
-        cijA = Cijkl2Cij(trans(self.matA.cijkl))
-        cijB = Cijkl2Cij(trans(self.matB.cijkl))
+        cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
+        cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
         # define functions for all things in the equation to solve
         def a1(x):
@@ -1636,38 +1636,56 @@ class CubicAlloy(Alloy):
         return x, [ainp, aperp, abulk_perp(x), eps_inplane, eps_perp]
 
 
-def PseudomorphicMaterial(submat, layermat, relaxation=0):
+def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
     """
     This function returns a material whos lattice is pseudomorphic on a
-    particular substrate material.
-    This function works meanwhile only for cubic materials on (001) substrates
+    particular substrate material. The two materials must have similar unit
+    cell definitions for the algorithm to work correctly, i.e. it does not work
+    for combiniations of materials with different lattice symmetry.
 
-    required input arguments:
-     submat ........ substrate material
-     layermat ...... bulk material of the layer
-     relaxation .... degree of relaxation 0: pseudomorphic, 1: relaxed
-                     (default: 0)
+    Parameters
+    ----------
+     sub:         substrate material
+     layer:       bulk material of the layer
+     relaxation:  degree of relaxation 0: pseudomorphic, 1: relaxed
+                  (default: 0)
+     trans:       Transformation which transforms lattice directions into a
+                  surface orientated coordinate frame (x,y inplane, z out of
+                  plane). If None a (001) surface geometry of a cubic material
+                  is assumed.
 
-    return value:
-     An instance of Crystal holding the new pseudomorphically strained
-     material.
+    Returns
+    -------
+    An instance of Crystal holding the new pseudomorphically
+    strained material.
     """
+    def get_inplane(lat):
+        """determine inplane lattice parameter"""
+        return (math.VecNorm(lat.GetPoint(trans.inverse((1, 0, 0)))) +
+                math.VecNorm(lat.GetPoint(trans.inverse((0, 1, 0))))) / 2.
 
-    asub = submat.lattice.a1[0]
+    if not trans:
+        trans = math.Transform(numpy.identity(3))
 
-    # calculate the normal lattice parameter
+    slat = sub.lattice
+    llat = layer.lattice
+    # calculate the strain
+    asub = get_inplane(sub.lattice)
+    abulk = get_inplane(layer.lattice)
+    apar = asub + (abulk - asub) * relaxation
+    epar = (apar - abulk) / abulk
+    cT = trans(layer.cijkl, rank=4)
 
-    abulk = layermat.lattice.a1[0]
-    ap = asub + (abulk - asub) * relaxation
-    c11 = layermat.cij[0, 0]
-    c12 = layermat.cij[0, 1]
-    a3 = numpy.zeros(3, dtype=numpy.double)
-    a3[2] = abulk - 2.0 * c12 * (ap - abulk) / c11
-    # create the pseudomorphic lattice
-    pmlatt = lattice.Lattice([ap, 0, 0], [0, ap, 0], a3,
-                             base=layermat.lattice.base)
+    eperp = -epar * (cT[0, 0, 2, 2] + cT[1, 1, 2, 2] + cT[2, 2, 0, 0] +
+                     cT[1, 1, 2, 2]) / (2*cT[2, 2, 2, 2])
+    eps = trans.inverse(numpy.diag((epar, epar, eperp)), rank=2)
 
-    # create the new material
-    pmat = Crystal(layermat.name, pmlatt, layermat.cij)
+    # create the pseudomorphic material
+    pmlatt = lattice.Lattice(layer.lattice.a1,
+                             layer.lattice.a2,
+                             layer.lattice.a3,
+                             base=layer.lattice.base)
+    pmat = Crystal(layer.name, pmlatt, layer.cij)
+    pmat.ApplyStrain(eps)
 
     return pmat

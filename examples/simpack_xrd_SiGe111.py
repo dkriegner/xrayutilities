@@ -32,8 +32,8 @@ Si = xu.materials.Si
 hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), en=en)
 
 sub = xu.simpack.Layer(Si, inf)
-lay = xu.simpack.Layer(xu.materials.SiGe(0.6), 150)
-ls = sub + lay  # relaxed layers
+lay = xu.simpack.Layer(xu.materials.SiGe(0.6), 150, relaxation=0.5)
+pls = xu.simpack.PseudomorphicStack111('pseudo', sub, lay)
 
 # calculate incidence angle for dynamical diffraction models
 qx = hxrd.Transform(Si.Q(h, k, l))[1]
@@ -42,17 +42,17 @@ resolai = abs(alpha_i(qx, mean(qz) + resol) - alpha_i(qx, mean(qz)))
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
-mk = xu.simpack.KinematicalModel(ls, experiment=hxrd, resolution_width=resol)
+mk = xu.simpack.KinematicalModel(pls, experiment=hxrd, resolution_width=resol)
 Ikin = mk.simulate(qz, hkl=(h, k, l), refraction=True)
 
 # simplified dynamical diffraction model
-mds = xu.simpack.SimpleDynamicalCoplanarModel(ls, experiment=hxrd,
+mds = xu.simpack.SimpleDynamicalCoplanarModel(pls, experiment=hxrd,
                                               resolution_width=resolai)
 Idynsub = mds.simulate(ai, hkl=(h, k, l), idxref=0)
 Idynlay = mds.simulate(ai, hkl=(h, k, l), idxref=1)
 
 # general 2-beam theory based dynamical diffraction model
-md = xu.simpack.DynamicalModel(ls, experiment=hxrd, resolution_width=resolai)
+md = xu.simpack.DynamicalModel(pls, experiment=hxrd, resolution_width=resolai)
 Idyn = md.simulate(ai, hkl=(h, k, l))
 
 # plot of calculated intensities
@@ -62,7 +62,7 @@ semilogy(qz, Ikin, label='kinematical')
 semilogy(qz, Idynsub, label='simpl. dynamical(S)')
 semilogy(qz, Idynlay, label='simpl. dynamical(L)')
 semilogy(qz, Idyn, label='full dynamical')
-vlines([sqrt(3)*2*pi/l.material.a3[-1] for l in ls], 1e-9, 1,
+vlines([xu.math.VecNorm(lay.material.Q(h, k, l)) for lay in pls], 1e-9, 1,
        linestyles='dashed')
 legend(fontsize='small')
 xlim(qz.min(), qz.max())

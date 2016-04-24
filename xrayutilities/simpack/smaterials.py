@@ -21,6 +21,7 @@ import numpy
 
 from ..exception import InputError
 from ..materials import Material, Crystal, PseudomorphicMaterial, Alloy
+from ..math import Transform, CoordinateTransform
 
 
 class SMaterial(object):
@@ -241,15 +242,17 @@ class GradedLayerStack(CrystalStack):
 class PseudomorphicStack001(CrystalStack):
     """
     generate a sequence of pseudomorphic crystalline Layers. Surface
-    orientation is assumed to be 001 and materials should be cubic/tetragonal.
+    orientation is assumed to be 001 and materials must be cubic/tetragonal.
     """
+    trans = Transform(numpy.identity(3))
 
     def make_epitaxial(self, i):
         l = self.list[i]
         if i == 0:
             return l
         psub = self.list[i-1].material
-        mpseudo = PseudomorphicMaterial(psub, l.material, l.relaxation)
+        mpseudo = PseudomorphicMaterial(psub, l.material, l.relaxation,
+                                        trans=self.trans)
         self.list[i].material = mpseudo
 
     def __delitem__(self, i):
@@ -275,3 +278,11 @@ class PseudomorphicStack001(CrystalStack):
             self.list.insert(i+j, copy.copy(val))
             for k in range(i+j, len(self)):
                 self.make_epitaxial(k)
+
+
+class PseudomorphicStack111(PseudomorphicStack001):
+    """
+    generate a sequence of pseudomorphic crystalline Layers. Surface
+    orientation is assumed to be 111 and materials must be cubic.
+    """
+    trans = CoordinateTransform((1, -1, 0), (1, 1, -2), (1, 1, 1))
