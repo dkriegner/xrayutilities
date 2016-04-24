@@ -151,7 +151,7 @@ class Transform(object):
             out = numpy.einsum('ik,jl,...kl', m, m, args)
         elif rank == 4:
             # cp_ijkl = m_in * m_jo * m_kp * m_lq * args_nopq
-            out = numpy.einsum('in,jo,kq,lr,...nopq', m, m, m, m, args)
+            out = numpy.einsum('in,jo,kp,lq,...nopq', m, m, m, m, args)
 
         return out
 
