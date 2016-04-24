@@ -299,7 +299,7 @@ class Amorphous(Material):
         for at, occ in self.base:
             if at.num not in f:
                 f[at.num] = at.f(q, en)
-        return [f[a.num] for a, p, o, b in self.lattice.base]
+        return [f[a.num] for a, o in self.base]
 
     def delta(self, en='config'):
         """
