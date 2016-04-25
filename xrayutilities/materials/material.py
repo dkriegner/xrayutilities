@@ -1677,8 +1677,7 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
     epar = (apar - abulk) / abulk
     cT = trans(layer.cijkl, rank=4)
 
-    eperp = -epar * (cT[0, 0, 2, 2] + cT[1, 1, 2, 2] + cT[2, 2, 0, 0] +
-                     cT[1, 1, 2, 2]) / (2*cT[2, 2, 2, 2])
+    eperp = -epar * (cT[1, 1, 2, 2] + cT[2, 2, 0, 0]) / (cT[2, 2, 2, 2])
     eps = trans.inverse(numpy.diag((epar, epar, eperp)), rank=2)
 
     # create the pseudomorphic material
