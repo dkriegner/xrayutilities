@@ -24,7 +24,6 @@ materials their crystalline state is defined few materials are also included as
 amorphous which can be useful for calculation of their optical properties.
 """
 
-import copy
 import numpy
 import scipy.optimize
 import warnings
@@ -1232,7 +1231,9 @@ def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90,
 class Alloy(Crystal):
 
     def __init__(self, matA, matB, x):
-        super(Alloy, self).__init__("None", copy.copy(matA.lattice), matA.cij)
+        lat = lattice.Lattice(matA.lattice.a1, matA.lattice.a2,
+                              matA.lattice.a3, base=matA.lattice.base)
+        super(Alloy, self).__init__("None", lat, matA.cij)
         self.matA = matA
         self.matB = matB
         self._setxb(x)
@@ -1298,7 +1299,7 @@ class Alloy(Crystal):
         ndir = exp.ndir / numpy.linalg.norm(exp.ndir)
 
         if isinstance(sub, Crystal):
-            asub = numpy.linalg.norm(sub.lattice.a1)
+            asub = sub.lattice.a
         elif isinstance(sub, float):
             asub = sub
         else:
