@@ -83,7 +83,7 @@ semilogy(qz, Ikin, label='kinematical')
 semilogy(qz, Imult, label='multibeam')
 semilogy(qz, Idyn, label='full dynamical')
 vlines([4*2*pi/l.material.a3[-1] for l in pls[-2:]], 1e-9, 1,
-       linestyles='dashed')
+       linestyles='dashed', label="kin. peak-pos")
 legend(fontsize='small')
 xlim(qz.min(), qz.max())
 xlabel('Qz ($1/\AA$)')

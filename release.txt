@@ -11,7 +11,7 @@ Is everything running fine? perform the tests and run the examples
   cd xrayutilities/tests
   python -m unittest discover
   # optionally check the coverage
-  # coverage run -m unittest discover
+  # coverage run --source <INSTALLPATH>/lib64/python2.7/site-packages/xrayutilities -m unittest discover
   # coverage html --omit='test_*'
   cd ../..
 
@@ -77,8 +77,6 @@ to have the correct style the style file needs to patched
   patch -p0 < doc/webpage.patch
   # in case its needed, update the patch with
   # diff -Naur build/sphinx/html/index.html.orig build/sphinx/html/index.html > doc/webpage.patch
-  cp doc/source/pics/xu_usage.svg build/sphinx/html/_images/
-  cp doc/source/pics/xu_usage_planning.svg build/sphinx/html/_images/
 
 to upload new web-documentation connect to the sourceforge server via:
 
