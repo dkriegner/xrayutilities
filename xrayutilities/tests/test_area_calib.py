@@ -85,7 +85,7 @@ fullfilename = ccdfile % (2, 2, 104)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed -> ask the authors")
+                 "additional test data needed (http://xrayutilities.sf.net)")
 class TestArea_calib(unittest.TestCase):
     en = 10000.0  # x-ray energy in eV
     roi = (551, 1065, 0, 1030)  # get data of the good part of the detector

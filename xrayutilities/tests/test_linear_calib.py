@@ -28,7 +28,7 @@ fullfilename = os.path.join(datadir, "detalign.xrdml.bz2")
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed -> ask the authors")
+                 "additional test data needed (http://xrayutilities.sf.net)")
 class TestLinear_calib(unittest.TestCase):
     pw0 = 1.4813e-04
     cch0 = 633.90
