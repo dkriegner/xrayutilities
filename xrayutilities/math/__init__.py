@@ -22,8 +22,6 @@ from .transforms import Transform
 from .transforms import CoordinateTransform
 from .transforms import AxisToZ
 from .transforms import AxisToZ_keepXY
-from .transforms import Cij2Cijkl
-from .transforms import Cijkl2Cij
 from .transforms import XRotation
 from .transforms import YRotation
 from .transforms import ZRotation
