@@ -23,12 +23,14 @@ import numpy
 
 class TestPseudomorphic(unittest.TestCase):
     mA = xu.materials.Si
-    mB = xu.materials.Ge
+    mB = xu.materials.SiGe(numpy.random.rand()*0.9 + 0.1)
     relaxation = numpy.random.rand()
+    sub = xu.simpack.Layer(mA, numpy.inf)
+    lay = xu.simpack.Layer(mB, 100, relaxation=relaxation)
 
     def test_pseudomoprhic001(self):
-        mBpseudo = xu.materials.PseudomorphicMaterial(self.mA, self.mB,
-                                                      self.relaxation)
+        stack = xu.simpack.PseudomorphicStack001('001', self.sub, self.lay)
+        mBpseudo = stack[-1].material
 
         # calc lattice for mBpseudo
         asub = (self.mA.lattice.a + self.mA.lattice.b) / 2.
@@ -49,9 +51,8 @@ class TestPseudomorphic(unittest.TestCase):
         self.assertAlmostEqual(mBpl.c, aperp, places=12)
 
     def test_pseudomorphic111(self):
-        t = xu.HXRD(self.mA.Q([1, 1, -2]), self.mA.Q([1, 1, 1]))._transform
-        mBpseudo = xu.materials.PseudomorphicMaterial(self.mA, self.mB,
-                                                      self.relaxation, trans=t)
+        stack = xu.simpack.PseudomorphicStack111('111', self.sub + self.lay)
+        mBpseudo = stack[-1].material
 
         # calc lattice for mBpseudo
         def get_inplane111(l):

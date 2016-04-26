@@ -84,9 +84,9 @@ ccdfile = os.path.join(datadir, name, name + "_%05d_eiger",
 fullfilename = ccdfile % (2, 2, 104)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename) or False,  # skip by default!
+@unittest.skipIf(not os.path.isfile(fullfilename),
                  "additional test data needed -> ask the authors")
-class TestCCD_Normalizer(unittest.TestCase):
+class TestArea_calib(unittest.TestCase):
     en = 10000.0  # x-ray energy in eV
     roi = (551, 1065, 0, 1030)  # get data of the good part of the detector
     hkls = ((0, 0, 0), (0, 0, 0), (0, 0, 4), (0, 0, 4), (0, 0, 2), (0, 0, 2))
