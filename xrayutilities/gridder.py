@@ -146,6 +146,14 @@ class Gridder(object):
 
     data = property(__get_data)
 
+    def _prepare_array(self, a):
+        """
+        prepare array for passing to c-code
+        """
+        if isinstance(a, (list, tuple, numpy.float, numpy.int)):
+            a = numpy.asarray(a)
+        return a.reshape(a.size)
+
     def Clear(self):
         """
         Clear so far gridded data to reuse this instance of the Gridder
@@ -198,7 +206,30 @@ class Gridder1D(Gridder):
         self.xmin = min
         self.xmax = max
 
-    def __call__(self, *args):
+    def _checktransinput(self, x, data):
+        """
+        common checks and reshape commands for the input data. This function
+        checks the data type and shape of the input data.
+        """
+        if not self.keep_data:
+            self.Clear()
+
+        x = self._prepare_array(x)
+        data = self._prepare_array(data)
+
+        if x.size != data.size:
+            raise exception.InputError("XU.%s: size of given datasets "
+                                       "(x,data) is not equal!"
+                                       % self.__class__.__name__)
+
+        if not self.fixed_range:
+            # assume that with setting keep_data the user wants to call the
+            # gridder more often and obtain a reasonable result
+            self.dataRange(x.min(), x.max(), self.keep_data)
+
+        return x, data
+
+    def __call__(self, x, data):
         """
         Perform gridding on a set of data. After running the gridder
         the 'data' object in the class is holding the gridded data.
@@ -208,30 +239,7 @@ class Gridder1D(Gridder):
          x ............... numpy array of arbitrary shape with x positions
          data ............ numpy array of arbitrary shape with data values
         """
-
-        if not self.keep_data:
-            self.Clear()
-
-        x = args[0]
-        data = args[1]
-
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = numpy.array(data)
-
-        x = x.reshape(x.size)
-        data = data.reshape(data.size)
-
-        if x.size != data.size:
-            raise exception.InputError("XU.Gridder1D: size of given datasets "
-                                       "(x,data) is not equal!")
-
-        if not self.fixed_range:
-            # assume that with setting keep_data the user wants to call the
-            # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(), self.keep_data)
-
+        x, data = self._checktransinput(x, data)
         # remove normalize flag for C-code, normalization is always performed
         # in python
         flags = utilities.set_bit(self.flags, 2)
@@ -260,26 +268,7 @@ class FuzzyGridder1D(Gridder1D):
          width ........... width of one data point. If not given half the bin
                            size will be used.
         """
-
-        if not self.keep_data:
-            self.Clear()
-
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = numpy.array(data)
-
-        x = x.reshape(x.size)
-        data = data.reshape(data.size)
-
-        if x.size != data.size:
-            raise exception.InputError("XU.Gridder1D: size of given datasets "
-                                       "(x,data) is not equal!")
-
-        if not self.fixed_range:
-            # assume that with setting keep_data the user wants to call the
-            # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(), self.keep_data)
+        x, data = self._checktransinput(x, data)
 
         if not width:
             width = delta(self.xmin, self.xmax, self.nx) / 2.
@@ -306,7 +295,7 @@ class npyGridder1D(Gridder1D):
 
     xaxis = property(__get_xaxis)
 
-    def __call__(self, *args):
+    def __call__(self, x, data):
         """
         Perform gridding on a set of data. After running the gridder
         the 'data' object in the class is holding the gridded data.
@@ -317,14 +306,7 @@ class npyGridder1D(Gridder1D):
          data ............ numpy array of arbitrary shape with data values
         """
 
-        x = args[0]
-        data = args[1]
-        x = x.reshape(x.size)
-        data = data.reshape(data.size)
-
-        if x.size != data.size:
-            raise exception.InputError("XU.Gridder1D: size of given datasets "
-                                       "(x,data) is not equal!")
+        x, data = self._checktransinput(x, data)
 
         # use only non-NaN data values
         mask = numpy.invert(numpy.isnan(data))

@@ -128,19 +128,10 @@ class Gridder3D(Gridder):
         if not self.keep_data:
             self.Clear()
 
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
-            y = numpy.array(y)
-        if isinstance(z, (list, tuple, numpy.float, numpy.int)):
-            z = numpy.array(z)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = numpy.array(data)
-
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-        z = z.reshape(z.size)
-        data = data.reshape(data.size)
+        x = self._prepare_array(x)
+        y = self._prepare_array(y)
+        z = self._prepare_array(z)
+        data = self._prepare_array(data)
 
         if x.size != y.size or y.size != z.size or z.size != data.size:
             raise exception.InputError("XU.%s: size of given datasets "
