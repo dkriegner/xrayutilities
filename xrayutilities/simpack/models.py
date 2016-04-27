@@ -180,6 +180,35 @@ class KinematicalModel(LayerModel):
         self.chi0 = numpy.asarray([l.material.chi0(en=self.exp.energy)
                                    for l in self.lstack])
 
+    def _prepare_kincalculation(self, qz, hkl):
+        """
+        prepare kinematic calculation by calculating some helper values
+        """
+        rel = constants.physical_constants['classical electron radius'][0]
+        rel *= 1e10
+        k = self.exp.k0
+
+        # determine q-inplane
+        t = self.exp._transform
+        ql0 = t(self.lstack[0].material.Q(*hkl))
+        qinp = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
+
+        # calculate needed angles
+        qv = numpy.asarray([t.inverse((ql0[0], ql0[1], q)) for q in qz])
+        Q = numpy.linalg.norm(qv, axis=1)
+        theta = numpy.arcsin(Q / (2 * k))
+        domega = numpy.arctan2(qinp, qz)
+        alphai, alphaf = (theta + domega, theta - domega)
+        # calculate structure factors
+        f = numpy.empty((len(self.lstack), len(qz)), dtype=numpy.complex)
+        for i, l in enumerate(self.lstack):
+            m = l.material
+            f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
+                m.lattice.UnitCellVolume()
+
+        E = numpy.zeros(len(qz), dtype=numpy.complex)
+        return rel, k, alphai, alphaf, f, E, t
+
     def simulate(self, qz, hkl, absorption=False, refraction=False):
         """
         performs the actual kinematical diffraction calculation on the Qz
@@ -200,36 +229,13 @@ class KinematicalModel(LayerModel):
         -------
          vector of the ratios of the diffracted and primary fluxes
         """
-        nl, nq = (len(self.lstack), len(qz))
-        rel = constants.physical_constants['classical electron radius'][0]
-        rel *= 1e10
-        k = self.exp.k0
-
-        # determine q-inplane
-        t = self.exp._transform
-        ql0 = t(self.lstack[0].material.Q(*hkl))
-        qinp = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
-
-        # prepare calculation
-        qv = numpy.asarray([t.inverse((ql0[0], ql0[1], q)) for q in qz])
-        Q = numpy.linalg.norm(qv, axis=1)
-        theta = numpy.arcsin(Q / (2 * k))
-        domega = numpy.arctan2(qinp, qz)
-        alphai, alphaf = (theta + domega, theta - domega)
-        valid = heaviside(alphai) * heaviside(alphaf)
-        # calculate structure factors
-        f = numpy.empty((nl, nq), dtype=numpy.complex)
-        for i, l in enumerate(self.lstack):
-            m = l.material
-            f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
-                m.lattice.UnitCellVolume()
+        rel, k, alphai, alphaf, f, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
-        z = numpy.zeros(nl)
+        z = numpy.zeros(len(self.lstack))
         for i, l in enumerate(self.lstack[-1:0:-1]):
             z[-i-2] = z[-i-1] - l.thickness
 
         # perform kinematical calculation
-        E = numpy.zeros(nq, dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
             q = qz.astype(numpy.complex)
             if absorption and not refraction:
@@ -245,8 +251,8 @@ class KinematicalModel(LayerModel):
                 E += - f[i, :] * numpy.exp(-1j * q * z[i]) * \
                     (1 - numpy.exp(1j * q * l.thickness)) / (1j * q)
 
-        w = valid * rel**2 / (numpy.sin(alphai) * numpy.sin(alphaf)) *\
-            numpy.abs(E)**2
+        w = heaviside(alphai) * heaviside(alphaf) * rel**2 / \
+            (numpy.sin(alphai) * numpy.sin(alphaf)) * numpy.abs(E)**2
         return self.scale_simulation(self.convolute_resolution(qz, w))
 
 
@@ -297,33 +303,10 @@ class KinematicalMultiBeamModel(KinematicalModel):
         -------
          vector of the ratios of the diffracted and primary fluxes
         """
-        nl, nq = (len(self.lstack), len(qz))
-        rel = constants.physical_constants['classical electron radius'][0]
-        rel *= 1e10
-        k = self.exp.k0
+        rel, k, alphai, alphaf, f, E, t = self._prepare_kincalculation(qz, hkl)
 
-        # determine q-inplane
-        t = self.exp._transform
-        ql0 = t(self.lstack[0].material.Q(*hkl))
-        qinp = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
-
-        # prepare calculation
-        qv = numpy.asarray([t.inverse((ql0[0], ql0[1], q)) for q in qz])
-        Q = numpy.linalg.norm(qv, axis=1)
-        theta = numpy.arcsin(Q / (2 * k))
-        domega = numpy.arctan2(qinp, qz)
-        alphai, alphaf = (theta + domega, theta - domega)
-        valid = heaviside(alphai) * heaviside(alphaf)
-
-        # calculate structure factors
-        f = numpy.empty((nl, nq), dtype=numpy.complex)
-        for i, l in enumerate(self.lstack):
-            m = l.material
-            f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
-                m.lattice.UnitCellVolume()
-
-        # calculate interface positions
-        z = numpy.zeros(nl)
+        # calculate interface positions for integer unit-cell thickness
+        z = numpy.zeros(len(self.lstack))
         for i, l in enumerate(self.lstack[-1:0:-1]):
             lat = l.material.lattice
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
@@ -336,7 +319,6 @@ class KinematicalMultiBeamModel(KinematicalModel):
                                                     a3 * n3, n3))
 
         # perform kinematical calculation
-        E = numpy.zeros(nq, dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
             q = qz.astype(numpy.complex)
             if absorption and not refraction:
@@ -356,8 +338,8 @@ class KinematicalMultiBeamModel(KinematicalModel):
                     (1 - numpy.exp(1j * q * a3 * n3)) /\
                     (1 - numpy.exp(1j * q * a3))
 
-        w = valid * rel**2 / (numpy.sin(alphai) * numpy.sin(alphaf)) *\
-            numpy.abs(E)**2
+        w = heaviside(alphai) * heaviside(alphaf) * rel**2 / \
+            (numpy.sin(alphai) * numpy.sin(alphaf)) * numpy.abs(E)**2
         return self.scale_simulation(self.convolute_resolution(qz, w))
 
 
