@@ -388,7 +388,7 @@ class SPECScan(object):
                 print("XU.io.SPECScan: Warning: plot "
                       "functionality not available")
             return
-        
+
         newfig = keyargs.get('newfig', True)
         logy = keyargs.get('logy', False)
 

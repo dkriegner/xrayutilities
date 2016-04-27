@@ -946,7 +946,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         _area_distance = float(kwargs.get("distance", 1))
         wl = utilities.wavelength(kwargs.get('wl', 1.))
         deg = kwargs.get('deg', True)
-        
+
         delta = numpy.asarray(kwargs.get('delta', numpy.zeros(Nd)),
                               dtype=numpy.double)
         if delta.size != Nd - 1:
@@ -1608,7 +1608,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         wl = utilities.wavelength(kwargs.get('wl', 1.))
         deg = kwargs.get('deg', True)
         UB = kwargs.get('UB', numpy.identity(3))
-        
+
         delta = numpy.asarray(kwargs.get('delta', numpy.zeros(Nd)),
                               dtype=numpy.double)
         if delta.size != Nd - 1 + 1:

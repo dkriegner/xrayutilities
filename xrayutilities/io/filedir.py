@@ -50,7 +50,7 @@ class FileDirectory(object):
             self.datapath, '*.%s' % (self.extension)))
 
         if len(self.files) == 0:
-            print("XU.io.FileDirectory: no files found in %s" % (self.datapath))
+            print("XU.io.FileDirectory: no file found in %s" % (self.datapath))
             return
 
         if config.VERBOSITY >= config.INFO_ALL:
