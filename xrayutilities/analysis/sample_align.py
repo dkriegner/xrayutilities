@@ -943,28 +943,15 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         _area_ri = math.getVector(r_i)
 
         # kwargs
-        if "distance" in kwargs:
-            _area_distance = float(kwargs["distance"])
-        else:
-            _area_distance = 1.
-
-        if 'wl' in kwargs:
-            wl = utilities.wavelength(kwargs['wl'])
-        else:
-            wl = 1.
-
-        if 'deg' in kwargs:
-            deg = kwargs['deg']
-        else:
-            deg = True
-
-        if 'delta' in kwargs:
-            delta = numpy.array(kwargs['delta'], dtype=numpy.double)
-            if delta.size != Nd - 1:
-                raise InputError("QConversionPixel: keyword argument delta "
-                                 "does not have an appropriate shape")
-        else:
-            delta = numpy.zeros(Nd)
+        _area_distance = float(kwargs.get("distance", 1))
+        wl = utilities.wavelength(kwargs.get('wl', 1.))
+        deg = kwargs.get('deg', True)
+        
+        delta = numpy.asarray(kwargs.get('delta', numpy.zeros(Nd)),
+                              dtype=numpy.double)
+        if delta.size != Nd - 1:
+            raise InputError("QConversionPixel: keyword argument delta "
+                             "does not have an appropriate shape")
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -1617,33 +1604,16 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         _area_ri = math.getVector(r_i)
 
         # kwargs
-        if "distance" in kwargs:
-            _area_distance = float(kwargs["distance"])
-        else:
-            _area_distance = 1.
-
-        if 'wl' in kwargs:
-            wl = utilities.wavelength(kwargs['wl'])
-        else:
-            raise ValueError("no wavelength given!")
-
-        if 'UB' in kwargs:
-            UB = kwargs['UB']
-        else:
-            UB = numpy.identity(3)
-
-        if 'deg' in kwargs:
-            deg = kwargs['deg']
-        else:
-            deg = True
-
-        if 'delta' in kwargs:
-            delta = numpy.array(kwargs['delta'], dtype=numpy.double)
-            if delta.size != Nd - 1 + 1:
-                raise InputError("QConversionPixel: keyword argument delta "
-                                 "does not have an appropriate shape")
-        else:
-            delta = numpy.zeros(Nd)
+        _area_distance = float(kwargs.get("distance", 1))
+        wl = utilities.wavelength(kwargs.get('wl', 1.))
+        deg = kwargs.get('deg', True)
+        UB = kwargs.get('UB', numpy.identity(3))
+        
+        delta = numpy.asarray(kwargs.get('delta', numpy.zeros(Nd)),
+                              dtype=numpy.double)
+        if delta.size != Nd - 1 + 1:
+            raise InputError("QConversionPixel: keyword argument delta "
+                             "does not have an appropriate shape")
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
