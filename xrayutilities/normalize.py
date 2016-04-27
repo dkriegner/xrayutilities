@@ -94,15 +94,7 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
     if not isinstance(data2d, (numpy.ndarray)):
         raise TypeError("first argument data2d must be of type numpy.ndarray")
 
-    # kwargs
-    if 'roi' in kwargs:
-        if kwargs['roi']:
-            roi = kwargs['roi']
-        else:
-            roi = [0, data2d.shape[0], 0, data2d.shape[1]]
-    else:
-        roi = [0, data2d.shape[0], 0, data2d.shape[1]]
-
+    roi = kwargs.get('roi', [0, data2d.shape[0], 0, data2d.shape[1]])
     data = numpy.array(data2d[roi[0]:roi[1], roi[2]:roi[3]],
                        dtype=numpy.double)
 
@@ -142,12 +134,7 @@ def blockAveragePSD(psddata, Nav, **kwargs):
     if not isinstance(psddata, (numpy.ndarray)):
         raise TypeError("first argument psddata must be of type numpy.ndarray")
 
-    # kwargs
-    if 'roi' in kwargs:
-        roi = kwargs['roi']
-    else:
-        roi = [0, psddata.shape[1]]
-
+    roi = kwargs.get('roi', [0, psddata.shape[1]])
     data = numpy.array(psddata[:, roi[0]:roi[1]], dtype=numpy.double)
 
     block_av = cxrayutilities.block_average_PSD(data, Nav, config.NTHREADS)
@@ -206,40 +193,13 @@ class IntensityNormalizer(object):
         # check input arguments
         self._setdet(det)
 
-        if 'mon' in keyargs:
-            self._setmon(keyargs['mon'])
-        else:
-            self._mon = None
-
-        if 'time' in keyargs:
-            self._settime(keyargs['time'])
-        else:
-            self._time = None
-
-        if 'av_mon' in keyargs:
-            self._setavmon(keyargs['av_mon'])
-        else:
-            self._avmon = None
-
-        if 'absfun' in keyargs:
-            self._setabsfun(keyargs['absfun'])
-        else:
-            self._absfun = None
-
-        if 'flatfield' in keyargs:
-            self._setflatfield(keyargs['flatfield'])
-        else:
-            self._flatfield = None
-
-        if 'darkfield' in keyargs:
-            self._setdarkfield(keyargs['darkfield'])
-        else:
-            self._darkfield = None
-
-        if 'smoothmon' in keyargs:
-            self.smoothmon = keyargs['smoothmon']
-        else:
-            self.smoothmon = 1
+        self._setmon(keyargs.get('mon', None))
+        self._settime(keyargs.get('time', None))
+        self._setavmon(keyargs.get('av_mon', None))
+        self._setabsfun(keyargs.get('absfun', None))
+        self._setflatfield(keyargs.get('flatfield', None))
+        self._setdarkfield(keyargs.get('darkfield', None))
+        self.smoothmon = keyargs.get('smoothmon', 1)
 
     def _getdet(self):
         """

@@ -494,7 +494,7 @@ class QConversion(object):
 
         UB = numpy.asarray(kwargs.get('UB', self.UB))
 
-        sd = numpy.asarray(kwargs.get('sampledis', [0 ,0, 0]))
+        sd = numpy.asarray(kwargs.get('sampledis', [0, 0, 0]))
         if 'sampledis' in kwargs:
             flags = utilities.set_bit(flags, 2)
 
@@ -1359,17 +1359,11 @@ class Experiment(object):
                                              str, numpy.round(self.idir, 3)))))
 
         # initialize Ang2Q conversion
-        if "qconv" in keyargs:
-            self._A2QConversion = keyargs["qconv"]
-        else:
-            # 1S+1D goniometer
-            self._A2QConversion = QConversion('x+', 'x+', [0, 1, 0])
+        self._A2QConversion = keyargs.get(
+            'qconv', QConversion('x+', 'x+', [0, 1, 0]))
         self.Ang2Q = self._A2QConversion
 
-        if "sampleor" in keyargs:
-            self._sampleor = keyargs['sampleor']
-        else:
-            self._sampleor = 'det'
+        self._sampleor = keyargs.get('sampleor', 'det')
 
         # set the coordinate transform for the azimuth used in the experiment
         self.scatplane = math.VecUnit(numpy.cross(self.idir, self.ndir))
@@ -1377,11 +1371,7 @@ class Experiment(object):
                             self.ndir, self._sampleor)
 
         # calculate the energy from the wavelength
-        if "wl" in keyargs:
-            self._set_wavelength(keyargs["wl"])
-        else:
-            self._set_wavelength(config.WAVELENGTH)
-
+        self._set_wavelength(keyargs.get('wl', config.WAVELENGTH))
         if "en" in keyargs:
             self._set_energy(keyargs["en"])
 
@@ -1816,55 +1806,25 @@ class HXRD(Experiment):
             q = q.reshape(3, 1)
 
         # parse keyword arguments
-        if 'geometry' in keyargs:
-            if keyargs['geometry'] in ["hi_lo", "lo_hi", "real", "realTilt"]:
-                geom = keyargs['geometry']
-            else:
-                raise InputError("HXRD: invalid value for the geometry "
-                                 "argument given\n valid entries are: hi_lo, "
-                                 "lo_hi, real, realTilt")
-        else:
-            geom = self.geometry
+        geom = keyargs.get('geometry', self.geometry)
+        if geom not in ["hi_lo", "lo_hi", "real", "realTilt"]:
+            raise InputError("HXRD: invalid value for the geometry argument "
+                             "given\n valid entries are: hi_lo, lo_hi, real, "
+                             "realTilt")
+        trans = keyargs.get('trans', True)
+        deg = keyargs.get('deg', True)
+        mat = keyargs.get('mat', None)  # material for optical properties
 
-        if 'trans' in keyargs:
-            trans = keyargs['trans']
-        else:
-            trans = True
+        refrac = keyargs.get('refrac', False)
+        if refrac and mat is None:  # check if material is available
+            raise InputError("keyword argument 'mat' must be set when "
+                             "'refrac' is set to True!")
 
-        if 'deg' in keyargs:
-            deg = keyargs['deg']
-        else:
-            deg = True
-
-        if 'mat' in keyargs:  # material for optical properties
-            mat = keyargs['mat']
-        else:
-            mat = None
-
-        if 'refrac' in keyargs:
-            refrac = keyargs['refrac']
-            if refrac:  # check if material is available
-                if mat is None:
-                    raise InputError("keyword argument 'mat' must be set when "
-                                     "'refrac' is set to True!")
-        else:
-            refrac = False
-
-        if 'full_output' in keyargs:
-            foutp = keyargs['full_output']
-        else:
-            foutp = False
-
-        if 'fi' in keyargs:  # incidence facet
-            fi = keyargs['fi']
-        else:
-            fi = self.ndir
+        foutp = keyargs.get('full_output', False)
+        fi = keyargs.get('fi', self.ndir)  # incidence facet
         fi = math.VecUnit(self.Transform(fi))
 
-        if 'fd' in keyargs:  # exit facet
-            fd = keyargs['fd']
-        else:
-            fd = self.ndir
+        fd = keyargs.get('fd', self.ndir)  # exit facet
         fd = math.VecUnit(self.Transform(fd))
 
         # set parameters for the calculation
@@ -2133,15 +2093,8 @@ class NonCOP(Experiment):
         if len(q.shape) != 2:
             q = q.reshape(3, 1)
 
-        if 'trans' in keyargs:
-            trans = keyargs['trans']
-        else:
-            trans = True
-
-        if 'deg' in keyargs:
-            deg = keyargs['deg']
-        else:
-            deg = True
+        trans = keyargs.get('trans', True)
+        deg = keyargs.get('deg', True)
 
         angle = numpy.zeros((4, q.shape[1]))
         # set parameters for the calculation
