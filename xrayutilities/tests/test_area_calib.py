@@ -20,7 +20,6 @@ import unittest
 
 import numpy
 import xrayutilities as xu
-import matplotlib.pyplot as plt
 
 
 def getimage(fname, hotpixelmap, roi=None):

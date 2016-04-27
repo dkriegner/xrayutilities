@@ -207,15 +207,17 @@ class KinematicalModel(LayerModel):
                 m.lattice.UnitCellVolume()
 
         E = numpy.zeros(len(qz), dtype=numpy.complex)
-        return rel, k, alphai, alphaf, f, E, t
+        return rel, alphai, alphaf, f, E, t
 
-    def _get_qz(self, qz, alphai, alphaf, theta, absorption, refraction):
+    def _get_qz(self, qz, alphai, alphaf, chi0, absorption, refraction):
+        k = self.exp.k0
         q = qz.astype(numpy.complex)
         if absorption and not refraction:
-            q += 1j * k * numpy.imag(self.chi0[i]) / numpy.sin(theta)
+            q += 1j * k * numpy.imag(chi0) / \
+                numpy.sin((alphai + alphaf) / 2)
         if refraction:
-            q = k * (numpy.sqrt(numpy.sin(alphai)**2 + self.chi0[i]) +
-                     numpy.sqrt(numpy.sin(alphaf)**2 + self.chi0[i]))
+            q = k * (numpy.sqrt(numpy.sin(alphai)**2 + chi0) +
+                     numpy.sqrt(numpy.sin(alphaf)**2 + chi0))
         return q
 
     def simulate(self, qz, hkl, absorption=False, refraction=False):
@@ -238,7 +240,7 @@ class KinematicalModel(LayerModel):
         -------
          vector of the ratios of the diffracted and primary fluxes
         """
-        rel, k, alphai, alphaf, f, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, f, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
         z = numpy.zeros(len(self.lstack))
         for i, l in enumerate(self.lstack[-1:0:-1]):
@@ -246,7 +248,7 @@ class KinematicalModel(LayerModel):
 
         # perform kinematical calculation
         for i, l in enumerate(self.lstack):
-            q = self._get_qz(qz, alphai, alphaf, theta, absorption, refraction)
+            q = self._get_qz(qz, ai, af, self.chi0[i], absorption, refraction)
             q -= t(l.material.Q(*hkl))[-1]
 
             if l.thickness == numpy.inf:
@@ -255,8 +257,8 @@ class KinematicalModel(LayerModel):
                 E += - f[i, :] * numpy.exp(-1j * q * z[i]) * \
                     (1 - numpy.exp(1j * q * l.thickness)) / (1j * q)
 
-        w = heaviside(alphai) * heaviside(alphaf) * rel**2 / \
-            (numpy.sin(alphai) * numpy.sin(alphaf)) * numpy.abs(E)**2
+        w = heaviside(ai) * heaviside(af) * rel**2 / \
+            (numpy.sin(ai) * numpy.sin(af)) * numpy.abs(E)**2
         return self.scale_simulation(self.convolute_resolution(qz, w))
 
 
@@ -307,7 +309,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
         -------
          vector of the ratios of the diffracted and primary fluxes
         """
-        rel, k, alphai, alphaf, f, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, f, E, t = self._prepare_kincalculation(qz, hkl)
 
         # calculate interface positions for integer unit-cell thickness
         z = numpy.zeros(len(self.lstack))
@@ -324,7 +326,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
 
         # perform kinematical calculation
         for i, l in enumerate(self.lstack):
-            q = self._get_qz(qz, alphai, alphaf, theta, absorption, refraction)
+            q = self._get_qz(qz, ai, af, self.chi0[i], absorption, refraction)
             lat = l.material.lattice
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
 
@@ -337,8 +339,8 @@ class KinematicalMultiBeamModel(KinematicalModel):
                     (1 - numpy.exp(1j * q * a3 * n3)) /\
                     (1 - numpy.exp(1j * q * a3))
 
-        w = heaviside(alphai) * heaviside(alphaf) * rel**2 / \
-            (numpy.sin(alphai) * numpy.sin(alphaf)) * numpy.abs(E)**2
+        w = heaviside(ai) * heaviside(af) * rel**2 / \
+            (numpy.sin(ai) * numpy.sin(af)) * numpy.abs(E)**2
         return self.scale_simulation(self.convolute_resolution(qz, w))
 
 

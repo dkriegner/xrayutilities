@@ -20,7 +20,6 @@ import unittest
 
 import numpy
 import xrayutilities as xu
-import matplotlib.pyplot as plt
 
 xu.config.VERBOSITY = 0  # make no output during test
 datadir = "data"
