@@ -193,17 +193,8 @@ class FastScan(object):
         -------
          Gridder2D object with X,Y,data on regular x,y-grid
         """
-        if 'counter' in kwargs:
-            self.counter = kwargs['counter']
-            kwargs.pop("counter")
-        else:
-            self.counter = 'mpx4int'
-
-        if 'gridrange' in kwargs:
-            gridrange = kwargs['gridrange']
-            kwargs.pop("gridrange")
-        else:
-            gridrange = None
+        self.counter = kwargs.get('counter', 'mpx4int')
+        gridrange = kwargs.get('gridrange', None)
 
         # define gridder
         g2d = Gridder2D(nx, ny)
@@ -497,7 +488,7 @@ class FastScanSeries(object):
                     self.fastscans.append(FastScanCCD(specfile,
                                                       snrs, **kwargs))
         else:
-            raise ValueError("argument 'filenames' is not of "
+            raise ValueError("ar/gument 'filenames' is not of "
                              "appropriate type!")
 
         self.xmin = numpy.min(self.fastscans[0].xvalues)
@@ -695,17 +686,8 @@ class FastScanSeries(object):
                                      valuelist containing the ccdframe numbers
                                      and corresponding motor positions
         """
-        if 'UB' in kwargs:
-            U = kwargs['UB']
-            kwargs.pop("UB")
-        else:
-            U = numpy.identity(3)
-
-        if 'imgoffset' in kwargs:
-            imgoffset = kwargs['imgoffset']
-            kwargs.pop("imgoffset")
-        else:
-            imgoffset = 0
+        U = kwargs.get('UB', numpy.identity(3))
+        imgoffset = kwargs.get('imgoffset', 0)
 
         # get CCDframe numbers and motor values
         valuelist = self.getCCDFrames(posx, posy, typ)
@@ -822,17 +804,9 @@ class FastScanSeries(object):
         -------
          Gridder2D object with X,Y,data on regular x,y-grid
         """
-        if 'counter' in kwargs:
-            counter = kwargs['counter']
-            kwargs.pop("counter")
-        else:
-            counter = 'mpx4int'
-
-        if 'gridrange' in kwargs:
-            gridrange = kwargs['gridrange']
-            kwargs.pop("gridrange")
-        else:
-            gridrange = ((self.xmin, self.xmax), (self.ymin, self.ymax))
+        counter = kwargs.get('counter', 'mpx4int')
+        gridrange = kwargs.get('gridrange', ((self.xmin, self.xmax),
+                                             (self.ymin, self.ymax)))
 
         # define gridder
         g2d = Gridder2D(nx, ny)

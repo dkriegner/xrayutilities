@@ -388,16 +388,9 @@ class SPECScan(object):
                 print("XU.io.SPECScan: Warning: plot "
                       "functionality not available")
             return
-
-        if "newfig" in keyargs:
-            newfig = keyargs["newfig"]
-        else:
-            newfig = True
-
-        if "logy" in keyargs:
-            logy = keyargs["logy"]
-        else:
-            logy = False
+        
+        newfig = keyargs.get('newfig', True)
+        logy = keyargs.get('logy', False)
 
         try:
             xname = args[0]
@@ -985,10 +978,8 @@ def geth5_scan(h5f, scans, *args, **kwargs):
     """
 
     with xu_h5open(h5f) as h5:
-        if "samplename" in kwargs:
-            h5g = h5.get(kwargs["samplename"])
-        else:
-            h5g = h5.get(list(h5.keys())[0])
+        gname = kwargs.get("samplename", list(h5.keys())[0])
+        h5g = h5.get(gname)
 
         if numpy.iterable(scans):
             scanlist = scans
@@ -1036,12 +1027,10 @@ def geth5_scan(h5f, scans, *args, **kwargs):
             retval.append(angles[motname])
         return retval
 
-    if "rettype" in kwargs:
-        if kwargs['rettype'] == 'numpy':
-            retval = numpy.core.records.fromarrays([angles[m] for m in args],
-                                                   names=args)
-        else:
-            retval = create_retval()
+    rettype = kwargs.get('rettype', 'list')
+    if rettype == 'numpy':
+        retval = numpy.core.records.fromarrays([angles[m] for m in args],
+                                               names=args)
     else:
         retval = create_retval()
 
@@ -1128,12 +1117,10 @@ def getspec_scan(specf, scans, *args, **kwargs):
             retval.append(angles[motname])
         return retval
 
-    if "rettype" in kwargs:
-        if kwargs['rettype'] == 'numpy':
-            retval = numpy.core.records.fromarrays([angles[m] for m in args],
-                                                   names=args)
-        else:
-            retval = create_retval()
+    rettype = kwargs.get('rettype', 'list')
+    if rettype == 'numpy':
+        retval = numpy.core.records.fromarrays([angles[m] for m in args],
+                                               names=args)
     else:
         retval = create_retval()
 

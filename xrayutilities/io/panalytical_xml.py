@@ -322,14 +322,8 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     """
     flatten = True
     # parse keyword arguments
-    if 'path' in kwargs:
-        path = kwargs['path']
-    else:
-        path = '.'
-    if 'scannrs' in kwargs:
-        scannrs = kwargs['scannrs']
-    else:
-        scannrs = None
+    path = kwargs.get('path', '.')
+    scannrs = kwargs.get('scannrs', None)
 
     validmotors = ['Omega', '2Theta', 'Psi', 'Chi', 'Phi', 'Z', 'X', 'Y']
     validmotorslow = [mot.lower() for mot in validmotors]
