@@ -128,18 +128,11 @@ class QConversion(object):
                             "numpy.ndarray")
 
         # kwargs
-        if "wl" in kwargs:
-            self._set_wavelength(kwargs["wl"])
-        else:
-            self._set_wavelength(config.WAVELENGTH)
-
+        self._set_wavelength(kwargs.get("wl", config.WAVELENGTH))
         if "en" in kwargs:
             self._set_energy(kwargs["en"])
 
-        if 'UB' in kwargs:
-            self._set_UB(kwargs['UB'])
-        else:
-            self._set_UB(numpy.identity(3))
+        self._set_UB(kwargs.get('UB', numpy.identity(3)))
 
         self._linear_init = False
         self._area_init = False
@@ -429,10 +422,7 @@ class QConversion(object):
 
         inarr = numpy.empty((len(args), npoints), dtype=numpy.double)
         retshape = (npoints,)  # default value
-        if 'deg' in kwargs:
-            deg2rad = kwargs['deg']
-        else:
-            deg2rad = True
+        deg2rad = kwargs.get('deg', True)
 
         for i in range(len(args)):
             arg = args[i]
@@ -458,6 +448,57 @@ class QConversion(object):
                 inarr[i, :] = numpy.ravel(arg)
 
         return inarr, retshape
+
+    def _parse_common_kwargs(self, **kwargs):
+        """
+        parse common keyword arguments to QConversion calls
+             delta:      giving delta angles to correct the given ones for
+                         misalignment delta must be an numpy array or list
+                         of len(*args)
+                         used angles are than *args - delta
+             UB:         matrix for conversion from (hkl) coordinates to Q of
+                         sample used to determine not Q but (hkl) (default:
+                         self.UB)
+             wl:         x-ray wavelength in angstroem (default: self._wl)
+             en:         x-ray energy in eV (default is converted self._wl)
+                         both wavelength and energy can also be an array
+                         which enables the QConversion for energy scans.
+                         Note that the en keyword overrules the wl keyword!
+             deg:        flag to tell if angles are passed as degree
+                         (default: True)
+             sampledis:  sample displacement vector in relative units of the
+                         detector distance (default: (0,0,0))
+        """
+        flags = 0
+        if self._has_translations:
+            flags = utilities.set_bit(flags, 0)
+
+        Ns = len(self.sampleAxis)
+        Nd = len(self.detectorAxis)
+        if self._area_detrotaxis_set:
+            Nd -= 1  # do not consider detector rotation for point detector
+        Ncirc = Ns + Nd
+
+        # kwargs
+        wl = utilities.wavelength(kwargs.get('wl', self._wl))
+        if 'en' in kwargs:
+            wl = utilities.lam2en(utilities.energy(kwargs['en']))
+
+        deg = kwargs.get('deg', True)
+
+        delta = numpy.asarray(kwargs.get('delta', numpy.zeros(Ncirc)),
+                              dtype=numpy.double)
+        if delta.size != Ncirc:
+            raise InputError("QConversion: keyword argument delta does "
+                             "not have an appropriate shape")
+
+        UB = numpy.asarray(kwargs.get('UB', self.UB))
+
+        sd = numpy.asarray(kwargs.get('sampledis', [0 ,0, 0]))
+        if 'sampledis' in kwargs:
+            flags = utilities.set_bit(flags, 2)
+
+        return Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags
 
     def __call__(self, *args, **kwargs):
         """
@@ -518,47 +559,8 @@ class QConversion(object):
                                 "'deg': True if angles are in degrees, "
                                 "'sampledis': sample displacement vector")
 
-        flags = 0
-        if self._has_translations:
-            flags = utilities.set_bit(flags, 0)
-
-        Ns = len(self.sampleAxis)
-        Nd = len(self.detectorAxis)
-        if self._area_detrotaxis_set:
-            Nd -= 1  # do not consider detector rotation for point detector
-        Ncirc = Ns + Nd
-
-        # kwargs
-        if 'wl' in kwargs:
-            wl = utilities.wavelength(kwargs['wl'])
-        else:
-            wl = self._wl
-        if 'en' in kwargs:
-            wl = utilities.lam2en(utilities.energy(kwargs['en']))
-
-        if 'deg' in kwargs:
-            deg = kwargs['deg']
-        else:
-            deg = True
-
-        if 'delta' in kwargs:
-            delta = numpy.array(kwargs['delta'], dtype=numpy.double)
-            if delta.size != Ncirc:
-                raise InputError("QConversion: keyword argument delta does "
-                                 "not have an appropriate shape")
-        else:
-            delta = numpy.zeros(Ncirc)
-
-        if 'UB' in kwargs:
-            UB = numpy.array(kwargs['UB'])
-        else:
-            UB = self.UB
-
-        if 'sampledis' in kwargs:
-            sd = numpy.array(kwargs['sampledis'])
-            flags = utilities.set_bit(flags, 2)
-        else:
-            sd = numpy.zeros(3)
+        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
+            self._parse_common_kwargs(**kwargs)
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -675,14 +677,8 @@ class QConversion(object):
                              "pixelwidth or chpdeg")
 
         # kwargs
-        if 'roi' in kwargs:
-            self._linear_roi = kwargs['roi']
-        else:
-            self._linear_roi = [0, self._linear_Nch]
-        if 'Nav' in kwargs:
-            self._linear_nav = kwargs['Nav']
-        else:
-            self._linear_nav = 1
+        self._linear_roi = kwargs.get('roi', [0, self._linear_Nch])
+        self._linear_nav = kwargs.get('Nav', 1)
 
         # rescale r_i
         self.r_i = math.VecUnit(self.r_i) * self._linear_distance
@@ -756,55 +752,13 @@ class QConversion(object):
                                 "'roi': region of interest, "
                                 "'sampledis': sample displacement vector")
 
-        flags = 0
-        if self._has_translations:
-            flags = utilities.set_bit(flags, 0)
+        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
+            self._parse_common_kwargs(**kwargs)
 
-        Ns = len(self.sampleAxis)
-        Nd = len(self.detectorAxis)
-        Ncirc = Ns + Nd
+        # extra keyword arguments
+        nav = kwargs.get('Nav', self._linear_nav)
+        oroi = kwargs.get('roi', self._linear_roi)
 
-        # kwargs
-        if 'wl' in kwargs:
-            wl = utilities.wavelength(kwargs['wl'])
-        else:
-            wl = self._wl
-        if 'en' in kwargs:
-            wl = utilities.lam2en(utilities.energy(kwargs['en']))
-
-        if 'deg' in kwargs:
-            deg = kwargs['deg']
-        else:
-            deg = True
-
-        if 'Nav' in kwargs:
-            nav = kwargs['Nav']
-        else:
-            nav = self._linear_nav
-
-        if 'roi' in kwargs:
-            oroi = kwargs['roi']
-        else:
-            oroi = self._linear_roi
-
-        if 'delta' in kwargs:
-            delta = numpy.array(kwargs['delta'], dtype=numpy.double)
-            if delta.size != Ncirc:
-                raise InputError("QConversion: keyword argument delta does "
-                                 "not have an appropriate shape")
-        else:
-            delta = numpy.zeros(Ncirc)
-
-        if 'UB' in kwargs:
-            UB = numpy.array(kwargs['UB'])
-        else:
-            UB = self.UB
-
-        if 'sampledis' in kwargs:
-            sd = numpy.array(kwargs['sampledis'])
-            flags = utilities.set_bit(flags, 2)
-        else:
-            sd = numpy.zeros(3)
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -959,14 +913,9 @@ class QConversion(object):
                              "were given -> read API doc")
 
         # kwargs
-        if 'roi' in kwargs:
-            self._area_roi = kwargs['roi']
-        else:
-            self._area_roi = [0, self._area_Nch1, 0, self._area_Nch2]
-        if 'Nav' in kwargs:
-            self._area_nav = kwargs['Nav']
-        else:
-            self._area_nav = [1, 1]
+        self._area_roi = kwargs.get('roi', [0, self._area_Nch1,
+                                            0, self._area_Nch2])
+        self._area_nav = kwargs.get('Nav', [1, 1])
 
         # rescale r_i
         self.r_i = math.VecUnit(self.r_i) * self._area_distance
@@ -1041,57 +990,13 @@ class QConversion(object):
                                 "'roi': region of interest, "
                                 "'sampledis': sample displacement vector")
 
-        flags = 0
-        if self._has_translations:
-            flags = utilities.set_bit(flags, 0)
+        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
+            self._parse_common_kwargs(**kwargs)
 
-        Ns = len(self.sampleAxis)
-        Nd = len(self.detectorAxis)
-        if self._area_detrotaxis_set:
-            Nd = Nd - 1
-        Ncirc = Ns + Nd
+        # extra keyword arguments
+        nav = kwargs.get('Nav', self._area_nav)
+        oroi = kwargs.get('roi', self._area_roi)
 
-        # kwargs
-        if 'wl' in kwargs:
-            wl = utilities.wavelength(kwargs['wl'])
-        else:
-            wl = self._wl
-        if 'en' in kwargs:
-            wl = utilities.lam2en(utilities.energy(kwargs['en']))
-
-        if 'deg' in kwargs:
-            deg = kwargs['deg']
-        else:
-            deg = True
-
-        if 'roi' in kwargs:
-            oroi = kwargs['roi']
-        else:
-            oroi = self._area_roi
-
-        if 'Nav' in kwargs:
-            nav = kwargs['Nav']
-        else:
-            nav = self._area_nav
-
-        if 'delta' in kwargs:
-            delta = numpy.array(kwargs['delta'], dtype=numpy.double)
-            if delta.size != Ncirc:
-                raise InputError("QConversion: keyword argument delta does "
-                                 "not have an appropriate shape")
-        else:
-            delta = numpy.zeros(Ncirc)
-
-        if 'UB' in kwargs:
-            UB = numpy.array(kwargs['UB'])
-        else:
-            UB = self.UB
-
-        if 'sampledis' in kwargs:
-            sd = numpy.array(kwargs['sampledis'])
-            flags = utilities.set_bit(flags, 2)
-        else:
-            sd = numpy.zeros(3)
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
@@ -1218,10 +1123,7 @@ class QConversion(object):
                                 "'Nav': number of channels for block-average, "
                                 "'roi': region of interest, ")
 
-        if 'dim' in kwargs:
-            dim = kwargs['dim']
-        else:
-            dim = 0
+        dim = kwargs.get('dim', 0)
 
         if dim == 1 and not self._linear_init:
             raise Exception("QConversion: linear detector not initialized -> "
@@ -1237,10 +1139,7 @@ class QConversion(object):
         Ncirc = Ns + Nd
 
         # kwargs
-        if 'deg' in kwargs:
-            deg = kwargs['deg']
-        else:
-            deg = True
+        deg = kwargs.get('deg', True)
 
         if 'roi' in kwargs:
             oroi = kwargs['roi']
