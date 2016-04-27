@@ -23,12 +23,12 @@
 import re
 import struct
 import os.path
-import glob
 
 import numpy
 import h5py
 
 from .helper import xu_open, xu_h5open
+from .filedir import FileDirectory
 from .. import config
 
 edf_kv_split = re.compile(r"\s*=\s*")  # key value sepeartor for header data
@@ -392,7 +392,7 @@ class EDFFile(object):
                     ca.attrs[makeNaturalName(k)] = self.header[k]
 
 
-class EDFDirectory(object):
+class EDFDirectory(FileDirectory):
 
     """
     Parses a directory for EDF files, which can be stored to a HDF5 file for
@@ -411,53 +411,4 @@ class EDFDirectory(object):
 
         further keyword arguments are passed to EDFFile
         """
-
-        self.datapath = os.path.normpath(datapath)
-        self.extension = ext
-
-        # create list of files to read
-        self.files = glob.glob(os.path.join(
-            self.datapath, '*.%s' % (self.extension)))
-
-        if len(self.files) == 0:
-            print("XU.io.EDFDirectory: no files found in %s" % (self.datapath))
-            return
-
-        if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.io.EDFDirectory: %d files found in %s"
-                  % (len(self.files), self.datapath))
-
-        self.init_keyargs = keyargs
-
-    def Save2HDF5(self, h5f, group="", comp=True):
-        """
-        Saves the data stored in the EDF files in the specified directory in a
-        HDF5 file as a HDF5 arrays in a subgroup.  By default the data is
-        stored in a group given by the foldername - this can be changed by
-        passing the name of a target group or a path to the target group via
-        the "group" keyword argument.
-
-        Parameters
-        ----------
-         h5f ..... a HDF5 file object or name
-
-        optional keyword arguments:
-         group ... group where to store the data (defaults to pathname if
-                   group is empty string)
-         comp .... activate compression - true by default
-        """
-        with xu_h5open(h5f, 'a') as h5:
-            if isinstance(group, str):
-                if group == "":
-                    group = os.path.split(self.datapath)[1]
-                g = h5.get(group)
-                if not g:
-                    g = h5.create_group(group)
-            else:
-                g = group
-
-            for infile in self.files:
-                # read EDFFile and save to hdf5
-                filename = os.path.split(infile)[1]
-                e = EDFFile(filename, path=self.datapath, **self.init_keyargs)
-                e.Save2HDF5(h5, group=g, comp=comp)
+        super(EDFDirectory, self).__init__(datapath, ext, EDFFile, **keyargs)
