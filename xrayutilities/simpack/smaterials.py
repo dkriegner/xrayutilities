@@ -24,6 +24,21 @@ from ..materials import Material, Crystal, PseudomorphicMaterial, Alloy
 from ..math import Transform, CoordinateTransform
 
 
+def _multiply(a, b):
+    """
+    implement multiplication of SMaterial and MaterialList with integer
+    """
+    if not isinstance(b, int):
+        raise TypeError("unsupported operand type(s) for *: "
+                        "'%s' and '%s'" % (type(a), type(b)))
+    if b < 1:
+        raise ValueError("multiplication factor needs to be positive!")
+    m = MaterialList('%d * (%s)' % (b, a.name), a)
+    for i in range(b-1):
+        m.append(a)
+    return m
+
+
 class SMaterial(object):
     """
     Simulation Material. Extends the xrayutilities Materials by properties
@@ -56,15 +71,7 @@ class SMaterial(object):
         return MaterialList('%s + %s' % (self.name, other.name), self, other)
 
     def __mul__(self, other):
-        if not isinstance(other, int):
-            raise TypeError("unsupported operand type(s) for *: "
-                            "'SMaterial' and '%s'" % type(other))
-        if other < 1:
-            raise ValueError("multiplication factor needs to be positive!")
-        m = MaterialList('%d * (%s)' % (other, self.name), self)
-        for i in range(other-1):
-            m.append(self)
-        return m
+        return _multiply(self, other)
 
     __rmul__ = __mul__
 
@@ -138,15 +145,7 @@ class MaterialList(collections.MutableSequence):
         return ml
 
     def __mul__(self, other):
-        if not isinstance(other, int):
-            raise TypeError("unsupported operand type(s) for *: "
-                            "'MaterialList' and '%s'" % type(other))
-        if other < 1:
-            raise ValueError("multiplication factor needs to be positive!")
-        m = MaterialList('%d * (%s)' % (other, self.name), self)
-        for i in range(other-1):
-            m.append(self)
-        return m
+        return _multiply(self, other)
 
     __rmul__ = __mul__
 
