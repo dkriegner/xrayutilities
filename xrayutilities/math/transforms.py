@@ -109,27 +109,9 @@ class CoordinateTransform(Transform):
         -------
          An instance of a Transform class
         """
-
-        if isinstance(v1, (list, tuple)):
-            e1 = numpy.array(v1, dtype=numpy.double)
-        elif isinstance(v1, numpy.ndarray):
-            e1 = v1
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
-
-        if isinstance(v2, (list, tuple)):
-            e2 = numpy.array(v2, dtype=numpy.double)
-        elif isinstance(v2, numpy.ndarray):
-            e2 = v2
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
-
-        if isinstance(v3, (list, tuple)):
-            e3 = numpy.array(v3, dtype=numpy.double)
-        elif isinstance(v3, numpy.ndarray):
-            e3 = v3
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
+        e1 = vector._checkvec(v1)
+        e2 = vector._checkvec(v2)
+        e3 = vector._checkvec(v3)
 
         # normalize base vectors
         e1 = e1 / numpy.linalg.norm(e1)
@@ -176,13 +158,7 @@ class AxisToZ(CoordinateTransform):
         ----------
          newzaxis:  list or numpy array with new z-axis
         """
-
-        if isinstance(newzaxis, (list, tuple)):
-            newz = numpy.array(newzaxis, dtype=numpy.double)
-        elif isinstance(newzaxis, numpy.ndarray):
-            newz = newzaxis
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
+        newz = vector._checkvec(newzaxis)
 
         if vector.VecAngle([0, 0, 1], newz) < config.EPSILON:
             newx = [1, 0, 0]
@@ -218,12 +194,7 @@ class AxisToZ_keepXY(CoordinateTransform):
         ----------
          newzaxis:  list or numpy array with new z-axis
         """
-        if isinstance(newzaxis, (list, tuple)):
-            newz = numpy.array(newzaxis, dtype=numpy.double)
-        elif isinstance(newzaxis, numpy.ndarray):
-            newz = newzaxis
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
+        newz = vector._checkvec(newzaxis)
 
         if vector.VecAngle([0, 0, 1], newz) < config.EPSILON:
             newx = [1, 0, 0]
@@ -244,20 +215,21 @@ class AxisToZ_keepXY(CoordinateTransform):
         CoordinateTransform.__init__(self, newx, newy, newz)
 
 
+def _sincos(alpha, deg):
+    if deg:
+        a = numpy.radians(alpha)
+    else:
+        a = alpha
+    return numpy.sin(a), numpy.cos(a)
+
+
 def XRotation(alpha, deg=True):
     """
     Returns a transform that represents a rotation about the x-axis
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
     """
-
-    if deg:
-        sina = numpy.sin(numpy.pi * alpha / 180.)
-        cosa = numpy.cos(numpy.pi * alpha / 180.)
-    else:
-        sina = numpy.sin(alpha)
-        cosa = numpy.cos(alpha)
-
+    sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
         [[1, 0, 0], [0, cosa, -sina], [0, sina, cosa]], dtype=numpy.double)
     return Transform(m)
@@ -269,14 +241,7 @@ def YRotation(alpha, deg=True):
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
     """
-
-    if deg:
-        sina = numpy.sin(numpy.pi * alpha / 180.)
-        cosa = numpy.cos(numpy.pi * alpha / 180.)
-    else:
-        sina = numpy.sin(alpha)
-        cosa = numpy.cos(alpha)
-
+    sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
         [[cosa, 0, sina], [0, 1, 0], [-sina, 0, cosa]], dtype=numpy.double)
     return Transform(m)
@@ -288,14 +253,7 @@ def ZRotation(alpha, deg=True):
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
     """
-
-    if deg:
-        sina = numpy.sin(numpy.pi * alpha / 180.)
-        cosa = numpy.cos(numpy.pi * alpha / 180.)
-    else:
-        sina = numpy.sin(alpha)
-        cosa = numpy.cos(alpha)
-
+    sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
         [[cosa, -sina, 0], [sina, cosa, 0], [0, 0, 1]], dtype=numpy.double)
     return Transform(m)
@@ -342,9 +300,7 @@ def rotarb(vec, axis, ang, deg=True):
     >>> rotarb([1,0,0],[0,0,1],90)
     array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
     """
-    if isinstance(axis, list):
-        axis = numpy.array(axis, dtype=numpy.double)
-    # normalize axis
+    axis = vector._checkvec(axis)
     e = axis / numpy.linalg.norm(axis)
     if deg:
         rad = numpy.radians(ang)

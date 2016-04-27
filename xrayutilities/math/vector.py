@@ -31,6 +31,14 @@ from ..exception import InputError
 circleSyntax = re.compile("[xyz][+-]")
 
 
+def _checkvec(v):
+    if isinstance(v, (list, tuple, numpy.ndarray)):
+        vtmp = numpy.asarray(v, dtype=numpy.double)
+    else:
+        raise TypeError("Vector must be a list, tuple or numpy array")
+    return vtmp
+
+
 def VecNorm(v):
     """
     Calculate the norm of a vector.
@@ -41,13 +49,7 @@ def VecNorm(v):
     return value:
      float holding the vector norm
     """
-    if isinstance(v, (list, tuple)):
-        vtmp = numpy.array(v, dtype=numpy.double)
-    elif isinstance(v, numpy.ndarray):
-        vtmp = v.astype(numpy.double)
-    else:
-        raise TypeError("Vector must be a list, tuple or numpy array")
-
+    vtmp = _checkvec(v)
     if vtmp.size != 3:
         raise ValueError("Vector must be of size 3, but has size %d!"
                          % vtmp.size)
@@ -65,13 +67,7 @@ def VecUnit(v):
     return value:
      numpy array with the unit vector
     """
-    if isinstance(v, (list, tuple)):
-        vtmp = numpy.array(v, dtype=numpy.double)
-    elif isinstance(v, numpy.ndarray):
-        vtmp = v.astype(numpy.double)
-    else:
-        raise TypeError("Vector must be a list, tuple or numpy array")
-
+    vtmp = _checkvec(v)
     return vtmp / VecNorm(vtmp)
 
 
@@ -86,20 +82,8 @@ def VecDot(v1, v2):
     return value:
      float value
     """
-    if isinstance(v1, (list, tuple)):
-        v1tmp = numpy.array(v1, dtype=numpy.double)
-    elif isinstance(v1, numpy.ndarray):
-        v1tmp = v1.astype(numpy.double)
-    else:
-        raise TypeError("Vector must be a list, tuple or numpy array")
-
-    if isinstance(v2, (list, tuple)):
-        v2tmp = numpy.array(v2, dtype=numpy.double)
-    elif isinstance(v2, numpy.ndarray):
-        v2tmp = v2.astype(numpy.double)
-    else:
-        raise TypeError("Vector must be a list, tuple or numpy array")
-
+    v1tmp = _checkvec(v1)
+    v2tmp = _checkvec(v2)
     if v1tmp.size != 3 or v2tmp.size != 3:
         raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
                          % (v1tmp.size, v2tmp.size))
@@ -128,8 +112,6 @@ def VecAngle(v1, v2, deg=False):
     """
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
-    if(config.VERBOSITY >= config.DEBUG):
-        print("XU.math.VecAngle: norm of the vectors: %8.5g %8.5g" % (u1, u2))
 
     alpha = numpy.arccos(numpy.minimum(1., VecDot(v1, v2) / u1 / u2))
     if deg:

@@ -466,7 +466,6 @@ class FastScanSeries(object):
         self.nx = nx
         self.ny = ny
         self.motor_pos = None
-        self.gridded = False
 
         self.gonio_motors = []
         # save motor names
@@ -491,41 +490,36 @@ class FastScanSeries(object):
             raise ValueError("ar/gument 'filenames' is not of "
                              "appropriate type!")
 
-        self.xmin = numpy.min(self.fastscans[0].xvalues)
-        self.ymin = numpy.min(self.fastscans[0].yvalues)
-        self.xmax = numpy.max(self.fastscans[0].xvalues)
-        self.ymax = numpy.max(self.fastscans[0].yvalues)
+        self._init_minmax()
         for fs in self.fastscans:
-            if numpy.max(fs.xvalues) > self.xmax:
-                self.xmax = numpy.max(fs.xvalues)
-            if numpy.max(fs.yvalues) > self.ymax:
-                self.ymax = numpy.max(fs.yvalues)
-            if numpy.min(fs.xvalues) < self.xmin:
-                self.xmin = numpy.min(fs.xvalues)
-            if numpy.min(fs.yvalues) < self.ymin:
-                self.ymin = numpy.min(fs.yvalues)
+            self._update_minmax(fs)
 
-    def retrace_clean(self):
-        """
-        perform retrace clean for every FastScan in the series
-        """
+    def _init_minmax(self):
         self.gridded = False
         self.xmin = numpy.min(self.fastscans[0].xvalues)
         self.ymin = numpy.min(self.fastscans[0].yvalues)
         self.xmax = numpy.max(self.fastscans[0].xvalues)
         self.ymax = numpy.max(self.fastscans[0].yvalues)
 
+    def _update_minmax(self, fs):
+        if numpy.max(fs.xvalues) > self.xmax:
+            self.xmax = numpy.max(fs.xvalues)
+        if numpy.max(fs.yvalues) > self.ymax:
+            self.ymax = numpy.max(fs.yvalues)
+        if numpy.min(fs.xvalues) < self.xmin:
+            self.xmin = numpy.min(fs.xvalues)
+        if numpy.min(fs.yvalues) < self.ymin:
+            self.ymin = numpy.min(fs.yvalues)
+
+    def retrace_clean(self):
+        """
+        perform retrace clean for every FastScan in the series
+        """
+        self._init_minmax()
+
         for fs in self.fastscans:
             fs.retrace_clean()
-
-            if numpy.max(fs.xvalues) > self.xmax:
-                self.xmax = numpy.max(fs.xvalues)
-            if numpy.max(fs.yvalues) > self.ymax:
-                self.ymax = numpy.max(fs.yvalues)
-            if numpy.min(fs.xvalues) < self.xmin:
-                self.xmin = numpy.min(fs.xvalues)
-            if numpy.min(fs.yvalues) < self.ymin:
-                self.ymin = numpy.min(fs.yvalues)
+            self._update_minmax(fs)
 
     def align(self, deltax, deltay):
         """
@@ -543,24 +537,12 @@ class FastScanSeries(object):
                     data structure
          deltay:    same for the y-direction
         """
-        self.gridded = False
-        self.xmin = numpy.min(self.fastscans[0].xvalues)
-        self.ymin = numpy.min(self.fastscans[0].yvalues)
-        self.xmax = numpy.max(self.fastscans[0].xvalues)
-        self.ymax = numpy.max(self.fastscans[0].yvalues)
+        self._init_minmax()
         for fs in self.fastscans:
             i = self.fastscans.index(fs)
             fs.xvalues += deltax[i]
             fs.yvalues += deltay[i]
-
-            if numpy.max(fs.xvalues) > self.xmax:
-                self.xmax = numpy.max(fs.xvalues)
-            if numpy.max(fs.yvalues) > self.ymax:
-                self.ymax = numpy.max(fs.yvalues)
-            if numpy.min(fs.xvalues) < self.xmin:
-                self.xmin = numpy.min(fs.xvalues)
-            if numpy.min(fs.yvalues) < self.ymin:
-                self.ymin = numpy.min(fs.yvalues)
+            self._update_minmax(fs)
 
     def read_motors(self):
         """

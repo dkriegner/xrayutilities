@@ -209,6 +209,15 @@ class KinematicalModel(LayerModel):
         E = numpy.zeros(len(qz), dtype=numpy.complex)
         return rel, k, alphai, alphaf, f, E, t
 
+    def _get_qz(self, qz, alphai, alphaf, theta, absorption, refraction):
+        q = qz.astype(numpy.complex)
+        if absorption and not refraction:
+            q += 1j * k * numpy.imag(self.chi0[i]) / numpy.sin(theta)
+        if refraction:
+            q = k * (numpy.sqrt(numpy.sin(alphai)**2 + self.chi0[i]) +
+                     numpy.sqrt(numpy.sin(alphaf)**2 + self.chi0[i]))
+        return q
+
     def simulate(self, qz, hkl, absorption=False, refraction=False):
         """
         performs the actual kinematical diffraction calculation on the Qz
@@ -237,12 +246,7 @@ class KinematicalModel(LayerModel):
 
         # perform kinematical calculation
         for i, l in enumerate(self.lstack):
-            q = qz.astype(numpy.complex)
-            if absorption and not refraction:
-                q += 1j * k * numpy.imag(self.chi0[i]) / numpy.sin(theta)
-            if refraction:
-                q = k * (numpy.sqrt(numpy.sin(alphai)**2 + self.chi0[i]) +
-                         numpy.sqrt(numpy.sin(alphaf)**2 + self.chi0[i]))
+            q = self._get_qz(qz, alphai, alphaf, theta, absorption, refraction)
             q -= t(l.material.Q(*hkl))[-1]
 
             if l.thickness == numpy.inf:
@@ -320,12 +324,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
 
         # perform kinematical calculation
         for i, l in enumerate(self.lstack):
-            q = qz.astype(numpy.complex)
-            if absorption and not refraction:
-                q += 1j * k * numpy.imag(self.chi0[i]) / numpy.sin(theta)
-            if refraction:
-                q = k * (numpy.sqrt(numpy.sin(alphai)**2 + self.chi0[i]) +
-                         numpy.sqrt(numpy.sin(alphaf)**2 + self.chi0[i]))
+            q = self._get_qz(qz, alphai, alphaf, theta, absorption, refraction)
             lat = l.material.lattice
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
 
@@ -449,6 +448,22 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
                 ret = Ip
         return ret
 
+    def _prepare_dyncalculation(self, geometry):
+        """
+        prepare dynamical calculation by calculating some helper values
+        """
+        t = self.exp._transform
+        ql0 = t(self.lstack[0].material.Q(*self.hkl))
+        hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
+        if geometry == 'lo_hi':
+            hx = -hx
+
+        # calculate vertical diffraction vector components and strain
+        hz = numpy.zeros(len(self.lstack))
+        for i, l in enumerate(self.lstack):
+            hz[i] = t(l.material.Q(*self.hkl))[2]
+        return t, hx, hz
+
     def simulate(self, alphai, hkl=None, geometry='hi_lo', idxref=1):
         """
         performs the actual diffraction calculation for the specified
@@ -476,17 +491,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         # return values
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
 
-        # determine q-inplane
-        t = self.exp._transform
-        ql0 = t(self.lstack[0].material.Q(*self.hkl))
-        hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
-        if geometry == 'lo_hi':
-            hx = -hx
-
-        # calculate vertical diffraction vector components and strain
-        hz = numpy.zeros(len(self.lstack))
-        for i, l in enumerate(self.lstack):
-            hz[i] = t(l.material.Q(*self.hkl))[2]
+        t, hx, hz = self._prepare_dyncalculation(geometry)
         epsilon = (hz[idxref] - hz) / hz
 
         k = self.exp.k0
@@ -573,17 +578,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
         Ir = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
 
-        # determine q-inplane
-        t = self.exp._transform
-        ql0 = t(self.lstack[0].material.Q(*self.hkl))
-        hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
-        if geometry == 'lo_hi':
-            hx = -hx
-
-        # calculate vertical diffraction vector components and strain
-        hz = numpy.zeros(len(self.lstack))
-        for i, l in enumerate(self.lstack):
-            hz[i] = t(l.material.Q(*self.hkl))[2]
+        t, hx, hz = self._prepare_dyncalculation(geometry)
 
         k = self.exp.k0
         kc = k * numpy.sqrt(1 + self.chi0)

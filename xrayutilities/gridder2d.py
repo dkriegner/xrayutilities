@@ -221,19 +221,6 @@ class Gridder2DList(Gridder2D):
     bin for further treatment by the user
     """
 
-    def __init__(self, nx, ny):
-        Gridder.__init__(self)
-
-        self.xmin = None
-        self.ymin = None
-        self.xmax = None
-        self.ymax = None
-
-        self.nx = nx
-        self.ny = ny
-
-        self._allocate_memory()
-
     def _allocate_memory(self):
         """
         Class method to allocate memory for the gridder based on the nx,ny

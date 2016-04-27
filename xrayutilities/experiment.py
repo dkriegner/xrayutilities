@@ -685,6 +685,19 @@ class QConversion(object):
 
         self._linear_init = True
 
+    def _get_detparam_linear(self, oroi, nav):
+        """
+        initialize linear detector geometry for C subroutines. This function
+        considers the Nav and roi options.
+        """
+        cch = self._linear_cch / float(nav)
+        pwidth = self._linear_pixwidth * nav
+        roi = numpy.array(oroi)
+        roi[0] = numpy.floor(oroi[0] / float(nav))
+        roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav)) + roi[0]
+        roi = roi.astype(numpy.int32)
+        return cch, pwidth, roi
+
     def linear(self, *args, **kwargs):
         """
         angular to momentum space conversion for a linear detector
@@ -783,16 +796,7 @@ class QConversion(object):
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
 
-        # initialize psd geometry to for C subprogram (include Nav and roi
-        # possibility)
-        cch = self._linear_cch / float(nav)
-        pwidth = self._linear_pixwidth * nav
-        # roi = numpy.ceil(numpy.array(roi)/float(nav)).astype(numpy.int32)
-        roi = numpy.array(oroi)
-        roi[0] = numpy.floor(oroi[0] / float(nav))
-        roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav)) + roi[0]
-        roi = roi.astype(numpy.int32)
-
+        cch, pwidth, roi = self._get_detparam_linear(oroi, nav)
         sAxis = self._sampleAxis_str
         dAxis = self._detectorAxis_str
 
@@ -922,6 +926,23 @@ class QConversion(object):
 
         self._area_init = True
 
+    def _get_detparam_area(self, oroi, nav):
+        """
+        initialize CCD geomtry for C subroutines. This function considers the
+        Nav and roi options.
+        """
+        cch1 = self._area_cch1 / float(nav[0])
+        cch2 = self._area_cch2 / float(nav[1])
+        pwidth1 = self._area_pwidth1 * nav[0]
+        pwidth2 = self._area_pwidth2 * nav[1]
+        roi = numpy.array(oroi)
+        roi[0] = numpy.floor(oroi[0] / float(nav[0]))
+        roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav[0])) + roi[0]
+        roi[2] = numpy.floor(oroi[2] / float(nav[1]))
+        roi[3] = numpy.ceil((oroi[3] - oroi[2]) / float(nav[1])) + roi[2]
+        roi = roi.astype(numpy.int32)
+        return cch1, cch2, pwidth1, pwidth2, roi
+
     def area(self, *args, **kwargs):
         """
         angular to momentum space conversion for a area detector
@@ -1032,18 +1053,8 @@ class QConversion(object):
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
 
-        # initialize ccd geometry to for C subroutine (include Nav and roi
-        # possibility)
-        cch1 = self._area_cch1 / float(nav[0])
-        cch2 = self._area_cch2 / float(nav[1])
-        pwidth1 = self._area_pwidth1 * nav[0]
-        pwidth2 = self._area_pwidth2 * nav[1]
-        roi = numpy.array(oroi)
-        roi[0] = numpy.floor(oroi[0] / float(nav[0]))
-        roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav[0])) + roi[0]
-        roi[2] = numpy.floor(oroi[2] / float(nav[1]))
-        roi[3] = numpy.ceil((oroi[3] - oroi[2]) / float(nav[1])) + roi[2]
-        roi = roi.astype(numpy.int32)
+        cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(oroi, nav)
+
         if config.VERBOSITY >= config.DEBUG:
             print("QConversion.area: roi, number of points per frame: %s, %d"
                   % (str(roi), (roi[1] - roi[0]) * (roi[3] - roi[2])))
@@ -1184,28 +1195,10 @@ class QConversion(object):
         dAngles = dAngles.transpose()
 
         if dim == 2:
-            # initialize ccd geometry to for C subroutine (include Nav and roi
-            # possibility)
-            cch1 = self._area_cch1 / float(nav[0])
-            cch2 = self._area_cch2 / float(nav[1])
-            pwidth1 = self._area_pwidth1 * nav[0]
-            pwidth2 = self._area_pwidth2 * nav[1]
-            roi = numpy.array(oroi)
-            roi[0] = numpy.floor(oroi[0] / float(nav[0]))
-            roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav[0])) + roi[0]
-            roi[2] = numpy.floor(oroi[2] / float(nav[1]))
-            roi[3] = numpy.ceil((oroi[3] - oroi[2]) / float(nav[1])) + roi[2]
-            roi = roi.astype(numpy.int32)
+            cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(oroi,
+                                                                        nav)
         elif dim == 1:
-            # initialize psd geometry to for C subprogram (include Nav and roi
-            # possibility)
-            cch = self._linear_cch / float(nav)
-            pwidth = self._linear_pixwidth * nav
-            # roi = numpy.ceil(numpy.array(roi)/float(nav)).astype(numpy.int32)
-            roi = numpy.array(oroi)
-            roi[0] = numpy.floor(oroi[0] / float(nav))
-            roi[1] = numpy.ceil((oroi[1] - oroi[0]) / float(nav)) + roi[0]
-            roi = roi.astype(numpy.int32)
+            cch, pwidth, roi = self._get_detparam_linear(oroi, nav)
 
         dAxis = self._detectorAxis_str
 
@@ -1633,6 +1626,25 @@ class Experiment(object):
 
         return math.VecAngle(self.ndir, qt, deg)
 
+    def _prepare_qvec(self, Q):
+        """
+        check and reshape input to have the same q array for all possible types
+        of input
+        """
+        if len(Q) < 3:
+            Q = Q[0]
+            if len(Q) < 3:
+                raise InputError("need 3 q-space vector components")
+
+        if isinstance(Q, (list, tuple, numpy.ndarray)):
+            q = numpy.asarray(Q, dtype=numpy.double)
+        else:
+            raise TypeError("Q vector must be a list, tuple or numpy array")
+
+        if len(q.shape) != 2:
+            q = q.reshape(3, 1)
+        return q
+
 
 class HXRD(Experiment):
 
@@ -1787,23 +1799,7 @@ class HXRD(Experiment):
                                 "'fi', 'fd', 'full_output'; "
                                 "see documentation for details")
 
-        # collect the q-space input
-        if len(Q) < 3:
-            Q = Q[0]
-            if len(Q) < 3:
-                raise InputError("need 3 q-space vector components")
-
-        if isinstance(Q, (list, tuple)):
-            q = numpy.array(Q, dtype=numpy.double)
-        elif isinstance(Q, numpy.ndarray):
-            q = Q
-        else:
-            raise TypeError("Q vector must be a list, tuple or numpy array")
-
-        # reshape input to have the same q array for all possible
-        # types of different input
-        if len(q.shape) != 2:
-            q = q.reshape(3, 1)
+        q = self._prepare_qvec(Q)
 
         # parse keyword arguments
         geom = keyargs.get('geometry', self.geometry)
@@ -2075,23 +2071,7 @@ class NonCOP(Experiment):
                                 "'trans': coordinate transformation flag, "
                                 "'deg': degree-flag")
 
-        # collect the q-space input
-        if len(Q) < 3:
-            Q = Q[0]
-            if len(Q) < 3:
-                raise InputError("need 3 q-space vector components")
-
-        if isinstance(Q, (list, tuple)):
-            q = numpy.array(Q, dtype=numpy.double)
-        elif isinstance(Q, numpy.ndarray):
-            q = Q
-        else:
-            raise TypeError("Q vector must be a list, tuple or numpy array")
-
-        # reshape input to have the same q array for all possible
-        # types of different input
-        if len(q.shape) != 2:
-            q = q.reshape(3, 1)
+        q = self._prepare_qvec(Q)
 
         trans = keyargs.get('trans', True)
         deg = keyargs.get('deg', True)
