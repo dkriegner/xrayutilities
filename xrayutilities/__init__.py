@@ -67,3 +67,7 @@ from .utilities import wavelength
 from .utilities import energy
 from .utilities import set_bit
 from .utilities import clear_bit
+
+# load version
+import pkg_resources
+__version__ = pkg_resources.get_distribution("xrayutilities").version
