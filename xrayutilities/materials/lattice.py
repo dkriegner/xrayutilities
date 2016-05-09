@@ -849,3 +849,17 @@ def MagnetiteLattice(aa, ab, ac, a, x=0.255):
     lb.append(ac, [.5 - x, .5 - x, 1 - x])
 
     return CubicLattice(a, base=lb)
+
+
+def LaB6Lattice(aa, ab, a):
+    lb = LatticeBase()
+    # La
+    lb.append(aa, [0.0, 0.0, 0.0])
+    # B
+    lb.append(ab, [0.80146, 0.50000, 0.50000])
+    lb.append(ab, [0.50000, 0.80146, 0.50000])
+    lb.append(ab, [0.50000, 0.50000, 0.80146])
+    lb.append(ab, [0.50000, 0.50000, 0.19854])
+    lb.append(ab, [0.50000, 0.19854, 0.50000])
+    lb.append(ab, [0.19854, 0.50000, 0.50000])
+    return CubicLattice(a, base=lb)
