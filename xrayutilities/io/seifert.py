@@ -100,7 +100,7 @@ class SeifertMultiScan(object):
     """
     Class to parse a Seifert (NJA) multiscan file
     """
-    def __init__(self, filename, m_scan, m2, path=None):
+    def __init__(self, filename, m_scan, m2, path=""):
         """
         Parse data from a multiscan Seifert file.
 
@@ -108,20 +108,9 @@ class SeifertMultiScan(object):
          filename ................... name of the NJA file
          m_scan ..................... name of the scan axis
          m2 ......................... name of the second moving motor
-         path ....................... common path to datafile
+         path ....................... path to the datafile
         """
-        if path:
-            self.Filename = os.path.join(path, filename)
-        else:
-            self.Filename = filename
-
-        try:
-            self.fid = xu_open(self.Filename)
-        except:
-            self.fid = None
-            raise IOError(
-                "error opening Seifert datafile %s" %
-                (self.Filename))
+        self.Filename = os.path.join(path, filename)
 
         self.nscans = 0  # total number of scans
         self.npscan = 0  # number of points per scan
@@ -136,7 +125,7 @@ class SeifertMultiScan(object):
         self.data = []
         self.n_sm_pos = 0
 
-        if self.fid:
+        with xu_open(self.Filename) as self.fid:
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.io.SeifertScan: parsing file: %s" % self.Filename)
             self.parse()
@@ -196,24 +185,20 @@ class SeifertScan(object):
     """
     Class to parse a single Seifert (NJA) scan file
     """
-    def __init__(self, filename, path=None):
+    def __init__(self, filename, path=""):
         """
         Constructor for a SeifertScan object.
 
         required input arguments:
          filename:  a string with the name of the file to read
-         path:      common path to the filenames
+         path:      path to the datafile
 
         """
-        if path:
-            self.Filename = os.path.join(path, filename)
-        else:
-            self.Filename = filename
+        self.Filename = os.path.join(path, filename)
 
         try:
             self.fid = xu_open(self.Filename)
         except:
-            self.fid = None
             raise IOError(
                 "error opening Seifert datafile %s" %
                 (self.Filename))
@@ -222,7 +207,7 @@ class SeifertScan(object):
         self.data = []
         self.axispos = {}
 
-        if self.fid:
+        with xu_open(self.Filename) as self.fid:
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.io.SeifertScan: parsing file: %s" % self.Filename)
             self.parse()

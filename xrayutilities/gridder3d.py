@@ -120,6 +120,34 @@ class Gridder3D(Gridder):
         self.zmin = zmin
         self.zmax = zmax
 
+    def _checktransinput(self, x, y, z, data):
+        """
+        common checks and reshape commands for the input data. This function
+        checks the data type and shape of the input data.
+        """
+        if not self.keep_data:
+            self.Clear()
+
+        x = self._prepare_array(x)
+        y = self._prepare_array(y)
+        z = self._prepare_array(z)
+        data = self._prepare_array(data)
+
+        if x.size != y.size or y.size != z.size or z.size != data.size:
+            raise exception.InputError("XU.%s: size of given datasets "
+                                       "(x,y,z,data) is not equal!"
+                                       % self.__class__.__name__)
+
+        if not self.fixed_range:
+            # assume that with setting keep_data the user wants to call the
+            # gridder more often and obtain a reasonable result
+            self.dataRange(x.min(), x.max(),
+                           y.min(), y.max(),
+                           z.min(), z.max(),
+                           self.keep_data)
+
+        return x, y, z, data
+
     def __call__(self, x, y, z, data):
         """
         Perform gridding on a set of data. After running the gridder
@@ -133,34 +161,7 @@ class Gridder3D(Gridder):
         data ............ numpy array of arbitrary shape with data values
         """
 
-        if not self.keep_data:
-            self.Clear()
-
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
-            y = numpy.array(y)
-        if isinstance(z, (list, tuple, numpy.float, numpy.int)):
-            z = numpy.array(z)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = numpy.array(data)
-
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-        z = z.reshape(z.size)
-        data = data.reshape(data.size)
-
-        if x.size != y.size or y.size != z.size or z.size != data.size:
-            raise exception.InputError("XU.Gridder3D: size of given datasets "
-                                       "(x,y,z,data) is not equal!")
-
-        if not self.fixed_range:
-            # assume that with setting keep_data the user wants to call the
-            # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(),
-                           y.min(), y.max(),
-                           z.min(), z.max(),
-                           self.keep_data)
+        x, y, z, data = self._checktransinput(x, y, z, data)
 
         # remove normalize flag for C-code
         flags = utilities.set_bit(self.flags, 2)
@@ -205,34 +206,7 @@ class FuzzyGridder3D(Gridder3D):
                 raise Exception("unknown keyword argument given: allowed is"
                                 "'width': specifiying fuzzy data size")
 
-        if not self.keep_data:
-            self.Clear()
-
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
-            y = numpy.array(y)
-        if isinstance(z, (list, tuple, numpy.float, numpy.int)):
-            z = numpy.array(z)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = numpy.array(data)
-
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-        z = z.reshape(z.size)
-        data = data.reshape(data.size)
-
-        if x.size != y.size or y.size != z.size or z.size != data.size:
-            raise exception.InputError("XU.FuzzyGridder3D: size of given "
-                                       "datasets (x,y,z,data) is not equal!")
-
-        if not self.fixed_range:
-            # assume that with setting keep_data the user wants to call the
-            # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(),
-                           y.min(), y.max(),
-                           z.min(), z.max(),
-                           self.keep_data)
+        x, y, z, data = self._checktransinput(x, y, z, data)
 
         if 'width' in kwargs:
             try:

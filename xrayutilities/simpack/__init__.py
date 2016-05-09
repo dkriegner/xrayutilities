@@ -29,13 +29,13 @@ from .smaterials import SMaterial, MaterialList
 from .smaterials import Layer, LayerStack
 from .smaterials import CrystalStack, GradedLayerStack
 from .smaterials import PseudomorphicStack001
+from .smaterials import PseudomorphicStack111
 
 from .models import Model, LayerModel
 from .models import KinematicalModel
 from .models import KinematicalMultiBeamModel
 from .models import SpecularReflectivityModel
 from .models import SimpleDynamicalCoplanarModel
-# from .models import DynamicalSKinematicalLModel
 from .models import DynamicalModel
 
 from .fit import fit_xrr

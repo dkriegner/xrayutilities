@@ -94,20 +94,9 @@ def get_qx_scan3d(gridder, qypos, qzpos, **kwargs):
     if qzpos < gridder.zaxis.min() or qzpos > gridder.zaxis.max():
         raise ValueError("given qzpos is not in the range of the given Z axis")
 
-    if 'qmin' in kwargs:
-        qxmin = max(gridder.xaxis.min(), kwargs['qmin'])
-    else:
-        qxmin = gridder.xaxis.min()
-
-    if 'qmax' in kwargs:
-        qxmax = min(gridder.xaxis.max(), kwargs['qmax'])
-    else:
-        qxmax = gridder.xaxis.max()
-
-    if 'qrange' in kwargs:
-        qrange = kwargs['qrange']
-    else:
-        qrange = 0.
+    qxmin = max(gridder.xaxis.min(), kwargs.get('qmin', -numpy.inf))
+    qxmax = min(gridder.xaxis.max(), kwargs.get('qmax', numpy.inf))
+    qrange = kwargs.get('qrange', 0.)
 
     # find line corresponding to qypos,qzpos
     ixmin, iymin, izmin = getindex3d(
@@ -167,20 +156,9 @@ def get_qy_scan3d(gridder, qxpos, qzpos, **kwargs):
     if qzpos < gridder.zaxis.min() or qzpos > gridder.zaxis.max():
         raise ValueError("given qzpos is not in the range of the given Z axis")
 
-    if 'qmin' in kwargs:
-        qymin = max(gridder.yaxis.min(), kwargs['qmin'])
-    else:
-        qymin = gridder.yaxis.min()
-
-    if 'qmax' in kwargs:
-        qymax = min(gridder.yaxis.max(), kwargs['qmax'])
-    else:
-        qymax = gridder.yaxis.max()
-
-    if 'qrange' in kwargs:
-        qrange = kwargs['qrange']
-    else:
-        qrange = 0.
+    qymin = max(gridder.yaxis.min(), kwargs.get('qmin', -numpy.inf))
+    qymax = min(gridder.yaxis.max(), kwargs.get('qmax', numpy.inf))
+    qrange = kwargs.get('qrange', 0.)
 
     # find line corresponding to qxpos,qzpos
     ixmin, iymin, izmin = getindex3d(
@@ -240,20 +218,9 @@ def get_qz_scan3d(gridder, qxpos, qypos, **kwargs):
     if qypos < gridder.yaxis.min() or qypos > gridder.yaxis.max():
         raise ValueError("given qypos is not in the range of the given Y axis")
 
-    if 'qmin' in kwargs:
-        qzmin = max(gridder.zaxis.min(), kwargs['qmin'])
-    else:
-        qzmin = gridder.zaxis.min()
-
-    if 'qmax' in kwargs:
-        qzmax = min(gridder.zaxis.max(), kwargs['qmax'])
-    else:
-        qzmax = gridder.zaxis.max()
-
-    if 'qrange' in kwargs:
-        qrange = kwargs['qrange']
-    else:
-        qrange = 0.
+    qzmin = max(gridder.zaxis.min(), kwargs.get('qmin', -numpy.inf))
+    qzmax = min(gridder.zaxis.max(), kwargs.get('qmax', numpy.inf))
+    qrange = kwargs.get('qrange', 0.)
 
     # find line corresponding to qxpos,qzpos
     ixmin, iymin, izmin = getindex3d(

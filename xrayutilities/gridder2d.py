@@ -112,7 +112,31 @@ class Gridder2D(Gridder):
         self.ymin = ymin
         self.ymax = ymax
 
-    def __call__(self, *args):
+    def _checktransinput(self, x, y, data):
+        """
+        common checks and reshape commands for the input data. This function
+        checks the data type and shape of the input data.
+        """
+        if not self.keep_data:
+            self.Clear()
+
+        x = self._prepare_array(x)
+        y = self._prepare_array(y)
+        data = self._prepare_array(data)
+
+        if x.size != y.size or y.size != data.size:
+            raise exception.InputError("XU.%s: size of given datasets "
+                                       "(x,y,data) is not equal!"
+                                       % self.__class__.__name__)
+
+        if not self.fixed_range:
+            # assume that with setting keep_data the user wants to call the
+            # gridder more often and obtain a reasonable result
+            self.dataRange(x.min(), x.max(), y.min(), y.max(), self.keep_data)
+
+        return x, y, data
+
+    def __call__(self, x, y, data):
         """
         Perform gridding on a set of data. After running the gridder
         the 'data' object in the class is holding the gridded data.
@@ -123,34 +147,7 @@ class Gridder2D(Gridder):
         y ............... numpy array of arbitrary shape with y positions
         data ............ numpy array of arbitrary shape with data values
         """
-
-        if not self.keep_data:
-            self.Clear()
-
-        x = args[0]
-        y = args[1]
-        data = args[2]
-
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
-            y = numpy.array(y)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = numpy.array(data)
-
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-        data = data.reshape(data.size)
-
-        if x.size != y.size or y.size != data.size:
-            raise exception.InputError("XU.Gridder2D: size of given datasets "
-                                       "(x,y,data) is not equal!")
-
-        if not self.fixed_range:
-            # assume that with setting keep_data the user wants to call the
-            # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(), y.min(), y.max(), self.keep_data)
-
+        x, y, data = self._checktransinput(x, y, data)
         # remove normalize flag for C-code
         flags = utilities.set_bit(self.flags, 2)
         cxrayutilities.gridder2d(x, y, data, self.nx, self.ny,
@@ -171,7 +168,7 @@ class FuzzyGridder2D(Gridder2D):
     Currently only a rectangular area can be considered during the gridding.
     """
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, x, y, data, **kwargs):
         """
         Perform gridding on a set of data. After running the gridder
         the 'data' object in the class is holding the gridded data.
@@ -193,31 +190,7 @@ class FuzzyGridder2D(Gridder2D):
                 raise Exception("unknown keyword argument given: allowed is"
                                 "'width': specifiying fuzzy data size")
 
-        if not self.keep_data:
-            self.Clear()
-
-        x = args[0]
-        y = args[1]
-        data = args[2]
-
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
-            y = numpy.array(y)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = numpy.array(data)
-
-        if x.size != y.size or y.size != data.size:
-            raise exception.InputError("XU.FuzzyGridder2D: size of given "
-                                       "datasets (x,y,data) is not equal!")
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-        data = data.reshape(data.size)
-
-        if not self.fixed_range:
-            # assume that with setting keep_data the user wants to call the
-            # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(), y.min(), y.max(), self.keep_data)
+        x, y, data = self._checktransinput(x, y, data)
 
         if 'width' in kwargs:
             try:
@@ -248,19 +221,6 @@ class Gridder2DList(Gridder2D):
     bin for further treatment by the user
     """
 
-    def __init__(self, nx, ny):
-        Gridder.__init__(self)
-
-        self.xmin = None
-        self.ymin = None
-        self.xmax = None
-        self.ymax = None
-
-        self.nx = nx
-        self.ny = ny
-
-        self._allocate_memory()
-
     def _allocate_memory(self):
         """
         Class method to allocate memory for the gridder based on the nx,ny
@@ -285,7 +245,7 @@ class Gridder2DList(Gridder2D):
 
     data = property(__get_data)
 
-    def __call__(self, *args):
+    def __call__(self, x, y, data):
         """
         Perform gridding on a set of data. After running the gridder the 'data'
         object in the class is holding the lists of data-objects belonging to
@@ -299,31 +259,7 @@ class Gridder2DList(Gridder2D):
                           of arbitrary type
         """
 
-        if not self.keep_data:
-            self.Clear()
-
-        x = args[0]
-        y = args[1]
-        data = args[2]
-
-        if isinstance(x, (list, tuple, numpy.float, numpy.int)):
-            x = numpy.array(x)
-        if isinstance(y, (list, tuple, numpy.float, numpy.int)):
-            y = numpy.array(y)
-        if isinstance(data, (list, tuple, numpy.float, numpy.int)):
-            data = list(data)
-
-        x = x.reshape(x.size)
-        y = y.reshape(y.size)
-
-        if x.size != y.size or y.size != len(data):
-            raise exception.InputError("XU.Gridder2DList: size of given "
-                                       "datasets (x,y,data) is not equal!")
-
-        if not self.fixed_range:
-            # assume that with setting keep_data the user wants to call the
-            # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(), y.min(), y.max(), self.keep_data)
+        x, y, data = self._checktransinput(x, y, data)
 
         # perform gridding this should be moved to native code if possible
         def gindex(x, min, delt):

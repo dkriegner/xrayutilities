@@ -1,3 +1,6 @@
+* major code cleanup (remove of duplicated code using Clone Digger)
+  http://clonedigger.sourceforge.net
+* bug fixes in Alloy initialization
 * documentation building now requires numpydoc
 * central version number in VERSION file (also available in the package after
   importing: import xrayutilities as xu; xu.__version__

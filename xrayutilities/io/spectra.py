@@ -538,10 +538,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
     """
 
     with xu_h5open(h5file) as h5:
-        if "mca" in kwargs:
-            mca = kwargs["mca"]
-        else:
-            mca = "MCA"
+        mca = kwargs.get('mca', 'MCA')
 
         if "samplename" in kwargs:
             basename = kwargs["samplename"]

@@ -24,7 +24,6 @@ materials their crystalline state is defined few materials are also included as
 amorphous which can be useful for calculation of their optical properties.
 """
 
-import copy
 import numpy
 import scipy.optimize
 import warnings
@@ -299,7 +298,7 @@ class Amorphous(Material):
         for at, occ in self.base:
             if at.num not in f:
                 f[at.num] = at.f(q, en)
-        return [f[a.num] for a, p, o, b in self.lattice.base]
+        return [f[a.num] for a, o in self.base]
 
     def delta(self, en='config'):
         """
@@ -462,19 +461,13 @@ class Crystal(Material):
         """
         Return the Q-space position for a certain material.
 
-        required input arguments:
-         hkl ............. list or numpy array with the Miller indices
-                           ( or Q(h,k,l) is also possible)
+        Parameters
+        ----------
+         hkl:   list or numpy array with the Miller indices
+                (or Q(h,k,l) is also possible)
 
         """
-        if len(hkl) < 3:
-            hkl = hkl[0]
-            if len(hkl) < 3:
-                raise InputError("need 3 indices for the lattice point")
-
-        p = self.rlattice.GetPoint(hkl[0], hkl[1], hkl[2])
-
-        return p
+        return self.rlattice.GetPoint(*hkl)
 
     def environment(self, *pos, **kwargs):
         """
@@ -504,11 +497,7 @@ class Crystal(Material):
                                 "only 'maxdist': maximum distance needed in "
                                 "the output")
 
-        # kwargs
-        if "maxdist" in kwargs:
-            maxdist = kwargs['maxdist']
-        else:
-            maxdist = 7
+        maxdist = kwargs.get('maxdist', 7)
 
         if len(pos) < 3:
             pos = pos[0]
@@ -516,24 +505,21 @@ class Crystal(Material):
                 raise InputError("need 3 coordinates of the "
                                  "reference position")
 
-        refpos = self.lattice.a1 * \
-            pos[0] + self.lattice.a2 * pos[1] + self.lattice.a3 * pos[2]
+        refpos = self.a1 * \
+            pos[0] + self.a2 * pos[1] + self.a3 * pos[2]
 
         l = []
-        Na = 2 * int(numpy.ceil(maxdist / numpy.linalg.norm(self.lattice.a1)))
-        Nb = 2 * int(numpy.ceil(maxdist / numpy.linalg.norm(self.lattice.a2)))
-        Nc = 2 * int(numpy.ceil(maxdist / numpy.linalg.norm(self.lattice.a3)))
+        Na = 2 * int(numpy.ceil(maxdist / numpy.linalg.norm(self.a1)))
+        Nb = 2 * int(numpy.ceil(maxdist / numpy.linalg.norm(self.a2)))
+        Nc = 2 * int(numpy.ceil(maxdist / numpy.linalg.norm(self.a3)))
         if numpy.iterable(self.lattice.base):
             for a, p, o, b in self.lattice.base:
-                ucpos = (self.lattice.a1 * p[0] +
-                         self.lattice.a2 * p[1] +
-                         self.lattice.a3 * p[2])
+                ucpos = (self.a1 * p[0] + self.a2 * p[1] + self.a3 * p[2])
                 for i in range(-Na, Na + 1):
                     for j in range(-Nb, Nb + 1):
                         for k in range(-Nc, Nc + 1):
-                            atpos = ucpos + (self.lattice.a1 * i +
-                                             self.lattice.a2 * j +
-                                             self.lattice.a3 * k)
+                            atpos = ucpos + (self.a1 * i + self.a2 * j +
+                                             self.a3 * k)
                             distance = numpy.linalg.norm(atpos - refpos)
                             if distance <= maxdist:
                                 l.append((distance, a, o))
@@ -541,9 +527,7 @@ class Crystal(Material):
             for i in range(-Na, Na + 1):
                 for j in range(-Nb, Nb + 1):
                     for k in range(-Nc, Nc + 1):
-                        atpos = (self.lattice.a1 * i +
-                                 self.lattice.a2 * j +
-                                 self.lattice.a3 * k)
+                        atpos = (self.a1 * i + self.a2 * j + self.a3 * k)
                         distance = numpy.linalg.norm(atpos - refpos)
                         if distance <= maxdist:
                             l.append((distance, '__dummy__', 1.))
@@ -638,6 +622,12 @@ class Crystal(Material):
                 f[at.num] = at.f(q, en)
         return [f[a.num] for a, p, o, b in self.lattice.base]
 
+    def _get_lamen(self, en):
+        if isinstance(en, basestring) and en == 'config':
+            en = utilities.energy(config.ENERGY)
+        lam = utilities.en2lam(en)
+        return lam, en
+
     def delta(self, en='config'):
         """
         function to calculate the real part of the deviation of the
@@ -655,10 +645,7 @@ class Crystal(Material):
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
 
-        if isinstance(en, basestring) and en == 'config':
-            en = utilities.energy(config.ENERGY)
-
-        lam = utilities.en2lam(en)
+        lam, en = self._get_lamen(en)
         delta = 0.
         f = self._get_f(0, en)
         for (at, pos, occ, b), fa in zip(self.lattice.base, f):
@@ -684,12 +671,9 @@ class Crystal(Material):
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
-        if isinstance(en, basestring) and en == 'config':
-            en = utilities.energy(config.ENERGY)
 
-        lam = utilities.en2lam(en)
+        lam, en = self._get_lamen(en)
         beta = 0.
-
         f = self._get_f(0, en)
         for (at, pos, occ, b), fa in zip(self.lattice.base, f):
             beta += numpy.imag(fa) * occ
@@ -705,10 +689,8 @@ class Crystal(Material):
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
-        if isinstance(en, basestring) and en == 'config':
-            en = utilities.energy(config.ENERGY)
 
-        lam = utilities.en2lam(en)
+        lam, en = self._get_lamen(en)
         beta = 0.
         delta = 0.
         f = self._get_f(0, en)
@@ -720,6 +702,41 @@ class Crystal(Material):
         delta *= re / (2 * numpy.pi) * lam ** 2 / \
             self.lattice.UnitCellVolume()
         return (-2 * delta + 2j * beta)
+
+    def _debyewallerfactor(self, temp, qnorm):
+        """
+        Calculate the Debye Waller temperature factor according to the Debye
+        temperature
+
+        Parameters
+        ----------
+         temp:      actual temperature (K)
+         qnorm:     norm of the q-vector(s) for which the factor should be
+                    calculated
+
+        Returns
+        -------
+         the Debye Waller factor(s) with the same shape as qnorm
+        """
+        if temp != 0 and self.thetaDebye:
+            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
+            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
+            hbar = scipy.constants.hbar
+            kb = scipy.constants.Boltzmann
+            x = self.thetaDebye / float(temp)
+            m = 0.
+            for a, p, o, b in self.lattice.base:
+                m += a.weight
+            m = m / len(self.lattice.base)
+            exponentf = 3 / 2. * hbar ** 2 * 1.0e20 / \
+                (m * kb * self.thetaDebye) * (math.Debye1(x) / x + 0.25)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.materials.Crystal: DWF = exp(-W*q**2) W= %g"
+                      % exponentf)
+            dwf = numpy.exp(-exponentf * qnorm ** 2)
+        else:
+            dwf = 1.0
+        return dwf
 
     def chih(self, q, en='config', temp=0, polarization='S'):
         """
@@ -756,26 +773,7 @@ class Crystal(Material):
         if self.lattice.base is None:
             return (0, 0)
 
-        # Debye Waller factor calculation
-        if temp != 0 and self.thetaDebye:
-            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
-            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
-            # -> do not trust Wikipedia!?
-            hbar = scipy.constants.hbar
-            kb = scipy.constants.Boltzmann
-            x = self.thetaDebye / float(temp)
-            m = 0.
-            for a, p, o, b in self.lattice.base:
-                m += a.weight
-            m = m / len(self.lattice.base)
-            exponentf = 3 / 2. * hbar ** 2 * 1.0e20 / \
-                (m * kb * self.thetaDebye) * (math.Debye1(x) / x + 0.25)
-            if config.VERBOSITY >= config.DEBUG:
-                print("XU.materials.chih: DWF = exp(-W*q**2) W= %g"
-                      % exponentf)
-            dwf = numpy.exp(-exponentf * qnorm ** 2)
-        else:
-            dwf = 1.0
+        dwf = self._debyewallerfactor(temp, qnorm)
 
         sr = 0. + 0.j
         si = 0. + 0.j
@@ -870,29 +868,10 @@ class Crystal(Material):
         if self.lattice.base is None:
             return 1.
 
-        # Debye Waller factor calculation
-        if temp != 0 and self.thetaDebye:
-            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
-            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
-            # -> do not trust Wikipedia!?
-            hbar = scipy.constants.hbar
-            kb = scipy.constants.Boltzmann
-            x = self.thetaDebye / float(temp)
-            m = 0.
-            for a, p, o, b in self.lattice.base:
-                m += a.weight
-            m = m / len(self.lattice.base)
-            exponentf = 3 / 2. * hbar ** 2 * 1.0e20 / \
-                (m * kb * self.thetaDebye) * (math.Debye1(x) / x + 0.25)
-            if config.VERBOSITY >= config.DEBUG:
-                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"
-                      % exponentf)
-            dwf = numpy.exp(-exponentf * math.VecNorm(q) ** 2)
-        else:
-            dwf = 1.0
+        qnorm = math.VecNorm(q)
+        dwf = self._debyewallerfactor(temp, qnorm)
 
         s = 0. + 0.j
-        qnorm = math.VecNorm(q)
         f = self._get_f(qnorm, en)
         # a: atom, p: position, o: occupancy, b: temperature-factor
         for (a, p, o, b), fq in zip(self.lattice.base, f):
@@ -939,26 +918,7 @@ class Crystal(Material):
         if self.lattice.base is None:
             return numpy.ones(len(en))
 
-        # Debye Waller factor calculation
-        if temp != 0 and self.thetaDebye:
-            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
-            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
-            # -> do not trust Wikipedia!?
-            hbar = scipy.constants.hbar
-            kb = scipy.constants.Boltzmann
-            x = self.thetaDebye / float(temp)
-            m = 0.
-            for a, p, o, b in self.lattice.base:
-                m += a.weight
-            m = m / len(self.lattice.base)
-            exponentf = 3 / 2. * hbar ** 2 * 1.0e20 / \
-                (m * kb * self.thetaDebye) * (math.Debye1(x) / x + 0.25)
-            if config.VERBOSITY >= config.DEBUG:
-                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"
-                      % exponentf)
-            dwf = numpy.exp(-exponentf * qnorm ** 2)
-        else:
-            dwf = 1.0
+        dwf = self._debyewallerfactor(temp, qnorm)
 
         s = 0. + 0.j
         f = self._get_f(qnorm, en)
@@ -990,18 +950,14 @@ class Crystal(Material):
         -------
          complex valued structure factor array
         """
-        if isinstance(q, (list, tuple)):
-            q = numpy.array(q, dtype=numpy.double)
-        elif isinstance(q, numpy.ndarray):
-            pass
+        if isinstance(q, (list, tuple, numpy.ndarray)):
+            q = numpy.asarray(q, dtype=numpy.double)
         else:
             raise TypeError("q must be a list or numpy array!")
         if len(q.shape) != 2:
             raise ValueError("q does not have the correct shape (shape = %s)"
                              % str(q.shape))
-        qnorm = numpy.zeros(len(q))
-        for j in range(len(q)):
-            qnorm[j] = numpy.linalg.norm(q[j])
+        qnorm = numpy.linalg.norm(q, axis=1)
 
         if isinstance(en0, basestring) and en0 == 'config':
             en0 = utilities.energy(config.ENERGY)
@@ -1009,33 +965,13 @@ class Crystal(Material):
         if self.lattice.base is None:
             return numpy.ones(len(q))
 
-        # Debye Waller factor calculation
-        if temp != 0 and self.thetaDebye:
-            # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
-            # DWF = exp(-W(q)) consistent with Vaclav H. and several books
-            # -> do not trust Wikipedia!?
-            hbar = scipy.constants.hbar
-            kb = scipy.constants.Boltzmann
-            x = self.thetaDebye / float(temp)
-            m = 0.
-            for a, p, o, b in self.lattice.base:
-                m += a.weight
-            m = m / len(self.lattice.base)
-            exponentf = 3 / 2. * hbar ** 2 * 1.0e20 / \
-                (m * kb * self.thetaDebye) * (math.Debye1(x) / x + 0.25)
-            if config.VERBOSITY >= config.DEBUG:
-                print("XU.materials.StructureFactor: DWF = exp(-W*q**2) W= %g"
-                      % exponentf)
-        else:
-            exponentf = 1.0
+        dwf = self._debyewallerfactor(temp, qnorm)
 
         s = 0. + 0.j
         f = self._get_f(qnorm, en0)
         # a: atom, p: position, o: occupancy, b: temperature-factor
         for (a, p, o, b), fq in zip(self.lattice.base, f):
-            if temp != 0 and self.thetaDebye:
-                dwf = numpy.exp(-exponentf * qnorm ** 2)
-            else:
+            if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
 
             r = self.lattice.GetPoint(p)
@@ -1077,9 +1013,7 @@ class Crystal(Material):
         if not self.lattice.base:
             return []
 
-        cutoff = numpy.max((numpy.linalg.norm(self.lattice.a1),
-                            numpy.linalg.norm(self.lattice.a2),
-                            numpy.linalg.norm(self.lattice.a3)))
+        cutoff = numpy.max((self.lattice.a, self.lattice.b, self.lattice.c))
 
         tmp_data = []
 
@@ -1218,8 +1152,9 @@ def WZTensorFromCub(c11ZB, c12ZB, c44ZB):
                                   cWZvec[1], cWZvec[4])
 
 
-# define general material usefull for peak position calculations
-def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90, name="General"):
+# define general material useful for peak position calculations
+def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90,
+              name="General", base=None):
     """
     general material with primitive unit cell but possibility for different
     a,b,c and alpha,beta,gamma
@@ -1230,17 +1165,20 @@ def GeneralUC(a=4, b=4, c=4, alpha=90, beta=90, gamma=90, name="General"):
      alpha      angle between unit cell vectors b,c
      beta       angle between unit cell vectors a,c
      gamma      angle between unit cell vectors a,b
+     base       instance of LatticeBase
 
     returns a Crystal object with the specified properties
     """
-    return Crystal(name, lattice.GeneralPrimitiveLattice(
-                   a, b, c, alpha, beta, gamma))
+    return Crystal(name, lattice.TriclinicLattice(
+                   a, b, c, alpha, beta, gamma, base=base))
 
 
 class Alloy(Crystal):
 
     def __init__(self, matA, matB, x):
-        super(Alloy, self).__init__("None", copy.copy(matA.lattice), matA.cij)
+        lat = lattice.Lattice(matA.a1, matA.a2, matA.a3,
+                              base=matA.lattice.base)
+        super(Alloy, self).__init__("None", lat, matA.cij)
         self.matA = matA
         self.matB = matB
         self._setxb(x)
@@ -1260,12 +1198,9 @@ class Alloy(Crystal):
         self.name = ("%s(%2.2f)%s(%2.2f)"
                      % (self.matA.name, 1. - x, self.matB.name, x))
         # modify the lattice
-        self.lattice.a1 = self.lattice_const_AB(
-            self.matA.lattice.a1, self.matB.lattice.a1, x)
-        self.lattice.a2 = self.lattice_const_AB(
-            self.matA.lattice.a2, self.matB.lattice.a2, x)
-        self.lattice.a3 = self.lattice_const_AB(
-            self.matA.lattice.a3, self.matB.lattice.a3, x)
+        self.lattice.a1 = self.lattice_const_AB(self.matA.a1, self.matB.a1, x)
+        self.lattice.a2 = self.lattice_const_AB(self.matA.a2, self.matB.a2, x)
+        self.lattice.a3 = self.lattice_const_AB(self.matA.a3, self.matB.a3, x)
         self.rlattice = self.lattice.ReciprocalLattice()
 
         # set elastic constants
@@ -1273,6 +1208,55 @@ class Alloy(Crystal):
         self.cijkl = (self.matB.cijkl - self.matA.cijkl) * x + self.matA.cijkl
 
     x = property(_getxb, _setxb)
+
+    def _checkfinitenumber(self, arg, name=""):
+        if isinstance(arg, numbers.Number) and numpy.isfinite(arg):
+            return float(arg)
+        else:
+            raise TypeError("argument (%s) must be a scalar!" % name)
+
+    def _checkarray(self, arg, name=""):
+        if isinstance(arg, (list, tuple, numpy.ndarray)):
+            return numpy.array(arg, dtype=numpy.double)
+        else:
+            raise TypeError("argument (%s) must be of type "
+                            "list, tuple or numpy.ndarray" % name)
+
+    def _definehelpers(self, hkl, cijA, cijB):
+        """
+        define helper functions for solving the content from reciprocal space
+        positions
+        """
+        def a1(x):
+            return self.lattice_const_AB(self.matA.a1, self.matB.a1, x)
+
+        def a2(x):
+            return self.lattice_const_AB(self.matA.a2, self.matB.a2, x)
+
+        def a3(x):
+            return self.lattice_const_AB(self.matA.a3, self.matB.a3, x)
+
+        def V(x):
+            return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
+
+        def b1(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
+
+        def b2(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
+
+        def b3(x):
+            return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
+
+        def qhklx(x):
+            return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+
+        def frac(x):
+            return ((cijB[0, 2] + cijB[1, 2] - (cijA[0, 2] + cijA[1, 2])) * x +
+                    (cijA[0, 2] + cijA[1, 2])) / \
+                   ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2])
+
+        return a1, a2, a3, V, b1, b2, b3, qhklx, frac
 
     def RelaxationTriangle(self, hkl, sub, exp):
         """
@@ -1294,19 +1278,12 @@ class Alloy(Crystal):
                  triangle
 
         """
-        if isinstance(hkl, (list, tuple, numpy.ndarray)):
-            hkl = numpy.array(hkl, dtype=numpy.double)
-        else:
-            raise TypeError("First argument (hkl) must be of type "
-                            "list, tuple or numpy.ndarray")
-        # if not isinstance(exp,xrayutilities.Experiment):
-        #    raise TypeError("Third argument (exp) must be an instance of "
-        #                    "xrayutilities.Experiment")
-        transform = exp.Transform
+        hkl = self._checkarray(hkl, "hkl")
+        trans = exp._transform
         ndir = exp.ndir / numpy.linalg.norm(exp.ndir)
 
         if isinstance(sub, Crystal):
-            asub = numpy.linalg.norm(sub.lattice.a1)
+            asub = sub.lattice.a
         elif isinstance(sub, float):
             asub = sub
         else:
@@ -1321,52 +1298,22 @@ class Alloy(Crystal):
             warnings.warn("Alloy: given hkl differs from the geometry of the "
                           "Experiment instance in the azimuthal direction")
 
-        # calculate relaxed points for matA and matB as general as possible:
-        def a1(x):
-            return self.lattice_const_AB(self.matA.lattice.a1,
-                                         self.matB.lattice.a1, x)
+        # transform elastic constants to correct coordinate frame
+        cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
+        cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
-        def a2(x):
-            return self.lattice_const_AB(self.matA.lattice.a2,
-                                         self.matB.lattice.a2, x)
+        a1, a2, a3, V, b1, b2, b3, qhklx, frac = self._definehelpers(hkl,
+                                                                     cijA,
+                                                                     cijB)
 
-        def a3(x):
-            return self.lattice_const_AB(self.matA.lattice.a3,
-                                         self.matB.lattice.a3, x)
-
-        def V(x):
-            return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
-
-        def b1(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
-
-        def b2(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
-
-        def b3(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
-
-        def qhklx(x):
-            return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
-
-        qr_i = numpy.abs(transform(qhklx(self.x))[1])
-        qr_p = numpy.abs(transform(qhklx(self.x))[2])
+        qr_i = numpy.abs(trans(qhklx(self.x))[1])
+        qr_p = numpy.abs(trans(qhklx(self.x))[2])
         qs_i = 2 * numpy.pi / asub * numpy.linalg.norm(numpy.cross(ndir, hkl))
         qs_p = 2 * numpy.pi / asub * numpy.abs(numpy.dot(ndir, hkl))
 
         # calculate pseudomorphic points for A and B
-        # transform elastic constants to correct coordinate frame
-        cijA = Cijkl2Cij(transform(self.matA.cijkl))
-        cijB = Cijkl2Cij(transform(self.matB.cijkl))
-
         def abulk(x):
             return numpy.linalg.norm(a1(x))
-
-        def frac(x):
-            return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
-                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
-                   (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
 
         def aperp(x):
             return abulk(self.x) * (1 + frac(x) * (1 - asub / abulk(self.x)))
@@ -1414,28 +1361,11 @@ class CubicAlloy(Alloy):
         """
 
         # check input parameters
-        if isinstance(q_perp, numbers.Number) and numpy.isfinite(q_perp):
-            q_perp = float(q_perp)
-        else:
-            raise TypeError("First argument (q_perp) must be a scalar!")
-        if isinstance(hkl, (list, tuple, numpy.ndarray)):
-            hkl = numpy.array(hkl, dtype=numpy.double)
-        else:
-            raise TypeError("Second argument (hkl) must be of type "
-                            "list, tuple or numpy.ndarray")
-        if isinstance(inpr, (list, tuple, numpy.ndarray)):
-            inpr = numpy.array(inpr, dtype=numpy.double)
-        else:
-            raise TypeError("Third argument (inpr) must be of type "
-                            "list, tuple or numpy.ndarray")
-        if isinstance(asub, numbers.Number) and numpy.isfinite(asub):
-            asub = float(asub)
-        else:
-            raise TypeError("Fourth argument (asub) must be a scalar!")
-        if isinstance(relax, numbers.Number) and numpy.isfinite(relax):
-            relax = float(relax)
-        else:
-            raise TypeError("Fifth argument (relax) must be a scalar!")
+        q_perp = self._checkfinitenumber(q_perp, "q_perp")
+        hkl = self._checkarray(hkl, "hkl")
+        inpr = self._checkarray(inpr, "inpr")
+        asub = self._checkfinitenumber(asub, "asub")
+        relax = self._checkfinitenumber(relax, "relax")
 
         # calculate lattice constants from reciprocal space positions
         n = self.rlattice.GetPoint(hkl) / \
@@ -1452,36 +1382,12 @@ class CubicAlloy(Alloy):
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.materials.Alloy.ContentB: inp1/inp2: ", inp1, inp2)
-        cijA = Cijkl2Cij(trans(self.matA.cijkl))
-        cijB = Cijkl2Cij(trans(self.matB.cijkl))
+        cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
+        cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
-        # define functions for all things in the equation to solve
-        def a1(x):
-            return self.lattice_const_AB(self.matA.lattice.a1,
-                                         self.matB.lattice.a1, x)
-
-        def a2(x):
-            return self.lattice_const_AB(self.matA.lattice.a2,
-                                         self.matB.lattice.a2, x)
-
-        def a3(x):
-            return self.lattice_const_AB(self.matA.lattice.a3,
-                                         self.matB.lattice.a3, x)
-
-        def V(x):
-            return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
-
-        def b1(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
-
-        def b2(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
-
-        def b3(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
-
-        def qhklx(x):
-            return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        a1, a2, a3, V, b1, b2, b3, qhklx, frac = self._definehelpers(hkl,
+                                                                     cijA,
+                                                                     cijB)
 
         # the following line is not generally true! only cubic materials
         def abulk_perp(x):
@@ -1496,12 +1402,6 @@ class CubicAlloy(Alloy):
             print("XU.materials.Alloy.ContentB: abulk_perp: %8.5g"
                   % (abulk_perp(0.)))
 
-        def frac(x):
-            return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
-                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
-                   (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
-
         def equation(x):
             return ((aperp - abulk_perp(x)) +
                     (ainp(x) - abulk_perp(x)) * frac(x))
@@ -1514,8 +1414,7 @@ class CubicAlloy(Alloy):
         """
         function that determines the content of B
         in the alloy from the reciprocal space position
-        of an asymmetric peak and also sets the content
-        in the current material
+        of an asymmetric peak.
 
         Parameters
         ----------
@@ -1529,7 +1428,7 @@ class CubicAlloy(Alloy):
 
         Returns
         -------
-         content,[a_inplane,a_perp,a_bulk_perp(x), eps_inplane, eps_perp] :
+         content, [a_inplane, a_perp, a_bulk_perp(x), eps_inplane, eps_perp]:
                 the content of B in the alloy determined from the input
                 variables and the lattice constants calculated from the
                 reciprocal space positions as well as the strain (eps) of the
@@ -1537,24 +1436,10 @@ class CubicAlloy(Alloy):
         """
 
         # check input parameters
-        if isinstance(q_inp, numbers.Number) and numpy.isfinite(q_inp):
-            q_inp = float(q_inp)
-        else:
-            raise TypeError("First argument (q_inp) must be a scalar!")
-        if isinstance(q_perp, numbers.Number) and numpy.isfinite(q_perp):
-            q_perp = float(q_perp)
-        else:
-            raise TypeError("Second argument (q_perp) must be a scalar!")
-        if isinstance(hkl, (list, tuple, numpy.ndarray)):
-            hkl = numpy.array(hkl, dtype=numpy.double)
-        else:
-            raise TypeError("Third argument (hkl) must be of type "
-                            "list, tuple or numpy.ndarray")
-        if isinstance(sur, (list, tuple, numpy.ndarray)):
-            sur = numpy.array(sur, dtype=numpy.double)
-        else:
-            raise TypeError("Fourth argument (sur) must be of type "
-                            "list, tuple or numpy.ndarray")
+        q_inp = self._checkfinitenumber(q_inp, "q_inp")
+        q_perp = self._checkfinitenumber(q_perp, "q_perp")
+        hkl = self._checkarray(hkl, "hkl")
+        sur = self._checkarray(sur, "sur")
 
         # check if reflection is asymmetric
         if numpy.linalg.norm(
@@ -1577,39 +1462,12 @@ class CubicAlloy(Alloy):
         inp2 = numpy.cross(n, inp1)
         trans = math.CoordinateTransform(inp1, inp2, n)
 
-        cijA = Cijkl2Cij(trans(self.matA.cijkl))
-        cijB = Cijkl2Cij(trans(self.matB.cijkl))
+        cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
+        cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
-        # define functions for all things in the equation to solve
-        def a1(x):
-            return self.lattice_const_AB(self.matA.lattice.a1,
-                                         self.matB.lattice.a1, x)
-
-        def a2(x):
-            return self.lattice_const_AB(self.matA.lattice.a2,
-                                         self.matB.lattice.a2, x)
-
-        def a3(x):
-            return self.lattice_const_AB(self.matA.lattice.a3,
-                                         self.matB.lattice.a3, x)
-
-        def V(x):
-            return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
-
-        def b1(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a2(x), a3(x))
-
-        def b2(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a3(x), a1(x))
-
-        def b3(x):
-            return 2 * numpy.pi / V(x) * numpy.cross(a1(x), a2(x))
-
-        def qsurx(x):
-            return sur[0] * b1(x) + sur[1] * b2(x) + sur[2] * b3(x)
-
-        def qhklx(x):
-            return hkl[0] * b1(x) + hkl[1] * b2(x) + hkl[2] * b3(x)
+        a1, a2, a3, V, b1, b2, b3, qhklx, frac = self._definehelpers(hkl,
+                                                                     cijA,
+                                                                     cijB)
 
         # the following two lines are not generally true! only cubic materials
         def abulk_inp(x):
@@ -1624,19 +1482,11 @@ class CubicAlloy(Alloy):
             print("XU.materials.Alloy.ContentB: abulk_inp/perp: %8.5g %8.5g"
                   % (abulk_inp(0.), abulk_perp(0.)))
 
-        def frac(x):
-            return ((cijB[0, 2] + cijB[1, 2] + cijB[2, 0] + cijB[2, 1] -
-                     (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) * x +
-                    (cijA[0, 2] + cijA[1, 2] + cijA[2, 0] + cijA[2, 1])) / \
-                   (2 * ((cijB[2, 2] - cijA[2, 2]) * x + cijA[2, 2]))
-
         def equation(x):
             return ((aperp - abulk_perp(x)) +
                     (ainp - abulk_inp(x)) * frac(x))
 
         x = scipy.optimize.brentq(equation, -0.1, 1.1)
-
-        # self._setxb(x)
 
         eps_inplane = (ainp - abulk_perp(x)) / abulk_perp(x)
         eps_perp = (aperp - abulk_perp(x)) / abulk_perp(x)
@@ -1644,38 +1494,53 @@ class CubicAlloy(Alloy):
         return x, [ainp, aperp, abulk_perp(x), eps_inplane, eps_perp]
 
 
-def PseudomorphicMaterial(submat, layermat, relaxation=0):
+def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
     """
     This function returns a material whos lattice is pseudomorphic on a
-    particular substrate material.
-    This function works meanwhile only for cubic materials on (001) substrates
+    particular substrate material. The two materials must have similar unit
+    cell definitions for the algorithm to work correctly, i.e. it does not work
+    for combiniations of materials with different lattice symmetry.
 
-    required input arguments:
-     submat ........ substrate material
-     layermat ...... bulk material of the layer
-     relaxation .... degree of relaxation 0: pseudomorphic, 1: relaxed
-                     (default: 0)
+    Parameters
+    ----------
+     sub:         substrate material
+     layer:       bulk material of the layer
+     relaxation:  degree of relaxation 0: pseudomorphic, 1: relaxed
+                  (default: 0)
+     trans:       Transformation which transforms lattice directions into a
+                  surface orientated coordinate frame (x,y inplane, z out of
+                  plane). If None a (001) surface geometry of a cubic material
+                  is assumed.
 
-    return value:
-     An instance of Crystal holding the new pseudomorphically strained
-     material.
+    Returns
+    -------
+    An instance of Crystal holding the new pseudomorphically
+    strained material.
     """
+    def get_inplane(lat):
+        """determine inplane lattice parameter"""
+        return (math.VecNorm(lat.GetPoint(trans.inverse((1, 0, 0)))) +
+                math.VecNorm(lat.GetPoint(trans.inverse((0, 1, 0))))) / 2.
 
-    asub = submat.lattice.a1[0]
+    if not trans:
+        trans = math.Transform(numpy.identity(3))
 
-    # calculate the normal lattice parameter
+    slat = sub.lattice
+    llat = layer.lattice
+    # calculate the strain
+    asub = get_inplane(sub.lattice)
+    abulk = get_inplane(layer.lattice)
+    apar = asub + (abulk - asub) * relaxation
+    epar = (apar - abulk) / abulk
+    cT = trans(layer.cijkl, rank=4)
 
-    abulk = layermat.lattice.a1[0]
-    ap = asub + (abulk - asub) * relaxation
-    c11 = layermat.cij[0, 0]
-    c12 = layermat.cij[0, 1]
-    a3 = numpy.zeros(3, dtype=numpy.double)
-    a3[2] = abulk - 2.0 * c12 * (ap - abulk) / c11
-    # create the pseudomorphic lattice
-    pmlatt = lattice.Lattice([ap, 0, 0], [0, ap, 0], a3,
-                             base=layermat.lattice.base)
+    eperp = -epar * (cT[1, 1, 2, 2] + cT[2, 2, 0, 0]) / (cT[2, 2, 2, 2])
+    eps = trans.inverse(numpy.diag((epar, epar, eperp)), rank=2)
 
-    # create the new material
-    pmat = Crystal(layermat.name, pmlatt, layermat.cij)
+    # create the pseudomorphic material
+    pmlatt = lattice.Lattice(layer.a1, layer.a2, layer.a3,
+                             base=layer.lattice.base)
+    pmat = Crystal(layer.name, pmlatt, layer.cij)
+    pmat.ApplyStrain(eps)
 
     return pmat

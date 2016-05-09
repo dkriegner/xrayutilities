@@ -34,8 +34,8 @@ from .. import config
 # ref http://www.semiconductors.co.uk/propiviv5431.htm
 C = Crystal("C", lattice.DiamondLattice(elements.C, 3.5668),
             CubicElasticTensor(1.0764e12, 0.125e12, 0.577e12))
-C_HOPG = Crystal('HOPG', lattice.GeneralPrimitiveLattice(2.4612, 2.4612,
-                                                         6.7079, 90, 90, 120))
+C_HOPG = Crystal('HOPG', lattice.TriclinicLattice(2.4612, 2.4612, 6.7079,
+                                                  90, 90, 120))
 Si = Crystal("Si", lattice.DiamondLattice(elements.Si, 5.43104),
              CubicElasticTensor(165.77e+9, 63.93e+9, 79.62e+9),
              thetaDebye=640)

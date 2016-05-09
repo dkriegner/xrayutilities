@@ -53,6 +53,13 @@ class TestMathFunctions(unittest.TestCase):
         fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
 
+    def test_normedgauss1d(self):
+        p = numpy.copy(self.p)
+        p[1] = self.sigma
+        f = xu.math.Gauss1d(self.x, *p) / xu.math.Gauss1dArea(*p)
+        norm = xu.math.NormGauss1d(self.x, p[0], p[1])
+        self.assertAlmostEqual(numpy.sum(numpy.abs(f - norm)), 0, places=6)
+
     def test_gauss1darea(self):
         p = numpy.copy(self.p)
         p[1] = self.sigma

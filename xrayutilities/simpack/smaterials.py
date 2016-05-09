@@ -21,6 +21,22 @@ import numpy
 
 from ..exception import InputError
 from ..materials import Material, Crystal, PseudomorphicMaterial, Alloy
+from ..math import Transform, CoordinateTransform
+
+
+def _multiply(a, b):
+    """
+    implement multiplication of SMaterial and MaterialList with integer
+    """
+    if not isinstance(b, int):
+        raise TypeError("unsupported operand type(s) for *: "
+                        "'%s' and '%s'" % (type(a), type(b)))
+    if b < 1:
+        raise ValueError("multiplication factor needs to be positive!")
+    m = MaterialList('%d * (%s)' % (b, a.name), a)
+    for i in range(b-1):
+        m.append(a)
+    return m
 
 
 class SMaterial(object):
@@ -55,15 +71,7 @@ class SMaterial(object):
         return MaterialList('%s + %s' % (self.name, other.name), self, other)
 
     def __mul__(self, other):
-        if not isinstance(other, int):
-            raise TypeError("unsupported operand type(s) for *: "
-                            "'SMaterial' and '%s'" % type(other))
-        if other < 1:
-            raise ValueError("multiplication factor needs to be positive!")
-        m = MaterialList('%d * (%s)' % (other, self.name), self)
-        for i in range(other-1):
-            m.append(self)
-        return m
+        return _multiply(self, other)
 
     __rmul__ = __mul__
 
@@ -137,15 +145,7 @@ class MaterialList(collections.MutableSequence):
         return ml
 
     def __mul__(self, other):
-        if not isinstance(other, int):
-            raise TypeError("unsupported operand type(s) for *: "
-                            "'MaterialList' and '%s'" % type(other))
-        if other < 1:
-            raise ValueError("multiplication factor needs to be positive!")
-        m = MaterialList('%d * (%s)' % (other, self.name), self)
-        for i in range(other-1):
-            m.append(self)
-        return m
+        return _multiply(self, other)
 
     __rmul__ = __mul__
 
@@ -241,15 +241,17 @@ class GradedLayerStack(CrystalStack):
 class PseudomorphicStack001(CrystalStack):
     """
     generate a sequence of pseudomorphic crystalline Layers. Surface
-    orientation is assumed to be 001 and materials should be cubic/tetragonal.
+    orientation is assumed to be 001 and materials must be cubic/tetragonal.
     """
+    trans = Transform(numpy.identity(3))
 
     def make_epitaxial(self, i):
         l = self.list[i]
         if i == 0:
             return l
         psub = self.list[i-1].material
-        mpseudo = PseudomorphicMaterial(psub, l.material, l.relaxation)
+        mpseudo = PseudomorphicMaterial(psub, l.material, l.relaxation,
+                                        trans=self.trans)
         self.list[i].material = mpseudo
 
     def __delitem__(self, i):
@@ -275,3 +277,11 @@ class PseudomorphicStack001(CrystalStack):
             self.list.insert(i+j, copy.copy(val))
             for k in range(i+j, len(self)):
                 self.make_epitaxial(k)
+
+
+class PseudomorphicStack111(PseudomorphicStack001):
+    """
+    generate a sequence of pseudomorphic crystalline Layers. Surface
+    orientation is assumed to be 111 and materials must be cubic.
+    """
+    trans = CoordinateTransform((1, -1, 0), (1, 1, -2), (1, 1, 1))

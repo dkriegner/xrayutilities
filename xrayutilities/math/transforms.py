@@ -22,80 +22,6 @@ from . import vector
 from .. import config
 
 
-map_ijkl2ij = {"00": 0, "11": 1, "22": 2,
-               "12": 3, "20": 4, "01": 5,
-               "21": 6, "02": 7, "10": 8}
-map_ij2ijkl = {"0": [0, 0], "1": [1, 1], "2": [2, 2],
-               "3": [1, 2], "4": [2, 0], "5": [0, 1],
-               "6": [2, 1], "7": [0, 2], "8": [1, 0]}
-
-
-def index_map_ijkl2ij(i, j):
-    return map_ijkl2ij["%i%i" % (i, j)]
-
-
-def index_map_ij2ijkl(ij):
-    return map_ij2ijkl["%i" % ij]
-
-
-def Cij2Cijkl(cij):
-    """
-    Converts the elastic constants matrix (tensor of rank 2) to
-    the full rank 4 cijkl tensor.
-
-    required input arguments:
-     cij ................ (6,6) cij matrix as a numpy array
-
-    return value:
-     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
-    """
-
-    # first have to build a 9x9 matrix from the 6x6 one
-    m = numpy.zeros((9, 9), dtype=numpy.double)
-    m[0:6, 0:6] = cij[:, :]
-    m[6:9, 0:6] = cij[3:6, :]
-    m[0:6, 6:9] = cij[:, 3:6]
-    m[6:9, 6:9] = cij[3:6, 3:6]
-
-    # now create the full tensor
-    cijkl = numpy.zeros((3, 3, 3, 3), dtype=numpy.double)
-
-    for i in range(0, 3):
-        for j in range(0, 3):
-            for k in range(0, 3):
-                for l in range(0, 3):
-                    mi = index_map_ijkl2ij(i, j)
-                    mj = index_map_ijkl2ij(k, l)
-                    cijkl[i, j, k, l] = m[mi, mj]
-    return cijkl
-
-
-def Cijkl2Cij(cijkl):
-    """
-    Converts the full rank 4 tensor of the elastic constants to
-    the (6,6) matrix of elastic constants.
-
-    required input arguments:
-     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
-
-    return value:
-     cij ................ (6,6) cij matrix as a numpy array
-    """
-
-    # build the temporary 9x9 matrix
-    m = numpy.zeros((9, 9), dtype=numpy.double)
-
-    for i in range(0, 9):
-        for j in range(0, 9):
-            ij = index_map_ij2ijkl(i)
-            kl = index_map_ij2ijkl(j)
-            m[i, j] = cijkl[ij[0], ij[1], kl[0], kl[1]]
-
-    cij = m[0:6, 0:6]
-
-    return cij
-
-
 class Transform(object):
 
     def __init__(self, matrix):
@@ -108,15 +34,17 @@ class Transform(object):
                       " - seems to be singular")
             self.imatrix = None
 
-    def inverse(self, *args):
+    def inverse(self, args, rank=1):
         """
         performs inverse transformation a vector, matrix or tensor of rank 4
 
         Parameters
         ----------
-         *args:     object to transform, list or numpy array of shape
-                    (n,) (n,n), (n,n,n,n) where n is the rank of the
-                    transformation matrix
+         args:     object to transform, list or numpy array of shape
+                    (...,n) (...,n,n), (...,n,n,n,n) where n is the size of
+                    the transformation matrix.
+         rank:      rank of the supplied object. allowed values are 1, 2,
+                    and 4
         """
 
         if self.imatrix is None:
@@ -124,92 +52,38 @@ class Transform(object):
                             " - seems to be singular")
 
         it = Transform(self.imatrix)
-        return it(*args)
+        return it(args, rank)
 
-    def __call__(self, *args):
+    def __call__(self, args, rank=1):
         """
         transforms a vector, matrix or tensor of rank 4
         (e.g. elasticity tensor)
 
         Parameters
         ----------
-         *args:     object to transform, list or numpy array of shape
-                    (n,) (n,n), (n,n,n,n) where n is the rank of the
-                    transformation matrix
+         args:     object to transform, list or numpy array of shape
+                    (...,n) (...,n,n), (...,n,n,n,n) where n is the size of
+                    the transformation matrix.
+         rank:      rank of the supplied object. allowed values are 1, 2,
+                    and 4
         """
 
         m = self.matrix
+        if rank == 1:  # argument is a vector
+            # out_i = m_ij * args_j
+            out = numpy.einsum('ij,...j', m, args)
+        elif rank == 2:  # argument is a matrix
+            # out_ij = m_ik * m_jl * args_kl
+            out = numpy.einsum('ik,jl,...kl', m, m, args)
+        elif rank == 4:
+            # cp_ijkl = m_in * m_jo * m_kp * m_lq * args_nopq
+            out = numpy.einsum('in,jo,kp,lq,...nopq', m, m, m, m, args)
 
-        olist = []
-        for a in args:
-            if isinstance(a, (list, tuple)):
-                p = numpy.array(a, dtype=numpy.double)
-            elif isinstance(a, numpy.ndarray):
-                p = a
-            else:
-                raise TypeError("Argument must be a list, tuple "
-                                "or numpy array!")
-
-            # matrix product in pure array notation
-            if len(p.shape) == 1:
-                # argument is a vector
-                if (config.VERBOSITY >= config.DEBUG):
-                    print("XU.math.Transform: transform a vector ...")
-                # b = (self.matrix*p[numpy.newaxis,:]).sum(axis=1)
-                b = numpy.dot(m, p)
-                olist.append(b)
-            elif len(p.shape) == 2 and p.shape[0] == 3 and p.shape[1] == 3:
-                # argument is a matrix
-                if (config.VERBOSITY >= config.DEBUG):
-                    print("XU.math.Transform: transform a matrix ...")
-                b = numpy.zeros(p.shape, dtype=numpy.double)
-                # b_ij = m_ik * m_jl * p_kl
-                for i in range(3):
-                    for j in range(3):
-                        # loop over the sums
-                        for k in range(3):
-                            for l in range(3):
-                                b[i, j] += m[i, k] * m[j, l] * p[k, l]
-
-                olist.append(b)
-
-            elif len(p.shape) == 4 and p.shape[0] == 3 and p.shape[1] == 3 and\
-                    p.shape[2] == 3 and p.shape[3] == 3:
-                if (config.VERBOSITY >= config.DEBUG):
-                    print("XU.math.Transform: transform a tensor of rank 4")
-                # transformation of a
-                cp = numpy.zeros(p.shape, dtype=numpy.double)
-                # cp_ikkl = m_ig * m_jh * m_kr * m_ls * p_ghrs
-                for i in range(0, 3):
-                    for j in range(0, 3):
-                        for k in range(0, 3):
-                            for l in range(0, 3):
-                                # run over the double sums
-                                for g in range(0, 3):
-                                    for h in range(0, 3):
-                                        for r in range(0, 3):
-                                            for s in range(0, 3):
-                                                cp[i, j, k, l] += m[i, g] * \
-                                                    m[j, h] * m[k, r] * \
-                                                    m[l, s] * p[g, h, r, s]
-
-                olist.append(cp)
-
-        if len(args) == 1:
-            return olist[0]
-        else:
-            return olist
+        return out
 
     def __str__(self):
-        ostr = ""
-        ostr += "Transformation matrix:\n"
-        ostr += "%f %f %f\n" % (self.matrix[0, 0], self.matrix[0, 1],
-                                self.matrix[0, 2])
-        ostr += "%f %f %f\n" % (self.matrix[1, 0], self.matrix[1, 1],
-                                self.matrix[1, 2])
-        ostr += "%f %f %f\n" % (self.matrix[2, 0], self.matrix[2, 1],
-                                self.matrix[2, 2])
-
+        ostr = "Transformation matrix:\n"
+        ostr += str(self.matrix)
         return ostr
 
 
@@ -235,27 +109,9 @@ class CoordinateTransform(Transform):
         -------
          An instance of a Transform class
         """
-
-        if isinstance(v1, (list, tuple)):
-            e1 = numpy.array(v1, dtype=numpy.double)
-        elif isinstance(v1, numpy.ndarray):
-            e1 = v1
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
-
-        if isinstance(v2, (list, tuple)):
-            e2 = numpy.array(v2, dtype=numpy.double)
-        elif isinstance(v2, numpy.ndarray):
-            e2 = v2
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
-
-        if isinstance(v3, (list, tuple)):
-            e3 = numpy.array(v3, dtype=numpy.double)
-        elif isinstance(v3, numpy.ndarray):
-            e3 = v3
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
+        e1 = vector._checkvec(v1)
+        e2 = vector._checkvec(v2)
+        e3 = vector._checkvec(v3)
 
         # normalize base vectors
         e1 = e1 / numpy.linalg.norm(e1)
@@ -302,13 +158,7 @@ class AxisToZ(CoordinateTransform):
         ----------
          newzaxis:  list or numpy array with new z-axis
         """
-
-        if isinstance(newzaxis, (list, tuple)):
-            newz = numpy.array(newzaxis, dtype=numpy.double)
-        elif isinstance(newzaxis, numpy.ndarray):
-            newz = newzaxis
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
+        newz = vector._checkvec(newzaxis)
 
         if vector.VecAngle([0, 0, 1], newz) < config.EPSILON:
             newx = [1, 0, 0]
@@ -344,12 +194,7 @@ class AxisToZ_keepXY(CoordinateTransform):
         ----------
          newzaxis:  list or numpy array with new z-axis
         """
-        if isinstance(newzaxis, (list, tuple)):
-            newz = numpy.array(newzaxis, dtype=numpy.double)
-        elif isinstance(newzaxis, numpy.ndarray):
-            newz = newzaxis
-        else:
-            raise TypeError("vector must be a list, tuple or numpy array")
+        newz = vector._checkvec(newzaxis)
 
         if vector.VecAngle([0, 0, 1], newz) < config.EPSILON:
             newx = [1, 0, 0]
@@ -370,20 +215,21 @@ class AxisToZ_keepXY(CoordinateTransform):
         CoordinateTransform.__init__(self, newx, newy, newz)
 
 
+def _sincos(alpha, deg):
+    if deg:
+        a = numpy.radians(alpha)
+    else:
+        a = alpha
+    return numpy.sin(a), numpy.cos(a)
+
+
 def XRotation(alpha, deg=True):
     """
     Returns a transform that represents a rotation about the x-axis
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
     """
-
-    if deg:
-        sina = numpy.sin(numpy.pi * alpha / 180.)
-        cosa = numpy.cos(numpy.pi * alpha / 180.)
-    else:
-        sina = numpy.sin(alpha)
-        cosa = numpy.cos(alpha)
-
+    sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
         [[1, 0, 0], [0, cosa, -sina], [0, sina, cosa]], dtype=numpy.double)
     return Transform(m)
@@ -395,14 +241,7 @@ def YRotation(alpha, deg=True):
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
     """
-
-    if deg:
-        sina = numpy.sin(numpy.pi * alpha / 180.)
-        cosa = numpy.cos(numpy.pi * alpha / 180.)
-    else:
-        sina = numpy.sin(alpha)
-        cosa = numpy.cos(alpha)
-
+    sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
         [[cosa, 0, sina], [0, 1, 0], [-sina, 0, cosa]], dtype=numpy.double)
     return Transform(m)
@@ -414,14 +253,7 @@ def ZRotation(alpha, deg=True):
     by an angle alpha. If deg=True the angle is assumed to be in
     degree, otherwise the function expects radiants.
     """
-
-    if deg:
-        sina = numpy.sin(numpy.pi * alpha / 180.)
-        cosa = numpy.cos(numpy.pi * alpha / 180.)
-    else:
-        sina = numpy.sin(alpha)
-        cosa = numpy.cos(alpha)
-
+    sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
         [[cosa, -sina, 0], [sina, cosa, 0], [0, 0, 1]], dtype=numpy.double)
     return Transform(m)
@@ -468,9 +300,7 @@ def rotarb(vec, axis, ang, deg=True):
     >>> rotarb([1,0,0],[0,0,1],90)
     array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
     """
-    if isinstance(axis, list):
-        axis = numpy.array(axis, dtype=numpy.double)
-    # normalize axis
+    axis = vector._checkvec(axis)
     e = axis / numpy.linalg.norm(axis)
     if deg:
         rad = numpy.radians(ang)

@@ -45,11 +45,12 @@ OpenMP use --without-openmp option for the installation ::
 For the installation the following requirements need to be installed on your
 system
 
-- Python
+- Python (version 2.7 or >= 3.2)
 - C-compiler (preferential with OpenMP support)
 - h5py
-- scipy
-- numpy
+- scipy (version >= 0.11.0)
+- numpy (version >= 1.8)
+- lmfit (optionally)
 - matplotlib (optionally)
 
 refer to your operating system documentation to find out how to install
