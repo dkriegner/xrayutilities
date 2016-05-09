@@ -18,4 +18,5 @@
 
 
 from . test_HXRD import TestQ2Ang_HXRD
+from . test_fuzzygridder1d import TestFuzzyGridder1D
 
