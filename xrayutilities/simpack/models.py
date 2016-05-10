@@ -144,6 +144,41 @@ class LayerModel(Model):
             self.lstack = LayerStack('Stack for %s' % self.__class__.__name__,
                                      *args)
 
+    def _create_return(self, x, E, ai=None, af=None, Ir=None,
+                       rettype='intensity'):
+        """
+        function to create the return value of a simulation. by default only
+        the diffracted intensity is returned. However, optionally also the
+        incidence and exit angle as well as the reflected intensity can be
+        returned.
+
+        Parameters
+        ----------
+         x:         independent coordinate value for the convolution with the
+                    resolution function
+         E:         electric field amplitude (complex)
+         ai, af:    incidence and exit angle of the XRD beam (in radians)
+         Ir:        reflected intensity
+         rettype:   type of the return value. 'intensity' (default): returns
+                    the diffracted beam flux convoluted with the resolution
+                    function; 'field': returns the electric field (complex)
+                    without convolution with the resolution function, 'all':
+                    returns the electric field, ai, af (both in degree), and
+                    the reflected intensity.
+
+        Returns
+        -------
+         return value depends on value of rettype.
+        """
+        if rettype == 'intensity':
+            ret = self.scale_simulation(
+                self.convolute_resolution(x, numpy.abs(E)**2))
+        elif rettype == 'field':
+            ret = E
+        elif rettype == 'all':
+            ret = (E, numpy.degrees(ai), numpy.degrees(af), Ir)
+        return ret
+
 
 class KinematicalModel(LayerModel):
     """
@@ -220,7 +255,8 @@ class KinematicalModel(LayerModel):
                      numpy.sqrt(numpy.sin(alphaf)**2 + chi0))
         return q
 
-    def simulate(self, qz, hkl, absorption=False, refraction=False):
+    def simulate(self, qz, hkl, absorption=False, refraction=False,
+                 rettype='intensity'):
         """
         performs the actual kinematical diffraction calculation on the Qz
         positions specified considering the contribution from a single Bragg
@@ -235,6 +271,12 @@ class KinematicalModel(LayerModel):
          refraction:    flag to tell if basic refraction correction should be
                         performed. If refraction is True absorption correction
                         is also included independent of the absorption flag.
+         rettype:       type of the return value. 'intensity' (default):
+                        returns the diffracted beam flux convoluted with the
+                        resolution function; 'field': returns the electric
+                        field (complex) without convolution with the resolution
+                        function, 'all': returns the electric field, ai, af
+                        (both in degree), and the reflected intensity.
 
         Returns
         -------
@@ -257,9 +299,9 @@ class KinematicalModel(LayerModel):
                 E += - f[i, :] * numpy.exp(-1j * q * z[i]) * \
                     (1 - numpy.exp(1j * q * l.thickness)) / (1j * q)
 
-        w = heaviside(ai) * heaviside(af) * rel**2 / \
-            (numpy.sin(ai) * numpy.sin(af)) * numpy.abs(E)**2
-        return self.scale_simulation(self.convolute_resolution(qz, w))
+        wf = numpy.sqrt(heaviside(ai) * heaviside(af) * rel**2 /
+                        (numpy.sin(ai) * numpy.sin(af))) * E
+        return self._create_return(qz, wf, ai, af, rettype=rettype)
 
 
 class KinematicalMultiBeamModel(KinematicalModel):
@@ -289,7 +331,8 @@ class KinematicalMultiBeamModel(KinematicalModel):
         self.surface_hkl = kwargs.pop('surface_hkl', (0, 0, 1))
         super(KinematicalMultiBeamModel, self).__init__(*args, **kwargs)
 
-    def simulate(self, qz, hkl, absorption=False, refraction=True):
+    def simulate(self, qz, hkl, absorption=False, refraction=True,
+                 rettype='intensity'):
         """
         performs the actual kinematical diffraction calculation on the Qz
         positions specified considering the contribution from a full
@@ -304,6 +347,12 @@ class KinematicalMultiBeamModel(KinematicalModel):
          refraction:    flag to tell if basic refraction correction should be
                         performed. If refraction is True absorption correction
                         is also included independent of the absorption flag.
+         rettype:       type of the return value. 'intensity' (default):
+                        returns the diffracted beam flux convoluted with the
+                        resolution function; 'field': returns the electric
+                        field (complex) without convolution with the resolution
+                        function, 'all': returns the electric field, ai, af
+                        (both in degree), and the reflected intensity.
 
         Returns
         -------
@@ -339,9 +388,9 @@ class KinematicalMultiBeamModel(KinematicalModel):
                     (1 - numpy.exp(1j * q * a3 * n3)) /\
                     (1 - numpy.exp(1j * q * a3))
 
-        w = heaviside(ai) * heaviside(af) * rel**2 / \
-            (numpy.sin(ai) * numpy.sin(af)) * numpy.abs(E)**2
-        return self.scale_simulation(self.convolute_resolution(qz, w))
+        wf = numpy.sqrt(heaviside(ai) * heaviside(af) * rel**2 /
+                        (numpy.sin(ai) * numpy.sin(af))) * E
+        return self._create_return(qz, wf, ai, af, rettype=rettype)
 
 
 class SimpleDynamicalCoplanarModel(KinematicalModel):
@@ -554,7 +603,8 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
     substrate indepentent of its given thickness
     """
 
-    def simulate(self, alphai, hkl=None, geometry='hi_lo'):
+    def simulate(self, alphai, hkl=None, geometry='hi_lo',
+                 rettype='intensity'):
         """
         performs the actual diffraction calculation for the specified
         incidence angles and uses an analytic solution for the quartic
@@ -568,11 +618,21 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                     same peak!)
          geometry:  'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
                     incidence
+         rettype:   type of the return value. 'intensity' (default): returns
+                    the diffracted beam flux convoluted with the resolution
+                    function; 'field': returns the electric field (complex)
+                    without convolution with the resolution function, 'all':
+                    returns the electric field, ai, af (both in degree), and
+                    the reflected intensity.
 
         Returns
         -------
          vector of intensities of the diffracted signal
         """
+        if len(self.get_polarizations()) > 1 and rettype != "intensity":
+            raise ValueError('XU:DynamicalModel: return type (%s) not '
+                             'supported with multiple polarizations!')
+            rettype = 'intensity'
         if hkl is not None:
             self.set_hkl(hkl)
 
@@ -665,8 +725,12 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
             Ir[pol] = numpy.abs(E[:, 2])**2  # reflected intensity
             Ih[pol] = numpy.abs(E[:, 3])**2 * numpy.abs(Khz / Kiz) * mask
 
-        ret = self.join_polarizations(Ih['S'], Ih['P'])
-        return self.scale_simulation(self.convolute_resolution(alphai, ret))
+        if len(self.get_polarizations()) > 1 and rettype == "intensity":
+            ret = numpy.sqrt(self.join_polarizations(Ih['S'], Ih['P']))
+        else:
+            ret = E[:, 3] * numpy.sqrt(numpy.abs(Khz / Kiz) * mask)
+
+        return self._create_return(alphai, ret, ai, ah, Ir, rettype=rettype)
 
 
 class SpecularReflectivityModel(LayerModel):
