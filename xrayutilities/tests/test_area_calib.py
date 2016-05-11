@@ -75,7 +75,7 @@ def removehotpixel(ccd, hotpixelmap):
     return ccd
 
 
-datadir = "data"
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 name = "align"
 datfile = os.path.join(datadir, name, name + "_%05d.dat")
 ccdfile = os.path.join(datadir, name, name + "_%05d_eiger",

@@ -23,7 +23,7 @@ import numpy
 
 xu.config.VERBOSITY = 0  # make no output during test
 testfile = 'seifert.nja.bz2'
-datadir = 'data'
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, testfile)
 
 

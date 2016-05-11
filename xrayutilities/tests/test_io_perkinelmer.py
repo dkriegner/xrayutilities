@@ -22,7 +22,7 @@ import numpy
 import xrayutilities as xu
 
 testfile = 'perkinelmer.tif.bz2'
-datadir = 'data'
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, testfile)
 
 

@@ -23,7 +23,7 @@ import numpy
 import h5py
 
 testfile = 'eiger.cbf'
-datadir = 'data'
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, testfile)
 
 
@@ -69,7 +69,7 @@ class TestIO_CBF(unittest.TestCase):
         ed = xu.io.CBFDirectory(datadir, 'cbf')
         ed.Save2HDF5(self.h5file)
         with h5py.File(self.h5file) as h5f:
-            h5g = h5f[datadir]
+            h5g = h5f[os.path.split(datadir)[-1]]
             h5d = h5g[list(h5g.keys())[0]]
             h5d = numpy.asarray(h5d)
             self.assertTrue(numpy.all(h5d == self.data))

@@ -23,13 +23,13 @@ import numpy
 
 testfiletmp = 'p08tty_%05d.dat'
 testfile = testfiletmp % 29
-datadir = 'data'
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, testfile)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
                  "additional test data needed (http://xrayutilities.sf.net)")
-class TestIO_FIO(unittest.TestCase):
+class TestIO_TTY(unittest.TestCase):
     dshape = (102,)
     dmax = 1444999.0
     dmin = 314133.0

@@ -22,7 +22,7 @@ import xrayutilities as xu
 import numpy
 
 testfile = 'p08_00019.FIO'
-datadir = 'data'
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, testfile)
 
 

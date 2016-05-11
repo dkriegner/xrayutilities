@@ -13,10 +13,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 #               2016 Eugen Wintersberger <eugen.wintersberger@desy.de>
-
-
-from . test_HXRD import TestQ2Ang_HXRD
-from . test_fuzzygridder1d import TestFuzzyGridder1D
-

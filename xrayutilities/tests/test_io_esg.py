@@ -22,7 +22,7 @@ import xrayutilities as xu
 import numpy
 
 testfile = 'sc.esg'
-datadir = 'data'
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, testfile)
 
 

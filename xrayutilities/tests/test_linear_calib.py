@@ -22,7 +22,7 @@ import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-datadir = "data"
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, "detalign.xrdml.bz2")
 
 
