@@ -16,7 +16,7 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from setuptools import setup, Extension,find_packages
+from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.fancy_getopt import FancyGetopt
 from distutils.command.install import INSTALL_SCHEMES
@@ -142,12 +142,7 @@ setup(
     author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
     maintainer="Dominik Kriegner",
     maintainer_email="dominik.kriegner@gmail.com",
-#    packages=[
-#        "xrayutilities", "xrayutilities.math", "xrayutilities.io",
-#        "xrayutilities.materials", "xrayutilities.analysis",
-#        "xrayutilities.simpack"
-#        ],
-    packages = find_packages(),
+    packages=find_packages(),
     package_data={
         "xrayutilities": ["*.conf"],
         "xrayutilities.materials": [
@@ -162,7 +157,6 @@ setup(
     cmdclass=cmdclass,
     url="http://xrayutilities.sourceforge.net",
     license="GPLv2",
-    test="xrayutilities.tests",
-    test_loader="unittest:TestLoader",
+    test_suite="unittest2.collector",
     script_args=args
     )
