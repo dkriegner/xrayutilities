@@ -20,10 +20,6 @@ import xrayutilities as xu
 mpl.rcParams['font.size'] = 16.0
 
 
-def alpha_i(qx, qz):
-    th = arcsin(sqrt(qx**2 + qz**2) / (4 * pi) * xu.en2lam(en))
-    return degrees(arctan2(qx, qz) + th)
-
 en = 8500  # eV
 resol = 0.0004  # resolution in q
 h, k, l = (1, 1, 1)
@@ -37,8 +33,9 @@ pls = xu.simpack.PseudomorphicStack111('pseudo', sub, lay)
 
 # calculate incidence angle for dynamical diffraction models
 qx = hxrd.Transform(Si.Q(h, k, l))[1]
-ai = alpha_i(qx, qz)
-resolai = abs(alpha_i(qx, mean(qz) + resol) - alpha_i(qx, mean(qz)))
+ai = xu.simpack.coplanar_alphai(qx, qz, en)
+resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
+              xu.simpack.coplanar_alphai(qx, mean(qz), en))
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
@@ -59,9 +56,9 @@ Idyn = md.simulate(ai, hkl=(h, k, l))
 figure('XU-simpack SiGe(111)')
 clf()
 semilogy(qz, Ikin, label='kinematical')
-semilogy(qz, Idynsub, label='simpl. dynamical(S)')
-semilogy(qz, Idynlay, label='simpl. dynamical(L)')
-semilogy(qz, Idyn, label='full dynamical')
+semilogy(xu.simpack.get_qz(qx, ai, en), Idynsub, label='simpl. dynamical(S)')
+semilogy(xu.simpack.get_qz(qx, ai, en), Idynlay, label='simpl. dynamical(L)')
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
 vlines([xu.math.VecNorm(lay.material.Q(h, k, l)) for lay in pls], 1e-9, 1,
        linestyles='dashed')
 legend(fontsize='small')

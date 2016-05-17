@@ -184,7 +184,7 @@ class CIFFile(object):
             elif symop_loop:  # symmetry operation entry
                 loop_start = False
                 entry = shlex.split(line)[symop_idx]
-                if re_quote.match(line):
+                if re_quote.match(entry):
                     opstr = entry
                 else:
                     opstr = "'" + entry + "'"

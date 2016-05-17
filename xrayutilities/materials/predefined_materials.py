@@ -188,6 +188,7 @@ FeRh = Crystal("FeRh", lattice.CsClLattice(elements.Fe, elements.Rh, 2.993))
 Ir20Mn80 = Crystal(
     "Ir20Mn80",
     lattice.FCCSharedLattice(elements.Ir, elements.Mn, 0.2, 0.8, 3.780))
+LaB6 = Crystal("LaB6", lattice.LaB6Lattice(elements.La, elements.B, 4.15692))
 
 # materials defined from cif file
 try:

@@ -39,3 +39,6 @@ from .models import SimpleDynamicalCoplanarModel
 from .models import DynamicalModel
 
 from .fit import fit_xrr
+
+from .helpers import coplanar_alphai
+from .helpers import get_qz

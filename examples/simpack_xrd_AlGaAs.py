@@ -19,11 +19,6 @@ from matplotlib.pylab import *
 import xrayutilities as xu
 mpl.rcParams['font.size'] = 16.0
 
-
-def alpha_i(qx, qz):
-    th = arcsin(sqrt(qx**2 + qz**2) / (4 * pi) * xu.en2lam(en))
-    return degrees(arctan2(qx, qz) + th)
-
 en = 'CuKa1'
 resol = 0.0001  # resolution in qz
 h, k, l = (0, 0, 4)
@@ -36,8 +31,9 @@ pls = xu.simpack.PseudomorphicStack001('AlGaAs on GaAs', sub, lay)
 
 # calculate incidence angle for dynamical diffraction models
 qx = sqrt(sub.material.Q(h, k, l)[0]**2 + sub.material.Q(h, k, l)[1]**2)
-ai = alpha_i(qx, qz)
-resolai = abs(alpha_i(qx, mean(qz) + resol) - alpha_i(qx, mean(qz)))
+ai = xu.simpack.coplanar_alphai(qx, qz, en)
+resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
+              xu.simpack.coplanar_alphai(qx, mean(qz), en))
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
@@ -65,9 +61,9 @@ figure('XU-simpack AlGaAs')
 clf()
 semilogy(qz, Ikin, label='kinematical')
 semilogy(qz, Imult, label='multibeam')
-semilogy(qz, Idynsub, label='simpl. dynamical(S)')
-semilogy(qz, Idynlay, label='simpl. dynamical(L)')
-semilogy(qz, Idyn, label='full dynamical')
+semilogy(xu.simpack.get_qz(qx, ai, en), Idynsub, label='simpl. dynamical(S)')
+semilogy(xu.simpack.get_qz(qx, ai, en), Idynlay, label='simpl. dynamical(L)')
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
 vlines([4*2*pi/l.material.a3[-1] for l in pls], 1e-6, 1, linestyles='dashed')
 legend(fontsize='small')
 xlim(qz.min(), qz.max())

@@ -50,6 +50,7 @@ from .lattice import TetragonalTinLattice
 from .lattice import TrigonalR3mh
 from .lattice import CubicFm3mBaF2
 from .lattice import PerovskiteTypeRhombohedral
+from .lattice import LaB6Lattice
 
 from . import elements
 from .material import Alloy

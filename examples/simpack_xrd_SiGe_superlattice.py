@@ -21,10 +21,6 @@ import time
 mpl.rcParams['font.size'] = 16.0
 
 
-def alpha_i(qx, qz):
-    th = arcsin(sqrt(qx**2 + qz**2) / (4 * pi) * xu.en2lam(en))
-    return degrees(arctan2(qx, qz) + th)
-
 en = 'CuKa1'  # eV
 lam = xu.en2lam(en)
 resol = 2*pi/4998  # resolution in q; to suppress buffer oscillations
@@ -45,8 +41,9 @@ pls = xu.simpack.PseudomorphicStack001('SL 5/5', sub+buf1+buf2+5*(lay1+lay2))
 
 # calculate incidence angle for dynamical diffraction models
 qx = sqrt(sub.material.Q(h, k, l)[0]**2 + sub.material.Q(h, k, l)[1]**2)
-ai = alpha_i(qx, qz)
-resolai = alpha_i(qx, mean(qz) + resol) - alpha_i(qx, mean(qz))
+ai = xu.simpack.coplanar_alphai(qx, qz, en)
+resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
+              xu.simpack.coplanar_alphai(qx, mean(qz), en))
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
@@ -81,7 +78,7 @@ figure('XU-simpack SiGe SL')
 clf()
 semilogy(qz, Ikin, label='kinematical')
 semilogy(qz, Imult, label='multibeam')
-semilogy(qz, Idyn, label='full dynamical')
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
 vlines([4*2*pi/l.material.a3[-1] for l in pls[-2:]], 1e-9, 1,
        linestyles='dashed', label="kin. peak-pos")
 legend(fontsize='small')
