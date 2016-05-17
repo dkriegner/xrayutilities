@@ -21,7 +21,8 @@ import unittest
 import xrayutilities as xu
 import numpy
 
-prec_digits = 11
+digits = 11
+
 
 class TestOpticalProperties(unittest.TestCase):
     en = 'CuKa1'
@@ -33,21 +34,21 @@ class TestOpticalProperties(unittest.TestCase):
 
     def test_idx_refraction(self):
         idx = self.mat.idx_refraction(en=self.en)
-        self.assertAlmostEqual(idx, self.n, places=prec_digits)
+        self.assertAlmostEqual(idx, self.n, places=digits)
         idx = self.cmat.idx_refraction(en=self.en)
-        self.assertAlmostEqual(idx, self.cn, places=prec_digits)
+        self.assertAlmostEqual(idx, self.cn, places=digits)
 
     def test_delta_beta(self):
         n2 = 1 - self.mat.delta(en=self.en) + 1j * self.mat.beta(en=self.en)
-        self.assertAlmostEqual(n2, self.n, places=prec_digits)
+        self.assertAlmostEqual(n2, self.n, places=digits)
         n2 = 1 - self.cmat.delta(en=self.en) + 1j * self.cmat.beta(en=self.en)
-        self.assertAlmostEqual(n2, self.cn, places=prec_digits)
+        self.assertAlmostEqual(n2, self.cn, places=digits)
 
     def test_chi0(self):
         n3 = 1 + self.mat.chi0(en=self.en) / 2.
-        self.assertAlmostEqual(n3, numpy.complex128(self.n), places=prec_digits)
+        self.assertAlmostEqual(n3, numpy.complex128(self.n), places=digits)
         n3 = 1 + self.cmat.chi0(en=self.en) / 2.
-        self.assertAlmostEqual(n3, self.cn, places=prec_digits)
+        self.assertAlmostEqual(n3, self.cn, places=digits)
 
 
 if __name__ == '__main__':
