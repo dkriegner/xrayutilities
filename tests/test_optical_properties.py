@@ -15,14 +15,17 @@
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+from __future__ import print_function
 import unittest
 
 import xrayutilities as xu
+import numpy
 
+prec_digits = 11
 
 class TestOpticalProperties(unittest.TestCase):
     en = 'CuKa1'
-    n = 1 - 2.3236677077820289e-05 + 3.1809448794498657e-06j
+    n = numpy.complex128(1 - 2.3236677077820289e-05 + 3.1809448794498657e-06j)
     cn = 1 - 1.4554622905893488e-05 + 4.3128498279470241e-07j
     rho_cf = 0.5*8900 + 0.5*7874
     mat = xu.materials.Amorphous('CoFe', rho_cf, [('Co', 0.5), ('Fe', 0.5)])
@@ -30,21 +33,21 @@ class TestOpticalProperties(unittest.TestCase):
 
     def test_idx_refraction(self):
         idx = self.mat.idx_refraction(en=self.en)
-        self.assertAlmostEqual(idx, self.n, places=12)
+        self.assertAlmostEqual(idx, self.n, places=prec_digits)
         idx = self.cmat.idx_refraction(en=self.en)
-        self.assertAlmostEqual(idx, self.cn, places=12)
+        self.assertAlmostEqual(idx, self.cn, places=prec_digits)
 
     def test_delta_beta(self):
         n2 = 1 - self.mat.delta(en=self.en) + 1j * self.mat.beta(en=self.en)
-        self.assertAlmostEqual(n2, self.n, places=12)
+        self.assertAlmostEqual(n2, self.n, places=prec_digits)
         n2 = 1 - self.cmat.delta(en=self.en) + 1j * self.cmat.beta(en=self.en)
-        self.assertAlmostEqual(n2, self.cn, places=12)
+        self.assertAlmostEqual(n2, self.cn, places=prec_digits)
 
     def test_chi0(self):
         n3 = 1 + self.mat.chi0(en=self.en) / 2.
-        self.assertAlmostEqual(n3, self.n, places=12)
+        self.assertAlmostEqual(n3, numpy.complex128(self.n), places=prec_digits)
         n3 = 1 + self.cmat.chi0(en=self.en) / 2.
-        self.assertAlmostEqual(n3, self.cn, places=12)
+        self.assertAlmostEqual(n3, self.cn, places=prec_digits)
 
 
 if __name__ == '__main__':
