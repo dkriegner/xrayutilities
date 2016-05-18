@@ -15,7 +15,6 @@
 module containing the Atom class which handles the database access for atomic
 scattering factors and the atomic mass.
 """
-import atexit
 import os.path
 import re
 
@@ -33,12 +32,6 @@ except NameError:
 
 _db = database.DataBase(os.path.join(__path__[0], "data", config.DBNAME))
 _db.Open()
-
-
-def _db_cleanup():
-    _db.Close()
-
-atexit.register(_db_cleanup)
 
 
 class Atom(object):
