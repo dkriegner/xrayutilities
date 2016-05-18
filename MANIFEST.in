@@ -9,7 +9,7 @@ recursive-include examples *
 
 # C source files and tests
 graft xrayutilities/src
-recursive-include xrayutilities/tests *.py
+recursive-include tests *.py
 
 # include database files
 graft xrayutilities/materials/data
