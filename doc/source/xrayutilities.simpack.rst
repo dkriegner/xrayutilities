@@ -12,6 +12,14 @@ xrayutilities.simpack.fit module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.simpack.helpers module
+------------------------------------
+
+.. automodule:: xrayutilities.simpack.helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.simpack.models module
 -----------------------------------
 

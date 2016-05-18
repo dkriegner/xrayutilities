@@ -36,6 +36,14 @@ xrayutilities.io.fastscan module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.io.filedir module
+-------------------------------
+
+.. automodule:: xrayutilities.io.filedir
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.io.helper module
 ------------------------------
 

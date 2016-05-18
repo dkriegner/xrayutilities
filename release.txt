@@ -8,12 +8,11 @@ CHECK EVERYTHING
 Is everything running fine? perform the tests and run the examples
 
   # change the version in VERSION
-  cd xrayutilities/tests
-  python -m unittest discover
+  python2 setup.py test
+  python3 setup.py test
   # optionally check the coverage
-  # coverage run --source <INSTALLPATH>/lib64/python2.7/site-packages/xrayutilities -m unittest discover
-  # coverage html --omit='test_*'
-  cd ../..
+  coverage run --source xrayutilities setup.py test
+  coverage html --omit='test_*'
 
 run the examples
 

@@ -1,3 +1,5 @@
+v1.3, 2016-05-19
+
 * change to setuptools for installation/package building
 * major code cleanup (remove of duplicated code using Clone Digger)
   http://clonedigger.sourceforge.net
@@ -17,7 +19,6 @@
   thin film samples. So far implemented are
   - a basic kinematical diffraction model
   - two dynamical diffraction models (simplified and general 2-beam theory)
-  - one mixed dynamical(substrate)/kinematical(layers) model
   - a model for specular reflectivity calculations using a Parrat-like
     formalism
 * fwhm_exp function was moved to math's subpackage! This was necessary in
