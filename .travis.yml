@@ -7,7 +7,10 @@ python:
   - "3.5"
   - "nightly"
 # command to install dependencies
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y hdf5
 install:
-  - pip install numpy scipy h5py
+  - pip install numpy scipy h5py unittest2
 # command to run tests
 script: python setup.py test
