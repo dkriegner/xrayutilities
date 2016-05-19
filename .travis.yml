@@ -1,16 +1,21 @@
 language: python
 python:
   - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "nightly"
+#  - "3.2"
+#  - "3.3"
+#  - "3.4"
+#  - "3.5"
+#  - "nightly"
 # command to install dependencies
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y hdf5
+addons:
+  apt:
+    packages:
+      - hdf5
+      - gfortran
+      - libatlas-base-dev
 install:
-  - pip install numpy scipy h5py unittest2
+  - pip install scipy
+  - pip install h5py
+  - pip install unittest2
 # command to run tests
 script: python setup.py test
