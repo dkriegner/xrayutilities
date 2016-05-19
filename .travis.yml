@@ -14,8 +14,9 @@ addons:
       - gfortran
       - libatlas-base-dev
 install:
-  - pip install scipy
-  - pip install h5py
   - pip install unittest2
+  - pip install h5py
+  - travis_wait 30 pip install scipy
+cache: pip
 # command to run tests
 script: python setup.py test
