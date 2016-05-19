@@ -836,8 +836,8 @@ int ang2q_conversion(double *sampleAngles, double *detectorAngles,
     double local_ri[3], ki[3];  /* copy of primary beam direction */
     int i, j;  /* needed indices */
     /* arrays with function pointers to rotation matrix functions */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -931,8 +931,8 @@ int ang2q_conversion_sd(
     double local_ri[3];  /* copy of primary beam direction */
     int i, j;  /* needed indices */
     /* arrays with function pointers to rotation matrix functions */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -1024,8 +1024,8 @@ int ang2q_conversion_trans(
     double local_ri[3], rd[3];  /* copy of primary beam direction */
     int i, j;  /* needed indices */
     /* arrays with function pointers to rotation matrix functions */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -1117,8 +1117,8 @@ int ang2q_conversion_sdtrans(
     double local_ri[3], rd[3];  /* copy of primary beam direction */
     int i, j;  /* needed indices */
     /* arrays with function pointers to rotation matrix functions */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -1415,8 +1415,8 @@ int ang2q_conversion_linear(
     double r_i[3], rtemp[3];  /* center channel direction */
     int i, j, k;  /* needed indices */
     double f;  /* f = M_2PI / lambda */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -1532,8 +1532,8 @@ int ang2q_conversion_linear_sd(
     double r_i[3], rtemp[3];  /* center channel direction */
     int i, j, k;  /* needed indices */
     double f;  /* wavelength parameters */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -1649,8 +1649,8 @@ int ang2q_conversion_linear_trans(
     double r_i[3];  /* center channel direction */
     int i, j, k;  /* needed indices */
     double f;  /* f = M_2PI / lambda */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -1762,8 +1762,8 @@ int ang2q_conversion_linear_sdtrans(
     double r_i[3];  /* center channel direction */
     int i, j, k;  /* needed indices */
     double f;  /* wavelength parameter */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
@@ -2090,8 +2090,8 @@ int ang2q_conversion_area(
     int idxh1, idxh2;  /* temporary index helper */
     double f;  /* f = M_2PI / lambda and detector parameters */
     /* string with sample and detector axis, and detector direction */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* calculate some index shortcuts */
     idxh1 = (roi[1] - roi[0]) * (roi[3] - roi[2]);
@@ -2233,8 +2233,8 @@ int ang2q_conversion_area_sd(
     int i, j, j1, j2, k; /* loop indices */
     int idxh1, idxh2;  /* temporary index helper */
     double f;  /* f = M_2PI / lambda and detector parameters */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* calculate some index shortcuts */
     idxh1 = (roi[1] - roi[0]) * (roi[3] - roi[2]);
@@ -2376,8 +2376,8 @@ int ang2q_conversion_area_trans(
     int i, j, j1, j2, k;  /* loop indices */
     int idxh1, idxh2;  /* temporary index helper */
     double f;  /* f = M_2PI / lambda and detector parameters */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* calculate some index shortcuts */
     idxh1 = (roi[1] - roi[0]) * (roi[3] - roi[2]);
@@ -2519,8 +2519,8 @@ int ang2q_conversion_area_sdtrans(
     int i, j, j1, j2, k;  /* loop indices */
     int idxh1, idxh2;  /* temporary index helper */
     double f;  /* f = M_2PI / lambda and detector parameters */
-    fp_rot sampleRotation[Ns];
-    fp_rot detectorRotation[Nd];
+    fp_rot *sampleRotation = malloc(Ns * sizeof(fp_rot));
+    fp_rot *detectorRotation = malloc(Nd * sizeof(fp_rot));
 
     /* calculate some index shortcuts */
     idxh1 = (roi[1] - roi[0]) * (roi[3] - roi[2]);

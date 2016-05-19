@@ -1,4 +1,8 @@
-v1.3, 2016-05-19
+v1.3.1, 2016-05-19
+
+* fix windows build due to lack of support of C99 in MSVC
+
+v1.3.0, 2016-05-19
 
 * change to setuptools for installation/package building
 * major code cleanup (remove of duplicated code using Clone Digger)
