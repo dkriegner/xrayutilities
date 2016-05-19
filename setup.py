@@ -83,7 +83,7 @@ class build_ext_subclass(build_ext):
 
 cmdclass = {'build_ext': build_ext_subclass}
 
-with open('README.txt') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 extmodul = Extension(
