@@ -10,7 +10,7 @@ python:
 addons:
   apt:
     packages:
-      - hdf5
+      - libhdf5-serial-dev
       - gfortran
       - libatlas-base-dev
 install:
