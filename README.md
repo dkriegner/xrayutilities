@@ -3,6 +3,9 @@
 xrayutilities
 =============
 
+[![Build
+Status](https://travis-ci.org/dkriegner/xrayutilities.svg?branch=master)](https://travis-ci.org/dkriegner/xrayutilities)
+
 xrayutilities is a collection of scripts used to analyze x-ray diffraction
 data.  It consists of a Python package and several routines coded in C. It is
 especially useful for the reciprocal space conversion of diffraction data
