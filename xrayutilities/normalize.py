@@ -99,6 +99,7 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
                        dtype=numpy.double)
 
     if config.VERBOSITY >= config.DEBUG:
+        N, M = (roi[1] - roi[0], roi[3] - roi[2])
         print("xu.normalize.blockAverage2D: roi: %s" % (str(roi)))
         print("xu.normalize.blockAverage2D: Nav1,2: %d,%d" % (Nav1, Nav2))
         print("xu.normalize.blockAverage2D: number of points: (%d,%d)"
