@@ -142,7 +142,7 @@ setup(
     author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
     maintainer="Dominik Kriegner",
     maintainer_email="dominik.kriegner@gmail.com",
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     package_data={
         "xrayutilities": ["*.conf"],
         "xrayutilities.materials": [
@@ -151,7 +151,11 @@ setup(
             ]
         },
     data_files=[('xrayutilities', ['VERSION'])],
-    requires=['numpy', 'scipy', 'matplotlib', 'h5py'],
+    requires=['numpy', 'scipy', 'h5py'],
+    extras_require = {
+        'plot': ["matplotlib"],
+        'fit': ["lmfit"],
+        },
     include_dirs=[numpy.get_include()],
     ext_modules=[extmodul],
     cmdclass=cmdclass,
