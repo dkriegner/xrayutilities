@@ -131,10 +131,8 @@ GaN = Crystal("GaN",
               lattice.WurtziteLattice(elements.Ga, elements.N, 3.189, 5.186),
               HexagonalElasticTensor(390.e9, 145.e9, 106.e9, 398.e9, 105.e9),
               thetaDebye=600)
-BaF2 = Crystal("BaF2", lattice.CubicFm3mBaF2(elements.Ba, elements.F, 6.2001),
-               CubicElasticTensor(9.11e10, 4.12e10, 2.53e10))
-SrF2 = Crystal("SrF2", lattice.CubicFm3mBaF2(elements.Sr, elements.F, 5.8007),
-               CubicElasticTensor(12.4e10, 4.4e10, 3.18e10))
+BaF2 = Crystal("BaF2", lattice.CubicFm3mBaF2(elements.Ba, elements.F, 6.2001))
+SrF2 = Crystal("SrF2", lattice.CubicFm3mBaF2(elements.Sr, elements.F, 5.8007))
 MnTe = Crystal("MnTe",
                lattice.NiAsLattice(elements.Mn, elements.Te, 4.1429, 6.7031))
 GeTe = Crystal(
