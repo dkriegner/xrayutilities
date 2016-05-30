@@ -1,3 +1,5 @@
+* added absorption_length method in all material classes
+
 v1.3.1, 2016-05-19
 
 * fix windows build due to lack of support of C99 in MSVC

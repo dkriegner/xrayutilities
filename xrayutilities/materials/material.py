@@ -232,6 +232,24 @@ class Material(object):
 
         return alphac
 
+    def absorption_length(self, en='config'):
+        """
+        wavelength dependent x-ray absorption length defined as
+        mu = lambda/(2*pi*2*beta) with lambda and beta as the x-ray
+        wavelength and complex part of the refractive index respectively.
+
+        Parameters
+        ----------
+         en:    energy of the x-rays (in eV, optional)
+
+        Returns
+        -------
+         the absorption length in um
+        """
+        if isinstance(en, basestring) and en == 'config':
+            en = utilities.energy(config.ENERGY)
+        return utilities.en2lam(en) / (2 * numpy.pi * self.beta(en) * 2) / 1e4
+
     def __str__(self):
         ostr = "%s: %s\n" % (self.__class__.__name__, self.name)
         if numpy.any(self.cij):
