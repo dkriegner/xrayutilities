@@ -140,7 +140,7 @@ MnTe = Crystal("MnTe",
 GeTe = Crystal(
     "GeTe",
     lattice.GeTeRhombohedral(elements.Ge, elements.Te, 5.996, 88.18, 0.237))
-SnTe = Crystal
+SnTe = Crystal(
     "SnTe",
     lattice.RockSalt_Cubic_Lattice(elements.Pb, elements.Te, 6.3268))
 Al = Crystal("Al", lattice.FCCLattice(elements.Al, 4.04958))
