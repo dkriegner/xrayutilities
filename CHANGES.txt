@@ -1,3 +1,4 @@
+* fix bug in fuzzy gridders (first data point was not always treated correct!)
 * added absorption_length method in all material classes
 
 v1.3.1, 2016-05-19

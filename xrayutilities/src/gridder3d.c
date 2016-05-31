@@ -104,7 +104,7 @@ int fuzzygridder3d(double *x, double *y, double *z, double *data,
                    double wx, double wy, double wz, int flags)
 {
     double *gnorm;                     /* pointer to normalization data */
-    int offset, offsetx1, offsetx2, offsety1, offsety2, offsetz1, offsetz2;
+    unsigned int offset, offsetx1, offsetx2, offsety1, offsety2, offsetz1, offsetz2;
     unsigned int ntot = nx * ny * nz;  /* total number of points on the grid */
     unsigned int i, j, k, l;          /* loop indeces variables */
     unsigned int noutofbounds = 0;     /* number of points out of bounds */
@@ -164,17 +164,29 @@ int fuzzygridder3d(double *x, double *y, double *z, double *data,
             /* compute the offset value of the current input point on the
              * grid array */
             /* compute the linear offset and distribute the data to the bins */
-            offsetx1 = gindex(x[i] - wx / 2., xmin, dx);
+            if ((x[i] - wx / 2.) <= xmin) {
+                offsetx1 = 0;
+            }
+            else {
+                offsetx1 = gindex(x[i] - wx / 2., xmin, dx);
+            }
             offsetx2 = gindex(x[i] + wx / 2., xmin, dx);
-            offsetx1 = offsetx1 >= 0 ? offsetx1 : 0;
             offsetx2 = offsetx2 < nx ? offsetx2 : nx - 1;
-            offsety1 = gindex(y[i] - wy / 2., ymin, dy);
+            if ((y[i] - wy / 2.) <= ymin) {
+                offsety1 = 0;
+            }
+            else {
+                offsety1 = gindex(y[i] - wy / 2., ymin, dy);
+            }
             offsety2 = gindex(y[i] + wy / 2., ymin, dy);
-            offsety1 = offsety1 >= 0 ? offsety1 : 0;
             offsety2 = offsety2 < ny ? offsety2 : ny - 1;
-            offsetz1 = gindex(z[i] - wz / 2., zmin, dz);
+            if ((z[i] - wz / 2.) <= zmin) {
+                offsetz1 = 0;
+            }
+            else {
+                offsetz1 = gindex(z[i] - wz / 2., zmin, dz);
+            }
             offsetz2 = gindex(z[i] + wz / 2., zmin, dz);
-            offsetz1 = offsetz1 >= 0 ? offsetz1 : 0;
             offsetz2 = offsetz2 < nz ? offsetz2 : nz - 1;
 
             for(j = offsetx1; j <= offsetx2; j++) {

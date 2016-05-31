@@ -88,8 +88,7 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
                    double *odata, double *norm, double fuzzywidth, int flags)
 {
     double *gnorm;
-    int offset1;
-    unsigned int offset2;
+    unsigned int offset1, offset2;
     unsigned int noutofbounds = 0;  /* counter for out of bounds points */
 
     double dx = delta(xmin, xmax, nx);
@@ -135,8 +134,12 @@ int fuzzygridder1d(double *x, double *data, unsigned int n,
                 continue;
             }
             /* compute the linear offset and distribute the data to the bins */
-            offset1 = gindex(x[i] - fuzzywidth / 2., xmin, dx);
-            offset1 = offset1 >= 0 ? offset1 : 0;
+            if ((x[i] - fuzzywidth / 2.) <= xmin) {
+                offset1 = 0;
+            }
+            else {
+                offset1 = gindex(x[i] - fuzzywidth / 2., xmin, dx);
+            }
             offset2 = gindex(x[i] + fuzzywidth / 2., xmin, dx);
             offset2 = offset2 < nx ? offset2 : nx - 1;
             for(j = offset1; j <= offset2; j++) {

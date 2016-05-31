@@ -97,7 +97,7 @@ int fuzzygridder2d(double *x, double *y, double *data, unsigned int n,
                    int flags)
 {
     double *gnorm;
-    int offset, offsetx1, offsetx2, offsety1, offsety2;
+    unsigned int offset, offsetx1, offsetx2, offsety1, offsety2;
     unsigned int ntot = nx * ny;  /* total number of points on the grid */
     unsigned int noutofbounds = 0;  /* number of points out of bounds */
 
@@ -153,13 +153,21 @@ int fuzzygridder2d(double *x, double *y, double *data, unsigned int n,
                 continue;
             }
             /* compute the linear offset and distribute the data to the bins */
-            offsetx1 = gindex(x[i] - wx / 2., xmin, dx);
+            if ((x[i] - wx / 2.) <= xmin) {
+                offsetx1 = 0;
+            }
+            else {
+                offsetx1 = gindex(x[i] - wx / 2., xmin, dx);
+            }
             offsetx2 = gindex(x[i] + wx / 2., xmin, dx);
-            offsetx1 = offsetx1 >= 0 ? offsetx1 : 0;
             offsetx2 = offsetx2 < nx ? offsetx2 : nx - 1;
-            offsety1 = gindex(y[i] - wy / 2., ymin, dy);
+            if ((y[i] - wy / 2.) <= ymin) {
+                offsety1 = 0;
+            }
+            else {
+                offsety1 = gindex(y[i] - wy / 2., ymin, dy);
+            }
             offsety2 = gindex(y[i] + wy / 2., ymin, dy);
-            offsety1 = offsety1 >= 0 ? offsety1 : 0;
             offsety2 = offsety2 < ny ? offsety2 : ny - 1;
 
             for(j = offsetx1; j <= offsetx2; j++) {
