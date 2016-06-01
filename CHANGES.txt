@@ -1,3 +1,5 @@
+* add parsing for simply chemical formulas in Amorphous definitions
+* fix setup.py issue related to test installation
 * fix bug in fuzzy gridders (first data point was not always treated correct!)
 * added absorption_length method in all material classes
 

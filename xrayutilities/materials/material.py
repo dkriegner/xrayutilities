@@ -29,6 +29,7 @@ import scipy.optimize
 import warnings
 import operator
 import numbers
+import re
 
 from . import lattice
 from . import elements
@@ -273,21 +274,28 @@ class Amorphous(Material):
 
         Parameters
         ----------
-         name:      name of the material
+         name:      name of the material. To allow automatic parsing of the
+                    chemical elements use the abbreviation of the chemical
+                    element from the periodic table. To specify alloys, use
+                    e.g. 'Ir0.2Mn0.8' or 'H2O'.
          density:   mass density in kg/m^3
          atoms:     list of atoms together with their fractional content.
-                    For elemental materials, where name matches the element
-                    shortcut, this can be None.  To specify alloys, e.g.
-                    Ir0.2Mn0.8 use [('Ir', 0.2), ('Mn', 0.8)].  Instead of the
-                    elements as string you can also use an Atom object. If the
-                    contents to not add up to 1 they will be corrected without
-                    notice.
+                    When the name is a simply chemical formula then this can be
+                    None.  To specify more complicated materials [('Ir', 0.2),
+                    ('Mn', 0.8), ...]. Instead of the elements as string you
+                    can also use an Atom object. If the contents to not add up
+                    to 1 they will be corrected without notice.
         """
         super(Amorphous, self).__init__(name, cij)
         self._density = density
         self.base = list()
         if atoms is None:
-            self.base.append((getattr(elements, name), 1))
+            comp = Amorphous.parseChemForm(name)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.materials.Amorphous: using '%s' as chemical formula"
+                      % ''.join(['%s%.2f ' % (e.name, c) for e, c in comp]))
+            for (e, c) in comp:
+                self.base.append((e, c))
         else:
             frsum = numpy.sum([at[1] for at in atoms])
             for at, fr in atoms:
@@ -296,6 +304,43 @@ class Amorphous(Material):
                 else:
                     a = at
                 self.base.append((a, fr/frsum))
+
+    @staticmethod
+    def parseChemForm(cstring):
+        """
+        Parse a string containing a simple chemical formula and transform it to
+        a list of elements together with their relative atomic fraction. e.g.
+        'H2O' -> [(H, 2/3), (O, 1/3)], where H and O are the Element objects of
+        Hydrogen and Oxygen. Note that every chemical element needs to start
+        with a capital letter! Complicated formulas containing bracket are not
+        supported!
+
+        Parameters
+        ----------
+         cstring:   string containing the chemical fomula
+
+        Returns
+        -------
+         list of tuples with chemical element and atomic fraction
+        """
+        if re.findall('[\(\)]', cstring):
+            raise ValueError('unsupported chemical formula (%s) given.'
+                             % cstring)
+        elems = re.findall('[A-Z][^A-Z]*', cstring)
+        r = re.compile("([a-zA-Z]+)([0-9\.]+)")
+        ret = []
+        csum = 0
+        for e in elems:
+            if r.match(e):
+                elstr, cont = r.match(e).groups()
+                cont = float(cont)
+            else:
+                elstr, cont = (e, 1.0)
+            ret.append((elstr, cont))
+            csum += cont
+        for i, r in enumerate(ret):
+            ret[i] = (getattr(elements, r[0]), r[1]/csum)
+        return ret
 
     def _get_f(self, q, en):
         """
