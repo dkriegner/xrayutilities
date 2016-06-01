@@ -22,7 +22,7 @@ A 5 nm thick metallic CoFe compound layer can therefore be defined by::
 
 
     rho_cf = 0.5*8900 + 0.5*7874  # mass density in kg/m^3
-    mCoFe = xu.materials.Amorphous('CoFe', rho_cf, [('Co', 0.5), ('Fe', 0.5)])
+    mCoFe = xu.materials.Amorphous('CoFe', rho_cf)
     lCoFe = xu.simpack.Layer(mat_cf, 50)
 
 .. note:: The :class:`~xrayutilities.simpack.smaterials.Layer` object can have several more model dependent properties discussed in detail below.
@@ -126,7 +126,7 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
     lSiO2 = xu.simpack.Layer(xu.materials.SiO2, inf)
     lRu = xu.simpack.Layer(xu.materials.Ru, 50)
     rho_cf = 0.5*8900 + 0.5*7874
-    mat_cf = xu.materials.Amorphous('CoFe', rho_cf, [('Co', 0.5), ('Fe', 0.5)])
+    mat_cf = xu.materials.Amorphous('CoFe', rho_cf)
     lCoFe = xu.simpack.Layer(mat_cf, 30)
     lIrMn = xu.simpack.Layer(xu.materials.Ir20Mn80, 30)
     lAl2O3 = xu.simpack.Layer(xu.materials.Al2O3, 100)
