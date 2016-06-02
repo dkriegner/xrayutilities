@@ -38,7 +38,7 @@ class TestQ2AngFit(unittest.TestCase):
         ang, qerror, errcode = xu.Q2AngFit(self.qvec, self.hxrd, self.bounds)
         qout = self.hxrd.Ang2Q(*ang)
         for i in range(3):
-            self.assertAlmostEqual(qout[i], self.qvec[i], places=6)
+            self.assertAlmostEqual(qout[i], self.qvec[i], places=5)
 
 
 if __name__ == '__main__':
