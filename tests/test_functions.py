@@ -19,7 +19,7 @@ import unittest
 
 import xrayutilities as xu
 import numpy
-from scipy.integrate import quad, dblquad
+from scipy.integrate import quad, nquad
 
 
 class TestMathFunctions(unittest.TestCase):
@@ -94,9 +94,9 @@ class TestMathFunctions(unittest.TestCase):
         p[2] = self.sigma
         p[3] = (numpy.random.rand() + 0.1) * self.sigma
         area = xu.math.Gauss2dArea(*p)
-        (numarea, err) = dblquad(xu.math.Gauss2d, -numpy.inf, numpy.inf,
-                                 lambda x: -numpy.inf, lambda x: numpy.inf,
-                                 args=tuple(p))
+        (numarea, err) = nquad(xu.math.Gauss2d, [[-numpy.inf, numpy.inf],
+                                                 [-numpy.inf, numpy.inf]],
+                               args=tuple(p))
         digits = int(numpy.abs(numpy.log10(err))) - 3
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
