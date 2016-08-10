@@ -144,6 +144,7 @@ SnTe = Crystal(
 Al = Crystal("Al", lattice.FCCLattice(elements.Al, 4.04958))
 Au = Crystal("Au", lattice.FCCLattice(elements.Au, 4.0782))
 Fe = Crystal("Fe", lattice.BCCLattice(elements.Fe, 2.8665))
+Co = Crystal("Co", lattice.HCPLattice(elements.Co, 2.5071, 4.0695))
 Ru = Crystal("Ru", lattice.HCPLattice(elements.Ru, 2.7059, 4.2815))
 Rh = Crystal("Rh", lattice.FCCLattice(elements.Rh, 3.8034))
 V = Crystal("V", lattice.BCCLattice(elements.V, 3.024))
@@ -191,6 +192,7 @@ FeRh = Crystal("FeRh", lattice.CsClLattice(elements.Fe, elements.Rh, 2.993))
 Ir20Mn80 = Crystal(
     "Ir20Mn80",
     lattice.FCCSharedLattice(elements.Ir, elements.Mn, 0.2, 0.8, 3.780))
+CoFe = Crystal("CoFe", lattice.CsClLattice(elements.Co, elements.Fe, 2.8508))
 LaB6 = Crystal("LaB6", lattice.LaB6Lattice(elements.La, elements.B, 4.15692))
 
 # materials defined from cif file
