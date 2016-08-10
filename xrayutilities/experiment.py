@@ -2341,16 +2341,24 @@ class Powder(Experiment):
     This class is able to simulate a powder spectrum for the given material
     """
 
-    def __init__(self, mat, **keyargs):
+    def __init__(self, mat, **kwargs):
         """
-        the class is initialized with xrayutilities.materials.Crystal instance
+        the class is initialized with a xrayutilities.materials.Crystal
+        instance and calculates the powder intensity and peak positions of the
+        Crystal up to an angle of tt_cutoff. Results are stored in
+
+            data .... array with intensities
+            ang ..... Bragg angles of the peaks (Theta!)
+            qpos .... reciprocal space position of intensities
 
         Parameters
         ----------
          mat:        xrayutilities.material.Crystal instance
                      giving the material for the experimental class
-         keyargs:    optional keyword arguments
-                     same as for the Experiment base class
+         kwargs:     optional keyword arguments
+                     same as for the Experiment base class +
+          tt_cutoff: Powder peaks are calculated up to an scattering angle of
+                     tt_cutoff (deg)
         """
         if isinstance(mat, materials.Crystal):
             self.mat = mat
@@ -2358,11 +2366,16 @@ class Powder(Experiment):
             raise TypeError("mat must be an instance of class "
                             "xrayutilities.materials.Crystal")
 
+        self._tt_cutoff = kwargs.get('tt_cutoff', 180)
+        if 'tt_cutoff' in kwargs:
+            kwargs.pop('tt_cutoff')
+
         # number of significant digits, needed to identify equal floats
         self.digits = 5
         self.qpos = None
 
-        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **keyargs)
+        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
+        self.PowderIntensity(self._tt_cutoff)
 
     def PowderIntensity(self, tt_cutoff=180):
         """
@@ -2370,7 +2383,7 @@ class Powder(Experiment):
         tt_cutoff (deg) and stores the result in:
 
             data .... array with intensities
-            ang ..... angular position of intensities
+            ang ..... Bragg angles of the peaks (Theta!)
             qpos .... reciprocal space position of intensities
         """
 

@@ -1,3 +1,5 @@
+* call PowderIntensity from xu.Powder init routine
+* fix problems in Crystal class when no lattice base is defined
 * add parsing for simply chemical formulas in Amorphous definitions
 * fix setup.py issue related to test installation
 * fix bug in fuzzy gridders (first data point was not always treated correct!)
