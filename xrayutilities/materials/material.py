@@ -680,10 +680,13 @@ class Crystal(Material):
          list of atomic scattering factors for every atom in the unit cell
         """
         f = {}
-        for at, pos, occ, b in self.lattice.base:
-            if at.num not in f:
-                f[at.num] = at.f(q, en)
-        return [f[a.num] for a, p, o, b in self.lattice.base]
+        if self.lattice.base:
+            for at, pos, occ, b in self.lattice.base:
+                if at.num not in f:
+                    f[at.num] = at.f(q, en)
+            return [f[a.num] for a, p, o, b in self.lattice.base]
+        else:
+            return None
 
     def _get_lamen(self, en):
         if isinstance(en, basestring) and en == 'config':
@@ -756,10 +759,11 @@ class Crystal(Material):
         lam, en = self._get_lamen(en)
         beta = 0.
         delta = 0.
-        f = self._get_f(0, en)
-        for (at, pos, occ, b), f0 in zip(self.lattice.base, f):
-            beta += numpy.imag(f0) * occ
-            delta += numpy.real(f0) * occ
+        if self.lattice.base:
+            f = self._get_f(0, en)
+            for (at, pos, occ, b), f0 in zip(self.lattice.base, f):
+                beta += numpy.imag(f0) * occ
+                delta += numpy.real(f0) * occ
 
         beta *= re / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
         delta *= re / (2 * numpy.pi) * lam ** 2 / \
@@ -841,15 +845,16 @@ class Crystal(Material):
         sr = 0. + 0.j
         si = 0. + 0.j
         # a: atom, p: position, o: occupancy, b: temperature-factor
-        f = self._get_f(qnorm, en)
-        for (a, p, o, b), F in zip(self.lattice.base, f):
-            r = self.lattice.GetPoint(p)
-            if temp == 0:
-                dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
-            fr = numpy.real(F) * o
-            fi = numpy.imag(F) * o
-            sr += fr * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
-            si += fi * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
+        if self.lattice.base:
+            f = self._get_f(qnorm, en)
+            for (a, p, o, b), F in zip(self.lattice.base, f):
+                r = self.lattice.GetPoint(p)
+                if temp == 0:
+                    dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
+                fr = numpy.real(F) * o
+                fi = numpy.imag(F) * o
+                sr += fr * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
+                si += fi * numpy.exp(-1.j * math.VecDot(q, r)) * dwf
 
         # classical electron radius
         c = scipy.constants
