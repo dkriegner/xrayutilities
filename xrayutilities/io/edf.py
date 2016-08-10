@@ -131,7 +131,7 @@ class EDFFile(object):
                     ml_value_flag = False  # marks a multiline header
                     byte_order = ""
                     for line in fid:  # until end of header
-                        line = line.decode('ascii')
+                        line = line.decode('ascii', 'ignore')
                         if config.VERBOSITY >= config.DEBUG:
                             print(line)
                         if line == "":
