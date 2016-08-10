@@ -12,7 +12,7 @@ addons:
 install:
   - pip install unittest2
   - pip install h5py
-  - travis_wait 30 pip install scipy
+  - travis_wait 60 pip install scipy
   - if [ ! -d "tests/data" ]; then wget https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20160519.tar.gz -O xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi
 cache:
   pip: true
