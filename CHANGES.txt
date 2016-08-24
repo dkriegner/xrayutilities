@@ -1,3 +1,5 @@
+v1.3.2, 2016-08-24
+
 * call PowderIntensity from xu.Powder init routine
 * fix problems in Crystal class when no lattice base is defined
 * add parsing for simply chemical formulas in Amorphous definitions
