@@ -97,4 +97,4 @@ Upload new version to the Python package index by
 
 On a windows machine run
 
-  python setup.py bdist_wininst upload
+  python setup.py bdist_wininst bdist_wheel upload
