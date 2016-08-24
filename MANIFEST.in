@@ -1,8 +1,11 @@
+exclude \.*
+
 include LICENSE.txt
 include CHANGES.txt
 include VERSION
 
 # documentation files
+include README.md
 include xrayutilities.pdf
 recursive-include doc/source *
 recursive-include examples *
