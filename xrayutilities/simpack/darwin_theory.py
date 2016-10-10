@@ -23,6 +23,7 @@ from scipy.misc import derivative
 
 from . import LayerModel
 from .. import materials
+from ..math import heaviside
 
 
 def getit(it, key):
@@ -78,6 +79,8 @@ class DarwinModel(LayerModel):
     To make the class functional the user needs to implement the
     init_structurefactors() and _calc_mono() methods
     """
+    ncalls = 0
+
     def __init__(self, qz, qx=0, qy=0, **kwargs):
         """
         constructor of the model class. The arguments consist of basic
@@ -88,11 +91,24 @@ class DarwinModel(LayerModel):
          qz:        momentum transfer values for the calculation
          qx,qy:     inplane momentum transfer (not implemented!)
          *kwargs:   optional parameters for the simulation. supported are:
+            'I0' is the primary beam intensity
+            'background' is the background added to the simulation
+            'resolution_width' defines the width of the resolution
+                               (deg)
+            'polarization' polarization of the x-ray beam, either 'S',
+                                   'P' or 'both'. If set to 'both' also Cmono,
+                                   the polarization factor of the monochromator
+                                   should be set
             'experiment': Experiment class containing geometry and energy of
                           the experiment.
+            'Cmono' polarization factor of the monochromator
+            'energy' sets the experimental energy (eV)
         """
+        self.polarization = kwargs.pop('polarization', 'S')
         exp = kwargs.pop('experiment', None)
+        self.Cmono = kwargs.pop('Cmono', 1)
         super(LayerModel, self).__init__(exp, **kwargs)
+
         self.npoints = len(qz)
         self.qz = qz
         self.qinp = (qx, qy)
@@ -100,7 +116,16 @@ class DarwinModel(LayerModel):
             raise NotImplementedError('asymmetric CTR simulation is not yet '
                                       'supported -> approach the authors')
         self.init_structurefactors()
-        self.ncalls = 0
+        # initialize coplanar geometry
+        k = self.exp.k0
+        qv = numpy.asarray([(qx, qy, q) for q in self.qz])
+        Q = numpy.linalg.norm(qv, axis=1)
+        theta = numpy.arcsin(Q / (2 * k))
+        domega = numpy.arctan2(numpy.sqrt(qx**2 + qy**2), self.qz)
+        self.alphai, self.alphaf = (theta + domega, theta - domega)
+        # polarization factor
+        self.C = {'S': numpy.ones(len(self.qz)),
+                  'P': numpy.abs(numpy.cos(self.alphai + self.alphaf))}
 
     def init_structurefactors(self):
         """
@@ -108,7 +133,7 @@ class DarwinModel(LayerModel):
         """
         pass
 
-    def _calc_mono(self, pdict):
+    def _calc_mono(self, pdict, pol):
         """
         calculate the reflection and transmission coefficients of monolayer
 
@@ -116,6 +141,7 @@ class DarwinModel(LayerModel):
         ----------
          pdict: property dictionary, contains all the properties for the
                 structure factor calculation
+         pol:   polarization of the x-rays (either 'S' or 'P')
 
         Returns
         -------
@@ -157,15 +183,22 @@ class DarwinModel(LayerModel):
                     for details
         """
         self.ncalls = 0
-        r, rbar, t = (numpy.zeros(self.npoints, dtype=numpy.complex),
-                      numpy.zeros(self.npoints, dtype=numpy.complex),
-                      numpy.ones(self.npoints, dtype=numpy.complex))
-        for nrep, subml in ml:
-            r, rbar, t = self._recur_sim(nrep, subml, r, rbar, t)
-        self.r, self.rbar, self.t = r, rbar, t
-        return self._create_return(self.qz, self.r)
+        Ih = {'S': numpy.zeros(len(self.qz)), 'P': numpy.zeros(len(self.qz))}
+        geomfact = heaviside(self.alphai) * heaviside(self.alphaf)
+        for pol in self.get_polarizations():
+            r, rbar, t = (numpy.zeros(self.npoints, dtype=numpy.complex),
+                          numpy.zeros(self.npoints, dtype=numpy.complex),
+                          numpy.ones(self.npoints, dtype=numpy.complex))
+            for nrep, subml in ml:
+                r, rbar, t = self._recur_sim(nrep, subml, r, rbar, t, pol)
+            self.r, self.rbar, self.t = r, rbar, t
+            self.join_polarizations(Ih['S'], Ih['P'])
+            Ih[pol] = numpy.abs(self.r)**2 * geomfact
 
-    def _recur_sim(self, nrep, ml, r, rbar, t):
+        ret = self.join_polarizations(Ih['S'], Ih['P'])
+        return self._create_return(self.qz, numpy.sqrt(ret))
+
+    def _recur_sim(self, nrep, ml, r, rbar, t, pol):
         """
         recursive simulation function for the calculation of the reflected,
         backside reflected and transmitted wave factors (internal)
@@ -181,6 +214,7 @@ class DarwinModel(LayerModel):
                     the recursion)
          t:         transmission factor of the upper layers (needed for the
                     recursion)
+         pol:       polarization of the x-rays (either 'S' or 'P')
 
         Returns
         -------
@@ -191,10 +225,10 @@ class DarwinModel(LayerModel):
                              numpy.zeros(self.npoints, dtype=numpy.complex),
                              numpy.ones(self.npoints, dtype=numpy.complex))
             for nsub, subml in ml:
-                rm, rmbar, tm = self._recur_sim(nsub, subml, rm, rmbar, tm)
+                rm, rmbar, tm = self._recur_sim(nsub, subml, rm, rmbar, tm, pol)
             d = getfirst(ml, 'd')
         else:
-            rm, rmbar, tm = self._calc_mono(ml)
+            rm, rmbar, tm = self._calc_mono(ml, pol)
             d = ml['d']
 
         Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
@@ -218,7 +252,6 @@ class DarwinModelSiGe001(DarwinModel):
     eSi = materials.elements.Si
     eGe = materials.elements.Ge
     aSi = materials.Si.a1[0]
-    C = 1  # polarization factor (needs to be implemented)
     re = physical_constants['classical electron radius'][0] * 1e10
 
     def init_structurefactors(self, temp=300):
@@ -236,7 +269,7 @@ class DarwinModelSiGe001(DarwinModel):
         self.fSi0 = self.eSi.f(0, en)
         self.fGe0 = self.eGe.f(0, en)
 
-    def _calc_mono(self, pdict):
+    def _calc_mono(self, pdict, pol):
         """
         calculate the reflection and transmission coefficients of monolayer
 
@@ -246,6 +279,7 @@ class DarwinModelSiGe001(DarwinModel):
            x:   Ge-content of the layer (0: Si, 1: Ge)
            l:   index of the layer in the unit cell (0, 1, 2, 3). important for
                     asymmetric peaks only!
+         pol:   polarization of the x-rays (either 'S' or 'P')
 
         Returns
         -------
@@ -255,8 +289,8 @@ class DarwinModelSiGe001(DarwinModel):
         ainp = pdict.get('ai')
         xGe = pdict.get('x')
         # pre-factor for reflection: contains footprint correction
-        gamma = 4*numpy.pi*self.re*self.C/(self.qz*ainp**2)
-        ltype = pdict.get('l', 0)
+        gamma = 4*numpy.pi*self.re*self.C[pol]/(self.qz*ainp**2)
+#        ltype = pdict.get('l', 0)
 #        if ltype == 0: # for asymmetric peaks (not yet implemented)
 #            p1, p2 = (0, 0), (0.5, 0.5)
 #        elif ltype == 1:

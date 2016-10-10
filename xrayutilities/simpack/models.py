@@ -179,6 +179,29 @@ class LayerModel(Model):
             ret = (E, numpy.degrees(ai), numpy.degrees(af), Ir)
         return ret
 
+    def get_polarizations(self):
+        """
+        return list of polarizations which should be calculated
+        """
+        if self.polarization == 'both':
+            return ('S', 'P')
+        else:
+            return (self.polarization,)
+
+    def join_polarizations(self, Is, Ip):
+        """
+        method to calculate the total diffracted intensity from the intensities
+        of S and P-polarization.
+        """
+        if self.polarization == 'both':
+            ret = (Is + self.Cmono * Ip) / (1 + self.Cmono)
+        else:
+            if self.polarization == 'S':
+                ret = Is
+            else:
+                ret = Ip
+        return ret
+
 
 class KinematicalModel(LayerModel):
     """
@@ -465,39 +488,16 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             ch = l.material.chih(q, en=self.exp.energy, polarization='S')
             self.chih['S'].append(-ch[0] + 1j*ch[1])
             self.chih['P'].append((-ch[0] + 1j*ch[1]) *
-                                  abs(numpy.cos(2*thetaB)))
+                                  numpy.abs(numpy.cos(2*thetaB)))
             if not getattr(l, 'inversion_sym', False):
                 ch = l.material.chih(-q, en=self.exp.energy, polarization='S')
             self.chimh['S'].append(-ch[0] + 1j*ch[1])
             self.chimh['P'].append((-ch[0] + 1j*ch[1]) *
-                                   abs(numpy.cos(2*thetaB)))
+                                   numpy.abs(numpy.cos(2*thetaB)))
 
         for pol in ('S', 'P'):
             self.chih[pol] = numpy.asarray(self.chih[pol])
             self.chimh[pol] = numpy.asarray(self.chimh[pol])
-
-    def get_polarizations(self):
-        """
-        return list of polarizations which should be calculated
-        """
-        if self.polarization == 'both':
-            return ('S', 'P')
-        else:
-            return (self.polarization,)
-
-    def join_polarizations(self, Is, Ip):
-        """
-        method to calculate the total diffracted intensity from the intensities
-        of S and P-polarization.
-        """
-        if self.polarization == 'both':
-            ret = (Is + self.Cmono * Ip) / (1 + self.Cmono)
-        else:
-            if self.polarization == 'S':
-                ret = Is
-            else:
-                ret = Ip
-        return ret
 
     def _prepare_dyncalculation(self, geometry):
         """
