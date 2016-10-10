@@ -1,3 +1,5 @@
+* new dynamical multibeam simulations based on the Darwin theory of dynamical
+  diffraction
 * include pip install guide into readme
 * fix default wavelength selection in line cut functions.
 

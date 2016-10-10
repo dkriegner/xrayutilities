@@ -17,6 +17,7 @@
 
 import collections
 import numpy
+import warnings
 from scipy.constants import physical_constants
 from scipy.misc import derivative
 
@@ -282,9 +283,11 @@ class DarwinModelSiGe001(DarwinModel):
                 s = [(5, [{'t': 100, 'x': 0, 'r': 0},
                           {'t': 150, 'x': 1, 'r': 0}]),
                      {'t': 3500000, 'x': 0, 'r': 0}]
-                the dictionaries can contain 't': thickness in A, 'x':
-                Ge-content, 'r': relaxation or 'ai': inplane lattice parameter,
-                'l': layer type (not yet implemented)
+                the dictionaries must contain 't': thickness in A, 'x':
+                Ge-content, and either 'r': relaxation or 'ai': inplane lattice
+                parameter.
+                Future implementations for asymmetric peaks might include layer
+                type 'l' (not yet implemented)
          asub:  inplane lattice parameter of the substrate
 
         Returns
@@ -318,7 +321,7 @@ class DarwinModelSiGe001(DarwinModel):
             """ ratio of elastic parameters of SiGe """
             return (63.9-15.6*xGe) / (165.8-37.3*xGe)  # IOFFE
 
-        def get_aperp(x, r, apar):
+        def get_apar_aperp(x, r, apar):
             """
             determine out of plane mono-layer spacing from relaxation and
             Ge-content
@@ -327,6 +330,15 @@ class DarwinModelSiGe001(DarwinModel):
             aparl = apar + (abulk - apar) * r
             dperp = abulk*(1+2*rc12c11(x)*(1-aparl/abulk))/4.
             return dperp, aparl
+
+        def get_aperp(x, apar):
+            """
+            determine out of plane mono-layer spacing from the inplance lattice
+            parameter and the elastic parameters (depend on the Ge -content)
+            """
+            abulk = self.aSi + (0.2 * x + 0.027 * x ** 2)
+            dperp = abulk*(1+2*rc12c11(x)*(1-apar/abulk))/4.
+            return dperp
 
         if isinstance(s, tuple):
             nrep, sd = s
@@ -345,13 +357,26 @@ class DarwinModelSiGe001(DarwinModel):
             xGe = s['x']
             if callable(xGe):  # composition profile in layer
                 t = 0
+                if any([r > 0 for r in getit(sd, 'r')]):
+                    warnings.warn("relaxation for composition gradient may "
+                                  "yield weird lattice parameter variation! "
+                                  "Consider supplying the inplane lattice "
+                                  "parameter 'ai' directly!")
                 while t < s['t']:
-                    r = abs(derivative(xGe, t, dx=1.4, n=1))*s['r']
-                    dperp, apar = get_aperp(xGe(t), r, apar)
+                    if 'r' in s:
+                        r = abs(derivative(xGe, t, dx=1.4, n=1))*s['r']
+                        dperp, apar = get_apar_perp(xGe(t), r, apar)
+                    else:
+                        apar = s['ai']
+                        dperp = get_aperp(xGe(t), apar)
                     t += dperp
                     ml.insert(0, (1, {'d': dperp, 'x': xGe(t), 'ai': apar}))
             else:  # constant composition layer
-                dperp, apar = get_aperp(xGe, s['r'], apar)
+                if 'r' in s:
+                    dperp, apar = get_apar_aperp(xGe, s['r'], apar)
+                else:
+                    apar = s['ai']
+                    dperp = get_aperp(xGe, apar)
                 nmono = int(numpy.ceil(s['t']/dperp))
                 ml.insert(0, (nmono, {'d': dperp, 'x': xGe, 'ai': apar}))
         else:
