@@ -25,9 +25,24 @@ Contents
 * *setup.py*:           distutils install script used for the package installation
 * *xrayutilities.pdf*:  pdf-file with documentation of the package
 
-Installation
-============
-Installing xrayutilities is an easy process done by executing
+Installation (pip)
+==================
+Using the python package manager pip you can install xrayutilities by executing
+
+    pip install xrayutilities
+
+or for a user installation (without admin access) use
+
+    pip install --user xrayutilities
+
+If installation using aboves command fails due to missing OpenMP libraries, use
+
+    pip install --global-option="--without-openmp" xrayutilities
+
+
+Installation (source)
+=====================
+Installing xrayutilities from source is an easy process done by executing
 
     python setup.py install
 
