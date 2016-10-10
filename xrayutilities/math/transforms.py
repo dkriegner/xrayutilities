@@ -103,7 +103,7 @@ class CoordinateTransform(Transform):
         ----------
          v1:     list, tuple or numpy array with new base vector 1
          v2:     list, tuple or numpy array with new base vector 2
-         v2:     list, tuple or numpy array with new base vector 3
+         v3:     list, tuple or numpy array with new base vector 3
 
         Returns
         -------
