@@ -166,7 +166,7 @@ def get_qz_scan_int(qx, qz, intensity, qxpos, **kwargs):
     >>> qzcut,qzcut_int = get_qz_scan_int(qx,qz,inten,5.0,omrange=0.3)
     """
 
-    lam = kwargs.get('wl', 'config')
+    lam = kwargs.get('wl', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam, geometry='real')
     if 'wl' not in kwargs:
         if config.VERBOSITY >= config.INFO_ALL:
@@ -365,7 +365,7 @@ def get_omega_scan_q(qx, qz, intensity, qxcenter, qzcenter,
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # angular coordinates of scan center
@@ -413,7 +413,7 @@ def get_omega_scan_ang(qx, qz, intensity, omcenter, ttcenter,
     >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
     relative = kwargs.get('relative', True)
     qrange = kwargs.get('qrange', 0.)
@@ -507,7 +507,7 @@ def get_omega_scan_bounds_ang(omcenter, ttcenter, omrange, npoints, **kwargs):
     --------
     >>> qxb,qzb = get_omega_scan_bounds_ang(1.0,4.0,2.4,240,qrange=0.1)
     """
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
     qrange = kwargs.get('qrange', 0.)
 
@@ -596,7 +596,7 @@ def get_radial_scan_q(qx, qz, intensity, qxcenter, qzcenter,
                                               1.0, 100, omrange = 0.01)
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # angular coordinates of scan center
@@ -645,7 +645,7 @@ def get_radial_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
                                                 30.0, 800, omrange = 0.2)
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
     relative = kwargs.get('relative', True)
     omrange = kwargs.get('omrange', 0.)
@@ -727,7 +727,7 @@ def get_radial_scan_bounds_ang(omcenter, ttcenter, ttrange, npoints, **kwargs):
     >>>
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
     omrange = kwargs.get('omrange', 0.)
 
@@ -798,7 +798,7 @@ def get_ttheta_scan_q(qx, qz, intensity, qxcenter, qzcenter, ttrange,
     >>> ttc,cut_int = get_ttheta_scan_q(qx,qz,intensity,0.0,4.0,4.4,440)
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # angular coordinates of scan center
@@ -845,7 +845,7 @@ def get_ttheta_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
     >>> ttc,cut_int = get_ttheta_scan_ang(qx,qz,intensity,32.0,64.0,4.0,400)
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
     relative = kwargs.get('relative', True)
     omrange = kwargs.get('omrange', 0.)
@@ -928,7 +928,7 @@ def get_ttheta_scan_bounds_ang(omcenter, ttcenter, ttrange, npoints, **kwargs):
     >>>
     """
 
-    lam = kwargs.get('lam', 'config')
+    lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
     omrange = kwargs.get('omrange', 0.)
 
