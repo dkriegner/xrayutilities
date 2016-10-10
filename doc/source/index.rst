@@ -7,9 +7,19 @@ Welcome to xrayutilities's documentation!
 =========================================
 
 If you look for downloading the package go to `Sourceforge <https://sourceforge.net/projects/xrayutilities>`_ or `GitHub <https://github.com/dkriegner/xrayutilities>`_ (source distribution) or the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ (MS Windows binary).
-Installation instructions you find further down `Installation`_.
 
 Read more about *xrayutilities* below or in `Journal of Applied Crystallography 2013, Volume 46, 1162-1170 <http://dx.doi.org/10.1107/S0021889813017214>`_
+
+Installation
+============
+
+The easiest way to install *xrayutilities* is using the `Python package index version <https://pypi.python.org/pypi/xrayutilities>` and execute
+
+.. code-block:: bash
+
+ > pip install xrayutilities
+
+If you prefer the installation from sources see the `Source Installation`_ below.
 
 
 Introduction
@@ -123,8 +133,8 @@ xrayutilities Python package
 
 for more details see the full API documentation of :mod:`xrayutilities` found here: :ref:`expapi`.
 
-Installation
-============
+Source Installation
+===================
 
 Express instructions
 --------------------
