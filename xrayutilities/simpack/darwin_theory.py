@@ -415,7 +415,7 @@ class DarwinModelAlloy(DarwinModel):
                     curlzp = lzp
                 lzp = numpy.append(lzp, lzp+curlzp)
                 lprop = numpy.append(lprop, lprop)
-            return zp, lprop
+            return zp, propx
 
         zm = []
         propx = []
@@ -605,7 +605,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         Parameters
         ----------
          pdict: property dictionary, contains the layer properties:
-           x:   Ge-content of the layer (0: Si, 1: Ge)
+           x:   In-content of the layer (0: GaAs, 1: InAs)
          pol:   polarization of the x-rays (either 'S' or 'P')
 
         Returns
@@ -619,4 +619,99 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         gamma = 4*numpy.pi * self.re/(self.qz*ainp**2)
         r = -1j*gamma*self.C[pol]*(self.fGaAs+(self.fInAs-self.fGaAs)*xInAs)
         t = 1 + 1j*gamma * (self.fGaAs0+(self.fInAs0-self.fGaAs0)*xInAs)
+        return r, numpy.copy(r), t
+
+
+class DarwinModelAlGaAs001(DarwinModelAlloy):
+    """
+    Darwin theory of diffraction for Al_x Ga_{1-x} As layers.
+    The model is based on separation of the sample structure into building
+    blocks of atomic planes from which a multibeam dynamical model is
+    calculated.
+    """
+    GaAs = materials.GaAs
+    AlAs = materials.AlAs
+    eGa = materials.elements.Ga
+    eAl = materials.elements.Al
+    eAs = materials.elements.As
+    aGaAs = materials.GaAs.a1[0]
+    asub = aGaAs  # needed for the make_monolayer function
+    re = physical_constants['classical electron radius'][0] * 1e10
+
+    @classmethod
+    def abulk(cls, x):
+        """
+        calculate the bulk (relaxed) lattice parameter of the Al_{x}Ga_{1-x}As
+        alloy
+        """
+        return cls.aGaAs + 0.0078*x
+
+    @classmethod
+    def poisson_ratio(cls, x):
+        """
+        calculate the Poisson ratio of the alloy
+        """
+        return 2 * (5.38+0.32*x) / (11.88+0.14*x)  # according to IOFFE
+
+    def get_dperp_apar(cls, x, apar, r=1):
+        """
+        calculate inplane lattice parameter and the out of plane lattice plane
+        spacing (of the atomic planes!) from composition and relaxation
+
+        Parameters
+        ----------
+         x:     chemical composition parameter
+         apar:  inplane lattice parameter of the material below the current
+                layer (onto which the present layer is strained to). This value
+                also served as a reference for the relaxation parameter.
+         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
+
+        Returns
+        -------
+         dperp, apar
+        """
+        abulk = cls.abulk(x)
+        aparl = apar + (abulk - apar) * r
+        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        return dperp, aparl
+
+    def init_structurefactors(self, temp=300):
+        """
+        calculates the needed atomic structure factors
+
+        Parameters (optional)
+        ---------------------
+         temp:      temperature used for the Debye model
+        """
+        en = self.exp.energy
+        q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
+        fAs = self.eAs.f(q, en)
+        self.fGaAs = (self.eGa.f(q, en) + fAs) \
+            * self.GaAs._debyewallerfactor(temp, q)
+        self.fAlAs = (self.eAl.f(q, en) + fAs) \
+            * self.AlAs._debyewallerfactor(temp, q)
+        self.fGaAs0 = self.eGa.f(0, en) + self.eAs.f(0, en)
+        self.fAlAs0 = self.eAl.f(0, en) + self.eAs.f(0, en)
+
+    def _calc_mono(self, pdict, pol):
+        """
+        calculate the reflection and transmission coefficients of monolayer
+
+        Parameters
+        ----------
+         pdict: property dictionary, contains the layer properties:
+           x:   Al-content of the layer (0: GaAs, 1: AlAs)
+         pol:   polarization of the x-rays (either 'S' or 'P')
+
+        Returns
+        -------
+         r, rbar, t: reflection, backside reflection, and tranmission
+                     coefficients
+        """
+        ainp = pdict.get('ai')
+        xAlAs = pdict.get('x')
+        # pre-factor for reflection: contains footprint correction
+        gamma = 4*numpy.pi * self.re/(self.qz*ainp**2)
+        r = -1j*gamma*self.C[pol]*(self.fGaAs+(self.fAlAs-self.fGaAs)*xAlAs)
+        t = 1 + 1j*gamma * (self.fGaAs0+(self.fAlAs0-self.fGaAs0)*xAlAs)
         return r, numpy.copy(r), t
