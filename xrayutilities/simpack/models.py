@@ -259,13 +259,16 @@ class KinematicalModel(LayerModel):
         alphai, alphaf = (theta + domega, theta - domega)
         # calculate structure factors
         f = numpy.empty((len(self.lstack), len(qz)), dtype=numpy.complex)
+        fhkl = numpy.empty(len(self.lstack), dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
             m = l.material
+            fhkl[i] = m.StructureFactor(m.Q(*hkl), en=self.exp.energy) /\
+                m.lattice.UnitCellVolume()
             f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
                 m.lattice.UnitCellVolume()
 
         E = numpy.zeros(len(qz), dtype=numpy.complex)
-        return rel, alphai, alphaf, f, E, t
+        return rel, alphai, alphaf, f, fhkl, E, t
 
     def _get_qz(self, qz, alphai, alphaf, chi0, absorption, refraction):
         k = self.exp.k0
@@ -305,7 +308,7 @@ class KinematicalModel(LayerModel):
         -------
          vector of the ratios of the diffracted and primary fluxes
         """
-        rel, ai, af, f, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
         z = numpy.zeros(len(self.lstack))
         for i, l in enumerate(self.lstack[-1:0:-1]):
@@ -317,9 +320,9 @@ class KinematicalModel(LayerModel):
             q -= t(l.material.Q(*hkl))[-1]
 
             if l.thickness == numpy.inf:
-                E += f[i, :] * numpy.exp(-1j * z[i] * q) / (1j * q)
+                E += fhkl[i] * numpy.exp(-1j * z[i] * q) / (1j * q)
             else:
-                E += - f[i, :] * numpy.exp(-1j * q * z[i]) * \
+                E += - fhkl[i] * numpy.exp(-1j * q * z[i]) * \
                     (1 - numpy.exp(1j * q * l.thickness)) / (1j * q)
 
         wf = numpy.sqrt(heaviside(ai) * heaviside(af) * rel**2 /
@@ -381,7 +384,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
         -------
          vector of the ratios of the diffracted and primary fluxes
         """
-        rel, ai, af, f, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
 
         # calculate interface positions for integer unit-cell thickness
         z = numpy.zeros(len(self.lstack))
