@@ -192,7 +192,6 @@ class DarwinModel(LayerModel):
             for nrep, subml in ml:
                 r, rbar, t = self._recur_sim(nrep, subml, r, rbar, t, pol)
             self.r, self.rbar, self.t = r, rbar, t
-            self.join_polarizations(Ih['S'], Ih['P'])
             Ih[pol] = numpy.abs(self.r)**2 * geomfact
 
         ret = self.join_polarizations(Ih['S'], Ih['P'])
@@ -225,7 +224,8 @@ class DarwinModel(LayerModel):
                              numpy.zeros(self.npoints, dtype=numpy.complex),
                              numpy.ones(self.npoints, dtype=numpy.complex))
             for nsub, subml in ml:
-                rm, rmbar, tm = self._recur_sim(nsub, subml, rm, rmbar, tm, pol)
+                rm, rmbar, tm = self._recur_sim(nsub, subml, rm,
+                                                rmbar, tm, pol)
             d = getfirst(ml, 'd')
         else:
             rm, rmbar, tm = self._calc_mono(ml, pol)
@@ -240,7 +240,191 @@ class DarwinModel(LayerModel):
         return r, rbar, t
 
 
-class DarwinModelSiGe001(DarwinModel):
+class DarwinModelAlloy(DarwinModel):
+    """
+    extension of the DarwinModel for an binary alloy system were one parameter
+    is used to determine the chemical composition
+
+    To make the class functional the user needs to implement the
+    get_dperp_apar() method and define the substrate lattice parameter (asub).
+    See the DarwinModelSiGe001 class for an implementation example.
+    """
+    @classmethod
+    def get_dperp_apar(cls, x, apar, r=1):
+        """
+        calculate inplane lattice parameter and the out of plane lattice plane
+        spacing (of the atomic planes!) from composition and relaxation
+
+        Parameters
+        ----------
+         x:     chemical composition parameter
+         apar:  inplane lattice parameter of the material below the current
+                layer (onto which the present layer is strained to). This value
+                also served as a reference for the relaxation parameter.
+         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
+
+        Returns
+        -------
+         dperp, apar
+        """
+        pass
+
+    def make_monolayers(self, s):
+        """
+        create monolayer sequence from layer list
+
+        Parameters
+        ----------
+         s:     layer model. list of layer dictionaries including possibility
+                to form superlattices. As an example 5 repetitions of a
+                Si(10nm)/Ge(15nm) superlattice on Si would like like:
+                s = [(5, [{'t': 100, 'x': 0, 'r': 0},
+                          {'t': 150, 'x': 1, 'r': 0}]),
+                     {'t': 3500000, 'x': 0, 'r': 0}]
+                the dictionaries must contain 't': thickness in A, 'x':
+                chemical composition, and either 'r': relaxation or 'ai':
+                inplane lattice parameter.
+                Future implementations for asymmetric peaks might include layer
+                type 'l' (not yet implemented). Already now any additional
+                property in the dictionary will be handed on to the returned
+                monolayer list.
+         asub:  inplane lattice parameter of the substrate
+
+        Returns
+        -------
+         monolayer list in a format understood by the simulate and xGe_profile
+         methods
+        """
+        ml = []
+        ai = self.asub
+        for subl in s.copy():
+            ml, ai = self._recur_makeml(subl, ml, ai)
+        return ml
+
+    def _recur_makeml(self, s, ml, apar):
+        """
+        recursive creation of a monolayer structure (internal)
+
+        Parameters
+        ----------
+         s:     layer model. list of layer dictionaries
+         ml:    list of layers below what should be added (needed for
+                recursion)
+         apar:  inplane lattice parameter of the current surface
+
+        Returns
+        -------
+         monolayer list in a format understood by the simulate and prop_profile
+         methods
+        """
+
+        if isinstance(s, tuple):
+            nrep, sd = s
+            if isinstance(sd, dict):
+                sd = [sd, ]
+            if any([r > 0 for r in getit(sd, 'r')]):  # if relaxation
+                for i in range(nrep):
+                    for subsd in sd:
+                        ml, apar = self._recur_makeml(subsd, ml, apar=apar)
+            else:  # no relaxation in substructure
+                subl = []
+                for subsd in sd:
+                    subl, apar = self._recur_makeml(subsd, subl, apar=apar)
+                ml.insert(0, (nrep, subl))
+        elif isinstance(s, dict):
+            x = s.pop('x')
+            if callable(x):  # composition profile in layer
+                t = 0
+                T = s.pop('t')
+                if 'r' in s:
+                    if s['r'] > 0:
+                        warnings.warn(
+                            """relaxation for composition gradient may yield
+                            weird lattice parameter variation! Consider
+                            supplying the inplane lattice parameter 'ai'
+                            directly!""")
+                while t < T:
+                    if 'r' in s:
+                        r = abs(derivative(x, t, dx=1.4, n=1))*s['r']
+                        dperp, apar = self.get_dperp_apar(x(t), apar, r)
+                    else:
+                        dperp, apar = self.get_dperp_apar(x(t), s['ai'])
+                    t += dperp
+                    d = s.copy()
+                    d.pop('r')
+                    d.update({'d': dperp, 'x': x(t), 'ai': apar})
+                    ml.insert(0, (1, d))
+            else:  # constant composition layer
+                if 'r' in s:
+                    dperp, apar = self.get_dperp_apar(x, apar, s.pop('r'))
+                else:
+                    dperp, apar = self.get_dperp_apar(x, s.pop('ai'))
+                nmono = int(numpy.ceil(s['t']/dperp))
+                s.update({'d': dperp, 'x': x, 'ai': apar})
+                ml.insert(0, (nmono, s))
+        else:
+            raise Exception('wrong type (%s) of sublayer, must be tuple or'
+                            ' dict' % (type(s)))
+        return ml, apar
+
+    def prop_profile(self, ml, prop):
+        """
+        calculate the profile of chemical composition or inplane lattice
+        spacing from a monolayer list. One value for each monolayer in the
+        sample is returned.
+
+        Parameters
+        ----------
+         ml:    monolayer list created by make_monolayer()
+         prop:  name of the property which should be evaluated. Use 'x' for the
+                chemical composition and 'ai' for the inplane lattice
+                parameter.
+
+        Returns
+        -------
+         zm, propx:   z-position, value of the property prop for every
+                      monolayer. z=0 is the surface
+        """
+
+        def startinterval(start, inter, N):
+            return numpy.arange(start, start+inter*(N+0.5), inter)
+
+        def _recur_prop(nrep, ml, zp, propx, propn):
+            if isinstance(ml, list):
+                lzp, lprop = ([], [])
+                for nreps, subml in ml:
+                    lzp, lprop = _recur_prop(nreps, subml, lzp, lprop, propn)
+                d = getfirst(ml, 'd')
+            else:
+                lzp = -ml['d']
+                lprop = ml[propn]
+                d = ml['d']
+
+            Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
+            for i in range(Nmax):
+                if (nrep // (2**i)) % 2 == 1:
+                    if len(zp) > 0:
+                        curzp = zp[-1]
+                    else:
+                        curzp = 0.0
+                    zp = numpy.append(zp, lzp+curzp)
+                    propx = numpy.append(propx, lprop)
+                try:
+                    curlzp = lzp[-1]
+                except:
+                    curlzp = lzp
+                lzp = numpy.append(lzp, lzp+curlzp)
+                lprop = numpy.append(lprop, lprop)
+            return zp, lprop
+
+        zm = []
+        propx = []
+        for nrep, subml in ml:
+            zm, propx = _recur_prop(nrep, subml, zm, propx, prop)
+        return zm, propx
+
+
+class DarwinModelSiGe001(DarwinModelAlloy):
     """
     model class implementing the Darwin theory of diffraction for SiGe layers.
     The model is based on separation of the sample structure into building
@@ -252,7 +436,44 @@ class DarwinModelSiGe001(DarwinModel):
     eSi = materials.elements.Si
     eGe = materials.elements.Ge
     aSi = materials.Si.a1[0]
+    asub = aSi  # needed for the make_monolayer function
     re = physical_constants['classical electron radius'][0] * 1e10
+
+    @classmethod
+    def abulk(cls, x):
+        """
+        calculate the bulk (relaxed) lattice parameter of the alloy
+        """
+        return cls.aSi + (0.2 * x + 0.027 * x ** 2)
+
+    @classmethod
+    def poisson_ratio(cls, x):
+        """
+        calculate the Poisson ratio of the alloy
+        """
+        return 2 * (63.9-15.6*x) / (165.8-37.3*x)  # according to IOFFE
+
+    def get_dperp_apar(cls, x, apar, r=1):
+        """
+        calculate inplane lattice parameter and the out of plane lattice plane
+        spacing (of the atomic planes!) from composition and relaxation
+
+        Parameters
+        ----------
+         x:     chemical composition parameter
+         apar:  inplane lattice parameter of the material below the current
+                layer (onto which the present layer is strained to). This value
+                also served as a reference for the relaxation parameter.
+         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
+
+        Returns
+        -------
+         dperp, apar
+        """
+        abulk = cls.abulk(x)
+        aparl = apar + (abulk - apar) * r
+        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        return dperp, aparl
 
     def init_structurefactors(self, temp=300):
         """
@@ -289,7 +510,7 @@ class DarwinModelSiGe001(DarwinModel):
         ainp = pdict.get('ai')
         xGe = pdict.get('x')
         # pre-factor for reflection: contains footprint correction
-        gamma = 4*numpy.pi*self.re*self.C[pol]/(self.qz*ainp**2)
+        gamma = 4*numpy.pi*self.re/(self.qz*ainp**2)
 #        ltype = pdict.get('l', 0)
 #        if ltype == 0: # for asymmetric peaks (not yet implemented)
 #            p1, p2 = (0, 0), (0.5, 0.5)
@@ -300,176 +521,102 @@ class DarwinModelSiGe001(DarwinModel):
 #        elif ltype == 3:
 #            p1, p2 = (0.75, 0.25), (0.25, 0.75)
 
-        r = -1j*gamma * (self.fSi+(self.fGe-self.fSi)*xGe) * 2
+        r = -1j*gamma * self.C[pol] * (self.fSi+(self.fGe-self.fSi)*xGe) * 2
         # * (exp(1j*(h*p1[0]+k*p1[1])) + exp(1j*(h*p1[0]+k*p1[1])))
         t = 1 + 1j*gamma * (self.fSi0+(self.fGe0-self.fSi0)*xGe) * 2
         return r, numpy.copy(r), t
 
-    def make_monolayers(self, s, asub=aSi):
+
+class DarwinModelGaInAs001(DarwinModelAlloy):
+    """
+    Darwin theory of diffraction for Ga_{1-x} In_x As layers.
+    The model is based on separation of the sample structure into building
+    blocks of atomic planes from which a multibeam dynamical model is
+    calculated.
+    """
+    GaAs = materials.GaAs
+    InAs = materials.InAs
+    eGa = materials.elements.Ga
+    eIn = materials.elements.In
+    eAs = materials.elements.As
+    aGaAs = materials.GaAs.a1[0]
+    asub = aGaAs  # needed for the make_monolayer function
+    re = physical_constants['classical electron radius'][0] * 1e10
+
+    @classmethod
+    def abulk(cls, x):
         """
-        create monolayer sequence from layer list
+        calculate the bulk (relaxed) lattice parameter of the Ga_{1-x}In_{x}As
+        alloy
+        """
+        return cls.aGaAs + 0.40505*x
+
+    @classmethod
+    def poisson_ratio(cls, x):
+        """
+        calculate the Poisson ratio of the alloy
+        """
+        return 2 * (4.54 + 0.8*x) / (8.34 + 3.56*x)  # according to IOFFE
+
+    def get_dperp_apar(cls, x, apar, r=1):
+        """
+        calculate inplane lattice parameter and the out of plane lattice plane
+        spacing (of the atomic planes!) from composition and relaxation
 
         Parameters
         ----------
-         s:     layer model. list of layer dictionaries including possibility
-                to form superlattices. As an example 5 repetitions of a
-                Si(10nm)/Ge(15nm) superlattice on Si would like like:
-                s = [(5, [{'t': 100, 'x': 0, 'r': 0},
-                          {'t': 150, 'x': 1, 'r': 0}]),
-                     {'t': 3500000, 'x': 0, 'r': 0}]
-                the dictionaries must contain 't': thickness in A, 'x':
-                Ge-content, and either 'r': relaxation or 'ai': inplane lattice
-                parameter.
-                Future implementations for asymmetric peaks might include layer
-                type 'l' (not yet implemented)
-         asub:  inplane lattice parameter of the substrate
+         x:     chemical composition parameter
+         apar:  inplane lattice parameter of the material below the current
+                layer (onto which the present layer is strained to). This value
+                also served as a reference for the relaxation parameter.
+         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
 
         Returns
         -------
-         monolayer list in a format understood by the simulate and xGe_profile
-         methods
+         dperp, apar
         """
-        ml = []
-        ai = asub
-        for subl in s:
-            ml, ai = self._recur_makeml(subl, ml, ai)
-        return ml
+        abulk = cls.abulk(x)
+        aparl = apar + (abulk - apar) * r
+        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        return dperp, aparl
 
-    def _recur_makeml(self, s, ml, apar):
+    def init_structurefactors(self, temp=300):
         """
-        recursive creation of a monolayer structure (internal)
+        calculates the needed atomic structure factors
+
+        Parameters (optional)
+        ---------------------
+         temp:      temperature used for the Debye model
+        """
+        en = self.exp.energy
+        q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
+        fAs = self.eAs.f(q, en)
+        self.fGaAs = (self.eGa.f(q, en) + fAs) \
+            * self.GaAs._debyewallerfactor(temp, q)
+        self.fInAs = (self.eIn.f(q, en) + fAs) \
+            * self.InAs._debyewallerfactor(temp, q)
+        self.fGaAs0 = self.eGa.f(0, en) + self.eAs.f(0, en)
+        self.fInAs0 = self.eIn.f(0, en) + self.eAs.f(0, en)
+
+    def _calc_mono(self, pdict, pol):
+        """
+        calculate the reflection and transmission coefficients of monolayer
 
         Parameters
         ----------
-         s:     layer model. list of layer dictionaries
-         ml:    list of layers below what should be added (needed for
-                recursion)
-         apar:  inplane lattice parameter of the current surface
+         pdict: property dictionary, contains the layer properties:
+           x:   Ge-content of the layer (0: Si, 1: Ge)
+         pol:   polarization of the x-rays (either 'S' or 'P')
 
         Returns
         -------
-         monolayer list in a format understood by the simulate and xGe_profile
-         methods
+         r, rbar, t: reflection, backside reflection, and tranmission
+                     coefficients
         """
-        def rc12c11(xGe):
-            """ ratio of elastic parameters of SiGe """
-            return (63.9-15.6*xGe) / (165.8-37.3*xGe)  # IOFFE
-
-        def get_apar_aperp(x, r, apar):
-            """
-            determine out of plane mono-layer spacing from relaxation and
-            Ge-content
-            """
-            abulk = self.aSi + (0.2 * x + 0.027 * x ** 2)
-            aparl = apar + (abulk - apar) * r
-            dperp = abulk*(1+2*rc12c11(x)*(1-aparl/abulk))/4.
-            return dperp, aparl
-
-        def get_aperp(x, apar):
-            """
-            determine out of plane mono-layer spacing from the inplance lattice
-            parameter and the elastic parameters (depend on the Ge -content)
-            """
-            abulk = self.aSi + (0.2 * x + 0.027 * x ** 2)
-            dperp = abulk*(1+2*rc12c11(x)*(1-apar/abulk))/4.
-            return dperp
-
-        if isinstance(s, tuple):
-            nrep, sd = s
-            if isinstance(sd, dict):
-                sd = [sd, ]
-            if any([r > 0 for r in getit(sd, 'r')]):  # if relaxation
-                for i in range(nrep):
-                    for subsd in sd:
-                        ml, apar = self._recur_makeml(subsd, ml, apar=apar)
-            else:  # no relaxation in substructure
-                subl = []
-                for subsd in sd:
-                    subl, apar = self._recur_makeml(subsd, subl, apar=apar)
-                ml.insert(0, (nrep, subl))
-        elif isinstance(s, dict):
-            xGe = s['x']
-            if callable(xGe):  # composition profile in layer
-                t = 0
-                if any([r > 0 for r in getit(sd, 'r')]):
-                    warnings.warn("relaxation for composition gradient may "
-                                  "yield weird lattice parameter variation! "
-                                  "Consider supplying the inplane lattice "
-                                  "parameter 'ai' directly!")
-                while t < s['t']:
-                    if 'r' in s:
-                        r = abs(derivative(xGe, t, dx=1.4, n=1))*s['r']
-                        dperp, apar = get_apar_perp(xGe(t), r, apar)
-                    else:
-                        apar = s['ai']
-                        dperp = get_aperp(xGe(t), apar)
-                    t += dperp
-                    ml.insert(0, (1, {'d': dperp, 'x': xGe(t), 'ai': apar}))
-            else:  # constant composition layer
-                if 'r' in s:
-                    dperp, apar = get_apar_aperp(xGe, s['r'], apar)
-                else:
-                    apar = s['ai']
-                    dperp = get_aperp(xGe, apar)
-                nmono = int(numpy.ceil(s['t']/dperp))
-                ml.insert(0, (nmono, {'d': dperp, 'x': xGe, 'ai': apar}))
-        else:
-            raise Exception('wrong type (%s) of sublayer, must be tuple or'
-                            ' dict' % (type(s)))
-        return ml, apar
-
-    def prop_profile(self, ml):
-        """
-        calculate the Ge profile and inplane lattice spacing from a monolayer
-        list. One value for each monolayer in the sample is returned.
-
-        Parameters
-        ----------
-         ml:    monolayer list created by make_monolayer()
-
-        Returns
-        -------
-         zm, xGe, ainp:   z-position, Ge content, and inplane lattice spacing
-                          for every monolayer. z=0 is the surface
-        """
-
-        def startinterval(start, inter, N):
-            return numpy.arange(start, start+inter*(N+0.5), inter)
-
-        def _recur_prop(nrep, ml, zp, xg, ai):
-            if isinstance(ml, list):
-                lzp, lxg, lai = ([], [], [])
-                for nreps, subml in ml:
-                    lzp, lxg, lai = _recur_prop(nreps, subml, lzp, lxg, lai)
-                d = getfirst(ml, 'd')
-            else:
-                lzp = -ml['d']
-                lxg = ml['x']
-                lai = ml['ai']
-                d = ml['d']
-
-            Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
-            for i in range(Nmax):
-                if (nrep // (2**i)) % 2 == 1:
-                    if len(zp) > 0:
-                        curzp = zp[-1]
-                    else:
-                        curzp = 0.0
-                    zp = numpy.append(zp, lzp+curzp)
-                    xg = numpy.append(xg, lxg)
-                    ai = numpy.append(ai, lai)
-                try:
-                    curlzp = lzp[-1]
-                except:
-                    curlzp = lzp
-                lzp = numpy.append(lzp, lzp+curlzp)
-                lxg = numpy.append(lxg, lxg)
-                lai = numpy.append(lai, lai)
-            return zp, xg, ai
-
-        zm = []
-        xGe = []
-        ainp = []
-        for nrep, subml in ml:
-            zm, xGe, ainp = _recur_prop(nrep, subml, zm, xGe, ainp)
-        return zm, xGe, ainp
+        ainp = pdict.get('ai')
+        xInAs = pdict.get('x')
+        # pre-factor for reflection: contains footprint correction
+        gamma = 4*numpy.pi * self.re/(self.qz*ainp**2)
+        r = -1j*gamma*self.C[pol]*(self.fGaAs+(self.fInAs-self.fGaAs)*xInAs)
+        t = 1 + 1j*gamma * (self.fGaAs0+(self.fInAs0-self.fGaAs0)*xInAs)
+        return r, numpy.copy(r), t
