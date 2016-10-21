@@ -16,6 +16,7 @@
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import collections
+import copy
 import numpy
 import warnings
 from scipy.constants import physical_constants
@@ -297,7 +298,7 @@ class DarwinModelAlloy(DarwinModel):
         """
         ml = []
         ai = self.asub
-        for subl in s.copy():
+        for subl in copy.copy(s):
             ml, ai = self._recur_makeml(subl, ml, ai)
         return ml
 
@@ -350,7 +351,7 @@ class DarwinModelAlloy(DarwinModel):
                     else:
                         dperp, apar = self.get_dperp_apar(x(t), s['ai'])
                     t += dperp
-                    d = s.copy()
+                    d = copy.copy(s)
                     d.pop('r')
                     d.update({'d': dperp, 'x': x(t), 'ai': apar})
                     ml.insert(0, (1, d))
