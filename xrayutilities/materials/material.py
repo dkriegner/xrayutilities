@@ -1251,7 +1251,8 @@ class Alloy(Crystal):
         self.matB = matB
         self._setxb(x)
 
-    def lattice_const_AB(self, latA, latB, x):
+    @staticmethod
+    def lattice_const_AB(latA, latB, x):
         """
         method to set the composition of the Alloy.
         x is the atomic fraction of the component B
