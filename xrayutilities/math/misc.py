@@ -90,7 +90,7 @@ def fwhm_exp(pos, data):
         if config.VERBOSITY >= config.INFO_LOW:
             print("XU.math.fwhm_exp: warning: left side half value could"
                   " not be determined -> returns 2*hwhm")
-        pl = 0
+        pl = None
 
     # determine right side half value position
     try:
@@ -103,6 +103,11 @@ def fwhm_exp(pos, data):
         if config.VERBOSITY >= config.INFO_LOW:
             print("XU.math.fwhm_exp: warning: right side half value could"
                   " not be determined -> returns 2*hwhm")
-        pr = 0
+        pr = None
 
-    return numpy.abs(pr - pl)
+    if pl is None:
+        return numpy.abs(pr - p0)*2
+    elif pr is None:
+        return numpy.abs(pl - p0)*2
+    else:
+        return numpy.abs(pr - pl)

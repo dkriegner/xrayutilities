@@ -19,6 +19,7 @@
 module with several common function needed in xray data analysis
 """
 
+import copy
 import numpy
 import scipy.integrate
 import numbers
@@ -425,33 +426,53 @@ def PseudoVoigt1dasym(x, *p):
     the value of the PseudoVoigt described by the parameters p
     at position 'x'
     """
-    if p[5] > 1.0:
-        pv = 1.0
-    elif p[5] < 0.:
-        pv = 0.0
-    else:
-        pv = p[5]
+    lp = copy.copy(list(p))
+    lp.insert(6, p[5])
+    return PseudoVoigt1dasym2(x, *lp)
+
+
+def PseudoVoigt1dasym2(x, *p):
+    """
+    function to calculate an asymmetric pseudo Voigt function as linear
+    combination of asymmetric Gauss and Lorentz peak
+
+    Parameters
+    ----------
+     p:     list of parameters of the pseudo Voigt-function
+            [XCEN,FWHMLEFT,FWHMRIGHT,AMP,BACKGROUND,ETALEFT, ETARIGHT]
+            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
+     x:     coordinate(s) where the function should be evaluated
+
+    Returns
+    -------
+    the value of the PseudoVoigt described by the parameters p
+    at position 'x'
+    """
+    pvl = p[5] if p[5] < 1.0 else 1.0
+    pvl = pvl if p[5] > 0.0 else 0.0
+    pvr = p[6] if p[6] < 1.0 else 1.0
+    pvr = pvr if p[6] > 0.0 else 0.0
 
     sigmal = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
     sigmar = p[2] / (2 * numpy.sqrt(2 * numpy.log(2)))
 
     if isinstance(x, numbers.Number):
         if x < p[0]:
-            f = p[4] + pv * Lorentz1d(x, p[0], p[1], p[3], 0) + \
-                (1 - pv) * Gauss1d(x, p[0], sigmal, p[3], 0)
+            f = p[4] + pvl * Lorentz1d(x, p[0], p[1], p[3], 0) + \
+                (1 - pvl) * Gauss1d(x, p[0], sigmal, p[3], 0)
         else:
-            f = p[4] + pv * Lorentz1d(x, p[0], p[2], p[3], 0) + \
-                (1 - pv) * Gauss1d(x, p[0], sigmar, p[3], 0)
+            f = p[4] + pvr * Lorentz1d(x, p[0], p[2], p[3], 0) + \
+                (1 - pvr) * Gauss1d(x, p[0], sigmar, p[3], 0)
     else:
         lx = numpy.asarray(x)
         f = numpy.zeros(lx.shape)
-        f[lx < p[0]] = (p[4] + pv *
+        f[lx < p[0]] = (p[4] + pvl *
                         Lorentz1d(lx[x < p[0]], p[0], p[1], p[3], 0) +
-                        (1 - pv) *
+                        (1 - pvl) *
                         Gauss1d(lx[x < p[0]], p[0], sigmal, p[3], 0))
-        f[lx >= p[0]] = (p[4] + pv *
+        f[lx >= p[0]] = (p[4] + pvr *
                          Lorentz1d(lx[x >= p[0]], p[0], p[2], p[3], 0) +
-                         (1 - pv) *
+                         (1 - pvr) *
                          Gauss1d(lx[x >= p[0]], p[0], sigmar, p[3], 0))
 
     return f
