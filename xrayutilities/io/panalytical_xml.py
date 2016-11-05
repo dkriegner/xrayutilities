@@ -54,7 +54,7 @@ class XRDMLMeasurement(object):
         for s in slist:
             # check if scan is complete
             scanstatus = s.get("status")
-            if scanstatus == "Aborted" and len(slist) > 1:
+            if scanstatus in ("Aborted", "Not finished") and len(slist) > 1:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print("XU.io.XRDMLFile: subscan has been aborted "
                           "(part of the data unavailable)!")
