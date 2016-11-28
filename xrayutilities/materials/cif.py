@@ -127,6 +127,11 @@ class CIFFile(object):
                 loop_labels = []
                 symop_loop = False
                 atom_loop = False
+                ax_idx = None
+                ay_idx = None
+                az_idx = None
+                uiso_idx = None
+                occ_idx = None
             elif re_labelline.match(line):
                 if re_cell_a.match(line):
                     self.lattice_const[0] = floatconv(line.split()[1])
@@ -157,11 +162,6 @@ class CIFFile(object):
                             print('XU.material: atom position-loop identified')
                         atom_loop = True
                         alab_idx = len(loop_labels) - 1
-                        ax_idx = None
-                        ay_idx = None
-                        az_idx = None
-                        uiso_idx = None
-                        occ_idx = None
                     elif re_atomx.match(line):
                         ax_idx = len(loop_labels) - 1
                         if config.VERBOSITY >= config.DEBUG:
