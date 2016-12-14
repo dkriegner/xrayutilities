@@ -857,9 +857,10 @@ class QConversion(object):
 
         for k in kwargs.keys():
             if k not in ['Nav', 'roi']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'Nav': number of channels for block-average, "
-                                "'roi': region of interest")
+                raise Exception("unknown keyword argument (%s) given: allowed "
+                                "are 'Nav': number of channels for "
+                                "block-average, 'roi': region of interest"
+                                % k)
 
         # detectorDir
         if not isinstance(detectorDir1, basestring) or len(detectorDir1) != 2:
