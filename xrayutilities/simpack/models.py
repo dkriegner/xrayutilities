@@ -25,6 +25,7 @@ from .. import utilities
 from .. import config
 from ..math import heaviside
 from ..math import NormGauss1d
+from ..math import NormLorentz1d
 from ..math import solve_quartic
 from ..experiment import Experiment
 
@@ -53,9 +54,12 @@ class Model(object):
                      'I0' is the primary beam flux/intensity
                      'background' is the background added to the simulation
                      'energy' sets the experimental energy (in eV)
+                     'resolution_type' sets the type of resolution function
+                                 ('Gauss' (default) or 'Lorentz')
         """
         for kw in kwargs:
-            if kw not in ('resolution_width', 'I0', 'background', 'energy'):
+            if kw not in ('resolution_width', 'I0', 'background', 'energy',
+                          'resolution_type'):
                 raise TypeError('%s is an invalid keyword argument' % kw)
 
         if experiment:
@@ -63,6 +67,7 @@ class Model(object):
         else:
             self.exp = Experiment([1, 0, 0], [0, 0, 1])
         self.resolution_width = kwargs.get('resolution_width', 0)
+        self.resolution_type = kwargs.get('resolution_type', 'Gauss')
         self.I0 = kwargs.get('I0', 1)
         self.background = kwargs.get('background', 0)
         if 'energy' in kwargs:
@@ -70,7 +75,7 @@ class Model(object):
 
     def convolute_resolution(self, x, y):
         """
-        convolve simulation result with a Gaussian resolution function
+        convolve simulation result with a resolution function
 
         Parameters
         ----------
@@ -89,7 +94,11 @@ class Model(object):
             nres = int(10 * numpy.abs(self.resolution_width / dx))
             xres = startdelta(-5*self.resolution_width, dx, nres + 1)
             # the following works only exactly for equally spaced data points
-            resf = NormGauss1d(xres, numpy.mean(xres), self.resolution_width)
+            if self.resolution_type == 'Gauss':
+                fres = NormGauss1d
+            else:
+                fres = NormLorentz1d
+            resf = fres(xres, numpy.mean(xres), self.resolution_width)
             resf /= numpy.sum(resf)  # proper normalization for discrete conv.
             # pad y to avoid edge effects
             interp = interpolate.InterpolatedUnivariateSpline(x, y, k=1)
