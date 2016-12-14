@@ -332,10 +332,12 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     for mot in motors:
         if mot.lower() in validmotorslow:
             motnames.append(validmotors[validmotorslow.index(mot.lower())])
-        elif mot.lower() in ['p']:
+        elif mot.lower() in ['phi', 'p']:
             motnames.append('Phi')
         elif mot.lower() in ['chi', 'c']:
             motnames.append('Chi')
+        elif mot.lower() in ['psi']:
+            motnames.append('Psi')
         elif mot.lower() in ['tt', 't']:
             motnames.append('2Theta')
         elif mot.lower() in ['om', 'o']:
