@@ -31,8 +31,9 @@ class TestQ2AngFit(unittest.TestCase):
                                               [1, 0, 0])
         cls.hxrd = xu.HXRD((1, 0, 0), (0, 0, 1), en=cls.energy,
                            qconv=cls.qconv)
-        cls.bounds = (0, (0, 90), 0, (-1, 90), (0, 90))
-        cls.qvec = numpy.array((0, 0, numpy.random.rand()))
+        cls.bounds = (0, (-180, 180), 0, (-1, 90), (-1, 90))
+        qz = numpy.random.rand()
+        cls.qvec = numpy.array(((numpy.random.rand()-0.5)*qz, 0, qz))
 
     def test_q2angfit(self):
         ang, qerror, errcode = xu.Q2AngFit(self.qvec, self.hxrd, self.bounds)

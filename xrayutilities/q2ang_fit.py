@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Module provides functions to convert a q-vector from reciprocal space to
@@ -168,6 +168,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     if len(qvec) != 3:
         raise ValueError("XU.Q2AngFit: length of given q-vector is not 3 "
                          "-> invalid")
+    lqvec = numpy.asarray(qvec)
 
     qconv = expclass._A2QConversion
     nangles = len(qconv.sampleAxis) + len(qconv.detectorAxis)
@@ -175,7 +176,6 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     # generate starting position for optimization
     if startvalues is None:
         start = numpy.zeros(nangles)
-        start[-1] = expclass.Q2Ang(qvec, trans=False)[-1]
     else:
         start = startvalues
 
@@ -189,27 +189,28 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
 
     # perform optimization
     res = scipy.optimize.minimize(_errornorm_q2ang, start,
-                                  args=(qvec, expclass, ormat),
+                                  args=(lqvec, expclass, ormat),
                                   method='SLSQP', bounds=_makebounds(bounds),
                                   constraints=constraints,
-                                  options={'maxiter': 1000})
-    x, errcode = (res.x, res.status)
+                                  options={'maxiter': 1000,
+                                           'eps': config.EPSILON,
+                                           'ftol': config.EPSILON})
 
-    qerror = _errornorm_q2ang(x, qvec, expclass, ormat)
+    x, errcode, qerror = (res.x, res.status, res.fun)
     if qerror >= 1e-7:
         if config.VERBOSITY >= config.DEBUG:
             print("XU.Q2AngFit: info: need second run")
         # make a second run
-        res = scipy.optimize.minimize(_errornorm_q2ang, start,
-                                      args=(qvec, expclass, ormat),
+        res = scipy.optimize.minimize(_errornorm_q2ang, res.x,
+                                      args=(lqvec, expclass, ormat),
                                       method='SLSQP',
                                       bounds=_makebounds(bounds),
                                       constraints=constraints,
-                                      tol=config.EPSILON,
-                                      options={'maxiter': 1000})
-        x, errcode = (res.x, res.status)
+                                      options={'maxiter': 1000,
+                                               'eps': config.EPSILON,
+                                               'ftol': config.EPSILON})
+        x, errcode, qerror = (res.x, res.status, res.fun)
 
-    qerror = _errornorm_q2ang(x, qvec, expclass, ormat)
     if ((config.VERBOSITY >= config.DEBUG) or (qerror > 10*config.EPSILON and
                                                config.VERBOSITY >=
                                                config.INFO_LOW)):
