@@ -45,6 +45,7 @@ from .functions import Gauss2d
 from .functions import Gauss3d
 from .functions import TwoGauss2d
 from .functions import Lorentz1d
+from .functions import NormLorentz1d
 from .functions import Lorentz1d_der_x
 from .functions import Lorentz1d_der_p
 from .functions import Lorentz2d

@@ -1,3 +1,4 @@
+* new normalized Lorentzian function (NormLorentz1d)
 * add fully asymmetric Pseudovoigt (different width and eta)
 * remove unphysical variation of structure factor in kinematical 2-beam model
 * new dynamical multibeam simulations based on the Darwin theory of dynamical

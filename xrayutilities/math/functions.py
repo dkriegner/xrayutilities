@@ -291,6 +291,26 @@ def Lorentz1d_der_p(x, *p):
     return r
 
 
+def NormLorentz1d(x, *p):
+    """
+    function to calculate a normalized one dimensional Lorentzian
+
+    Parameters
+    ----------
+     p:     list of parameters of the Lorentzian
+            [XCEN,FWHM]
+     x:     coordinate(s) where the function should be evaluated
+
+    Returns
+    -------
+    the value of the normalized Lorentzian described by the parameters p
+    at position x
+    """
+    g = 1.0 / (1 + (2 * (x - p[0]) / p[1]) ** 2)
+    a = numpy.pi / (2. / (p[1]))
+    return g / a
+
+
 def Lorentz2d(x, y, *p):
     """
     function to calculate a general two dimensional Lorentzian
