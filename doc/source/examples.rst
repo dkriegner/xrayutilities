@@ -457,14 +457,14 @@ Using the following script determines the parameters necessary for the detector 
 
 The determined detector parameters are:
 
-* pixelwidth of the channels in both directions (2 parameters)
 * center channels: position of the primary beam at the true zero position of the goniometer (considering the outer angle offset) (2 parameters)
+* pixelwidth of the channels in both directions (2 parameters), these two parameters can be replaced by the detector distance (1 parameter) if the pixel size is given as an input
 * detector tilt azimuth in degree from 0 to 360
 * detector tilt angle in degree (>0deg)
 * detector rotation around the primary beam in degree
 * outer angle offset, which describes a offset of the outer detector angle from its true zero position
 
-The misalignment parameters can be fixed during the fitting.
+The misalignment parameters as well as the pixel size can be fixed during the fitting.
 
 .. literalinclude:: example_xu_ccd_parameter.py
     :linenos:

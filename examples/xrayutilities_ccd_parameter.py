@@ -46,5 +46,7 @@ for imgnr in imagenrs:
 # call the fit for the detector parameters
 # detector arm rotations and primary beam direction need to be given
 param, eps = xu.analysis.sample_align.area_detector_calib(
-    ang1, ang2, images, ['z+', 'y-'], 'x+', start=(45, 0, -0.7, 0),
-    fix=(False, False, False, False), wl=xu.en2lam(en))
+    ang1, ang2, images, ['z+', 'y-'], 'x+',
+    start=(None, None, 1.0, 45, 0, -0.7, 0),
+    fix=(False, False, True, False, False, False, False),
+    wl=xu.en2lam(en))

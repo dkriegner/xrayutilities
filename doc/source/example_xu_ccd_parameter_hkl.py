@@ -79,10 +79,12 @@ for imgnr in numpy.sort(list(set(imagenrs) - set(avoid_images))[::4]):
 # The fixable parameters are detector tilt azimuth, the detector tilt angle,
 # the detector rotation around the primary beam, the outer angle offset, sample
 # tilt, sample tilt azimuth and the x-ray wavelength
+# Additionally if accurately known the detector pixel size can be given and
+# fixed and instead the detector distance can be fitted.
 param, eps = xu.analysis.area_detector_calib_hkl(
     sang, ang1, ang2, images, hkls, hxrd, Si, ['z+', 'y-'], 'x+',
-    start=(45, 1.69, -0.55, -1.0, 1.3, 60., wl),
-    fix=(False, False, False, False, False, False, False),
+    start=(None, None, 1.0, 45, 1.69, -0.55, -1.0, 1.3, 60., wl),
+    fix=(False, False, True, False, False, False, False, False, False, False),
     plot=True)
 
 # Following is an example of the output of the summary of the
