@@ -1145,7 +1145,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
                      sclb=(1/numpy.abs(cch1), 1/numpy.abs(cch2),
                            1/pwidth1, 1/pwidth2, 1/distance, 1/90.,
                            1/0.2, 1/0.2, 1/0.2),
-                     maxit=1000, ndigit=12, sstol=1e-11, partol=1e-11)
+                     maxit=200, ndigit=12, sstol=1e-11, partol=1e-11)
     if debug:
         my_odr.set_iprint(final=1)
         my_odr.set_iprint(iter=2)
@@ -1884,7 +1884,10 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
                      sclb=(1/numpy.abs(cch1), 1/numpy.abs(cch2), 1/pwidth1,
                            1/pwidth2, 1/distance, 1/90., 1/0.2, 1/0.2, 1/0.2,
                            1/0.1, 1/90., 1.),
-                     maxit=1000, ndigit=12, sstol=1e-11, partol=1e-11)
+                     maxit=200, ndigit=12, sstol=1e-11, partol=1e-11)
+    if debug:
+        my_odr.set_iprint(final=1)
+        my_odr.set_iprint(iter=2)
 
     fit = my_odr.run()
 
