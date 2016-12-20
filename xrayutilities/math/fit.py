@@ -46,6 +46,7 @@ except NameError:
 def linregress(x, y):
     """
     fast linregress to avoid usage of scipy.stats which is slow!
+    NaN values in y are ignored by this function.
 
     Parameters
     ----------
@@ -59,13 +60,15 @@ def linregress(x, y):
     --------
      >>> (k, d), R2 = xu.math.linregress(x, y)
     """
-    p = numpy.polyfit(x, y, 1)
+    mask = numpy.logical_not(numpy.isnan(y))
+    lx, ly = (x[mask], y[mask])
+    p = numpy.polyfit(lx, ly, 1)
 
     # calculation of r-squared
-    f = numpy.polyval(p, x)
-    fbar = numpy.sum(y) / len(y)
+    f = numpy.polyval(p, lx)
+    fbar = numpy.sum(ly) / len(ly)
     ssreg = numpy.sum((f-fbar)**2)
-    sstot = numpy.sum((y - fbar)**2)
+    sstot = numpy.sum((ly - fbar)**2)
     rsq = ssreg / sstot
 
     return p, rsq
