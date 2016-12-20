@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -45,8 +45,8 @@ except NameError:
 def xu_open(filename, mode='rb'):
     """
     function to open a file no matter if zipped or not. Files with extension
-    '.gz' or '.bz2' are assumed to be compressed and transparently opened to
-    read like usual files.
+    '.gz', '.bz2', and '.xz'  are assumed to be compressed and transparently
+    opened to read like usual files.
 
     Parameters
     ----------
@@ -69,8 +69,13 @@ def xu_open(filename, mode='rb'):
         if sys.version_info >= (3, 3):
             fid = lzma.open(filename, mode)
         else:
-            raise TypeError("File compression type not supported in Python "
-                            "versions prior to 3.3")
+            try:
+                import contextlib
+                import lzma
+                fid = contextlib.closing(lzma.LZMAFile(filename, mode))
+            except:
+                raise TypeError("File compression type not supported! Install "
+                                "pyliblzma or switch to Python >3.3")
     else:
         fid = open(filename, mode)
 
