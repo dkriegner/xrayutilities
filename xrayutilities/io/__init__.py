@@ -64,5 +64,8 @@ from .rotanode_alignment import RA_Alignment
 from .desy_tty08 import tty08File
 from .desy_tty08 import gettty08_scan
 
+from .ill_numor import numorFile
+from .ill_numor import numor_scan
+
 from .pdcif import pdCIF
 from .pdcif import pdESG
