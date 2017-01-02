@@ -1734,11 +1734,11 @@ class Powder(Experiment):
             raise TypeError("mat must be an instance of class "
                             "xrayutilities.materials.Crystal")
 
-        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
-
         self._tt_cutoff = kwargs.pop('tt_cutoff', 180)
         fpclass = kwargs.pop('fpclass', FP_profile)
         settings = kwargs.pop('fpsettings', {})
+        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
+
         self.fp_profile = self._init_fpprofile(fpclass, settings)
 
         # number of significant digits, needed to identify equal floats
