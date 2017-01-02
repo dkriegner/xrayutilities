@@ -27,9 +27,9 @@ recommended to change things there, instead the user-specific config file
 from ast import literal_eval
 import os.path
 import numpy
-try:
+try:  # Python-3
     import configparser
-except ImportError:
+except ImportError:  # Python-2
     import ConfigParser as configparser
 
 from . import __path__
@@ -60,64 +60,64 @@ cfiles = xuParser.read([
     "xrayutilities.conf"])
 
 # set global variables according to configuration
-sxu = xuParser["xrayutilities"]
-INFO_LOW = sxu.getint("info_low")
-INFO_ALL = sxu.getint("info_all")
-DEBUG = sxu.getint("debug")
+sect = "xrayutilities"
+INFO_LOW = xuParser.getint(sect, "info_low")
+INFO_ALL = xuParser.getint(sect, "info_all")
+DEBUG = xuParser.getint(sect, "debug")
 
-VERBOSITY = sxu.getint("verbosity")
+VERBOSITY = xuParser.getint(sect, "verbosity")
 try:
-    WAVELENGTH = sxu.getfloat("wavelength")
+    WAVELENGTH = xuParser.getfloat(sect, "wavelength")
 except:
     WAVELENGTH = numpy.nan
 if numpy.isnan(WAVELENGTH):
-    WAVELENGTH = sxu.get("wavelength")
+    WAVELENGTH = xuParser.get(sect, "wavelength")
 
 try:
-    ENERGY = sxu.getfloat("energy")
+    ENERGY = xuParser.getfloat(sect, "energy")
 except:
     ENERGY = numpy.nan
 if numpy.isnan(ENERGY):
-    ENERGY = sxu.get("energy")
+    ENERGY = xuParser.get(sect, "energy")
 if ENERGY == 'NaN':
     ENERGY = utilities_noconf.lam2en(utilities_noconf.wavelength(WAVELENGTH))
 else:  # energy was given and wavelength is calculated from given energy
     WAVELENGTH = utilities_noconf.en2lam(utilities_noconf.energy(ENERGY))
 
 # number of threads in parallel section of c-code
-NTHREADS = sxu.getint("nthreads")
+NTHREADS = xuParser.getint(sect, "nthreads")
 
 # default parameters for the maplog function
-DYNLOW = sxu.getfloat("dynlow")
-DYNHIGH = sxu.getfloat("dynhigh")
+DYNLOW = xuParser.getfloat(sect, "dynlow")
+DYNHIGH = xuParser.getfloat(sect, "dynhigh")
 
 # small number needed for error checks
-EPSILON = sxu.getfloat("epsilon")
+EPSILON = xuParser.getfloat(sect, "epsilon")
 
 # name of the database with atomic scattering factors
-DBNAME = sxu.get("dbname")
+DBNAME = xuParser.get(sect, "dbname")
 
 # kappa goniometer specific config parameters
-KAPPA_PLANE = sxu.get("kappa_plane")
-KAPPA_ANGLE = sxu.getfloat("kappa_angle")
+KAPPA_PLANE = xuParser.get(sect, "kappa_plane")
+KAPPA_ANGLE = xuParser.getfloat(sect, "kappa_angle")
 
 # parser Powder profile related variables
 POWDER = dict()
 
 subsec = 'classoptions'
-POWDER[subsec] = dict(xuParser["powder"])
+POWDER[subsec] = dict(xuParser.items("powder"))
 for k in ('oversampling',):
     POWDER[subsec][k] = int(POWDER[subsec][k])
 for k in ('output_gaussian_smoother_bins_sigma', 'window_width'):
     POWDER[subsec][k] = float(POWDER[subsec][k])
 
 subsec = 'global'
-POWDER[subsec] = dict(xuParser["powder.global"])
+POWDER[subsec] = dict(xuParser.items("powder.global"))
 for k in ('diffractometer_radius', 'equatorial_divergence_deg'):
     POWDER[subsec][k] = float(POWDER[subsec][k])
 
 subsec = 'emission'
-POWDER[subsec] = dict(xuParser["powder.emission"])
+POWDER[subsec] = dict(xuParser.items("powder.emission"))
 for k in ('crystallite_size_gauss', 'crystallite_size_lor'):
     POWDER[subsec][k] = float(POWDER[subsec][k])
 for k in ('emiss_wavelengths', 'emiss_intensities',
@@ -128,7 +128,7 @@ POWDER[subsec]['emiss_wavelengths'] = numpy.asarray(tuple(
     for wl in POWDER[subsec]['emiss_wavelengths']))
 
 subsec = 'axial'
-POWDER[subsec] = dict(xuParser["powder.axial"])
+POWDER[subsec] = dict(xuParser.items("powder.axial"))
 for k in ('n_integral_points',):
     POWDER[subsec][k] = int(POWDER[subsec][k])
 for k in ('slit_length_source', 'slit_length_target', 'length_sample',
@@ -136,22 +136,22 @@ for k in ('slit_length_source', 'slit_length_target', 'length_sample',
     POWDER[subsec][k] = float(POWDER[subsec][k])
 
 subsec = 'absorption'
-POWDER[subsec] = dict(xuParser["powder.absorption"])
+POWDER[subsec] = dict(xuParser.items("powder.absorption"))
 for k in ('absorption_coefficient', 'sample_thickness'):
     POWDER[subsec][k] = float(POWDER[subsec][k])
 
 subsec = 'si_psd'
-POWDER[subsec] = dict(xuParser["powder.psd"])
+POWDER[subsec] = dict(xuParser.items("powder.psd"))
 for k in ('si_psd_window_bounds',):
     POWDER[subsec][k] = literal_eval(POWDER[subsec][k])
 
 subsec = 'receiver_slit'
-POWDER[subsec] = dict(xuParser["powder.receiver_slit"])
+POWDER[subsec] = dict(xuParser.items("powder.receiver_slit"))
 for k in ('slit_width', ):
     POWDER[subsec][k] = float(POWDER[subsec][k])
 
 subsec = 'tube_tails'
-POWDER[subsec] = dict(xuParser["powder.tube_tails"])
+POWDER[subsec] = dict(xuParser.items("powder.tube_tails"))
 for k in ('main_width', 'tail_left', 'tail_right', 'tail_intens'):
     POWDER[subsec][k] = float(POWDER[subsec][k])
 
