@@ -238,7 +238,7 @@ def numor_scan(scannumbers, *args, **kwargs):
                 buf = sdata[motname]
             except:
                 mv = [v for k, v in scan.init_mopo.items()
-                      if motname in k.lower()][0]
+                      if motname in k][0]
                 buf = mv * numpy.ones(scanlength)
             angles[motname] = numpy.concatenate((angles[motname], buf))
 
