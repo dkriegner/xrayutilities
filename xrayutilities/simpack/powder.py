@@ -1667,12 +1667,14 @@ class PowderDiffraction(PowderExperiment):
         """
 
         params = dict()
-        for k in ('emission', 'axial', 'absorption', 'si_psd',
-                  'receiver_slit', 'tube_tails', 'classoptions', 'global'):
+        for k in config.POWDER:
             params[k] = dict()
             params[k].update(config.POWDER[k])
             if k in settings:
                 params[k].update(settings[k])
+        for k in settings:
+            if k not in config.POWDER:
+                params[k] = dict().update(settings[k])
 
         params['classoptions'].pop('window_width')
         wl = params['emission']['emiss_wavelengths'][0]
@@ -1683,8 +1685,8 @@ class PowderDiffraction(PowderExperiment):
         p = fpclass(**params['classoptions'])
         p.debug_cache = False
         # set parameters for each convolver
-        for k in ('emission', 'axial', 'absorption', 'si_psd',
-                  'receiver_slit', 'tube_tails', 'global'):
+        params.pop('classoptions')
+        for k in params:
             p.set_parameters(convolver=k, **params[k])
 
         self.profile_params = params
