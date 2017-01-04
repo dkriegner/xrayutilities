@@ -1654,6 +1654,9 @@ class PowderDiffraction(PowderExperiment):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
         self.fp_profile.set_parameters(convolver='emission', **samplesettings)
+        abs_coeff = 1e6 / self.mat.material.absorption_length(self.energy)
+        self.fp_profile.set_parameters(convolver='absorption',
+                                       absorption_coefficient=abs_coeff)
 
     def _init_fpprofile(self, fpclass, settings={}):
         """
@@ -1815,7 +1818,8 @@ class PowderDiffraction(PowderExperiment):
             # check if peak is in data range to be calculated
             if twotheta_x - ww/2 > ttmax or twotheta_x + ww/2 < ttmin:
                 continue
-            idx = numpy.argwhere(numpy.logical_and(tt > 20, tt < 40))
+            idx = numpy.argwhere(numpy.logical_and(tt > twotheta_x - ww/2,
+                                                   tt < twotheta_x + ww/2))
             npoints = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
             # put the compute window in the right place and clear all histories
             p.set_window(twotheta_output_points=npoints,
@@ -1825,7 +1829,7 @@ class PowderDiffraction(PowderExperiment):
             p.set_parameters(twotheta0_deg=twotheta_x)
             result = p.compute_line_profile()
 
-            outint += numpy.interp(tt, result.twotheta_deg,
+            outint[idx] += numpy.interp(tt[idx], result.twotheta_deg,
                                    result.peak*sfact, left=0, right=0)
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.Powder.Convolute: exec time=", time.time() - t_start)
