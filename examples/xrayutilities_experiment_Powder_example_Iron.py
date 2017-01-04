@@ -13,35 +13,46 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import xrayutilities as xu
 import numpy
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-# en = (2*8048 + 8028)/3.
-en = 'CuKa1'
-peak_width = 2 * numpy.pi / 100.
-resolution = peak_width / 10.
+cryst_size = 40e-9  # meter
 
 # create Fe BCC with a=2.87Angstrom
 FeBCC = xu.materials.Crystal(
     "Fe", xu.materials.BCCLattice(xu.materials.elements.Fe, 2.87))
 
 print("Creating Fe powder ...")
-Fe_powder = xu.Powder(FeBCC, en=en)
-Fe_powder.PowderIntensity()
-Fe_th, Fe_int = Fe_powder.Convolute(resolution, peak_width)
+Fe_powder = xu.simpack.Powder(FeBCC, 1, crystallite_size_gauss=cryst_size)
+pd = xu.simpack.PowderDiffraction(Fe_powder)
+tt = numpy.arange(5, 120, 0.01)
+inte = pd.Calculate(tt)
 
-print(Fe_powder)
+print(pd)
 
-# plt.figure(1)
-# plt.clf()
-# ax1 = plt.subplot(111)
-# plt.xlabel(r"$2\theta$ (deg)")
-# plt.ylabel(r"Intensity")
-# plt.semilogy(Fe_th*2,Fe_int/Fe_int.max(),'k-',linewidth=2.)
-# plt.plot(Fe_th*2,Fe_int/Fe_int.max(),'k-',linewidth=2.)
-# ax1.set_xlim(0,160)
-# ax1.set_ylim(0.001,1.2)
-# plt.grid()
+# to create a mixed powder sample one would use
+# Co_powder = xu.simpack.Powder(xu.materials.Co, 5)  # 5 times more Co
+# pm = xu.simpack.PowderModel(Fe_powder + Co_powder, I0=100)
+# inte = pm.simulate(tt)
+
+plt.figure()
+ax = plt.subplot(111)
+plt.xlabel(r"$2\theta$ (deg)")
+plt.ylabel(r"Intensity")
+plt.plot(tt, inte, 'k-', label='Fe')
+divider = make_axes_locatable(ax)
+
+bax = divider.append_axes("top", size="10%", pad=0.05, sharex=ax)
+plt.bar(pd.ang * 2, numpy.ones_like(pd.data), width=0, linewidth=2,
+        color='r', align='center', orientation='vertical')
+for x, hkl in zip(pd.ang*2, pd.hkl):
+    h, k, l = hkl
+    plt.text(x, 0.1, '%d%d%d' % (h, k, l))
+plt.setp(bax.get_xticklabels(), visible=False)
+plt.setp(bax.get_yticklabels(), visible=False)
+
+ax.set_xlim(5, 120)

@@ -36,8 +36,7 @@ plt.xlabel('scattering angle (deg)')
 # load materials
 # structure cif from Pearson's crystal data database
 st = xu.materials.Crystal.fromCIF(os.path.join('data', '1216385.cif'))
-pst = xu.Powder(st, en='CuKa12')
-pst.PowderIntensity(tt_cutoff=90)
+pst = xu.simpack.PowderDiffraction(st, tt_cutoff=90)
 
 height = 0.05
 # peak positions of Sb2Te3
