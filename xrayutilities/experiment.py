@@ -2351,6 +2351,7 @@ class PowderExperiment(Experiment):
                      same as for the Experiment base class
         """
         Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
+        self.Ang2Q = self._Ang2Q
 
     def _Ang2Q(self, th, deg=True):
         """

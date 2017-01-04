@@ -1784,9 +1784,10 @@ class PowderDiffraction(PowderExperiment):
         ----------
          twotheta:  two theta values at which the powder pattern should be
                     calculated.
-                    Note: Bragg peaks are only included up to tt_cutoff set in
-                          the class constructor!
          window_width: width of the calculation window of a single peak
+
+        Note: Bragg peaks are only included up to tt_cutoff set in
+              the class constructor!
 
         Returns
         -------
