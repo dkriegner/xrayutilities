@@ -2333,3 +2333,45 @@ class GISAXS(Experiment):
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
         pass
+
+
+class PowderExperiment(Experiment):
+    """
+    Experimental class for powder diffraction which helps to convert theta
+    angles to momentum transfer space
+    """
+    def __init__(self, **kwargs):
+        """
+        class constructor which takes the same keyword arguments as the
+        Experiment class
+        
+        Parameters
+        ----------
+         kwargs:     optional keyword arguments
+                     same as for the Experiment base class
+        """
+        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
+        
+    def _Ang2Q(self, th, deg=True):
+        """
+        Converts theta angles to reciprocal space positions
+        returns the absolute value of momentum transfer
+        """
+        if deg:
+            lth = numpy.radians(th)
+        else:
+            lth = th
+
+        qpos = 2 * self.k0 * numpy.sin(lth)
+        return qpos
+
+    def Q2Ang(self, qpos, deg=True):
+        """
+        Converts reciprocal space values to theta angles
+        """
+        th = numpy.arcsin(qpos / (2 * self.k0))
+
+        if deg:
+            th = numpy.degrees(th)
+
+        return th

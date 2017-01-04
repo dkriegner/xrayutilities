@@ -42,10 +42,7 @@ from .experiment import NonCOP
 from .experiment import GID
 from .experiment import GISAXS
 from .experiment import QConversion
-
-from .powder import FP_profile
-from .powder import fourier_line_profile
-from .powder import Powder
+from .experiment import PowderExperiment
 
 from .q2ang_fit import Q2AngFit
 

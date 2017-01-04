@@ -67,47 +67,37 @@ which needs to be weighted in real space for I3 integral.
 
 More details about the applied algorithms can be found in the paper by
 M. H. Mendelhall et al., `Journal of Research of NIST 120, 223 (2015)
-<http://dx.doi.org/10.6028/jres.120.014>`_
+<http://dx.doi.org/10.6028/jres.120.014>`_ to which you should also refer for a
+careful definition of all the parameters
 """
 
-# TODO List:
-
-# what is a Si PSD? maybe rename to linear detector? not all linear detector
-# are Si strip detectors!
-
-# check integer divisions?
-
-# how to best sum the profiles of the different peaks. this again needs some
-# sort of gridding/interpolation
-
-# correct normalization of output intensities? is the normalization with dx
-# necessary?
-
-# should moment_list and the corresponding debug code be removed?
-
-# slit_length_source can not be equal to slit_length_target!
+# Known bugs/problems:
+# in the axial convolver the parameters slit_length_source can not be equal to
+# slit_length_target!
 
 # dependency on Experiment baseclass is very loose now and the
 # energy/wavelength handling is not working as in the other experiment classes
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import, print_function
+
+import math
 import os
 import sys
-import math
-from math import sqrt, pi, sin, cos, tan
 import warnings
+from math import cos, pi, sin, sqrt, tan
 
 import numpy
-from numpy import cos as ncos, arcsin as nasin, asarray
+from numpy import arcsin as nasin
+from numpy import cos as ncos
+from numpy import asarray
 from numpy.linalg import norm
 from scipy.special import sici  # for the sine and cosine integral
 
 # package internal imports
-from . import math as xumath
-from . import materials
-from . import config
-from .experiment import Experiment
-
+from .smaterials import Powder
+from .. import math as xumath
+from .. import config, materials
+from ..experiment import PowderExperiment
 
 # figure out which FFT package we have, and import it
 try:
@@ -1596,107 +1586,7 @@ class FP_profile:
         self.lor_widths = setdict["lor_widths"]
 
 
-def fourier_line_profile(
-        d=None,  twotheta_deg=None,
-        crystallite_size_lor=None,
-        crystallite_size_gauss=None,
-        wavelength=None,
-        slit_width=None,
-        slit_length_target=None,
-        slit_length_source=None,
-        length_sample=None,
-        angI_deg=None,
-        angD_deg=None,
-        axDiv="simple",
-        diffractometer_radius=None,
-        si_psd_window_bounds=None,
-        equatorial_divergence_deg=None, absorption_coefficient=None,
-        sample_thickness=None,
-        specimen_displacement=None, zero_error_deg=None,
-        target_width=None, specimen_tilt=None, defocus_delta_omega_deg=None,
-        mat_wavelengths=None, mat_lor_widths=None,
-        mat_gauss_widths=None, mat_intensities=None,
-        tube_tails=None,
-        window_fullwidth_deg=1.,
-        twotheta_output_points=1000,
-        n_integral_points=10,
-        output_gaussian_smoother_bins_sigma=1.0,
-        oversampling=10):
-    """
-    A single function call interface to an instance of the FP_profile class.
-    This is only intended for debugging and simple calculation.  Since it
-    re-creates the class each time, there is no cacheing of results.  It is
-    fairly inefficient to do stuff this way.
-
-    Parameters
-    ----------
-     d: d-spacing, if present.  Either a d-spacing and wavelength or an angle
-        must be provided
-     twotheta_deg: the peak center, if a d-spacing is not given.
-
-    Returns
-    -------
-     an object with much information about a line profile.
-    """
-    if twotheta_deg is not None:  # give priority to angle
-        anglemode = "twotheta"
-    else:
-        anglemode = "d"
-        twotheta_deg = 2 * math.degrees(math.asin(wavelength / (2.0 * d)))
-
-    p = FP_profile(
-        anglemode=anglemode,
-        output_gaussian_smoother_bins_sigma=output_gaussian_smoother_bins_sigma,
-        oversampling=oversampling)
-    # put the compute window in the right place, using old convention
-    # centering window on line
-    p.set_window(
-        twotheta_output_points=twotheta_output_points,
-        twotheta_window_center_deg=twotheta_deg,
-        twotheta_window_fullwidth_deg=window_fullwidth_deg)
-
-    # set parameters which are shared by many things
-    p.set_parameters(d=d, twotheta0_deg=twotheta_deg,
-                     dominant_wavelength=wavelength,
-                     equatorial_divergence_deg=equatorial_divergence_deg,
-                     diffractometer_radius=diffractometer_radius)
-    # set parameters for each convolver
-    p.set_parameters(convolver="emission",
-                     emiss_wavelengths=mat_wavelengths,
-                     emiss_intensities=mat_intensities,
-                     emiss_gauss_widths=mat_gauss_widths,
-                     emiss_lor_widths=mat_lor_widths,
-                     crystallite_size_gauss=crystallite_size_gauss,
-                     crystallite_size_lor=crystallite_size_lor)
-    p.set_parameters(convolver="displacement",
-                     zero_error_deg=zero_error_deg,
-                     aspecimen_displacement=specimen_displacement)
-    if axDiv is not None:
-        p.set_parameters(convolver="axial",
-                         angI_deg=angI_deg, angD_deg=angD_deg,
-                         axDiv=axDiv, slit_length_source=slit_length_source,
-                         slit_length_target=slit_length_target,
-                         length_sample=length_sample,
-                         n_integral_points=n_integral_points)
-    if absorption_coefficient is not None:
-        p.set_parameters(convolver="absorption",
-                         absorption_coefficient=absorption_coefficient,
-                         sample_thickness=sample_thickness)
-    if si_psd_window_bounds is not None:
-        p.set_parameters(convolver="si_psd",
-                         si_psd_window_bounds=si_psd_window_bounds)
-    p.set_parameters(convolver="receiver_slit",
-                     slit_width=slit_width)
-    if tube_tails is not None:
-        main_width, tail_left, tail_right, tail_intens = tube_tails
-        p.set_parameters(convolver="tube_tails",
-                         main_width=main_width, tail_left=tail_left,
-                         tail_right=tail_right, tail_intens=tail_intens)
-
-    return p.compute_line_profile()
-
-
-class Powder(Experiment):
+class PowderDiffraction(PowderExperiment):
 
     """
     Experimental class for powder diffraction. This class calculates the
@@ -1717,8 +1607,9 @@ class Powder(Experiment):
 
         Parameters
         ----------
-         mat:        xrayutilities.material.Crystal instance
-                     giving the material for the experimental class
+         mat:        xrayutilities.material.Crystal or
+                     xrayutilities.simpack.Powder instance specifying the
+                     material for the powder calculation
          kwargs:     optional keyword arguments
                      same as for the Experiment base class +
           tt_cutoff: Powder peaks are calculated up to an scattering angle of
@@ -1729,23 +1620,40 @@ class Powder(Experiment):
                       settings are loaded from the config file.
         """
         if isinstance(mat, materials.Crystal):
+            self.mat = Powder(mat, 1)
+        elif isinstance(mat, Powder):
             self.mat = mat
         else:
             raise TypeError("mat must be an instance of class "
-                            "xrayutilities.materials.Crystal")
+                            "xrayutilities.materials.Crystal or "
+                            "xrayutilities.simpack.Powder")
 
         self._tt_cutoff = kwargs.pop('tt_cutoff', 180)
         fpclass = kwargs.pop('fpclass', FP_profile)
         settings = kwargs.pop('fpsettings', {})
-        Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
+        PowderExperiment.__init__(self, **kwargs)
 
         self.fp_profile = self._init_fpprofile(fpclass, settings)
+        self.set_sample_parameters()
 
         # number of significant digits, needed to identify equal floats
         self.digits = 5
         self.qpos = None
 
         self.PowderIntensity(self._tt_cutoff)
+
+    def set_sample_parameters(self):
+        """
+        load sample parameters from the Powder class and use them in fp_profile
+        """
+        samplesettings = {}
+        for prop, default in zip(('crystallite_size_lor',
+                                  'crystallite_size_gauss',
+                                  'strain_lor', 'strain_gauss'),
+                                 (1e10, 1e10, 0, 0)):
+            samplesettings[prop] = getattr(self.mat, prop, default)
+
+        self.fp_profile.set_parameters(convolver='emission', **samplesettings)
 
     def _init_fpprofile(self, fpclass, settings={}):
         """
@@ -1792,18 +1700,15 @@ class Powder(Experiment):
             ang ..... Bragg angles of the peaks (Theta!)
             qpos .... reciprocal space position of intensities
         """
-
+        mat = self.mat.material
         # calculate maximal Bragg indices
-        hmax = int(numpy.ceil(norm(self.mat.lattice.a1) *
-                   self.k0 / numpy.pi *
+        hmax = int(numpy.ceil(norm(mat.lattice.a1) * self.k0 / numpy.pi *
                    numpy.sin(numpy.radians(tt_cutoff / 2.))))
         hmin = -hmax
-        kmax = int(numpy.ceil(norm(self.mat.lattice.a2) *
-                   self.k0 / numpy.pi *
+        kmax = int(numpy.ceil(norm(mat.lattice.a2) * self.k0 / numpy.pi *
                    numpy.sin(numpy.radians(tt_cutoff / 2.))))
         kmin = -kmax
-        lmax = int(numpy.ceil(norm(self.mat.lattice.a3) *
-                   self.k0 / numpy.pi *
+        lmax = int(numpy.ceil(norm(mat.lattice.a3) * self.k0 / numpy.pi *
                    numpy.sin(numpy.radians(tt_cutoff / 2.))))
         lmin = -lmax
 
@@ -1820,14 +1725,14 @@ class Powder(Experiment):
         for h in range(hmin, hmax + 1):
             for k in range(kmin, kmax + 1):
                 for l in range(lmin, lmax + 1):
-                    q = self.mat.Q(h, k, l)
+                    q = mat.Q(h, k, l)
                     if norm(q) < qmax:
                         qlist.append(q)
                         hkllist.append([h, k, l])
                         qabslist.append(numpy.round(norm(q), self.digits))
 
         qabs = numpy.array(qabslist, dtype=numpy.double)
-        s = self.mat.StructureFactorForQ(qlist, self.energy)
+        s = mat.StructureFactorForQ(qlist, self.energy)
         r = numpy.absolute(s) ** 2
 
         _tmp_data = numpy.zeros(r.size, dtype=[('q', numpy.double),
@@ -1863,11 +1768,11 @@ class Powder(Experiment):
                                numpy.cos(numpy.radians(2 * self.ang)) ** 2) / 2
         lorentz_factor = 1. / (numpy.sin(numpy.radians(self.ang)) ** 2 *
                                numpy.cos(numpy.radians(self.ang)))
-        unitcellvol = self.mat.lattice.UnitCellVolume()
+        unitcellvol = mat.lattice.UnitCellVolume()
         self.data = (self.data * polarization_factor *
                      lorentz_factor / unitcellvol ** 2)
 
-    def Convolve(self, twotheta, window_width=20):
+    def Convolve(self, twotheta, window_width='config'):
         """
         convolute the powder lines with the resolution function and map them
         onto the twotheta positions. This calculates the powder pattern
@@ -1880,6 +1785,10 @@ class Powder(Experiment):
                     Note: Bragg peaks are only included up to tt_cutoff set in
                           the class constructor!
          window_width: width of the calculation window of a single peak
+
+        Returns
+        -------
+         output intensity values for the twotheta values given in the input
         """
         import time
         t_start = time.time()
@@ -1894,7 +1803,10 @@ class Powder(Experiment):
                           'considered!')
 
         outint = numpy.zeros_like(twotheta)
-        ww = window_width
+        if window_width == 'config':
+            ww = config.POWDER['classoptions']['window_width']
+        else:
+            ww = window_width
         tt = twotheta
         for twotheta_x, sfact in zip(2*self.ang, self.data):
             # check if peak is in data range to be calculated
@@ -1905,7 +1817,7 @@ class Powder(Experiment):
             # put the compute window in the right place and clear all histories
             p.set_window(twotheta_output_points=npoints,
                          twotheta_window_center_deg=twotheta_x,
-                         twotheta_window_fullwidth_deg=window_width)
+                         twotheta_window_fullwidth_deg=ww)
             # set parameters which are shared by many things
             p.set_parameters(twotheta0_deg=twotheta_x)
             result = p.compute_line_profile()
@@ -1931,33 +1843,14 @@ class Powder(Experiment):
                           the class constructor!
          **kwargs: additional keyword arguments are passed to the Convolve
                    function
+
+        Returns
+        -------
+         output intensity values for the twotheta values given in the input
         """
+        self.set_sample_parameters()
         self.PowderIntensity()
         return self.Convolve(twotheta, **kwargs)
-
-    def _Ang2Q(self, th, deg=True):
-        """
-        Converts theta angles to reciprocal space positions
-        returns the absolute value of momentum transfer
-        """
-        if deg:
-            lth = numpy.radians(th)
-        else:
-            lth = th
-
-        qpos = 2 * self.k0 * numpy.sin(lth)
-        return qpos
-
-    def Q2Ang(self, qpos, deg=True):
-        """
-        Converts reciprocal space values to theta angles
-        """
-        th = numpy.arcsin(qpos / (2 * self.k0))
-
-        if deg:
-            th = numpy.degrees(th)
-
-        return th
 
     def __str__(self):
         """
@@ -1965,8 +1858,8 @@ class Powder(Experiment):
         """
         ostr = "\nPowder diffraction object \n"
         ostr += "-------------------------\n"
-        ostr += "Material: " + self.mat.name + "\n"
-        ostr += "Lattice:\n" + self.mat.lattice.__str__()
+        ostr += self.mat.__repr__() + "\n"
+        ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
         if self.qpos is not None:
             max = self.data.max()
             ostr += "\nReflections: \n"

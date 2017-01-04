@@ -26,6 +26,7 @@ on lmfit.
 """
 
 from .smaterials import SMaterial, MaterialList
+from .smaterials import Powder, PowderList
 from .smaterials import Layer, LayerStack
 from .smaterials import CrystalStack, GradedLayerStack
 from .smaterials import PseudomorphicStack001
@@ -48,3 +49,6 @@ from .fit import fit_xrr
 
 from .helpers import coplanar_alphai
 from .helpers import get_qz
+
+from .powder import FP_profile
+from .powder import PowderDiffraction
