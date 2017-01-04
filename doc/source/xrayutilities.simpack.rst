@@ -4,6 +4,14 @@ xrayutilities.simpack package
 Submodules
 ----------
 
+xrayutilities.simpack.darwin_theory module
+------------------------------------------
+
+.. automodule:: xrayutilities.simpack.darwin_theory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.simpack.fit module
 --------------------------------
 
@@ -24,6 +32,22 @@ xrayutilities.simpack.models module
 -----------------------------------
 
 .. automodule:: xrayutilities.simpack.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.simpack.powder module
+-----------------------------------
+
+.. automodule:: xrayutilities.simpack.powder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.simpack.powdermodel module
+----------------------------------------
+
+.. automodule:: xrayutilities.simpack.powdermodel
     :members:
     :undoc-members:
     :show-inheritance:

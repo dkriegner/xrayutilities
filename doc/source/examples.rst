@@ -147,43 +147,26 @@ Similar functions exist for other experimental geometries. For grazing incidence
 
 There is on implementation of a GID 2S+2D diffractometer. Be sure to check if the order of the detector circles fits your goniometer, otherwise define one yourself!
 
-There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space and furthermore powder scans of materials can be simulated in a very primitive way, which should only be used to get an idea of the peak positions expected from a certain material.
-
+There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space.
 ::
 
     import xrayutilities as xu
-    import matplotlib.pyplot as plt
+    import numpy
 
-    energy = (2 * 8048 + 8028) / 3. # copper k alpha 1,2
+    energy = 'CuKa12'
 
-    # creating Indium powder
-    In_powder = xu.Powder(xu.materials.In, en=energy)
-    # calculating the reflection strength for the powder
-    In_powder.PowderIntensity()
+    # creating powder experiment
+    xup = xu.PowderExperiment(en=energy)
+    theta = arange(0, 70, 0.01)
+    q = xu.Ang2Q(theta)
 
-    # convoluting the peaks with a gaussian in q-space
-    peak_width = 0.01 # in q-space
-    resolution = 0.0005 # resolution in q-space
-    In_th,In_int = In_powder.Convolute(resolution, peak_width)
 
-    plt.figure()
-    plt.xlabel(r"2Theta (deg)"); plt.ylabel(r"Intensity")
-    # plot the convoluted signal
-    plt.plot(In_th * 2, In_int / In_int.max(), 'k-',
-             label="Indium powder convolution")
-    # plot each peak in a bar plot
-    plt.bar(In_powder.ang * 2, In_powder.data / In_powder.data.max(),
-            width=0.3, bottom=0, linewidth=0, color='r',
-            align='center', orientation='vertical', label="Indium bar plot")
+More information about powdered materials can be obtained from the :class:`~xrayutilities.simpack.powder.PowderDiffraction` class. It contains information about peak positions and intensities
 
-    plt.legend(); plt.set_xlim(15, 100); plt.grid()
-
-One can also print the peak positions and other informations of a powder by
-
- >>> print In_powder
+ >>> print(xu.simpack.PowderDiffraction(xu.materials.In))
     Powder diffraction object
     -------------------------
-    Material: In
+    Powder-In (volume: 1, )
     Lattice:
     a1 = (3.252300 0.000000 0.000000), 3.252300
     a2 = (0.000000 3.252300 0.000000), 3.252300
@@ -196,11 +179,14 @@ One can also print the peak positions and other informations of a powder by
     --------------
           h k l     |    tth    |    |Q|    |    Int     |   Int (%)
        ---------------------------------------------------------------
-        [-1, 0, -1]    32.9611      2.312       217.75      100.00
-         [0, 0, -2]    36.3267      2.541        41.80       19.20
-        [-1, -1, 0]    39.1721      2.732        67.72       31.10
-       [-1, -1, -2]    54.4859      3.731        50.75       23.31
+         [0, 1, -1]    32.9338      2.312       217.24      100.00
+         [0, 0, -2]    36.2964      2.541        41.69       19.19
+         [-1, 1, 0]    39.1392      2.732        67.54       31.09
+       [-1, -1, -2]    54.4383      3.731        50.58       23.28
        ....
+
+If you are interested in simulations of powder diffraction patterns look at section :ref:`pdiff-simulations`
+
 
 Using the ``Gridder`` classes
 -----------------------------

@@ -248,3 +248,27 @@ We will compare the (004) Bragg peak calculated with different models and but ot
 As can be seen in the images we find that for the AlGaAs system all models except the very basic kinematical model yield an very similar diffraction signal. The second kinematic diffraction model considering the contribution of multiple Bragg peaks on the same truncation rod fails to describe only the ratio of substrate and layer signal, but otherwise results in a very similar line shape as the traces obtained by the dynamic theory.
 
 For the SiGe/Si bilayer system bigger differences between the kinematic and dynamic models are found. Further also the difference between the simpler and more sophisticated dynamic model gets obvious further away from the reference position. Interestingly also the multibeam kinematic theory differs considerable from the best dynamic model. As is evident from this second comparison the correct choice of model for the particular system under condideration is crucial for comparison with experimental data.
+
+.. _pdiff-simulations:
+
+Powder diffraction simulations
+------------------------------
+
+Powder diffraction patterns can be calculated using :class:`~xrayutilities.simpack.powdermodel.PowderModel`. A specialized class for the definition of powdered materials named :class:`~xrayutilities.simpack.smaterials.Powder` exists. The class constructor takes the materials volume and several material parameters specific for the powder material. Among them are `crystallite_size_gauss` and `strain_gauss` which can be used to include the effect of finite crystallite size and microstrain.\
+
+The :class:`~xrayutilities.simpack.powdermodel.PowderModel` internally uses :class:`~xrayutilities.simpack.powder.PowderDiffraction` for its calculations which is based on the fundamental parameters approach as implemented and documented `here <http://dx.doi.org/10.6028/jres.120.014.c>`_ and `here <http://dx.doi.org/10.6028/jres.120.014>`_.
+
+Several setup specific parameters should be adjusted by a user-specific configuration file are by supplying the appropriate parameters using the `fpsettings` argument of :class:`~xrayutilities.simpack.powdermodel.PowderModel`.
+
+If the correct settings are included in the config file the powder diffraction signal of a mixed sample of Co and Fe can be calculated with::
+
+    import numpy
+    import xrayutilities as xu
+
+    tt = numpy.arange(5, 120, 0.01)
+    Fe_powder = xu.simpack.Powder(xu.materials.Fe, 1,
+                                  crystallite_size_gauss=100e-9)
+    Co_powder = xu.simpack.Powder(xu.materials.Co, 5,  # 5 times more Co
+                                  crystallite_size_gauss=200e-9)
+    pm = xu.simpack.PowderModel(Fe_powder, Co_powder, I0=100)
+    inte = pm.simulate(tt)
