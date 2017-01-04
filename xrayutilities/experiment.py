@@ -2344,14 +2344,14 @@ class PowderExperiment(Experiment):
         """
         class constructor which takes the same keyword arguments as the
         Experiment class
-        
+
         Parameters
         ----------
          kwargs:     optional keyword arguments
                      same as for the Experiment base class
         """
         Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
-        
+
     def _Ang2Q(self, th, deg=True):
         """
         Converts theta angles to reciprocal space positions

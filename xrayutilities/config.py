@@ -50,6 +50,13 @@ from . import utilities_noconf
 xuParser = configparser.ConfigParser()
 xuParser.optionxform = str
 
+
+def trytomake(obj, key, typefunc):
+    try:
+        obj[key] = typefunc(obj[key])
+    except KeyError:
+        pass
+
 # read global default values for configuration variables
 with open(os.path.join(__path__[0], "xrayutilities_default.conf")) as conffile:
     xuParser.readfp(conffile)
@@ -103,12 +110,6 @@ KAPPA_ANGLE = xuParser.getfloat(sect, "kappa_angle")
 
 # parser Powder profile related variables
 POWDER = dict()
-
-def trytomake(obj, key, typefunc):
-    try:
-        obj[key] = typefunc(obj[key])
-    except KeyError:
-        pass
 
 subsec = 'classoptions'
 POWDER[subsec] = dict(xuParser.items("powder"))
