@@ -104,56 +104,64 @@ KAPPA_ANGLE = xuParser.getfloat(sect, "kappa_angle")
 # parser Powder profile related variables
 POWDER = dict()
 
+def trytomake(obj, key, typefunc):
+    try:
+        obj[key] = typefunc(obj[key])
+    except KeyError:
+        pass
+
 subsec = 'classoptions'
 POWDER[subsec] = dict(xuParser.items("powder"))
 for k in ('oversampling',):
-    POWDER[subsec][k] = int(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, int)
 for k in ('output_gaussian_smoother_bins_sigma', 'window_width'):
-    POWDER[subsec][k] = float(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, float)
 
 subsec = 'global'
 POWDER[subsec] = dict(xuParser.items("powder.global"))
 for k in ('diffractometer_radius', 'equatorial_divergence_deg'):
-    POWDER[subsec][k] = float(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, float)
 
 subsec = 'emission'
 POWDER[subsec] = dict(xuParser.items("powder.emission"))
-for k in ('crystallite_size_gauss', 'crystallite_size_lor'):
-    POWDER[subsec][k] = float(POWDER[subsec][k])
+for k in ('crystallite_size_gauss', 'crystallite_size_lor',
+          'strain_lor', 'strain_gauss'):
+    trytomake(POWDER[subsec], k, float)
 for k in ('emiss_wavelengths', 'emiss_intensities',
           'emiss_gauss_widths', 'emiss_lor_widths'):
-    POWDER[subsec][k] = numpy.asarray(literal_eval(POWDER[subsec][k]))
-POWDER[subsec]['emiss_wavelengths'] = numpy.asarray(tuple(
-    utilities_noconf.wavelength(wl) * 1e-10
-    for wl in POWDER[subsec]['emiss_wavelengths']))
+    trytomake(POWDER[subsec], k, lambda x: numpy.asarray(literal_eval(x)))
+if 'emiss_wavelengths' in POWDER[subsec]:
+    POWDER[subsec]['emiss_wavelengths'] = numpy.asarray(tuple(
+        utilities_noconf.wavelength(wl) * 1e-10
+        for wl in POWDER[subsec]['emiss_wavelengths']))
 
 subsec = 'axial'
 POWDER[subsec] = dict(xuParser.items("powder.axial"))
 for k in ('n_integral_points',):
-    POWDER[subsec][k] = int(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, int)
 for k in ('slit_length_source', 'slit_length_target', 'length_sample',
           'angI_deg', 'angD_deg'):
-    POWDER[subsec][k] = float(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, float)
 
 subsec = 'absorption'
 POWDER[subsec] = dict(xuParser.items("powder.absorption"))
 for k in ('absorption_coefficient', 'sample_thickness'):
-    POWDER[subsec][k] = float(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, float)
 
 subsec = 'si_psd'
-POWDER[subsec] = dict(xuParser.items("powder.psd"))
+POWDER[subsec] = dict(xuParser.items("powder.si_psd"))
 for k in ('si_psd_window_bounds',):
-    POWDER[subsec][k] = literal_eval(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, literal_eval)
 
 subsec = 'receiver_slit'
 POWDER[subsec] = dict(xuParser.items("powder.receiver_slit"))
 for k in ('slit_width', ):
-    POWDER[subsec][k] = float(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, float)
 
 subsec = 'tube_tails'
 POWDER[subsec] = dict(xuParser.items("powder.tube_tails"))
 for k in ('main_width', 'tail_left', 'tail_right', 'tail_intens'):
-    POWDER[subsec][k] = float(POWDER[subsec][k])
+    trytomake(POWDER[subsec], k, float)
 
 if VERBOSITY >= DEBUG:
     print("XU.config: xrayutilities configuration files: %s" % repr(cfiles))
