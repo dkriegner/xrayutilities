@@ -76,8 +76,8 @@ class SMaterial(object):
     __rmul__ = __mul__
 
     def __repr__(self):
-        s = '\n{cls}-{name} ('.format(name=self.material.name,
-                                      cls=self.__class__.__name__)
+        s = '{cls}-{name} ('.format(name=self.material.name,
+                                    cls=self.__class__.__name__)
         for k in self.__dict__:
             if k not in ('material', 'name'):
                 s += '{key}: {value}, '.format(key=k, value=getattr(self, k))
@@ -150,7 +150,8 @@ class MaterialList(collections.MutableSequence):
     __rmul__ = __mul__
 
     def __str__(self):
-        s = '{name}\n{l}'.format(name=self.name, l=str(self.list))
+        l = ',\n  '.join([str(entry) for entry in self.list])
+        s = '{name} [\n  {l}\n]'.format(name=self.name, l=l)
         return s
 
     def __repr__(self):
@@ -294,8 +295,8 @@ class Powder(SMaterial):
 
     material:   an xrayutilties material (Crystal) describing optical and
                 crystal properties of the thin film
-    volume:     powder's volume (in pseudo units, since only the relative volume
-                enters the calculation)
+    volume:     powder's volume (in pseudo units, since only the relative
+                volume enters the calculation)
 
     Optionally also the following can be set:
      crystallite_size_lor: Lorentzian crystallite size fwhm (m)
@@ -336,4 +337,3 @@ class PowderList(MaterialList):
     def check(self, v):
         if not isinstance(v, Powder):
             raise TypeError('PowderList can only contain Powder as entries!')
-

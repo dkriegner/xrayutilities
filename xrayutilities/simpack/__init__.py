@@ -52,3 +52,5 @@ from .helpers import get_qz
 
 from .powder import FP_profile
 from .powder import PowderDiffraction
+
+from .powdermodel import PowderModel
