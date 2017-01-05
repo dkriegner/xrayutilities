@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module handling crystal lattice structures. A Lattice consists of unit cell
@@ -232,8 +232,6 @@ class Lattice(object):
         """
         if len(args) < 3:
             args = args[0]
-            if len(args) < 3:
-                raise InputError("need 3 indices for the lattice point")
 
         return self.transform(args)
 
