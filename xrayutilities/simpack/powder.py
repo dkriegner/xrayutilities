@@ -1698,11 +1698,8 @@ class PowderDiffraction(PowderExperiment):
                                  (1e10, 1e10, 0, 0)):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
-        abs_coeff = 1e6 / self.mat.material.absorption_length(self.energy)
         for fp in self.fp_profile:
             fp.set_parameters(convolver='emission', **samplesettings)
-            fp.set_parameters(convolver='absorption',
-                              absorption_coefficient=abs_coeff)
 
     @property
     def twotheta(self):

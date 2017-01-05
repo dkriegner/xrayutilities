@@ -49,7 +49,8 @@ class PowderModel(object):
         {'displacement': {'specimen_displacement': z-displacement of the sample
                                                    from the rotation center
                           'zero_error_deg': zero error of the 2theta angle}
-         'absorption': {'sample_thickness': sample thickness (m)}
+         'absorption': {'sample_thickness': sample thickness (m),
+                        'absorption_coefficient': sample's absorption (m^-1)}
          'axial': {'length_sample': the length of the sample in the axial
                                     direction (m)}
         }
