@@ -585,13 +585,16 @@ class FP_profile:
         # range.
         exactintegral *= 1 / dx  # normalize so sum is right
         # compute the exact centroid we need for this
-        exact_moment1 = (  # simplified from Mathematica FortranForm
-            (4*k*(delta2**1.5-delta1**1.5) + 3*y0*(delta2**2-delta1**2)) /
-            (6.*(2*k*(sqrt(delta2)-sqrt(delta1)) + y0*(delta2-delta1)))
-        )
-        if not flip:
-            exact_moment1 = -exact_moment1
-        exact_moment1 += peakpos
+        if abs(delta2-delta1) < 1e-12:
+            exact_moment1 = 0
+        else:
+            exact_moment1 = (  # simplified from Mathematica FortranForm
+                (4*k*(delta2**1.5-delta1**1.5) + 3*y0*(delta2**2-delta1**2)) /
+                (6.*(2*k*(sqrt(delta2)-sqrt(delta1)) + y0*(delta2-delta1)))
+            )
+            if not flip:
+                exact_moment1 = -exact_moment1
+        exact_moment1+=peakpos
 
         # note: because of the way the search is done, this produces a result
         # with a bias of 1/2 channel to the left of where it should be.
@@ -605,7 +608,7 @@ class FP_profile:
             (outerbound, innerbound), side='left')
 
         # peak has been squeezed out, nothing to do
-        if abs(outerbound - innerbound) < 2 * dx:
+        if abs(outerbound - innerbound) < 2 * dx or idx1 - idx0 < 2:
             # preserve the exact centroid: requires summing into two channels
             # for a peak this narrow, no attempt to preserve the width.
             # note that x1 (1-f1) + (x1+dx) f1 = mu has solution
@@ -959,12 +962,12 @@ class FP_profile:
         if flag:
             return axfn  # already up to date if first return is True
 
+        xx = type("data", (), kwargs)
         # no axial divergence, transform of delta fn
-        if kwargs["axDiv"] != "full":
+        if xx.axDiv != "full" or xx.twotheta0_deg==90.0:
             axfn[:] = 1
             return axfn
         else:
-            xx = type("data", (), kwargs)
             axbuf = self.full_axdiv_I3(
                 nsteps=xx.n_integral_points,
                 epsvals=self.epsilon,
@@ -1111,7 +1114,7 @@ class FP_profile:
         items.append("crystallite_size_gauss (nm): %.5g" %
                      (xx.crystallite_size_gauss * nm))
         items.append("strain_lor: %.5g" % xx.strain_lor)
-        items.append("strain_gauss: %.5g" % xx.strain_lor)
+        items.append("strain_gauss: %.5g" % xx.strain_gauss)
         return '\n'.join(items)
 
     def conv_emission(self):
@@ -1155,9 +1158,11 @@ class FP_profile:
         theta = xx.twotheta0 / 2
         # Emission profile FWHM + crystallite broadening (scale factors are
         # Topas choice!) (Lorentzian)
+        # note: the strain broadenings in Topas are expressed in degrees
+        # 2theta, must convert to radians(theta) with pi/360
         widths = (
             (xx.emiss_lor_widths / xx.emiss_wavelengths) * tan(theta) +
-            xx.strain_lor * tan(theta) +
+            math.radians(xx.strain_lor) / 2 * tan(theta) +
             (xx.emiss_wavelengths / (2 * xx.crystallite_size_lor * cos(theta)))
         )
         # save weighted average width for future reference in periodicity fixer
@@ -1166,7 +1171,7 @@ class FP_profile:
         # gaussian bits add in quadrature
         gfwhm2s = (
             ((2*xx.emiss_gauss_widths/xx.emiss_wavelengths) * tan(theta))**2 +
-            (xx.strain_gauss * tan(theta))**2 +
+            (math.radians(xx.strain_gauss) / 2 * tan(theta))**2 +
             (xx.emiss_wavelengths / (xx.crystallite_size_gauss*cos(theta)))**2
         )
 
@@ -1411,7 +1416,8 @@ class FP_profile:
         return buf
 
     def compute_line_profile(self, convolver_names=None,
-                             compute_derivative=False):
+                             compute_derivative=False,
+                             return_convolver=False):
         """
         execute all the convolutions; if convolver_names is None, use
         everything we have, otherwise, use named convolutions.
@@ -1512,6 +1518,10 @@ class FP_profile:
                               peak=peak[::self.oversampling],
                               derivative=deriv
                               )
+
+        if return_convolver:
+            result.add_symbol(
+                convolver=convolver[:self.twotheta_output_points//2+1])
 
         return result
 
@@ -1709,7 +1719,11 @@ class PowderDiffraction(PowderExperiment):
     def twotheta(self, tt):
         oldtt = self.__tt
         self.__tt = tt
-        if not numpy.all(numpy.equal(oldtt, self.__tt)):
+        if oldtt is None:
+            self.set_window()
+        elif len(oldtt) != len(self.__tt):
+            self.set_window()
+        elif not numpy.all(numpy.equal(oldtt, self.__tt)):
             self.set_window()
 
     @property
@@ -1735,6 +1749,8 @@ class PowderDiffraction(PowderExperiment):
         if not ww or tt is None:  # not all necessary information is set up
             return
         for ttpeak, fp in zip(self.ang * 2, self.fp_profile):
+            if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
+                continue
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
             npoints = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
@@ -1865,21 +1881,19 @@ class PowderDiffraction(PowderExperiment):
         t_start = time.time()
         p = self.fp_profile
 
-        ttmax = numpy.max(twotheta)
-        ttmin = numpy.min(twotheta)
-        # check if twotheta range extends above tt_cutoff
-        if ttmax > self._tt_cutoff:
-            warnings.warn('twotheta range is larger then tt_cutoff. Possibly '
-                          'Bragg peaks in the convolution range are not '
-                          'considered!')
-
         outint = numpy.zeros_like(twotheta)
         tt = self.twotheta = twotheta
         self.window_width = window_width
         ww = self.window_width
+
+        # check if twotheta range extends above tt_cutoff
+        if tt.max() > self._tt_cutoff:
+            warnings.warn('twotheta range is larger then tt_cutoff. Possibly '
+                          'Bragg peaks in the convolution range are not '
+                          'considered!')
         for ttpeak, sfact, fp in zip(2*self.ang, self.data, self.fp_profile):
             # check if peak is in data range to be calculated
-            if ttpeak - ww/2 > ttmax or ttpeak + ww/2 < ttmin:
+            if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
                 continue
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
