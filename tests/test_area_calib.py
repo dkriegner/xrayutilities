@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2015-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import os.path
+import os
 import unittest
 
 import numpy
@@ -83,8 +83,9 @@ ccdfile = os.path.join(datadir, name, name + "_%05d_eiger",
 fullfilename = ccdfile % (2, 2, 104)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.net)")
+@unittest.skipIf('TRAVIS' in os.environ or not os.path.isfile(fullfilename),
+                 "this test is not running on Travis-CI or additional test "
+                 "data are needed (http://xrayutilities.sf.net)")
 class TestArea_calib(unittest.TestCase):
     en = 10000.0  # x-ray energy in eV
     roi = (551, 1065, 0, 1030)  # get data of the good part of the detector
