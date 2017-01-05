@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to handle the access to the optical parameters database
@@ -38,6 +38,7 @@ class DataBase(object):
         self.f2_en = None
         self.f2 = None
         self.weight = None
+        self.matname = None
 
     def Create(self, dbname, dbdesc):
         """
@@ -212,6 +213,8 @@ class DataBase(object):
         required input arguments:
          name ............... string with the name of the material
         """
+        if self.matname == name:
+            return
         try:
             self.h5group = self.h5file[name]
         except:
@@ -237,6 +240,7 @@ class DataBase(object):
             self.weight = self.h5group.attrs['atomic_standard_weight']
         except:
             self.weight = None
+        self.matname = name
 
     def GetF0(self, q, dset='default'):
         """

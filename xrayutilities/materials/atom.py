@@ -15,13 +15,14 @@
 module containing the Atom class which handles the database access for atomic
 scattering factors and the atomic mass.
 """
+import hashlib
 import os.path
 import re
 
-from . import __path__
-from . import database
-from .. import config
-from .. import utilities
+import numpy
+
+from . import __path__, database
+from .. import config, utilities
 
 # python 2to3 compatibility
 try:
@@ -34,7 +35,23 @@ _db = database.DataBase(os.path.join(__path__[0], "data", config.DBNAME))
 _db.Open()
 
 
+def get_key(*args):
+    """
+    generate a hash key for several possible types of arguments
+    """
+    tup = []
+    for a in args:
+        if isinstance(a, numpy.ndarray):
+            tup.append(hashlib.md5(q).digest())
+        elif isinstance(a, list):
+            tup.append(hash(tuple(a)))
+        else:
+            tup.append(hash(a))
+    return hash(tuple(tup))
+
+
 class Atom(object):
+    max_cache_length = 10
 
     def __init__(self, name, num):
         self.name = name
@@ -44,6 +61,8 @@ class Atom(object):
 
         self.basename = re.sub('[^A-Za-z]', '', name)
         self.num = num
+        self.__weight = None
+        self._dbcache = dict([(prop, []) for prop in ('f0', 'f1', 'f2', 'f')])
 
     def __key__(self):
         """ key function to return the elements number """
@@ -55,26 +74,71 @@ class Atom(object):
 
     @property
     def weight(self):
-        _db.SetMaterial(self.basename)
-        return _db.weight
+        if not self.__weight:
+            _db.SetMaterial(self.basename)
+            self.__weight = _db.weight
+        return self.__weight
+
+    def get_cache(self, prop, key):
+        """
+        check if a cached value exists to speed up repeated database requests
+
+        Returns
+        -------
+         flag, result: if the flag is True then result contains the cached
+                       result, otherwise result is None
+        """
+        history = self._dbcache[prop]
+        for idx, (k, result) in enumerate(history):
+            if k == key:
+                history.insert(0, history.pop(idx))  # move to front
+                return True, result
+        return False, None
+
+    def set_cache(self, prop, key, result):
+        """
+        set result to be cached to speed up future calls
+        """
+        history = self._dbcache[prop]
+        if len(history) == self.max_cache_length:
+            history.pop(-1)
+        history.insert(0, (key, result))
 
     def f0(self, q):
+        key = get_key(q)
+        f, res = self.get_cache('f0', key)
+        if f:
+            return res
         _db.SetMaterial(self.basename)
-        return _db.GetF0(q, self.ostate)
+        res = _db.GetF0(q, self.ostate)
+        self.set_cache('f0', key, res)
+        return res
 
     def f1(self, en='config'):
+        key = get_key(en)
+        f, res = self.get_cache('f1', key)
+        if f:
+            return res
         if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)
-        return _db.GetF1(utilities.energy(en))
+        res = _db.GetF1(utilities.energy(en))
+        self.set_cache('f1', key, res)
+        return res
 
     def f2(self, en='config'):
+        key = get_key(en)
+        f, res = self.get_cache('f2', key)
+        if f:
+            return res
         if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)
-        return _db.GetF2(utilities.energy(en))
+        res = _db.GetF2(utilities.energy(en))
+        self.set_cache('f2', key, res)
+        return res
 
     def f(self, q, en='config'):
         """
@@ -90,8 +154,14 @@ class Atom(object):
         -------
          f (float)
         """
-        f = self.f0(q) + self.f1(en) + 1.j * self.f2(en)
-        return f
+        key = get_key(q, en)
+        f, res = self.get_cache('f', key)
+        if f:
+            return res
+
+        res = self.f0(q) + self.f1(en) + 1.j * self.f2(en)
+        self.set_cache('f2', key, res)
+        return res
 
     def __str__(self):
         ostr = self.name
