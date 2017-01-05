@@ -1629,38 +1629,30 @@ class PowderDiffraction(PowderExperiment):
                             "xrayutilities.simpack.Powder")
 
         self._tt_cutoff = kwargs.pop('tt_cutoff', 180)
-        fpclass = kwargs.pop('fpclass', FP_profile)
-        settings = kwargs.pop('fpsettings', {})
+        self.fpclass = kwargs.pop('fpclass', FP_profile)
+        self.settings = kwargs.pop('fpsettings', {})
         PowderExperiment.__init__(self, **kwargs)
-
-        self.fp_profile = self._init_fpprofile(fpclass, settings)
-        self.set_sample_parameters()
 
         # number of significant digits, needed to identify equal floats
         self.digits = 5
         self.qpos = None
-
         self.PowderIntensity(self._tt_cutoff)
 
-    def set_sample_parameters(self):
-        """
-        load sample parameters from the Powder class and use them in fp_profile
-        """
-        samplesettings = {}
-        for prop, default in zip(('crystallite_size_lor',
-                                  'crystallite_size_gauss',
-                                  'strain_lor', 'strain_gauss'),
-                                 (1e10, 1e10, 0, 0)):
-            samplesettings[prop] = getattr(self.mat, prop, default)
+        # initialize FP_profile instances
+        self.fp_profile = []
+        for tt, hkl in zip(self.ang * 2, self.hkl):
+            self.fp_profile.append(
+                self._init_fpprofile(self.fpclass, self.settings))
+        self.set_sample_parameters()
 
-        self.fp_profile.set_parameters(convolver='emission', **samplesettings)
-        abs_coeff = 1e6 / self.mat.material.absorption_length(self.energy)
-        self.fp_profile.set_parameters(convolver='absorption',
-                                       absorption_coefficient=abs_coeff)
+        # set some other class properties
+        self.__tt = None
+        self.__ww = None
 
     def _init_fpprofile(self, fpclass, settings={}):
         """
-        configure the default parameters of the FP_profile class
+        configure the default parameters of the FP_profile class and return an
+        instance with these settings
 
         Parameters
         ----------
@@ -1692,9 +1684,85 @@ class PowderDiffraction(PowderExperiment):
         for k in params:
             p.set_parameters(convolver=k, **params[k])
 
-        self.profile_params = params
-
         return p
+
+    def set_sample_parameters(self):
+        """
+        load sample parameters from the Powder class and use them in all
+        FP_profile instances of this object
+        """
+        samplesettings = {}
+        for prop, default in zip(('crystallite_size_lor',
+                                  'crystallite_size_gauss',
+                                  'strain_lor', 'strain_gauss'),
+                                 (1e10, 1e10, 0, 0)):
+            samplesettings[prop] = getattr(self.mat, prop, default)
+
+        abs_coeff = 1e6 / self.mat.material.absorption_length(self.energy)
+        for fp in self.fp_profile:
+            fp.set_parameters(convolver='emission', **samplesettings)
+            fp.set_parameters(convolver='absorption',
+                              absorption_coefficient=abs_coeff)
+
+    @property
+    def twotheta(self):
+        return self.__tt
+
+    @twotheta.setter
+    def twotheta(self, tt):
+        oldtt = self.__tt
+        self.__tt = tt
+        if not numpy.all(numpy.equal(oldtt, self.__tt)):
+            self.set_window()
+
+    @property
+    def window_width(self):
+        return self.__ww
+
+    @window_width.setter
+    def window_width(self, ww):
+        oldww = self.__ww
+        if ww == 'config':
+            self.__ww = config.POWDER['classoptions']['window_width']
+        else:
+            self.__ww = ww
+        if oldww != self.__ww:
+            self.set_window()
+
+    def set_window(self):
+        """
+        sets the calcultion window for all convolvers
+        """
+        ww = self.window_width
+        tt = self.twotheta
+        if not ww or tt is None:  # not all necessary information is set up
+            return
+        for ttpeak, fp in zip(self.ang * 2, self.fp_profile):
+            idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
+                                                   tt < ttpeak + ww/2))
+            npoints = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
+            fp.set_window(twotheta_output_points=npoints,
+                          twotheta_window_center_deg=ttpeak,
+                          twotheta_window_fullwidth_deg=ww)
+            fp.set_parameters(twotheta0_deg=ttpeak)
+
+    def update_settings(self, newsettings):
+        """
+        update settings of all instances of FP_profile
+
+        Parameters
+        ----------
+         newsettings:   dictionary with new settings. It has to include one
+                        subdictionary for every convolver which should have its
+                        settings changed.
+        """
+        for k in newsettings:
+            for fp in self.fp_profile:
+                fp.set_parameters(convolver=k, **newsettings[k])
+            if k in self.settings:
+                self.settings[k].update(newsettings[k])
+            else:
+                self.settings[k] = dict().update(newsettings[k])
 
     def PowderIntensity(self, tt_cutoff=180):
         """
@@ -1809,28 +1877,19 @@ class PowderDiffraction(PowderExperiment):
                           'considered!')
 
         outint = numpy.zeros_like(twotheta)
-        if window_width == 'config':
-            ww = config.POWDER['classoptions']['window_width']
-        else:
-            ww = window_width
-        tt = twotheta
-        for twotheta_x, sfact in zip(2*self.ang, self.data):
+        tt = self.twotheta = twotheta
+        self.window_width = window_width
+        ww = self.window_width
+        for ttpeak, sfact, fp in zip(2*self.ang, self.data, self.fp_profile):
             # check if peak is in data range to be calculated
-            if twotheta_x - ww/2 > ttmax or twotheta_x + ww/2 < ttmin:
+            if ttpeak - ww/2 > ttmax or ttpeak + ww/2 < ttmin:
                 continue
-            idx = numpy.argwhere(numpy.logical_and(tt > twotheta_x - ww/2,
-                                                   tt < twotheta_x + ww/2))
-            npoints = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
-            # put the compute window in the right place and clear all histories
-            p.set_window(twotheta_output_points=npoints,
-                         twotheta_window_center_deg=twotheta_x,
-                         twotheta_window_fullwidth_deg=ww)
-            # set parameters which are shared by many things
-            p.set_parameters(twotheta0_deg=twotheta_x)
-            result = p.compute_line_profile()
+            idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
+                                                   tt < ttpeak + ww/2))
+            result = fp.compute_line_profile()
 
             outint[idx] += numpy.interp(tt[idx], result.twotheta_deg,
-                                   result.peak*sfact, left=0, right=0)
+                                        result.peak*sfact, left=0, right=0)
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.Powder.Convolute: exec time=", time.time() - t_start)
         return outint
@@ -1857,6 +1916,8 @@ class PowderDiffraction(PowderExperiment):
         """
         self.set_sample_parameters()
         self.PowderIntensity()
+        # next statement not always necessary, only for changed peak positions
+        self.set_window()
         return self.Convolve(twotheta, **kwargs)
 
     def __str__(self):
