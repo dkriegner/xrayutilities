@@ -1,3 +1,5 @@
+* cache database results -> huge speedups in repeated calls with same
+  parameters
 * new file parser for ILL numor files (station D23, maybe more general)
 * add possibility to fix the pixel size when calibrating 2D detectors
 * new normalized Lorentzian function (NormLorentz1d)
