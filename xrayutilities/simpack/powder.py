@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
-# Copyright (C) 2015-2016 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
+# Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
 
 # This file was derived from http://dx.doi.org/10.6028/jres.120.014.c
 
@@ -83,21 +83,23 @@ from __future__ import absolute_import, print_function
 import math
 import os
 import sys
+import time
 import warnings
 from math import cos, pi, sin, sqrt, tan
 
 import numpy
 from numpy import arcsin as nasin
+from numpy import abs as nabs
 from numpy import cos as ncos
+from numpy import sin as nsin
 from numpy import asarray
-from numpy.linalg import norm
 from scipy.special import sici  # for the sine and cosine integral
 
 # package internal imports
-from .smaterials import Powder
-from .. import math as xumath
 from .. import config, materials
 from ..experiment import PowderExperiment
+from ..math import VecNorm
+from .smaterials import Powder
 
 # figure out which FFT package we have, and import it
 try:
@@ -594,7 +596,7 @@ class FP_profile:
             )
             if not flip:
                 exact_moment1 = -exact_moment1
-        exact_moment1+=peakpos
+        exact_moment1 += peakpos
 
         # note: because of the way the search is done, this produces a result
         # with a bias of 1/2 channel to the left of where it should be.
@@ -964,7 +966,7 @@ class FP_profile:
 
         xx = type("data", (), kwargs)
         # no axial divergence, transform of delta fn
-        if xx.axDiv != "full" or xx.twotheta0_deg==90.0:
+        if xx.axDiv != "full" or xx.twotheta0_deg == 90.0:
             axfn[:] = 1
             return axfn
         else:
@@ -1788,55 +1790,42 @@ class PowderDiffraction(PowderExperiment):
         """
         mat = self.mat.material
         # calculate maximal Bragg indices
-        hmax = int(numpy.ceil(norm(mat.lattice.a1) * self.k0 / numpy.pi *
-                   numpy.sin(numpy.radians(tt_cutoff / 2.))))
-        hmin = -hmax
-        kmax = int(numpy.ceil(norm(mat.lattice.a2) * self.k0 / numpy.pi *
-                   numpy.sin(numpy.radians(tt_cutoff / 2.))))
-        kmin = -kmax
-        lmax = int(numpy.ceil(norm(mat.lattice.a3) * self.k0 / numpy.pi *
-                   numpy.sin(numpy.radians(tt_cutoff / 2.))))
-        lmin = -lmax
+        hma = int(math.ceil(VecNorm(mat.lattice.a1) * self.k0 / pi *
+                  sin(math.radians(tt_cutoff / 2.))))
+        hmi = -hma
+        kma = int(math.ceil(VecNorm(mat.lattice.a2) * self.k0 / pi *
+                  sin(math.radians(tt_cutoff / 2.))))
+        kmi = -kma
+        lma = int(math.ceil(VecNorm(mat.lattice.a3) * self.k0 / pi *
+                  sin(math.radians(tt_cutoff / 2.))))
+        lmi = -lma
 
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.Powder.PowderIntensity: tt_cutoff; (hmax,kmax,lmax): "
                   "%6.2f (%d,%d,%d)" % (tt_cutoff, hmax, kmax, lmax))
 
-        qlist = []
-        qabslist = []
-        hkllist = []
-        qmax = numpy.sqrt(2) * self.k0 * numpy.sqrt(
-            1 - numpy.cos(numpy.radians(tt_cutoff)))
-        # calculate structure factor for each reflex
-        for h in range(hmin, hmax + 1):
-            for k in range(kmin, kmax + 1):
-                for l in range(lmin, lmax + 1):
-                    q = mat.Q(h, k, l)
-                    if norm(q) < qmax:
-                        qlist.append(q)
-                        hkllist.append([h, k, l])
-                        qabslist.append(numpy.round(norm(q), self.digits))
+        # calculate structure factors
+        qmax = sqrt(2) * self.k0 * sqrt(1 - cos(math.radians(tt_cutoff)))
+        hkl = numpy.mgrid[hmi:hma+1, kmi:kma+1, lmi:lma+1].reshape(3, -1).T
+        q = mat.Q(hkl)
+        qnorm = numpy.linalg.norm(q, axis=1)
+        m = qnorm < qmax
 
-        qabs = numpy.array(qabslist, dtype=numpy.double)
-        s = mat.StructureFactorForQ(qlist, self.energy)
-        r = numpy.absolute(s) ** 2
+        tmp_data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
+                                                    ('r', numpy.double),
+                                                    ('hkl', numpy.ndarray)])
+        tmp_data['q'] = qnorm[m]
+        tmp_data['r'] = nabs(mat.StructureFactorForQ(q[m], self.energy)) ** 2
+        tmp_data['hkl'] = list(hkl[m])
 
-        _tmp_data = numpy.zeros(r.size, dtype=[('q', numpy.double),
-                                               ('r', numpy.double),
-                                               ('hkl', list)])
-        _tmp_data['q'] = qabs
-        _tmp_data['r'] = r
-        _tmp_data['hkl'] = hkllist
-        # sort the list and compress equal entries
-        _tmp_data.sort(order='q')
-
+        # combine peaks at equal q
         self.qpos = [0]
         self.data = [0]
         self.hkl = [[0, 0, 0]]
-        for r in _tmp_data:
+        for r in tmp_data[tmp_data['q'].argsort()]:
             if r[0] == self.qpos[-1]:
                 self.data[-1] += r[1]
-            elif numpy.round(r[1], self.digits) != 0.:
+            elif round(r[1], self.digits) != 0.:
                 self.qpos.append(r[0])
                 self.data.append(r[1])
                 self.hkl.append(r[2])
@@ -1851,9 +1840,9 @@ class PowderDiffraction(PowderExperiment):
         # see L.S. Zevin : Quantitative X-Ray Diffractometry
         # page 18ff
         polarization_factor = (1 +
-                               numpy.cos(numpy.radians(2 * self.ang)) ** 2) / 2
-        lorentz_factor = 1. / (numpy.sin(numpy.radians(self.ang)) ** 2 *
-                               numpy.cos(numpy.radians(self.ang)))
+                               ncos(numpy.radians(2 * self.ang)) ** 2) / 2
+        lorentz_factor = 1. / (nsin(numpy.radians(self.ang)) ** 2 *
+                               ncos(numpy.radians(self.ang)))
         unitcellvol = mat.lattice.UnitCellVolume()
         self.data = (self.data * polarization_factor *
                      lorentz_factor / unitcellvol ** 2)
@@ -1877,7 +1866,6 @@ class PowderDiffraction(PowderExperiment):
         -------
          output intensity values for the twotheta values given in the input
         """
-        import time
         t_start = time.time()
         p = self.fp_profile
 
@@ -1954,9 +1942,5 @@ class PowderDiffraction(PowderExperiment):
                             self.qpos[i],
                             self.data[i],
                             self.data[i] / max * 100.))
-        try:
-            ostr += str(self.fp_profile)
-        except:
-            pass
-
+        ostr += "Settings: " + str(self.settings)
         return ostr
