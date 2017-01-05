@@ -42,7 +42,7 @@ def get_key(*args):
     tup = []
     for a in args:
         if isinstance(a, numpy.ndarray):
-            tup.append(hashlib.md5(q).digest())
+            tup.append(hashlib.md5(a).digest())
         elif isinstance(a, list):
             tup.append(hash(tuple(a)))
         else:
