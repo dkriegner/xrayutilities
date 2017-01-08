@@ -1642,7 +1642,9 @@ class PowderDiffraction(PowderExperiment):
 
         self._tt_cutoff = kwargs.pop('tt_cutoff', 180)
         self.fpclass = kwargs.pop('fpclass', FP_profile)
-        self.settings = kwargs.pop('fpsettings', {})
+        self.settings = self.load_settings_from_config(
+            kwargs.pop('fpsettings', {}))
+
         PowderExperiment.__init__(self, **kwargs)
 
         # number of significant digits, needed to identify equal floats
@@ -1653,15 +1655,32 @@ class PowderDiffraction(PowderExperiment):
         # initialize FP_profile instances
         self.fp_profile = []
         for tt, hkl in zip(self.ang * 2, self.hkl):
-            self.fp_profile.append(
-                self._init_fpprofile(self.fpclass, self.settings))
+            self.fp_profile.append(self._init_fpprofile(self.fpclass))
+        self.update_settings(self.settings)
         self.set_sample_parameters()
 
         # set some other class properties
         self.__tt = None
         self.__ww = None
 
-    def _init_fpprofile(self, fpclass, settings={}):
+    def load_settings_from_config(self, settings):
+        """
+        load parameters from the config and update these settings with the
+        options from the settings parameter
+        """
+        params = dict()
+        for k in config.POWDER:
+            params[k] = dict()
+            params[k].update(config.POWDER[k])
+            if k in settings:
+                params[k].update(settings[k])
+        for k in settings:
+            if k not in config.POWDER:
+                params[k] = dict()
+                params[k].update(settings[k])
+        return params
+
+    def _init_fpprofile(self, fpclass):
         """
         configure the default parameters of the FP_profile class and return an
         instance with these settings
@@ -1672,31 +1691,29 @@ class PowderDiffraction(PowderExperiment):
          settings: user-supplied settings, default values are loaded from the
                    config file
         """
-
-        params = dict()
-        for k in config.POWDER:
-            params[k] = dict()
-            params[k].update(config.POWDER[k])
-            if k in settings:
-                params[k].update(settings[k])
-        for k in settings:
-            if k not in config.POWDER:
-                params[k] = dict().update(settings[k])
-
-        params['classoptions'].pop('window_width')
-        wl = params['emission']['emiss_wavelengths'][0]
-        params['global']['dominant_wavelength'] = wl
-        # set wavelength in base class
-        self._set_wavelength(wl*1e10)
-
-        p = fpclass(**params['classoptions'])
+        classparams = dict()
+        classparams.update(self.settings['classoptions'])
+        classparams.pop('window_width')
+        p = fpclass(**classparams)
         p.debug_cache = False
-        # set parameters for each convolver
-        params.pop('classoptions')
-        for k in params:
-            p.set_parameters(convolver=k, **params[k])
-
         return p
+
+    def set_wavelength_from_params(self):
+        """
+        sets the wavelenth in the base class from the settings dictionary of
+        the FP_profile classes and also set it in the 'global' part of the
+        parameters
+        """
+        if 'emission' in self.settings:
+            pem = self.settings['emission']
+            if 'emiss_wavelengths' in pem:
+                wl = pem['emiss_wavelengths'][0]
+                self.settings['global']['dominant_wavelength'] = wl
+                for fp in self.fp_profile:
+                    fp.set_parameters(convolver='global',
+                                      **self.settings['global'])
+                # set wavelength in base class
+                self._set_wavelength(wl*1e10)
 
     def set_sample_parameters(self):
         """
@@ -1712,6 +1729,28 @@ class PowderDiffraction(PowderExperiment):
 
         for fp in self.fp_profile:
             fp.set_parameters(convolver='emission', **samplesettings)
+
+    def update_settings(self, newsettings={}):
+        """
+        update settings of all instances of FP_profile
+
+        Parameters
+        ----------
+         newsettings:   dictionary with new settings. It has to include one
+                        subdictionary for every convolver which should have its
+                        settings changed.
+        """
+        for k in newsettings:
+            if k == 'classoptions':
+                continue
+            for fp in self.fp_profile:
+                fp.set_parameters(convolver=k, **newsettings[k])
+            if k in self.settings:
+                self.settings[k].update(newsettings[k])
+            else:
+                self.settings[k] = dict()
+                self.settings[k].update(newsettings[k])
+        self.set_wavelength_from_params()
 
     @property
     def twotheta(self):
@@ -1760,24 +1799,6 @@ class PowderDiffraction(PowderExperiment):
                           twotheta_window_center_deg=ttpeak,
                           twotheta_window_fullwidth_deg=ww)
             fp.set_parameters(twotheta0_deg=ttpeak)
-
-    def update_settings(self, newsettings):
-        """
-        update settings of all instances of FP_profile
-
-        Parameters
-        ----------
-         newsettings:   dictionary with new settings. It has to include one
-                        subdictionary for every convolver which should have its
-                        settings changed.
-        """
-        for k in newsettings:
-            for fp in self.fp_profile:
-                fp.set_parameters(convolver=k, **newsettings[k])
-            if k in self.settings:
-                self.settings[k].update(newsettings[k])
-            else:
-                self.settings[k] = dict().update(newsettings[k])
 
     def PowderIntensity(self, tt_cutoff=180):
         """
