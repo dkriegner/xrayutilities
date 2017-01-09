@@ -54,3 +54,4 @@ from .powder import FP_profile
 from .powder import PowderDiffraction
 
 from .powdermodel import PowderModel
+from .powdermodel import plot_powder
