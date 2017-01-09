@@ -133,7 +133,7 @@ def energy(en):
     if isinstance(en, numbers.Number):
         return numpy.double(en)
     elif isinstance(en, (numpy.ndarray, list, tuple)):
-        return numpy.array(en)
+        return numpy.asarray(en)
     elif isinstance(en, basestring):
         return energies[en]
     else:
@@ -161,7 +161,7 @@ def wavelength(wl):
     if isinstance(wl, numbers.Number):
         return numpy.double(wl)
     elif isinstance(wl, (numpy.ndarray, list, tuple)):
-        return numpy.array(wl)
+        return numpy.asarray(wl)
     elif isinstance(wl, basestring):
         return en2lam(energies[wl])
     else:

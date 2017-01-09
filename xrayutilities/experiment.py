@@ -1322,16 +1322,12 @@ class Experiment(object):
                                 "'qconv': reciprocal space conversion, "
                                 "'sampleor': sample orientation")
 
-        if isinstance(ipdir, (list, tuple)):
-            self.idir = math.VecUnit(numpy.array(ipdir, dtype=numpy.double))
-        elif isinstance(ipdir, numpy.ndarray):
+        if isinstance(ipdir, (list, tuple, numpy.ndarray)):
             self.idir = math.VecUnit(ipdir)
         else:
             raise TypeError("Inplane direction must be list or numpy array")
 
-        if isinstance(ndir, (list, tuple)):
-            self.ndir = math.VecUnit(numpy.array(ndir, dtype=numpy.double))
-        elif isinstance(ndir, numpy.ndarray):
+        if isinstance(ndir, (list, tuple, numpy.ndarray)):
             self.ndir = math.VecUnit(ndir)
         else:
             raise TypeError("normal direction must be list or numpy array")
@@ -1474,13 +1470,7 @@ class Experiment(object):
     wavelength = property(_get_wavelength, _set_wavelength)
 
     def _set_inplane_direction(self, dir):
-        if isinstance(dir, list):
-            self.idir = numpy.array(dir, dtype=numpy.double)
-        elif isinstance(dir, numpy.ndarray):
-            self.idir = dir
-        else:
-            raise TypeError("Inplane direction must be list or numpy array")
-
+        self.idir = math.VecUnit(dir)
         v1 = numpy.cross(self.ndir, self.idir)
         self._set_transform(v1, self.idir, self.ndir, self._sampleor)
 
@@ -1488,13 +1478,7 @@ class Experiment(object):
         return self.idir
 
     def _set_normal_direction(self, dir):
-        if isinstance(dir, list):
-            self.ndir = numpy.array(dir, dtype=numpy.double)
-        elif isinstance(dir, numpy.ndarray):
-            self.ndir = dir
-        else:
-            raise TypeError("Surface normal must be list or numpy array")
-
+        self.ndir = math.VecUnit(dir)
         v1 = numpy.cross(self.ndir, self.idir)
         self._set_transform(v1, self.idir, self.ndir, self._sampleor)
 

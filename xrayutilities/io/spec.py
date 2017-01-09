@@ -314,7 +314,10 @@ class SPECScan(object):
 
                 if SPEC_headerline.match(line) or \
                    SPEC_commentline.match(line):
-                    break
+                    if SPEC_scanresumed.match(line):
+                        continue
+                    else:
+                        break
 
                 if mca_counter == 0:
                     # the line is a scalar data line
@@ -497,17 +500,19 @@ class SPECScan(object):
             g.attrs['Command'] = self.command
             g.attrs['Date'] = self.date
             g.attrs['Time'] = self.time
+            g.attrs['scan_status'] = self.scan_status
 
             # write the initial motor positions as attributes
             for k in self.init_motor_pos.keys():
                 g.attrs[k] = numpy.float(self.init_motor_pos[k])
 
             # if scan contains MCA data write also MCA parameters
+            g.attrs['has_mca'] = self.has_mca
             g.attrs['mca_start_channel'] = numpy.uint(self.mca_start_channel)
             g.attrs['mca_stop_channel'] = numpy.uint(self.mca_stop_channel)
             g.attrs['mca_nof_channels'] = numpy.uint(self.mca_channels)
 
-            for k in optattrs.keys():
+            for k in optattrs:
                 g.attrs[k] = optattrs[k]
 
             h5.flush()
@@ -597,7 +602,7 @@ class SPECFile(object):
 
         return ostr
 
-    def Save2HDF5(self, h5f, comp=True):
+    def Save2HDF5(self, h5f, comp=True, optattrs={}):
         """
         Save the entire file in an HDF5 file. For that purpose a group is set
         up in the root group of the file with the name of the file without
@@ -618,6 +623,8 @@ class SPECFile(object):
                 g = h5.get(groupname)
 
             g.attrs['TITLE'] = "Data of SPEC - File %s" % (self.filename)
+            for k in optattrs:
+                g.attrs[k] = optattrs[k]
             for s in self.scan_list:
                 if (((s.name not in g) or s.ischanged) and
                         s.scan_status != "NODATA"):

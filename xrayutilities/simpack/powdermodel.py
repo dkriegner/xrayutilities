@@ -15,6 +15,8 @@
 #
 # Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+from math import sqrt
+
 import numpy
 
 from .smaterials import Powder, PowderList
@@ -171,6 +173,38 @@ class PowderModel(object):
         ostr += str(self.materials)
         ostr += "}"
         return ostr
+
+
+def Rietveld_error_metrics(exp, sim, weight=None, Nvar=0, disp=False):
+    """
+    calculates common error metrics for Rietveld refinement.
+
+    Parameters
+    ----------
+     exp:       experimental datapoints
+     sim:       simulated data
+     weight:    weight factor in the least squares sum. If it is None the
+                weight is estimated from the counting statistics of 'exp'
+     Nvar:      number of variables in the refinement
+     disp:     flag to tell if a line with the calculated values should be
+                printed.
+
+    Returns
+    -------
+     M, Rp, Rwp, Rwpexp, chi2
+    """
+    if weight is None:
+        weight = numpy.reciprocal(exp)
+    weight[numpy.isinf(weight)] = 1
+    M = numpy.sum((exp - sim)**2 * weight)
+    Rp = numpy.sum(numpy.abs(exp - sim))/numpy.sum(exp)
+    Rwp = sqrt(M / numpy.sum(weight * exp**2))
+    chi2 = M / (len(exp) - Nvar)
+    Rwpexp = Rwp / sqrt(chi2)
+    if disp:
+        print('Rp=%.4f Rwp=%.4f Repexp=%.4f chi2=%.4f'
+              % (Rp, Rwp, Rwpexp, chi2))
+    return M, Rp, Rwp, Rwpexp, chi2
 
 
 def plot_powder(twotheta, exp, sim, scale='sqrt', fig='XU:powder',
