@@ -314,7 +314,10 @@ class SPECScan(object):
 
                 if SPEC_headerline.match(line) or \
                    SPEC_commentline.match(line):
-                    break
+                    if SPEC_scanresumed.match(line):
+                        continue
+                    else:
+                        break
 
                 if mca_counter == 0:
                     # the line is a scalar data line
