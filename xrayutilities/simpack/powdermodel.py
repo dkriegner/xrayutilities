@@ -15,13 +15,24 @@
 #
 # Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import numbers
 from math import sqrt
 
 import numpy
+from scipy import interpolate
 
-from .smaterials import Powder, PowderList
-from .powder import PowderDiffraction
 from .. import materials
+from .powder import PowderDiffraction
+from .smaterials import Powder, PowderList
+
+
+def _import_lmfit():
+    global lmfit
+    try:
+        import lmfit
+    except ImportError:
+        raise ImportError("XU.simpack: Fitting of models needs the lmfit "
+                          "package (https://pypi.python.org/pypi/lmfit)")
 
 
 class PowderModel(object):
@@ -45,7 +56,6 @@ class PowderModel(object):
            fpsettings: settings dictionaries for the convolvers. Default
                        settings are loaded from the config file.
            I0:     scaling factor for the simulation result
-           background: NotImplemented
 
         In particular interesting in fpsettings might be:
         {'displacement': {'specimen_displacement': z-displacement of the sample
@@ -67,6 +77,10 @@ class PowderModel(object):
         for mat in self.materials:
             self.pdiff.append(PowderDiffraction(mat, **kwargs))
 
+        # default background
+        self._bckg_type = 'polynomial'
+        self._bckg_pol = [0, ]
+
     def set_parameters(self, params):
         """
         set simulation parameters of all subobjects
@@ -75,7 +89,6 @@ class PowderModel(object):
         ----------
          params:    settings dictionaries for the convolvers.
         """
-
         if 'emission' in params:
             if 'emiss_wavelength' in params['emission']:
                 wl = params['emission']['emiss_wavelengths'][0]
@@ -93,6 +106,106 @@ class PowderModel(object):
             for pd in self.pdiff:
                 pd.fp_profile.set_parameters(convolver=k, **params[k])
 
+    def set_lmfit_parameters(self, lmparams):
+        """
+        function to update the settings of this class during an least squares
+        fit
+
+        Parameters
+        ----------
+         lmparams:  lmfit Parameters list of sample and instrument parameters
+        """
+        pv = lmparams.valuesdict()
+        settings = dict()
+        fp = self.pdiff[0].fp_profile[0].convolvers
+        for conv in fp:
+            name = conv[5:]
+            settings[name] = dict()
+
+        self.I0 = pv.pop('primary_beam_intensity', 1)
+        for p in pv:
+            if p.startswith('phase_'):  # sample phase parameters
+                midx = 0
+                for i, name in enumerate(self.materials.namelist):
+                    if p.find(name) > 0:
+                        midx = i
+                name = self.materials.namelist[midx]
+                attrname = p[p.find(name) + len(name) + 1:]
+                setattr(self.materials[midx], attrname, pv[p])
+            elif p.startswith('background_'):
+                self._bckg_pol[int(p.split('_')[-1])] = pv[p]
+            else:  # instrument parameters
+                for k in settings:
+                    if p.startswith(k):
+                        name = p[len(k) + 1:]
+                        settings[k][name] = pv[p]
+                        break
+
+    def create_fitparameters(self):
+        """
+        function to create a fit model with all instrument and sample
+        parameters.
+
+        Parameters
+        ----------
+         pass
+
+        Returns
+        -------
+         lmfit Parameters instance
+        """
+        _import_lmfit()
+
+        params = lmfit.Parameters()
+        # sample phase parameters
+        for mat, name in zip(self.materials, self.materials.namelist):
+            for k in mat.__dict__:
+                attr = getattr(mat, k)
+                if isinstance(attr, numbers.Number):
+                    params.add('_'.join(('phase', name, k)), value=attr,
+                               vary=False)
+
+        # instrument parameters
+        settings = self.pdiff[0].settings
+        for pg in settings:
+            for p in settings[pg]:
+                val = settings[pg][p]
+                if isinstance(val, numbers.Number):
+                    params.add('_'.join((pg, p)), value=val, vary=False)
+
+        # other global parameters
+        params.add('primary_beam_intensity', value=self.I0, vary=False)
+        if self._bckg_type == 'polynomial':
+            for i, coeff in enumerate(self._bckg_pol):
+                params.add('background_coeff_%d' % i, value=coeff, vary=False)
+        return params
+
+    def set_background(self, btype, **kwargs):
+        """
+        define background as spline or polynomial function
+
+        Parameters
+        ----------
+         btype:  background type: either 'polynomial' or 'spline'. Depending on
+                this value the expected keyword arguments differ.
+         kwargs:
+            'spline':
+                x:  x-values (twotheta) of the background points
+                y:  intensity values of the background
+            'polynomial':
+                p:  polynomial coefficients from the highest degree to the
+                    constant term. len of p decides about the degree of the
+                    polynomial
+        """
+        if btype == 'spline':
+            self._bckg_spline = interpolate.InterpolatedUnivariateSpline(
+                kwargs.get('x'), kwargs.get('y'), ext=0)
+        elif btype == 'polynomial':
+            self._bckg_pol = list(kwargs.get('p'))
+        else:
+            raise ValueError("btype must be either 'spline' or 'polynomial'")
+        self._bckg_type = btype
+
     def simulate(self, twotheta, **kwargs):
         """
         calculate the powder diffraction pattern of all materials and sum the
@@ -103,7 +216,9 @@ class PowderModel(object):
          twotheta: positions at which the powder spectrum should be evaluated
          **kwargs:
             background: an array of background values (same shape as twotheta)
-                        alternatively the background can be set before the
+                        if no background is given then the background is
+                        calculated as previously set by the set_background
+                        function or is 0.
             further keyword arguments are passed to the Convolve
             function of of the PowderDiffraction objects
 
@@ -115,21 +230,39 @@ class PowderModel(object):
         Known issue: possibility to add a background is currently missing!
         """
         inte = numpy.zeros_like(twotheta)
-        background = kwargs.pop('background', 0)
+        background = kwargs.pop('background', None)
+        if background is None:
+            if self._bckg_type == 'spline':
+                background = self._bckg_spline(twotheta)
+            else:
+                background = numpy.polyval(self._bckg_pol, twotheta)
         totalvol = sum(pd.mat.volume for pd in self.pdiff)
         for pd in self.pdiff:
             inte += pd.Calculate(twotheta, **kwargs) * pd.mat.volume / totalvol
         return self.I0 * inte + background
 
-    def get_fitmodel(self):
-        try:
-            import lmfit
-        except ImportError:
-            raise ImportError("XU.simpack: Fitting of models needs the lmfit "
-                              "package (https://pypi.python.org/pypi/lmfit)")
-            return
+    def fit(self, params, twotheta, data, std=None, maxfev=200):
+        """
+        make least squares fit with parameters supplied by the user
 
-        def fit_residual(pars, tt, **kwargs):
+        Parameters
+        ----------
+         params:    lmfit Parameters object with all parameters set as intended
+                    by the user
+         twotheta:  angular values for the fit
+         data:      experimental intensities for the fit
+         std:       standard deviation of the experimental data. if 'None" the
+                    sqrt of the data will be used
+         maxfev:    maximal number of simulations during the least squares
+                    refinement
+
+        Returns
+        -------
+         lmfit MinimizerResult
+        """
+        _import_lmfit()
+
+        def residual(pars, tt, data, weight):
             """
             residual function for lmfit Minimizer routine
 
@@ -142,27 +275,22 @@ class PowderModel(object):
               data:     experimental data, same shape as tt (default: None)
               eps:      experimental error bars, shape as tt (default None)
             """
-            data = kwargs.get('data', None)
-            eps = kwargs.get('eps', None)
-            pvals = pars.valuesdict()
-            # set parameters in model
-            # ...
+            # set parameters in this instance
+            self.set_lmfit_parameters(pars)
 
             # run simulation
             model = self.simulate(tt)
-            if data is None:
-                return model
-            if kwargs['elog']:
-                return numpy.log10(model) - numpy.log10(data)
-            if eps is None:
-                return (model - data)
-            return (model - data)/eps
+            return (model - data) * weight
 
-#        minimizer = lmfit.Minimizer(
-#                fit_residual, params, fcn_args=(ai[mask], reflmod),
-#                fcn_kws={'data': data[mask], 'eps': eps[mask]},
-#                iter_cb=cb_func, maxfev=maxfev)
-#        res = minimizer.minimize()
+        if std is None:
+            weight = numpy.reciprocal(numpy.sqrt(data))
+        else:
+            weight = numpy.reciprocal(std)
+        weight[numpy.isinf(weight)] = 1
+        self.minimizer = lmfit.Minimizer(residual, params,
+                                         fcn_args=(twotheta, data, weight),
+                                         maxfev=maxfev)
+        return self.minimizer.minimize()
 
     def __str__(self):
         """
@@ -175,7 +303,8 @@ class PowderModel(object):
         return ostr
 
 
-def Rietveld_error_metrics(exp, sim, weight=None, Nvar=0, disp=False):
+def Rietveld_error_metrics(exp, sim, weight=None, std=None,
+                           Nvar=0, disp=False):
     """
     calculates common error metrics for Rietveld refinement.
 
@@ -185,16 +314,21 @@ def Rietveld_error_metrics(exp, sim, weight=None, Nvar=0, disp=False):
      sim:       simulated data
      weight:    weight factor in the least squares sum. If it is None the
                 weight is estimated from the counting statistics of 'exp'
+     std:       standard deviation of the experimental data. alternative way of
+                specifying the weight factor. when both are given weight
+                overwrites std!
      Nvar:      number of variables in the refinement
-     disp:     flag to tell if a line with the calculated values should be
+     disp:      flag to tell if a line with the calculated values should be
                 printed.
 
     Returns
     -------
      M, Rp, Rwp, Rwpexp, chi2
     """
-    if weight is None:
+    if weight is None and std is None:
         weight = numpy.reciprocal(exp)
+    elif weight is None:
+        weight = numpy.reciprocal(std**2)
     weight[numpy.isinf(weight)] = 1
     M = numpy.sum((exp - sim)**2 * weight)
     Rp = numpy.sum(numpy.abs(exp - sim))/numpy.sum(exp)
@@ -202,12 +336,12 @@ def Rietveld_error_metrics(exp, sim, weight=None, Nvar=0, disp=False):
     chi2 = M / (len(exp) - Nvar)
     Rwpexp = Rwp / sqrt(chi2)
     if disp:
-        print('Rp=%.4f Rwp=%.4f Repexp=%.4f chi2=%.4f'
+        print('Rp=%.4f Rwp=%.4f Rwpexp=%.4f chi2=%.4f'
               % (Rp, Rwp, Rwpexp, chi2))
     return M, Rp, Rwp, Rwpexp, chi2
 
 
-def plot_powder(twotheta, exp, sim, scale='sqrt', fig='XU:powder',
+def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
                 show_diff=True, show_legend=True):
     """
     Convenience function to plot the comparison between experimental and
@@ -217,7 +351,9 @@ def plot_powder(twotheta, exp, sim, scale='sqrt', fig='XU:powder',
     ----------
      twotheta:  angle values used for the x-axis of the plot (deg)
      exp:       experimental data (same shape as twotheta)
-     sim:       simulated data (same shape as twotheta)
+     sim:       simulated data
+     mask:      mask to reduce the twotheta values to the be used as
+                x-coordinates of sim
      scale:     string specifying the scale of the y-axis. Valid are: 'linear,
                 'sqrt', and 'log'.
      fig:       matplotlib figure name (figure will be cleared!)
@@ -238,11 +374,13 @@ def plot_powder(twotheta, exp, sim, scale='sqrt', fig='XU:powder',
     ax = plt.subplot(111)
     lines = []
     lines.append(ax.plot(twotheta, exp, 'k.-', label='experiment')[0])
-    lines.append(ax.plot(twotheta, sim, 'r-', label='simulation')[0])
+    if mask is None:
+        mask = numpy.ones_like(twotheta, dtype=numpy.bool)
+    lines.append(ax.plot(twotheta[mask], sim, 'r-', label='simulation')[0])
 
     if show_diff:
         # plot error between simulation and experiment
-        lines.append(ax.plot(twotheta, exp-sim, '.-', color='0.5',
+        lines.append(ax.plot(twotheta[mask], exp[mask]-sim, '.-', color='0.5',
                              label='difference')[0])
 
     plt.xlabel('2Theta (deg)')
