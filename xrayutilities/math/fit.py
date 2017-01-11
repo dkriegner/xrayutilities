@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module with a function wrapper to scipy.optimize.leastsq
 for fitting of a 2D function to a peak or a 1D Gauss fit with
@@ -21,20 +21,21 @@ the odr package
 """
 
 from __future__ import print_function
+
+import time
+
 import numpy
 import scipy.optimize as optimize
-import time
 from scipy.odr import odrpack as odr
 from scipy.odr import models
 
 from .. import config
-from .. exception import InputError
-from .misc import fwhm_exp
-from .misc import center_of_mass
-from .functions import Gauss1d, Gauss1d_der_x, Gauss1d_der_p
-from .functions import Lorentz1d, Lorentz1d_der_x, Lorentz1d_der_p
-from .functions import PseudoVoigt1d, PseudoVoigt1d_der_x, PseudoVoigt1d_der_p
-from .functions import PseudoVoigt1dasym, PseudoVoigt1dasym2
+from ..exception import InputError
+from .functions import (Gauss1d, Gauss1d_der_p, Gauss1d_der_x, Lorentz1d,
+                        Lorentz1d_der_p, Lorentz1d_der_x, PseudoVoigt1d,
+                        PseudoVoigt1d_der_p, PseudoVoigt1d_der_x,
+                        PseudoVoigt1dasym, PseudoVoigt1dasym2)
+from .misc import center_of_mass, fwhm_exp
 
 # python 2to3 compatibility
 try:
@@ -62,16 +63,19 @@ def linregress(x, y):
     """
     mask = numpy.logical_not(numpy.isnan(y))
     lx, ly = (x[mask], y[mask])
-    p = numpy.polyfit(lx, ly, 1)
+    if numpy.all(numpy.isclose(lx-lx[0], numpy.zeros_like(lx))):
+        return (0, numpy.mean(ly)), 0
+    else:
+        p = numpy.polyfit(lx, ly, 1)
 
-    # calculation of r-squared
-    f = numpy.polyval(p, lx)
-    fbar = numpy.sum(ly) / len(ly)
-    ssreg = numpy.sum((f-fbar)**2)
-    sstot = numpy.sum((ly - fbar)**2)
-    rsq = ssreg / sstot
+        # calculation of r-squared
+        f = numpy.polyval(p, lx)
+        fbar = numpy.sum(ly) / len(ly)
+        ssreg = numpy.sum((f-fbar)**2)
+        sstot = numpy.sum((ly - fbar)**2)
+        rsq = ssreg / sstot
 
-    return p, rsq
+        return p, rsq
 
 
 def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
