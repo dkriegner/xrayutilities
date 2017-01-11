@@ -290,7 +290,9 @@ class PowderModel(object):
         self.minimizer = lmfit.Minimizer(residual, params,
                                          fcn_args=(twotheta, data, weight),
                                          maxfev=maxfev)
-        return self.minimizer.minimize()
+        fitres = self.minimizer.minimize()
+        self.set_lmfit_parameters(fitres.params)
+        return fitres
 
     def __str__(self):
         """
