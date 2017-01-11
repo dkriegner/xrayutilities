@@ -13,31 +13,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
 for experiments with linear and area detectors
 """
 
-import re
-import numbers
-import time
 import glob
+import numbers
+import math
+import re
+import time
 
 import numpy
 import scipy
 import scipy.optimize as optimize
+from scipy.ndimage.measurements import center_of_mass
 from scipy.odr import odrpack as odr
 from scipy.odr import models
-from scipy.ndimage.measurements import center_of_mass
 
-from .. import config
-from .. import math
-from .. import utilities
-from ..math import fwhm_exp
+from .. import math as xumath
+from .. import config, cxrayutilities, utilities
 from ..exception import InputError
-from .. import cxrayutilities
+from ..math import fwhm_exp
 
 # regular expression to check goniometer circle syntax
 circleSyntax = re.compile("[xyz][+-]")
@@ -112,8 +111,8 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
          x ... independent variable of the model: detector angle (degree)
         """
         rad = numpy.radians(x)
-        r = numpy.degrees(p[0]) * numpy.sin(rad) / \
-            numpy.cos(rad - numpy.radians(p[2])) + p[1]
+        r = math.degrees(p[0]) * numpy.sin(rad) / \
+            numpy.cos(rad - math.radians(p[2])) + p[1]
         return r
 
     def straight_tilt_der_x(p, x):
@@ -122,8 +121,8 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         for parameter description see straigt_tilt
         """
         rad = numpy.radians(x)
-        p2 = numpy.radians(p[2])
-        r = numpy.degrees(p[0]) * \
+        p2 = math.radians(p[2])
+        r = math.degrees(p[0]) * \
             (numpy.cos(rad) / numpy.cos(rad - p2) +
              numpy.sin(rad) / numpy.cos(rad - p2) ** 2 * numpy.sin(rad - p2))
         return r
@@ -134,11 +133,11 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         paramters for parameter description see straigt_tilt
         """
         rad = numpy.radians(x)
-        p2 = numpy.radians(p[2])
-        r = numpy.concatenate([180. / numpy.pi * numpy.sin(rad) /
+        p2 = math.radians(p[2])
+        r = numpy.concatenate([numpy.degrees(numpy.sin(rad)) /
                                numpy.cos(rad - p2),
                                numpy.ones(x.shape, dtype=numpy.float),
-                               - numpy.degrees(p[0]) * numpy.sin(rad) /
+                               - math.degrees(p[0]) * numpy.sin(rad) /
                                numpy.cos(rad - p2) ** 2 *
                                numpy.sin(rad - p2)])
         r.shape = (3,) + x.shape
@@ -260,25 +259,25 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         if usetilt:
             print("XU.analysis.psd_chdeg:  channelwidth@1m / center channel /"
                   " tilt: %8.4e / %8.2f / %6.3fdeg"
-                  % (numpy.abs(1 / numpy.degrees(fit.beta[0])),
+                  % (abs(1 / math.degrees(fit.beta[0])),
                      fit.beta[1], fit.beta[2]))
             print("XU.analysis.psd_chdeg:  error of channelwidth / "
                   "center channel / tilt: %8.4e / %8.3f / %6.3fdeg"
-                  % (numpy.radians(fit.sd_beta[0] / fit.beta[0] ** 2),
+                  % (math.radians(fit.sd_beta[0] / fit.beta[0] ** 2),
                      fit.sd_beta[1], fit.sd_beta[2]))
         else:
             print("XU.analysis.psd_chdeg:  channelwidth@1m / center channel: "
                   "%8.4e / %8.2f"
-                  % (1 / numpy.degrees(fit.beta[0]), fit.beta[1]))
+                  % (1 / math.degrees(fit.beta[0]), fit.beta[1]))
             print("XU.analysis.psd_chdeg:  error of channelwidth / "
                   "center channel: %8.4e / %8.3f"
-                  % (numpy.radians(fit.sd_beta[0] / fit.beta[0] ** 2),
+                  % (math.radians(fit.sd_beta[0] / fit.beta[0] ** 2),
                      fit.sd_beta[1]))
 
     if usetilt:
-        return (1. / numpy.degrees(fit.beta[0]), fit.beta[1], fit.beta[2])
+        return (1. / math.degrees(fit.beta[0]), fit.beta[1], fit.beta[2])
     else:
-        return (1. / numpy.degrees(fit.beta[0]), fit.beta[1], 0.)
+        return (1. / math.degrees(fit.beta[0]), fit.beta[1], 0.)
 
 
 #################################################
@@ -346,7 +345,7 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
     for i in range(len(mca_spectra)):
         row = mca_spectra[i, :]
         row_int = row.sum()
-        if ((numpy.abs(row_int - mca_avg) > 3 * mca_std) or
+        if ((abs(row_int - mca_avg) > 3 * mca_std) or
                 (row_int - mca_rowmax * 0.7 < 0)):
             if config.VERBOSITY >= config.DEBUG:
                 print("XU.analysis.linear_detector_calib: spectrum #%d "
@@ -361,7 +360,7 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         # fit beam position
         # determine maximal usable length of array around peak position
         Nuse = min(maxp + N // 2, len(row) - 1) - max(maxp - N // 2, 0)
-        param, perr, itlim = math.peak_fit(
+        param, perr, itlim = xumath.peak_fit(
             numpy.arange(Nuse),
             row[max(maxp - N // 2, 0):min(maxp + N // 2, len(row) - 1)],
             peaktype='PseudoVoigt')
@@ -388,7 +387,7 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         sign = '+'
 
     detaxis = '  '
-    detd = numpy.cross(math.getVector(detrotaxis), math.getVector(r_i))
+    detd = numpy.cross(xumath.getVector(detrotaxis), xumath.getVector(r_i))
     argm = numpy.abs(detd).argmax()
 
     def flipsign(char, val):
@@ -418,8 +417,8 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
             tilt = 0
         print("\tdetector initialization with: init_linear('%s',%.2f,%d"
               ",pixelwidth=%.4e,distance=1.,tilt=%.2f)"
-              % (detaxis, numpy.abs(detparam[1]), mca_spectra.shape[1],
-                 numpy.abs(detparam[0]), tilt))
+              % (detaxis, abs(detparam[1]), mca_spectra.shape[1],
+                 abs(detparam[0]), tilt))
 
     return detparam
 
@@ -542,6 +541,9 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     detdir1, detdir2 = _determine_detdir(
         ang1 - start[6], ang2, n1, n2, detaxis, r_i)
 
+    if debug:
+        print("determined detector directions:[%s, %s]" % (detdir1, detdir2))
+
     epslist = []
     paramlist = []
     epsmin = numpy.inf
@@ -550,18 +552,20 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
     print("------------------------------------------------------------")
     # find optimal detector rotation (however keep other parameters free)
+    detrot = start[5]
     if not fix[5]:
         for detrotstart in numpy.linspace(start[5] - 1, start[5] + 1, 40):
             start = start[:5] + (detrotstart,) + (start[6],)
             eps, param, fit = _area_detector_calib_fit(
                 ang1, ang2, n1, n2, detaxis, r_i, detdir1, detdir2,
-                start=start, fix=fix, full_output=True, wl=wl)
+                start=start, fix=fix, full_output=True, wl=wl, debug=debug)
             epslist.append(eps)
             paramlist.append(param)
             if epslist[-1] < epsmin:
                 epsmin = epslist[-1]
                 parammin = param
                 fitmin = fit
+                detrot = param[7]
             if debug:
                 print(eps, param)
 
@@ -572,7 +576,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         Ntilt = Ntilt * 8 if not fix[4] else Ntilt
         Ntiltaz = Ntiltaz * 7 if not fix[3] else Ntiltaz
 
-    startparam = start[:5] + (parammin[7],) + (start[6],)
+    startparam = start[:5] + (detrot,) + (start[6],)
     if debug:
         print("start params: %s" % str(startparam))
 
@@ -739,20 +743,20 @@ def _determine_detdir(ang1, ang2, n1, n2, detaxis, r_i):
     fits to the observed pixel numbers of the primary beam.
     """
     # center channel and detector pixel direction and pixel size
-    (s1, i1), r1 = math.linregress(ang1, n1)
-    (s2, i2), r2 = math.linregress(ang1, n2)
-    (s3, i3), r3 = math.linregress(ang2, n1)
-    (s4, i4), r4 = math.linregress(ang2, n2)
+    (s1, i1), r1 = xumath.linregress(ang1, n1)
+    (s2, i2), r2 = xumath.linregress(ang1, n2)
+    (s3, i3), r3 = xumath.linregress(ang2, n1)
+    (s4, i4), r4 = xumath.linregress(ang2, n2)
 
     # determine detector directions
     s = ord('x') + ord('y') + ord('z')
     c1 = ord(detaxis[0][0]) + ord(r_i[0])
     c2 = ord(detaxis[1][0]) + ord(r_i[0])
-    sign1 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[0]),
-                                             math.getVector(r_i))))
-    sign2 = numpy.sign(numpy.sum(numpy.cross(math.getVector(detaxis[1]),
-                                             math.getVector(r_i))))
-    if r1 ** 2 > r2 ** 2:
+    sign1 = numpy.sign(numpy.sum(numpy.cross(xumath.getVector(detaxis[0]),
+                                             xumath.getVector(r_i))))
+    sign2 = numpy.sign(numpy.sum(numpy.cross(xumath.getVector(detaxis[1]),
+                                             xumath.getVector(r_i))))
+    if ((r1 + r2 > r3 + r4) and r1 > r2) or ((r1 + r2 < r3 + r4) and r3 < r4):
         detdir1 = chr(s - c1)
         detdir2 = chr(s - c2)
         if numpy.sign(s1) > 0:
@@ -953,10 +957,10 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         _area_pwidth1 = float(params[2])
         _area_pwidth2 = float(params[3])
         _area_distance = float(params[4])
-        _area_tiltazimuth = numpy.radians(params[5])
-        _area_tilt = numpy.radians(params[6])
+        _area_tiltazimuth = math.radians(params[5])
+        _area_tilt = math.radians(params[6])
         _area_rot = float(params[7])
-        _area_ri = math.getVector(r_i) * _area_distance
+        _area_ri = xumath.getVector(r_i) * _area_distance
 
         # kwargs
         wl = utilities.wavelength(kwargs.get('wl', 1.))
@@ -1075,7 +1079,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         n2 = x[3, :]
 
         # use only positive tilt
-        param[6] = numpy.abs(param[6])
+        param[6] = abs(param[6])
 
         (qx, qy, qz) = areapixel(
             param[:-1], detectorDir1, detectorDir2, r_i, detectorAxis,
@@ -1087,27 +1091,33 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
 
     # guess initial parameters
     # center channel and detector pixel direction and pixel size
-    (s1, i1), r1 = math.linregress(ang1 - start[6], n1)
-    (s2, i2), r2 = math.linregress(ang1 - start[6], n2)
-    (s3, i3), r3 = math.linregress(ang2, n1)
-    (s4, i4), r4 = math.linregress(ang2, n2)
+    (s1, i1), r1 = xumath.linregress(ang1 - start[6], n1)
+    (s2, i2), r2 = xumath.linregress(ang1 - start[6], n2)
+    (s3, i3), r3 = xumath.linregress(ang2, n1)
+    (s4, i4), r4 = xumath.linregress(ang2, n2)
 
     distance = start[2]
-    if r1 ** 2 > r2 ** 2:
+    if ((r1 + r2 > r3 + r4) and r1 > r2) or ((r1 + r2 < r3 + r4) and r3 < r4):
         cch1 = i1
         cch2 = i4
-        pwidth1 = 2 * distance / numpy.abs(s1) * numpy.tan(numpy.radians(0.5))
-        pwidth2 = 2 * distance / numpy.abs(s4) * numpy.tan(numpy.radians(0.5))
+        pwidth1 = 2 * distance / numpy.abs(s1) * math.tan(math.radians(0.5))
+        pwidth2 = 2 * distance / numpy.abs(s4) * math.tan(math.radians(0.5))
     else:
         cch1 = i3
         cch2 = i2
-        pwidth1 = 2 * distance / numpy.abs(s3) * numpy.tan(numpy.radians(0.5))
-        pwidth2 = 2 * distance / numpy.abs(s2) * numpy.tan(numpy.radians(0.5))
+        pwidth1 = 2 * distance / numpy.abs(s3) * math.tan(math.radians(0.5))
+        pwidth2 = 2 * distance / numpy.abs(s2) * math.tan(math.radians(0.5))
     if numpy.isscalar(start[0]):
         pwidth1 = start[0]
     if numpy.isscalar(start[1]):
         pwidth2 = start[1]
-    tilt = numpy.abs(start[4])
+    if numpy.isscalar(start[0]) or numpy.isscalar(start[1]):
+        # find biggest correlation and recalculate distance
+        idxmax = numpy.argmax((r1, r2, r3, r4))
+        s = (s1, s2, s3, s4)[idxmax]
+        distance = abs(s) / math.tan(math.radians(0.5)) / 2
+        distance *= pwidth1 if idxmax < 2 else pwidth2
+    tilt = abs(start[4])
     tiltazimuth = start[3]
     detrot = start[5]
     outerangle_offset = start[6]
@@ -1142,7 +1152,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
                      ifixx=(0, 0, 0, 0),
                      stpb=(0.4, 0.4, pwidth1/50., pwidth2/50.,
                            distance/1000, 2, 0.125, 0.01, 0.01),
-                     sclb=(1/numpy.abs(cch1), 1/numpy.abs(cch2),
+                     sclb=(1/abs(cch1), 1/abs(cch2),
                            1/pwidth1, 1/pwidth2, 1/distance, 1/90.,
                            1/0.2, 1/0.2, 1/0.2),
                      maxit=200, ndigit=12, sstol=1e-11, partol=1e-11)
@@ -1156,7 +1166,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         outerangle_offset) = fit.beta
     # fix things in parameters
     tiltazimuth = tiltazimuth % 360.
-    tilt = numpy.abs(tilt)
+    tilt = abs(tilt)
 
     final_q = afunc([cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, tilt,
                      detrot, outerangle_offset],
@@ -1621,10 +1631,10 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         _area_pwidth1 = float(params[2])
         _area_pwidth2 = float(params[3])
         _area_distance = float(params[4])
-        _area_tiltazimuth = numpy.radians(params[5])
-        _area_tilt = numpy.radians(params[6])
+        _area_tiltazimuth = math.radians(params[5])
+        _area_tilt = math.radians(params[6])
         _area_rot = float(params[7])
-        _area_ri = math.getVector(r_i) * _area_distance
+        _area_ri = xumath.getVector(r_i) * _area_distance
 
         # kwargs
         wl = utilities.wavelength(kwargs.get('wl', 1.))
@@ -1746,13 +1756,13 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         l = x[7, :]
 
         # use only positive tilt and sample tilt
-        param[6] = numpy.abs(param[6])
-        param[9] = numpy.abs(param[9])
+        param[6] = abs(param[6])
+        param[9] = abs(param[9])
         wl = param[11]
-        cp = numpy.cos(numpy.radians(param[10]))
-        sp = numpy.sin(numpy.radians(param[10]))
-        cc = numpy.cos(numpy.radians(param[9]))
-        sc = numpy.sin(numpy.radians(param[9]))
+        cp = math.cos(math.radians(param[10]))
+        sp = math.sin(math.radians(param[10]))
+        cc = math.cos(math.radians(param[9]))
+        sc = math.sin(math.radians(param[9]))
 
         # UB matrix due to tilt at symmetric peak
         U1 = numpy.array(((cp * cc, -sp, cp * sc),
@@ -1797,27 +1807,33 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
             sangs = numpy.append(sangs, sang[i])
 
     # center channel and detector pixel direction and pixel size
-    (s1, i1), r1 = math.linregress(ang10 - start[3], n10)
-    (s2, i2), r2 = math.linregress(ang10 - start[3], n20)
-    (s3, i3), r3 = math.linregress(ang20, n10)
-    (s4, i4), r4 = math.linregress(ang20, n20)
+    (s1, i1), r1 = xumath.linregress(ang10 - start[3], n10)
+    (s2, i2), r2 = xumath.linregress(ang10 - start[3], n20)
+    (s3, i3), r3 = xumath.linregress(ang20, n10)
+    (s4, i4), r4 = xumath.linregress(ang20, n20)
 
     distance = start[2]
-    if r1 ** 2 > r2 ** 2:
+    if ((r1 + r2 > r3 + r4) and r1 > r2) or ((r1 + r2 < r3 + r4) and r3 < r4):
         cch1 = i1
         cch2 = i4
-        pwidth1 = 2 * distance / numpy.abs(s1) * numpy.tan(numpy.radians(0.5))
-        pwidth2 = 2 * distance / numpy.abs(s4) * numpy.tan(numpy.radians(0.5))
+        pwidth1 = 2 * distance / numpy.abs(s1) * math.tan(math.radians(0.5))
+        pwidth2 = 2 * distance / numpy.abs(s4) * math.tan(math.radians(0.5))
     else:
         cch1 = i3
         cch2 = i2
-        pwidth1 = 2 * distance / numpy.abs(s3) * numpy.tan(numpy.radians(0.5))
-        pwidth2 = 2 * distance / numpy.abs(s2) * numpy.tan(numpy.radians(0.5))
+        pwidth1 = 2 * distance / numpy.abs(s3) * math.tan(math.radians(0.5))
+        pwidth2 = 2 * distance / numpy.abs(s2) * math.tan(math.radians(0.5))
     if numpy.isscalar(start[0]):
         pwidth1 = start[0]
     if numpy.isscalar(start[1]):
         pwidth2 = start[1]
-    tilt = numpy.abs(start[4])
+    if numpy.isscalar(start[0]) or numpy.isscalar(start[1]):
+        # find biggest correlation and recalculate distance
+        idxmax = numpy.argmax((r1, r2, r3, r4))
+        s = (s1, s2, s3, s4)[idxmax]
+        distance = abs(s) / math.tan(math.radians(0.5)) / 2
+        distance *= pwidth1 if idxmax < 2 else pwidth2
+    tilt = abs(start[4])
     tiltazimuth = start[3]
     detrot = start[5]
     outerangle_offset = start[6]
@@ -1838,11 +1854,11 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         print("average qz: %.3f(%.3f)" % (numpy.average(qz), numpy.std(qz)))
 
     qvecav = (numpy.average(qx), numpy.average(qy), numpy.average(qz))
-    sampletilt = math.VecAngle(experiment.Transform(experiment.ndir),
-                               qvecav, deg=True)
-    stazimuth = -math.VecAngle(
+    sampletilt = xumath.VecAngle(experiment.Transform(experiment.ndir),
+                                 qvecav, deg=True)
+    stazimuth = -xumath.VecAngle(
         experiment.Transform(experiment.idir),
-        qvecav - math.VecDot(experiment.Transform(experiment.ndir), qvecav) *
+        qvecav - xumath.VecDot(experiment.Transform(experiment.ndir), qvecav) *
         experiment.Transform(experiment.ndir), deg=True)
     param = (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, tilt, detrot,
              outerangle_offset, sampletilt, stazimuth, wavelength)
@@ -1881,7 +1897,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
                      ifixx=(0, 0, 0, 0, 0, 0, 0, 0),
                      stpb=(0.4, 0.4, pwidth1/50., pwidth2/50., distance/1000,
                            2, 0.125, 0.01, 0.01, 0.01, 1., 0.0001),
-                     sclb=(1/numpy.abs(cch1), 1/numpy.abs(cch2), 1/pwidth1,
+                     sclb=(1/abs(cch1), 1/abs(cch2), 1/pwidth1,
                            1/pwidth2, 1/distance, 1/90., 1/0.2, 1/0.2, 1/0.2,
                            1/0.1, 1/90., 1.),
                      maxit=200, ndigit=12, sstol=1e-11, partol=1e-11)
@@ -1896,8 +1912,8 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
     # fix things in parameters
     tiltazimuth = tiltazimuth % 360.
     stazimuth = stazimuth % 360.
-    tilt = numpy.abs(tilt)
-    sampletilt = numpy.abs(sampletilt)
+    tilt = abs(tilt)
+    sampletilt = abs(sampletilt)
 
     final_q = afunc([cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, tilt,
                      detrot, outerangle_offset, sampletilt, stazimuth,
@@ -1959,7 +1975,7 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
                       "functionality not available")
             plot = False
 
-    p, rsq = math.linregress(channels, angles)
+    p, rsq = xumath.linregress(channels, angles)
     zeropos = numpy.polyval(p, primarybeam)
 
     if plot:
@@ -2051,7 +2067,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
         p0 = (om.mean(), a[om.argmax()], om.max() - om.min())
 
         def fitfunc(p, phi):
-            return numpy.abs(p[2]) * \
+            return abs(p[2]) * \
                 numpy.cos(numpy.radians(phi - (p[1] % 360.))) + p[0]
 
     else:
@@ -2059,7 +2075,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
         p0 = (a[om.argmax()], om.max() - om.min())  # omega0,phi0,miscut
 
         def fitfunc(p, phi):
-            return numpy.abs(p[1]) * \
+            return abs(p[1]) * \
                 numpy.cos(numpy.radians(phi - (p[0] % 360.))) + omega0
 
     def errfunc(p, phi, om):
@@ -2080,9 +2096,9 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
         plt.ylabel("aligned sample angle")
 
     if omega0 is None:
-        ret = [p1[0], p1[1] % 360., numpy.abs(p1[2])]
+        ret = [p1[0], p1[1] % 360., abs(p1[2])]
     else:
-        ret = [omega0] + [p1[0] % 360., numpy.abs(p1[1])]
+        ret = [omega0] + [p1[0] % 360., abs(p1[1])]
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("xu.analysis.misfit_calc: \n"
@@ -2141,9 +2157,9 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
             plot = False
 
     if peaktype == 'Gauss':
-        func = math.Gauss2d
+        func = xumath.Gauss2d
     elif peaktype == 'Lorentz':
-        func = math.Lorentz2d
+        func = xumath.Lorentz2d
     else:
         raise InputError("peaktype must be either 'Gauss' or 'Lorentz'")
 
@@ -2155,7 +2171,7 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
     params = [qysub, qzsub, 0.001, 0.001, psd.max(), 0, 0.]
     drange = [qysub - frange[0], qysub + frange[0], qzsub - frange[1],
               qzsub + frange[1]]
-    params, covariance = math.fit_peak2d(
+    params, covariance = xumath.fit_peak2d(
         qy.flatten(), qz.flatten(), psd.flatten(), params, drange,
         func, maxfev=10000)
     # correct params
