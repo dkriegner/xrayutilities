@@ -89,22 +89,9 @@ class PowderModel(object):
         ----------
          params:    settings dictionaries for the convolvers.
         """
-        if 'emission' in params:
-            if 'emiss_wavelength' in params['emission']:
-                wl = params['emission']['emiss_wavelengths'][0]
-                if 'global' in params:
-                    params['global']['dominant_wavelength'] = wl
-                else:
-                    params['global'] = {'dominant_wavelength': wl}
-
-                # set wavelength in base class
-                for pd in self.pdiff:
-                    pd._set_wavelength(wl*1e10)
-
         # set parameters for each convolver
-        for k in params:
-            for pd in self.pdiff:
-                pd.fp_profile.set_parameters(convolver=k, **params[k])
+        for pd in self.pdiff:
+            pd.update_settings(params)
 
     def set_lmfit_parameters(self, lmparams):
         """
@@ -140,6 +127,7 @@ class PowderModel(object):
                         name = p[len(k) + 1:]
                         settings[k][name] = pv[p]
                         break
+        self.set_parameters(settings)
 
     def create_fitparameters(self):
         """
@@ -288,9 +276,8 @@ class PowderModel(object):
             weight = numpy.reciprocal(std)
         weight[numpy.isinf(weight)] = 1
         self.minimizer = lmfit.Minimizer(residual, params,
-                                         fcn_args=(twotheta, data, weight),
-                                         maxfev=maxfev)
-        fitres = self.minimizer.minimize()
+                                         fcn_args=(twotheta, data, weight))
+        fitres = self.minimizer.minimize(maxfev=maxfev)
         self.set_lmfit_parameters(fitres.params)
         return fitres
 

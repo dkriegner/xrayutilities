@@ -17,7 +17,7 @@
 # Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
 
-# This file was derived from http://dx.doi.org/10.6028/jres.120.014.c
+# FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
 
 # Original copyright notice:
 # @author Marcus H. Mendenhall (marcus.mendenhall@nist.gov)
@@ -88,8 +88,8 @@ import warnings
 from math import cos, pi, sin, sqrt, tan
 
 import numpy
-from numpy import arcsin as nasin
 from numpy import abs as nabs
+from numpy import arcsin as nasin
 from numpy import cos as ncos
 from numpy import sin as nsin
 from numpy import asarray
@@ -1565,7 +1565,7 @@ class FP_profile:
             x = getattr(self, thing)
             if id(x) in clean:
                 del pd[thing]
-        # delete extra attributes cautiously, in case we have alread been
+        # delete extra attributes cautiously, in case we have already been
         # cleaned
         for k in ('convolver_funcs', 'convolvers',
                   'factors', 'convolution_history'):

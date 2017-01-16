@@ -17,9 +17,10 @@
 
 import os
 
+import lmfit
 import numpy
-import xrayutilities as xu
 from matplotlib.pylab import *
+import xrayutilities as xu
 
 mpl.rcParams['font.size'] = 16.0
 mpl.rcParams['lines.linewidth'] = 2.0
@@ -37,10 +38,10 @@ LaB6 = xu.materials.Crystal("LaB6",
                                 4.15692, ba=0.05, bb=0.15))
 
 LaB6_powder = xu.simpack.Powder(LaB6, 1,
-                                crystallite_size_gauss=1.0e6,
-                                crystallite_size_lor=0.7e-6,
+                                crystallite_size_gauss=1e6,
+                                crystallite_size_lor=0.5e-6,
                                 strain_gauss=0,
-                                strain_lor=0.0)
+                                strain_lor=0)
 
 settings = {'classoptions': {'oversampling': 10},
             'global': {'diffractometer_radius': 0.337,
@@ -49,14 +50,14 @@ settings = {'classoptions': {'oversampling': 10},
                            'main_width': 0.00015,
                            'tail_right': 0.001,
                            'tail_intens': 0.0015},
-            'axial': {'angI_deg': 1.5, 'angD_deg': 2.5,
+            'axial': {'angI_deg': 2.0, 'angD_deg': 2.0,
                       'slit_length_target': 0.008,
                       'n_integral_points': 21,
                       'length_sample': 0.015,
                       'slit_length_source': 0.008001},
             'si_psd': {'si_psd_window_bounds': (0, 32e-3)},
             'absorption': {'sample_thickness': 500e-6,
-                           'absorption_coefficient': 10e4},
+                           'absorption_coefficient': 3e4},
             'displacement': {'specimen_displacement': -3.8e-5,
                              'zero_error_deg': 0.0},
             'emission': {'emiss_intensities': (1.0, 0.45)}}
@@ -83,18 +84,35 @@ btt, bint = asarray([(15.158, 1136.452),
 pm.set_background('spline', x=btt, y=bint)
 mask = numpy.logical_and(tt > 18, tt < 148)
 
+##############################
+# first fit run to optimize sample displacement and zero offset
 p = pm.create_fitparameters()
 for pn, limit in (('primary_beam_intensity', (None, None)),
-                  ('phase_LaB6_crystallite_size_lor', (5e-7, 2e-6)),
-                  ('phase_LaB6_strain_lor', (0, 0.01)),
-                  ('displacement_specimen_displacement', (-1e6, 1e6)),
-                  ('absorption_sample_thickness', (200e-6, 800e-6)),
-                  ('absorption_absorption_coefficient', (None, None))):
+                  ('displacement_specimen_displacement', (-1e-4, 1e-4)),
+                  ('displacement_zero_error_deg', (-0.01, 0.01))):
     p[pn].set(vary=True, min=limit[0], max=limit[1])
 
-fitres = pm.fit(p, tt[mask], det[mask], std=sig[mask])
+fitres1 = pm.fit(p, tt[mask], det[mask], std=sig[mask], maxfev=50)
+
+##############################
+# second fit run to optimize absorption
+p = pm.create_fitparameters()
+for pn, limit in (('primary_beam_intensity', (None, None)),
+                  ('displacement_specimen_displacement', (-1e-4, 1e-4)),
+                  ('absorption_absorption_coefficient', (1e4, 10e4))):
+    p[pn].set(vary=True, min=limit[0], max=limit[1])
+
+# if needed one can also set relations between parameters:
+# p['axial_angD_deg'].set(expr='axial_angI_deg')
+
+fitres2 = pm.fit(p, tt[mask], det[mask], std=sig[mask])
+
+##############################
+# final calculation and plotting/printing of the results
 sim = pm.simulate(tt[mask])
 
-xu.simpack.Rietveld_error_metrics(det[mask], sim, std=sig[mask],
-                                  Nvar=fitres.nvarys, disp=True)
 xu.simpack.plot_powder(tt, det, sim, scale='sqrt', mask=mask)
+xu.simpack.Rietveld_error_metrics(det[mask], sim, std=sig[mask],
+                                  Nvar=fitres2.nvarys, disp=True)
+
+lmfit.report_fit(fitres2)
