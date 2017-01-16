@@ -301,8 +301,8 @@ class Powder(SMaterial):
     Optionally also the following can be set:
      crystallite_size_lor: Lorentzian crystallite size fwhm (m)
      crystallite_size_gauss: Gaussian crystallite size fwhm (m)
-     strain_lor: XXXX
-     strain_gauss: XXXX
+     strain_lor: extra peak width proportional to tan(theta)
+     strain_gauss: extra peak width proportional to tan(theta)
      sample_thickness: sample thickness (m)
      length_sample: the length of the sample in the axial direction (m)
                     (perpendicular to the diffraction plane)
@@ -318,8 +318,9 @@ class Powder(SMaterial):
          kwargs:    optional keyword arguments with further powder properties.
            'crystallite_size_lor': Lorentzian crystallite size fwhm (m)
            'crystallite_size_gauss': Gaussian crystallite size fwhm (m)
-           'strain_lor': XXXX
-           'strain_gauss': XXXX
+           'strain_lor', 'strain_gauss':
+                extra peak width proportional to tan(theta),
+                typically interpreted as microstrain broadening
         """
         for kw in kwargs:
             if kw not in ('crystallite_size_lor', 'crystallite_size_gauss',

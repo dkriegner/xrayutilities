@@ -1763,9 +1763,9 @@ class PowderDiffraction(PowderExperiment):
         if oldtt is None:
             self.set_window()
         elif len(oldtt) != len(self.__tt):
-            self.set_window()
+            self.set_window(force=True)
         elif not numpy.all(numpy.equal(oldtt, self.__tt)):
-            self.set_window()
+            self.set_window(force=True)
 
     @property
     def window_width(self):
@@ -1779,9 +1779,9 @@ class PowderDiffraction(PowderExperiment):
         else:
             self.__ww = ww
         if oldww != self.__ww:
-            self.set_window()
+            self.set_window(force=True)
 
-    def set_window(self):
+    def set_window(self, force=False):
         """
         sets the calcultion window for all convolvers
         """
@@ -1795,10 +1795,13 @@ class PowderDiffraction(PowderExperiment):
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
             npoints = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
+            if hasattr(fp, 'twotheta_window_center_deg'):
+                fptt = fp.twotheta_window_center_deg
+                if abs(ttpeak-fptt) / ww < 0.25 and not force:
+                    return
             fp.set_window(twotheta_output_points=npoints,
                           twotheta_window_center_deg=ttpeak,
                           twotheta_window_fullwidth_deg=ww)
-            fp.set_parameters(twotheta0_deg=ttpeak)
 
     def PowderIntensity(self, tt_cutoff=180):
         """
@@ -1906,6 +1909,7 @@ class PowderDiffraction(PowderExperiment):
                 continue
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
+            fp.set_parameters(twotheta0_deg=ttpeak)
             result = fp.compute_line_profile()
 
             outint[idx] += numpy.interp(tt[idx], result.twotheta_deg,
@@ -1936,7 +1940,6 @@ class PowderDiffraction(PowderExperiment):
         """
         self.set_sample_parameters()
         self.PowderIntensity()
-        # next statement not always necessary, only for changed peak positions
         self.set_window()
         return self.Convolve(twotheta, **kwargs)
 
