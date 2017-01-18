@@ -74,17 +74,15 @@ class LatticeBase(list):
             raise TypeError("atom must be an instance of class "
                             "xrayutilities.materials.Atom!")
 
-        if isinstance(pos, (list, tuple)):
-            p = numpy.array(pos, dtype=numpy.double)
-        elif isinstance(pos, numpy.ndarray):
-            p = pos
+        if isinstance(pos, (list, tuple, numpy.ndarray)):
+            p = numpy.asarray(pos, dtype=numpy.double)
         else:
             raise TypeError("point must be a list or numpy array of shape (3)")
 
         if not isinstance(occ, numbers.Number):
             raise TypeError("occupation (occ) must be a numerical value")
         if not isinstance(b, numbers.Number):
-            raise TypeError("occupation (occ) must be a numerical value")
+            raise TypeError("DW-exponent (b) must be a numerical value")
 
         list.__setitem__(self, key, (atom, p, float(occ), float(b)))
 
@@ -108,9 +106,9 @@ class Lattice(object):
     """
 
     def __init__(self, a1, a2, a3, base=None):
-        self._ai = numpy.identity(3)
-        self.a1 = a1
-        self.a2 = a2
+        self._ai = numpy.empty((3, 3))
+        self._ai[0, :] = a1
+        self._ai[1, :] = a2
         self.a3 = a3
 
         if base is not None:
@@ -136,19 +134,19 @@ class Lattice(object):
 
     @a1.setter
     def a1(self, value):
-        self._setlat(1, value)
+        self._setlat(0, value)
 
     @a2.setter
     def a2(self, value):
-        self._setlat(2, value)
+        self._setlat(1, value)
 
     @a3.setter
     def a3(self, value):
-        self._setlat(3, value)
+        self._setlat(2, value)
 
     def _setlat(self, i, value):
         if isinstance(value, (list, tuple, numpy.ndarray)):
-            self._ai[i-1, :] = value[:]
+            self._ai[i, :] = value[:]
         else:
             raise TypeError("a%d must be a list, tuple or a numpy array" % i)
         self.transform = math.Transform(self._ai.T)

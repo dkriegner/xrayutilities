@@ -1,3 +1,7 @@
+* new PowderExperiment, PowderDiffraction and PowderModel classes for proper
+  simulation of powder patterns. Thanks to Marcus Mendenhall for his
+  contribution of a Fundamentals parameter approach powder profile
+  calculation.
 * cache database results -> huge speedups in repeated calls with same
   parameters
 * new file parser for ILL numor files (station D23, maybe more general)
