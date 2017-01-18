@@ -115,7 +115,7 @@ subsec = 'classoptions'
 POWDER[subsec] = dict(xuParser.items("powder"))
 for k in ('oversampling',):
     trytomake(POWDER[subsec], k, int)
-for k in ('output_gaussian_smoother_bins_sigma', 'window_width'):
+for k in ('gaussian_smoother_bins_sigma', 'window_width'):
     trytomake(POWDER[subsec], k, float)
 
 subsec = 'global'

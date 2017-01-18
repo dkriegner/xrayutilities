@@ -81,11 +81,15 @@ careful definition of all the parameters
 from __future__ import absolute_import, print_function
 
 import math
+import multiprocessing
 import os
 import sys
+import threading
 import time
+import traceback
 import warnings
 from math import cos, pi, sin, sqrt, tan
+from multiprocessing.managers import BaseManager
 
 import numpy
 from numpy import abs as nabs
@@ -100,6 +104,12 @@ from .. import config, materials
 from ..experiment import PowderExperiment
 from ..math import VecNorm
 from .smaterials import Powder
+
+# python 2to3 compatibility
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 
 # figure out which FFT package we have, and import it
 try:
@@ -205,7 +215,7 @@ class FP_profile:
     length_scale_m = 1.0
 
     def __init__(self, anglemode,
-                 output_gaussian_smoother_bins_sigma=1.0,
+                 gaussian_smoother_bins_sigma=1.0,
                  oversampling=10):
         """
         initialize the instance
@@ -215,10 +225,9 @@ class FP_profile:
          anglemode: 'd' if setup will be in terms of a d-spacing,
                     otherwise 'twotheta' if setup will be at a fixed 2theta
                     value.
-         output_gaussian_smoother_bins_sigma: the number of bins for
-                                              post-smoothing of data. 1.0 is
-                                              good. *None* means no final
-                                              smoothing step.
+         gaussian_smoother_bins_sigma: the number of bins for post-smoothing of
+                                       data. 1.0 is good. *None* means no final
+                                       smoothing step.
          oversampling: the number of bins internally which will get computed
                        for each bin the the final result.
         """
@@ -229,7 +238,7 @@ class FP_profile:
         # angle-based position
         self.anglemode = anglemode
         # sigma, in units of bins, for the final smoother.
-        self.output_gaussian_smoother_bins_sigma = output_gaussian_smoother_bins_sigma
+        self.gaussian_smoother_bins_sigma = gaussian_smoother_bins_sigma
         # the number of internal bins computed for each bin in the final
         # output. 5-10 is usually plenty.
         self.oversampling = oversampling
@@ -246,6 +255,8 @@ class FP_profile:
             [(x, getattr(self, x)) for x in convolvers])
         # If *True*, print cache hit information
         self.debug_cache = False
+        # keep a record of things we don't keep when pickled
+        self._clean_on_pickle = set()
 
     def get_function_name(self):
         """
@@ -305,8 +316,6 @@ class FP_profile:
         nn = self.oversampling * twotheta_output_points // 2 + 1
         self.n_omega_points = nn
         # build all the arrays
-        # keep a record of things we don't keep when pickled
-        x = self._clean_on_pickle = set()
         b = self.add_buffer  # shortcut
 
         # a real-format scratch buffer
@@ -1403,14 +1412,14 @@ class FP_profile:
         # create a smoother for output result, independent of real physics, if
         # wanted
         me = self.get_function_name()  # the name of this convolver,as a string
-        if not self.output_gaussian_smoother_bins_sigma:
+        if not self.gaussian_smoother_bins_sigma:
             return  # no smoothing
-        flag, buf = self.get_conv(me, self.output_gaussian_smoother_bins_sigma,
+        flag, buf = self.get_conv(me, self.gaussian_smoother_bins_sigma,
                                   format=numpy.float)
         if flag:
             return buf  # already computed
         buf[:] = self.omega_vals
-        buf *= (self.output_gaussian_smoother_bins_sigma * (
+        buf *= (self.gaussian_smoother_bins_sigma * (
             self.twothetasamples[1] - self.twothetasamples[0]))
         buf *= buf
         buf *= -0.5
@@ -1583,28 +1592,86 @@ class FP_profile:
          setdict: dictionary from FP_profile.__getstate__()
         """
         self.__init__(anglemode=setdict["anglemode"],
-                      output_gaussian_smoother_bins_sigma=setdict[
-                          "output_gaussian_smoother_bins_sigma"],
+                      gaussian_smoother_bins_sigma=setdict[
+                          "gaussian_smoother_bins_sigma"],
                       oversampling=setdict["oversampling"]
                       )
         for k, v in setdict.items():
             setattr(self, k, v)
-        self.set_window(
-            twotheta_window_center_deg=self.twotheta_window_center_deg,
-            twotheta_window_fullwidth_deg=self.twotheta_window_fullwidth_deg,
-            twotheta_output_points=self.twotheta_output_points
-        )
-        # override clearing of this by set_window
-        self.lor_widths = setdict["lor_widths"]
+        try:
+            s = self
+            self.set_window(
+                twotheta_window_center_deg=s.twotheta_window_center_deg,
+                twotheta_window_fullwidth_deg=s.twotheta_window_fullwidth_deg,
+                twotheta_output_points=s.twotheta_output_points
+            )
+            # override clearing of this by set_window
+            self.lor_widths = setdict["lor_widths"]
+        except:
+            pass
+
+
+class convolver_handler(object):
+    """
+    manage the convolvers of on process
+    """
+    def assign_convolvers(self, convolvers):
+        self.convolvers = convolvers
+
+    def update_parameters(self, parameters):
+        for idx, c in enumerate(self.convolvers):
+            for k, v in parameters.items():
+                if k == 'classoptions':
+                    continue
+                c.set_parameters(convolver=k, **v)
+
+    def set_windows(self, centers, npoints, flag, width):
+        for c, cen, np, f in zip(self.convolvers, centers, npoints, flag):
+            if f:
+                c.set_window(twotheta_output_points=np,
+                             twotheta_window_center_deg=cen,
+                             twotheta_window_fullwidth_deg=width)
+
+    def calc(self, run, ttpeaks):
+        """
+        calculate profile function for selected convolvers
+
+        Parameters
+        ----------
+         run:   list of flags of length of convolvers to tell which convolver
+                needs to be run
+         ttpeaks: peak positions for the convolvers
+
+        Returns
+        -------
+         list of profile_data result objects
+        """
+        results = []
+        for c, flag, tt in zip(self.convolvers, run, ttpeaks):
+            if flag:
+                c.set_parameters(twotheta0_deg=tt)
+                res = c.compute_line_profile()
+                del res.twotheta, res.omega_inv_deg
+                del res.dictionary, res.derivative
+                results.append(res)
+            else:
+                results.append(None)
+        return results
+
+
+def chunkify(lst, n):
+    return [lst[i::n] for i in range(n)]
 
 
 class PowderDiffraction(PowderExperiment):
 
     """
     Experimental class for powder diffraction. This class calculates the
-    structure factors of powder diffraction lines and uses an instance of
+    structure factors of powder diffraction lines and uses instances of
     FP_profile to perform the convolution with experimental resolution function
-    calculated by the fundamental parameters approach.
+    calculated by the fundamental parameters approach. This class used
+    multiprocessing to speed up calculation. Set config.NTHREADS=1 to restrict
+    this to one worker process.
     """
 
     def __init__(self, mat, **kwargs):
@@ -1662,6 +1729,31 @@ class PowderDiffraction(PowderExperiment):
         # set some other class properties
         self.__tt = None
         self.__ww = None
+
+        # initialize multiprocessing
+        class manager(BaseManager):
+            pass
+
+        np = config.NTHREADS
+        self.nproc = np if np != 0 else os.cpu_count()
+        self.chunks = chunkify(range(len(self.fp_profile)), self.nproc)
+        manager.register("conv", convolver_handler)
+        self.managers = [manager() for idx in range(self.nproc)]
+        self.conv_handlers = []
+        self.threads = []
+        self.output_queue = queue.Queue()
+        for idx, mg in enumerate(self.managers):
+            mg.start()
+            m = mg.conv()
+            m.assign_convolvers([self.fp_profile[i] for i in self.chunks[idx]])
+            self.conv_handlers.append(m)
+            self.threads.append((
+                threading.Thread(target=self._send_work, args=(idx, )),
+                queue.Queue(), self.output_queue))
+        self._running = True
+        for th, q1, q2 in self.threads:
+            th.daemon = True
+            th.start()
 
     def load_settings_from_config(self, settings):
         """
@@ -1728,6 +1820,7 @@ class PowderDiffraction(PowderExperiment):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
         for fp in self.fp_profile:
+            self.settings['emission'].update(samplesettings)
             fp.set_parameters(convolver='emission', **samplesettings)
 
     def update_settings(self, newsettings={}):
@@ -1745,11 +1838,9 @@ class PowderDiffraction(PowderExperiment):
                 continue
             for fp in self.fp_profile:
                 fp.set_parameters(convolver=k, **newsettings[k])
-            if k in self.settings:
-                self.settings[k].update(newsettings[k])
-            else:
+            if k not in self.settings:
                 self.settings[k] = dict()
-                self.settings[k].update(newsettings[k])
+            self.settings[k].update(newsettings[k])
         self.set_wavelength_from_params()
 
     @property
@@ -1789,19 +1880,53 @@ class PowderDiffraction(PowderExperiment):
         tt = self.twotheta
         if not ww or tt is None:  # not all necessary information is set up
             return
-        for ttpeak, fp in zip(self.ang * 2, self.fp_profile):
+        npoints = [0, ] * len(self.ang)
+        nset = [False, ] * len(self.ang)
+        for i, (ttpeak, fp) in enumerate(zip(self.ang * 2, self.fp_profile)):
             if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
                 continue
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
-            npoints = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
+            np = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
+            npoints[i] = np
             if hasattr(fp, 'twotheta_window_center_deg'):
                 fptt = fp.twotheta_window_center_deg
                 if abs(ttpeak-fptt) / ww < 0.25 and not force:
-                    return
-            fp.set_window(twotheta_output_points=npoints,
+                    continue
+                else:
+                    nset[i] = True
+            else:
+                nset[i] = True
+            # set window in local instances
+            fp.set_window(twotheta_output_points=np,
                           twotheta_window_center_deg=ttpeak,
                           twotheta_window_fullwidth_deg=ww)
+        # set multiprocessing instances
+        for chunk, handler in zip(self.chunks, self.conv_handlers):
+            handler.set_windows(2 * self.ang[chunk],
+                                [npoints[c] for c in chunk],
+                                [nset[c] for c in chunk], ww)
+
+    def _send_work(self, idx):
+        """
+        a threaded block which watches for data and runs computation
+        """
+        th, input, output = self.threads[idx]
+        handler = self.conv_handlers[idx]
+        while self._running:
+            try:
+                settings, run, ttpeaks = input.get(True, 1.0)
+            except queue.Empty:
+                continue
+            try:
+                handler.update_parameters(settings)
+                results = handler.calc(run, ttpeaks)
+                output.put((idx, results))  # put results on output queue
+            except:
+                traceback.print_exc()
+                break
+        self._running = False
+        self.managers[idx].shutdown()  # we've quit, no need to keep manager
 
     def PowderIntensity(self, tt_cutoff=180):
         """
@@ -1871,7 +1996,7 @@ class PowderDiffraction(PowderExperiment):
         self.data = (self.data * polarization_factor *
                      lorentz_factor / unitcellvol ** 2)
 
-    def Convolve(self, twotheta, window_width='config'):
+    def Convolve(self, twotheta, window_width='config', mode='multi'):
         """
         convolute the powder lines with the resolution function and map them
         onto the twotheta positions. This calculates the powder pattern
@@ -1882,6 +2007,9 @@ class PowderDiffraction(PowderExperiment):
          twotheta:  two theta values at which the powder pattern should be
                     calculated.
          window_width: width of the calculation window of a single peak
+         mode:      multiprocessing mode, either 'multi' to use multiple
+                    processes or 'local' to restrict the calculation to a
+                    single process
 
         Note: Bragg peaks are only included up to tt_cutoff set in
               the class constructor!
@@ -1891,9 +2019,8 @@ class PowderDiffraction(PowderExperiment):
          output intensity values for the twotheta values given in the input
         """
         t_start = time.time()
-        p = self.fp_profile
 
-        outint = numpy.zeros_like(twotheta)
+        out = numpy.zeros_like(twotheta)
         tt = self.twotheta = twotheta
         self.window_width = window_width
         ww = self.window_width
@@ -1903,20 +2030,54 @@ class PowderDiffraction(PowderExperiment):
             warnings.warn('twotheta range is larger then tt_cutoff. Possibly '
                           'Bragg peaks in the convolution range are not '
                           'considered!')
-        for ttpeak, sfact, fp in zip(2*self.ang, self.data, self.fp_profile):
-            # check if peak is in data range to be calculated
-            if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
-                continue
-            idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
-                                                   tt < ttpeak + ww/2))
-            fp.set_parameters(twotheta0_deg=ttpeak)
-            result = fp.compute_line_profile()
 
-            outint[idx] += numpy.interp(tt[idx], result.twotheta_deg,
-                                        result.peak*sfact, left=0, right=0)
+        if mode == 'local':
+            for ttpeak, sf, fp in zip(2*self.ang, self.data, self.fp_profile):
+                # check if peak is in data range to be calculated
+                if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
+                    continue
+                idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
+                                                       tt < ttpeak + ww/2))
+                fp.set_parameters(twotheta0_deg=ttpeak)
+                result = fp.compute_line_profile()
+                out[idx] += numpy.interp(tt[idx], result.twotheta_deg,
+                                         result.peak*sf, left=0, right=0)
+        else:
+            # prepare multiprocess calculation
+            for idx, chunk in enumerate(self.chunks):
+                run = []
+                ttpeaks = []
+                for c in chunk:
+                    ttpeak = 2*self.ang[c]
+                    ttpeaks.append(ttpeak)
+                    if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
+                        run.append(False)
+                    else:
+                        run.append(True)
+                # start calculation in other processes
+                self.threads[idx][1].put((self.settings, run, ttpeaks))
+            gotit = set(range(self.nproc))
+            while gotit:
+                # receive ready calculations
+                idx, res = self.output_queue.get(True)
+                chunk = self.chunks[idx]
+                for c, r in zip(chunk, res):
+                    if r is None:
+                        continue
+                    else:
+                        ttpeak = 2 * self.ang[c]
+                        mask = numpy.argwhere(
+                            numpy.logical_and(tt > ttpeak - ww/2,
+                                              tt < ttpeak + ww/2))
+
+                        out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
+                                                  r.peak*self.data[c],
+                                                  left=0, right=0)
+                gotit.discard(idx)  # got that result, don't expect more
+
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.Powder.Convolute: exec time=", time.time() - t_start)
-        return outint
+        return out
 
     def Calculate(self, twotheta, **kwargs):
         """
