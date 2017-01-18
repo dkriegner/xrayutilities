@@ -1755,6 +1755,12 @@ class PowderDiffraction(PowderExperiment):
             th.daemon = True
             th.start()
 
+    def __del__(self):
+        self._running = False
+        for th, q1, q2 in self.threads:
+            th.join()
+        super(PowderDiffraction, self).__del__()
+
     def load_settings_from_config(self, settings):
         """
         load parameters from the config and update these settings with the
