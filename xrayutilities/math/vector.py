@@ -46,10 +46,12 @@ def VecNorm(v):
     """
     Calculate the norm of a vector.
 
-    required input arguments:
+    Parameters
+    ----------
      v .......... vector as list or numpy array
 
-    return value:
+    Returns
+    -------
      float holding the vector norm
     """
     if len(v) != 3:
@@ -62,25 +64,29 @@ def VecUnit(v):
     """
     Calculate the unit vector of v.
 
-    required input arguments:
+    Parameters
+    ----------
      v ........... vector as list or numpy array
 
-    return value:
+    Returns
+    -------
      numpy array with the unit vector
     """
     vtmp = _checkvec(v)
-    return vtmp / VecNorm(vtmp)
+    return numpy.copy(vtmp) / VecNorm(vtmp)
 
 
 def VecDot(v1, v2):
     """
     Calculate the vector dot product.
 
-    required input arguments:
+    Parameters
+    ----------
      v1 .............. vector as numpy array or list
      v2 .............. vector as numpy array or list
 
-    return value:
+    Returns
+    -------
      float value
     """
     if len(v1) != 3 or len(v2) != 3:
@@ -88,6 +94,31 @@ def VecDot(v1, v2):
                          % (len(v1), len(v2)))
 
     return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
+
+
+def VecCross(v1, v2, out=None):
+    """
+    Calculate the vector cross product.
+
+    Parameters
+    ----------
+     v1 .............. vector as numpy array or list
+     v2 .............. vector as numpy array or list
+     out ............. optional output vector
+
+    Returns
+    -------
+     float value
+    """
+    if len(v1) != 3 or len(v2) != 3:
+        raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
+                         % (len(v1), len(v2)))
+    if out is None:
+        out = numpy.empty(3)
+    out[0] = v1[1] * v2[2] - v1[2] * v2[1]
+    out[1] = v1[2] * v2[0] - v1[0] * v2[2]
+    out[2] = v1[0] * v2[1] - v1[1] * v2[0]
+    return out
 
 
 def VecAngle(v1, v2, deg=False):
@@ -98,7 +129,8 @@ def VecAngle(v1, v2, deg=False):
 
     alpha = acos((v1.v2)/(norm(v1)*norm(v2)))
 
-    required input arguments:
+    Parameters
+    ----------
      v1 .............. vector as numpy array or list
      v2 .............. vector as numpy array or list
 
@@ -106,15 +138,16 @@ def VecAngle(v1, v2, deg=False):
      deg ............. (default: false) return result in degree
                        otherwise in radiants
 
-    return value:
+    Returns
+    -------
      float value with the angle inclined by the two vectors
     """
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
 
-    alpha = numpy.arccos(numpy.minimum(1., VecDot(v1, v2) / u1 / u2))
+    alpha = math.acos(min(1., VecDot(v1, v2) / u1 / u2))
     if deg:
-        alpha = numpy.degrees(alpha)
+        alpha = math.degrees(alpha)
 
     return alpha
 

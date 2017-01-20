@@ -26,13 +26,7 @@ class Transform(object):
 
     def __init__(self, matrix):
         self.matrix = matrix
-        try:
-            self.imatrix = numpy.linalg.inv(matrix)
-        except:
-            if (config.VERBOSITY >= config.INFO_LOW):
-                print("XU.math.Transform.__init__: matrix cannot be inverted"
-                      " - seems to be singular")
-            self.imatrix = None
+        self.imatrix = None
 
     def inverse(self, args, rank=1):
         """
@@ -46,10 +40,12 @@ class Transform(object):
          rank:      rank of the supplied object. allowed values are 1, 2,
                     and 4
         """
-
         if self.imatrix is None:
-            raise Exception("XU.math.Transform: matrix cannot be inverted"
-                            " - seems to be singular")
+            try:
+                self.imatrix = numpy.linalg.inv(self.matrix)
+            except:
+                raise Exception("XU.math.Transform: matrix cannot be inverted"
+                                " - seems to be singular")
 
         it = Transform(self.imatrix)
         return it(args, rank)

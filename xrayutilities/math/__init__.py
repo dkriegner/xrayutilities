@@ -31,6 +31,7 @@ from .vector import VecNorm
 from .vector import VecUnit
 from .vector import VecDot
 from .vector import VecAngle
+from .vector import VecCross
 from .vector import getVector
 from .vector import getSyntax
 
