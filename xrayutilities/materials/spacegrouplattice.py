@@ -327,7 +327,7 @@ class SGLattice(object):
                 y = w[1][i]
                 i += 1
             if parint & 4:
-                z = w[2][i]
+                z = w[1][i]
             for p in poslist:
                 pos = eval(p, {'x': x, 'y': y, 'z': z})
                 yield atom, pos, occ, b

@@ -21,7 +21,6 @@ import numpy
 
 from . import elements as e
 from . import __path__
-from . import elements, lattice
 from .. import config
 from .cif import CIFFile
 from .material import (Amorphous, Crystal, CubicAlloy, CubicElasticTensor,
