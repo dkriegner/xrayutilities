@@ -13,12 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import math
 import unittest
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 
 class TestPseudomorphic(unittest.TestCase):
@@ -57,10 +58,11 @@ class TestPseudomorphic(unittest.TestCase):
         # calc lattice for mBpseudo
         def get_inplane111(l):
             """determine inplane lattice parameter for (111) surfaces"""
-            return (xu.math.VecNorm(l.GetPoint(1, 1, -2)) / numpy.sqrt(6) +
-                    xu.math.VecNorm(l.GetPoint(1, -1, 0)) / numpy.sqrt(2)) / 2
+            return (xu.math.VecNorm(l.GetPoint(1, 1, -2)) / math.sqrt(6) +
+                    xu.math.VecNorm(l.GetPoint(1, -1, 0)) / math.sqrt(2)) / 2
         asub = get_inplane111(self.mA.lattice)
         abulk = get_inplane111(self.mB.lattice)
+
         apar = asub + (abulk - asub) * self.relaxation
         epar = (apar - abulk) / abulk
         eperp = -epar * (2*self.mB.c11 + 4*self.mB.c12 - 4*self.mB.c44) /\
@@ -68,12 +70,13 @@ class TestPseudomorphic(unittest.TestCase):
         eps = (eperp - epar + 3 * numpy.identity(3) * epar) / 3.
 
         # check that angles lattice spacings are correct
-        self.assertAlmostEqual(xu.math.VecNorm(mBpseudo.Q(1, 1, 1)),
-                               xu.math.VecNorm(self.mB.Q(1, 1, 1)) / (1+eperp),
-                               places=12)
-        self.assertAlmostEqual(xu.math.VecNorm(mBpseudo.Q(1, 1, -2)),
-                               xu.math.VecNorm(self.mB.Q(1, 1, -2)) / (1+epar),
-                               places=12)
+        pi = numpy.pi
+        self.assertAlmostEqual(
+            mBpseudo.planeDistance(1, 1, -2),
+            2*pi/(xu.math.VecNorm(self.mB.Q(1, 1, -2))/(1+epar)), places=12)
+        self.assertAlmostEqual(
+            mBpseudo.planeDistance(1, 1, 1),
+            2*pi/(xu.math.VecNorm(self.mB.Q(1, 1, 1))/(1+eperp)), places=12)
 
 
 if __name__ == '__main__':
