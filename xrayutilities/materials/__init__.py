@@ -19,6 +19,7 @@
 # import module objects
 
 from .atom import Atom
+from .spacegrouplattice import SGLattice
 from .lattice import LatticeBase
 from .lattice import Lattice
 from .lattice import CubicLattice

@@ -22,13 +22,14 @@ parameters and a LatticeBase. It offers methods to calculate the reciprocal
 space position of Bragg peaks and their structure factor.
 """
 
-import numpy
 import numbers
+import warnings
 
-from .atom import Atom
-from .. import math
-from .. import config
+import numpy
+
+from .. import config, math
 from ..exception import InputError
+from .atom import Atom
 
 
 class LatticeBase(list):
@@ -106,6 +107,9 @@ class Lattice(object):
     """
 
     def __init__(self, a1, a2, a3, base=None):
+        warnings.warn("deprecated class -> change to SGLattice",
+                      DeprecationWarning)
+
         self._ai = numpy.empty((3, 3))
         self._ai[0, :] = a1
         self._ai[1, :] = a2
