@@ -31,11 +31,12 @@ tt, det, sig = loadtxt(os.path.join('data', 'LaB6_d500_si_psd.xye.bz2'),
                        unpack=True)
 
 ##############################
-LaB6 = xu.materials.Crystal("LaB6",
-                            xu.materials.lattice.LaB6Lattice(
-                                xu.materials.elements.La,
-                                xu.materials.elements.B,
-                                4.15692, ba=0.05, bb=0.15))
+La = xu.materials.elements.La
+B = xu.materials.elements.B
+LaB6 = xu.materials.Crystal(
+    "LaB6", xu.materials.SGLattice(221, 4.15692, atoms=[La, B],
+                                   pos=['1a', ('6f', 0.19750)],
+                                   b=[0.05, 0.15]))
 
 LaB6_powder = xu.simpack.Powder(LaB6, 1,
                                 crystallite_size_gauss=1e6,

@@ -13,39 +13,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import xrayutilities as xu
 import numpy
 
-# defining a ZincBlendeLattice with two types of atoms and lattice constant 'a'
+# definition of materials is done from its space group and its free parameters.
+# Atoms in the base are specified by their Wyckoff positions and potential free
+# parameters of these positions
 
+# As example we will refine zinc-blende InP which is already predefined as
+# xu.materials.InP. Zincblende consists of atoms
 
-def ZincBlendeLattice(aa, ab, a):
-    # create lattice base
-    lb = xu.materials.LatticeBase()
-    lb.append(aa, [0, 0, 0])
-    lb.append(aa, [0.5, 0.5, 0])
-    lb.append(aa, [0.5, 0, 0.5])
-    lb.append(aa, [0, 0.5, 0.5])
-    lb.append(ab, [0.25, 0.25, 0.25])
-    lb.append(ab, [0.75, 0.75, 0.25])
-    lb.append(ab, [0.75, 0.25, 0.75])
-    lb.append(ab, [0.25, 0.75, 0.75])
+# elements (which contain their x-ray optical properties) are loaded from
+# xrayutilities.materials.elements
+In = xu.materials.elements.In
+P = xu.materials.elements.P
 
-    # create lattice vectors
-    a1 = [a, 0, 0]
-    a2 = [0, a, 0]
-    a3 = [0, 0, a]
+# definition of zincblende InP:
+InP = xu.materials.Crystal(
+    "InP", xu.materials.SGLattice(216, 5.8687, atoms=[In, P],
+                                  pos=['4a', '4c']),)
 
-    l = xu.materials.Lattice(a1, a2, a3, base=lb)
-    return l
-
-# defining InP, no elastic properties are given,
-# helper functions exist to create the (6,6) elastic tensor for cubic materials
-# which can be given as optional argument to the material class
-InP = xu.materials.Crystal("InP",
-                           ZincBlendeLattice(xu.materials.elements.In,
-                                             xu.materials.elements.P, 5.8687))
-# InP is of course already included in the xu.materials module
+# printing of information about the defined material:
 print(InP)
+
+# for some purposes it might be necessary to convert the SGLattice to space
+# group P1
+InP_p1 = xu.materials.Crystal(
+    "InP (P1)", xu.materials.SGLattice.convert_to_P1(InP.lattice))
+
+print(InP_p1)
