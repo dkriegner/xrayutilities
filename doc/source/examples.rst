@@ -233,49 +233,40 @@ materials.
 
 Examples show how to define a new material by defining its lattice and deriving a new material, furthermore materials can be used to calculate the structure factor of a Bragg reflection for an specific energy or the energy dependency of its structure factor for anomalous scattering. Data for this are taken from a database which is included in the download.
 
-First defining a new material from scratch is shown. This consists of an lattice with base and the type of atoms with elastic constants of the material::
+First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we should the definition of zincblende InP as well as for its hexagonal wurtzite polytype as two examples::
 
     import xrayutilities as xu
 
-    # defining a ZincBlendeLattice with two types of atoms
-    # and lattice constant a
-    def ZincBlendeLattice(aa, ab, a):
-        #create lattice base
-        lb = xu.materials.LatticeBase()
-        lb.append(aa, [0, 0, 0])
-        lb.append(aa, [0.5, 0.5, 0])
-        lb.append(aa, [0.5, 0, 0.5])
-        lb.append(aa, [0, 0.5, 0.5])
-        lb.append(ab, [0.25, 0.25, 0.25])
-        lb.append(ab, [0.75, 0.75, 0.25])
-        lb.append(ab, [0.75, 0.25, 0.75])
-        lb.append(ab, [0.25, 0.75, 0.75])
+    # elements (which contain their x-ray optical properties) are loaded from
+    # xrayutilities.materials.elements
+    In = xu.materials.elements.In
+    P = xu.materials.elements.P
 
-        #create lattice vectors
-        a1 = [a, 0, 0]
-        a2 = [0, a, 0]
-        a3 = [0, 0, a]
-
-        l = xu.materials.Lattice(a1, a2, a3, base=lb)
-        return l
-
-    # defining InP, no elastic properties are given,
-    # helper functions exist to create the (6, 6) elastic tensor
-    # for cubic materials
-    atom_In = xu.materials.elements.In
-    atom_P = xu.materials.elements.P
+    # define elastic parameters of the material we use a helper function which
+    # creates the 6x6 tensor needed from the only 3 free parameters of a cubic
+    # material.
     elastictensor = xu.materials.CubicElasticTensor(10.11e+10, 5.61e+10,
                                                     4.56e+10)
-    InP  = xu.materials.Crystal("InP",
-                                ZincBlendeLattice(atom_In, atom_P, 5.8687),
-                                elastictensor)
+    # definition of zincblende InP:
+    InP = xu.materials.Crystal(
+        "InP", xu.materials.SGLattice(216, 5.8687, atoms=[In, P],
+                                      pos=['4a', '4c']),
+        elastictensor)
 
+    # a hexagonal equivalent which shows how parameters change for material
+    # definition with a different space group. Since the elasticity tensor is
+    # optional its not specified here.
+    InPWZ = xu.materials.Crystal(
+        "InP(WZ)", xu.materials.SGLattice(186, 4.1423, 6.8013,
+                                          atoms=[In, P], pos=[('2b', 0),
+                                                              ('2b', 3/8.)]))
 
-InP is of course already included in the xu.materials module and can be loaded by::
+InP (in both variants) is already included in the xu.materials module and can be loaded by::
 
     InP = xu.materials.InP
+    InPWZ = xu.materials.InPWZ
 
-like many other materials.
+Similar definitions exist for many other materials.
 
 
 Using the material properties the calculation of the reflection strength of a Bragg reflection can be done as follows::
