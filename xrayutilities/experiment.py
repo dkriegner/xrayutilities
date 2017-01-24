@@ -1446,7 +1446,7 @@ class Experiment(object):
         self._t2 = math.CoordinateTransform(xi, yi, zi)
 
         self._transform = math.Transform(
-            numpy.dot(self._t2.imatrix, self._t1.matrix))
+            numpy.dot(numpy.linalg.inv(self._t2.matrix), self._t1.matrix))
 
     def _set_energy(self, energy):
         self._en = utilities.energy(energy)
