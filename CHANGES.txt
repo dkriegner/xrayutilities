@@ -1,3 +1,6 @@
+* Lattice class is still included but now deprecated
+* new SGLattice class which replaces Lattice and allows for easier material
+  definitions
 * new PowderExperiment, PowderDiffraction and PowderModel classes for proper
   simulation of powder patterns. Thanks to Marcus Mendenhall for his
   contribution of a Fundamentals parameter approach powder profile

@@ -25,8 +25,9 @@ class TestStructureFactor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.at = xu.materials.elements.dummy
-        cls.mat = xu.materials.Crystal('test',
-                                       xu.materials.DiamondLattice(cls.at, 4))
+        cls.mat = xu.materials.Crystal(
+            'test', xu.materials.SGLattice('227:1', 4, atoms=[cls.at, ],
+                                           pos=['8a', ]))
 
     def test_StructureFactor(self):
         f = self.mat.StructureFactor(self.mat.Q(1, 3, 1))

@@ -80,6 +80,7 @@ careful definition of all the parameters
 
 from __future__ import absolute_import, print_function
 
+import atexit
 import math
 import multiprocessing
 import os
@@ -1735,7 +1736,7 @@ class PowderDiffraction(PowderExperiment):
             pass
 
         np = config.NTHREADS
-        self.nproc = np if np != 0 else os.cpu_count()
+        self.nproc = np if np != 0 else multiprocessing.cpu_count()
         self.chunks = chunkify(range(len(self.fp_profile)), self.nproc)
         manager.register("conv", convolver_handler)
         self.managers = [manager() for idx in range(self.nproc)]
@@ -1754,12 +1755,12 @@ class PowderDiffraction(PowderExperiment):
         for th, q1, q2 in self.threads:
             th.daemon = True
             th.start()
+        atexit.register(self.__stop__)
 
-    def __del__(self):
+    def __stop__(self):
         self._running = False
         for th, q1, q2 in self.threads:
             th.join()
-        super(PowderDiffraction, self).__del__()
 
     def load_settings_from_config(self, settings):
         """
@@ -1945,13 +1946,13 @@ class PowderDiffraction(PowderExperiment):
         """
         mat = self.mat.material
         # calculate maximal Bragg indices
-        hma = int(math.ceil(VecNorm(mat.lattice.a1) * self.k0 / pi *
+        hma = int(math.ceil(VecNorm(mat.a1) * self.k0 / pi *
                   sin(math.radians(tt_cutoff / 2.))))
         hmi = -hma
-        kma = int(math.ceil(VecNorm(mat.lattice.a2) * self.k0 / pi *
+        kma = int(math.ceil(VecNorm(mat.a2) * self.k0 / pi *
                   sin(math.radians(tt_cutoff / 2.))))
         kmi = -kma
-        lma = int(math.ceil(VecNorm(mat.lattice.a3) * self.k0 / pi *
+        lma = int(math.ceil(VecNorm(mat.a3) * self.k0 / pi *
                   sin(math.radians(tt_cutoff / 2.))))
         lmi = -lma
 

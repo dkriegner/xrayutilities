@@ -15,26 +15,27 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
+from math import sqrt
+
 import numpy
+import xrayutilities as xu
 
 # define elements
 In = xu.materials.elements.In
 P = xu.materials.elements.P
 
 # define materials
-# Si = xu.materials.Si
 InP = xu.materials.InP
-# InAs = xu.materials.InAs
+InPWZ = xu.materials.InPWZ
 
-# hexagonal polytypes
-ainp = 5.8687
-InP_WZ = xu.materials.Crystal(
-    "InP(wz)", xu.materials.WurtziteLattice(In, P, ainp / numpy.sqrt(2),
-                                            numpy.sqrt(4 / 3.) * ainp))
-InP_4H = xu.materials.Crystal(
-    "InP(4H)", xu.materials.Hexagonal4HLattice(In, P, ainp / numpy.sqrt(2),
-                                               2 * numpy.sqrt(4 / 3.) * ainp))
+# approximate version of other hexagonal polytypes
+ainp = InP.a
+InP4H = xu.materials.Crystal(
+    "InP(4H)",
+    xu.materials.SGLattice(186, ainp / sqrt(2), 2 * sqrt(4/3.) * ainp,
+                           atoms=[In, In, P, P],
+                           pos=[('2a', 0), ('2b', 1/4.),
+                                ('2a', 3/16.), ('2b', 7/16.)]))
 
 for energy in [8041]:  # eV
 
@@ -48,7 +49,7 @@ for energy in [8041]:  # eV
           '-----------------')
 
     exp111 = xu.HXRD(InP.Q(1, 1, -2), InP.Q(1, 1, 1), en=energy)
-    exphex = xu.HXRD(InP_WZ.Q(1, -1, 0), InP_WZ.Q(0, 0, 1), en=energy)
+    exphex = xu.HXRD(InPWZ.Q(1, -1, 0), InPWZ.Q(0, 0, 1), en=energy)
 
     # InP ZB reflections
     reflections = [[1, 1, 1], [2, 2, 2], [3, 3, 3],
@@ -67,7 +68,7 @@ for energy in [8041]:  # eV
           '-----------------')
     # InP WZ reflections
     reflections = [[0, 0, 2], [0, 0, 4], [1, -1, 4], [1, -1, 5], [1, -1, 6]]
-    mat = InP_WZ
+    mat = InPWZ
     for hkl in reflections:
         qvec = mat.Q(hkl)
         [om, chi, phi, tt] = exphex.Q2Ang(qvec, trans=True)
@@ -81,7 +82,7 @@ for energy in [8041]:  # eV
           '-----------------')
     # InP 4H
     reflections = [[0, 0, 4], [0, 0, 8], [1, -1, 9], [1, -1, 10], [1, -1, 11]]
-    mat = InP_4H
+    mat = InP4H
     for hkl in reflections:
         qvec = mat.Q(hkl)
         [om, chi, phi, tt] = exphex.Q2Ang(qvec, trans=True)

@@ -22,9 +22,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 cryst_size = 40e-9  # meter
 
-# create Fe BCC with a=2.87Angstrom
+# create Fe BCC (space group nr. 229 Im3m) with a=2.87Angstrom
+# although this is already predefined as xu.materials.Fe we will repeat here
+# for educational purposes
 FeBCC = xu.materials.Crystal(
-    "Fe", xu.materials.BCCLattice(xu.materials.elements.Fe, 2.87))
+    "Fe", xu.materials.SGLattice(229, 2.87, atoms=[xu.materials.elements.Fe, ],
+                                 pos=['2a', ]))
 
 print("Creating Fe powder ...")
 Fe_powder = xu.simpack.Powder(FeBCC, 1, crystallite_size_gauss=cryst_size)
