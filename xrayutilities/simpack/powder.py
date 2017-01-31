@@ -214,6 +214,9 @@ class FP_profile:
     """
     max_history_length = 5  # max number of histories for each convolver
     length_scale_m = 1.0
+    # class attribute to tell if convolvers in this class
+    # contain anisotropic convolvers
+    isotropic = True
 
     def __init__(self, anglemode,
                  gaussian_smoother_bins_sigma=1.0,
@@ -1616,8 +1619,11 @@ class convolver_handler(object):
     """
     manage the convolvers of on process
     """
-    def assign_convolvers(self, convolvers):
-        self.convolvers = convolvers
+    def __init__(self):
+        self.convolvers = []
+
+    def add_convolver(self, convolver):
+        self.convolvers.append(convolver)
 
     def update_parameters(self, parameters):
         for idx, c in enumerate(self.convolvers):
@@ -1717,13 +1723,16 @@ class PowderDiffraction(PowderExperiment):
 
         # number of significant digits, needed to identify equal floats
         self.digits = 5
-        self.qpos = None
-        self.PowderIntensity(self._tt_cutoff)
 
-        # initialize FP_profile instances
-        self.fp_profile = []
-        for tt, hkl in zip(self.ang * 2, self.hkl):
-            self.fp_profile.append(self._init_fpprofile(self.fpclass))
+        # determine if convolvers are isotropic
+        self.isotropic = self.fpclass.isotropic
+
+        # calculate powder lines position and intensities
+        self.init_powder_lines(self._tt_cutoff)
+
+        # initialize FP_profile instances (add field to the data dictionary)
+        for h in self.data:
+            self.data[h]['conv'] = self._init_fpprofile(self.fpclass)
         self.update_settings(self.settings)
         self.set_sample_parameters()
 
@@ -1737,7 +1746,8 @@ class PowderDiffraction(PowderExperiment):
 
         np = config.NTHREADS
         self.nproc = np if np != 0 else multiprocessing.cpu_count()
-        self.chunks = chunkify(range(len(self.fp_profile)), self.nproc)
+        self.chunks = chunkify(list(self.data.keys()), self.nproc)
+        self.next_proc = len(self.data) % self.nproc
         manager.register("conv", convolver_handler)
         self.managers = [manager() for idx in range(self.nproc)]
         self.conv_handlers = []
@@ -1746,7 +1756,8 @@ class PowderDiffraction(PowderExperiment):
         for idx, mg in enumerate(self.managers):
             mg.start()
             m = mg.conv()
-            m.assign_convolvers([self.fp_profile[i] for i in self.chunks[idx]])
+            for h in self.chunks[idx]:
+                m.add_convolver(self.data[h]['conv'])
             self.conv_handlers.append(m)
             self.threads.append((
                 threading.Thread(target=self._send_work, args=(idx, )),
@@ -1787,8 +1798,11 @@ class PowderDiffraction(PowderExperiment):
         Parameters
         ----------
          fpclass: class with possible mixins which implement more convolvers
-         settings: user-supplied settings, default values are loaded from the
-                   config file
+         identity: value of the identity argument to the class constructor
+
+        Returns
+        -------
+         instance of fpclass
         """
         classparams = dict()
         classparams.update(self.settings['classoptions'])
@@ -1808,7 +1822,8 @@ class PowderDiffraction(PowderExperiment):
             if 'emiss_wavelengths' in pem:
                 wl = pem['emiss_wavelengths'][0]
                 self.settings['global']['dominant_wavelength'] = wl
-                for fp in self.fp_profile:
+                for h, d in self.data.items():
+                    fp = d['conv']
                     fp.set_parameters(convolver='global',
                                       **self.settings['global'])
                 # set wavelength in base class
@@ -1826,8 +1841,9 @@ class PowderDiffraction(PowderExperiment):
                                  (1e10, 1e10, 0, 0)):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
-        for fp in self.fp_profile:
-            self.settings['emission'].update(samplesettings)
+        self.settings['emission'].update(samplesettings)
+        for h, d in self.data.items():
+            fp = d['conv']
             fp.set_parameters(convolver='emission', **samplesettings)
 
     def update_settings(self, newsettings={}):
@@ -1843,7 +1859,8 @@ class PowderDiffraction(PowderExperiment):
         for k in newsettings:
             if k == 'classoptions':
                 continue
-            for fp in self.fp_profile:
+            for h, d in self.data.items():
+                fp = d['conv']
                 fp.set_parameters(convolver=k, **newsettings[k])
             if k not in self.settings:
                 self.settings[k] = dict()
@@ -1887,45 +1904,46 @@ class PowderDiffraction(PowderExperiment):
         tt = self.twotheta
         if not ww or tt is None:  # not all necessary information is set up
             return
-        npoints = [0, ] * len(self.ang)
-        nset = [False, ] * len(self.ang)
-        for i, (ttpeak, fp) in enumerate(zip(self.ang * 2, self.fp_profile)):
+        npoints = dict()
+        nset = dict()
+        for h, d in self.data.items():
+            ttpeak = 2 * d['ang']
             if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
                 continue
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
             np = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
-            npoints[i] = np
-            if hasattr(fp, 'twotheta_window_center_deg'):
-                fptt = fp.twotheta_window_center_deg
+            npoints[h] = np
+            if hasattr(d['conv'], 'twotheta_window_center_deg'):
+                fptt = d['conv'].twotheta_window_center_deg
                 if abs(ttpeak-fptt) / ww < 0.25 and not force:
                     continue
                 else:
-                    nset[i] = True
+                    nset[h] = True
             else:
-                nset[i] = True
+                nset[h] = True
             # set window in local instances
-            fp.set_window(twotheta_output_points=np,
-                          twotheta_window_center_deg=ttpeak,
-                          twotheta_window_fullwidth_deg=ww)
+            d['conv'].set_window(twotheta_output_points=np,
+                                 twotheta_window_center_deg=ttpeak,
+                                 twotheta_window_fullwidth_deg=ww)
         # set multiprocessing instances
         for chunk, handler in zip(self.chunks, self.conv_handlers):
-            handler.set_windows(2 * self.ang[chunk],
-                                [npoints[c] for c in chunk],
-                                [nset[c] for c in chunk], ww)
+            handler.set_windows([2 * self.data[h]['ang'] for h in chunk],
+                                [npoints.get(h, 0) for h in chunk],
+                                [nset.get(h, False) for h in chunk], ww)
 
     def _send_work(self, idx):
         """
         a threaded block which watches for data and runs computation
         """
         th, input, output = self.threads[idx]
-        handler = self.conv_handlers[idx]
         while self._running:
             try:
                 settings, run, ttpeaks = input.get(True, 1.0)
             except queue.Empty:
                 continue
             try:
+                handler = self.conv_handlers[idx]
                 handler.update_parameters(settings)
                 results = handler.calc(run, ttpeaks)
                 output.put((idx, results))  # put results on output queue
@@ -1935,14 +1953,20 @@ class PowderDiffraction(PowderExperiment):
         self._running = False
         self.managers[idx].shutdown()  # we've quit, no need to keep manager
 
-    def PowderIntensity(self, tt_cutoff=180):
+    def structure_factors(self, tt_cutoff):
         """
-        Calculates the powder intensity and positions up to an angle of
-        tt_cutoff (deg) and stores the result in:
+        determine structure factors/reflection strength of all Bragg peaks up
+        to tt_cutoff
 
-            data .... array with intensities
-            ang ..... Bragg angles of the peaks (Theta!)
-            qpos .... reciprocal space position of intensities
+        Parameters
+        ----------
+         tt_cutoff: upper cutoff value of 2theta until which the reflection
+                    strength are calculated
+
+        Returns
+        -------
+         numpy array with field for 'hkl' (Miller indices of the peaks),
+         'q' (q-position), and 'r' (reflection strength) of the Bragg peaks
         """
         mat = self.mat.material
         # calculate maximal Bragg indices
@@ -1967,41 +1991,141 @@ class PowderDiffraction(PowderExperiment):
         qnorm = numpy.linalg.norm(q, axis=1)
         m = qnorm < qmax
 
-        tmp_data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
-                                                    ('r', numpy.double),
-                                                    ('hkl', numpy.ndarray)])
-        tmp_data['q'] = qnorm[m]
-        tmp_data['r'] = nabs(mat.StructureFactorForQ(q[m], self.energy)) ** 2
-        tmp_data['hkl'] = list(hkl[m])
+        data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
+                                                ('r', numpy.double),
+                                                ('hkl', numpy.ndarray)])
+        data['q'] = qnorm[m]
+        data['r'] = nabs(mat.StructureFactorForQ(q[m], self.energy)) ** 2
+        data['hkl'] = list(hkl[m])
 
-        # combine peaks at equal q
-        self.qpos = [0]
-        self.data = [0]
-        self.hkl = [[0, 0, 0]]
-        for r in tmp_data[tmp_data['q'].argsort()]:
-            if r[0] == self.qpos[-1]:
-                self.data[-1] += r[1]
-            elif round(r[1], self.digits) != 0.:
-                self.qpos.append(r[0])
-                self.data.append(r[1])
-                self.hkl.append(r[2])
+        return data
 
-        # cat first element to get rid of q = [0,0,0] divergence
-        self.qpos = numpy.array(self.qpos[1:], dtype=numpy.double)
-        self.ang = self.Q2Ang(self.qpos)
-        self.data = numpy.array(self.data[1:], dtype=numpy.double)
-        self.hkl = self.hkl[1:]
+    def merge_lines(self, data):
+        """
+        if calculation if isotropic lines at the same q-position can be merged
+        to one line to reduce the calculational effort
 
+        Parameters
+        ----------
+         data:  numpy field array with values of 'hkl' (Miller indices of the
+                peaks), 'q' (q-position), and 'r' (reflection strength) as
+                produced by the structure_factors method
+
+        Returns
+        -------
+         hkl, q, ang, r: Miller indices, q-position, diffraction angle (Theta),
+                         and reflection strength of the material
+        """
+        if self.isotropic:
+            # combine peaks at equal q
+            qpos = [0]
+            refstrength = [0]
+            hkl = [[0, 0, 0]]
+            for r in data[data['q'].argsort()]:
+                if abs(r[0] - qpos[-1]) < config.EPSILON:
+                    refstrength[-1] += r[1]
+                elif abs(r[1]) > config.EPSILON:
+                    qpos.append(r[0])
+                    refstrength.append(r[1])
+                    hkl.append(r[2])
+
+            # cat first element to get rid of q = [0,0,0] divergence
+            qpos = numpy.array(qpos[1:], dtype=numpy.double)
+            ang = self.Q2Ang(qpos)
+            refstrength = numpy.array(refstrength[1:], dtype=numpy.double)
+            hkl = hkl[1:]
+            return hkl, qpos, ang, refstrength
+        else:
+            data = data[numpy.argsort(data['q'], kind='mergesort')]
+            return (data['hkl'][1:], data['q'][1:], self.Q2Ang(data['q'][1:]),
+                    data['r'][1:])
+
+    def correction_factor(self, ang):
+        """
+        calculate the correction factor for the diffracted intensities. This
+        contains the polarization effects and the Lorentz factor
+
+        Parameters
+        ----------
+         ang:   theta diffraction angles for which the correction should be
+                calculated
+
+        Returns
+        -------
+         f: array of the same shape as ang containing the correction factors
+        """
         # correct data for polarization and lorentzfactor and unit cell volume
         # see L.S. Zevin : Quantitative X-Ray Diffractometry
         # page 18ff
         polarization_factor = (1 +
-                               ncos(numpy.radians(2 * self.ang)) ** 2) / 2
-        lorentz_factor = 1. / (nsin(numpy.radians(self.ang)) ** 2 *
-                               ncos(numpy.radians(self.ang)))
-        unitcellvol = mat.lattice.UnitCellVolume()
-        self.data = (self.data * polarization_factor *
-                     lorentz_factor / unitcellvol ** 2)
+                               ncos(numpy.radians(2 * ang)) ** 2) / 2
+        lorentz_factor = 1. / (nsin(numpy.radians(ang)) ** 2 *
+                               ncos(numpy.radians(ang)))
+        unitcellvol = self.mat.material.lattice.UnitCellVolume()
+        return polarization_factor * lorentz_factor / unitcellvol ** 2
+
+    def init_powder_lines(self, tt_cutoff):
+        """
+        calculates the powder intensity and positions up to an angle of
+        tt_cutoff (deg) and stores the result in the data dictionary whose
+        structure is as follows:
+
+            The data dictionary has one entry per line with a unique identifier
+            as key of the entry. The entries themself are dictionaries which
+            have the following entries:
+             hkl ... (h, k, l), Miller indices of the Bragg peak
+             r ..... reflection strength of the line
+             ang ... Bragg angle of the peak (theta = 2theta/2!)
+             qpos .. reciprocal space position
+        """
+
+        tmp_data = self.structure_factors(tt_cutoff)
+        hkl, qpos, ang, rs = self.merge_lines(tmp_data)
+        corrfact = self.correction_factor(ang)
+        rs *= corrfact
+        ids = [tuple(idx) for idx in hkl]
+        self.data = dict()
+        for i, q, a, r in zip(ids, qpos, ang, rs):
+            self.data[i] = {'qpos': q, 'ang': a, 'r': r,
+                            'active': True}
+
+    def update_powder_lines(self, tt_cutoff):
+        """
+        calculates the powder intensity and positions up to an angle of
+        tt_cutoff (deg) and updates the values in:
+
+            ids ..... list of unique identifiers of the powder line
+            data .... array with intensities
+            ang ..... bragg angles of the peaks (theta=2theta/2!)
+            qpos .... reciprocal space position of intensities
+        """
+        tmp_data = self.structure_factors(tt_cutoff)
+        hkl, qpos, ang, rs = self.merge_lines(tmp_data)
+        corrfact = self.correction_factor(ang)
+        rs *= corrfact
+        ids = [tuple(idx) for idx in hkl]
+        for h, q, a, r in zip(ids, qpos, ang, rs):
+            if h in self.data:
+                self.data[h]['qpos'] = q
+                self.data[h]['ang'] = a
+                self.data[h]['r'] = r
+                self.data[h]['active'] = True
+            else:
+                # new peak needs a new convolver
+                fp = self._init_fpprofile(self.fpclass)
+                for k, v in self.settings.items():
+                    if k == 'classoptions':
+                        continue
+                    fp.set_parameters(convolver=k, **v)
+                self.data[h] = {'qpos': q, 'ang': a, 'r': r,
+                                'conv': fp, 'active': True}
+                self.conv_handlers[self.next_proc].add_convolver(fp)
+                self.chunks[self.next_proc].append(h)
+                self.next_proc = (self.next_proc + 1) % self.nproc
+        for h in self.data:
+            if h not in ids:
+                # make entry inactive
+                self.data[h]['active'] = False
 
     def Convolve(self, twotheta, window_width='config', mode='multi'):
         """
@@ -2039,28 +2163,33 @@ class PowderDiffraction(PowderExperiment):
                           'considered!')
 
         if mode == 'local':
-            for ttpeak, sf, fp in zip(2*self.ang, self.data, self.fp_profile):
+            for h, d in self.data.items():
+                if not d['active']:
+                    continue
+                ttpeak = 2 * d['ang']
                 # check if peak is in data range to be calculated
                 if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
                     continue
                 idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                        tt < ttpeak + ww/2))
-                fp.set_parameters(twotheta0_deg=ttpeak)
-                result = fp.compute_line_profile()
+                d['conv'].set_parameters(twotheta0_deg=ttpeak)
+                result = d['conv'].compute_line_profile()
                 out[idx] += numpy.interp(tt[idx], result.twotheta_deg,
-                                         result.peak*sf, left=0, right=0)
+                                         result.peak*d['r'], left=0, right=0)
         else:
             # prepare multiprocess calculation
             for idx, chunk in enumerate(self.chunks):
                 run = []
                 ttpeaks = []
-                for c in chunk:
-                    ttpeak = 2*self.ang[c]
+                for h in chunk:
+                    ttpeak = 2 * self.data[h]['ang']
                     ttpeaks.append(ttpeak)
                     if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
                         run.append(False)
                     else:
                         run.append(True)
+                    if not self.data[h]['active']:
+                        run[-1] = False
                 # start calculation in other processes
                 self.threads[idx][1].put((self.settings, run, ttpeaks))
             gotit = set(range(self.nproc))
@@ -2068,17 +2197,17 @@ class PowderDiffraction(PowderExperiment):
                 # receive ready calculations
                 idx, res = self.output_queue.get(True)
                 chunk = self.chunks[idx]
-                for c, r in zip(chunk, res):
+                for h, r in zip(chunk, res):
                     if r is None:
                         continue
                     else:
-                        ttpeak = 2 * self.ang[c]
+                        ttpeak = 2 * self.data[h]['ang']
                         mask = numpy.argwhere(
                             numpy.logical_and(tt > ttpeak - ww/2,
                                               tt < ttpeak + ww/2))
 
                         out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
-                                                  r.peak*self.data[c],
+                                                  r.peak*self.data[h]['r'],
                                                   left=0, right=0)
                 gotit.discard(idx)  # got that result, don't expect more
 
@@ -2107,7 +2236,7 @@ class PowderDiffraction(PowderExperiment):
          output intensity values for the twotheta values given in the input
         """
         self.set_sample_parameters()
-        self.PowderIntensity()
+        self.update_powder_lines(self._tt_cutoff)
         self.set_window()
         return self.Convolve(twotheta, **kwargs)
 
@@ -2119,20 +2248,21 @@ class PowderDiffraction(PowderExperiment):
         ostr += "-------------------------\n"
         ostr += self.mat.__repr__() + "\n"
         ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
-        if self.qpos is not None:
-            max = self.data.max()
-            ostr += "\nReflections: \n"
-            ostr += "--------------\n"
-            ostr += ("      h k l     |    tth    |    |Q|    |"
-                     "Int     |   Int (%)\n")
-            ostr += ("   ------------------------------------"
-                     "---------------------------\n")
-            for i in range(self.qpos.size):
+        max = 0
+        for d in self.data.values():
+            if d['r'] > max and d['active']:
+                max = d['r']
+        ostr += "\nReflections: \n"
+        ostr += "--------------\n"
+        ostr += ("      h k l     |    tth    |    |Q|    |"
+                 "Int     |   Int (%)\n")
+        ostr += ("   ------------------------------------"
+                 "---------------------------\n")
+        for h, d in sorted(zip(self.data.keys(), self.data.values()),
+                           key=lambda t: t[1]['ang']):
+            if d['active']:
                 ostr += ("%15s   %8.4f   %8.3f   %10.2f  %10.2f\n"
-                         % (self.hkl[i].__str__(),
-                            2 * self.ang[i],
-                            self.qpos[i],
-                            self.data[i],
-                            self.data[i] / max * 100.))
+                         % (h.__str__(), 2 * d['ang'],
+                            d['qpos'], d['r'], d['r'] / max * 100.))
         ostr += "Settings: " + str(self.settings)
         return ostr

@@ -91,10 +91,18 @@ class Test_PowderModel(unittest.TestCase):
         self.pm.set_background('spline', x=self.btt, y=self.bint)
 
     def test_Calculation(self):
-        x = numpy.arange(10, 150, 0.01)
+        x = numpy.arange(10, 140+numpy.random.rand()*10,
+                         0.0075+numpy.random.rand()*0.005)
         sim = self.pm.simulate(x)
         self.assertEqual(len(sim), len(x))
         self.assertTrue(numpy.all(sim >= 0))
+
+    def test_multiprocessing(self):
+        x = numpy.arange(10, 140+numpy.random.rand()*10,
+                         0.0075+numpy.random.rand()*0.005)
+        st_sim = self.pm.simulate(x, mode='local')
+        mt_sim = self.pm.simulate(x, mode='multi')
+        self.assertAlmostEqual(numpy.sum(numpy.abs(st_sim - mt_sim)), 0.0)
 
     def test_fitting(self):
         # first fit run
