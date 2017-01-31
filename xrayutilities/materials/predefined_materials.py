@@ -188,6 +188,8 @@ SnAlpha = Crystal("Sn-alpha", SGLattice('227:1', 6.4912, atoms=[e.Sn, ],
 Cu = Crystal("Cu", SGLattice(225, 3.61496, atoms=[e.Cu, ], pos=['4a', ]))
 CaTiO3 = Crystal("CaTiO3", SGLattice(221, 3.795, atoms=[e.Ca, e.Ti, e.O],
                                      pos=['1a', '1b', '3c']))
+SrTiO3 = Crystal("SrTiO3", SGLattice(221, 3.905, atoms=[e.Sr, e.Ti, e.O],
+                                     pos=['1a', '1b', '3c']))
 # BiFeO3 = Crystal("BiFeO3", SGLattice())
 # BiFeO3 = Crystal(
 #    "BiFeO3",
