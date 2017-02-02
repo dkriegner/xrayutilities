@@ -262,6 +262,24 @@ class FP_profile:
         # keep a record of things we don't keep when pickled
         self._clean_on_pickle = set()
 
+    @classmethod
+    def isequivalent(cls, hkl1, hkl2, crystalsystem):
+        """
+        function to determine if according to the convolvers included in this
+        class two sets of Miller indices are equivalent. This function is only
+        calles when the class attribute 'isotropic' is False.
+
+        Parameters
+        ----------
+         hkl1,2:        Miller indices to be checked for equivalence
+         crystalsystem: symmetry class of the material which is considered
+
+        Returns
+        -------
+         True or False
+        """
+        return True
+
     def get_function_name(self):
         """
         return the name of the function that called this. Useful for convolvers
@@ -2016,29 +2034,46 @@ class PowderDiffraction(PowderExperiment):
          hkl, q, ang, r: Miller indices, q-position, diffraction angle (Theta),
                          and reflection strength of the material
         """
-        if self.isotropic:
-            # combine peaks at equal q
-            qpos = [0]
-            refstrength = [0]
-            hkl = [[0, 0, 0]]
-            for r in data[data['q'].argsort()]:
-                if abs(r[0] - qpos[-1]) < config.EPSILON:
-                    refstrength[-1] += r[1]
-                elif abs(r[1]) > config.EPSILON:
-                    qpos.append(r[0])
-                    refstrength.append(r[1])
-                    hkl.append(r[2])
+        data = data[numpy.argsort(data['q'], kind='mergesort')]
+        qpos = []
+        refstrength = []
+        hkl = []
+        currq = -1
+        curref = []
+        currhkl = []
+        for r in data:
+            if abs(r[0] - currq) > config.EPSILON:
+                for R, m in zip(curref, currhkl):
+                    qpos.append(currq)
+                    refstrength.append(R)
+                    hkl.append(m)
+                currq = r[0]
+                curref = [r[1], ]
+                currhkl = [r[2], ]
+            else:
+                if self.isotropic:
+                    curref[-1] += r[1]
+                else:
+                    # merge lines which are equal according to the crystal
+                    # and convolver symmetries
+                    added = False
+                    for i, m in enumerate(currhkl):
+                        if self.mat.material.lattice.isequivalent(
+                                m, r[2], equalq=True):
+                            if self.fpclass.isequivalent(
+                                    m, r[2],
+                                    self.mat.material.lattice.crystal_system):
+                                curref[i] += r[1]
+                                added = True
+                    if not added:
+                        curref.append(r[1])
+                        currhkl.append(r[2])
 
-            # cat first element to get rid of q = [0,0,0] divergence
-            qpos = numpy.array(qpos[1:], dtype=numpy.double)
-            ang = self.Q2Ang(qpos)
-            refstrength = numpy.array(refstrength[1:], dtype=numpy.double)
-            hkl = hkl[1:]
-            return hkl, qpos, ang, refstrength
-        else:
-            data = data[numpy.argsort(data['q'], kind='mergesort')]
-            return (data['hkl'][1:], data['q'][1:], self.Q2Ang(data['q'][1:]),
-                    data['r'][1:])
+        qpos = numpy.array(qpos[1:], dtype=numpy.double)
+        ang = self.Q2Ang(qpos)
+        refstrength = numpy.array(refstrength[1:], dtype=numpy.double)
+        hkl = hkl[1:]
+        return hkl, qpos, ang, refstrength
 
     def correction_factor(self, ang):
         """
