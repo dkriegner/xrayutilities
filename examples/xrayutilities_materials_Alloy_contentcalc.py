@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012, 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012, 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import xrayutilities as xu
 import matplotlib.pyplot as plt
@@ -26,6 +26,7 @@ substrate = xu.materials.Si
 alloy = xu.materials.CubicAlloy(matA, matB, 0)
 
 hxrd001 = xu.HXRD([1, 1, 0], [0, 0, 1])
+qinp, qout = (3.02829203, 4.28265165)
 
 # draw two relaxation triangles for the given Alloy in the substrate
 [qxt0, qzt0] = alloy.RelaxationTriangle([2, 2, 4], substrate, hxrd001)
@@ -35,7 +36,7 @@ alloy.x = 1.
 plt.figure()
 plt.plot(qxt0, qzt0, 'r-')
 plt.plot(qxt1, qzt1, 'b-')
-plt.plot(3.02829203, 4.28265165, 'kx')
+plt.plot(qinp, qout, 'ko')
 
 # print concentration of alloy B calculated from a reciprocal space point
-print(alloy.ContentBasym(3.02829203, 4.28265165, [2, 2, 4], [0, 0, 1]))
+print(alloy.ContentBasym(qinp, qout, [2, 2, 4], [0, 0, 1]))
