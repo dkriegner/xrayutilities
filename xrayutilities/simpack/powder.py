@@ -1194,18 +1194,21 @@ class FP_profile:
         # note: the strain broadenings in Topas are expressed in degrees
         # 2theta, must convert to radians(theta) with pi/360
         widths = (
-            (xx.emiss_lor_widths / xx.emiss_wavelengths) * tan(theta) +
-            math.radians(xx.strain_lor) / 2 * tan(theta) +
-            (xx.emiss_wavelengths / (2 * xx.crystallite_size_lor * cos(theta)))
+            (asarray(xx.emiss_lor_widths) / asarray(xx.emiss_wavelengths)) *
+            tan(theta) + math.radians(xx.strain_lor) / 2 * tan(theta) +
+            (asarray(xx.emiss_wavelengths) /
+             (2*xx.crystallite_size_lor*cos(theta)))
         )
         # save weighted average width for future reference in periodicity fixer
         self.lor_widths[me] = sum(
             widths * xx.emiss_intensities) / sum(xx.emiss_intensities)
         # gaussian bits add in quadrature
         gfwhm2s = (
-            ((2*xx.emiss_gauss_widths/xx.emiss_wavelengths) * tan(theta))**2 +
+            ((2*asarray(xx.emiss_gauss_widths)/asarray(xx.emiss_wavelengths)) *
+             tan(theta))**2 +
             (math.radians(xx.strain_gauss) / 2 * tan(theta))**2 +
-            (xx.emiss_wavelengths / (xx.crystallite_size_gauss*cos(theta)))**2
+            (asarray(xx.emiss_wavelengths) /
+             (xx.crystallite_size_gauss*cos(theta)))**2
         )
 
         # note that the Fourier transform of a lorentzian with FWHM 2a
