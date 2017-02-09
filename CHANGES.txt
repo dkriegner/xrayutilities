@@ -1,6 +1,10 @@
-* Lattice class is still included but now deprecated
+v1.4.0, 2017-02-09
+
+* fix of negative HKL directions in RelaxationTriangle
 * new SGLattice class which replaces Lattice and allows for easier material
   definitions
+* old Lattice class is still included but now deprecated and will be removed
+  in >1.5.0
 * new PowderExperiment, PowderDiffraction and PowderModel classes for proper
   simulation of powder patterns. Thanks to Marcus Mendenhall for his
   contribution of a Fundamentals parameter approach powder profile

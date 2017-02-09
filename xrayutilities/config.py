@@ -130,11 +130,11 @@ for k in ('crystallite_size_gauss', 'crystallite_size_lor',
     trytomake(POWDER[subsec], k, float)
 for k in ('emiss_wavelengths', 'emiss_intensities',
           'emiss_gauss_widths', 'emiss_lor_widths'):
-    trytomake(POWDER[subsec], k, lambda x: numpy.asarray(literal_eval(x)))
+    trytomake(POWDER[subsec], k, literal_eval)
 if 'emiss_wavelengths' in POWDER[subsec]:
-    POWDER[subsec]['emiss_wavelengths'] = numpy.asarray(tuple(
+    POWDER[subsec]['emiss_wavelengths'] = tuple(
         utilities_noconf.wavelength(wl) * 1e-10
-        for wl in POWDER[subsec]['emiss_wavelengths']))
+        for wl in POWDER[subsec]['emiss_wavelengths'])
 
 subsec = 'axial'
 POWDER[subsec] = dict(xuParser.items("powder.axial"))

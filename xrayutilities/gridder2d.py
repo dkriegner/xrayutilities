@@ -60,6 +60,22 @@ class Gridder2D(Gridder):
         self._gdata = numpy.zeros((self.nx, self.ny), dtype=numpy.double)
         self._gnorm = numpy.zeros((self.nx, self.ny), dtype=numpy.double)
 
+    def savetxt(self, filename, header=''):
+        """
+        save gridded data to a txt file with two columns. The first two columns
+        are the data coordinates and the last one the corresponding data
+        value.
+
+        Parameters
+        ----------
+         filename:  output filename
+         header:    optional header for the data file.
+        """
+        numpy.savetxt(filename, numpy.vstack((self.xmatrix.flat,
+                                              self.ymatrix.flat,
+                                              self.data.flat)).T,
+                      header=header, fmt='%.6g %.6g %.4g')
+
     def SetResolution(self, nx, ny):
         """
         Reset the resolution of the gridder. In this case the original data

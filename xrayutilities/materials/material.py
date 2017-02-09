@@ -29,7 +29,7 @@ import numbers
 import operator
 import re
 import warnings
-from math import ceil
+from math import ceil, copysign
 
 import numpy
 import scipy.optimize
@@ -37,6 +37,7 @@ import scipy.optimize
 from . import cif, elements, lattice
 from .. import config, math, utilities
 from ..exception import InputError
+from ..math import VecCross, VecDot, VecNorm
 from .atom import Atom
 from .spacegrouplattice import SGLattice, WyckoffBase
 
@@ -900,7 +901,7 @@ class Crystal(Material):
         lam = utilities.en2lam(en)
         dth = numpy.degrees(
             2 * self.delta(en) / numpy.sin(2 * numpy.arcsin(
-                lam * numpy.linalg.norm(Q) / (4 * numpy.pi))))
+                lam * VecNorm(Q) / (4 * numpy.pi))))
         return dth
 
     def __str__(self):
@@ -1348,7 +1349,7 @@ class Alloy(Crystal):
         """
         hkl = self._checkarray(hkl, "hkl")
         trans = exp._transform
-        ndir = exp.ndir / numpy.linalg.norm(exp.ndir)
+        ndir = exp.ndir / VecNorm(exp.ndir)
 
         if isinstance(sub, Crystal):
             asub = sub.lattice.a
@@ -1360,9 +1361,8 @@ class Alloy(Crystal):
 
         # test if inplane direction of hkl is the same as the one for the
         # experiment otherwise warn the user
-        hklinplane = numpy.cross(numpy.cross(exp.ndir, hkl), exp.ndir)
-        if (numpy.linalg.norm(numpy.cross(hklinplane, exp.idir)) >
-                config.EPSILON):
+        hklinplane = VecCross(VecCross(exp.ndir, hkl), exp.ndir)
+        if (VecNorm(VecCross(hklinplane, exp.idir)) > config.EPSILON):
             warnings.warn("Alloy: given hkl differs from the geometry of the "
                           "Experiment instance in the azimuthal direction")
 
@@ -1374,10 +1374,10 @@ class Alloy(Crystal):
                                                                      cijA,
                                                                      cijB)
 
-        qr_i = numpy.abs(trans(qhklx(self.x))[1])
-        qr_p = numpy.abs(trans(qhklx(self.x))[2])
-        qs_i = 2 * numpy.pi / asub * math.VecNorm(math.VecCross(ndir, hkl))
-        qs_p = 2 * numpy.pi / asub * abs(math.VecDot(ndir, hkl))
+        qr_i = trans(qhklx(self.x))[1]
+        qr_p = trans(qhklx(self.x))[2]
+        qs_i = copysign(2*numpy.pi/asub * VecNorm(VecCross(ndir, hkl)), qr_i)
+        qs_p = 2*numpy.pi/asub * abs(VecDot(ndir, hkl))
 
         # calculate pseudomorphic points for A and B
         def abulk(x):
@@ -1386,8 +1386,8 @@ class Alloy(Crystal):
         def aperp(x):
             return abulk(self.x) * (1 + frac(x) * (1 - asub / abulk(self.x)))
 
-        qp_i = 2 * numpy.pi / asub * math.VecNorm(math.VecCross(ndir, hkl))
-        qp_p = 2 * numpy.pi / aperp(self.x) * abs(math.VecDot(ndir, hkl))
+        qp_i = copysign(2*numpy.pi/asub * VecNorm(VecCross(ndir, hkl)), qr_i)
+        qp_p = 2*numpy.pi/aperp(self.x) * abs(VecDot(ndir, hkl))
 
         # assembly return values
         qy = numpy.array([qr_i, qp_i, qs_i, qr_i], dtype=numpy.double)
@@ -1436,15 +1436,15 @@ class CubicAlloy(Alloy):
         relax = self._checkfinitenumber(relax, "relax")
 
         # calculate lattice constants from reciprocal space positions
-        n = self.Q(hkl) / math.VecNorm(self.Q(hkl))
+        n = self.Q(hkl) / VecNorm(self.Q(hkl))
         q_hkl = self.Q(hkl)
         # the following line is not generally true! only cubic materials
-        aperp = 2 * numpy.pi / q_perp * abs(math.VecDot(n, hkl))
+        aperp = 2 * numpy.pi / q_perp * abs(VecDot(n, hkl))
 
         # transform the elastic tensors to a coordinate frame attached to the
         # surface normal
-        inp1 = math.VecCross(n, inpr) / math.VecNorm(math.VecCross(n, inpr))
-        inp2 = math.VecCross(n, inp1)
+        inp1 = VecCross(n, inpr) / VecNorm(VecCross(n, inpr))
+        inp2 = VecCross(n, inp1)
         trans = math.CoordinateTransform(inp1, inp2, n)
 
         if config.VERBOSITY >= config.DEBUG:
@@ -1514,16 +1514,16 @@ class CubicAlloy(Alloy):
                              "given where an asymmetric reflection is needed")
 
         # calculate lattice constants from reciprocal space positions
-        n = self.Q(sur) / math.VecNorm(self.Q(sur))
+        n = self.Q(sur) / VecNorm(self.Q(sur))
         q_hkl = self.Q(hkl)
         # the following two lines are not generally true! only cubic materials
-        ainp = 2 * numpy.pi / q_inp * math.VecNorm(math.VecCross(n, hkl))
-        aperp = 2 * numpy.pi / q_perp * abs(math.VecDot(n, hkl))
+        ainp = 2 * numpy.pi / abs(q_inp) * VecNorm(VecCross(n, hkl))
+        aperp = 2 * numpy.pi / abs(q_perp) * abs(VecDot(n, hkl))
 
         # transform the elastic tensors to a coordinate frame attached to the
         # surface normal
-        inp1 = math.VecCross(n, q_hkl) / math.VecNorm(math.VecCross(n, q_hkl))
-        inp2 = math.VecCross(n, inp1)
+        inp1 = VecCross(n, q_hkl) / VecNorm(VecCross(n, q_hkl))
+        inp2 = VecCross(n, inp1)
         trans = math.CoordinateTransform(inp1, inp2, n)
 
         cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
@@ -1536,7 +1536,7 @@ class CubicAlloy(Alloy):
         # the following two lines are not generally true! only cubic materials
         def abulk_inp(x):
             return abs(2 * numpy.pi / numpy.inner(qhklx(x), inp2) *
-                       math.VecNorm(math.VecCross(n, hkl)))
+                       VecNorm(VecCross(n, hkl)))
 
         def abulk_perp(x):
             return abs(2 * numpy.pi / numpy.inner(qhklx(x), n) *

@@ -510,6 +510,123 @@ class SGLattice(object):
         # set new transformations
         self._setlat()
 
+    def isequivalent(self, hkl1, hkl2, equalq=False):
+        """
+        primitive way of determining if hkl1 and hkl2 are two
+        crystallographical equivalent pairs of Miller indices
+
+        Parameters
+        ----------
+         hkl1,2:        Miller indices to be checked for equivalence
+         equalq:        If False the length of the two q-vactors will be
+                        compared. If True it is assumed that the length of the
+                        q-vectors of hkl1 and hkl2 is equal!
+
+        Returns
+        -------
+         True or False
+        """
+        def leftShift(tup, n):
+            try:
+                n = n % len(tup)
+            except ZeroDivisionError:
+                return tuple()
+            return tup[n:] + tup[0:n]
+
+        def ispermutation(t1, t2):
+            """returns true if t2 is an even permutation of t1"""
+            if t1 == t2 or t1 == leftShift(t2, 1) or t1 == leftShift(t2, 2):
+                return True
+            else:
+                return False
+
+        def checkequal(hkl1, hkl2):
+            if self.crystal_system.startswith('cubic'):
+                if self.space_group_nr < 207:
+                    if ispermutation(tuple(numpy.abs(hkl1)),
+                                     tuple(numpy.abs(hkl2))):
+                        return True
+                    else:
+                        return False
+                else:
+                    khl1 = (hkl1[1], hkl1[0], hkl1[2])
+                    if (ispermutation(tuple(numpy.abs(hkl1)),
+                                      tuple(numpy.abs(hkl2))) or
+                        ispermutation(tuple(numpy.abs(khl1)),
+                                      tuple(numpy.abs(hkl2)))):
+                        return True
+                    else:
+                        return False
+            elif self.crystal_system.startswith('hexagonal'):
+                hki1 = (hkl1[0], hkl1[1], -hkl1[0] - hkl1[1])
+                hki2 = (hkl2[0], hkl2[1], -hkl2[0] - hkl2[1])
+                if (abs(hkl1[2]) == abs(hkl2[2]) and
+                        sum(numpy.abs(hki1)) == sum(numpy.abs(hki2))):
+                    return True
+                else:
+                    return False
+            elif self.crystal_system.startswith('trigonal:R'):
+                khl1 = (hkl1[1], hkl1[0], hkl1[2])
+                if (ispermutation(hkl1, hkl2) or ispermutation(khl1, hkl2)):
+                    return True
+                else:
+                    return False
+            elif self.crystal_system.startswith('trigonal'):
+                hki1 = (hkl1[0], hkl1[1], -hkl1[0] - hkl1[1])
+                hki2 = (hkl2[0], hkl2[1], -hkl2[0] - hkl2[1])
+                khi2 = (hkl2[1], hkl2[0], -hkl2[0] - hkl2[1])
+                if ((hkl1[2] == hkl2[2] and ispermutation(hki1, hki2)) or
+                        (hkl1[2] == -hkl2[2] and ispermutation(hki1, khi2))):
+                    return True
+                else:
+                    return False
+            elif self.crystal_system.startswith('tetragonal'):
+                # this neglects that in some tetragonal materials hkl = khl
+                hk1 = hkl1[:2]
+                hk2 = hkl2[:2]
+                if (abs(hkl1[2]) == abs(hkl2[2]) and
+                        (hk1 == hk2 or hk1 == (-hk2[1], hk2[0]) or
+                         hk1 == (-hk2[0], -hk2[1]) or
+                         hk1 == (hk2[1], -hk2[0]))):
+                    return True
+                else:
+                    return False
+            elif self.crystal_system.startswith('orthorhombic'):
+                if numpy.all(numpy.abs(hkl1) == numpy.abs(hkl2)):
+                    return True
+                else:
+                    return False
+            elif self.crystal_system.startswith('monoclinic:c'):
+                hk1 = (hkl1[0], hkl1[1])
+                hk2 = (hkl2[0], hkl2[1])
+                if (abs(hkl1[2]) == abs(hkl2[2]) and
+                        (hk1 == hk2 or hk1 == (-hk2[0], -hk2[1]))):
+                    return True
+                else:
+                    return False
+            elif self.crystal_system.startswith('monoclinic'):
+                hl1 = (hkl1[0], hkl1[2])
+                hl2 = (hkl2[0], hkl2[2])
+                if (abs(hkl1[1]) == abs(hkl2[1]) and
+                        (hl1 == hl2 or hl1 == (-hl2[0], -hl2[1]))):
+                    return True
+                else:
+                    return False
+            elif self.crystal_system.startswith('triclinic'):
+                if (hkl1[0] == -hkl2[0] and hkl1[1] == -hkl2[1] and
+                        hkl1[2] == -hkl2[2]):
+                    return True
+                else:
+                    return False
+
+        if equalq:
+            return checkequal(tuple(hkl1), tuple(hkl2))
+        else:
+            if math.VecNorm(self.getQ(hkl1)) != math.VecNorm(self.getQ(hkl2)):
+                return False
+            else:
+                return checkequal(tuple(hkl1), tuple(hkl2))
+
     def __str__(self):
         ostr = "{sg} {cs} {n}: a = {a:.4f}, b = {b:.4f} c= {c:.4f}\n" +\
                "alpha = {alpha:.3f}, beta = {beta:.3f}, gamma = {gamma:.3f}\n"
@@ -540,7 +657,9 @@ class SGLattice(object):
     def fromLattice(cls, lat, verbose=True):
         """
         create a SGLattice from an old Lattice instance. Since the
-        space-group is not known it will always be 1 (triclinic)
+        space-group is not known it will always be 1 (triclinic). This is
+        helper routine to make the transition period for users easier. It will
+        be removed in the next major release!
 
         Parameters
         ----------
@@ -561,6 +680,11 @@ class SGLattice(object):
             pos.append(('1a', p))
             occ.append(o)
             biso.append(bf)
+        if verbose:
+            print('xu.materials.SGLattice(1, %f, %f, %f, %f, %f, %f, '
+                  'atoms=%s, pos=%s, occ=%s, b=%s)'
+                  % (a, b, c, alpha, beta, gamma, str(atoms), str(pos),
+                     str(occ), str(biso)))
         return cls(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
                    occ=occ, b=biso)
 

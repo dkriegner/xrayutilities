@@ -52,6 +52,14 @@ xrayutilities.io.helper module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.io.ill_numor module
+---------------------------------
+
+.. automodule:: xrayutilities.io.ill_numor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.io.imagereader module
 -----------------------------------
 

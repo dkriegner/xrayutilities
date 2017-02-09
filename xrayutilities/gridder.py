@@ -178,6 +178,19 @@ class Gridder1D(Gridder):
         self._gdata = numpy.zeros(nx, dtype=numpy.double)
         self._gnorm = numpy.zeros(nx, dtype=numpy.double)
 
+    def savetxt(self, filename, header=''):
+        """
+        save gridded data to a txt file with two columns. The first column is
+        the data coordinate and the second the corresponding data value
+
+        Parameters
+        ----------
+         filename:  output filename
+         header:    optional header for the data file.
+        """
+        numpy.savetxt(filename, numpy.vstack((self.xaxis, self.data)).T,
+                      header=header, fmt='%.6g %.4g')
+
     def __get_xaxis(self):
         """
         Returns the xaxis of the gridder

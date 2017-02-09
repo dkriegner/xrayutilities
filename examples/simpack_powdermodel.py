@@ -100,7 +100,8 @@ fitres1 = pm.fit(p, tt[mask], det[mask], std=sig[mask], maxfev=50)
 p = pm.create_fitparameters()
 for pn, limit in (('primary_beam_intensity', (None, None)),
                   ('displacement_specimen_displacement', (-1e-4, 1e-4)),
-                  ('absorption_absorption_coefficient', (1e4, 10e4))):
+                  ('absorption_absorption_coefficient', (1e4, 10e4)),
+                  ('emission_emiss_intensities_item_1', (0.4, 0.52))):
     p[pn].set(vary=True, min=limit[0], max=limit[1])
 
 # if needed one can also set relations between parameters:

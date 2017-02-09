@@ -104,7 +104,8 @@ class PowderModel(object):
         """
         pv = lmparams.valuesdict()
         settings = dict()
-        fp = self.pdiff[0].fp_profile[0].convolvers
+        h = list(self.pdiff[0].data.keys())[0]
+        fp = self.pdiff[0].data[h]['conv'].convolvers
         for conv in fp:
             name = conv[5:]
             settings[name] = dict()
@@ -124,8 +125,15 @@ class PowderModel(object):
             else:  # instrument parameters
                 for k in settings:
                     if p.startswith(k):
-                        name = p[len(k) + 1:]
-                        settings[k][name] = pv[p]
+                        slist = p[len(k) + 1:].split('_')
+                        if len(slist) > 2 and slist[-2] == 'item':
+                            name = '_'.join(slist[:-2])
+                            if slist[-1] == '0':
+                                settings[k][name] = []
+                            settings[k][name].append(pv[p])
+                        else:
+                            name = p[len(k) + 1:]
+                            settings[k][name] = pv[p]
                         break
         self.set_parameters(settings)
 
@@ -158,8 +166,15 @@ class PowderModel(object):
         for pg in settings:
             for p in settings[pg]:
                 val = settings[pg][p]
+                if p == 'dominant_wavelength' and pg == 'global':
+                    # wavelength must be fit using emission_emiss_wavelength
+                    continue
                 if isinstance(val, numbers.Number):
                     params.add('_'.join((pg, p)), value=val, vary=False)
+                elif isinstance(val, (numpy.ndarray, tuple, list)):
+                    for j, item in enumerate(val):
+                        params.add('_'.join((pg, p, 'item_%d' % j)),
+                                   value=item, vary=False)
 
         # other global parameters
         params.add('primary_beam_intensity', value=self.I0, vary=False)
