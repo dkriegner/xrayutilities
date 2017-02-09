@@ -60,6 +60,22 @@ xrayutilities.materials.predefined_materials module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.materials.spacegrouplattice module
+------------------------------------------------
+
+.. automodule:: xrayutilities.materials.spacegrouplattice
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xrayutilities.materials.wyckpos module
+--------------------------------------
+
+.. automodule:: xrayutilities.materials.wyckpos
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

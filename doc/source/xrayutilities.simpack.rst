@@ -36,6 +36,14 @@ xrayutilities.simpack.models module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.simpack.mpl_helper module
+---------------------------------------
+
+.. automodule:: xrayutilities.simpack.mpl_helper
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.simpack.powder module
 -----------------------------------
 

@@ -8,6 +8,7 @@ CHECK EVERYTHING
 Is everything running fine? perform the tests and run the examples
 
   # change the version in VERSION
+  # update copyright notice in doc/source/conf.py
   python2 setup.py test
   python3 setup.py test
   # optionally check the coverage
