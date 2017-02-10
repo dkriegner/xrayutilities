@@ -1246,10 +1246,19 @@ class Alloy(Crystal):
                              "incompatible!")
 
     @staticmethod
-    def lattice_const_AB(latA, latB, x):
+    def lattice_const_AB(latA, latB, x, name=''):
         """
-        method to set the composition of the Alloy.
-        x is the atomic fraction of the component B
+        method to calculated the interpolation of lattice parameters and unit
+        cell angles of the Alloy. By default linear interpolation between the
+        value of material A and B is performed.
+
+        Parameters
+        ----------
+         latA, latB:    property (lattice parameter/angle) of material A and B.
+                        A property can be a scalar or vector.
+         x:             fraction of material B in the alloy.
+         name:          label of the property which is interpolated. Can be
+                        'a', 'b', 'c', 'alpha', 'beta', or 'gamma'.
         """
         return (latB - latA) * x + latA
 
@@ -1259,12 +1268,12 @@ class Alloy(Crystal):
     def _setxb(self, x):
         self._xb = x
         self.name = ("%s(%2.2f)%s(%2.2f)"
-                     % (self.matA.name, 1 - x, self.matB.name, x))
+                     % (self.matA.name, 1-x, self.matB.name, x))
         # modify the free parameters of the lattice
         for k in self.lattice.free_parameters:
             setattr(self.lattice, k,
                     self.lattice_const_AB(getattr(self.matA, k),
-                                          getattr(self.matB, k), x))
+                                          getattr(self.matB, k), x, name=k))
         # set elastic constants
         self.cij = (self.matB.cij - self.matA.cij) * x + self.matA.cij
         self.cijkl = (self.matB.cijkl - self.matA.cijkl) * x + self.matA.cijkl
@@ -1297,13 +1306,16 @@ class Alloy(Crystal):
         positions
         """
         def a1(x):
-            return self.lattice_const_AB(self.matA.a1, self.matB.a1, x)
+            return self.lattice_const_AB(self.matA.a1, self.matB.a1,
+                                         x, name='a')
 
         def a2(x):
-            return self.lattice_const_AB(self.matA.a2, self.matB.a2, x)
+            return self.lattice_const_AB(self.matA.a2, self.matB.a2,
+                                         x, name='b')
 
         def a3(x):
-            return self.lattice_const_AB(self.matA.a3, self.matB.a3, x)
+            return self.lattice_const_AB(self.matA.a3, self.matB.a3,
+                                         x, name='c')
 
         def V(x):
             return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
