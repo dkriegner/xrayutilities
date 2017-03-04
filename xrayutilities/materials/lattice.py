@@ -121,8 +121,10 @@ class Lattice(object):
                                 "xrayutilities.materials.LatticeBase")
             else:
                 self.base = base
+                self.nsites = len(base)
         else:
             self.base = None
+            self.nsites = 0
 
     @property
     def a1(self):
