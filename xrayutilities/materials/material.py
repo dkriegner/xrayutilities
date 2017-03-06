@@ -687,12 +687,11 @@ class Crystal(Material):
          list of atomic scattering factors for every atom in the unit cell
         """
         f = {}
-        latt = self.lattice
-        if latt.nsites > 0:
-            for (at, pos, occ, b) in latt.base():
+        if self.lattice.nsites > 0:
+            for (at, pos, occ, b) in self.lattice.base():
                 if at.num not in f:
                     f[at.num] = at.f(q, en)
-            return [f[a.num] for (a, p, o, b) in latt.base()]
+            return [f[a.num] for (a, p, o, b) in self.lattice.base()]
         else:
             return None
 
