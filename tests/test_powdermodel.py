@@ -15,9 +15,9 @@
 #
 # Copyright (C) 2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import multiprocessing
 import os
 import unittest
+from multiprocessing import freeze_support
 
 import numpy
 import xrayutilities as xu
@@ -136,5 +136,5 @@ class Test_PowderModel(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support()
+    freeze_support()
     unittest.main()
