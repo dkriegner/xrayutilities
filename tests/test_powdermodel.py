@@ -15,6 +15,7 @@
 #
 # Copyright (C) 2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import multiprocessing
 import os
 import unittest
 
@@ -135,4 +136,5 @@ class Test_PowderModel(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     unittest.main()

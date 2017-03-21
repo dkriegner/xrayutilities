@@ -1691,6 +1691,10 @@ def chunkify(lst, n):
     return [lst[i::n] for i in range(n)]
 
 
+class manager(BaseManager):
+    pass
+
+
 class PowderDiffraction(PowderExperiment):
 
     """
@@ -1762,9 +1766,6 @@ class PowderDiffraction(PowderExperiment):
         self.__ww = None
 
         # initialize multiprocessing
-        class manager(BaseManager):
-            pass
-
         np = config.NTHREADS
         self.nproc = np if np != 0 else multiprocessing.cpu_count()
         self.chunks = chunkify(list(self.data.keys()), self.nproc)
