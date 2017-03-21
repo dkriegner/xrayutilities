@@ -56,11 +56,10 @@ def main():
     divider = make_axes_locatable(ax)
 
     bax = divider.append_axes("top", size="10%", pad=0.05, sharex=ax)
-    plt.bar(pd.ang * 2, numpy.ones_like(pd.data), width=0, linewidth=2,
-            color='r', align='center', orientation='vertical')
-    for x, hkl in zip(pd.ang*2, pd.hkl):
-        h, k, l = hkl
-        plt.text(x, 0.1, '%d%d%d' % (h, k, l))
+    for hkl in pd.data:
+        plt.bar(2*pd.data[hkl]['ang'], 1, width=0, linewidth=2,
+                color='r', align='center', orientation='vertical')
+        plt.text(2*pd.data[hkl]['ang'], 0.1, '%d%d%d' % hkl)
     plt.setp(bax.get_xticklabels(), visible=False)
     plt.setp(bax.get_yticklabels(), visible=False)
 
