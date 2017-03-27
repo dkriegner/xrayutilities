@@ -221,9 +221,7 @@ class DarwinModel(LayerModel):
          r, rbar, t: reflection and transmission of the full stack
         """
         if isinstance(ml, list):
-            rm, rmbar, tm = (numpy.zeros(self.npoints, dtype=numpy.complex),
-                             numpy.zeros(self.npoints, dtype=numpy.complex),
-                             numpy.ones(self.npoints, dtype=numpy.complex))
+            rm, rmbar, tm = (None, None, None)
             for nsub, subml in ml:
                 rm, rmbar, tm = self._recur_sim(nsub, subml, rm,
                                                 rmbar, tm, pol)
@@ -234,7 +232,9 @@ class DarwinModel(LayerModel):
 
         Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
         for i in range(Nmax):
-            if (nrep // (2**i)) % 2 == 1:
+            if r is None:
+                r, rbar, t = rm, rmbar, tm
+            elif (nrep // (2**i)) % 2 == 1:
                 r, rbar, t = self._calc_double(r, rbar, t, rm, rmbar, tm, d)
             rm, rmbar, tm = self._calc_double(rm, rmbar, tm, rm, rmbar, tm, d)
 
