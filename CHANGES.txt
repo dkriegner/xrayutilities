@@ -1,3 +1,5 @@
+* new materials (Cr, tetragonal BaTiO3)
+* fix bug in DarwinModel
 * fix multiprocessing on MS Windows platforms
 * fix BUG in tetragonal crystals (wrong symmetry was used!)
 

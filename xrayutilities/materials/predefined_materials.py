@@ -153,6 +153,7 @@ SnTe = Crystal("SnTe",
 Al = Crystal("Al", SGLattice(225, 4.04958, atoms=[e.Al, ], pos=['4a', ]))
 Au = Crystal("Au", SGLattice(225, 4.0782, atoms=[e.Au, ], pos=['4a', ]))
 Fe = Crystal("Fe", SGLattice(229, 2.8665, atoms=[e.Fe, ], pos=['2a', ]))
+Cr = Crystal("Cr", SGLattice(229, 2.910, atoms=[e.Cr, ], pos=['2a', ]))
 Co = Crystal("Co", SGLattice(194, 2.5071, 4.0695, atoms=[e.Co, ],
                              pos=['2c', ]))
 Ru = Crystal("Ru", SGLattice(194, 2.7059, 4.2815, atoms=[e.Ru, ],
@@ -190,6 +191,10 @@ CaTiO3 = Crystal("CaTiO3", SGLattice(221, 3.795, atoms=[e.Ca, e.Ti, e.O],
                                      pos=['1a', '1b', '3c']))
 SrTiO3 = Crystal("SrTiO3", SGLattice(221, 3.905, atoms=[e.Sr, e.Ti, e.O],
                                      pos=['1a', '1b', '3c']))
+BaTiO3 = Crystal("BaTiO3", SGLattice(99, 3.992, 4.036,
+                                     atoms=[e.Ba, e.Ti, e.O, e.O],
+                                     pos=[('1a', 1.000), ('1b', 0.5274),
+                                          ('1b', 0.9993), ('2c', 0.5125)]))
 # BiFeO3 = Crystal("BiFeO3", SGLattice())
 # BiFeO3 = Crystal(
 #    "BiFeO3",
