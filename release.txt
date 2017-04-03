@@ -9,6 +9,7 @@ Is everything running fine? perform the tests and run the examples
 
   # change the version in VERSION
   # update copyright notice in doc/source/conf.py
+  pep8 xrayutilities
   python2 setup.py test
   python3 setup.py test
   # optionally check the coverage
@@ -54,18 +55,17 @@ If not done previously you need to build the extenstion modules using
 
 The compiler name can be omitted if the default is working.
 
-To build for 64-bit Windows, a known way to do it was reported by RG is
-using MS Visual Studio Express 2008 (which is freely available for download).
+For up to date Python installations you should use Visual Studio 2015.
 To perform the installation or build a installer package perform the
 following steps:
- * open an administrator shell
- * execute: 'set DISTUTILS_USE_SDK=1'
- * execute: 'setenv /x64 /release' (use /x86 for a 32-bit build)
- * compile with: 'python setup.py build -c msvc' which should give you
-   the chance to run 'python setup.py bdist_wininst' or install.
-
-See https://github.com/cython/cython/wiki/64BitCythonExtensionsOnWindows
-for details.
+ * open an administrator shell (or winpython command prompt)
+ * (optional) execute: 'set DISTUTILS_USE_SDK=1'
+ * (optional) execute: 'setenv /x64 /release' (use /x86 for a 32-bit build)
+ * compile with: 'python setup.py build'. one might need to use
+   '--without-openmp' option for building.
+ * build binaries with 'python setup.py bdist_wininst bdist_wheel' 
+ * install package locally 'python setup.py install'
+ * use 'python setup.py test' to test your installation
 
 UPDATE WEBPAGE
 ==============
@@ -94,8 +94,8 @@ UPDATE PyPI PACKAGE
 
 Upload new version to the Python package index by
 
-  python setup.py sdist upload
+  twine upload dist/xrayutilities-VERSION.tar.gz
 
 On a windows machine run
 
-  python setup.py bdist_wininst bdist_wheel upload
+  twine upload --config-file PATH_TO_pypirc dist/*
