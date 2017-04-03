@@ -1,3 +1,5 @@
+v1.4.1, 2017-04-03
+
 * new materials (Cr, tetragonal BaTiO3)
 * fix bug in DarwinModel
 * fix multiprocessing on MS Windows platforms
