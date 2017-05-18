@@ -440,8 +440,8 @@ def get_omega_scan_ang(qx, qz, intensity, omcenter, ttcenter,
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
-        nint = numpy.ceil(
-            max(qrange / (qx[1] - qx[0]), qrange / (qz[1] - qz[0])))
+        nint = int(numpy.ceil(
+            max(qrange / (qx[1] - qx[0]), qrange / (qz[1] - qz[0]))))
         if nint == 0:
             nint = 1
         if config.VERBOSITY >= config.INFO_ALL:
@@ -659,7 +659,7 @@ def get_radial_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
-        nint = numpy.ceil(qrange / numpy.abs(qx[1] - qx[0]))
+        nint = int(numpy.ceil(qrange / numpy.abs(qx[1] - qx[0])))
         if nint == 0:
             nint = 1
         if config.VERBOSITY >= config.INFO_ALL:
@@ -860,7 +860,7 @@ def get_ttheta_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
     if 'Nint' in kwargs:
         nint = kwargs['Nint']
     else:
-        nint = numpy.ceil(qrange / (qx[1] - qx[0]))
+        nint = int(numpy.ceil(qrange / (qx[1] - qx[0])))
         if nint == 0:
             nint = 1
         if config.VERBOSITY >= config.INFO_ALL:
