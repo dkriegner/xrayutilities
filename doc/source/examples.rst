@@ -158,7 +158,7 @@ There exists also a powder diffraction class, which is able to convert powder sc
     # creating powder experiment
     xup = xu.PowderExperiment(en=energy)
     theta = arange(0, 70, 0.01)
-    q = xu.Ang2Q(theta)
+    q = xup.Ang2Q(theta)
 
 
 More information about powdered materials can be obtained from the :class:`~xrayutilities.simpack.powder.PowderDiffraction` class. It contains information about peak positions and intensities
