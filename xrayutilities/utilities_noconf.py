@@ -65,7 +65,7 @@ def clear_bit(f, offset):
     clears the bet at an offset
     """
     mask = ~(1 << offset)
-    return(int_type & mask)
+    return(f & mask)
 
 
 def lam2en(inp):

@@ -1,3 +1,6 @@
+* fix clear_bit utility function
+* fix float/int conversion in line cut functions for newer numpy
+
 v1.4.1, 2017-04-03
 
 * new materials (Cr, tetragonal BaTiO3)
