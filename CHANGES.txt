@@ -1,3 +1,4 @@
+* python2 fix for EDFFile which could have failed as described in issue #41
 * fix clear_bit utility function
 * fix float/int conversion in line cut functions for newer numpy
 

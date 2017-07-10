@@ -131,6 +131,8 @@ class EDFFile(object):
                     ml_value_flag = False  # marks a multiline header
                     byte_order = ""
                     for line in fid:  # until end of header
+                        linelength = len(line)
+                        offset += linelength
                         line = line.decode('ascii', 'ignore')
                         if config.VERBOSITY >= config.DEBUG:
                             print(line)
@@ -151,7 +153,6 @@ class EDFFile(object):
                             if line == "}":
                                 # place offset reading here - here we get the
                                 # real starting position of the binary data!!
-                                offset = fid.tell()
                                 break
 
                             # continue if the line has no content
@@ -199,9 +200,9 @@ class EDFFile(object):
                     self._data_offsets.append(offset)
                     # jump over data block
                     tot_nofp = self._dimx[-1] * self._dimy[-1]
-                    fid.seek(fid.tell() +
-                             struct.calcsize(tot_nofp * self._fmt_str[-1]),
-                             0)
+                    dsize = struct.calcsize(tot_nofp * self._fmt_str[-1])
+                    fid.seek(offset + dsize, 0)
+                    offset += dsize
 
             else:  # in case of no header also save one set of defaults
                 self._byte_order.append('LowByteFirst')
