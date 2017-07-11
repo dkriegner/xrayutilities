@@ -476,7 +476,7 @@ class Crystal(Material):
         else:
             self.thetaDebye = thetaDebye
 
-    @staticmethod
+    # @staticmethod
     def fromCIF(self, ciffilename):
         """
         Constructs a SGLattice objects from a .cif file and loads it into Crystal.lattice
@@ -664,7 +664,7 @@ class Crystal(Material):
         mass density in kg/m^3
         """
         m = 0.
-        for at, pos, occ, b in self.lattice.base:
+        for at, pos, occ, b in self.lattice.base():
             m += at.weight * occ
 
         return m / self.lattice.UnitCellVolume() * 1e30
@@ -691,6 +691,7 @@ class Crystal(Material):
             for (at, pos, occ, b) in self.lattice.base():
                 if at.num not in f:
                     f[at.num] = at.f(q, en)
+                    # f[at.num] = at.f0(q)
             return [f[a.num] for (a, p, o, b) in self.lattice.base()]
         else:
             return None
@@ -716,7 +717,7 @@ class Crystal(Material):
          delta (float)
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
-        re *= 1e10
+        re *= 1.e10
 
         lam, en = self._get_lamen(en)
         delta = 0.
@@ -724,8 +725,7 @@ class Crystal(Material):
         for (at, pos, occ, b), fa in zip(self.lattice.base(), f):
             delta += numpy.real(fa) * occ
 
-        delta *= re / (2 * numpy.pi) * lam ** 2 / \
-            self.lattice.UnitCellVolume()
+        delta *= re * (lam ** 2) / (2 * numpy.pi*self.lattice.UnitCellVolume())
         return delta
 
     def beta(self, en='config'):

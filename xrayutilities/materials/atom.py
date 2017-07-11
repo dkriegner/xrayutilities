@@ -51,7 +51,7 @@ def get_key(*args):
 
 
 class Atom(object):
-    max_cache_length = 10
+    max_cache_length = 1000
 
     def __init__(self, name, num):
         self.name = name
@@ -63,6 +63,9 @@ class Atom(object):
         self.num = num
         self.__weight = None
         self._dbcache = dict([(prop, []) for prop in ('f0', 'f1', 'f2', 'f')])
+
+    def swapbasename(self,name):
+        self.name = name
 
     def __key__(self):
         """ key function to return the elements number """
