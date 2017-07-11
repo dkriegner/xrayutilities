@@ -49,7 +49,8 @@ re_cell_alpha = re.compile(r"^\s*_cell_angle_alpha")
 re_cell_beta = re.compile(r"^\s*_cell_angle_beta")
 re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma")
 re_comment = re.compile(r"^\s*#")
-
+re_atom_type = re.compile(r"^\s*_atom_type_symbol")
+re_atom_oxstate = re.compile(r"^\s*_atom_type_oxidation_number")
 
 class CIFFile(object):
     """
@@ -96,6 +97,7 @@ class CIFFile(object):
 
         self.symops = []
         self.atoms = []
+        self.oxstates = []
         self.lattice_const = numpy.zeros(3, dtype=numpy.double)
         self.lattice_angles = numpy.zeros(3, dtype=numpy.double)
 
@@ -103,6 +105,7 @@ class CIFFile(object):
         loop_start = False
         symop_loop = False
         atom_loop = False
+        oxidation_loop = False
 
         def floatconv(string):
             """
@@ -131,6 +134,7 @@ class CIFFile(object):
                 loop_labels = []
                 symop_loop = False
                 atom_loop = False
+                oxidation_loop = False
                 ax_idx = None
                 ay_idx = None
                 az_idx = None
@@ -161,6 +165,10 @@ class CIFFile(object):
                             print('XU.material: symop-loop identified')
                         symop_loop = True
                         symop_idx = len(loop_labels) - 1
+                    if re_atom_type.match(line): # start of atom type loop
+                        oxidation_loop = True
+                        if config.VERBOSITY >= config.DEBUG:
+                            print('XU.material: atom type-loop identified')
                     elif re_atom.match(line):  # start of atom position loop
                         if config.VERBOSITY >= config.DEBUG:
                             print('XU.material: atom position-loop identified')
@@ -184,6 +192,7 @@ class CIFFile(object):
                 loop_start = False
                 symop_loop = False
                 atom_loop = False
+                oxidation_loop = False
                 continue
             elif symop_loop:  # symmetry operation entry
                 loop_start = False
@@ -197,6 +206,11 @@ class CIFFile(object):
                 # add a comma to a fraction to avoid int division problems
                 opstr = re.sub(r"/([1-9])", r"/\1.", opstr)
                 self.symops.append(opstr)
+            elif oxidation_loop: # atom oxidation state
+                loop_start = False
+                asplit = line.split()
+                oxstate = asplit[-1]
+                self.oxstates.append(oxstate)
             elif atom_loop:  # atom label and position
                 loop_start = False
                 asplit = line.split()
@@ -223,8 +237,8 @@ class CIFFile(object):
             y = a[1][1]
             z = a[1][2]
             el = re.sub(r"['\"]", r"", a[0])
-            el = re.sub(r"([0-9])", r"", el)
-            el = re.sub(r"\(\w*\)", r"", el)
+            # el = re.sub(r"([0-9])", r"", el)
+            # el = re.sub(r"\(\w*\)", r"", el)
             for symop in self.symops:
                 pos = eval("numpy.array(" + symop + ")")
                 # check that position is within unit cell
@@ -237,6 +251,9 @@ class CIFFile(object):
                         unique = False
                 if unique:
                     unique_pos.append(pos)
+            for o,r in zip(('+','-'),('p','m')):
+                if o in el:
+                    el = el.replace(o,r)
             element = getattr(elements, el)
             self.unique_positions.append((element, unique_pos, a[2], a[3]))
 
