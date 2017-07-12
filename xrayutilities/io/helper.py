@@ -31,9 +31,6 @@ import h5py
 from .. import config
 from ..exception import InputError
 
-if sys.version_info >= (3, 3):
-    import lzma  # new in python 3.3
-
 
 # python 2to3 compatibility
 try:
@@ -67,6 +64,7 @@ def xu_open(filename, mode='rb'):
         fid = bz2.BZ2File(filename, mode)
     elif filename.endswith('.xz'):
         if sys.version_info >= (3, 3):
+            import lzma
             fid = lzma.open(filename, mode)
         else:
             try:
