@@ -244,7 +244,8 @@ class SiGe(CubicAlloy):
         method to calculate the lattice parameter of the SiGe alloy with
         composition Si_{1-x}Ge_x
         """
-        return latA + (0.2 * x + 0.027 * x ** 2)
+        return latA + (0.2 * x + 0.027 * x ** 2) * \
+            (latB - latA) / numpy.linalg.norm(latB - latA)
 
 
 class AlGaAs(CubicAlloy):
