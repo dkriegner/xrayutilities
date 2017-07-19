@@ -91,8 +91,8 @@ class Model(object):
             return y
         else:
             dx = numpy.mean(numpy.gradient(x))
-            nres = int(10 * numpy.abs(self.resolution_width / dx))
-            xres = startdelta(-5*self.resolution_width, dx, nres + 1)
+            nres = int(20 * numpy.abs(self.resolution_width / dx))
+            xres = startdelta(-10*self.resolution_width, dx, nres + 1)
             # the following works only exactly for equally spaced data points
             if self.resolution_type == 'Gauss':
                 fres = NormGauss1d
