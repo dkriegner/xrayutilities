@@ -1187,7 +1187,8 @@ class FP_profile:
 
         xx = type("data", (), kwargs)  # make it dot-notation accessible
 
-        epsilon0s = 2 * nasin(xx.emiss_wavelengths/(2.0*xx.d)) - xx.twotheta0
+        epsilon0s = (2 * nasin(asarray(xx.emiss_wavelengths)/(2.0*xx.d)) -
+                     xx.twotheta0)
         theta = xx.twotheta0 / 2
         # Emission profile FWHM + crystallite broadening (scale factors are
         # Topas choice!) (Lorentzian)
@@ -1878,6 +1879,10 @@ class PowderDiffraction(PowderExperiment):
                         subdictionary for every convolver which should have its
                         settings changed.
         """
+        if 'global' in newsettings:
+            if 'dominant_wavelength' in newsettings['global']:
+                print('PowderDiffraction: dominant wavelength is a read only'
+                      'setting \n -> use emission: emiss_wavelength instead')
         for k in newsettings:
             if k == 'classoptions':
                 continue
