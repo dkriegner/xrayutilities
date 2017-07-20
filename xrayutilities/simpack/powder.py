@@ -1791,6 +1791,11 @@ class PowderDiffraction(PowderExperiment):
             th.daemon = True
             th.start()
         atexit.register(self.__stop__)
+        # set wavelength from class constructor
+        if 'wl' in kwargs:
+            self._set_wavelength_pd(kwargs['wl'])
+        if 'en' in kwargs:
+            self._set_energy_pd(kwargs['en'])
 
     def __stop__(self):
         self._running = False
