@@ -75,14 +75,15 @@ careful definition of all the parameters
 # in the axial convolver the parameters slit_length_source can not be equal to
 # slit_length_target!
 
-# dependency on Experiment baseclass is very loose now and the
-# energy/wavelength handling is not working as in the other experiment classes
+# in this file SI units (m) are used for wavelengths, while by default Angstrom
+# are used in the remaining of the package
 
 from __future__ import absolute_import, print_function
 
 import atexit
 import math
 import multiprocessing
+import numbers
 import os
 import sys
 import threading
@@ -1834,6 +1835,19 @@ class PowderDiffraction(PowderExperiment):
         p.debug_cache = False
         return p
 
+    def _set_wavelength_pd(self, wl):
+        PowderExperiment._set_wavelength(self, wl)
+        s = {'emission': {'emiss_wavelengths': self.wavelength*1e-10}}
+        self.update_settings(s)
+
+    def _set_energy_pd(self, energy):
+        PowderExperiment._set_energy(self, energy)
+        s = {'emission': {'emiss_wavelengths': self.wavelength*1e-10}}
+        self.update_settings(s)
+
+    energy = property(PowderExperiment._get_energy, _set_energy_pd)
+    wavelength = property(PowderExperiment._get_wavelength, _set_wavelength_pd)
+
     def set_wavelength_from_params(self):
         """
         sets the wavelenth in the base class from the settings dictionary of
@@ -1850,7 +1864,7 @@ class PowderDiffraction(PowderExperiment):
                     fp.set_parameters(convolver='global',
                                       **self.settings['global'])
                 # set wavelength in base class
-                self._set_wavelength(wl*1e10)
+                PowderExperiment._set_wavelength(self, wl*1e10)
 
     def set_sample_parameters(self):
         """
@@ -1883,6 +1897,13 @@ class PowderDiffraction(PowderExperiment):
             if 'dominant_wavelength' in newsettings['global']:
                 print('PowderDiffraction: dominant wavelength is a read only'
                       'setting \n -> use emission: emiss_wavelength instead')
+        if 'emission' in newsettings:
+            nem = newsettings['emission']
+            for k in ('emiss_wavelengths', 'emiss_intensities',
+                      'emiss_gauss_widths', 'emiss_lor_widths'):
+                if k in nem:
+                    if isinstance(nem[k], numbers.Number):
+                        nem[k] = (nem[k], )
         for k in newsettings:
             if k == 'classoptions':
                 continue
