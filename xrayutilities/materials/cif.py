@@ -228,7 +228,7 @@ class CIFFile(object):
             for symop in self.symops:
                 pos = eval("numpy.array(" + symop + ")")
                 # check that position is within unit cell
-                pos = pos - pos // 1
+                pos = pos - numpy.round(pos, self.digits) // 1
                 # check if position is unique
                 unique = True
                 for upos in unique_pos:

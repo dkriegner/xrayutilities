@@ -330,6 +330,8 @@ class SGLattice(object):
                 z = w[1][i]
             for p in poslist:
                 pos = eval(p, {'x': x, 'y': y, 'z': z})
+                pos = numpy.asarray(pos)
+                pos -= pos // 1
                 yield atom, numpy.asarray(pos), occ, b
 
     def _setlat(self):
