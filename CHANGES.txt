@@ -1,3 +1,4 @@
+* use AppVeyor.com for Windows testing and binary creation
 * make wavelength handling in PowderDiffraction more flexible
 * fix bug in SiGe alloy class
 * python2 fix for EDFFile which could have failed as described in issue #41
