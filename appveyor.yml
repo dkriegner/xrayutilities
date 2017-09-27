@@ -19,8 +19,15 @@ environment:
     - PYTHON: "C:\\Python36-x64"
 
 install:
+  - ps: $env:package_version = (Get-Content -Path VERSION)
+  - ps: Update-AppveyorBuild -Version "$(package_version)-$env:APPVEYOR_BUILD_NUMBER"
   # We need wheel installed to build wheels
   - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHON%\\python.exe -m pip install numpy"
+  - "%PYTHON%\\python.exe -m pip install unittest2"
+  - "%PYTHON%\\python.exe -m pip install h5py"
+  - "%PYTHON%\\python.exe -m pip install scipy"
+  - "%PYTHON%\\python.exe -m pip install lmfit"
 
 build: off
 
