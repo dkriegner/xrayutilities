@@ -2,7 +2,9 @@ xrayutilities
 =============
 
 [![Build
-Status](https://travis-ci.org/dkriegner/xrayutilities.svg?branch=master)](https://travis-ci.org/dkriegner/xrayutilities)
+Status Travis CI](https://travis-ci.org/dkriegner/xrayutilities.svg?branch=master)](https://travis-ci.org/dkriegner/xrayutilities)
+[![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/t8cb5jj0atklxay3/branch/master?svg=true)](https://ci.appveyor.com/project/dkriegner/xrayutilities)
+
 
 xrayutilities is a collection of scripts used to analyze and simulate x-ray
 diffraction data.  It consists of a Python package and several routines coded
