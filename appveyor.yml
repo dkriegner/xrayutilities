@@ -3,31 +3,39 @@ environment:
   matrix:
 
     # For Python versions available on Appveyor, see
-    # http://www.appveyor.com/docs/installed-software#python
+    # http://www.appveyor.com/docs/installed-software#python and
+    # https://www.appveyor.com/docs/build-environment/#miniconda
+    - PYTHON_VERSION: 2.7
+      MINICONDA: C:\Miniconda
+    - PYTHON_VERSION: 2.7
+      MINICONDA: C:\Miniconda-x64
+    - PYTHON_VERSION: 3.4
+      MINICONDA: C:\Miniconda3
+    - PYTHON_VERSION: 3.4
+      MINICONDA: C:\Miniconda3-x64
+    - PYTHON_VERSION: 3.5
+      MINICONDA: C:\Miniconda35
+    - PYTHON_VERSION: 3.5
+      MINICONDA: C:\Miniconda35-x64
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:\Miniconda36
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:\Miniconda36-x64
 
-    - PYTHON: "C:\\Python27"
-    - PYTHON: "C:\\Python33"
-    - PYTHON: "C:\\Python34"
-    - PYTHON: "C:\\Python35"
-    - PYTHON: "C:\\Python36"
-    - PYTHON: "C:\\Python27-x64"
-    - PYTHON: "C:\\Python33-x64"
-      DISTUTILS_USE_SDK: "1"
-    - PYTHON: "C:\\Python34-x64"
-      DISTUTILS_USE_SDK: "1"
-    - PYTHON: "C:\\Python35-x64"
-    - PYTHON: "C:\\Python36-x64"
+init:
+  - "ECHO %PYTHON% %PYTHON_VERSION% %MINICONDA%"
 
 install:
   - ps: $env:package_version = (Get-Content -Path VERSION)
-  - ps: Update-AppveyorBuild -Version "$(package_version)-$env:APPVEYOR_BUILD_NUMBER"
-  # We need wheel installed to build wheels
-  - "%PYTHON%\\python.exe -m pip install wheel"
-  - "%PYTHON%\\python.exe -m pip install numpy"
+  - ps: Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
+  # install dependencies
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy wheel h5py lmfit"
+  - activate test-environment
   - "%PYTHON%\\python.exe -m pip install unittest2"
-  - "%PYTHON%\\python.exe -m pip install h5py"
-  - "%PYTHON%\\python.exe -m pip install scipy"
-  - "%PYTHON%\\python.exe -m pip install lmfit"
 
 build: off
 
