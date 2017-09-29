@@ -5,6 +5,7 @@ environment:
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python and
     # https://www.appveyor.com/docs/build-environment/#miniconda
+    - PYTHON: C:\Python27
     - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda
     - PYTHON_VERSION: 2.7
@@ -18,29 +19,37 @@ environment:
     - PYTHON_VERSION: 3.6
       MINICONDA: C:\Miniconda36-x64
 
-init:
-  - "ECHO %PYTHON_VERSION% %MINICONDA%"
-
 install:
   - ps: $env:package_version = (Get-Content -Path VERSION)
   - ps: Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
   # install dependencies
-  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy wheel h5py"
-  - activate test-environment
-  - "pip install unittest2"
-  - "pip install lmfit"
+  - ps: if(-Not ($env:MINICONDA -eq $null))
+          {
+           $env:path="%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+           conda config --set always_yes yes --set changeps1 no
+           conda update -q conda
+           conda info -a
+           conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy wheel h5py"
+           activate test-environment
+           python -m pip install unittest2
+           python -m pip install lmfit
+          }
+        else
+          {
+           $env:path="%PYTHON%;%PATH%"
+           python -m pip install numpy
+          }
 
 build: off
 
 test_script:
-  - "python setup.py test"
+  - ps: if(-Not ($env:MINICONDA -eq $null))
+          {
+            python setup.py test
+          }
 
 after_test:
-  - "python setup.py bdist_wheel bdist_wininst"
+  - python setup.py bdist_wheel bdist_wininst
 
 artifacts:
   # make available the content of the dist directory
