@@ -23,30 +23,32 @@ install:
   - ps: $env:package_version = (Get-Content -Path VERSION)
   - ps: Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
   # install dependencies
-  - ps: if(-Not ($env:MINICONDA -eq $null))
-          {
-           $env:path="%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-           conda config --set always_yes yes --set changeps1 no
-           conda update -q conda
-           conda info -a
-           conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy wheel h5py"
-           activate test-environment
-           python -m pip install unittest2
-           python -m pip install lmfit
-          }
-        else
-          {
-           $env:path="%PYTHON%;%PATH%"
-           python -m pip install numpy
-          }
+  - ps: >-
+      if(-Not ($env:MINICONDA -eq $null))
+      {
+        $env:path="%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
+        conda info -a
+        conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy wheel h5py"
+        activate test-environment
+        python -m pip install unittest2
+        python -m pip install lmfit
+      }
+      else
+      {
+        $env:path="%PYTHON%;%PATH%"
+        python -m pip install numpy
+      }
 
 build: off
 
 test_script:
-  - ps: if(-Not ($env:MINICONDA -eq $null))
-          {
-            python setup.py test
-          }
+  - ps: >-
+      if(-Not ($env:MINICONDA -eq $null))
+      {
+        python setup.py test
+      }
 
 after_test:
   - python setup.py bdist_wheel bdist_wininst
