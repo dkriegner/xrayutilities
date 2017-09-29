@@ -19,7 +19,7 @@ environment:
       MINICONDA: C:\Miniconda36-x64
 
 install:
-- ps: >-
+  - ps: >-
     $env:package_version = (Get-Content -Path VERSION)
     Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
     # install dependencies
