@@ -1,5 +1,3 @@
-exclude \.*
-
 include LICENSE.txt
 include CHANGES.txt
 include VERSION

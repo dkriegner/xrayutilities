@@ -1,7 +1,6 @@
 environment:
 
   matrix:
-
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python and
     # https://www.appveyor.com/docs/build-environment/#miniconda
@@ -20,39 +19,39 @@ environment:
       MINICONDA: C:\Miniconda36-x64
 
 install:
-  - ps: $env:package_version = (Get-Content -Path VERSION)
-  - ps: Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
-  # install dependencies
-  - ps: >-
-      if(-Not ($env:MINICONDA -eq $null))
-      {
-        $env:path="%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        conda info -a
-        conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy wheel h5py"
-        activate test-environment
-        python -m pip install unittest2
-        python -m pip install lmfit
-      }
-      else
-      {
-        $env:path="%PYTHON%;%PATH%"
-        python -m pip install numpy
-      }
+- ps: >-
+    $env:package_version = (Get-Content -Path VERSION)
+    Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
+    # install dependencies
+    if($env:MINICONDA -eq $null)
+    {
+      $env:Path="$env:PYTHON;$env:Path"
+      [Environment]::SetEnvironmentVariable("Path", "$env:PYTHON;$env:Path", [EnvironmentVariableTarget]::User)
+      python -m pip install --upgrade numpy wheel
+    }
+    else
+    {
+      $env:Path="$env:MINICONDA;$env:MINICONDA\\Scripts;$env:Path"
+      [Environment]::SetEnvironmentVariable("Path", "$env:MINICONDA;$env:MINICONDA\\Scripts;$env:Path", [EnvironmentVariableTarget]::User)
+      conda config --set always_yes yes --set changeps1 no
+      conda update -q conda
+      conda info -a
+      conda install -q numpy scipy wheel h5py
+      python -m pip install unittest2
+    }
 
 build: off
 
 test_script:
   - ps: >-
-      if(-Not ($env:MINICONDA -eq $null))
-      {
-        python setup.py test
-      }
+    if(-Not ($env:MINICONDA -eq $null))
+    {
+      python setup.py test
+    }
+
 
 after_test:
   - python setup.py bdist_wheel bdist_wininst
 
 artifacts:
-  # make available the content of the dist directory
   - path: dist\*
