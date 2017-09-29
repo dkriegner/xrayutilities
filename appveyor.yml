@@ -50,11 +50,12 @@ test_script:
   - ps: |
       if(-Not ($env:MINICONDA -eq $null))
       {
-        python setup.py test && exit 0
+        python setup.py test
+        exit 0
       }
 
 after_test:
-  - python setup.py bdist_wheel bdist_wininst && exit 0
+  - cmd: python setup.py bdist_wheel bdist_wininst && exit 0
 
 artifacts:
   - path: dist\*
