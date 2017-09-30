@@ -43,7 +43,7 @@ install:
         conda install -q numpy scipy wheel h5py
       }
       python -m pip install --upgrade --ignore-installed pip
-      python -m pip install --upgrade unittest2
+      python -m pip install --upgrade --ignore-installed unittest2
 
 build_script:
   - cmd: IF DEFINED MINICONDA ( echo "Skip packaging" ) ELSE ( python setup.py bdist_wheel bdist_wininst )
