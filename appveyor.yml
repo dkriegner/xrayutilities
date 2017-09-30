@@ -42,7 +42,7 @@ install:
         conda info -a
         conda install -q numpy scipy wheel h5py
       }
-      python -m pip install unittest2
+      python -m pip install --upgrade unittest2 pip
 
 build_script:
   - cmd: python setup.py bdist_wheel bdist_wininst
