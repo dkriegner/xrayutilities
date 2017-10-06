@@ -476,7 +476,11 @@ class Crystal(Material):
     @classmethod
     def fromCIF(cls, ciffilename):
         """
-        Create a Crystal from a CIF file. Name and
+        Create a Crystal from a CIF file. The CIF-filename will be used as name
+        of the created Crystal.  Note: since the CIF file parser is currently
+        not able to detect the correct space group of the material all
+        materials created by this method will be represented by the P1
+        space-group!
 
         Parameters
         ----------

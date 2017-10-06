@@ -105,7 +105,9 @@ Other formats which can be read include
  * files produces by the experimental control software at Hasylab/Desy (spectra).
  * ccd images in the tiff file format produced by RoperScientific CCD cameras and Perkin Elmer detectors.
  * files from recorded by Seifert diffractometer control software (``.nja``)
- * basic support is also provided for reading of ``cif`` files from structure database to extract unit cell parameters
+ * basic support is also provided for reading of ``cif`` files from structure
+   database to extract unit cell parameters. Currently all materials read from
+   CIF files are, however, represented by the P1 space-group.
 
 See the ``examples`` directory for more information and working example scripts.
 
