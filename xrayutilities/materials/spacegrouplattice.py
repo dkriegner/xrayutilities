@@ -150,6 +150,22 @@ sgrp_params = {'cubic:1': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
                              ('a', 'b', 'c', 'alpha', 'beta', 'gamma'))}
 
 
+def get_default_sgrp_suf(sgrp_nr):
+    """
+    determine default space group suffix
+    """
+    sgrp_suf = ''
+    if sgrp_nr in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
+        sgrp_suf = ':b'
+    elif sgrp_nr in [48, 50, 59, 68, 70, 85, 86, 88, 125, 126,
+                     129, 130, 133, 134, 137, 138, 141, 142,
+                     201, 203, 222, 224, 227, 228]:
+        sgrp_suf = ':1'
+    elif sgrp_nr in [146, 148, 155, 160, 161, 166, 167]:
+        sgrp_suf = ':H'
+    return sgrp_suf
+
+
 class WyckoffBase(list):
 
     """
@@ -175,8 +191,11 @@ class WyckoffBase(list):
         if isinstance(pos, str):
             pos = (pos, None)
         elif isinstance(pos, (tuple, list)):
-            if isinstance(pos[1], numbers.Number):
-                pos = (pos[0], (pos[1], ))
+            if len(pos) == 1:
+                pos = (pos[0], None)
+            else:
+                if isinstance(pos[1], numbers.Number):
+                    pos = (pos[0], (pos[1], ))
         return pos
 
     def append(self, atom, pos, occ=1.0, b=0.):
@@ -256,20 +275,10 @@ class SGLattice(object):
         try:
             self.space_group_suf = ':' + self.space_group.split(':')[1]
         except:
-            self.space_group_suf = ''
-        # set default space group suffix if none is given
-        if (self.space_group_nr in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                                    15] and self.space_group_suf == ''):
-            self.space_group_suf = ':b'
-        elif (self.space_group_nr in [48, 50, 59, 68, 70, 85, 86, 88, 125, 126,
-                                      129, 130, 133, 134, 137, 138, 141, 142,
-                                      201, 203, 222, 224, 227, 228] and
-              self.space_group_suf == ''):
-            self.space_group_suf = ':1'
-        elif (self.space_group_nr in [146, 148, 155, 160, 161, 166, 167] and
-              self.space_group_suf == ''):
-            self.space_group_suf = ':H'
+            self.space_group_suf = get_default_sgrp_suf(self.space_group_nr)
 
+        if self.space_group_suf != '':
+            self.space_group = str(self.space_group_nr) + self.space_group_suf
         self.name = sgrp_name[str(self.space_group_nr)] + self.space_group_suf
         self.crystal_system, nargs = sgrp_sym[self.space_group_nr]
         self.crystal_system += self.space_group_suf

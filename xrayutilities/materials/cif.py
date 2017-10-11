@@ -24,9 +24,10 @@ import warnings
 import numpy
 
 from . import elements
+from . import spacegrouplattice as sgl
+from . import wyckpos
 from .. import config
 from .lattice import Lattice, LatticeBase
-from .spacegrouplattice import SGLattice
 
 re_loop = re.compile(r"^loop_")
 re_symop = re.compile(r"^\s*("
@@ -42,6 +43,8 @@ re_atomocc = re.compile(r"^\s*_atom_site_occupancy")
 re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
 re_quote = re.compile(r"'")
+re_spacegroupnr = re.compile(r"^\s*_space_group_IT_number")
+re_spacegroupname = re.compile(r"^\s*_symmetry_space_group_name_H-M")
 re_cell_a = re.compile(r"^\s*_cell_length_a")
 re_cell_b = re.compile(r"^\s*_cell_length_b")
 re_cell_c = re.compile(r"^\s*_cell_length_c")
@@ -77,6 +80,8 @@ class CIFFile(object):
         except:
             raise IOError("cannot open CIF file %s" % self.filename)
 
+        if config.VERBOSITY >= config.INFO_ALL:
+            print('XU.material: parsing cif file %s' % self.filename)
         self.Parse()
         self.SymStruct()
 
@@ -149,6 +154,10 @@ class CIFFile(object):
                     self.lattice_angles[1] = floatconv(line.split()[1])
                 elif re_cell_gamma.match(line):
                     self.lattice_angles[2] = floatconv(line.split()[1])
+                elif re_spacegroupnr.match(line):
+                    self.sgrp_nr = int(line.split()[1])
+                elif re_spacegroupname.match(line):
+                    self.sgrp_name = ''.join(line.split()[1:]).strip("'")
                 elif re_name.match(line):
                     try:
                         self.name = shlex.split(line)[1]
@@ -211,20 +220,43 @@ class CIFFile(object):
 
     def SymStruct(self):
         """
-        function to obtain the list of different atom positions
-        in the unit cell for the different types of atoms. The data
-        are obtained from the data parsed from the CIF file.
+        function to obtain the list of different atom positions in the unit
+        cell for the different types of atoms and determine the space group
+        number and origin choice if available. The data are obtained from the
+        data parsed from the CIF file.
         """
 
-        self.unique_positions = []
-        for a in self.atoms:
-            unique_pos = []
-            x = a[1][0]
-            y = a[1][1]
-            z = a[1][2]
-            el = re.sub(r"['\"]", r"", a[0])
+        def rem_white(string):
+            return string.replace(' ', '')
+
+        if hasattr(self, 'sgrp_name'):
+            # determine spacegroup
+            cifsgn = rem_white(self.sgrp_name).split(':')[0]
+            for nr, name in sgl.sgrp_name.items():
+                if cifsgn == rem_white(name):
+                    self.sgrp_nr = int(nr)
+            if len(self.sgrp_name.split(':')) > 1:
+                self.sgrp_suf = ':' + self.sgrp_name.split(':')[1]
+
+        if not hasattr(self, 'sgrp_suf'):
+            if hasattr(self, 'sgrp_nr'):
+                self.sgrp_suf = sgl.get_default_sgrp_suf(self.sgrp_nr)
+        if hasattr(self, 'sgrp_nr'):
+            self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
+            if config.VERBOSITY >= config.INFO_ALL:
+                print('XU.material: space group identified as %s' % self.sgrp)
+
+        # determine all unique positions for definition of a P1 space group
+        def get_element_name(cifstring):
+            el = re.sub(r"['\"]", r"", cifstring)
             el = re.sub(r"([0-9])", r"", el)
             el = re.sub(r"\(\w*\)", r"", el)
+            return el
+
+        self.unique_positions = []
+        for cifel, (x, y, z), occ, biso in self.atoms:
+            unique_pos = []
+            el = get_element_name(cifel)
             for symop in self.symops:
                 pos = eval("numpy.array(" + symop + ")")
                 # check that position is within unit cell
@@ -238,7 +270,65 @@ class CIFFile(object):
                 if unique:
                     unique_pos.append(pos)
             element = getattr(elements, el)
-            self.unique_positions.append((element, unique_pos, a[2], a[3]))
+            self.unique_positions.append((element, unique_pos, occ, biso))
+
+        # determine Wyckoff positions and free parameters of unit cell
+        def get_wp(wp, pos):
+            ret = []
+            ret.append(wp[0])
+            if wp[1][0] != 0:
+                pars = []
+                if wp[1][0] & 1:
+                    pars.append(pos[0])
+                if wp[1][0] & 2:
+                    pars.append(pos[1])
+                if wp[1][0] & 4:
+                    pars.append(pos[2])
+                ret.append(tuple(pars))
+            return tuple(ret)
+
+        if hasattr(self, 'sgrp'):
+            self.wp = []
+            self.occ = []
+            self.elements = []
+            self.biso = []
+            allwyckp = wyckpos.wp[self.sgrp]
+            keys = list(allwyckp.keys())
+            wpn = [int(re.sub(r"([a-z])", r"", k)) for k in keys]
+            for i, (cifel, (x, y, z), occ, biso) in enumerate(self.atoms):
+                el = get_element_name(cifel)
+                # candidate positions from number of unique atoms
+                natoms = len(self.unique_positions[i][1])
+                wpcand = []
+                for j, n in enumerate(wpn):
+                    if n == natoms:
+                        wpcand.append((keys[j], allwyckp[keys[j]]))
+                for j, (k, wp) in enumerate(wpcand):
+                    parint, poslist = wp
+                    pos = eval(poslist[0], {'x': x, 'y': y, 'z': z})
+                    if pos == (x, y, z):
+                        self.wp.append(get_wp((k, wp), (x, y, z)))
+                        self.elements.append(el)
+                        self.occ.append(occ)
+                        self.biso.append(biso)
+            if config.VERBOSITY >= config.INFO_ALL:
+                print('XU.material: %d Wyckoff positions found for %d sites'
+                      % (len(self.wp), len(self.atoms)))
+            if config.VERBOSITY >= config.INFO_LOW:
+                if len(self.wp) != len(self.atoms):
+                    print('XU.material: missing Wyckoff positions (%d)'
+                          % (len(self.atoms) - len(self.wp)))
+            # free unit cell parameters
+            self.crystal_system, nargs = sgl.sgrp_sym[self.sgrp_nr]
+            self.crystal_system += self.sgrp_suf
+            self.uc_params = []
+            p2idx = {'a': 0, 'b': 1, 'c': 2,
+                     'alpha': 0, 'beta': 1, 'gamma': 2}
+            for pname in sgl.sgrp_params[self.crystal_system][0]:
+                if pname in ('a', 'b', 'c'):
+                    self.uc_params.append(self.lattice_const[p2idx[pname]])
+                if pname in ('alpha', 'beta', 'gamma'):
+                    self.uc_params.append(self.lattice_angles[p2idx[pname]])
 
     def Lattice(self):
         """
@@ -273,10 +363,25 @@ class CIFFile(object):
 
         return l
 
-    def SGLattice(self):
+    def SGLattice(self, use_p1=False):
         """
         create a SGLattice object with the structure from the CIF file
         """
+        if not use_p1:
+            if hasattr(self, 'sgrp'):
+                if len(self.wp) == len(self.atoms):
+                    return sgl.SGLattice(self.sgrp, *self.uc_params,
+                                         atoms=self.elements, pos=self.wp,
+                                         occ=self.occ, b=self.biso)
+                else:
+                    if config.VERBOSITY >= config.INFO_LOW:
+                        print('XU.material: Wyckoff positions missing, '
+                              'using P1')
+            else:
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print('XU.material: space-group detection failed, '
+                          'using P1')
+
         atoms = []
         pos = []
         occ = []
@@ -288,9 +393,9 @@ class CIFFile(object):
                 occ.append(o)
                 biso.append(b)
 
-        return SGLattice(1, *itertools.chain(self.lattice_const,
-                                             self.lattice_angles),
-                         atoms=atoms, pos=pos, occ=occ, b=biso)
+        return sgl.SGLattice(1, *itertools.chain(self.lattice_const,
+                                                 self.lattice_angles),
+                             atoms=atoms, pos=pos, occ=occ, b=biso)
 
     def __str__(self):
         """
