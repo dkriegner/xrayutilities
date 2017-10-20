@@ -1,3 +1,5 @@
+* vastly improved CIF file support with recognition of correct space group and
+  Wyckoff position
 * use AppVeyor.com for Windows testing and binary creation
 * make wavelength handling in PowderDiffraction more flexible
 * fix bug in SiGe alloy class

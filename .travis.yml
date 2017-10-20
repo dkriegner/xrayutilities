@@ -16,7 +16,7 @@ install:
   - travis_retry pip install h5py
   - travis_wait 30 pip install scipy
   - travis_retry pip install lmfit
-  - if [ ! "$(ls -A tests/data)" ]; then wget https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20170124.tar.gz -O xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi
+  - if [ ! "$(ls -A tests/data)" ]; then wget https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20171020.tar.gz -O xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi
 cache:
   pip: true
   directories:
