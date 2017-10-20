@@ -40,6 +40,12 @@ from .wyckpos import wp
 if sys.version_info < (3, 0):
     range = xrange
 
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 class RangeDict(dict):
     def __getitem__(self, item):
@@ -179,7 +185,7 @@ class WyckoffBase(list):
 
     @staticmethod
     def _checkatom(atom):
-        if isinstance(atom, str):
+        if isinstance(atom, basestring):
             atom = getattr(elements, atom)
         elif not isinstance(atom, Atom):
             raise TypeError("atom must be an instance of class "
@@ -188,7 +194,7 @@ class WyckoffBase(list):
 
     @staticmethod
     def _checkpos(pos):
-        if isinstance(pos, str):
+        if isinstance(pos, basestring):
             pos = (pos, None)
         elif isinstance(pos, (tuple, list)):
             if len(pos) == 1:
@@ -293,7 +299,7 @@ class SGLattice(object):
         self._parameters = OrderedDict()
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
             key = sgrp_params[self.crystal_system][1][i]
-            if isinstance(key, str):
+            if isinstance(key, basestring):
                 self._parameters[p] = self.free_parameters[key]
             else:
                 self._parameters[p] = sgrp_params[self.crystal_system][1][i]
@@ -368,7 +374,7 @@ class SGLattice(object):
     def _set_params_from_sym(self):
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
             key = sgrp_params[self.crystal_system][1][i]
-            if isinstance(key, str):
+            if isinstance(key, basestring):
                 self._parameters[p] = self.free_parameters[key]
 
     @property
