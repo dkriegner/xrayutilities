@@ -224,7 +224,7 @@ CuMnAs = Crystal("CuMnAs", SGLattice('129:2', 3.8200, 6.3180,
                                      pos=['2b', ('2c', -0.8300),
                                           ('2c', -0.2347)],
                                      occ=[1, 0.86, 0.96],
-                                     b=[3.553, 1.895, 1.263]))
+                                     b=[3.5531, 1.8950, 1.2633]))
 
 
 # Alloys with special properties
