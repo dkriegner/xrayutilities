@@ -14,14 +14,17 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2010-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+from __future__ import division
 
 import itertools
 import os
+import operator
 import re
 import shlex
 import warnings
 
 import numpy
+import scipy.optimize
 
 from . import elements
 from . import spacegrouplattice as sgl
@@ -43,8 +46,10 @@ re_atomocc = re.compile(r"^\s*_atom_site_occupancy")
 re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
 re_quote = re.compile(r"'")
-re_spacegroupnr = re.compile(r"^\s*_space_group_IT_number")
+re_spacegroupnr = re.compile(r"^\s*_space_group_IT_number|"
+                             "_symmetry_Int_Tables_number")
 re_spacegroupname = re.compile(r"^\s*_symmetry_space_group_name_H-M")
+re_spacegroupsetting = re.compile(r"^\s*_symmetry_cell_setting")
 re_cell_a = re.compile(r"^\s*_cell_length_a")
 re_cell_b = re.compile(r"^\s*_cell_length_b")
 re_cell_c = re.compile(r"^\s*_cell_length_c")
@@ -52,6 +57,94 @@ re_cell_alpha = re.compile(r"^\s*_cell_angle_alpha")
 re_cell_beta = re.compile(r"^\s*_cell_angle_beta")
 re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma")
 re_comment = re.compile(r"^\s*#")
+
+
+def testwp(parint, wp, cifpos, digits):
+    """
+    test if a Wyckoff position can describe the given position from a CIF file
+
+    Parameters
+    ----------
+     parint:   integer telling which Parameters the given Wyckoff position has
+     wp:       expression of the Wyckoff position (string of tuple)
+     cifpos:   (x,y,z) position of the atom in the CIF file
+     digits:   number of digits for which for a comparison of floating point
+               numbers will be rounded to
+
+    Returns
+    -------
+    foundflag, pars:  flag to tell if the positions match and if necessary any
+                      parameters associated with the position
+    """
+    def check_numbers_match(p1, p2, digits):
+        p1 = p1 - numpy.round(p1, digits) // 1
+        p2 = p2 - numpy.round(p2, digits) // 1
+        if numpy.round(p1, digits) == numpy.round(p2, digits):
+            return True
+        else:
+            return False
+
+    def get_pardict(parint, x):
+        i = 0
+        pardict = {}
+        if parint & 1:
+            pardict['x'] = x[i]
+            i += 1
+        if parint & 2:
+            pardict['y'] = x[i]
+            i += 1
+        if parint & 4:
+            pardict['z'] = x[i]
+        return pardict
+
+    wyckp = wp.strip('()').split(',')
+    # test agreement in positions witout variables
+    match = numpy.asarray([False, False, False])
+    variables = []
+    for i in range(3):
+        v = re.findall(r'[xyz]', wyckp[i])
+        if v == []:
+            pos = eval(wyckp[i])
+            match[i] = check_numbers_match(pos, cifpos[i], digits)
+            if not match[i]:
+                return False, None
+        else:
+            variables.append(*v)
+
+    if numpy.all(match):
+        return True, None
+
+    # check if with proper choice of the variables a correspondence of the
+    # positions can be obtained
+    def fmin(x, parint, wyckp, cifpos):
+        evalexp = []
+        cifp = []
+        for i in range(3):
+            if not match[i]:
+                evalexp.append(wyckp[i])
+                cifp.append(cifpos[i])
+        pardict = get_pardict(parint, x)
+        wpos = [eval(e, pardict) for e in evalexp]
+        return numpy.linalg.norm(numpy.asarray(wpos)-numpy.asarray(cifp))
+
+    x0 = []
+    if 'x' in variables:
+        x0.append(cifpos[0])
+    if 'y' in variables:
+        x0.append(cifpos[1])
+    if 'z' in variables:
+        x0.append(cifpos[2])
+
+    opt = scipy.optimize.minimize(fmin, x0, args=(parint, wyckp, cifpos))
+    pardict = get_pardict(parint, opt.x)
+    for i in range(3):
+        if not match[i]:
+            pos = eval(wyckp[i], pardict)
+            match[i] = check_numbers_match(pos, cifpos[i], digits)
+    if numpy.all(match):
+        return True, opt.x
+    else:
+        return False, None
 
 
 class CIFFile(object):
@@ -158,6 +251,11 @@ class CIFFile(object):
                     self.sgrp_nr = int(line.split()[1])
                 elif re_spacegroupname.match(line):
                     self.sgrp_name = ''.join(line.split()[1:]).strip("'")
+                elif re_spacegroupsetting.match(line):
+                    try:
+                        self.sgrp_setting = int(line.split()[1])
+                    except:
+                        pass
                 elif re_name.match(line):
                     try:
                         self.name = shlex.split(line)[1]
@@ -235,8 +333,15 @@ class CIFFile(object):
             for nr, name in sgl.sgrp_name.items():
                 if cifsgn == rem_white(name):
                     self.sgrp_nr = int(nr)
+            if not hasattr(self, 'sgrp_nr'):
+                # try ignoring the minuses
+                for nr, name in sgl.sgrp_name.items():
+                    if cifsgn == rem_white(name.replace('-', '')):
+                        self.sgrp_nr = int(nr)
             if len(self.sgrp_name.split(':')) > 1:
                 self.sgrp_suf = ':' + self.sgrp_name.split(':')[1]
+            elif hasattr(self, 'sgrp_setting'):
+                self.sgrp_suf = ':%d' % self.sgrp_setting
 
         if not hasattr(self, 'sgrp_suf'):
             if hasattr(self, 'sgrp_nr'):
@@ -273,20 +378,6 @@ class CIFFile(object):
             self.unique_positions.append((element, unique_pos, occ, biso))
 
         # determine Wyckoff positions and free parameters of unit cell
-        def get_wp(wp, pos):
-            ret = []
-            ret.append(wp[0])
-            if wp[1][0] != 0:
-                pars = []
-                if wp[1][0] & 1:
-                    pars.append(pos[0])
-                if wp[1][0] & 2:
-                    pars.append(pos[1])
-                if wp[1][0] & 4:
-                    pars.append(pos[2])
-                ret.append(tuple(pars))
-            return tuple(ret)
-
         if hasattr(self, 'sgrp'):
             self.wp = []
             self.occ = []
@@ -303,14 +394,23 @@ class CIFFile(object):
                 for j, n in enumerate(wpn):
                     if n == natoms:
                         wpcand.append((keys[j], allwyckp[keys[j]]))
-                for j, (k, wp) in enumerate(wpcand):
+                for j, (k, wp) in enumerate(
+                        sorted(wpcand, key=operator.itemgetter(1))):
                     parint, poslist = wp
-                    pos = eval(poslist[0], {'x': x, 'y': y, 'z': z})
-                    if pos == (x, y, z):
-                        self.wp.append(get_wp((k, wp), (x, y, z)))
-                        self.elements.append(el)
-                        self.occ.append(occ)
-                        self.biso.append(biso)
+                    for positem in poslist:
+                        foundwp, xyz = testwp(parint, positem,
+                                              (x, y, z), self.digits)
+                        if foundwp:
+                            if xyz is None:
+                                self.wp.append(k)
+                            else:
+                                self.wp.append((k, list(xyz)))
+                            self.elements.append(el)
+                            self.occ.append(occ)
+                            self.biso.append(biso)
+                            break
+                    if foundwp:
+                        break
             if config.VERBOSITY >= config.INFO_ALL:
                 print('XU.material: %d Wyckoff positions found for %d sites'
                       % (len(self.wp), len(self.atoms)))
