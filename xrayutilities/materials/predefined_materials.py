@@ -217,16 +217,14 @@ CoFe = Crystal("CoFe", SGLattice(221, 2.8508, atoms=[e.Co, e.Fe],
 LaB6 = Crystal("LaB6", SGLattice(221, 4.15692, atoms=[e.La, e.B],
                                  pos=['1a', ('6f', 0.19750)]))
 Al2O3 = Crystal("Al2O3", SGLattice('167:H', 4.7602, 12.9933,
-                atoms=[e.Al, e.O], pos=[('12c', 0.35216), ('18e', 0.30624)]))
-
-# materials defined from cif file
-try:
-    CuMnAs = Crystal.fromCIF(os.path.join(__path__[0], "data",
-                                          "CuMnAs_tetragonal.cif"))
-except:
-    if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.materials: Warning: import of CIF "
-              "file based material failed")
+                                   atoms=[e.Al, e.O],
+                                   pos=[('12c', 0.35216), ('18e', 0.30624)]))
+CuMnAs = Crystal("CuMnAs", SGLattice('129:2', 3.8200, 6.3180,
+                                     atoms=[e.Cu, e.Mn, e.As],
+                                     pos=['2b', ('2c', -0.8300),
+                                          ('2c', -0.2347)],
+                                     occ=[1, 0.86, 0.96],
+                                     b=[3.553, 1.895, 1.263]))
 
 
 # Alloys with special properties
