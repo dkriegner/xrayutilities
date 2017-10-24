@@ -18,8 +18,8 @@
 import os.path
 import unittest
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
 testfile = 'fastscan.spec.gz'

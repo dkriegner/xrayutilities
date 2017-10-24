@@ -15,13 +15,13 @@
 #
 # Copyright (C) 2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import multiprocessing
 import os
 
 import lmfit
 import numpy
-from matplotlib.pylab import *
 import xrayutilities as xu
-import multiprocessing
+from matplotlib.pylab import *
 
 
 def main():

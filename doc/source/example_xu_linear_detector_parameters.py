@@ -4,8 +4,9 @@ such as pixel width, center channel and detector tilt
 can be determined for a linear detector.
 """
 
-import xrayutilities as xu
 import os
+
+import xrayutilities as xu
 
 # load any data file with with the detector spectra of a reference scan
 # in the primary beam, here I use spectra measured with a Seifert XRD

@@ -15,11 +15,11 @@
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import os.path
 import glob
+import os.path
 
-from .helper import xu_h5open
 from .. import config
+from .helper import xu_h5open
 
 
 class FileDirectory(object):

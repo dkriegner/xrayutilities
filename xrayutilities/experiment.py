@@ -28,17 +28,14 @@ configured to describe almost any goniometer geometry.
 """
 
 import numbers
+import re
+import warnings
+
 import numpy
 from numpy.linalg import norm
-import warnings
-import re
 
 # package internal imports
-from . import math
-from . import materials
-from . import utilities
-from . import cxrayutilities
-from . import config
+from . import config, cxrayutilities, math, utilities
 from .exception import InputError
 
 # python 2to3 compatibility

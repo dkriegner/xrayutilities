@@ -15,8 +15,8 @@
 #
 # Copyright (C) 2012-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 # definition of materials is done from its space group and its free parameters.
 # Atoms in the base are specified by their Wyckoff positions and potential free

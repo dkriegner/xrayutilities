@@ -21,13 +21,12 @@ for experiments with linear and area detectors
 """
 
 import glob
-import numbers
 import math
+import numbers
 import re
 import time
 
 import numpy
-import scipy
 import scipy.optimize as optimize
 from scipy.ndimage.measurements import center_of_mass
 from scipy.odr import odrpack as odr

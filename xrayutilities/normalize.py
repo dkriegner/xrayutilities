@@ -32,10 +32,8 @@ provide functions for normalizing intensities for
 
 import numpy
 
-from . import cxrayutilities
-from . import math
+from . import config, cxrayutilities, math
 from .exception import InputError
-from . import config
 
 # python 2to3 compatibility
 try:

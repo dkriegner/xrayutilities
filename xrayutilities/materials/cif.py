@@ -17,8 +17,8 @@
 from __future__ import division
 
 import itertools
-import os
 import operator
+import os
 import re
 import shlex
 import warnings
@@ -26,9 +26,8 @@ import warnings
 import numpy
 import scipy.optimize
 
-from . import elements
 from . import spacegrouplattice as sgl
-from . import wyckpos
+from . import elements, wyckpos
 from .. import config
 from .lattice import Lattice, LatticeBase
 

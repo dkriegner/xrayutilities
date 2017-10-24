@@ -15,8 +15,8 @@
 #
 # Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import unittest
 import os.path
+import unittest
 
 import numpy
 import xrayutilities as xu

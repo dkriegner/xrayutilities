@@ -23,8 +23,8 @@ import math
 
 import numpy
 from matplotlib import scale as mscale
-from matplotlib import transforms as mtransforms
 from matplotlib import ticker as mticker
+from matplotlib import transforms as mtransforms
 
 
 class SqrtAllowNegScale(mscale.ScaleBase):

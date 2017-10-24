@@ -24,11 +24,12 @@ for details about the measurement see:
     http://dx.doi.org/10.1088/0957-4484/22/42/425704
 """
 
-import numpy
+import os
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy
 import xrayutilities as xu
-import os
 
 # plot settings for matplotlib
 mpl.rcParams['font.family'] = 'serif'

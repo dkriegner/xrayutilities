@@ -15,9 +15,10 @@
 #
 # Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import os
+
 import matplotlib.pyplot as plt
 import xrayutilities as xu
-import os
 
 # global setting for the experiment
 sample = "testnja"  # sample name used also as file name for the data file

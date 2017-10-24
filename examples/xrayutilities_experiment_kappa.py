@@ -15,8 +15,8 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 # config for kappa geometry
 # set it either in the script or include it in on of the config files

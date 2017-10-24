@@ -22,13 +22,14 @@ based on the native python xml.dom.minidom module.
 want to keep the number of dependancies as small as possible
 """
 
-from xml.etree import cElementTree as ElementTree
-import numpy
 import os.path
 import warnings
+from xml.etree import cElementTree as ElementTree
 
-from .helper import xu_open
+import numpy
+
 from .. import config
+from .helper import xu_open
 
 
 class XRDMLMeasurement(object):

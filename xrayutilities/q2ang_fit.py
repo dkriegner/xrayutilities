@@ -31,12 +31,12 @@ analytic expressions from literature can be used as they are implemented in the
 predefined experimental classes HXRD, NonCOP, and GID.
 """
 
-import scipy.optimize
-import numpy
 import numbers
 
-from . import config
-from . import math
+import numpy
+import scipy.optimize
+
+from . import config, math
 from .exception import InputError
 
 

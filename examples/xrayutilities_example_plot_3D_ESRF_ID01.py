@@ -17,11 +17,13 @@
 
 # ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
 
-import numpy
-import xrayutilities as xu
+import os
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import os
+import numpy
+import xrayutilities as xu
+
 import xrayutilities_id01_functions as id01
 
 home = "DATADIR"  # data path (root)

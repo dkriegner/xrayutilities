@@ -19,16 +19,15 @@
 module for reading ILL data files (station D23): numor files
 """
 
-import re
-import os.path
 import collections
+import os.path
+import re
 
 import numpy
 
+from ..exception import InputError
 # relative imports from xrayutilities
 from .helper import xu_open
-from .. import config
-from ..exception import InputError
 
 re_comment = re.compile(r"^A+$")
 re_basicinfo = re.compile(r"^R+$")

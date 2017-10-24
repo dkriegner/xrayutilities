@@ -17,8 +17,9 @@
 
 import collections
 import copy
-import numpy
 import warnings
+
+import numpy
 from scipy.constants import physical_constants
 from scipy.misc import derivative
 

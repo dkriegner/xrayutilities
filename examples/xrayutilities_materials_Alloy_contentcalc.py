@@ -15,9 +15,9 @@
 #
 # Copyright (C) 2012, 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 import matplotlib.pyplot as plt
 import numpy
+import xrayutilities as xu
 
 matA = xu.materials.InAs
 matB = xu.materials.InP

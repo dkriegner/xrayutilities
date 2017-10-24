@@ -16,10 +16,11 @@
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from __future__ import print_function
+
 import unittest
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 digits = 11
 

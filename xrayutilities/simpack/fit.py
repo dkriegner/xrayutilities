@@ -17,7 +17,6 @@
 
 import numpy
 
-from . import SpecularReflectivityModel
 from .. import config
 from ..exception import InputError
 

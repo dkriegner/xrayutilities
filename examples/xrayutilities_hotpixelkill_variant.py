@@ -27,9 +27,10 @@ acquisition) a signal above a certain threshold remains it is expected to arise
 from a hot pixel and such pixels should be removed to avoid spikes in the data.
 """
 
+import glob
+
 import numpy
 import xrayutilities as xu
-import glob
 
 
 def hotpixelkill(ccd):

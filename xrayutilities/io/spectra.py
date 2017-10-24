@@ -20,17 +20,15 @@
 module to handle spectra data
 """
 
-import re
-import os
 import glob
+import re
 
 import numpy
 import numpy.lib.recfunctions
 from numpy import rec
-import h5py
 
-from .helper import xu_h5open
 from .. import config
+from .helper import xu_h5open
 
 re_wspaces = re.compile(r"\s+")
 re_colname = re.compile(r"^Col")

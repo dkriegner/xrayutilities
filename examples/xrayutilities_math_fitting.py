@@ -15,8 +15,9 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
+
 xu.config.VERBOSITY = 3
 
 x = numpy.linspace(10, 20, 250)

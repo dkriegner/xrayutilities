@@ -27,17 +27,15 @@ This module is a proof of concept code to write a file observer starting
 a reread of the file starting from a stored offset (last known scan position)
 """
 
-import re
 import os.path
-import time
-import warnings
+import re
 
 import numpy
 
-# relative imports from xrayutilities
-from .helper import xu_open, xu_h5open
 from .. import config
 from ..exception import InputError
+# relative imports from xrayutilities
+from .helper import xu_h5open, xu_open
 
 # define some uesfull regular expressions
 SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")

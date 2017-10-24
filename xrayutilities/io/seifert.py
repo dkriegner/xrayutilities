@@ -27,14 +27,14 @@ use detector):
 In the first case the data ist stored
 """
 
-import re
-import os.path
 import itertools
+import os.path
+import re
 
 import numpy
 
-from .helper import xu_open
 from .. import config
+from .helper import xu_open
 
 # define some regular expressions
 nscans_re = re.compile(r"^&NumScans=\d+")

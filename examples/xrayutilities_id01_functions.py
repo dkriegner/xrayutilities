@@ -17,9 +17,11 @@
 
 # ALSO LOOK AT THE FILE xrayutilities_example_plot_3D_ESRF_ID01.py
 
+import os
+
 import numpy
 import xrayutilities as xu
-import os
+
 
 default_en = 10330.0  # x-ray energy in eV
 # vertical(del)/horizontal(nu) z-y+ (although in reality slightly tilted!

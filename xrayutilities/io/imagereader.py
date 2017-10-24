@@ -15,15 +15,15 @@
 #
 # Copyright (C) 2012-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import numpy
-import time
 import os.path
-import subprocess
+import time
 
-# relative imports from xrayutilities
-from .helper import xu_open
+import numpy
+
 from .. import config
 from ..exception import InputError
+# relative imports from xrayutilities
+from .helper import xu_open
 
 
 class ImageReader(object):

@@ -17,12 +17,14 @@
 # Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
+import os
+
 import numpy
 import xrayutilities as xu
+
 import vtk
-from vtk.util import numpy_support
-import os
 import xrayutilities_id01_functions as id01
+from vtk.util import numpy_support
 
 home = "DATADIR"  # data path (root)
 datadir = os.path.join(home, "FOLDERNAME")  # data path for CCD/Maxipix files

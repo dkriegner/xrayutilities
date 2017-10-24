@@ -18,8 +18,8 @@
 import os.path
 import unittest
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 testfiletmp = 'p08tty_%05d.dat'
 testfile = testfiletmp % 29

@@ -25,16 +25,15 @@ data file. the functions below enable also to parse the information of the
 header
 """
 
-import re
 import os.path
+import re
 
 import numpy
 import numpy.lib.recfunctions
 
+from ..exception import InputError
 # relative imports from xrayutilities
 from .helper import xu_open
-from .. import config
-from ..exception import InputError
 
 re_columns = re.compile(r"/\*H")
 re_command = re.compile(r"^/\*C command")

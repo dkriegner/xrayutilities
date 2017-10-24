@@ -20,9 +20,10 @@ module with several common function needed in xray data analysis
 """
 
 import copy
+import numbers
+
 import numpy
 import scipy.integrate
-import numbers
 
 from .. import config
 

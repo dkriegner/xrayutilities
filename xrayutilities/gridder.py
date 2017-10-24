@@ -20,10 +20,7 @@
 
 import numpy
 
-from . import cxrayutilities
-from . import exception
-from . import config
-from . import utilities
+from . import config, cxrayutilities, exception, utilities
 
 
 def delta(min_value, max_value, n):

@@ -7,10 +7,11 @@ for details about the measurement see:
     http://dx.doi.org/10.1088/0957-4484/22/42/425704
 """
 
-import numpy
-import matplotlib.pyplot as plt
-import xrayutilities as xu
 import os
+
+import matplotlib.pyplot as plt
+import numpy
+import xrayutilities as xu
 
 # global setting for the experiment
 sample = "test"  # sample name used also as file name for the data file

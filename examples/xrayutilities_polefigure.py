@@ -11,11 +11,12 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
-import numpy
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import os.path
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy
+import xrayutilities as xu
 from mpl_toolkits.basemap import *
 
 datadir = "data"

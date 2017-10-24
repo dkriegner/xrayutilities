@@ -20,15 +20,8 @@
 
 import numpy
 
-from . import cxrayutilities
-from . import exception
-from . import config
-from . import utilities
-
-from .gridder import Gridder
-from .gridder import delta
-from .gridder import axis
-from .gridder import ones
+from . import cxrayutilities, exception, utilities
+from .gridder import Gridder, axis, delta, ones
 
 
 class Gridder2D(Gridder):

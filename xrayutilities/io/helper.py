@@ -23,14 +23,13 @@ these functions should be used in new parsers since they transparently allow to
 open gzipped and bzipped files
 """
 
-import gzip
 import bz2
+import gzip
 import sys
+
 import h5py
 
-from .. import config
 from ..exception import InputError
-
 
 # python 2to3 compatibility
 try:

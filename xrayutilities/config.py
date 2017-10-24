@@ -24,16 +24,18 @@ recommended to change things there, instead the user-specific config file
 ~/.xrayutilities.conf or the local xrayutilities.conf file should be used.
 """
 
-from ast import literal_eval
 import os.path
+from ast import literal_eval
+
 import numpy
+
+from . import __path__, utilities_noconf
+
 try:  # Python-3
     import configparser
 except ImportError:  # Python-2
     import ConfigParser as configparser
 
-from . import __path__
-from . import utilities_noconf
 
 # so far parsed config variables are
 #

@@ -15,11 +15,12 @@
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from matplotlib.pylab import *
-import xrayutilities as xu
+import os
+
 import lmfit
 import numpy
-import os
+import xrayutilities as xu
+from matplotlib.pylab import *
 
 # load experimental data
 ai, edata, eps = numpy.loadtxt(os.path.join('data', 'xrr_data.txt'),

@@ -15,9 +15,11 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
-import numpy
 import os
+
+import numpy
+import xrayutilities as xu
+
 # import matplotlib.pyplot as plt
 
 # create material

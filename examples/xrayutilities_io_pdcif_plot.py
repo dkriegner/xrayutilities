@@ -15,10 +15,11 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import os
+
 import matplotlib.pyplot as plt
 import numpy
 import xrayutilities as xu
-import os
 
 # load powder diffraction cif data file
 # here use e.g. cif-file from ICDD

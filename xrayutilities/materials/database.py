@@ -20,10 +20,11 @@
 module to handle the access to the optical parameters database
 """
 
+import re
+
 import h5py
 import numpy
 import scipy.constants
-import re
 
 
 class DataBase(object):

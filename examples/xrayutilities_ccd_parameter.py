@@ -15,8 +15,9 @@
 #
 # Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 import os
+
+import xrayutilities as xu
 
 en = 10300.0  # eV
 datadir = os.path.join("data", "wire_")  # data path for CCD files

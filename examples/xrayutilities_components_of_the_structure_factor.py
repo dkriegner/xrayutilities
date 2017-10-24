@@ -15,9 +15,9 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import numpy
 # f = f0(|Q|) + f1(en) + j * f2(en)
 import xrayutilities as xu
-import numpy
 
 Fe = xu.materials.elements.Fe  # iron atom
 Q = numpy.array([0, 0, 1.9], dtype=numpy.double)

@@ -24,9 +24,10 @@ Here an arbitrary goniometer together with some restrictions can be defined and
 experimental angles can be calculated for this geometry
 """
 
-import xrayutilities as xu
-import numpy
 import time
+
+import numpy
+import xrayutilities as xu
 
 numpy.set_printoptions(precision=4, threshold=100, suppress=True)
 

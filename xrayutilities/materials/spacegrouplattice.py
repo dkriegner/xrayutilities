@@ -27,12 +27,12 @@ from __future__ import division
 import numbers
 import sys
 from collections import OrderedDict
-from math import cos, degrees, radians, sin, sqrt
+from math import cos, radians, sin, sqrt
 
 import numpy
 
 from . import elements
-from .. import config, math
+from .. import math
 from ..exception import InputError
 from .atom import Atom
 from .wyckpos import wp

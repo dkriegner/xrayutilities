@@ -15,9 +15,9 @@
 #
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
-import numpy
 import matplotlib.pyplot as plt
+import numpy
+import xrayutilities as xu
 
 # defining material and experimental setup
 InAs = xu.materials.InAs

@@ -18,9 +18,9 @@
 import os.path
 import unittest
 
-import xrayutilities as xu
-import numpy
 import h5py
+import numpy
+import xrayutilities as xu
 
 testfile = 'esrf.edf.gz'
 datadir = os.path.join(os.path.dirname(__file__), 'data')

@@ -19,8 +19,9 @@
 parser for the alignment log file of the rotating anode
 """
 
-import numpy
 import re
+
+import numpy
 
 from .. import config
 from .helper import xu_open

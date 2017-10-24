@@ -17,8 +17,8 @@
 
 import unittest
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 
 class TestBlockAverageFunctions(unittest.TestCase):

@@ -21,12 +21,10 @@ import os.path
 import re
 
 import numpy
-import h5py
 
-from .helper import xu_open, xu_h5open
+from .. import config, cxrayutilities
 from .filedir import FileDirectory
-from .. import cxrayutilities
-from .. import config
+from .helper import xu_h5open, xu_open
 
 cbf_name_start_num = re.compile(r"^\d")
 

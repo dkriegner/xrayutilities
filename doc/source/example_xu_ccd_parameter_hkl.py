@@ -4,9 +4,10 @@ from images recorded in the primary beam and at known symmetric coplanar Bragg
 reflections of a reference crystal
 """
 
-import xrayutilities as xu
 import os
+
 import numpy
+import xrayutilities as xu
 
 Si = xu.materials.Si
 

@@ -15,9 +15,10 @@
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
-import numpy
 import os
+
+import numpy
+import xrayutilities as xu
 
 bite = xu.materials.Crystal.fromCIF(os.path.join("data", "bi2te3.cif"))
 

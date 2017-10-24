@@ -16,18 +16,14 @@
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
-import scipy.interpolate as interpolate
 import scipy.constants as constants
+import scipy.interpolate as interpolate
 from scipy.special import erf
 
-from . import Layer, LayerStack
-from .. import utilities
+from . import LayerStack
 from .. import config
-from ..math import heaviside
-from ..math import NormGauss1d
-from ..math import NormLorentz1d
-from ..math import solve_quartic
 from ..experiment import Experiment
+from ..math import NormGauss1d, NormLorentz1d, heaviside, solve_quartic
 
 
 def startdelta(start, delta, num):

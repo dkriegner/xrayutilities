@@ -16,10 +16,11 @@
 # Copyright (C) 2014 Raphael Grifone <raphael.grifone@esrf.fr>
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 import os
-import numpy
+
 import matplotlib.pyplot as plt
+import numpy
+import xrayutilities as xu
 
 # define some convenience variables
 en = 9000.0  # x-ray energy in eV

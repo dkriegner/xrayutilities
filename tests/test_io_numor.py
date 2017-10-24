@@ -18,8 +18,8 @@
 import os.path
 import unittest
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 testfile = '413396'
 datadir = os.path.join(os.path.dirname(__file__), 'data')

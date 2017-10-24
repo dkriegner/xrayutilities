@@ -15,15 +15,11 @@
 #
 # Copyright (C) 2013-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import os.path
-
 import numpy
 
 from . import elements as e
 from . import __path__
-from .. import config
-from .cif import CIFFile
-from .material import (Amorphous, Crystal, CubicAlloy, CubicElasticTensor,
+from .material import (Crystal, CubicAlloy, CubicElasticTensor,
                        HexagonalElasticTensor, WZTensorFromCub)
 from .spacegrouplattice import SGLattice
 

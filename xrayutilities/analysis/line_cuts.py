@@ -18,9 +18,7 @@
 
 import numpy
 
-from .. import config
-from .. import experiment
-from ..math import fwhm_exp
+from .. import config, experiment
 
 
 def getindex(x, y, xgrid, ygrid):

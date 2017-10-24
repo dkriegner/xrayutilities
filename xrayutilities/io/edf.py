@@ -20,16 +20,15 @@
 
 # module for handling files stored in the EDF data format developed by the ESRF
 
+import os.path
 import re
 import struct
-import os.path
 
 import numpy
-import h5py
 
-from .helper import xu_open, xu_h5open
-from .filedir import FileDirectory
 from .. import config
+from .filedir import FileDirectory
+from .helper import xu_h5open, xu_open
 
 edf_kv_split = re.compile(r"\s*=\s*")  # key value sepeartor for header data
 edf_eokv = re.compile(r";")  # end of line for a header

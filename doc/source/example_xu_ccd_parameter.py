@@ -3,8 +3,9 @@ example script to show the detector parameter determination for area detectors
 from images recorded in the primary beam
 """
 
-import xrayutilities as xu
 import os
+
+import xrayutilities as xu
 
 en = 10300.0  # eV
 datadir = os.path.join("data", "wire_")  # data path for CCD files

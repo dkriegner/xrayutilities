@@ -15,8 +15,8 @@
 #
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import re
 import copy
+import re
 import shlex
 
 import numpy

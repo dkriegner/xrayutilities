@@ -27,7 +27,6 @@ import time
 import numpy
 import scipy.optimize as optimize
 from scipy.odr import odrpack as odr
-from scipy.odr import models
 
 from .. import config
 from ..exception import InputError

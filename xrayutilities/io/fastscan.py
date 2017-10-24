@@ -36,23 +36,19 @@ detector
 see examples/xrayutilities_kmap_ESRF.py for an example script
 """
 
+import glob
 import os.path
 import re
-import glob
 
 import numpy
 
 # relative imports
-from . import SPECFile
-from . import EDFFile
-from ..exception import InputError
+from . import EDFFile, SPECFile
+from .. import config, utilities
 from ..gridder import delta
-from ..gridder2d import Gridder2D
-from ..gridder2d import Gridder2DList
+from ..gridder2d import Gridder2D, Gridder2DList
 from ..gridder3d import Gridder3D
 from ..normalize import blockAverage2D
-from .. import config
-from .. import utilities
 
 # python 2to3 compatibility
 try:

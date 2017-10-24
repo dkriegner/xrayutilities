@@ -21,9 +21,10 @@ this part of utilities does not need the config class
 """
 
 import numbers
+import os.path
+
 import numpy
 import scipy.constants
-import os.path
 
 from .exception import InputError
 

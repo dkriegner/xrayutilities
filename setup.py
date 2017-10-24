@@ -16,15 +16,15 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from setuptools import setup, Extension, find_packages
-from setuptools.command.build_ext import build_ext
-from distutils.fancy_getopt import FancyGetopt
-from distutils.command.install import INSTALL_SCHEMES
 import glob
 import os.path
 import sys
+from distutils.command.install import INSTALL_SCHEMES
+from distutils.fancy_getopt import FancyGetopt
 
 import numpy
+from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
 
 cliopts = []
 cliopts.append(("without-openmp", None, "build without OpenMP support"))
@@ -153,7 +153,7 @@ setup(
         },
     data_files=[('xrayutilities', ['VERSION'])],
     requires=['numpy', 'scipy', 'h5py'],
-    extras_require = {
+    extras_require={
         'plot': ["matplotlib"],
         'fit': ["lmfit"],
         },

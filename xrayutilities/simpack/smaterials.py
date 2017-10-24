@@ -17,11 +17,11 @@
 
 import collections
 import copy
+
 import numpy
 
-from ..exception import InputError
-from ..materials import Material, Crystal, PseudomorphicMaterial, Alloy
-from ..math import Transform, CoordinateTransform
+from ..materials import Crystal, PseudomorphicMaterial
+from ..math import CoordinateTransform, Transform
 
 
 def _multiply(a, b):

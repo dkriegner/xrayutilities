@@ -20,7 +20,9 @@ this file is only needed for administration
 """
 
 import os.path
+
 import lzma
+
 exec(open('database.py', 'rb').read())
 
 filename = os.path.join('data', 'elements.db')

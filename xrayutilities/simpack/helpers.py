@@ -17,8 +17,7 @@
 
 import numpy
 
-from .. import utilities
-from .. import config
+from .. import config, utilities
 
 # python 2to3 compatibility
 try:

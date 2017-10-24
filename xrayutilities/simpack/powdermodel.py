@@ -21,9 +21,8 @@ from math import sqrt
 import numpy
 from scipy import interpolate
 
-from .. import materials
 from .powder import PowderDiffraction
-from .smaterials import Powder, PowderList
+from .smaterials import PowderList
 
 
 def _import_lmfit():

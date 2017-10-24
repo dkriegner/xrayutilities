@@ -18,8 +18,8 @@
 import os.path
 import unittest
 
-import xrayutilities as xu
 import numpy
+import xrayutilities as xu
 
 testfile = 'omega_mm.xrdml'
 datadir = os.path.join(os.path.dirname(__file__), 'data')
