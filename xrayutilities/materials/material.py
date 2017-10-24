@@ -34,12 +34,12 @@ from math import ceil, copysign
 import numpy
 import scipy.optimize
 
-from . import cif, elements, lattice
+from . import cif, elements
 from .. import config, math, utilities
 from ..exception import InputError
 from ..math import VecCross, VecDot, VecNorm
 from .atom import Atom
-from .spacegrouplattice import SGLattice, WyckoffBase
+from .spacegrouplattice import WyckoffBase
 
 # python 2to3 compatibility
 try:
@@ -85,7 +85,7 @@ def Cij2Cijkl(cij):
     m[6:9, 6:9] = cij[3:6, 3:6]
 
     # now create the full tensor
-    cijkl = numpy.zeros((3, 3, 3, 3), dtype=numpy.double)
+    cijkl = numpy.empty((3, 3, 3, 3), dtype=numpy.double)
 
     for i in range(0, 3):
         for j in range(0, 3):
@@ -109,16 +109,13 @@ def Cijkl2Cij(cijkl):
      cij ................ (6,6) cij matrix as a numpy array
     """
 
-    # build the temporary 9x9 matrix
-    m = numpy.zeros((9, 9), dtype=numpy.double)
+    cij = numpy.empty((6, 6), dtype=numpy.double)
 
-    for i in range(0, 9):
-        for j in range(0, 9):
+    for i in range(6):
+        for j in range(6):
             ij = index_map_ij2ijkl(i)
             kl = index_map_ij2ijkl(j)
-            m[i, j] = cijkl[ij[0], ij[1], kl[0], kl[1]]
-
-    cij = m[0:6, 0:6]
+            cij[i, j] = cijkl[ij[0], ij[1], kl[0], kl[1]]
 
     return cij
 
