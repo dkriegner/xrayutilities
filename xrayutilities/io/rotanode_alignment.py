@@ -172,7 +172,7 @@ class RA_Alignment(object):
 
     def __del__(self):
         try:
-            fid.close()
+            self.fid.close()
         except:
             pass
 

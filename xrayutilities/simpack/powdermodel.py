@@ -21,14 +21,15 @@ from math import sqrt
 import numpy
 from scipy import interpolate
 
+from .. import config
 from .powder import PowderDiffraction
 from .smaterials import PowderList
 
 
 def _import_lmfit():
-    global lmfit
     try:
         import lmfit
+        return lmfit
     except ImportError:
         raise ImportError("XU.simpack: Fitting of models needs the lmfit "
                           "package (https://pypi.python.org/pypi/lmfit)")
@@ -149,7 +150,7 @@ class PowderModel(object):
         -------
          lmfit Parameters instance
         """
-        _import_lmfit()
+        lmfit = _import_lmfit()
 
         params = lmfit.Parameters()
         # sample phase parameters
@@ -262,7 +263,7 @@ class PowderModel(object):
         -------
          lmfit MinimizerResult
         """
-        _import_lmfit()
+        lmfit = _import_lmfit()
 
         def residual(pars, tt, data, weight):
             """

@@ -21,7 +21,7 @@
 import numpy
 
 from . import cxrayutilities, exception, utilities
-from .gridder import Gridder, axis, delta
+from .gridder import Gridder, axis, delta, ones
 
 
 class Gridder3D(Gridder):

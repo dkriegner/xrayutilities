@@ -22,8 +22,9 @@ this file is only needed for administration
 import os.path
 
 import lzma
-
-exec(open('database.py', 'rb').read())
+# local import
+from database import (DataBase, add_f0_from_intertab, add_f1f2_from_kissel,
+                      add_mass_from_NIST, init_material_db)
 
 filename = os.path.join('data', 'elements.db')
 dbf = DataBase(filename)
@@ -53,7 +54,7 @@ with lzma.open(os.path.join('data', 'f1f2_asf_Kissel.dat.xz'), 'r') as kf:
 # with lzma.open(os.path.join('data','f1f2_Henke.dat'), 'r') as hf:
 #    add_f1f2_from_henkedb(dbf, hf)
 
-# Also its possible to add costum data from different databases; e.g.
+# Also its possible to add custom data from different databases; e.g.
 # created by Hepaestus (http://bruceravel.github.io/demeter/). This is also
 # possible for specific elements only, therefore extract the data from
 # Hephaestus or any other source producing ASCII files with three columns

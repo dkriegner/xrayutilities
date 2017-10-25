@@ -62,7 +62,7 @@ class SPECTRAFileComments(dict):
 
     def __getattr__(self, name):
         if name in self:
-            return self[key]
+            return self[name]
 
 
 class SPECTRAFileParameters(dict):

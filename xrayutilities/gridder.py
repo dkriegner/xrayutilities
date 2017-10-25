@@ -20,7 +20,8 @@
 
 import numpy
 
-from . import config, cxrayutilities, exception, utilities
+from . import config, cxrayutilities, utilities
+from .exception import InputError
 
 
 def delta(min_value, max_value, n):
@@ -228,9 +229,8 @@ class Gridder1D(Gridder):
         data = self._prepare_array(data)
 
         if x.size != data.size:
-            raise exception.InputError("XU.%s: size of given datasets "
-                                       "(x,data) is not equal!"
-                                       % self.__class__.__name__)
+            raise InputError("XU.%s: size of given datasets (x,data)"
+                             " is not equal!" % self.__class__.__name__)
 
         if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the

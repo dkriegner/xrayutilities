@@ -22,6 +22,7 @@ from scipy.special import erf
 
 from . import LayerStack
 from .. import config
+from ..exception import InputError
 from ..experiment import Experiment
 from ..math import NormGauss1d, NormLorentz1d, heaviside, solve_quartic
 

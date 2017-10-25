@@ -2034,7 +2034,7 @@ class PowderDiffraction(PowderExperiment):
 
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.Powder.PowderIntensity: tt_cutoff; (hmax,kmax,lmax): "
-                  "%6.2f (%d,%d,%d)" % (tt_cutoff, hmax, kmax, lmax))
+                  "%6.2f (%d,%d,%d)" % (tt_cutoff, hma, kma, lma))
 
         # calculate structure factors
         qmax = sqrt(2) * self.k0 * sqrt(1 - cos(math.radians(tt_cutoff)))

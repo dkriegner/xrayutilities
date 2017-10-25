@@ -25,6 +25,7 @@ data file. the functions below enable also to parse the information of the
 header
 """
 
+import glob
 import os.path
 import re
 
@@ -78,27 +79,25 @@ class tty08File(object):
                 self.ReadMCA()
 
     def ReadMCA(self):
-        mca = numpy.empty((len(raws), numpy.loadtxt(raws[0]).shape[0]),
-                          dtype=numpy.float)
-        for i in range(len(raws)):
-            mca[i, :] = numpy.loadtxt(self.mca_files[i])[:, 1]
+        self.mca = numpy.empty((len(self.mca_files),
+                                numpy.loadtxt(self.mca_files[0]).shape[0]),
+                               dtype=numpy.float)
+        for i in range(len(self.mca_files)):
+            mcadata = numpy.loadtxt(self.mca_files[i])
+
+            self.mca[i, :] = mcadata[:, 1]
 
             fname = self.mca_file_template % i
             data = numpy.loadtxt(fname)
 
-            if i == self.mca_start_index:
-                if len(data.shape) == 2:
-                    self.mca_channels = data[:, 0]
+            if i == 0:
+                if len(mcadata.shape) == 2:
+                    self.mca_channels = mcadata[:, 0]
                 else:
-                    self.mca_channels = numpy.arange(0, data.shape[0])
+                    self.mca_channels = numpy.arange(0, mcadata.shape[0])
 
-            if len(data.shape) == 2:
-                dlist.append(data[:, 1].tolist())
-            else:
-                dlist.append(data.tolist())
-
-        self.mca = mca
-        mcatemp = mca.view([('MCA', (mca.dtype, mca.shape[1]))])
+        mcatemp = self.mca.view([('MCA',
+                                  (self.mca.dtype, self.mca.shape[1]))])
         self.data = numpy.lib.recfunctions.merge_arrays([self.data, mcatemp],
                                                         flatten=True)
 
