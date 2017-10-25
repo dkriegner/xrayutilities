@@ -179,7 +179,7 @@ class Material(object):
     def delta(self, en='config'):
         pass
 
-    def beta(self, en='config'):
+    def ibeta(self, en='config'):
         pass
 
     def chi0(self, en='config'):
@@ -188,7 +188,7 @@ class Material(object):
         They are closely related to delta and beta
         (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
         """
-        return (-2 * self.delta(en) + 2j * self.beta(en))
+        return (-2 * self.delta(en) + 2j * self.ibeta(en))
 
     def idx_refraction(self, en="config"):
         """
@@ -204,7 +204,7 @@ class Material(object):
         -------
          n (complex)
         """
-        n = 1. - self.delta(en) + 1.j * self.beta(en)
+        n = 1. - self.delta(en) + 1.j * self.ibeta(en)
         return n
 
     def critical_angle(self, en='config', deg=True):
@@ -246,7 +246,7 @@ class Material(object):
         """
         if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
-        return utilities.en2lam(en) / (2 * numpy.pi * self.beta(en) * 2) / 1e4
+        return utilities.en2lam(en) / (2 * numpy.pi * self.ibeta(en) * 2) / 1e4
 
     def __str__(self):
         ostr = "%s: %s\n" % (self.__class__.__name__, self.name)
@@ -390,7 +390,7 @@ class Amorphous(Material):
         delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         return delta
 
-    def beta(self, en='config'):
+    def ibeta(self, en='config'):
         """
         function to calculate the imaginary part of the deviation
         of the refractive index from 1 (n=1-delta+i*beta)
@@ -730,7 +730,7 @@ class Crystal(Material):
             self.lattice.UnitCellVolume()
         return delta
 
-    def beta(self, en='config'):
+    def ibeta(self, en='config'):
         """
         function to calculate the imaginary part of the deviation
         of the refractive index from 1 (n=1-delta+i*beta)

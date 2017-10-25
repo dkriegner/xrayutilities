@@ -40,9 +40,9 @@ class TestOpticalProperties(unittest.TestCase):
         self.assertAlmostEqual(idx, self.cn, places=digits)
 
     def test_delta_beta(self):
-        n2 = 1 - self.mat.delta(en=self.en) + 1j * self.mat.beta(en=self.en)
+        n2 = 1 - self.mat.delta(en=self.en) + 1j * self.mat.ibeta(en=self.en)
         self.assertAlmostEqual(n2, self.n, places=digits)
-        n2 = 1 - self.cmat.delta(en=self.en) + 1j * self.cmat.beta(en=self.en)
+        n2 = 1 - self.cmat.delta(en=self.en) + 1j * self.cmat.ibeta(en=self.en)
         self.assertAlmostEqual(n2, self.cn, places=digits)
 
     def test_chi0(self):
