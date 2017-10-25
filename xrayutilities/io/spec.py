@@ -1039,7 +1039,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
     else:
         retval = create_retval()
 
-    if len(args) == 0:
+    if not args:
         return MAP
     else:
         return retval, MAP
@@ -1076,7 +1076,7 @@ def getspec_scan(specf, scans, *args, **kwargs):
     >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma',
                                             'Counter2')
     """
-    if len(args) == 0:
+    if not args:
         return
 
     if numpy.iterable(scans):

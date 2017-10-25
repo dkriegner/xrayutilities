@@ -405,7 +405,7 @@ class DarwinModelAlloy(DarwinModel):
             Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
             for i in range(Nmax):
                 if (nrep // (2**i)) % 2 == 1:
-                    if len(zp) > 0:
+                    if zp:
                         curzp = zp[-1]
                     else:
                         curzp = 0.0

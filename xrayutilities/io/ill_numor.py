@@ -246,7 +246,7 @@ def numor_scan(scannumbers, *args, **kwargs):
         # create return values in correct order
         retval.append(angles[motname])
 
-    if len(args) == 0:
+    if not args:
         return MAP
     elif len(args) == 1:
         return retval[0], MAP

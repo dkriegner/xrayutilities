@@ -49,7 +49,7 @@ class FileDirectory(object):
         self.files = glob.glob(os.path.join(
             self.datapath, '*.%s' % (self.extension)))
 
-        if len(self.files) == 0:
+        if not self.files:
             print("XU.io.FileDirectory: no file found in %s" % (self.datapath))
             return
 

@@ -232,7 +232,7 @@ class SPECTRAFile(object):
                 l = glob.glob(spat)
                 self.mca_start_index = 1
                 self.mca_stop_index = 0
-                if len(l) != 0:
+                if l:
                     self.mca_stop_index = self.data.data.size  # len(l)
 
             if self.mca_stop_index != 0:
@@ -493,7 +493,7 @@ class SPECTRAFile(object):
         if config.VERBOSITY >= config.DEBUG:
             print("XU.io.SPECTRAFile.Read: data columns: name,type: %s, %s"
                   % (col_names, col_types))
-        if len(rec_list) != 0:
+        if rec_list:
             self.data.data = rec.fromrecords(rec_list, formats=col_types,
                                              names=col_names)
         else:

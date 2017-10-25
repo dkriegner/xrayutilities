@@ -328,7 +328,7 @@ class SGLattice(object):
         """
         generator of atomic position within the unit cell.
         """
-        if len(self._wbase) == 0:
+        if not self._wbase:
             return
         sgwp = wp[str(self.space_group)]
         for (atom, w, occ, b) in self._wbase:
@@ -649,7 +649,7 @@ class SGLattice(object):
                "alpha = {alpha:.3f}, beta = {beta:.3f}, gamma = {gamma:.3f}\n"
         ostr = ostr.format(sg=self.space_group, cs=self.crystal_system,
                            n=self.name, **self._parameters)
-        if len(self._wbase) > 0:
+        if self._wbase:
             ostr += "Lattice base:\n"
             ostr += str(self._wbase)
         return ostr

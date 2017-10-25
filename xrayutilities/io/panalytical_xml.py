@@ -104,11 +104,11 @@ class XRDMLMeasurement(object):
                     l = p.findall(self.namespace + "listPositions")
                     s = p.findall(self.namespace + "startPosition")
                     e = p.findall(self.namespace + "endPosition")
-                    if len(l) != 0:  # listPositions
+                    if l:  # listPositions
                         l = l[0]
                         data_list = numpy.fromstring(l.text, sep=" ")
                         data_list = data_list.tolist()
-                    elif len(s) != 0:  # start endPosition
+                    elif s:  # start endPosition
                         data_list = numpy.linspace(
                             float(s[0].text), float(e[0].text),
                             nofpoints).tolist()

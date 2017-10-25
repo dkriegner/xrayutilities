@@ -74,7 +74,7 @@ class tty08File(object):
             self.mca_files = sorted(glob.glob(
                 os.path.join(self.mca_directory, '*')))
 
-            if len(self.mca_files):
+            if self.mca_files:
                 self.ReadMCA()
 
     def ReadMCA(self):
@@ -214,7 +214,7 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
         # create return values in correct order
         retval.append(angles[motname])
 
-    if len(args) == 0:
+    if not args:
         return MAP
     elif len(args) == 1:
         return retval[0], MAP

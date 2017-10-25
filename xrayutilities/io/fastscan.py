@@ -368,7 +368,7 @@ class FastScanCCD(FastScan):
         # go through the gridded data and average the ccdframes
         for j in range(gdata.shape[1]):
             for i in range(gdata.shape[0]):
-                if len(gdata[i, j]) == 0:
+                if not gdata[i, j]:
                     continue
                 else:
                     framecount = 0
@@ -691,7 +691,7 @@ class FastScanSeries(object):
             for j in range(len(self.gonio_motors)):
                 motors[j] = numpy.append(motors[j], imotors[j])
             # read CCD
-            if len(ccdnrs) == 0:
+            if not ccdnrs:
                 continue
             else:
                 self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan)

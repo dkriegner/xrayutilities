@@ -448,7 +448,7 @@ class Amorphous(Material):
     def __str__(self):
         ostr = super(Amorphous, self).__str__()
         ostr += "density: %.2f\n" % self.density
-        if len(self.base) > 0:
+        if self.base:
             ostr += "atoms: "
             for at, o in self.base:
                 ostr += "(%s, %.3f) " % (at.name, o)
