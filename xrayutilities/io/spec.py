@@ -32,7 +32,7 @@ import re
 
 import numpy
 
-from .. import config
+from .. import config, utilities
 from ..exception import InputError
 # relative imports from xrayutilities
 from .helper import xu_h5open, xu_open
@@ -382,12 +382,8 @@ class SPECScan(object):
                    existing one will be used
           logy:    if True a semilogy plot will be done
         """
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.SPECScan: Warning: plot "
-                      "functionality not available")
+        flag, plt = utilities.import_matplotlib_pyplot('XU.io.SPECScan')
+        if not flag:
             return
 
         newfig = keyargs.get('newfig', True)

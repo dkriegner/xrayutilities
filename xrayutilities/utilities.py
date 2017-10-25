@@ -26,6 +26,41 @@ from . import config
 from .utilities_noconf import *
 
 
+def import_matplotlib_pyplot(funcname='XU'):
+    """
+    lazy import function of matplotlib.pyplot
+
+    Parameters
+    ----------
+     funcname:  identification string of the calling function
+
+    Returns
+    -------
+     flag, pyplot: the flag is True if the loading was successful and False
+                   otherwise. On success pyplot is the matplotlib.pyplot
+                   package.
+    """
+    try:
+        from matplotlib import pyplot as plt
+        return True, plt
+    except ImportError:
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("%s: Warning: plot functionality not available" % funcname)
+        return False, None
+
+
+def import_lmfit(funcname='XU'):
+    """
+    lazy import function for lmfit
+    """
+    try:
+        import lmfit
+        return lmfit
+    except ImportError:
+        raise ImportError("%s: Fitting of models needs the lmfit package "
+                          "(https://pypi.python.org/pypi/lmfit)" % funcname)
+
+
 def maplog(inte, dynlow="config", dynhigh="config", **keyargs):
     """
     clips values smaller and larger as the given bounds and returns the log10

@@ -21,7 +21,7 @@ import scipy.interpolate as interpolate
 from scipy.special import erf
 
 from . import LayerStack
-from .. import config
+from .. import config, utilities
 from ..exception import InputError
 from ..experiment import Experiment
 from ..math import NormGauss1d, NormLorentz1d, heaviside, solve_quartic
@@ -847,13 +847,7 @@ class SpecularReflectivityModel(LayerModel):
                     surface
         """
         if plot:
-            try:
-                from matplotlib import pyplot as plt
-            except ImportError:
-                plot = False
-                if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.simpack: Warning: plot "
-                          "functionality not available")
+            plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
 
         rel = constants.physical_constants['classical electron radius'][0]
         rel *= 1e10

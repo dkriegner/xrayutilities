@@ -21,18 +21,9 @@ from math import sqrt
 import numpy
 from scipy import interpolate
 
-from .. import config
+from .. import utilities
 from .powder import PowderDiffraction
 from .smaterials import PowderList
-
-
-def _import_lmfit():
-    try:
-        import lmfit
-        return lmfit
-    except ImportError:
-        raise ImportError("XU.simpack: Fitting of models needs the lmfit "
-                          "package (https://pypi.python.org/pypi/lmfit)")
 
 
 class PowderModel(object):
@@ -150,7 +141,7 @@ class PowderModel(object):
         -------
          lmfit Parameters instance
         """
-        lmfit = _import_lmfit()
+        lmfit = utilities.import_lmfit('XU.PowderModel')
 
         params = lmfit.Parameters()
         # sample phase parameters
@@ -263,7 +254,7 @@ class PowderModel(object):
         -------
          lmfit MinimizerResult
         """
-        lmfit = _import_lmfit()
+        lmfit = utilities.import_lmfit('XU.PowderModel')
 
         def residual(pars, tt, data, weight):
             """
@@ -364,14 +355,10 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
      show_diff: flag to specify if a difference curve should be shown
      show_legend: flag to specify if a legend should be shown
     """
-    try:  # lazy import of matplotlib
-        from matplotlib import pyplot as plt
-        from . import mpl_helper
-    except ImportError:
-        if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.simpack: Warning: plot "
-                  "functionality not available")
+    plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
+    if not plot:
         return
+    from . import mpl_helper
 
     plt.figure(fig, figsize=(10, 7))
     plt.clf()

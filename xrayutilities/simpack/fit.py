@@ -17,7 +17,7 @@
 
 import numpy
 
-from .. import config
+from .. import config, utilities
 from ..exception import InputError
 
 # python 2to3 compatibility
@@ -68,21 +68,10 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
           parameters in res.params (see res.params.pretty_print) or try
           lmfit.report_fit(res)
     """
-    try:
-        import lmfit
-    except ImportError:
-        raise ImportError("XU.simpack: Fitting of models needs the lmfit "
-                          "package (https://pypi.python.org/pypi/lmfit)")
-        return
+    lmfit = utilities.import_lmfit('XU.simpack')
 
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            plot = False
-            if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.simpack: Warning: plot "
-                      "functionality not available")
+        plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
 
     mask = numpy.logical_and(ai > xmin, ai < xmax)
     # check Parameters

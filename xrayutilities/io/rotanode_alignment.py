@@ -23,7 +23,7 @@ import re
 
 import numpy
 
-from .. import config
+from .. import config, utilities
 from .helper import xu_open
 
 LOG_comment = re.compile(r"^#C")
@@ -203,12 +203,8 @@ class RA_Alignment(object):
         ----------
          pname:  peakname for which the alignment should be plotted
         """
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.RA_Alignment: Warning: plot "
-                      "functionality not available")
+        flag, plt = utilities.import_matplotlib_pyplot('XU.io.RA_ALignment')
+        if not flag:
             return
 
         if pname not in self.peaks:

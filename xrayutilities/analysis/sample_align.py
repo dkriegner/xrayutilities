@@ -171,13 +171,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         fittilt = my_odr.run()
 
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.analysis.psd_chdeg: warning; plotting "
-                      "functionality not available")
-            plot = False
+        plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.psd_chdeg')
 
     if plot:
         markersize = 6.0
@@ -477,13 +471,8 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     """
 
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.analysis.area_detector_calib: warning; plotting "
-                      "functionality not available")
-            plot = False
+        plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.area_'
+                                                       'detector_calib')
 
     if wl is None:
         wl = config.WAVELENGTH
@@ -718,13 +707,9 @@ def _peak_position(img, nwindow, plot=False):
         print("XU.analysis._peak_position: Warning: peak position "
               "determination not converged, consider debug mode!")
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.analysis._peak_position: warning; plotting "
-                      "functionality not available")
-
+        plot, plt = utilities.import_matplotlib_pyplot('XU.analysis._peak_'
+                                                       'position')
+    if plot:
         plt.figure("_ccd")
         plt.imshow(utilities.maplog(img), origin='low')
         plt.plot(cen2, cen1, "wo", mfc='none')
@@ -733,6 +718,7 @@ def _peak_position(img, nwindow, plot=False):
         fnr = len(glob.glob('xu_calib_ccd_img*.png'))
         plt.savefig("xu_calib_ccd_img%d.png" % (fnr + 1))
         plt.close("_ccd")
+
     return cen1, cen2
 
 
@@ -1257,13 +1243,8 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
                   (switch this to true only if you can handle it :))
     """
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.analyis.area_detector_calib_hkl: Warning: plot "
-                      "functionality not available")
-            plot = False
+        plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.area_'
+                                                       'detector_calib_hkl')
 
     if start[-1] == 'config':
         start[-1] = config.WAVELENGTH
@@ -1966,13 +1947,8 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
     >>> psd_refl_align(500,[0,0.1,0.2,0.3],[550,600,640,700])
     """
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.analyis.psd_refl_align: Warning: plot "
-                      "functionality not available")
-            plot = False
+        plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.psd_refl_'
+                                                       'align')
 
     p, rsq = xumath.linregress(channels, angles)
     zeropos = numpy.polyval(p, primarybeam)
@@ -2045,13 +2021,8 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
      miscut:    amplitude of the sinusoidal variation == miscut angle
     """
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.analyis.miscut_calc: Warning: plot "
-                      "functionality not available")
-            plot = False
+        plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.miscut_'
+                                                       'calc')
 
     if zeros is not None:
         om = (numpy.array(aomega) - numpy.array(zeros))
@@ -2147,13 +2118,8 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
             parameters (of the Gaussian/Lorentzian) as well as their errors
     """
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.analyis.fit_bragg_peak: Warning: plot "
-                      "functionality not available")
-            plot = False
+        plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.fit_bragg'
+                                                       '_peak')
 
     if peaktype == 'Gauss':
         func = xumath.Gauss2d

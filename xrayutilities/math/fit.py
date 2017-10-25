@@ -28,7 +28,7 @@ import numpy
 import scipy.optimize as optimize
 from scipy.odr import odrpack as odr
 
-from .. import config
+from .. import config, utilities
 from ..exception import InputError
 from .functions import (Gauss1d, Gauss1d_der_p, Gauss1d_der_x, Lorentz1d,
                         Lorentz1d_der_p, Lorentz1d_der_x, PseudoVoigt1d,
@@ -114,13 +114,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
     used in the fit can be returned (see func_out).
     """
     if plot:
-        try:
-            from matplotlib import pyplot as plt
-        except ImportError:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.math.peak_fit: Warning: plot "
-                      "functionality not available")
-            plot = False
+        plot, plt = utilities.import_matplotlib_pyplot('XU.math.peak_fit')
 
     gfunc, gfunc_dx, gfunc_dp = _getfit_func(peaktype, background)
 
@@ -650,12 +644,8 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
      fig:  matplotlib figure number or name
      fact: factor to use as multiplicator in the plot
     """
-    try:
-        from matplotlib import pyplot as plt
-    except ImportError:
-        if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.math.multPeakPlot: Warning: plot "
-                  "functionality not available")
+    success, plt = utilities.import_matplotlib_pyplot('XU.math.multPeakPlot')
+    if not success:
         return
 
     plt.figure(fig)
