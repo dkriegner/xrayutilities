@@ -60,7 +60,7 @@ def maplog(inte, dynlow="config", dynhigh="config", **keyargs):
     if inte.max() <= 0.0:
         raise ValueError("XU.maplog: only negativ or zero values given. "
                          "Log is not defined!")
-    ma = inte.max() * 10 ** (-dynhigh)  # upper bound
-    mi = inte.max() * 10 ** (-dynlow)  # lower bound
+    ma = inte.max() * 10 ** (-1*dynhigh)  # upper bound
+    mi = inte.max() * 10 ** (-1*dynlow)  # lower bound
 
     return numpy.log10(numpy.minimum(numpy.maximum(inte, mi), ma))

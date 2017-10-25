@@ -866,7 +866,7 @@ class SpecularReflectivityModel(LayerModel):
         delta = numpy.real(self.cd)
 
         totT = numpy.sum(t[1:])
-        zmin = -totT - 10 * sig[0]
+        zmin = -1 * totT - 10 * sig[0]
         zmax = 5 * sig[-1]
 
         z = numpy.linspace(zmin, zmax, nz)

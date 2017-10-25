@@ -639,7 +639,7 @@ class SGLattice(object):
         if equalq:
             return checkequal(tuple(hkl1), tuple(hkl2))
         else:
-            if math.VecNorm(self.getQ(hkl1)) != math.VecNorm(self.getQ(hkl2)):
+            if math.VecNorm(self.GetQ(hkl1)) != math.VecNorm(self.GetQ(hkl2)):
                 return False
             else:
                 return checkequal(tuple(hkl1), tuple(hkl2))

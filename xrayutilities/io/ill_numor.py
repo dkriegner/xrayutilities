@@ -143,7 +143,7 @@ class numorFile(object):
                     # read SSSS section: initial motor positions
                     info = self.ssplit(self.getline(fid))
                     nspectrum = int(info[0])
-                    self.fnspectra = int(info[2])
+                    self.nspectra = int(info[2])
 
                     if re_values.match(self.getline(fid)):
                         # read FFFF section: subspectrum data

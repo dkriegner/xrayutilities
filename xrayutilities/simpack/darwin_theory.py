@@ -405,9 +405,9 @@ class DarwinModelAlloy(DarwinModel):
             Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
             for i in range(Nmax):
                 if (nrep // (2**i)) % 2 == 1:
-                    if zp:
+                    try:
                         curzp = zp[-1]
-                    else:
+                    except IndexError:
                         curzp = 0.0
                     zp = numpy.append(zp, lzp+curzp)
                     propx = numpy.append(propx, lprop)
@@ -448,13 +448,14 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         """
         return cls.aSi + (0.2 * x + 0.027 * x ** 2)
 
-    @classmethod
-    def poisson_ratio(cls, x):
+    @staticmethod
+    def poisson_ratio(x):
         """
         calculate the Poisson ratio of the alloy
         """
         return 2 * (63.9-15.6*x) / (165.8-37.3*x)  # according to IOFFE
 
+    @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
         """
         calculate inplane lattice parameter and the out of plane lattice plane
@@ -553,13 +554,14 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         """
         return cls.aGaAs + 0.40505*x
 
-    @classmethod
-    def poisson_ratio(cls, x):
+    @staticmethod
+    def poisson_ratio(x):
         """
         calculate the Poisson ratio of the alloy
         """
         return 2 * (4.54 + 0.8*x) / (8.34 + 3.56*x)  # according to IOFFE
 
+    @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
         """
         calculate inplane lattice parameter and the out of plane lattice plane
@@ -648,13 +650,14 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         """
         return cls.aGaAs + 0.0078*x
 
-    @classmethod
-    def poisson_ratio(cls, x):
+    @staticmethod
+    def poisson_ratio(x):
         """
         calculate the Poisson ratio of the alloy
         """
         return 2 * (5.38+0.32*x) / (11.88+0.14*x)  # according to IOFFE
 
+    @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
         """
         calculate inplane lattice parameter and the out of plane lattice plane

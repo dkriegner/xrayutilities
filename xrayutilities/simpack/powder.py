@@ -755,9 +755,9 @@ class FP_profile:
             z0p = Ls / 2 + beta * R / cos(twotheta)
 
         if -beta2 <= beta <= -beta1:
-            z0m = -Ls / 2 + beta * R / cos(twotheta)
+            z0m = -1 * Ls / 2 + beta * R / cos(twotheta)
         elif -beta1 < beta <= beta2:
-            z0m = -Lx / 2 + beta * R * (1 + 1 / cos(twotheta))
+            z0m = -1 * Lx / 2 + beta * R * (1 + 1 / cos(twotheta))
 
         epsscale = tan(pi / 2 - twotheta) / (2 * R * R)  # =cotan(twotheta)...
 
@@ -776,13 +776,14 @@ class FP_profile:
         # note table 1 is full of typos, but the minimized
         # tests from 4.2.2 with redundancies removed seem fine.
         if Lr > z0p - z0m:
-            if z0p <= Lr/2 and z0m > -Lr/2:  # beam entirely within slit
+            if z0p <= Lr/2 and z0m > -1*Lr/2:  # beam entirely within slit
                 rng = 1
                 ea = eps1p
                 eb = eps2p
                 ec = eps1m
                 ed = eps2m
-            elif (z0p > Lr/2 and z0m < Lr/2) or (z0m < -Lr/2 and z0p > -Lr/2):
+            elif (z0p > Lr/2 and z0m < Lr/2) or \
+                    (z0m < -1*Lr/2 and z0p > -Lr/2):
                 rng = 2
                 ea = eps2p
                 eb = eps1p
@@ -796,15 +797,15 @@ class FP_profile:
                 ed = eps2m
         else:
             # beam hanging off both ends of slit, peak centered
-            if z0m < -Lr/2 and z0p > Lr/2:
+            if z0m < -1*Lr/2 and z0p > Lr/2:
                 rng = 1
                 ea = eps1m
                 eb = eps2p
                 ec = eps1p
                 ed = eps2m
             # one edge of beam within slit
-            elif (-Lr/2 < z0m < Lr/2 and z0p > Lr/2) or \
-                    (-Lr/2 < z0p < Lr/2 and z0m < -Lr/2):
+            elif (-1*Lr/2 < z0m < Lr/2 and z0p > Lr/2) or \
+                    (-1*Lr/2 < z0p < Lr/2 and z0m < -1*Lr/2):
                 rng = 2
                 ea = eps2p
                 eb = eps1m

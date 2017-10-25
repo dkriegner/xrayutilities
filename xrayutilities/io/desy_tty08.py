@@ -87,9 +87,6 @@ class tty08File(object):
 
             self.mca[i, :] = mcadata[:, 1]
 
-            fname = self.mca_file_template % i
-            data = numpy.loadtxt(fname)
-
             if i == 0:
                 if len(mcadata.shape) == 2:
                     self.mca_channels = mcadata[:, 0]

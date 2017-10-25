@@ -215,7 +215,7 @@ class QConversion(object):
 
                     # rotation sense
                     if circ[1] == '-':
-                        self._kappa_dir = -self._kappa_dir
+                        self._kappa_dir *= -1
 
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)"
