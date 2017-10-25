@@ -23,7 +23,7 @@ mpl.rcParams['font.size'] = 16.0
 en = 'CuKa1'
 resol = 0.0001  # resolution in qz
 h, k, l = (0, 0, 4)
-qz = linspace(4.40, 4.50, 2e3)
+qz = linspace(4.40, 4.50, 2000)
 
 sub = xu.simpack.Layer(xu.materials.GaAs, inf)
 lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 995.64, relaxation=0.0)

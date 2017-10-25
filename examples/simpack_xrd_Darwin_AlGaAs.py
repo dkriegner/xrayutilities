@@ -22,7 +22,7 @@ from scipy.special import erf
 mpl.rcParams['font.size'] = 16.0
 en = 'CuKa1'
 h, k, l = (0, 0, 4)
-qz = linspace(4.3, 4.6, 4e3)
+qz = linspace(4.3, 4.6, 4000)
 
 GaAs = xu.materials.GaAs
 exp = xu.HXRD(GaAs.Q(1, 1, 0), GaAs.Q(0, 0, 1), en=en)

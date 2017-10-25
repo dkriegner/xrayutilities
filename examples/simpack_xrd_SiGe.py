@@ -24,7 +24,7 @@ mpl.rcParams['font.size'] = 16.0
 en = 8500  # eV
 resol = 0.0004  # resolution in q
 h, k, l = (0, 0, 4)
-qz = linspace(4.2, 5.0, 3e3)
+qz = linspace(4.2, 5.0, 3000)
 
 sub = xu.simpack.Layer(xu.materials.Si, inf)
 lay = xu.simpack.Layer(xu.materials.SiGe(0.6), 145.87, relaxation=0.5)

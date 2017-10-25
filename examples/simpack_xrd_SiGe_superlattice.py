@@ -27,7 +27,7 @@ en = 'CuKa1'  # eV
 lam = xu.en2lam(en)
 resol = 2*pi/4998  # resolution in q; to suppress buffer oscillations
 h, k, l = (0, 0, 4)
-qz = linspace(4.0, 5.0, 3e3)
+qz = linspace(4.0, 5.0, 3000)
 
 sub = xu.simpack.Layer(xu.materials.Si, inf)
 #                                                   xfrom xto nsteps thickness

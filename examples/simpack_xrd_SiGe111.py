@@ -24,7 +24,7 @@ mpl.rcParams['font.size'] = 16.0
 en = 8500  # eV
 resol = 0.0004  # resolution in q
 h, k, l = (1, 1, 1)
-qz = linspace(1.8, 2.2, 5e3)
+qz = linspace(1.8, 2.2, 5000)
 Si = xu.materials.Si
 hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), en=en)
 
