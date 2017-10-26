@@ -2003,6 +2003,7 @@ class PowderDiffraction(PowderExperiment):
             except:
                 traceback.print_exc()
                 break
+        output.put(None)
         self._running = False
         self.managers[idx].shutdown()  # we've quit, no need to keep manager
 
