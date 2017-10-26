@@ -1800,6 +1800,7 @@ class PowderDiffraction(PowderExperiment):
     def __stop__(self):
         self._running = False
         for th, q1, q2 in self.threads:
+            q1.put(None)
             th.join()
 
     def load_settings_from_config(self, settings):
@@ -1992,9 +1993,9 @@ class PowderDiffraction(PowderExperiment):
         th, input, output = self.threads[idx]
         while self._running:
             try:
-                settings, run, ttpeaks = input.get(True, 1.0)
-            except queue.Empty:
-                continue
+                settings, run, ttpeaks = input.get(True)
+            except TypeError:
+                break
             try:
                 handler = self.conv_handlers[idx]
                 handler.update_parameters(settings)
@@ -2003,7 +2004,6 @@ class PowderDiffraction(PowderExperiment):
             except:
                 traceback.print_exc()
                 break
-        output.put(None)
         self._running = False
         self.managers[idx].shutdown()  # we've quit, no need to keep manager
 
