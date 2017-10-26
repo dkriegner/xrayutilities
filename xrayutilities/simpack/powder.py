@@ -2005,7 +2005,6 @@ class PowderDiffraction(PowderExperiment):
                 traceback.print_exc()
                 break
         self._running = False
-        self.managers[idx].shutdown()  # we've quit, no need to keep manager
 
     def structure_factors(self, tt_cutoff):
         """
