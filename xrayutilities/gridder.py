@@ -16,12 +16,19 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+
+import abc
 
 import numpy
 
 from . import config, cxrayutilities, utilities
 from .exception import InputError
+
+try:  # works in Python >3.4
+    ABC = abc.ABC
+except:  # Python 2.7
+    ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
 
 
 def delta(min_value, max_value, n):
@@ -68,8 +75,7 @@ def ones(*args):
     return numpy.ones(args, dtype=numpy.double)
 
 
-class Gridder(object):
-
+class Gridder(ABC):
     """
     Basis class for gridders in xrayutilities. A gridder is a function mapping
     irregular spaced data onto a regular grid by binning the data into equally
@@ -105,8 +111,21 @@ class Gridder(object):
         # no data initialization necessary in c-code
         self.flags = utilities.set_bit(self.flags, 0)
 
+        if not hasattr(self, '_gdata'):
+            self._gdata = numpy.empty(0)
+        if not hasattr(self, '_gnorm'):
+            self._gnorm = numpy.empty(0)
+
         if config.VERBOSITY >= config.INFO_ALL:
             self.flags = utilities.set_bit(self.flags, 3)
+
+    @abc.abstractmethod
+    def __call__(self):
+        """
+        abstract call method which every implementation of a Gridder has to
+        override
+        """
+        pass
 
     def Normalize(self, bool):
         """
