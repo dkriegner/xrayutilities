@@ -15,6 +15,8 @@
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import abc
+
 import numpy
 import scipy.constants as constants
 import scipy.interpolate as interpolate
@@ -124,7 +126,7 @@ class Model(object):
         return y * self.I0 + self.background
 
 
-class LayerModel(Model):
+class LayerModel(Model, utilities.ABC):
     """
     generic model class from which further thin film models can be derived from
     """
@@ -149,6 +151,14 @@ class LayerModel(Model):
         else:
             self.lstack = LayerStack('Stack for %s' % self.__class__.__name__,
                                      *args)
+
+    @abc.abstractmethod
+    def simulate(self):
+        """
+        abstract method that every implementation of a LayerModel has to
+        override 
+        """
+        pass
 
     def _create_return(self, x, E, ai=None, af=None, Ir=None,
                        rettype='intensity'):

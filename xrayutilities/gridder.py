@@ -25,11 +25,6 @@ import numpy
 from . import config, cxrayutilities, utilities
 from .exception import InputError
 
-try:  # works in Python >3.4
-    ABC = abc.ABC
-except:  # Python 2.7
-    ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
-
 
 def delta(min_value, max_value, n):
     """
@@ -75,7 +70,7 @@ def ones(*args):
     return numpy.ones(args, dtype=numpy.double)
 
 
-class Gridder(ABC):
+class Gridder(utilities.ABC):
     """
     Basis class for gridders in xrayutilities. A gridder is a function mapping
     irregular spaced data onto a regular grid by binning the data into equally

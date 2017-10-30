@@ -20,6 +20,7 @@ xrayutilities utilities contains a conglomeration of useful functions
 this part of utilities does not need the config class
 """
 
+import abc
 import numbers
 import os.path
 
@@ -27,6 +28,11 @@ import numpy
 import scipy.constants
 
 from .exception import InputError
+
+try:  # works in Python >3.4
+    ABC = abc.ABC
+except:  # Python 2.7
+    ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
 
 # python 2to3 compatibility
 try:

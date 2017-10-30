@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
-
+import abc
 import collections
 import copy
 import warnings
@@ -24,7 +24,7 @@ from scipy.constants import physical_constants
 from scipy.misc import derivative
 
 from . import LayerModel
-from .. import materials
+from .. import materials, utilities
 from ..math import heaviside
 
 
@@ -112,7 +112,7 @@ class DarwinModel(LayerModel):
         super(LayerModel, self).__init__(exp, **kwargs)
 
         self.npoints = len(qz)
-        self.qz = qz
+        self.qz = numpy.asarray(qz)
         self.qinp = (qx, qy)
         if self.qinp != (0, 0):
             raise NotImplementedError('asymmetric CTR simulation is not yet '
@@ -242,7 +242,7 @@ class DarwinModel(LayerModel):
         return r, rbar, t
 
 
-class DarwinModelAlloy(DarwinModel):
+class DarwinModelAlloy(DarwinModel, utilities.ABC):
     """
     extension of the DarwinModel for an binary alloy system were one parameter
     is used to determine the chemical composition
@@ -251,11 +251,11 @@ class DarwinModelAlloy(DarwinModel):
     get_dperp_apar() method and define the substrate lattice parameter (asub).
     See the DarwinModelSiGe001 class for an implementation example.
     """
-    @classmethod
-    def get_dperp_apar(cls, x, apar, r=1):
+    @abc.abstractmethod
+    def get_dperp_apar(self, x, apar, r=1):
         """
         calculate inplane lattice parameter and the out of plane lattice plane
-        spacing (of the atomic planes!) from composition and relaxation
+        spacing (of the atomic planes!) from composition and relaxation.
 
         Parameters
         ----------
@@ -269,7 +269,7 @@ class DarwinModelAlloy(DarwinModel):
         -------
          dperp, apar
         """
-        pass
+        raise NotImplementedError("abstract method needs to be overwritten")
 
     def make_monolayers(self, s):
         """

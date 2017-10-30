@@ -23,7 +23,7 @@ crystalline state in either Amorphous or Crystal types.  While for most
 materials their crystalline state is defined few materials are also included as
 amorphous which can be useful for calculation of their optical properties.
 """
-
+import abc
 import copy
 import numbers
 import operator
@@ -120,7 +120,7 @@ def Cijkl2Cij(cijkl):
     return cij
 
 
-class Material(object):
+class Material(utilities.ABC):
     """
     base class for all Materials. common properties of amorphous and
     crystalline materials are described by this class from which Amorphous and
@@ -176,10 +176,20 @@ class Material(object):
     lam = property(_getlam)
     nu = property(_getnu)
 
+    @abc.abstractmethod
     def delta(self, en='config'):
+        """
+        abstract method which every implementation of a Material has to
+        override
+        """
         pass
 
+    @abc.abstractmethod
     def ibeta(self, en='config'):
+        """
+        abstract method which every implementation of a Material has to
+        override
+        """
         pass
 
     def chi0(self, en='config'):
