@@ -152,7 +152,7 @@ class Material(utilities.ABC):
             if i > 6 or i < 1 or j > 6 or j < 1:
                 raise AttributeError("Cij indices must be between 1 and 6")
 
-            if self.transform:
+            if callable(self.transform):
                 cij = Cijkl2Cij(self.transform(Cij2Cijkl(self.cij)))
             else:
                 cij = self.cij

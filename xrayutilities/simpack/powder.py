@@ -783,7 +783,7 @@ class FP_profile:
                 ec = eps1m
                 ed = eps2m
             elif (z0p > Lr/2 and z0m < Lr/2) or \
-                    (z0m < -1*Lr/2 and z0p > -Lr/2):
+                    (z0m < -1*Lr/2 and z0p > -1*Lr/2):
                 rng = 2
                 ea = eps2p
                 eb = eps1p

@@ -2154,7 +2154,6 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
         plt.figure()
         plt.clf()
         from ..gridder2d import Gridder2D
-        from .. import utilities
         gridder = Gridder2D(50, 50)
         mask = (qy.flatten() > drange[0]) * (qy.flatten() < drange[1]) * \
                (qz.flatten() > drange[2]) * (qz.flatten() < drange[3])

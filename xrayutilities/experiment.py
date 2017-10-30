@@ -181,7 +181,7 @@ class QConversion(object):
                                 config.KAPPA_ANGLE)(self._kappa_dir)
                         elif config.KAPPA_PLANE[1] == 'z':
                             self._kappa_dir = math.YRotation(
-                                -config.KAPPA_ANGLE)(self._kappa_dir)
+                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
                         else:
                             raise TypeError("Qconverision init: invalid "
                                             "kappa_plane in config!")
@@ -193,7 +193,7 @@ class QConversion(object):
                                 config.KAPPA_ANGLE)(self._kappa_dir)
                         elif config.KAPPA_PLANE[1] == 'x':
                             self._kappa_dir = math.ZRotation(
-                                -config.KAPPA_ANGLE)(self._kappa_dir)
+                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
                         else:
                             raise TypeError("Qconverision init: invalid "
                                             "kappa_plane in config!")
@@ -205,7 +205,7 @@ class QConversion(object):
                                 config.KAPPA_ANGLE)(self._kappa_dir)
                         elif config.KAPPA_PLANE[1] == 'y':
                             self._kappa_dir = math.XRotation(
-                                -config.KAPPA_ANGLE)(self._kappa_dir)
+                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
                         else:
                             raise TypeError("Qconverision init: invalid "
                                             "kappa_plane in config!")

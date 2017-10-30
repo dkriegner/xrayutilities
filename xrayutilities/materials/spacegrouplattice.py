@@ -311,8 +311,8 @@ class SGLattice(object):
         if atoms:
             occs = kwargs.get('occ', [1.0, ] * len(atoms))
             bs = kwargs.get('b', [0.0, ] * len(atoms))
-            for at, wp, o, b in zip(atoms, wps, occs, bs):
-                self._wbase.append(at, wp, o, b)
+            for at, wpos, o, b in zip(atoms, wps, occs, bs):
+                self._wbase.append(at, wpos, o, b)
         self.nsites = len(self._wbase)
 
         # define lattice vectors
@@ -662,9 +662,9 @@ class SGLattice(object):
         pos = []
         occ = []
         biso = []
-        for at, wp, o, b in self._wbase:
+        for at, wpos, o, b in self._wbase:
             atoms.append(at)
-            pos.append(wp)
+            pos.append(wpos)
             occ.append(o)
             biso.append(b)
         return SGLattice(self.space_group, *self.free_parameters.values(),

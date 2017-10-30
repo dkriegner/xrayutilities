@@ -1,3 +1,4 @@
+* introduce abstract classes where useful
 * code cleanup (import statements)
 * vastly improved CIF file support with recognition of correct space group and
   Wyckoff position
