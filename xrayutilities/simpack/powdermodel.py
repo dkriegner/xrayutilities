@@ -345,7 +345,8 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     Parameters
     ----------
      twotheta:  angle values used for the x-axis of the plot (deg)
-     exp:       experimental data (same shape as twotheta)
+     exp:       experimental data (same shape as twotheta). If None only the
+                simulation and no difference will be plotted
      sim:       simulated data
      mask:      mask to reduce the twotheta values to the be used as
                 x-coordinates of sim
@@ -364,15 +365,17 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     plt.clf()
     ax = plt.subplot(111)
     lines = []
-    lines.append(ax.plot(twotheta, exp, 'k.-', label='experiment')[0])
+    if exp is not None:
+        lines.append(ax.plot(twotheta, exp, 'k.-', label='experiment')[0])
     if mask is None:
         mask = numpy.ones_like(twotheta, dtype=numpy.bool)
     lines.append(ax.plot(twotheta[mask], sim, 'r-', label='simulation')[0])
 
     if show_diff:
         # plot error between simulation and experiment
-        lines.append(ax.plot(twotheta[mask], exp[mask]-sim, '.-', color='0.5',
-                             label='difference')[0])
+        if exp is not None:
+            lines.append(ax.plot(twotheta[mask], exp[mask]-sim, '.-',
+                         color='0.5', label='difference')[0])
 
     plt.xlabel('2Theta (deg)')
     plt.ylabel('Intensity')
