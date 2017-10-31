@@ -31,30 +31,32 @@ from . import elements, wyckpos
 from .. import config
 from .lattice import Lattice, LatticeBase
 
-re_loop = re.compile(r"^loop_")
+re_loop = re.compile(r"^loop_", re.IGNORECASE)
 re_symop = re.compile(r"^\s*("
                       "_space_group_symop_operation_xyz|"
-                      "_symmetry_equiv_pos_as_xyz)")
-re_name = re.compile(r"^\s*_chemical_formula_sum")
-re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)\s*$")
-re_atomx = re.compile(r"^\s*_atom_site_fract_x")
-re_atomy = re.compile(r"^\s*_atom_site_fract_y")
-re_atomz = re.compile(r"^\s*_atom_site_fract_z")
-re_uiso = re.compile(r"^\s*_atom_site_U_iso_or_equiv")
-re_atomocc = re.compile(r"^\s*_atom_site_occupancy")
+                      "_symmetry_equiv_pos_as_xyz)", re.IGNORECASE)
+re_name = re.compile(r"^\s*_chemical_formula_sum", re.IGNORECASE)
+re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)\s*$",
+                     re.IGNORECASE)
+re_atomx = re.compile(r"^\s*_atom_site_fract_x", re.IGNORECASE)
+re_atomy = re.compile(r"^\s*_atom_site_fract_y", re.IGNORECASE)
+re_atomz = re.compile(r"^\s*_atom_site_fract_z", re.IGNORECASE)
+re_uiso = re.compile(r"^\s*_atom_site_U_iso_or_equiv", re.IGNORECASE)
+re_atomocc = re.compile(r"^\s*_atom_site_occupancy", re.IGNORECASE)
 re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
 re_quote = re.compile(r"'")
 re_spacegroupnr = re.compile(r"^\s*_space_group_IT_number|"
-                             "_symmetry_Int_Tables_number")
-re_spacegroupname = re.compile(r"^\s*_symmetry_space_group_name_H-M")
-re_spacegroupsetting = re.compile(r"^\s*_symmetry_cell_setting")
-re_cell_a = re.compile(r"^\s*_cell_length_a")
-re_cell_b = re.compile(r"^\s*_cell_length_b")
-re_cell_c = re.compile(r"^\s*_cell_length_c")
-re_cell_alpha = re.compile(r"^\s*_cell_angle_alpha")
-re_cell_beta = re.compile(r"^\s*_cell_angle_beta")
-re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma")
+                             "_symmetry_Int_Tables_number", re.IGNORECASE)
+re_spacegroupname = re.compile(r"^\s*_symmetry_space_group_name_H-M",
+                               re.IGNORECASE)
+re_spacegroupsetting = re.compile(r"^\s*_symmetry_cell_setting", re.IGNORECASE)
+re_cell_a = re.compile(r"^\s*_cell_length_a", re.IGNORECASE)
+re_cell_b = re.compile(r"^\s*_cell_length_b", re.IGNORECASE)
+re_cell_c = re.compile(r"^\s*_cell_length_c", re.IGNORECASE)
+re_cell_alpha = re.compile(r"^\s*_cell_angle_alpha", re.IGNORECASE)
+re_cell_beta = re.compile(r"^\s*_cell_angle_beta", re.IGNORECASE)
+re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma", re.IGNORECASE)
 re_comment = re.compile(r"^\s*#")
 
 
