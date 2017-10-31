@@ -156,7 +156,7 @@ class LayerModel(Model, utilities.ABC):
     def simulate(self):
         """
         abstract method that every implementation of a LayerModel has to
-        override 
+        override.
         """
         pass
 
