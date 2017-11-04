@@ -20,6 +20,16 @@ Copyright (C) 2009-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
 
+Mailing list and issue tracker
+------------------------------
+
+To get in touch with us or report an issue please use the mailing list
+(https://sourceforge.net/p/xrayutilities/mailman/xrayutilities-users/) or the
+Github issue tracker (https://github.com/dkriegner/xrayutilities/issues). When
+you want to follow announcements of major changes or new releases its
+recommended to [sign up for the mailing
+list](https://sourceforge.net/projects/xrayutilities/lists/xrayutilities-users)
+
 
 Contents
 --------
@@ -29,6 +39,7 @@ Contents
 * *tests*:              directory with the unittest scripts
 * *setup.py*:           distutils install script used for the package installation
 * *xrayutilities.pdf*:  pdf-file with documentation of the package
+
 
 Installation (pip)
 ==================
@@ -40,7 +51,7 @@ or for a user installation (without admin access) use
 
     pip install --user xrayutilities
 
-If installation using aboves command fails due to missing OpenMP libraries, use
+If installation using above's command fails due to missing OpenMP libraries, use
 
     pip install --global-option="--without-openmp" xrayutilities
 
@@ -86,9 +97,9 @@ easiest way of the installation (Python(x,y) or WinPython).
 Python-2.7 and Python-3.X compatibility
 =======================================
 
-The current developement focuses on Python-3.X and we ask all users to update
-to Python-3 if possible, however, xrayutilies can be used with Python-2.7 as well.
-Care was taken to make this possible from the same code-base.
+The current development focuses on Python-3.X and we ask all users to update to
+Python-3 if possible, however, xrayutilities can be used with Python-2.7 as
+well.  Care was taken to make this possible from the same code-base.
 
 The Python package configuration
 ================================
@@ -125,7 +136,7 @@ Obtaining the source code
 The sources are hosted on sourceforge in git repository.
 Use
 
-    git clone git://git.code.sf.net/p/xrayutilities/code xrayutilities
+    git clone https://github.com/dkriegner/xrayutilities.git
 
 to clone the git repository. If you would like to have commit rights
 contact one of the administrators.
@@ -158,8 +169,8 @@ to install the updated package.
 Documentation
 =============
 
-Documention for xrayutilities is found in the *xrayutilities.pdf* file or on the
-webpage http://xrayutilities.sourceforge.net
+Documentation for xrayutilities is found in the *xrayutilities.pdf* file or on the
+webpage http://xrayutilities.sourceforge.io
 
 The API-documentation can also be browsed by
 
