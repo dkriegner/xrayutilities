@@ -46,7 +46,7 @@ class TestMAT_CIF(unittest.TestCase):
         self.assertAlmostEqual(self.mat.lattice.c, self.matc, places=6)
 
     def test_structurefactor(self):
-        Q = self.mat.Q(numpy.random.randint(-3,4, size=3))
+        Q = self.mat.Q(numpy.random.randint(-3, 4, size=3))
         self.assertAlmostEqual(self.mat.StructureFactor(Q),
                                xu.materials.CuMnAs.StructureFactor(Q),
                                places=3)

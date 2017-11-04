@@ -553,6 +553,18 @@ class Crystal(Material):
         """
         return self.lattice.GetQ(*hkl)
 
+    def HKL(self, *q):
+        """
+        Return the HKL-coordinates for a certain Q-space position.
+
+        Parameters
+        ----------
+         q:     list or numpy array with the Q-position. its also possible to
+                use HKL(qx, qy, qz).
+
+        """
+        return self.lattice.GetHKL(*q)
+
     def environment(self, *pos, **kwargs):
         """
         Returns a list of neighboring atoms for a given position within the the

@@ -487,6 +487,14 @@ class SGLattice(object):
             args = args[0]
         return self.qtransform(args)
 
+    def GetHKL(self, *args):
+        """
+        determine the Miller indices of the given reciprocal lattice points
+        """
+        if len(args) == 1:
+            args = args[0]
+        return self.qtransform.inverse(args)
+
     def UnitCellVolume(self):
         """
         function to calculate the unit cell volume of a lattice (angstrom^3)

@@ -1,3 +1,4 @@
+* introduce convenience function HKL to convert q-vectors to HKL of materials
 * update outdated information and fix typos in README
 * introduce abstract classes where useful
 * code cleanup (import statements)
