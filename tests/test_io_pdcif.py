@@ -28,7 +28,7 @@ fullfilename = os.path.join(datadir, testfile)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.net)")
+                 "additional test data needed (http://xrayutilities.sf.io)")
 class TestIO_pdCIF(unittest.TestCase):
     dshape = (4495, )
     # dmax =  # needs update of pdCIF to handle value + error bar

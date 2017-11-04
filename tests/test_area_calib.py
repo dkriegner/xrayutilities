@@ -85,7 +85,7 @@ fullfilename = ccdfile % (2, 2, 104)
 
 @unittest.skipIf('TRAVIS' in os.environ or not os.path.isfile(fullfilename),
                  "this test is not running on Travis-CI or additional test "
-                 "data are needed (http://xrayutilities.sf.net)")
+                 "data are needed (http://xrayutilities.sf.io)")
 class TestArea_calib(unittest.TestCase):
     en = 10000.0  # x-ray energy in eV
     roi = (551, 1065, 0, 1030)  # get data of the good part of the detector

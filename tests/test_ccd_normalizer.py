@@ -27,7 +27,7 @@ fullfilename = os.path.join(datadir, testfile)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.net)")
+                 "additional test data needed (http://xrayutilities.sf.io)")
 class TestCCD_Normalizer(unittest.TestCase):
     dshape = (2, 195, 487)
     dmax = 0.1

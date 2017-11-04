@@ -26,7 +26,7 @@ fullfilename = os.path.join(datadir, testfile)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.net)")
+                 "additional test data needed (http://xrayutilities.sf.io)")
 class TestIO_RoperCCD(unittest.TestCase):
     dshape = (4096, 4096)
     dmax = 2285.0

@@ -28,7 +28,7 @@ fullfilename = os.path.join(datadir, testfile)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.net)")
+                 "additional test data needed (http://xrayutilities.sf.io)")
 class TestIO_SPEC_RA_Log(unittest.TestCase):
     peaks = [u'asymaz1', u'symaz1']
     niterations = 639

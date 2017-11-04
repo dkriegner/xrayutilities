@@ -28,7 +28,7 @@ fullfilename = os.path.join(datadir, testfile)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.net)")
+                 "additional test data needed (http://xrayutilities.sf.io)")
 class TestIO_TTY(unittest.TestCase):
     dshape = (102,)
     dmax = 1444999.0

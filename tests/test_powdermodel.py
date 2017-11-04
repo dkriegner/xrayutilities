@@ -33,7 +33,7 @@ fullfilename = os.path.join(datadir, testfile)
 
 
 @unittest.skipIf(not os.path.isfile(fullfilename) or lmfit is None,
-                 "additional test data (see http://xrayutilities.sf.net) and "
+                 "additional test data (see http://xrayutilities.sf.io) and "
                  "the lmfit Python package are needed")
 class Test_PowderModel(unittest.TestCase):
     chi2max = 1.5
