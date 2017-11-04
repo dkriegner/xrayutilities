@@ -25,6 +25,15 @@ If you prefer the installation from sources see the `Source Installation`_ below
 Introduction
 ============
 
+Mailing list and issue tracker
+------------------------------
+
+To get in touch with us or report an issue please use the `mailing list <https://sourceforge.net/p/xrayutilities/mailman/xrayutilities-users/>`_ or the `Github issue tracker <https://github.com/dkriegner/xrayutilities/issues>`_.
+When you want to follow announcements of major changes or new releases its recommended to `sign up for the mailing list <https://sourceforge.net/projects/xrayutilities/lists/xrayutilities-users>`_
+
+Overview
+--------
+
 *xrayutilities* is a collection of scripts used to analyze and simulate x-ray diffraction data. It consists of a python package and several routines coded in C.
 It especially useful for the reciprocal space conversion of diffraction data taken with linear and area detectors. Several models for the simulation of thin film reflectivity and diffraction curves are included.
 
