@@ -131,7 +131,11 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
         if data is None:
             return model
         if kwargs['elog']:
-            return numpy.log10(model) - numpy.log10(data)
+            logmodel = numpy.log10(model)
+            logdata = numpy.log10(data)
+            mask = numpy.logical_and(numpy.isfinite(logmodel),
+                                     numpy.isfinite(logdata))
+            return logmodel[mask] - logdata[mask]
         if eps is None:
             return (model - data)
         return (model - data)/eps
