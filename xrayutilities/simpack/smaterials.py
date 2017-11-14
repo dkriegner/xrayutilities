@@ -17,6 +17,7 @@
 
 import collections
 import copy
+import numbers
 
 import numpy
 
@@ -77,7 +78,11 @@ class SMaterial(object):
                                     cls=self.__class__.__name__)
         for k in self.__dict__:
             if k not in ('material', 'name'):
-                s += '{key}: {value}, '.format(key=k, value=getattr(self, k))
+                v = getattr(self, k)
+                if isinstance(v, numbers.Number):
+                    s += '{key}: {value:.5g}, '.format(key=k, value=v)
+                else:
+                    s += '{key}: {value}, '.format(key=k, value=v)
         return s + ')'
 
 
