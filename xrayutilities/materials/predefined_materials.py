@@ -152,6 +152,7 @@ Fe = Crystal("Fe", SGLattice(229, 2.8665, atoms=[e.Fe, ], pos=['2a', ]))
 Cr = Crystal("Cr", SGLattice(229, 2.910, atoms=[e.Cr, ], pos=['2a', ]))
 Co = Crystal("Co", SGLattice(194, 2.5071, 4.0695, atoms=[e.Co, ],
                              pos=['2c', ]))
+Mo = Crystal("Mo", SGLattice(229, 3.147, atoms=[e.Mo, ], pos=['2a', ]))
 Ru = Crystal("Ru", SGLattice(194, 2.7059, 4.2815, atoms=[e.Ru, ],
                              pos=['2c', ]))
 Rh = Crystal("Rh", SGLattice(225, 3.8034, atoms=[e.Rh, ], pos=['4a', ]))
