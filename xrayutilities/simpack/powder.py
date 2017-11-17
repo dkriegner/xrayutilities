@@ -2159,8 +2159,9 @@ class PowderDiffraction(PowderExperiment):
         ids = [tuple(idx) for idx in hkl]
         self.data = dict()
         for i, q, a, r in zip(ids, qpos, ang, rs):
+            active = True if r/rs.max() > config.EPSILON else False
             self.data[i] = {'qpos': q, 'ang': a, 'r': r,
-                            'active': True}
+                            'active': active}
 
     def update_powder_lines(self, tt_cutoff):
         """
@@ -2178,11 +2179,12 @@ class PowderDiffraction(PowderExperiment):
         rs *= corrfact
         ids = [tuple(idx) for idx in hkl]
         for h, q, a, r in zip(ids, qpos, ang, rs):
+            active = True if r/rs.max() > config.EPSILON else False
             if h in self.data:
                 self.data[h]['qpos'] = q
                 self.data[h]['ang'] = a
                 self.data[h]['r'] = r
-                self.data[h]['active'] = True
+                self.data[h]['active'] = active
             else:
                 # new peak needs a new convolver
                 fp = self._init_fpprofile(self.fpclass)
@@ -2191,7 +2193,7 @@ class PowderDiffraction(PowderExperiment):
                         continue
                     fp.set_parameters(convolver=k, **v)
                 self.data[h] = {'qpos': q, 'ang': a, 'r': r,
-                                'conv': fp, 'active': True}
+                                'conv': fp, 'active': active}
                 self.conv_handlers[self.next_proc].add_convolver(fp)
                 self.chunks[self.next_proc].append(h)
                 self.next_proc = (self.next_proc + 1) % self.nproc
@@ -2321,10 +2323,10 @@ class PowderDiffraction(PowderExperiment):
         ostr += "-------------------------\n"
         ostr += self.mat.__repr__() + "\n"
         ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
-        max = 0
+        rmax = 0
         for d in self.data.values():
-            if d['r'] > max and d['active']:
-                max = d['r']
+            if d['r'] > rmax:
+                rmax = d['r']
         ostr += "\nReflections: \n"
         ostr += "--------------\n"
         ostr += ("      h k l     |    tth    |    |Q|    |"
@@ -2336,6 +2338,6 @@ class PowderDiffraction(PowderExperiment):
             if d['active']:
                 ostr += ("%15s   %8.4f   %8.3f   %10.2f  %10.2f\n"
                          % (h.__str__(), 2 * d['ang'],
-                            d['qpos'], d['r'], d['r'] / max * 100.))
+                            d['qpos'], d['r'], d['r'] / rmax * 100.))
         ostr += "Settings: " + str(self.settings)
         return ostr
