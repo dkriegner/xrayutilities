@@ -1,123 +1,123 @@
-xrayutilities.io package
-========================
+xrayutilities\.io package
+=========================
 
 Submodules
 ----------
 
-xrayutilities.io.cbf module
----------------------------
+xrayutilities\.io\.cbf module
+-----------------------------
 
 .. automodule:: xrayutilities.io.cbf
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.desy_tty08 module
-----------------------------------
+xrayutilities\.io\.desy\_tty08 module
+-------------------------------------
 
 .. automodule:: xrayutilities.io.desy_tty08
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.edf module
----------------------------
+xrayutilities\.io\.edf module
+-----------------------------
 
 .. automodule:: xrayutilities.io.edf
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.fastscan module
---------------------------------
+xrayutilities\.io\.fastscan module
+----------------------------------
 
 .. automodule:: xrayutilities.io.fastscan
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.filedir module
--------------------------------
+xrayutilities\.io\.filedir module
+---------------------------------
 
 .. automodule:: xrayutilities.io.filedir
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.helper module
-------------------------------
+xrayutilities\.io\.helper module
+--------------------------------
 
 .. automodule:: xrayutilities.io.helper
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.ill_numor module
----------------------------------
+xrayutilities\.io\.ill\_numor module
+------------------------------------
 
 .. automodule:: xrayutilities.io.ill_numor
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.imagereader module
------------------------------------
+xrayutilities\.io\.imagereader module
+-------------------------------------
 
 .. automodule:: xrayutilities.io.imagereader
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.panalytical_xml module
----------------------------------------
+xrayutilities\.io\.panalytical\_xml module
+------------------------------------------
 
 .. automodule:: xrayutilities.io.panalytical_xml
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.pdcif module
------------------------------
+xrayutilities\.io\.pdcif module
+-------------------------------
 
 .. automodule:: xrayutilities.io.pdcif
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.rigaku_ras module
-----------------------------------
+xrayutilities\.io\.rigaku\_ras module
+-------------------------------------
 
 .. automodule:: xrayutilities.io.rigaku_ras
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.rotanode_alignment module
-------------------------------------------
+xrayutilities\.io\.rotanode\_alignment module
+---------------------------------------------
 
 .. automodule:: xrayutilities.io.rotanode_alignment
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.seifert module
--------------------------------
+xrayutilities\.io\.seifert module
+---------------------------------
 
 .. automodule:: xrayutilities.io.seifert
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.spec module
-----------------------------
+xrayutilities\.io\.spec module
+------------------------------
 
 .. automodule:: xrayutilities.io.spec
     :members:
     :undoc-members:
     :show-inheritance:
 
-xrayutilities.io.spectra module
--------------------------------
+xrayutilities\.io\.spectra module
+---------------------------------
 
 .. automodule:: xrayutilities.io.spectra
     :members:
