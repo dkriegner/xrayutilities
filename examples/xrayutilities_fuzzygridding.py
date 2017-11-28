@@ -71,7 +71,7 @@ plt.subplot(133)
 plt.title('pcolormesh')
 # using pcolor-variants
 npixel = 255
-qy.shape = (qy.size/npixel, npixel)
+qy.shape = (qy.size//npixel, npixel)
 qz.shape = qy.shape
 psd.shape = qy.shape
 plt.pcolormesh(qy, qz, psd, norm=LogNorm(MIN, MAX))

@@ -28,7 +28,7 @@ xu.config.KAPPA_ANGLE = -60
 # http://en.wikipedia.org/wiki/File:Kappa_goniometer_animation.ogg
 qconv = xu.experiment.QConversion(['z+', 'k+', 'z+'], ['z+'], (1, 0, 0))
 
-print qconv
+print(qconv)
 
 print("angles: 0, 0, 0, 90")
 (qx, qy, qz) = qconv(0, 0, 0, 90)
