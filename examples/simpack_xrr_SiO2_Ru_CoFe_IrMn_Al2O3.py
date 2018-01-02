@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 
@@ -56,9 +56,15 @@ p.add_many(('SiO2_thickness',  numpy.inf, False,  None, None, None),
            ('Al2O3_thickness',     100.0,  True,    70,  130, None),
            ('Al2O3_roughness',       5.5,  True,     0,    8, None),
            ('Al2O3_density',         1.0,  True,   0.8,  1.2, None),
+           # primary beam intensity
            ('I0',                 6.75e9,  True,   3e9,  8e9, None),
+           # background level of the measurement
            ('background',             81,  True,    40,  100, None),
+           # zero shift of the incidence angle
+           ('shift',                   0,  True, -0.02, 0.02, None),
+           # size of the sample along the beam propagation direction
            ('sample_width',          6.0, False,     2,    8, None),
+           # width of the beam in the reflection plane
            ('beam_width',           0.25, False,   0.2,  0.4, None),
            ('resolution_width',     0.02, False,  0.01, 0.05, None))
 
