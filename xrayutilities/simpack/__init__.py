@@ -57,5 +57,3 @@ from .powder import PowderDiffraction
 from .powdermodel import PowderModel
 from .powdermodel import Rietveld_error_metrics
 from .powdermodel import plot_powder
-
-from .mpl_helper import SqrtAllowNegScale

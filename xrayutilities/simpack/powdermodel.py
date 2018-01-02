@@ -359,7 +359,6 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
     if not plot:
         return
-    from . import mpl_helper
 
     plt.figure(fig, figsize=(10, 7))
     plt.clf()
