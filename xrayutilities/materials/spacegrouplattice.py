@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module handling crystal lattice structures. A SGLattice consists of a space
 group number and the position of atoms specified as Wyckoff positions along
@@ -319,9 +319,9 @@ class SGLattice(object):
         self._ai = numpy.zeros((3, 3))
         self._bi = numpy.empty((3, 3))
         a, b, c, alpha, beta, gamma = self._parameters.values()
-        rg = radians(gamma)
-        self._paramhelp = [cos(radians(alpha)), cos(radians(beta)),
-                           cos(rg), sin(rg), 0]
+        ra = radians(alpha)
+        self._paramhelp = [cos(ra), cos(radians(beta)),
+                           cos(radians(gamma)), sin(ra), 0]
         self._setlat()
 
     def base(self):
@@ -351,15 +351,15 @@ class SGLattice(object):
 
     def _setlat(self):
         a, b, c, alpha, beta, gamma = self._parameters.values()
-        ca, cb, cg, sg, vh = self._paramhelp
+        ca, cb, cg, sa, vh = self._paramhelp
         vh = sqrt(1 - ca**2-cb**2-cg**2 + 2*ca*cb*cg)
         self._paramhelp[4] = vh
-        self._ai[0, 0] = a
-        self._ai[1, 0] = b * cg
-        self._ai[1, 1] = b * sg
-        self._ai[2, 0] = c * cb
-        self._ai[2, 1] = c * (ca-cb*cg) / sg
-        self._ai[2, 2] = c * vh / sg
+        self._ai[0, 0] = a * vh / sa
+        self._ai[0, 1] = a * (cg-cb*ca) / sa
+        self._ai[0, 2] = a * cb
+        self._ai[1, 1] = b * sa
+        self._ai[1, 2] = b * ca
+        self._ai[2, 2] = c
         self.transform = math.Transform(self._ai.T)
         self._setb()
 
@@ -427,7 +427,9 @@ class SGLattice(object):
         self._parameters['alpha'] = value
         self.free_parameters['alpha'] = value
         self._set_params_from_sym()
-        self._paramhelp[0] = cos(radians(value))
+        ra = radians(value)
+        self._paramhelp[0] = cos(ra)
+        self._paramhelp[3] = sin(ra)
         self._setlat()
 
     @property
@@ -455,9 +457,7 @@ class SGLattice(object):
         self._parameters['gamma'] = value
         self.free_parameters['gamma'] = value
         self._set_params_from_sym()
-        rg = radians(value)
-        self._paramhelp[2] = cos(rg)
-        self._paramhelp[3] = sin(rg)
+        self._paramhelp[2] = cos(radians(value))
         self._setlat()
 
     def GetPoint(self, *args):
@@ -527,11 +527,11 @@ class SGLattice(object):
         self._parameters['beta'] = math.VecAngle(ai[0, :], ai[2, :], deg=True)
         self._parameters['gamma'] = math.VecAngle(ai[0, :], ai[1, :], deg=True)
         # update helper parameters
-        self._paramhelp[0] = cos(radians(self._parameters['alpha']))
+        ra = radians(self._parameters['alpha'])
+        self._paramhelp[0] = cos(ra)
         self._paramhelp[1] = cos(radians(self._parameters['beta']))
-        rg = radians(self._parameters['gamma'])
-        self._paramhelp[2] = cos(rg)
-        self._paramhelp[3] = sin(rg)
+        self._paramhelp[2] = cos(radians(self._parameters['gamma']))
+        self._paramhelp[3] = sin(ra)
         # set new transformations
         self._setlat()
 
@@ -677,41 +677,6 @@ class SGLattice(object):
             biso.append(b)
         return SGLattice(self.space_group, *self.free_parameters.values(),
                          atoms=atoms, pos=pos, occ=occ, b=biso)
-
-    @classmethod
-    def fromLattice(cls, lat, verbose=True):
-        """
-        create a SGLattice from an old Lattice instance. Since the
-        space-group is not known it will always be 1 (triclinic). This is
-        helper routine to make the transition period for users easier. It will
-        be removed in the next major release!
-
-        Parameters
-        ----------
-         lat:   deprecated Lattice instance
-
-        Returns
-        -------
-        SGLattice instance with the same properties as lat
-        """
-        a, b, c, alpha, beta, gamma = (lat.a, lat.b, lat.c, lat.alpha,
-                                       lat.beta, lat.gamma)
-        atoms = []
-        pos = []
-        occ = []
-        biso = []
-        for at, p, o, bf in lat.base:
-            atoms.append(at)
-            pos.append(('1a', p))
-            occ.append(o)
-            biso.append(bf)
-        if verbose:
-            print('xu.materials.SGLattice(1, %f, %f, %f, %f, %f, %f, '
-                  'atoms=%s, pos=%s, occ=%s, b=%s)'
-                  % (a, b, c, alpha, beta, gamma, str(atoms), str(pos),
-                     str(occ), str(biso)))
-        return cls(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
-                   occ=occ, b=biso)
 
     @classmethod
     def convert_to_P1(cls, sglat):
