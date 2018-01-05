@@ -29,7 +29,6 @@ import scipy.optimize
 from . import spacegrouplattice as sgl
 from . import elements, wyckpos
 from .. import config
-from .lattice import Lattice, LatticeBase
 
 re_loop = re.compile(r"^loop_", re.IGNORECASE)
 re_symop = re.compile(r"^\s*("
@@ -430,39 +429,6 @@ class CIFFile(object):
                     self.uc_params.append(self.lattice_const[p2idx[pname]])
                 if pname in ('alpha', 'beta', 'gamma'):
                     self.uc_params.append(self.lattice_angles[p2idx[pname]])
-
-    def Lattice(self):
-        """
-        returns a lattice object with the structure from the CIF file
-        """
-        warnings.warn("deprecated function -> change to SGLattice",
-                      DeprecationWarning)
-        lb = LatticeBase()
-        for element, positions, occ, biso in self.unique_positions:
-            for pos in positions:
-                lb.append(element, pos, occ=occ, b=biso)
-
-        # unit cell vectors
-        ca = numpy.cos(numpy.radians(self.lattice_angles[0]))
-        cb = numpy.cos(numpy.radians(self.lattice_angles[1]))
-        cg = numpy.cos(numpy.radians(self.lattice_angles[2]))
-        sa = numpy.sin(numpy.radians(self.lattice_angles[0]))
-        sb = numpy.sin(numpy.radians(self.lattice_angles[1]))
-        sg = numpy.sin(numpy.radians(self.lattice_angles[2]))
-
-        a1 = self.lattice_const[0] * numpy.array([1, 0, 0], dtype=numpy.double)
-        a2 = self.lattice_const[1] * \
-            numpy.array([cg, sg, 0], dtype=numpy.double)
-        a3 = self.lattice_const[2] * numpy.array([
-            cb,
-            (ca - cb * cg) / sg,
-            numpy.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 +
-                       2 * ca * cb * cg) / sg],
-            dtype=numpy.double)
-        # create lattice
-        l = Lattice(a1, a2, a3, base=lb)
-
-        return l
 
     def SGLattice(self, use_p1=False):
         """

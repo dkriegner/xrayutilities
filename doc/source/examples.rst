@@ -336,8 +336,9 @@ The example below shows the necessary code to perform such an angle calculation 
     import numpy as np
 
     def Pnma(a, b, c):
-        #create orthorhombic unit cell
-        l = xu.materials.Lattice([a, 0, 0], [0, b, 0], [0, 0, c])
+        # create orthorhombic unit cell with space-group 62,
+        # here for simplicity without base
+        l = xu.materials.SGLattice(62, a, b, c)
         return l
 
     latticeConstants=[5.600, 7.706, 5.3995]
