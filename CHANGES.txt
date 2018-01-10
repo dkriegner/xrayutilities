@@ -1,3 +1,6 @@
+* fix bugs in spacegroups whos Wyckoff position contains a multiplication
+* make U/UB matrix compatible with the definition in SPEC
+* remove deprecated Lattice/LatticeBase code
 * update XRR example
 
 v1.4.2, 2017-11-28 "The Praha edition"
