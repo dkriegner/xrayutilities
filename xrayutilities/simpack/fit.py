@@ -171,7 +171,7 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
         plt.legend()
         plt.xlabel('incidence angle (deg)')
         plt.ylabel('Intensity (arb. u.)')
-        plt.show(block=False)
+        plt.show()
     else:
         fline = None
 
