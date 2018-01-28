@@ -211,6 +211,8 @@ Ir20Mn80 = Crystal("Ir20Mn80", SGLattice(225, 3.780, atoms=[e.Ir, e.Mn],
                                          pos=['4a', '4a'], occ=[0.2, 0.8]))
 CoFe = Crystal("CoFe", SGLattice(221, 2.8508, atoms=[e.Co, e.Fe],
                                  pos=['1a', '1b']))
+CoGa = Crystal("CoGa", SGLattice(221, 2.883, atoms=[e.Co, e.Ga],
+                                 pos=['1a', '1b']))
 LaB6 = Crystal("LaB6", SGLattice(221, 4.15692, atoms=[e.La, e.B],
                                  pos=['1a', ('6f', 0.19750)]))
 Al2O3 = Crystal("Al2O3", SGLattice('167:H', 4.7602, 12.9933,
@@ -225,6 +227,8 @@ CuMnAs = Crystal("CuMnAs", SGLattice('129:2', 3.8200, 6.3180,
 Mn3Ge = Crystal("Mn3Ge (hex)", SGLattice('194', 5.34, 4.31,
                                          atoms=[e.Mn, e.Ge],
                                          pos=[('6h', 1/6.), '2d']))
+TiN = Crystal("TiN",
+              SGLattice(225, 4.235, atoms=[e.Ti, e.N], pos=['4a', '4b']))
 
 
 # Alloys with special properties
