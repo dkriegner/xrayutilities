@@ -276,13 +276,6 @@ class SPECScan(object):
                 if not line:
                     continue
 
-                # Bugfix for ESRF/BM20 data
-                # the problem is that they store messages from automatic
-                # absorbers in the SPEC file - need to handle this
-                t = re.compile(r"^#C .* filter factor.*")
-                if t.match(line):
-                    continue
-
                 # check if scan is broken
                 if (SPEC_scanbroken.findall(line) != [] or
                         scan_aborted_flag):
@@ -313,6 +306,8 @@ class SPECScan(object):
                 if SPEC_headerline.match(line) or \
                    SPEC_commentline.match(line):
                     if SPEC_scanresumed.match(line):
+                        continue
+                    elif SPEC_commentline.match(line):
                         continue
                     else:
                         break
