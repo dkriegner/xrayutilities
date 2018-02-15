@@ -488,7 +488,7 @@ class SPECTRAFile(object):
                         for i in range(len(dlist)):
                             dlist[i] = float(dlist[i])
 
-                        rec_list.append(dlist)
+                        rec_list.append(tuple(dlist))
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.io.SPECTRAFile.Read: data columns: name,type: %s, %s"
