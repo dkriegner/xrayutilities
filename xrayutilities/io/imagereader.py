@@ -146,7 +146,7 @@ class ImageReader(object):
             fh.seek(self.hdrlen)
             # read image
             rlen = numpy.dtype(self.dtype).itemsize * self.nop1 * self.nop2
-            img = numpy.fromstring(fh.read(rlen), dtype=self.dtype)
+            img = numpy.frombuffer(fh.read(rlen), dtype=self.dtype)
             if self.byteswap:
                 img = img.byteswap()
             img.shape = (self.nop1, self.nop2)  # reshape the data
@@ -239,7 +239,7 @@ class TIFFRead(ImageReader):
 
         with xu_open(full_filename, 'rb') as fh:
             self.byteorder = fh.read(2*dlen['char'])
-            self.version = numpy.fromstring(fh.read(dlen['word']),
+            self.version = numpy.frombuffer(fh.read(dlen['word']),
                                             dtype=numpy.uint16)[0]
             if self.byteorder not in (b'II', b'MM') or self.version != 42:
                 raise TypeError("Not a TIFF file (%s)" % filename)
@@ -248,17 +248,17 @@ class TIFFRead(ImageReader):
                                           "implemented, please file a bug!")
 
             fh.seek(4)
-            self.ifdoffset = numpy.fromstring(fh.read(dlen['dword']),
+            self.ifdoffset = numpy.frombuffer(fh.read(dlen['dword']),
                                               dtype=numpy.uint32)[0]
             fh.seek(self.ifdoffset)
 
-            self.ntags = numpy.fromstring(fh.read(dlen['word']),
+            self.ntags = numpy.frombuffer(fh.read(dlen['word']),
                                           dtype=numpy.uint16)[0]
 
             self._parseImgTags(fh, self.ntags)
 
             fh.seek(self.ifdoffset + 2 + 12 * self.ntags)
-            nextimgoffset = numpy.fromstring(fh.read(dlen['dword']),
+            nextimgoffset = numpy.frombuffer(fh.read(dlen['dword']),
                                              dtype=numpy.uint32)[0]
             if nextimgoffset != 0:
                 raise NotImplementedError("Multiple images per file are not "
@@ -298,13 +298,13 @@ class TIFFRead(ImageReader):
 
         self.imgtags = {}
         for i in range(ntags):
-            ftag = numpy.fromstring(fh.read(dlen['word']),
+            ftag = numpy.frombuffer(fh.read(dlen['word']),
                                     dtype=numpy.uint16)[0]
-            ftype = numpy.fromstring(fh.read(dlen['word']),
+            ftype = numpy.frombuffer(fh.read(dlen['word']),
                                      dtype=numpy.uint16)[0]
-            flength = numpy.fromstring(fh.read(dlen['dword']),
+            flength = numpy.frombuffer(fh.read(dlen['dword']),
                                        dtype=numpy.uint32)[0]
-            fdoffset = numpy.fromstring(fh.read(dlen['dword']),
+            fdoffset = numpy.frombuffer(fh.read(dlen['dword']),
                                         dtype=numpy.uint32)[0]
 
             pos = fh.tell()
@@ -316,7 +316,7 @@ class TIFFRead(ImageReader):
                 fdata = fdata.rstrip('\0')
             else:
                 rlen = flength * dlen[dtypes[ftype]]
-                fdata = numpy.fromstring(fh.read(rlen), dtype=nptyp[ftype])
+                fdata = numpy.frombuffer(fh.read(rlen), dtype=nptyp[ftype])
             if flength == 1:
                 fdata = fdata[0]
             fh.seek(pos)
