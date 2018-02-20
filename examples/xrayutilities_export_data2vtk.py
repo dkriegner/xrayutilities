@@ -20,11 +20,11 @@
 import os
 
 import numpy
-import xrayutilities as xu
-
 import vtk
-import xrayutilities_id01_functions as id01
+import xrayutilities as xu
 from vtk.util import numpy_support
+
+import xrayutilities_id01_functions as id01
 
 home = "DATADIR"  # data path (root)
 datadir = os.path.join(home, "FOLDERNAME")  # data path for CCD/Maxipix files
