@@ -202,6 +202,32 @@ class CIFFile(object):
         symop_loop = False
         atom_loop = False
 
+        def get_element(cifstring):
+            el = re.sub(r"['\"]", r"", cifstring)
+            if '+' in el or '-' in el:
+                for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+                    el = el.replace(o, r)
+            else:
+                el = re.sub(r"([0-9])", r"", el)
+            el = re.sub(r"\(\w*\)", r"", el)
+            try:
+                element = getattr(elements, el)
+            except AttributeError:  # el not found, typ. due to oxidation state
+                f = re.search('[0-9]', el)
+                elname = el[:f.start()]
+                if hasattr(elements, elname):
+                    # here one might want to find a closer alternative than the
+                    # neutral atom, but the effect this has should be minimal,
+                    # currently simply the neutral atom is used
+                    if config.VERBOSITY >= config.INFO_LOW:
+                        print('XU.material: element %s used instead of %s'
+                              % (elname, cifstring))
+                    element = getattr(elements, elname)
+                else:
+                    raise ValueError('XU.material: element (%s) could not be '
+                                     'found' % (cifstring))
+            return element
+
         def floatconv(string):
             """
             helper function to convert string with possible error
@@ -307,14 +333,14 @@ class CIFFile(object):
             elif atom_loop:  # atom label and position
                 loop_start = False
                 asplit = line.split()
-                alabel = asplit[alab_idx]
+                atom = get_element(asplit[alab_idx])
                 apos = (floatconv(asplit[ax_idx]),
                         floatconv(asplit[ay_idx]),
                         floatconv(asplit[az_idx]))
                 occ = floatconv(asplit[occ_idx]) if occ_idx else 1
                 uiso = floatconv(asplit[uiso_idx]) if uiso_idx else 0
                 biso = 8 * numpy.pi**2 * uiso
-                self.atoms.append((alabel, apos, occ, biso))
+                self.atoms.append((atom, apos, occ, biso))
 
     def SymStruct(self):
         """
@@ -352,16 +378,9 @@ class CIFFile(object):
                 print('XU.material: space group identified as %s' % self.sgrp)
 
         # determine all unique positions for definition of a P1 space group
-        def get_element_name(cifstring):
-            el = re.sub(r"['\"]", r"", cifstring)
-            el = re.sub(r"([0-9])", r"", el)
-            el = re.sub(r"\(\w*\)", r"", el)
-            return el
-
         self.unique_positions = []
-        for cifel, (x, y, z), occ, biso in self.atoms:
+        for el, (x, y, z), occ, biso in self.atoms:
             unique_pos = []
-            el = get_element_name(cifel)
             for symop in self.symops:
                 pos = eval("numpy.array(" + symop + ")")
                 # check that position is within unit cell
@@ -374,8 +393,7 @@ class CIFFile(object):
                         unique = False
                 if unique:
                     unique_pos.append(pos)
-            element = getattr(elements, el)
-            self.unique_positions.append((element, unique_pos, occ, biso))
+            self.unique_positions.append((el, unique_pos, occ, biso))
 
         # determine Wyckoff positions and free parameters of unit cell
         if hasattr(self, 'sgrp'):
@@ -386,8 +404,7 @@ class CIFFile(object):
             allwyckp = wyckpos.wp[self.sgrp]
             keys = list(allwyckp.keys())
             wpn = [int(re.sub(r"([a-z])", r"", k)) for k in keys]
-            for i, (cifel, (x, y, z), occ, biso) in enumerate(self.atoms):
-                el = get_element_name(cifel)
+            for i, (el, (x, y, z), occ, biso) in enumerate(self.atoms):
                 # candidate positions from number of unique atoms
                 natoms = len(self.unique_positions[i][1])
                 wpcand = []
