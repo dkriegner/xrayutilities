@@ -175,12 +175,15 @@ def wavelength(wl):
         raise InputError("wrong type for argument wavelength")
 
 
-def exchange_path(orig, new, keep=0):
+def exchange_path(orig, new, keep=0, replace=None):
     """
     function to exchange the root of a path with the option of keeping the
     inner directory structure. This for example includes such a conversion
     /dir_a/subdir/images/sample -> /home/user/data/images/sample
-    where the two innermost directory names are kept (keep=2)
+    where the two innermost directory names are kept (keep=2), or equally
+    the three outer most are replaced (replace=3). One can either give keep,
+    or replace, with replace taking preference if both are given. Note that
+    replace=1 on Linux/Unix replaces only the root for absolute paths.
 
     Parameters
     ----------
@@ -188,6 +191,8 @@ def exchange_path(orig, new, keep=0):
      new:   new path which should be used instead
      keep:  (optional) number of inner most directory names which should be
             kept the same in the output (default = 0)
+     replace:  (optional) number of outer most directory names which should be
+               replaced in the output (default = None)
 
     Returns
     -------
@@ -195,35 +200,55 @@ def exchange_path(orig, new, keep=0):
 
     Examples
     --------
-    >>> exchange_path('/dir_a/subdir/img/sam', '/home/user/data', 2)
+    >>> exchange_path('/dir_a/subdir/img/sam', '/home/user/data', keep=2)
     '/home/user/data/img/sam'
     """
     subdirs = []
     o = orig
-    for i in range(keep):
-        o, s = os.path.split(o)
-        subdirs.append(s)
-    out = new
-    subdirs.reverse()
-    for s in subdirs:
-        out = os.path.join(out, s)
+    if replace is None:
+        for i in range(keep):
+            o, s = os.path.split(o)
+            subdirs.append(s)
+        out = new
+        subdirs.reverse()
+        for s in subdirs:
+            out = os.path.join(out, s)
+    else:
+        while True:
+            o, s = os.path.split(o)
+            if s is '':
+                subdirs.append(o)
+                break
+            elif o is '':
+                subdirs.append(s)
+                break
+            else:
+                subdirs.append(s)
+        subdirs.reverse()
+        out = new
+        for s in subdirs[replace:]:
+            out = os.path.join(out, s)
     return out
 
 
-def exchange_filepath(orig, new, keep=0):
+def exchange_filepath(orig, new, keep=0, replace=None):
     """
     function to exchange the root of a filename with the option of keeping the
     inner directory structure. This for example includes such a conversion
     /dir_a/subdir/sample/file.txt -> /home/user/data/sample/file.txt
-    where the innermost directory name is kept (keep=1)
+    where the innermost directory name is kept (keep=1), or equally
+    the three outer most are replaced (replace=3). One can either give keep,
+    or replace, with replace taking preference if both are given. Note that
+    replace=1 on Linux/Unix replaces only the root for absolute paths.
 
     Parameters
     ----------
      orig:  original filename which should have its data root replaced
      new:   new path which should be used instead
      keep:  (optional) number of inner most directory names which should be
-            kept the same in the output (default = 0). Note that the filename
-            is always return unchanged also with keep=0.
+            kept the same in the output (default = 0)
+     replace:  (optional) number of outer most directory names which should be
+               replaced in the output (default = None)
 
     Returns
     -------
@@ -235,6 +260,9 @@ def exchange_filepath(orig, new, keep=0):
     '/data/sam/file.txt'
     """
     if new:
-        return exchange_path(orig, new, keep+1)
+        if replace is None:
+            return exchange_path(orig, new, keep+1)
+        else:
+            return exchange_path(orig, new, replace=replace)
     else:
         return orig
