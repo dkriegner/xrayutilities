@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a class for observing a SPEC data file
@@ -505,6 +505,37 @@ class SPECScan(object):
 
             h5.flush()
 
+    def getheader_element(self, key, firstonly=True):
+        """
+        return the value-string of the first appearance of this SPECScan's
+        header element, or a list of all values if firstonly=False
+
+        Parameters
+        ----------
+         specscan:  SPECScan object
+         key:       name of the key to return; e.g. 'UMONO' or 'D'
+         firstonly: flag to specify if all instances or only the first one
+                    should be returned
+
+        Returns
+        -------
+         valuestring (if firstonly=True)
+         or [str1, str2, ...] (if firstonly=False)
+        """
+        if not self.header:
+            self.ReadData()
+        re_key = re.compile(r'^#%s (.*)' % key)
+        ret = []
+        for line in self.header:
+            m = re_key.match(line)
+            if m:
+                if firstonly:
+                    ret = m.groups()[0]
+                    break
+                else:
+                    ret.append(m.groups()[0])
+        return ret
+
 
 class SPECFile(object):
 
@@ -577,7 +608,7 @@ class SPECFile(object):
             else:
                 raise AttributeError("requested scan-number not found")
         else:
-            raise AttributeError("FastScan has no attribute '%s'" % name)
+            raise AttributeError("SPECFile has no attribute '%s'" % name)
 
     def __len__(self):
         return self.scan_list.__len__()
@@ -701,7 +732,7 @@ class SPECFile(object):
                     time = SPEC_time_format.findall(line)[0]
                     line = SPEC_time_format.sub("", line)
                     line = SPEC_datetime.sub("", line)
-                    date = SPEC_multi_blank.sub(" ", line)
+                    date = SPEC_multi_blank.sub(" ", line).strip()
 
                 # if the line contains the integration time
                 elif SPEC_exptime.match(line) and scan_started:

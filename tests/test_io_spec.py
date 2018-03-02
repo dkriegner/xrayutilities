@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015,2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
 import unittest
@@ -35,6 +35,7 @@ class TestIO_SPEC(unittest.TestCase):
     dmin = 1.0
     motmax = 95.407753
     motmin = 15.40775
+    date = 'Mon Nov 04 21:18:05 2013'
     tpos = 2400
     dtpos = 6.0
     scannr = 43
@@ -46,8 +47,9 @@ class TestIO_SPEC(unittest.TestCase):
     def setUpClass(cls):
         cls.specfile = xu.io.SPECFile(testfile, path=datadir)
         cls.specfile.Update()  # this should be a noop
-        cls.specfile.scan43.ReadData()
-        cls.sdata = cls.specfile.scan43.data
+        cls.specscan = getattr(cls.specfile, 'scan%d' % cls.scannr)
+        cls.specscan.ReadData()
+        cls.sdata = cls.specscan.data
         cls.motor, cls.inte = xu.io.getspec_scan(cls.specfile, cls.scannr,
                                                  cls.motorname,
                                                  cls.countername)
@@ -63,6 +65,9 @@ class TestIO_SPEC(unittest.TestCase):
         self.assertEqual(self.dshape, self.sdata.shape)
         self.assertEqual(self.dshape, self.inte.shape)
         self.assertEqual(self.dshape, self.motor.shape)
+
+    def test_getheader(self):
+        self.assertEqual(self.date, self.specscan.getheader_element('D'))
 
     def test_datavalues(self):
         self.assertAlmostEqual(self.motmax, self.motor.max(), places=6)
