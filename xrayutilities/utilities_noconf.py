@@ -216,10 +216,10 @@ def exchange_path(orig, new, keep=0, replace=None):
     else:
         while True:
             o, s = os.path.split(o)
-            if s is '':
+            if not s:
                 subdirs.append(o)
                 break
-            elif o is '':
+            elif not o:
                 subdirs.append(s)
                 break
             else:
