@@ -199,7 +199,7 @@ class EDFFile(object):
                     self._data_offsets.append(offset)
                     # jump over data block
                     tot_nofp = self._dimx[-1] * self._dimy[-1]
-                    dsize = struct.calcsize(tot_nofp * self._fmt_str[-1])
+                    dsize = tot_nofp * struct.calcsize(self._fmt_str[-1])
                     fid.seek(offset + dsize, 0)
                     offset += dsize
 
