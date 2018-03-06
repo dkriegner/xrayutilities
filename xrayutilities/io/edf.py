@@ -252,7 +252,7 @@ class EDFFile(object):
             # read the data
             tot_nofp = self._dimx[nimg] * self._dimy[nimg]
             fmt_str = self._fmt_str[nimg]
-            bindata = binfid.read(struct.calcsize(tot_nofp * fmt_str))
+            bindata = binfid.read(tot_nofp * struct.calcsize(fmt_str))
         else:
             with xu_open(self.full_filename, 'rb') as binfid:
                 # move to the data section - jump over the header
@@ -260,19 +260,20 @@ class EDFFile(object):
                 # read the data
                 tot_nofp = self._dimx[nimg] * self._dimy[nimg]
                 fmt_str = self._fmt_str[nimg]
-                bindata = binfid.read(struct.calcsize(tot_nofp * fmt_str))
+                bindata = binfid.read(tot_nofp * struct.calcsize(fmt_str))
         if config.VERBOSITY >= config.DEBUG:
             print("XU.io.EDFFile: read binary data: nofp: %d len: %d"
                   % (tot_nofp, len(bindata)))
             print("XU.io.EDFFile: format: %s" % fmt_str)
 
         try:
-            num_data = struct.unpack(tot_nofp * fmt_str, bindata)
+            data = numpy.frombuffer(bindata, count=tot_nofp, dtype=fmt_str)
         except:
             if fmt_str == 'L':
                 fmt_str = 'I'
                 try:
-                    num_data = struct.unpack(tot_nofp * fmt_str, bindata)
+                    data = numpy.frombuffer(bindata, count=tot_nofp,
+                                            dtype=fmt_str)
                 except:
                     raise IOError("XU.io.EDFFile: data format (%s) has "
                                   "different byte-length, from amount of data "
@@ -283,30 +284,6 @@ class EDFFile(object):
                               "byte-length, from amount of data one expects "
                               "%d bytes per entry"
                               % (fmt_str, len(bindata) / tot_nofp))
-
-        # find the proper datatype
-        if self._dtype[nimg] == "SignedByte":
-            data = numpy.asarray(num_data, dtype=numpy.int8)
-        elif self._dtype[nimg] == "SignedShort":
-            data = numpy.asarray(num_data, dtype=numpy.int16)
-        elif self._dtype[nimg] == "SignedInteger":
-            data = numpy.asarray(num_data, dtype=numpy.int32)
-        elif self._dtype[nimg] == "SignedLong":
-            data = numpy.asarray(num_data, dtype=numpy.int64)
-        elif self._dtype[nimg] == "FloatValue":
-            data = numpy.asarray(num_data, dtype=numpy.float)
-        elif self._dtype[nimg] == "DoubleValue":
-            data = numpy.asarray(num_data, dtype=numpy.double)
-        elif self._dtype[nimg] == "UnsignedByte":
-            data = numpy.asarray(num_data, dtype=numpy.uint8)
-        elif self._dtype[nimg] == "UnsignedShort":
-            data = numpy.asarray(num_data, dtype=numpy.uint16)
-        elif self._dtype[nimg] == "UnsignedInt":
-            data = numpy.asarray(num_data, dtype=numpy.uint32)
-        elif self._dtype[nimg] == "UnsignedLong":
-            data = numpy.asarray(num_data, dtype=numpy.uint64)
-        else:
-            data = numpy.asarray(num_data, dtype=numpy.double)
 
         data.shape = (self._dimy[nimg], self._dimx[nimg])
 

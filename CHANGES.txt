@@ -1,3 +1,4 @@
+* speed optimization in EDF parser
 * add getheader_element to SPECScan
 * try to parse oxidation state of elements from a CIF file
 * numpy 1.14 related fixes (mostly in file parsers)
