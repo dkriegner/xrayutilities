@@ -45,6 +45,7 @@ class SMaterial(object):
     Simulation Material. Extends the xrayutilities Materials by properties
     needed for simulations
     """
+
     def __init__(self, material, **kwargs):
         """
         initialize a simulation material by specifiying its Material and
@@ -91,6 +92,7 @@ class MaterialList(collections.MutableSequence):
     class representing the basics of a list of materials for simulations within
     xrayutilities. It extends the built in list type.
     """
+
     def __init__(self, name, *args):
         self.name = name
         self.list = list()
@@ -170,6 +172,7 @@ class Layer(SMaterial):
     thickness:  film thickness in Angstrom
     roughness:  root mean square roughness of the top interface in Angstrom
     """
+
     def __init__(self, material, thickness, **kwargs):
         """
         constructor for the material saving its properties
@@ -198,6 +201,7 @@ class LayerStack(MaterialList):
     extends the built in list type to enable building a stack of Layer by
     various methods.
     """
+
     def check(self, v):
         if not isinstance(v, Layer):
             raise TypeError('LayerStack can only contain Layer as entries!')
@@ -208,6 +212,7 @@ class CrystalStack(LayerStack):
     extends the built in list type to enable building a stack of crystalline
     Layers by various methods.
     """
+
     def check(self, v):
         super(CrystalStack, self).check(v)
         if not isinstance(v.material, Crystal):
@@ -219,6 +224,7 @@ class GradedLayerStack(CrystalStack):
     """
     generates a sequence of layers with a gradient in chemical composition
     """
+
     def __init__(self, alloy, xfrom, xto, nsteps, thickness, **kwargs):
         """
         constructor for a graded buffer of the material 'alloy' with chemical
@@ -306,6 +312,7 @@ class Powder(SMaterial):
      strain_lor: extra peak width proportional to tan(theta)
      strain_gauss: extra peak width proportional to tan(theta)
     """
+
     def __init__(self, material, volume, **kwargs):
         """
         constructor for the material saving its properties
@@ -379,6 +386,7 @@ class PowderList(MaterialList):
     extends the built in list type to enable building a list of Powder
     by various methods.
     """
+
     def check(self, v):
         if not isinstance(v, Powder):
             raise TypeError('PowderList can only contain Powder as entries!')

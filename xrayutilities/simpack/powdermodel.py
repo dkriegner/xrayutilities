@@ -32,6 +32,7 @@ class PowderModel(object):
     calculations the Powder class together with the Fundamental parameters
     approach is used.
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a powder model. The arguments consist of a PowderList

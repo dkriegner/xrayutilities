@@ -1642,6 +1642,7 @@ class convolver_handler(object):
     """
     manage the convolvers of on process
     """
+
     def __init__(self):
         self.convolvers = []
 

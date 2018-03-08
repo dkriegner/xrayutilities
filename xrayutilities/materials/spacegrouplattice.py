@@ -56,6 +56,7 @@ class RangeDict(dict):
         else:
             return super(RangeDict, self).__getitem__(item)
 
+
 # space group number to symmetry and number of parameters dictionary
 sgrp_sym = RangeDict({range(1, 3): ('triclinic', 6),
                       range(3, 16): ('monoclinic', 4),
@@ -246,6 +247,7 @@ class SGLattice(object):
 
     this replaces the deprecated Lattice class
     """
+
     def __init__(self, sgrp, *args, **kwargs):
         """
         initialize class with space group number and atom list

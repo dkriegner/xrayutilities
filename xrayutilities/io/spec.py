@@ -912,6 +912,7 @@ class SPECLog(object):
     """
     class to parse a SPEC log file to find the command history
     """
+
     def __init__(self, filename, prompt, path=""):
         """
         init routine for a class to read a SPEC log file

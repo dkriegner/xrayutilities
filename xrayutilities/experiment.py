@@ -2321,6 +2321,7 @@ class PowderExperiment(Experiment):
     Experimental class for powder diffraction which helps to convert theta
     angles to momentum transfer space
     """
+
     def __init__(self, **kwargs):
         """
         class constructor which takes the same keyword arguments as the

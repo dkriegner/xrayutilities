@@ -223,6 +223,7 @@ class TIFFRead(ImageReader):
 
     The data stored in the image are available in the 'data' property.
     """
+
     def __init__(self, filename, path=None):
         """
         initialization of the class which will prepare the parser and parse

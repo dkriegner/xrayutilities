@@ -126,6 +126,7 @@ class Material(utilities.ABC):
     crystalline materials are described by this class from which Amorphous and
     Crystal are derived from.
     """
+
     def __init__(self, name, cij=None):
         if cij is None:
             self.cij = numpy.zeros((6, 6), dtype=numpy.double)
@@ -274,6 +275,7 @@ class Amorphous(Material):
     """
     amorphous materials are described by this class
     """
+
     def __init__(self, name, density, atoms=None, cij=None):
         """
         constructor of an amorphous material. The amorphous material is
@@ -471,6 +473,7 @@ class Crystal(Material):
     """
     Crystalline materials are described by this class
     """
+
     def __init__(self, name, lat, cij=None, thetaDebye=None):
         super(Crystal, self).__init__(name, cij)
 

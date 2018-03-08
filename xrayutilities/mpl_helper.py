@@ -135,5 +135,6 @@ class SqrtTickLocator(mticker.Locator):
 
         return mtransforms.nonsingular(math.copysign(vmin**2, vmin), vmax**2)
 
+
 # register new scale to matplotlib
 mscale.register_scale(SqrtAllowNegScale)

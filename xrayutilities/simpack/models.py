@@ -38,6 +38,7 @@ class Model(object):
     """
     generic model class from which further models can be derived from
     """
+
     def __init__(self, experiment, **kwargs):
         """
         constructor for a generical simulation model.
@@ -130,6 +131,7 @@ class LayerModel(Model, utilities.ABC):
     """
     generic model class from which further thin film models can be derived from
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a thin film model. The arguments consist of a
@@ -227,6 +229,7 @@ class KinematicalModel(LayerModel):
     The surface geometry is specified using the Experiment-object given to the
     constructor.
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a kinematic thin film model. The arguments consist of a
@@ -356,6 +359,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
     lattice parameter along qz. Therefore this description only works for (001)
     surfaces.
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a kinematic thin film model. The arguments consist of a
@@ -452,6 +456,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
           approximations severely fail for distances far from the reference
           position.
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a diffraction model. The arguments consist of a
@@ -756,6 +761,7 @@ class SpecularReflectivityModel(LayerModel):
     """
     model for specular reflectivity calculations
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a reflectivity model. The arguments consist of a

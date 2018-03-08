@@ -81,6 +81,7 @@ class SeifertHeader(object):
     """
     helper class to represent a Seifert (NJA) scan file header
     """
+
     def __init__(self):
         pass
 
@@ -100,6 +101,7 @@ class SeifertMultiScan(object):
     """
     Class to parse a Seifert (NJA) multiscan file
     """
+
     def __init__(self, filename, m_scan, m2, path=""):
         """
         Parse data from a multiscan Seifert file.
@@ -185,6 +187,7 @@ class SeifertScan(object):
     """
     Class to parse a single Seifert (NJA) scan file
     """
+
     def __init__(self, filename, path=""):
         """
         Constructor for a SeifertScan object.

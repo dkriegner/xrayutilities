@@ -59,6 +59,7 @@ def trytomake(obj, key, typefunc):
     except KeyError:
         pass
 
+
 # read global default values for configuration variables
 with open(os.path.join(__path__[0], "xrayutilities_default.conf")) as conffile:
     xuParser.readfp(conffile)
