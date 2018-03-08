@@ -338,7 +338,11 @@ class CIFFile(object):
                         floatconv(asplit[ay_idx]),
                         floatconv(asplit[az_idx]))
                 occ = floatconv(asplit[occ_idx]) if occ_idx else 1
+                if numpy.isnan(occ):
+                    occ = 1
                 uiso = floatconv(asplit[uiso_idx]) if uiso_idx else 0
+                if numpy.isnan(uiso):
+                    uiso = 0
                 biso = 8 * numpy.pi**2 * uiso
                 self.atoms.append((atom, apos, occ, biso))
 

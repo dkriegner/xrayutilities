@@ -1,6 +1,7 @@
 * speed optimization in EDF parser
 * add getheader_element to SPECScan
-* try to parse oxidation state of elements from a CIF file
+* try to parse oxidation state of elements from a CIF file, and ignore '.' and
+  '?' values for Debye-Waller factors and occupation
 * numpy 1.14 related fixes (mostly in file parsers)
 * fix bugs in spacegroups whos Wyckoff position contains a multiplication
 * make U/UB matrix compatible with the definition in SPEC
