@@ -516,7 +516,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
                                     (1 + (2 * (x - lp[0]) / lp[1]) ** 2) ** 2)
                 derp = numpy.append(derp, 4 * (lp[0] - x) * lp[2] /
                                     lp[1] ** 2 / (1 + (2 * (x - lp[0]) /
-                                                  lp[1]) ** 2) ** 2)
+                                                       lp[1]) ** 2) ** 2)
                 derp = numpy.append(derp,
                                     1 / (1 + (2 * (x - p[0]) / p[1]) ** 2))
 

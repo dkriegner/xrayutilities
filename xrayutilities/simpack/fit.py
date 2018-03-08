@@ -166,8 +166,8 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
         else:
             zord = 1
         fline, = plt.semilogy(
-                ai[mask], xrr_residual(params, ai[mask], reflmod, data=None),
-                'r-', lw=2, label='fit', zorder=zord)
+            ai[mask], xrr_residual(params, ai[mask], reflmod, data=None),
+            'r-', lw=2, label='fit', zorder=zord)
         plt.legend()
         plt.xlabel('incidence angle (deg)')
         plt.ylabel('Intensity (arb. u.)')
@@ -190,10 +190,10 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
             plt.pause(0.001)  # enable better mpl backend compatibility
 
     minimizer = lmfit.Minimizer(
-            xrr_residual, params, fcn_args=(ai[mask], reflmod),
-            fcn_kws={'data': data[mask], 'eps': eps[mask], 'fline': fline,
-                     'verbose': verbose, 'plot': plot, 'elog': elog},
-            iter_cb=cb_func, maxfev=maxfev)
+        xrr_residual, params, fcn_args=(ai[mask], reflmod),
+        fcn_kws={'data': data[mask], 'eps': eps[mask], 'fline': fline,
+                 'verbose': verbose, 'plot': plot, 'elog': elog},
+        iter_cb=cb_func, maxfev=maxfev)
     res = minimizer.minimize()
 
     # final update of plot

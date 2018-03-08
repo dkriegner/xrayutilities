@@ -598,8 +598,8 @@ class QConversion(object):
                   % (str(sAngles), str(dAngles)))
 
         qpos = cxrayutilities.ang2q_conversion(
-                sAngles, dAngles, self.r_i, sAxis, dAxis,
-                self._kappa_dir, UB, sd, wl, config.NTHREADS, flags)
+            sAngles, dAngles, self.r_i, sAxis, dAxis,
+            self._kappa_dir, UB, sd, wl, config.NTHREADS, flags)
 
         if Npoints == 1:
             return (qpos[0, 0], qpos[0, 1], qpos[0, 2])
@@ -798,9 +798,9 @@ class QConversion(object):
         dAxis = self._detectorAxis_str
 
         qpos = cxrayutilities.ang2q_conversion_linear(
-                sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
-                cch, pwidth, roi, self._linear_detdir, self._linear_tilt,
-                UB, sd, wl, config.NTHREADS, flags)
+            sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
+            cch, pwidth, roi, self._linear_detdir, self._linear_tilt,
+            UB, sd, wl, config.NTHREADS, flags)
 
         # reshape output
         if Npoints == 1:
@@ -1062,10 +1062,10 @@ class QConversion(object):
         dAxis = self._detectorAxis_str
 
         qpos = cxrayutilities.ang2q_conversion_area(
-                sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
-                cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
-                self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
-                UB, sd, wl, config.NTHREADS, flags)
+            sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
+            cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
+            self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
+            UB, sd, wl, config.NTHREADS, flags)
 
         # reshape output
         if Npoints == 1:

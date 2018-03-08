@@ -375,7 +375,7 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
         # plot error between simulation and experiment
         if exp is not None:
             lines.append(ax.plot(twotheta[mask], exp[mask]-sim, '.-',
-                         color='0.5', label='difference')[0])
+                                 color='0.5', label='difference')[0])
 
     plt.xlabel('2Theta (deg)')
     plt.ylabel('Intensity')

@@ -2028,13 +2028,13 @@ class PowderDiffraction(PowderExperiment):
         mat = self.mat.material
         # calculate maximal Bragg indices
         hma = int(math.ceil(VecNorm(mat.a1) * self.k0 / pi *
-                  sin(math.radians(tt_cutoff / 2.))))
+                            sin(math.radians(tt_cutoff / 2.))))
         hmi = -hma
         kma = int(math.ceil(VecNorm(mat.a2) * self.k0 / pi *
-                  sin(math.radians(tt_cutoff / 2.))))
+                            sin(math.radians(tt_cutoff / 2.))))
         kmi = -kma
         lma = int(math.ceil(VecNorm(mat.a3) * self.k0 / pi *
-                  sin(math.radians(tt_cutoff / 2.))))
+                            sin(math.radians(tt_cutoff / 2.))))
         lmi = -lma
 
         if config.VERBOSITY >= config.INFO_ALL:

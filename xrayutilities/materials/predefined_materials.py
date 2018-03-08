@@ -160,20 +160,21 @@ V = Crystal("V", SGLattice(229, 3.024, atoms=[e.V, ], pos=['2a', ]))
 Ta = Crystal("Ta", SGLattice(229, 3.306, atoms=[e.Ta, ], pos=['2a', ]))
 Pt = Crystal("Pt", SGLattice(225, 3.9242, atoms=[e.Pt, ], pos=['4a', ]))
 Ag2Se = Crystal("Ag2Se", SGLattice(19, 4.333, 7.062, 7.764,
-                atoms=[e.Ag, e.Ag, e.Se],
-                pos=[('4a', (0.107, 0.369, 0.456)),
-                     ('4a', (0.728, 0.029, 0.361)),
-                     ('4a', (0.358, 0.235, 0.149))]))
+                                   atoms=[e.Ag, e.Ag, e.Se],
+                                   pos=[('4a', (0.107, 0.369, 0.456)),
+                                        ('4a', (0.728, 0.029, 0.361)),
+                                        ('4a', (0.358, 0.235, 0.149))]))
 VO2_Rutile = Crystal("VO2", SGLattice(136, 4.55, 2.88, atoms=[e.V, e.O],
                                       pos=['2a', ('4f', 0.305)]))
 VO2_Baddeleyite = Crystal("VO2", SGLattice(14, 5.75, 5.42, 5.38, 122.6,
-                          atoms=[e.V, e.O, e.O],
-                          pos=[('4e', (0.242, 0.975, 0.025)),
-                               ('4e', (0.1, 0.21, 0.20)),
-                               ('4e', (0.39, 0.69, 0.29))]))
+                                           atoms=[e.V, e.O, e.O],
+                                           pos=[('4e', (0.242, 0.975, 0.025)),
+                                                ('4e', (0.1, 0.21, 0.20)),
+                                                ('4e', (0.39, 0.69, 0.29))]))
 SiO2 = Crystal("SiO2", SGLattice(154, 4.916, 5.4054, atoms=[e.Si, e.O],
-               pos=[('3a', 0.46970),
-                    ('6c', (0.41350, 0.26690, 0.11910+2/3.))]))
+                                 pos=[('3a', 0.46970),
+                                      ('6c', (0.41350, 0.26690,
+                                              0.11910+2/3.))]))
 In = Crystal("In", SGLattice(139, 3.2523, 4.9461, atoms=[e.In, ],
                              pos=['2a', ]))
 Sb = Crystal("Sb", SGLattice('166:H', 4.307, 11.273, atoms=[e.Sb, ],

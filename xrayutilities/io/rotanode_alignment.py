@@ -159,7 +159,8 @@ class RA_Alignment(object):
         self.data = []
         for i, k in enumerate(self.keys()):
             self.data.append(numpy.array((self.motorpos[i],
-                             self.intensities[i], self.iterations[i])))
+                                          self.intensities[i],
+                                          self.iterations[i])))
 
     def __str__(self):
         """

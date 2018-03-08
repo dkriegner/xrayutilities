@@ -28,6 +28,7 @@ import time
 
 import numpy
 import scipy.optimize as optimize
+from numpy import cos, degrees, radians, sin, tan
 from scipy.ndimage.measurements import center_of_mass
 from scipy.odr import odrpack as odr
 from scipy.odr import models
@@ -109,9 +110,9 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
                w_pix the width of one detector channel
          x ... independent variable of the model: detector angle (degree)
         """
-        rad = numpy.radians(x)
-        r = math.degrees(p[0]) * numpy.sin(rad) / \
-            numpy.cos(rad - math.radians(p[2])) + p[1]
+        rad = radians(x)
+        r = math.degrees(p[0]) * sin(rad) / \
+            cos(rad - math.radians(p[2])) + p[1]
         return r
 
     def straight_tilt_der_x(p, x):
@@ -119,11 +120,11 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         derivative of straight-linear detector model with respect to the angle
         for parameter description see straigt_tilt
         """
-        rad = numpy.radians(x)
+        rad = radians(x)
         p2 = math.radians(p[2])
         r = math.degrees(p[0]) * \
-            (numpy.cos(rad) / numpy.cos(rad - p2) +
-             numpy.sin(rad) / numpy.cos(rad - p2) ** 2 * numpy.sin(rad - p2))
+            (cos(rad) / cos(rad - p2) +
+             sin(rad) / cos(rad - p2) ** 2 * sin(rad - p2))
         return r
 
     def straight_tilt_der_p(p, x):
@@ -131,14 +132,12 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         derivative of straight-linear detector model with respect to the
         paramters for parameter description see straigt_tilt
         """
-        rad = numpy.radians(x)
+        rad = radians(x)
         p2 = math.radians(p[2])
-        r = numpy.concatenate([numpy.degrees(numpy.sin(rad)) /
-                               numpy.cos(rad - p2),
-                               numpy.ones(x.shape, dtype=numpy.float),
-                               - math.degrees(p[0]) * numpy.sin(rad) /
-                               numpy.cos(rad - p2) ** 2 *
-                               numpy.sin(rad - p2)])
+        r = numpy.concatenate([degrees(sin(rad)) / cos(rad - p2),
+                               ones(x.shape, dtype=numpy.float),
+                               - math.degrees(p[0]) * sin(rad) /
+                               cos(rad - p2) ** 2 * sin(rad - p2)])
         r.shape = (3,) + x.shape
         return r
 
@@ -152,7 +151,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
 
     # fit linear with tangens angle
     model = models.unilinear
-    data = odr.RealData(numpy.degrees(numpy.tan(numpy.radians(angles))),
+    data = odr.RealData(degrees(tan(radians(angles))),
                         channels, sy=stdevu)
     my_odr = odr.ODR(data, model)
     # fit type 2 for least squares
@@ -188,7 +187,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
                               angles.max() + angr * .1, 1000)
         if modelline:
             plt.plot(angp, models._unilin(fittan.beta,
-                     numpy.degrees(numpy.tan(numpy.radians(angp)))),
+                                          degrees(tan(radians(angp)))),
                      modelline, label=mlabel, lw=linewidth)
         plt.plot(angp, models._unilin(fitlin.beta, angp), 'k-', label='')
         if usetilt:
@@ -212,7 +211,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         ax2 = plt.subplot(212, sharex=ax1)
         if modelline:
             plt.plot(angp, models._unilin(fittan.beta,
-                     numpy.degrees(numpy.tan(numpy.radians(angp)))) -
+                                          degrees(tan(radians(angp)))) -
                      models._unilin(fitlin.beta, angp),
                      modelline, label=mlabel, lw=linewidth)
         if usetilt:
@@ -519,7 +518,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
             ang2 = numpy.append(ang2, angle2[i])
             if debug:
                 print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-                      cen1, cen2))
+                                                   cen1, cen2))
     Nused = len(ang1)
 
     if debug:
@@ -588,8 +587,9 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                 paramlist.append(param)
                 t2 = time.time()
                 print("%d/%d\t%6.1f %6.2f %8.3f %8.3f: %10.4e (%4.2f) "
-                      "(%5.2fsec)" % ((ict, Ntot) + start[3:] + (epslist[-1],
-                                      epslist[-1] / epsmin, t2 - t1)))
+                      "(%5.2fsec)" % ((ict, Ntot) + start[3:] +
+                                      (epslist[-1],
+                                       epslist[-1] / epsmin, t2 - t1)))
                 ict += 1
 
                 if epslist[-1] < epsmin:
@@ -1019,7 +1019,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         dAngles = dAngles.transpose()
 
         if deg:
-            dAngles = numpy.radians(dAngles)
+            dAngles = radians(dAngles)
 
         qpos = cxrayutilities.ang2q_conversion_area_pixel(
             dAngles, n1, n2, _area_ri, _detectorAxis_str,
@@ -1299,7 +1299,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
             usedhkls.append(hkls[i])
             if debug:
                 print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-                      cen1, cen2))
+                                                   cen1, cen2))
 
     Nused = len(ang1)
     usedhkls = numpy.array(usedhkls)
@@ -1687,8 +1687,8 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         dAngles = dAngles.transpose()
 
         if deg:
-            sAngles = numpy.radians(sAngles)
-            dAngles = numpy.radians(dAngles)
+            sAngles = radians(sAngles)
+            dAngles = radians(dAngles)
 
         qpos = cxrayutilities.ang2q_conversion_area_pixel2(
             sAngles, dAngles, n1, n2, _area_ri, _sampleAxis_str,
@@ -2038,7 +2038,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
         def fitfunc(p, phi):
             return abs(p[2]) * \
-                numpy.cos(numpy.radians(phi - (p[1] % 360.))) + p[0]
+                cos(radians(phi - (p[1] % 360.))) + p[0]
 
     else:
         # first guess for the parameters
@@ -2046,7 +2046,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
         def fitfunc(p, phi):
             return abs(p[1]) * \
-                numpy.cos(numpy.radians(phi - (p[0] % 360.))) + omega0
+                cos(radians(phi - (p[0] % 360.))) + omega0
 
     def errfunc(p, phi, om):
         return fitfunc(p, phi) - om
