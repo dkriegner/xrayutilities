@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014 Raphael Grifone <raphael.grifone@esrf.fr>
-# Copyright (C) 2014-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2014-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 modules to help with the analysis of FastScan data acquired at the ESRF.
@@ -56,8 +56,6 @@ try:
 except NameError:
     basestring = str
 
-SPEC_ImageFile = re.compile(r"^#C imageFile")
-
 
 class FastScan(object):
 
@@ -92,7 +90,7 @@ class FastScan(object):
             self.specfile = filename
             self.filename = self.specfile.filename
             self.full_filename = self.specfile.full_filename
-            self.specscan = self.specfile.__getattr__('scan%d' % self.scannr)
+            self.specscan = getattr(self.specfile, 'scan%d' % self.scannr)
         else:
             self.filename = filename
             self.full_filename = os.path.join(path, filename)
@@ -111,7 +109,7 @@ class FastScan(object):
         # parse the file
         if not self.specscan:
             self.specfile = SPECFile(self.full_filename)
-            self.specscan = self.specfile.__getattr__('scan%d' % self.scannr)
+            self.specscan = getattr(self.specfile, 'scan%d' % self.scannr)
         self.specscan.ReadData()
 
         self.xvalues = self.specscan.data[self.xmotor]
@@ -223,6 +221,31 @@ class FastScanCCD(FastScan):
     CCD frames are recorded and need to be analyzed
     """
 
+    def __init__(self, *args, **kwargs):
+        super(FastScanCCD, self).__init__(*args, **kwargs)
+        self.edffile = None
+        self.nimages = None
+
+    def _getCCDnumbers(self, ccdnr):
+        """
+        internal function to return the ccd frame numbers from the data object
+        or take them from the argument.
+        """
+        if isinstance(ccdnr, basestring):
+            # check if counter is in data fields
+            try:
+                ccdnumbers = self.data[ccdnr]
+            except ValueError:
+                raise ValueError("field named '%s' not found in data parsed "
+                                 "from scan #%d in file %s"
+                                 % (ccdnr, self.scannr, self.filename))
+        elif isinstance(ccdnr, (list, tuple, numpy.ndarray)):
+            ccdnumbers = ccdnr
+        else:
+            raise ValueError("xu.FastScanCCD: wrong data type for "
+                             "argument 'ccdnr'")
+        return ccdnumbers
+
     def _gridCCDnumbers(self, nx, ny, ccdnr, gridrange=None):
         """
         internal function to grid the CCD frame number to produce a list of
@@ -248,30 +271,79 @@ class FastScanCCD(FastScan):
             g2l.dataRange(gridrange[0][0], gridrange[0][1],
                           gridrange[1][0], gridrange[1][1])
 
-        if isinstance(ccdnr, basestring):
-            # check if counter is in data fields
-            try:
-                ccdnumbers = self.data[ccdnr]
-            except ValueError:
-                raise ValueError("field named '%s' not found in data parsed "
-                                 "from scan #%d in file %s"
-                                 % (ccdnr, self.scannr, self.filename))
-        elif isinstance(ccdnr, (list, tuple, numpy.ndarray)):
-            ccdnumbers = ccdnr
-        else:
-            raise ValueError("xu.FastScanCCD: wrong data type for "
-                             "argument 'ccdnr'")
-
+        ccdnumbers = self._getCCDnumbers(ccdnr)
         # assign ccd frames to grid
         g2l(self.xvalues, self.yvalues, ccdnumbers)
 
         return g2l
 
+    def _read_edfimage(self, filename, imgindex, nav, roi, filterfunc):
+        """
+        helper function to obtain one frame from a EDF file
+
+        Parameters
+        ----------
+         filename:     EDF file name
+         imgindex:     index of frame inside the given EDF file
+         nav:          number of detector pixel which will be averaged together
+                       (reduces the date size)
+         roi:          region of interest on the 2D detector. should be a list
+                       of lower and upper bounds of detector channels for the
+                       two pixel directions (default: None)
+         filterfunc:   function applied to the CCD-frames before any
+                       processing. this function should take a single argument
+                       which is the ccddata which need to be returned with the
+                       same shape!  e.g. remove hot pixels, flat/darkfield
+                       correction
+
+        Returns
+        -------
+         numpy 2D array with EDF frame
+        """
+        if roi is None:
+            kwdict = {}
+        else:
+            kwdict = {'roi': roi}
+        if not self.edffile:
+            self.edffile = EDFFile(filename, keep_open=True)
+        else:
+            if self.edffile.filename != filename:
+                self.edffile = EDFFile(filename, keep_open=True)
+
+        if filterfunc:
+            ccdfilt = filterfunc(self.edffile.ReadData(imgindex))
+        else:
+            ccdfilt = self.edffile.ReadData(imgindex)
+        if roi is None and nav[0] == 1 and nav[1] == 1:
+            return ccdfilt
+        else:
+            return blockAverage2D(ccdfilt, nav[0], nav[1], **kwdict)
+
+    def _get_image_number(self, imgnum, imgoffset, fileoffset, ccdfiletmp):
+        """
+        function to obtain the image and file number. The logic for obtain this
+        is likely to change between beamtimes.
+
+        Parameters
+        ----------
+         imgnum:        running image number from the data file
+         imgoffset:     offset in the image number
+         fileoffset:    offset in the file number
+         ccdfiletmp:    ccd file template string
+        """
+        if not self.edffile:
+            self.edffile = EDFFile(ccdfiletmp % fileoffset, keep_open=True)
+        if self.nimages is None:
+            self.nimages = self.edffile.nimages
+        filenumber = int((imgnum - imgoffset) // self.nimages + fileoffset)
+        imgindex = int((imgnum - imgoffset) % self.nimages)
+        return imgindex, filenumber
+
     def getccdFileTemplate(self, specscan, datadir=None, keepdir=0,
-                           numfmt='%04d'):
+                           replacedir=None):
         """
         function to extract the CCD file template string from the comment
-        in the SPEC-file scan-header
+        in the SPEC-file scan-header.
 
         Parameters
         ----------
@@ -286,35 +358,161 @@ class FastScanCCD(FastScan):
                     using the keepdir option.
          keepdir:   number of directories which should be taken from the
                     specscan. (default: 0)
-         numfmt:    format string for the CCD file number (optional)
+         replacedir:  (optional) number of outer most directory names which
+                    should be replaced in the output (default = None). One
+                    can either give keepdir, or replacedir, with replace
+                    taking preference if both are given.
 
         Returns
         -------
          fmtstr:    format string for the CCD file name using one number to
                     build the real file name
         """
-        for line in specscan.header:
-            if SPEC_ImageFile.match(line):
-                for substr in line.split(' '):
-                    t = substr.split('[')
-                    if len(t) == 2:
-                        if t[0] == 'dir':
-                            dir = t[1].strip(']')
-                        elif t[0] == 'prefix':
-                            prefix = t[1].strip(']')
-                        elif t[0] == 'suffix':
-                            suffix = t[1].strip(']')
+        hline = specscan.getheader_element('C imageFile')
+        re_ccdfiles = re.compile(r'dir\[([a-zA-Z0-9_.%/]*)\] '
+                                 r'prefix\[([a-zA-Z0-9_.%/]*)\] '
+                                 r'idxFmt\[([a-zA-Z0-9_.%/]*)\] '
+                                 r'nextNr\[([0-9]*)\] '
+                                 r'suffix\[([a-zA-Z0-9_.%/]*)\]')
+        m = re_ccdfiles.match(hline)
+        if m:
+            path, prefix, idxFmt, num, suffix = m.groups()
+        else:
+            ValueError('spec-scan does not contain images or the '
+                       'corresponding header line is not detected correctly')
+        ccdtmp = os.path.join(path, prefix + idxFmt + suffix)
+        r = utilities.exchange_filepath(ccdtmp, datadir, keepdir, replacedir)
+        return r, int(num)
 
-        ccdtmp = os.path.join(dir, prefix + numfmt + suffix)
-        return utilities.exchange_filepath(ccdtmp, datadir, keepdir)
+    def getCCD(self, ccdnr, roi=None, datadir=None, keepdir=0,
+               replacedir=None, nav=[1, 1], filterfunc=None):
+        """
+        function to read the ccd files and return the raw X,Y and DATA values.
+        DATA represents a 3D object with first dimension representing the data
+        point index and the remaining two dimensions representing detector
+        channels
+
+        Parameters
+        ----------
+         ccdnr:         array with ccd file numbers of length
+                        length(FastScanCCD.data) OR a string with the data
+                        column name for the file ccd-numbers
+
+        optional:
+         roi:          region of interest on the 2D detector. should be a list
+                       of lower and upper bounds of detector channels for the
+                       two pixel directions (default: None)
+         datadir:      the CCD filenames are usually parsed from the SPEC file.
+                       With this option the directory used for the data can be
+                       overwritten.  Specify the datadir as simple string.
+                       Alternatively the innermost directory structure can be
+                       automatically taken from the specfile. If this is needed
+                       specify the number of directories which should be kept
+                       using the keepdir option.
+         keepdir:      number of directories which should be taken from the
+                       SPEC file. (default: 0)
+         replacedir:   number of outer most directory names which should be
+                       replaced in the output (default = None). One can either
+                       give keepdir, or replacedir, with replace taking
+                       preference if both are given.
+         nav:          number of detector pixel which will be averaged together
+                       (reduces the date size)
+         filterfunc:   function applied to the CCD-frames before any
+                       processing. this function should take a single argument
+                       which is the ccddata which need to be returned with the
+                       same shape!  e.g. remove hot pixels, flat/darkfield
+                       correction
+
+        Returns
+        -------
+         X,Y,DATA:     x,y-array (1D) as well as 3-dimensional data object
+        """
+        ccdnumbers = self._getCCDnumbers(ccdnr)
+
+        ccdtemplate, nextNr = self.getccdFileTemplate(
+            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
+
+        # read ccd shape from first image
+        filename = ccdtemplate % nextNr
+        ccdshape = self._read_edfimage(filename, 0, nav, roi, filterfunc).shape
+        ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
+        if config.VERBOSITY >= config.INFO_ALL:
+            print('XU.io.FastScanCCD: allocated ccddata array with %d bytes'
+                  % ccddata.nbytes)
+
+        # go through the ccd-frames
+        for i, imgnum in enumerate(ccdnumbers):
+            # read ccd-frames
+            imgindex, filenumber = self._get_image_number(imgnum, nextNr,
+                                                          nextNr, ccdtemplate)
+            filename = ccdtemplate % filenumber
+            ccd = self._read_edfimage(filename, imgindex, nav, roi, filterfunc)
+            ccddata[i, :, :] = ccd
+        return self.xvalues, self.yvalues, ccddata
+
+    def processCCD(self, ccdnr, roi, datadir=None, keepdir=0,
+                   replacedir=None, filterfunc=None):
+        """
+        function to read a region of interest (ROI) from the ccd files and
+        return the raw X,Y and intensity from ROI.
+
+        Parameters
+        ----------
+         ccdnr:        array with ccd file numbers of length
+                       length(FastScanCCD.data) OR a string with the data
+                       column name for the file ccd-numbers
+         roi:          region of interest on the 2D detector. A list of lower
+                       and upper bounds of detector channels for the two pixel
+                       directions.
+        optional:
+         datadir:      the CCD filenames are usually parsed from the SPEC file.
+                       With this option the directory used for the data can be
+                       overwritten.  Specify the datadir as simple string.
+                       Alternatively the innermost directory structure can be
+                       automatically taken from the specfile. If this is needed
+                       specify the number of directories which should be kept
+                       using the keepdir option.
+         keepdir:      number of directories which should be taken from the
+                       SPEC file. (default: 0)
+         replacedir:   number of outer most directory names which should be
+                       replaced in the output (default = None). One can either
+                       give keepdir, or replacedir, with replace taking
+                       preference if both are given.
+         filterfunc:   function applied to the CCD-frames before any
+                       processing. this function should take a single argument
+                       which is the ccddata which need to be returned with the
+                       same shape!  e.g. remove hot pixels, flat/darkfield
+                       correction
+
+        Returns
+        -------
+         X,Y,DATA:     x,y-array (1D) as well as 1-dimensional data object
+        """
+        ccdnumbers = self._getCCDnumbers(ccdnr)
+
+        ccdtemplate, nextNr = self.getccdFileTemplate(
+            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
+
+        ccdroi = numpy.empty(self.xvalues.size)
+
+        # go through the ccd-frames
+        for i, imgnum in enumerate(ccdnumbers):
+            # read ccd-frames
+            imgindex, filenumber = self._get_image_number(imgnum, nextNr,
+                                                          nextNr, ccdtemplate)
+            filename = ccdtemplate % filenumber
+            ccd = self._read_edfimage(filename, imgindex, [1, 1], roi,
+                                      filterfunc)
+            ccdroi[i] = numpy.sum(ccd)
+        return self.xvalues, self.yvalues, ccdroi
 
     def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
-                nav=[1, 1], gridrange=None, filterfunc=None, imgoffset=0):
+                replacedir=None, nav=[1, 1], gridrange=None, filterfunc=None):
         """
         function to grid the internal data and ccd files and return the gridded
-        X,Y and DATA values. DATA represents a 4D with first two dimensions
-        representing X,Y and the remaining two dimensions representing detector
-        channels
+        X,Y and DATA values. DATA represents a 4D object with first two
+        dimensions representing X,Y and the remaining two dimensions
+        representing detector channels
 
         Parameters
         ----------
@@ -336,6 +534,10 @@ class FastScanCCD(FastScan):
                        using the keepdir option.
          keepdir:      number of directories which should be taken from the
                        SPEC file. (default: 0)
+         replacedir:   number of outer most directory names which should be
+                       replaced in the output (default = None). One can either
+                       give keepdir, or replacedir, with replace taking
+                       preference if both are given.
          nav:          number of detector pixel which will be averaged together
                        (reduces the date size)
          gridrange:    range for the gridder: format: ((xmin,xmax),(ymin,ymax))
@@ -353,45 +555,34 @@ class FastScanCCD(FastScan):
         g2l = self._gridCCDnumbers(nx, ny, ccdnr, gridrange=gridrange)
         gdata = g2l.data
 
-        self.ccdtemplate = self.getccdFileTemplate(self.specscan, datadir,
-                                                   keepdir)
+        ccdtemplate, nextNr = self.getccdFileTemplate(
+            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
 
         # read ccd shape from first image
-        filename = sorted(glob.glob(self.ccdtemplate.replace('%04d', '*')))[0]
+        filename = ccdtemplate % nextNr
+        ccdshape = self._read_edfimage(filename, 0, nav, roi, filterfunc).shape
+        ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.io.FastScanCCD: open file %s' % filename)
-        e = EDFFile(filename, keep_open=True)
-        ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
-        ccddata = numpy.zeros((nx, ny, ccdshape[0], ccdshape[1]))
-        nimage = e.nimages
+            print('XU.io.FastScanCCD: allocated ccddata array with %d bytes'
+                  % ccddata.nbytes)
 
-        # go through the gridded data and average the ccdframes
-        for j in range(gdata.shape[1]):
-            for i in range(gdata.shape[0]):
+        # go through the gridded data and average the ccd-frames
+        for i in range(gdata.shape[0]):
+            for j in range(gdata.shape[1]):
                 if not gdata[i, j]:
                     continue
                 else:
                     framecount = 0
-                    # read ccdframes and average them
+                    # read ccd-frames and average them
                     for imgnum in gdata[i, j]:
-                        filenumber = (imgnum - imgoffset) // nimage
-                        imgindex = int((imgnum - imgoffset) % nimage)
-                        newfile = self.ccdtemplate % (filenumber)
-                        if e.filename != newfile:
-                            if config.VERBOSITY >= config.INFO_ALL:
-                                print('XU.io.FastScanCCD: open file %s'
-                                      % newfile)
-                            e = EDFFile(newfile, keep_open=True)
-                        if filterfunc:
-                            ccdfilt = filterfunc(e.ReadData(imgindex))
-                        else:
-                            ccdfilt = e.ReadData(imgindex)
-                        ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1],
-                                                  roi=roi)
-                        ccddata[i, j, :, :] += ccdframe
+                        imgindex, filenumber = self._get_image_number(
+                            imgnum, nextNr, nextNr, ccdtemplate)
+                        filename = ccdtemplate % filenumber
+                        ccd = self._read_edfimage(filename, imgindex, nav,
+                                                  roi, filterfunc)
+                        ccddata[i, j, ...] += ccd
                         framecount += 1
-                        ccddata[i, j, :, :] = ccddata[i, j, :, :] / \
-                            float(framecount)
+                    ccddata[i, j, ...] /= float(framecount)
 
         return g2l.xmatrix, g2l.ymatrix, ccddata
 
@@ -435,7 +626,7 @@ class FastScanSeries(object):
           ccdnr:    name of the ccd-number data column
                     (default: 'imgnr' (ID01))
           counter:  name of a defined counter (roi) in the spec file
-                    (default: 'ccdint1' (ID01))
+                    (default: 'mpx4int' (ID01))
           path:     optional path of the FastScan spec file (default: '')
 
         """
@@ -450,7 +641,7 @@ class FastScanSeries(object):
             self.counter = kwargs['counter']
             kwargs.pop("counter")
         else:
-            self.counter = 'ccdint1'
+            self.counter = 'mpx4int'
 
         if 'path' in kwargs:
             self.path = kwargs['path']
@@ -483,7 +674,7 @@ class FastScanSeries(object):
                     self.fastscans.append(FastScanCCD(specfile,
                                                       snrs, **kwargs))
         else:
-            raise ValueError("ar/gument 'filenames' is not of "
+            raise ValueError("argument 'filenames' is not of "
                              "appropriate type!")
 
         self._init_minmax()
@@ -552,6 +743,178 @@ class FastScanSeries(object):
                 mname = self.gonio_motors[j]
                 self.motor_pos[i, j] = fs.motorposition(mname)
 
+    def get_average_RSM(self, qnx, qny, qnz, qconv, datadir=None, keepdir=0,
+                        replacedir=None, roi=None, nav=(1, 1),
+                        filterfunc=None):
+        """
+        function to return the reciprocal space map data averaged over all x,y
+        positions from a series of FastScan measurements. It necessary to give
+        the QConversion-object to be used for the reciprocal space conversion.
+        The QConversion-object is expected to have the 'area' conversion
+        routines configured properly. This function needs to read all detector
+        images, so be prepared to lean back for a moment!
+
+        Parameters
+        ----------
+         qnx,qny,qnz:   number of points used for the 3D Gridder
+         qconv:         QConversion-object to be used for the conversion of the
+                        CCD-data to reciprocal space
+
+        optional:
+         roi:           region of interest on the 2D detector. should be a list
+                        of lower and upper bounds of detector channels for the
+                        two pixel directions (default: None)
+         nav:           number of detector pixel which will be averaged
+                        together (reduces the date size)
+         filterfunc:    function applied to the CCD-frames before any
+                        processing. this function should take a single argument
+                        which is the ccddata which need to be returned with the
+                        same shape!  e.g. remove hot pixels, flat/darkfield
+                        correction
+         datadir:       the CCD filenames are usually parsed from the SPEC
+                        file.  With this option the directory used for the data
+                        can be overwritten.  Specify the datadir as simple
+                        string.  Alternatively the innermost directory
+                        structure can be automatically taken from the specfile.
+                        If this is needed specify the number of directories
+                        which should be kept/replaced using the
+                        keepdir/replacedir option.
+         keepdir:       number of directories which should be taken from the
+                        SPEC file. (default: 0)
+         replacedir:    number of outer most directory names which should be
+                        replaced in the output (default = None). One can either
+                        give keepdir, or replacedir, with replace taking
+                        preference if both are given.
+
+        Returns
+        -------
+         Gridder3D object:  gridded reciprocal space map
+        """
+        if self.motor_pos is None:
+            self.read_motors()
+
+        # determine q-coordinates
+        kwargs = {'Nav': nav}
+        if roi:
+            kwargs['roi'] = roi
+        qx, qy, qz = qconv.area(*self.motor_pos.T, **kwargs)
+
+        # define gridder with fixed optimized q-range
+        g3d = Gridder3D(qnx, qny, qnz)
+        g3d.keep_data = True
+        g3d.dataRange(qx.min(), qx.max(), qy.min(),
+                      qy.max(), qz.min(), qz.max(), fixed=True)
+
+        # start parsing the images and grid the data frame by frame
+        for fsidx, fsccd in enumerate(self.fastscans):
+            ccdtemplate, nextNr = fsccd.getccdFileTemplate(
+                fsccd.specscan, datadir, keepdir=keepdir,
+                replacedir=replacedir)
+
+            ccdnumbers = fsccd._getCCDnumbers(self.ccdnr)
+            ccdav = numpy.zeros_like(qx[fsidx, ...])
+
+            # go through the ccdframes
+            for i, imgnum in enumerate(ccdnumbers):
+                # read ccdframes
+                imgindex, filenumber = fsccd._get_image_number(
+                    imgnum, nextNr, nextNr, ccdtemplate)
+                filename = ccdtemplate % filenumber
+                ccd = fsccd._read_edfimage(filename, imgindex, nav, roi,
+                                           filterfunc)
+                ccdav += ccd
+            g3d(qx[fsidx, ...], qy[fsidx, ...], qz[fsidx, ...], ccdav)
+
+        return g3d
+
+    def get_sxrd_for_qrange(self, qrange, qconv, datadir=None, keepdir=0,
+                            replacedir=None, roi=None, nav=(1, 1),
+                            filterfunc=None):
+        """
+        function to return the real space data averaged over a certain q-range
+        from a series of FastScan measurements. It necessary to give the
+        QConversion-object to be used for the reciprocal space conversion.  The
+        QConversion-object is expected to have the 'area' conversion routines
+        configured properly. Note: This function assumes that all FastScans
+        were performed in the same real space positions, no gridding or
+        aligning is performed!
+
+        Parameters
+        ----------
+         qrange:        q-limits defining a box in reciprocal space.
+                        six values are needed: [minx, maxx, miny, ..., maxz]
+         qconv:         QConversion-object to be used for the conversion of the
+                        CCD-data to reciprocal space
+
+        optional:
+         roi:           region of interest on the 2D detector. should be a list
+                        of lower and upper bounds of detector channels for the
+                        two pixel directions (default: None)
+         nav:           number of detector pixel which will be averaged
+                        together (reduces the date size)
+         filterfunc:    function applied to the CCD-frames before any
+                        processing. this function should take a single argument
+                        which is the ccddata which need to be returned with the
+                        same shape!  e.g. remove hot pixels, flat/darkfield
+                        correction
+         datadir:       the CCD filenames are usually parsed from the SPEC
+                        file.  With this option the directory used for the data
+                        can be overwritten.  Specify the datadir as simple
+                        string.  Alternatively the innermost directory
+                        structure can be automatically taken from the specfile.
+                        If this is needed specify the number of directories
+                        which should be kept/replaced using the
+                        keepdir/replacedir option.
+         keepdir:       number of directories which should be taken from the
+                        SPEC file. (default: 0)
+         replacedir:    number of outer most directory names which should be
+                        replaced in the output (default = None). One can either
+                        give keepdir, or replacedir, with replace taking
+                        preference if both are given.
+
+        Returns
+        -------
+         xvalues, yvalues, data
+        """
+        if self.motor_pos is None:
+            self.read_motors()
+
+        # determine q-coordinates
+        kwargs = {'Nav': nav}
+        if roi:
+            kwargs['roi'] = roi
+        qx, qy, qz = qconv.area(*self.motor_pos.T, **kwargs)
+        output = numpy.zeros_like(self.fastscans[0].xvalues)
+
+        # parse the images only if some q coordinates fall into the ROI
+        for fsidx, fsccd in enumerate(self.fastscans):
+            mask = numpy.logical_and(numpy.logical_and(
+                numpy.logical_and(qx[fsidx] > qrange[0],
+                                  qx[fsidx] < qrange[1]),
+                numpy.logical_and(qy[fsidx] > qrange[2],
+                                  qy[fsidx] < qrange[3])),
+                numpy.logical_and(qz[fsidx] > qrange[4],
+                                  qz[fsidx] < qrange[5]))
+
+            if numpy.any(mask):
+                ccdtemplate, nextNr = fsccd.getccdFileTemplate(
+                    fsccd.specscan, datadir, keepdir=keepdir,
+                    replacedir=replacedir)
+
+                ccdnumbers = fsccd._getCCDnumbers(self.ccdnr)
+
+                # go through the ccdframes
+                for i, imgnum in enumerate(ccdnumbers):
+                    # read ccdframes
+                    imgindex, filenumber = fsccd._get_image_number(
+                        imgnum, nextNr, nextNr, ccdtemplate)
+                    filename = ccdtemplate % filenumber
+                    ccd = fsccd._read_edfimage(filename, imgindex, nav, roi,
+                                               filterfunc)
+                    output[i] += numpy.sum(ccd[mask])
+
+        return fsccd.xvalues, fsccd.yvalues, output
+
     def getCCDFrames(self, posx, posy, typ='real'):
         """
         function to determine the list of ccd-frame numbers for a specific real
@@ -618,7 +981,8 @@ class FastScanSeries(object):
         return ret
 
     def rawRSM(self, posx, posy, qconv, roi=None, nav=[1, 1], typ='real',
-               datadir=None, keepdir=0, filterfunc=None, **kwargs):
+               datadir=None, keepdir=0, replacedir=None, filterfunc=None,
+               **kwargs):
         """
         function to return the reciprocal space map data at a certain
         x,y-position from a series of FastScan measurements. It necessary to
@@ -657,6 +1021,10 @@ class FastScanSeries(object):
                         which should be kept using the keepdir option.
          keepdir:       number of directories which should be taken from the
                         SPEC file. (default: 0)
+         replacedir:    number of outer most directory names which should be
+                        replaced in the output (default = None). One can either
+                        give keepdir, or replacedir, with replace taking
+                        preference if both are given.
 
         Returns
         -------
@@ -665,21 +1033,20 @@ class FastScanSeries(object):
                                      and corresponding motor positions
         """
         U = kwargs.get('UB', numpy.identity(3))
-        imgoffset = kwargs.get('imgoffset', 0)
 
         # get CCDframe numbers and motor values
         valuelist = self.getCCDFrames(posx, posy, typ)
         # load ccd frames and convert to reciprocal space
         fsccd = self.fastscans[0]
-        self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan, datadir,
-                                                    keepdir)
+        ccdtemplate, nextNr = fsccd.getccdFileTemplate(
+            fsccd.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
+
         # read ccd shape from first image
-        filename = glob.glob(self.ccdtemplate.replace('%04d', '*'))[0]
-        e = EDFFile(filename, keep_open=True)
-        ccdshape = blockAverage2D(e.ReadData(), nav[0], nav[1], roi=roi).shape
+        filename = ccdtemplate % filenumber
+        ccdshape = fsccd._read_edfimage(filename, imgindex, nav, roi,
+                                        filterfunc).shape
         ccddata = numpy.zeros((len(self.fastscans), ccdshape[0], ccdshape[1]))
         motors = []
-        nimage = e.nimages
 
         for i in range(len(self.gonio_motors)):
             motors.append(numpy.zeros(0))
@@ -694,23 +1061,18 @@ class FastScanSeries(object):
             if not ccdnrs:
                 continue
             else:
-                self.ccdtemplate = fsccd.getccdFileTemplate(fsccd.specscan)
+                ccdtemplate, nextNr = fsccd.getccdFileTemplate(fsccd.specscan)
                 framecount = 0
-                # read ccdframes and average them
+                # read ccd-frames and average them
                 for imgnum in ccdnrs:
-                    filenumber = (imgnum - imgoffset) // nimage
-                    imgindex = int((imgnum - imgoffset) % nimage)
-                    newfile = self.ccdtemplate % (filenumber)
-                    if e.filename != newfile:
-                        e = EDFFile(newfile, keep_open=True)
-                    if filterfunc:
-                        ccdfilt = filterfunc(e.ReadData(imgindex))
-                    else:
-                        ccdfilt = e.ReadData(imgindex)
-                    ccdframe = blockAverage2D(ccdfilt, nav[0], nav[1], roi=roi)
-                    ccddata[i, :, :] += ccdframe
+                    imgindex, filenumber = fsccd._get_image_number(
+                        imgnum, nextNr, nextNr, ccdtemplate)
+                    filename = ccdtemplate % filenumber
+                    ccd = fsccd._read_edfimage(filename, imgindex, nav, roi,
+                                               filterfunc)
+                    ccddata[i, ...] += ccd
                     framecount += 1
-                ccddata[i, :, :] = ccddata[i, :, :] / float(framecount)
+                ccddata[i, ...] /= float(framecount)
 
         qx, qy, qz = qconv.area(*motors, roi=roi, Nav=nav, UB=U)
         return qx, qy, qz, ccddata, valuelist
