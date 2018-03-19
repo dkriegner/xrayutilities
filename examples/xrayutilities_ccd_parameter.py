@@ -13,41 +13,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+
+# ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
+
+"""
+example script for determining ESRF/ID01 detector parameters using a specfile
+from the second half of 2017
+"""
 
 import os
+import re
 
 import xrayutilities as xu
+import xrayutilities_id01_functions as id01
 
-en = 10300.0  # eV
-datadir = os.path.join("data", "wire_")  # data path for CCD files
+
+s = xu.io.SPECFile(specfile)
+specscan = s.scan3
+en = id01.getmono_energy(specscan)
 # template for the CCD file names
-filetmp = os.path.join(datadir, "wire_12_%05d.edf.gz")
-
-# manually selected images
-# select images which have the primary beam fully on the CCD
-imagenrs = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-            20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+filetmp = id01.getmpx4_filetmp(specscan)
 
 images = []
-ang1 = []
-ang2 = []
+ang1 = specscan.data['nu']
+ang2 = specscan.data['del']
 
 # read images and angular positions from the data file
 for imgnr in imagenrs:
     filename = filetmp % imgnr
     edf = xu.io.EDFFile(filename)
     images.append(edf.data)
-    ang1.append(float(edf.header['ESRF_ID01_PSIC_NANO_NU']))
-    ang2.append(float(edf.header['ESRF_ID01_PSIC_NANO_DEL']))
-    # or for newer EDF files (recorded in year >~2013)
-    # ang1.append(edf.motors['nu'])
-    # ang2.append(edf.motors['del'])
 
 # call the fit for the detector parameters
 # detector arm rotations and primary beam direction need to be given
 param, eps = xu.analysis.sample_align.area_detector_calib(
-    ang1, ang2, images, ['z+', 'y-'], 'x+',
-    start=(None, None, 1.0, 45, 0, -0.7, 0),
-    fix=(False, False, True, False, False, False, False),
+    ang1, ang2, images, ['z-', 'y-'], 'x+',
+    start=(55e-6, 55e-6, 0.5, 45, 0, -0.7, 0),
+    fix=(True, True, False, False, False, False, True),
     wl=xu.en2lam(en))

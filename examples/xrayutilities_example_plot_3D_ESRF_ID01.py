@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
 
@@ -26,35 +26,47 @@ import xrayutilities as xu
 
 import xrayutilities_id01_functions as id01
 
-home = "DATADIR"  # data path (root)
-datadir = os.path.join(home, "FOLDERNAME")  # data path for CCD/Maxipix files
-specdir = home  # location of spec file
-
-sample = "SAMPLENAME"  # sample name -> used as spec file name
-# template for the CCD file names
-ccdfiletmp = os.path.join(datadir, "CCDNAME_12_%05d.edf.gz")
-
-
-h5file = os.path.join(specdir, sample + ".h5")
-# read spec file and save to HDF5 (needs to be done only once)
 try:
     s
 except NameError:
-    s = xu.io.SPECFile(sample + ".spec", path=specdir)
+    s = xu.io.SPECFile(sample + ".spec", path=id01.datadir)
 else:
     # in ipython run with: "run -i script" to just update the spec file and
     # parse for new scans only
     s.Update()
-s.Save2HDF5(h5file)
 
 # number of points to be used during the gridding
 nx, ny, nz = 200, 201, 202
 
-qx, qy, qz, gint, gridder = id01.gridmap(
-    h5file, SCANNR, ccdfiletmp, nx, ny, nz)
+# 3S+2D goniometer (ID01 goniometer, sample mu, eta, phi detector
+# nu, del, mpxy, mpxz
+# convention for coordinate system: x downstream; z upwards; y to the
+# "outside" (righthanded)
+# QConversion will set up the goniometer geometry. So the first argument
+# describes the sample rotations, the second the detector rotations and the
+# third the primary beam direction.
+# For this consider the following right handed coordinate system (feel free to
+# use your conventions):
+# x: downstream (direction of primary beam)
+# y: out of the ring
+# z: upwards
+# The outer most sample rotation (so the one mounted on the floor) is one
+# which turns left-handed (-) around the z-direction -> z- (mu)
+# The second sample rotation ('eta') is lefthanded (-) around y -> y-
+qconv = xu.experiment.QConversion(['z-', 'y-', 'z-'],
+                                  ['z-', 'y-', 'ty', 'tz'],
+                                  [1, 0, 0])
+hxrd = xu.HXRD([1, 1, 0], [0, 0, 1], qconv=qconv, sampleor='z+')
+hxrd._A2QConversion.init_area('z-', 'y+', cch1=333.94, cch2=235.62, Nch1=516,
+                              Nch2=516, pwidth1=5.5000e-02, pwidth2=5.5000e-02,
+                              distance=0.53588*1000, detrot=-1.495,
+                              tiltazimuth=155.0, tilt=0.745, Nav=(2, 2))
+# all in mm since mm are used for mpxy,z in the spec-file
+
+qx, qy, qz, gint, gridder = id01.gridmap(s, SCANNR, hxrd, nx, ny, nz)
 
 # ################################################
-# for a 3D plot using python function i sugggest
+# for a 3D plot using python function I sugggest
 # to use mayavi's mlab package. the basic usage
 # is shown below. otherwise have a look at the
 # file xrayutilities_export_data2vtk.py in order learn
@@ -64,17 +76,17 @@ qx, qy, qz, gint, gridder = id01.gridmap(
 # one of the following import statements is needed
 # depending on the system/distribution you use
 # from mayavi import mlab
-# from enthough.mayavi import mlab
-# plot 3D map using mayavi mlab
+# # from enthough.mayavi import mlab
+# # plot 3D map using mayavi mlab
 # QX,QY,QZ = numpy.mgrid[qx.min():qx.max():1j * nx,
 #                        qy.min():qy.max():1j * ny,
-#                        qz.min():qz.max():1j*nz]
+#                        qz.min():qz.max():1j * nz]
 # INT = xu.maplog(gint,4.5,0)
 # mlab.figure()
 # mlab.contour3d(QX, QY, QZ, INT, contours=15, opacity=0.5)
 # mlab.colorbar(title="log(int)", orientation="vertical")
 # mlab.axes(nb_labels=5, xlabel='Qx', ylabel='Qy', zlabel='Qz')
-# mlab.close(all=True)
+# # mlab.close(all=True)
 ############################################
 
 # plot 2D sums using matplotlib

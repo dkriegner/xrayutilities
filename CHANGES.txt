@@ -1,3 +1,5 @@
+* improvement of the scanning XRD dataset parsers for ID01 (FastScan)
+* PEP8 improvements
 * speed optimization in EDF parser
 * add getheader_element to SPECScan
 * try to parse oxidation state of elements from a CIF file, and ignore '.' and
