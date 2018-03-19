@@ -39,9 +39,9 @@ mpl.rcParams['axes.grid'] = False
 # substrate
 Ge = xu.materials.Ge
 
-hkls = list(permutations([1,1,3])) + list(permutations([-1,1,3])) +\
-       list(permutations([-1,-1,3])) + list(permutations([1,1,-3])) +\
-       list(permutations([-1,1,-3])) + list(permutations([-1,-1,-3]))
+hkls = list(permutations([1, 1, 3])) + list(permutations([-1, 1, 3])) +\
+       list(permutations([-1, -1, 3])) + list(permutations([1, 1, -3])) +\
+       list(permutations([-1, 1, -3])) + list(permutations([-1, -1, -3]))
 
 tup = []
 label = []
@@ -49,7 +49,7 @@ for ind in hkls:
     tup.append(Ge.Q(*ind))
     l = r'$('
     for index in ind:
-        l += '%s'%(r'\bar' if index < 0 else '') + str(abs(index))
+        l += '%s' % (r'\bar' if index < 0 else '') + str(abs(index))
     l += ')$'
     label.append(l)
 
