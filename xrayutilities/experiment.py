@@ -1716,6 +1716,9 @@ class HXRD(Experiment):
         ['x+','y+','z-'] and detector rotation 'x+' and primary beam along y.
         This is a standard four circle diffractometer.
 
+        Note: The behavior of this function is unchanged if the goniometer
+        definition is changed!
+
         Parameters
         ----------
          Q:          a list, tuple or numpy array of shape (3) with
@@ -2024,6 +2027,9 @@ class NonCOP(Experiment):
         The keyword argument trans determines whether Q should be transformed
         to the experimental coordinate frame or not.
 
+        Note: The behavior of this function is unchanged if the goniometer
+        definition is changed!
+
         Parameters
         ----------
          Q:          a list, tuple or numpy array of shape (3) with
@@ -2146,6 +2152,9 @@ class GID(Experiment):
         the inplane reference direction defines the direction were
         the reference direction is parallel to the primary beam
         (i.e. lattice planes perpendicular to the beam)
+
+        Note: The behavior of this function is unchanged if the goniometer
+        definition is changed!
 
         Parameters
         ----------
