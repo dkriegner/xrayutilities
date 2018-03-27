@@ -25,6 +25,7 @@ from .transforms import AxisToZ_keepXY
 from .transforms import XRotation
 from .transforms import YRotation
 from .transforms import ZRotation
+from .transforms import ArbRotation
 from .transforms import rotarb
 
 from .vector import VecNorm

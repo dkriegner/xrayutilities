@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2010,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -274,6 +274,34 @@ def mycross(vec, mat):
     return out
 
 
+def ArbRotation(axis, alpha, deg=True):
+    """
+    Returns a transform that represents a rotation around an arbitrary axis by
+    the angle alpha. positive rotation is anti-clockwise when looking from
+    positive end of axis vector
+
+    Parameters
+    ----------
+     axis:  numpy.array or list of length 3
+     alpha: rotation angle in degree (deg=True) or in rad (deg=False)
+     deg:   boolean which determines the input format of ang (default: True)
+
+    Returns
+    -------
+     instance of Transform
+    """
+    axis = vector._checkvec(axis)
+    e = axis / numpy.linalg.norm(axis)
+    if deg:
+        rad = numpy.radians(alpha)
+    else:
+        rad = alpha
+    get = tensorprod(e, e)
+    rot = get + numpy.cos(rad) * (numpy.identity(3) - get) + \
+        numpy.sin(rad) * mycross(e, numpy.identity(3))
+    return Transform(rot)
+
+
 def rotarb(vec, axis, ang, deg=True):
     """
     function implements the rotation around an arbitrary axis by an angle ang
@@ -296,13 +324,4 @@ def rotarb(vec, axis, ang, deg=True):
     >>> rotarb([1,0,0],[0,0,1],90)
     array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
     """
-    axis = vector._checkvec(axis)
-    e = axis / numpy.linalg.norm(axis)
-    if deg:
-        rad = numpy.radians(ang)
-    else:
-        rad = ang
-    get = tensorprod(e, e)
-    rot = get + numpy.cos(rad) * (numpy.identity(3) - get) + \
-        numpy.sin(rad) * mycross(e, numpy.identity(3))
-    return numpy.dot(rot, vec)
+    return ArbRotation(axis, ang, deg)(vec)
