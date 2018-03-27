@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 miscellaneous functions helpful in the analysis and experiment
@@ -22,6 +22,7 @@ miscellaneous functions helpful in the analysis and experiment
 import numpy
 
 from .. import config
+from .. import math
 
 
 def getangles(peak, sur, inp):
@@ -93,3 +94,20 @@ def getangles(peak, sur, inp):
     phi = phi - round(phi / 360.) * 360
 
     return (chi, phi)
+
+
+def getunitvector(chi, phi, ndir=(0, 0, 1), idir=(1, 0, 0)):
+    """
+    return unit vector determined by spherical angles and definition of the
+    polar axis and inplane reference direction (phi=0)
+
+    Parameters
+    ----------
+     chi, phi: spherical angles (polar and azimuthal) in degree
+     ndir:     polar/z-axis (determines chi=0)
+     idir:     azimuthal axis (determines phi=0)
+    """
+    chi_axis = numpy.cross(ndir, idir)
+    v = math.rotarb(ndir, chi_axis, chi)
+    v = math.rotarb(v, ndir, phi)
+    return v / numpy.linalg.norm(v)

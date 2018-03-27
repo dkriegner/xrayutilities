@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2014-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import unittest
 
@@ -46,6 +46,15 @@ class TestGetAngles(unittest.TestCase):
         chi, phi = xu.analysis.getangles([1, 0, 1], [0, 1, 0], [1, 0, 0])
         self.assertAlmostEqual(chi, 90, places=10)
         self.assertAlmostEqual(phi, -45, places=10)
+
+    def test_getunitvector(self):
+        hkl = numpy.random.randint(-5, 5, 3)
+        chi, phi = xu.analysis.getangles(hkl, [1, 1, 1], [1, -1, 0])
+        hklvec = xu.analysis.getunitvector(chi, phi, [1, 1, 1], [1, -1, 0])
+        for i in range(3):
+            self.assertAlmostEqual(hkl[i] / numpy.linalg.norm(hkl),
+                                   hklvec[i])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -54,3 +54,4 @@ from .line_cuts3d import get_qz_scan3d
 
 # misc
 from .misc import getangles
+from .misc import getunitvector
