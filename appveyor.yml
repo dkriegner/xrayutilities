@@ -41,7 +41,7 @@ install:
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         conda info -a
-        conda install -q numpy scipy wheel h5py
+        conda install -q cython numpy scipy wheel h5py
         python -m pip install --upgrade --ignore-installed pip
       }
       python -m pip install --upgrade --ignore-installed unittest2
