@@ -29,15 +29,15 @@ install:
       # install dependencies
       if($env:MINICONDA -eq $null)
       {
-        $env:Path="$env:PYTHON;$env:PYTHON\\Scripts;$env:Path"
-        [Environment]::SetEnvironmentVariable("Path", "$env:PYTHON;$env:PYTHON\\Scripts;senv:Path", [EnvironmentVariableTarget]::User)
+        $env:Path="$env:PYTHON;$env:PYTHON\Scripts;$env:Path"
+        [Environment]::SetEnvironmentVariable("Path", "$env:PYTHON;$env:PYTHON\Scripts;senv:Path", [EnvironmentVariableTarget]::User)
         python -m pip install --upgrade --ignore-installed pip
         python -m pip install --upgrade numpy wheel
       }
       else
       {
-        $env:Path="$env:MINICONDA;$env:MINICONDA\\Scripts;$env:Path"
-        [Environment]::SetEnvironmentVariable("Path", "$env:MINICONDA;$env:MINICONDA\\Scripts;$env:Path", [EnvironmentVariableTarget]::User)
+        $env:Path="$env:MINICONDA;$env:MINICONDA\Scripts;$env:Path"
+        [Environment]::SetEnvironmentVariable("Path", "$env:MINICONDA;$env:MINICONDA\Scripts;$env:Path", [EnvironmentVariableTarget]::User)
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         conda info -a
