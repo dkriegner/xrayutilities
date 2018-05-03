@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 from __future__ import division
 
 import itertools
@@ -30,6 +30,7 @@ from . import spacegrouplattice as sgl
 from . import elements, wyckpos
 from .. import config
 
+re_data = re.compile(r"^data_", re.IGNORECASE)
 re_loop = re.compile(r"^loop_", re.IGNORECASE)
 re_symop = re.compile(r"^\s*("
                       "_space_group_symop_operation_xyz|"
@@ -152,9 +153,12 @@ class CIFFile(object):
     class for parsing CIF (Crystallographic Information File) files. The class
     aims to provide an additional way of creating material classes instead of
     manual entering of the information the lattice constants and unit cell
-    structure are parsed from the CIF file
-    """
+    structure are parsed from the CIF file.
 
+    If multiple datasets are present in the CIF file this class will attempt to
+    parse all of them into the the data dictionary. By default all methods
+    access the first data set found in the file.
+    """
     def __init__(self, filename, digits=3):
         """
         initialization of the CIFFile class
@@ -175,8 +179,9 @@ class CIFFile(object):
 
         if config.VERBOSITY >= config.INFO_ALL:
             print('XU.material: parsing cif file %s' % self.filename)
+        self._default_dataset = None
+        self.data = {}
         self.Parse()
-        self.SymStruct()
 
     def __del__(self):
         """
@@ -187,7 +192,86 @@ class CIFFile(object):
 
     def Parse(self):
         """
-        function to parse a CIF file. The function reads the
+        function to parse a CIF file. The function reads all the included data
+        sets and adds them to the data dictionary.
+
+        """
+        fidpos = self.fid.tell()
+        while True:
+            line = self.fid.readline()
+            if not line:
+                break
+            fidpos = self.fid.tell()
+            line = line.decode('ascii', 'ignore')
+            m = re_data.match(line)
+            if m:
+                self.fid.seek(fidpos)
+                name = line[m.end():].strip()
+                self.data[name] = CIFDataset(self.fid, name, self.digits)
+                if self.data[name].has_atoms and not self._default_dataset:
+                    self._default_dataset = name
+
+    def SGLattice(self, dataset=None, use_p1=False):
+        """
+        create a SGLattice object with the structure from the CIF dataset
+
+        Parameters
+        ----------
+         dataset:   name of the dataset to use. if None the default one will be
+                    used.
+         use_p1:    force the use of P1 symmetry, default False
+        """
+        if not dataset:
+            dataset = self._default_dataset
+        return self.data[dataset].SGLattice(use_p1=use_p1)
+
+    def __str__(self):
+        """
+        returns a string with positions and names of the atoms for all datasets
+        """
+        ostr = ""
+        ostr += self.filename + "\n"
+        for ds in self.data:
+            ostr += "Dataset: %s" % ds
+            if ds == self._default_dataset:
+                ostr += " (default)"
+            ostr += "\n"
+            ostr += str(self.data[ds])
+        return ostr
+
+
+class CIFDataset(object):
+    """
+    class for parsing CIF (Crystallographic Information File) files. The class
+    aims to provide an additional way of creating material classes instead of
+    manual entering of the information the lattice constants and unit cell
+    structure are parsed from the CIF file
+    """
+
+    def __init__(self, fid, name, digits):
+        """
+        initialization of the CIFDataset class. This class parses one data
+        block.
+
+        Parameters
+        ----------
+         fid:       file handle set to the beginning of the data block to be
+                    parsed
+         name:      identifier string of the dataset
+         digits:    number of digits to check if position is unique
+        """
+        self.name = name
+        self.digits = digits
+        self.has_atoms = False
+
+        if config.VERBOSITY >= config.INFO_ALL:
+            print('XU.material: parsing cif dataset %s' % self.name)
+        self.Parse(fid)
+        self.SymStruct()
+
+    def Parse(self, fid):
+        """
+        function to parse a CIF data set. The function reads the
         space group symmetry operations and the basic atom positions
         as well as the lattice constants and unit cell angles
         """
@@ -197,7 +281,6 @@ class CIFFile(object):
         self.lattice_const = numpy.zeros(3, dtype=numpy.double)
         self.lattice_angles = numpy.zeros(3, dtype=numpy.double)
 
-        self.fid.seek(0)  # set file pointer to the beginning
         loop_start = False
         symop_loop = False
         atom_loop = False
@@ -239,10 +322,18 @@ class CIFFile(object):
                 f = numpy.nan
             return f
 
-        for line in self.fid.readlines():
+        fidpos = fid.tell()
+        for line in fid.readlines():
+            linelen = len(line)
             line = line.decode('ascii', 'ignore')
             if config.VERBOSITY >= config.DEBUG:
                 print(line)
+                print(fid.tell(), fidpos)
+
+            if re_data.match(line):
+                fid.seek(fidpos)
+                break
+            fidpos += linelen
 
             # ignore comment lines
             if re_comment.match(line):
@@ -345,6 +436,8 @@ class CIFFile(object):
                     uiso = 0
                 biso = 8 * numpy.pi**2 * uiso
                 self.atoms.append((atom, apos, occ, biso))
+        if self.atoms:
+            self.has_atoms = True
 
     def SymStruct(self):
         """

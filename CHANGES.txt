@@ -1,3 +1,4 @@
+* CIF parser now distinguishes multiple "_data" entries 
 * improvement of the scanning XRD dataset parsers for ID01 (FastScan)
 * PEP8 improvements
 * speed optimization in EDF parser
