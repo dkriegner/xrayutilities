@@ -230,9 +230,9 @@ class CIFFile(object):
         returns a string with positions and names of the atoms for all datasets
         """
         ostr = ""
-        ostr += self.filename + "\n"
+        ostr += "CIF-File: %s\n" % self.filename
         for ds in self.data:
-            ostr += "Dataset: %s" % ds
+            ostr += "\nDataset: %s" % ds
             if ds == self._default_dataset:
                 ostr += " (default)"
             ostr += "\n"
@@ -471,15 +471,24 @@ class CIFDataset(object):
                 self.sgrp_suf = sgl.get_default_sgrp_suf(self.sgrp_nr)
         if hasattr(self, 'sgrp_nr'):
             self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
+            allwyckp = wyckpos.wp[self.sgrp]
             if config.VERBOSITY >= config.INFO_ALL:
                 print('XU.material: space group identified as %s' % self.sgrp)
 
         # determine all unique positions for definition of a P1 space group
+        symops = self.symops
+        if not symops and hasattr(self, 'sgrp') and self.atoms:
+            label = sorted(allwyckp.keys(), key=lambda s: int(s[:-1]))
+            symops = allwyckp[label[-1]][1]
+            if config.VERBOSITY >= config.INFO_ALL:
+                print('XU.material: no symmetry operations in CIF-Dataset '
+                      'using built in general positions.')
         self.unique_positions = []
         for el, (x, y, z), occ, biso in self.atoms:
             unique_pos = []
-            for symop in self.symops:
-                pos = eval("numpy.array(" + symop + ")")
+            for symop in symops:
+                pos = eval(symop, {'x': x, 'y': y, 'z': z})
+                pos = numpy.asarray(pos)
                 # check that position is within unit cell
                 pos = pos - numpy.round(pos, self.digits) // 1
                 # check if position is unique
@@ -498,7 +507,6 @@ class CIFDataset(object):
             self.occ = []
             self.elements = []
             self.biso = []
-            allwyckp = wyckpos.wp[self.sgrp]
             keys = list(allwyckp.keys())
             wpn = [int(re.sub(r"([a-z])", r"", k)) for k in keys]
             for i, (el, (x, y, z), occ, biso) in enumerate(self.atoms):
@@ -583,11 +591,17 @@ class CIFDataset(object):
         returns a string with positions and names of the atoms
         """
         ostr = ""
-        ostr += "unit cell structure\n"
+        ostr += "unit cell structure:"
+        if hasattr(self, 'sgrp'):
+            ostr += " %s %s %s\n" % (self.sgrp, self.crystal_system,
+                                     getattr(self, 'sgrp_name', ''))
+        else:
+            ostr += "\n"
         ostr += "a: %8.4f b: %8.4f c: %8.4f\n" % tuple(self.lattice_const)
         ostr += "alpha: %6.2f beta: %6.2f gamma: %6.2f\n" % tuple(
             self.lattice_angles)
-        ostr += "Unique atom positions in unit cell\n"
+        if self.unique_positions:
+            ostr += "Unique atom positions in unit cell\n"
         for atom in self.unique_positions:
             ostr += atom[0].name + " (%d): \n" % atom[0].num
             for pos in atom[1]:
