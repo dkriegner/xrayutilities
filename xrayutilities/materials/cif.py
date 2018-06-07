@@ -289,6 +289,7 @@ class CIFDataset(object):
             el = re.sub(r"['\"]", r"", cifstring)
             if '+' in el or '-' in el:
                 for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+                    # move special character to last position
                     el = el.replace(o, r)
             else:
                 el = re.sub(r"([0-9])", r"", el)
