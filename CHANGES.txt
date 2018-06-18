@@ -1,3 +1,4 @@
+* more flexibility in defining materials Wyckoff positions
 * convenience function to calculate diffracted intensities of thin films to
   compare various Bragg peaks (coplanar diffraction geoemetry)
 * simplify WyckoffBase of Alloy, by avoiding double entries

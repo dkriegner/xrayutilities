@@ -201,8 +201,12 @@ class WyckoffBase(list):
             if len(pos) == 1:
                 pos = (pos[0], None)
             else:
-                if isinstance(pos[1], numbers.Number):
-                    pos = (pos[0], (pos[1], ))
+                if len(pos) == 2:
+                    if isinstance(pos[1], numbers.Number):
+                        pos = (pos[0], (pos[1], ))
+                else:
+                    if isinstance(pos[1], numbers.Number):
+                        pos = (pos[0], pos[1:])
         return pos
 
     def append(self, atom, pos, occ=1.0, b=0.):
