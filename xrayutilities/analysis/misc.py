@@ -111,3 +111,49 @@ def getunitvector(chi, phi, ndir=(0, 0, 1), idir=(1, 0, 0)):
     v = math.rotarb(ndir, chi_axis, chi)
     v = math.rotarb(v, ndir, phi)
     return v / numpy.linalg.norm(v)
+
+
+def coplanar_intensity(mat, exp, hkl, thickness, thMono, sample_width=10,
+                       beam_width=1):
+    """
+    Calculates the expected intensity of a Bragg peak from an epitaxial thin
+    film measured in coplanar geometry (integration over omega and 2theta in
+    angular space!)
+
+    Parameters
+    ----------
+    mat:          Crystal instance for structure factor calculation
+    exp:          Experimental(HXRD) class for the angle calculation
+    hkl:          Miller indices of the peak to calculate
+    thickness:    film thickness in nm
+    thMono:       Bragg angle of the monochromator (deg)
+    sample_width: width of the sample along the beam
+    beam_width:   width of the beam in the same units as the sample size
+
+    Returns
+    -------
+     float: intensity of the peak
+    """
+    # angle calculation for geometrical factors
+    om, chi, phi, tt = exp.Q2Ang(mat.Q(hkl))
+
+    # structure factor calculation
+    r = abs(mat.StructureFactor(mat.Q(hkl)))**2
+
+    # polarization factor
+    Cmono = numpy.cos(2 * numpy.radians(thMono))
+    P = (1 + Cmono * numpy.cos(numpy.radians(tt))**2) / ((1 + Cmono))
+    # Lorentz factor to be used when integrating in angular space
+    L = 1 / numpy.sin(numpy.radians(tt))
+    # shape factor: changing illumination with the incidence angle
+    shapef = beam_width / (numpy.sin(numpy.radians(om)) * sample_width)
+    if shapef > 1:
+        shapef = 1
+
+    # absorption correction
+    mu = 1 / (mat.absorption_length() * 1e3)
+    mu_eff = mu * (abs(1 / numpy.sin(numpy.radians(om))) +
+                   abs(1 / numpy.sin(numpy.radians(tt - om))))
+    Nblocks = (1 - numpy.exp(-mu_eff * thickness)) / mu_eff
+
+    return r * P * L * shapef * Nblocks

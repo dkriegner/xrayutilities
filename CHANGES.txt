@@ -1,3 +1,5 @@
+* convenience function to calculate diffracted intensities of thin films to
+  compare various Bragg peaks (coplanar diffraction geoemetry)
 * simplify WyckoffBase of Alloy, by avoiding double entries
 * CIF parser now is able to fully parse files without symmetry operations
 * CIF parser now distinguishes multiple "_data" entries
