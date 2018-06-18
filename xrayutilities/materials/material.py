@@ -1309,7 +1309,12 @@ class Alloy(Crystal):
             for a, wp, o, b in self.matA.lattice._wbase:
                 self.lattice._wbase.append(a, wp, occ=o*(1-x), b=b)
             for a, wp, o, b in self.matB.lattice._wbase:
-                self.lattice._wbase.append(a, wp, occ=o*x, b=b)
+                if (a, wp, o, b) in self.lattice._wbase:
+                    idx = self.lattice._wbase.index((a, wp, o, b))
+                    occ = self.lattice._wbase[idx][2]
+                    self.lattice._wbase[idx] = (a, wp, occ+o*x, b)
+                else:
+                    self.lattice._wbase.append(a, wp, occ=o*x, b=b)
 
     x = property(_getxb, _setxb)
 

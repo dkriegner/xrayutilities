@@ -238,6 +238,44 @@ class WyckoffBase(list):
             ostr += ' occ=%5.3f b=%5.3f\n' % (occ, b)
         return ostr
 
+    def __contains__(self, item):
+        """
+        check if this list contains already the same element, at the same
+        position, and with the same Debye Waller factor. The occupancy is not
+        checked intentionally.
+
+        Parameters
+        ----------
+         item: WyckoffBase entry to check if its present in this list
+
+        Returns
+        -------
+         True or False
+        """
+        for atom, p, occ, b in self:
+            if atom == item[0] and p == item[1] and b == item[3]:
+                return True
+        return False
+
+    def index(self, item):
+        """
+        return the index of the atom (same element, position, and Debye Waller
+        factor). The occupancy is not checked intentionally. If the item is not
+        present a ValueError is raised.
+
+        Parameters
+        ----------
+         item: WyckoffBase entry
+
+        Returns
+        -------
+         int
+        """
+        for i, (atom, p, occ, b) in enumerate(self):
+            if atom == item[0] and p == item[1] and b == item[3]:
+                return i
+        raise ValueError("%s is not in list" % str(item))
+
 
 class SGLattice(object):
     """

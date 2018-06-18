@@ -138,6 +138,8 @@ SrF2 = Crystal("SrF2", SGLattice(225, 5.8007, atoms=[e.Sr, e.F],
                                  pos=['4a', '8c']))
 CaF2 = Crystal("CaF2", SGLattice(225, 5.4631, atoms=[e.Ca, e.F],
                                  pos=['4a', '8c']))
+MnO = Crystal("MnO", SGLattice(225, 4.444, atoms=[e.Mn, e.O],
+                               pos=['4a', '4b']))
 MnTe = Crystal("MnTe", SGLattice(186, 4.1429, 6.7031, atoms=[e.Mn, e.Te],
                                  pos=[('2a', 0), ('2b', 0.25)]))
 GeTe = Crystal("GeTe",
@@ -152,6 +154,8 @@ Fe = Crystal("Fe", SGLattice(229, 2.8665, atoms=[e.Fe, ], pos=['2a', ]))
 Cr = Crystal("Cr", SGLattice(229, 2.910, atoms=[e.Cr, ], pos=['2a', ]))
 Co = Crystal("Co", SGLattice(194, 2.5071, 4.0695, atoms=[e.Co, ],
                              pos=['2c', ]))
+Ti = Crystal("Ti", SGLattice(194, 2.9508, 4.6855, atoms=[e.Ti, ],
+                             pos=['2c', ]))
 Mo = Crystal("Mo", SGLattice(229, 3.147, atoms=[e.Mo, ], pos=['2a', ]))
 Ru = Crystal("Ru", SGLattice(194, 2.7059, 4.2815, atoms=[e.Ru, ],
                              pos=['2c', ]))
@@ -164,6 +168,10 @@ Ag2Se = Crystal("Ag2Se", SGLattice(19, 4.333, 7.062, 7.764,
                                    pos=[('4a', (0.107, 0.369, 0.456)),
                                         ('4a', (0.728, 0.029, 0.361)),
                                         ('4a', (0.358, 0.235, 0.149))]))
+TiO2 = Crystal("TiO2", SGLattice(136, 4.59, 2.96, atoms=[e.Ti, e.O],
+                                 pos=['2a', ('4f', 0.30479)]))
+MnO2 = Crystal("MnO2", SGLattice(136, 4.40, 2.87, atoms=[e.Mn, e.O],
+                                 pos=['2a', ('4f', 0.30479)]))
 VO2_Rutile = Crystal("VO2", SGLattice(136, 4.55, 2.88, atoms=[e.V, e.O],
                                       pos=['2a', ('4f', 0.305)]))
 VO2_Baddeleyite = Crystal("VO2", SGLattice(14, 5.75, 5.42, 5.38, 122.6,
