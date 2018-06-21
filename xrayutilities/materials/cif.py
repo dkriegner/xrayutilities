@@ -323,6 +323,16 @@ class CIFDataset(object):
                 f = numpy.nan
             return f
 
+        def intconv(string):
+            """
+            helper function to convert string to integer
+            """
+            try:
+                i = int(string)
+            except ValueError:
+                i = None
+            return i
+
         fidpos = fid.tell()
         for line in fid.readlines():
             linelen = len(line)
@@ -366,14 +376,15 @@ class CIFDataset(object):
                 elif re_cell_gamma.match(line):
                     self.lattice_angles[2] = floatconv(line.split()[1])
                 elif re_spacegroupnr.match(line):
-                    self.sgrp_nr = int(line.split()[1])
+                    i = intconv(line.split()[1])
+                    if i:
+                        self.sgrp_nr = i
                 elif re_spacegroupname.match(line):
                     self.sgrp_name = ''.join(line.split()[1:]).strip("'")
                 elif re_spacegroupsetting.match(line):
-                    try:
-                        self.sgrp_setting = int(line.split()[1])
-                    except:
-                        pass
+                    i = intconv(line.split()[1])
+                    if i:
+                        self.sgrp_setting = i
                 elif re_name.match(line):
                     try:
                         self.name = shlex.split(line)[1]
@@ -425,18 +436,23 @@ class CIFDataset(object):
             elif atom_loop:  # atom label and position
                 loop_start = False
                 asplit = line.split()
-                atom = get_element(asplit[alab_idx])
-                apos = (floatconv(asplit[ax_idx]),
-                        floatconv(asplit[ay_idx]),
-                        floatconv(asplit[az_idx]))
-                occ = floatconv(asplit[occ_idx]) if occ_idx else 1
-                if numpy.isnan(occ):
-                    occ = 1
-                uiso = floatconv(asplit[uiso_idx]) if uiso_idx else 0
-                if numpy.isnan(uiso):
-                    uiso = 0
-                biso = 8 * numpy.pi**2 * uiso
-                self.atoms.append((atom, apos, occ, biso))
+                try:
+                    atom = get_element(asplit[alab_idx])
+                    apos = (floatconv(asplit[ax_idx]),
+                            floatconv(asplit[ay_idx]),
+                            floatconv(asplit[az_idx]))
+                    occ = floatconv(asplit[occ_idx]) if occ_idx else 1
+                    if numpy.isnan(occ):
+                        occ = 1
+                    uiso = floatconv(asplit[uiso_idx]) if uiso_idx else 0
+                    if numpy.isnan(uiso):
+                        uiso = 0
+                    biso = 8 * numpy.pi**2 * uiso
+                    self.atoms.append((atom, apos, occ, biso))
+                except:
+                    if config.VERBOSITY >= config.INFO_LOW:
+                        print('XU.material: could not parse atom line: "%s"'
+                              % line.strip())
         if self.atoms:
             self.has_atoms = True
 
