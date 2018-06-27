@@ -760,6 +760,7 @@ def heaviside(x):
 
     Returns
     -------
-     s: Heaviside step function evaluated for all values of x
+     s: Heaviside step function evaluated for all values of x with datatype
+        integer
     """
-    return numpy.sign(x)/2. + 0.5
+    return (numpy.sign(x)/2. + 0.5).astype(numpy.int8)
