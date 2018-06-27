@@ -380,13 +380,28 @@ class SGLattice(object):
             parint, poslist = sgwp[w[0]]
             i = 0
             if parint & 1:
-                x = w[1][i]
+                try:
+                    x = w[1][i]
+                except TypeError:
+                    print('XU.materials: Wyckoff position needs parameters'
+                          '-> wrong material definition')
+                    raise
                 i += 1
             if parint & 2:
-                y = w[1][i]
+                try:
+                    y = w[1][i]
+                except TypeError:
+                    print('XU.materials: Wyckoff position needs parameters'
+                          '-> wrong material definition')
+                    raise
                 i += 1
             if parint & 4:
-                z = w[1][i]
+                try:
+                    z = w[1][i]
+                except TypeError:
+                    print('XU.materials: Wyckoff position needs parameters'
+                          '-> wrong material definition')
+                    raise
             for p in poslist:
                 pos = eval(p, {'x': x, 'y': y, 'z': z})
                 pos = numpy.asarray(pos)
