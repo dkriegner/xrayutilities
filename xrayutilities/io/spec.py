@@ -247,7 +247,7 @@ class SPECScan(object):
             self.fid.seek(self.hoffset, 0)
             self.header = []
             while self.fid.tell() < self.doffset:
-                line = self.fid.readline().decode('ascii')
+                line = self.fid.readline().decode('ascii', 'ignore')
                 self.header.append(line.strip())
 
             self.fid.seek(self.doffset, 0)
@@ -271,7 +271,7 @@ class SPECScan(object):
             scan_aborted_flag = False
 
             for line in self.fid:
-                line = line.decode('ascii')
+                line = line.decode('ascii', 'ignore')
                 line = line.strip()
                 if not line:
                     continue
@@ -688,7 +688,7 @@ class SPECFile(object):
 
             for line in self.fid:
                 linelength = len(line)
-                line = line.decode('ascii')
+                line = line.decode('ascii', 'ignore')
                 if config.VERBOSITY >= config.DEBUG:
                     print('parsing line: %s' % line)
 
@@ -936,7 +936,7 @@ class SPECLog(object):
     def Parse(self):
         with xu_open(self.full_filename, 'r') as fid:
             for line in fid:
-                line = line.decode('ascii')
+                line = line.decode('ascii', 'ignore')
                 self.line_counter += 1
 
                 line = line.strip()
