@@ -1,3 +1,4 @@
+* simulation code for diffuse X-ray reflectivity
 * more flexibility in defining materials Wyckoff positions
 * convenience function to calculate diffracted intensities of thin films to
   compare various Bragg peaks (coplanar diffraction geoemetry)

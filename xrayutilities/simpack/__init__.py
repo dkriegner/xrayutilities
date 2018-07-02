@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 simulation subpackage of xrayutilities.
 
@@ -36,6 +36,7 @@ from .models import Model, LayerModel
 from .models import KinematicalModel
 from .models import KinematicalMultiBeamModel
 from .models import SpecularReflectivityModel
+from .models import DiffuseReflectivityModel
 from .models import SimpleDynamicalCoplanarModel
 from .models import DynamicalModel
 

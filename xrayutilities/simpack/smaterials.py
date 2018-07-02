@@ -188,9 +188,11 @@ class Layer(SMaterial):
                     density
                     'relaxation' is the degree of relaxation in case of
                     crystalline thin films
+                    'lat_correl' is the lateral correlation length for diffuse
+                    reflectivity calculations
         """
         for kw in kwargs:
-            if kw not in ('roughness', 'density', 'relaxation'):
+            if kw not in ('roughness', 'density', 'relaxation', 'lat_correl'):
                 raise TypeError('%s is an invalid keyword argument' % kw)
         kwargs['thickness'] = thickness
         super(Layer, self).__init__(material, **kwargs)

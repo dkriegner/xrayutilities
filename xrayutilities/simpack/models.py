@@ -13,14 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
 
 import numpy
+import math as pymath
 import scipy.constants as constants
+import scipy.integrate as integrate
 import scipy.interpolate as interpolate
-from scipy.special import erf
+from scipy.special import erf, j0
 
 from . import LayerStack
 from .. import config, utilities
@@ -736,7 +738,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 Ps = numpy.copy(P)
 
             B = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
-            B[:, :, :2] = M[:, :, :2]
+            B[..., :2] = M[..., :2]
             B[:, 0, 2] = -numpy.ones(nal)
             B[:, 1, 3] = -numpy.ones(nal)
             B[:, 2, 2] = Kiz
@@ -920,3 +922,526 @@ class SpecularReflectivityModel(LayerModel):
             plt.tight_layout()
 
         return z, prof
+
+
+class DiffuseReflectivityModel(SpecularReflectivityModel):
+    """
+    model for diffuse reflectivity calculations
+
+    The 'simulate' method calculates the diffuse reflectivity on the specular
+    rod in coplanar geometry in analogy to the SpecularReflectivityModel.
+
+    The 'simulate_map' method calculates the diffuse reflectivity for a 2D set
+    of Q-positions. This method can also calculate the intensity for other
+    geometries, like GISAXS with constant incidence angle or a quasi
+    omega/2theta scan in GISAXS geometry.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        constructor for a reflectivity model. The arguments consist of a
+        LayerStack or individual Layer(s). Optional parameters are specified
+        in the keyword arguments.
+
+        Parameters
+        ----------
+         *args:     either one LayerStack or several Layer objects can be given
+         *kwargs:   optional parameters for the simulation; supported are:
+                    'I0' is the primary beam intensity
+                    'background' is the background added to the simulation
+                    'sample_width' width of the sample along the beam
+                    'beam_width' beam width in the same units as the sample
+                                 width
+                    'resolution_width' defines the width of the resolution
+                                       (deg)
+                    'energy' sets the experimental energy (eV)
+                    'H' Hurst factor defining the fractal dimension of the
+                        roughness (0..1, very slow for H != 1 or H != 0.5)
+                    'vert_correl' vertical correlation length in (Angstrom),
+                                  0 means full replication
+                    'vert_nu' exponent in the vertical correlation function
+                    'method' 1..simple DWBA (default), 2..full DWBA (slower)
+                    'vert_int' 0..no integration over the vertical divergence,
+                               1..with integration over the vertical divergence
+                    'qL_zero' value of inplane q-coordinate which can be
+                              considered 0, using method 2 it is important to
+                              avoid exact 0 and this value will be used instead
+        """
+        self.sample_width = kwargs.pop('sample_width', numpy.inf)
+        self.beam_width = kwargs.pop('beam_width', 0)
+        self.H = kwargs.pop('H', 1)
+        self.xiV = kwargs.pop('vert_correl', 0)
+        self.nu = kwargs.pop('vert_nu', 0)
+        self.method = kwargs.pop('method', 1)
+        self.vert = kwargs.pop('vert_int', 0)
+        self.qL_zero = kwargs.pop('qL_zero', 5e-5)
+        super(DiffuseReflectivityModel, self).__init__(*args, **kwargs)
+
+    def _get_layer_prop(self):
+        """
+        helper function to obtain layer properties needed for all types of
+        simulations
+        """
+        nl = len(self.lstack)
+
+        t = numpy.asarray([float(l.thickness) for l in self.lstack[nl:0:-1]])
+        sig = [float(getattr(l, 'roughness', 0)) for l in self.lstack[nl::-1]]
+        rho = [float(getattr(l, 'density', 1)) for l in self.lstack[nl::-1]]
+        delta = self.cd * numpy.asarray(rho)
+        xiL = [float(getattr(l, 'lat_correl', numpy.inf))
+               for l in self.lstack[nl::-1]]
+
+        return t, sig, rho, delta, xiL
+
+    def simulate(self, alphai):
+        """
+        performs the actual diffuse reflectivity calculation for the specified
+        incidence angles. This method always uses the coplanar geometry
+        independent of the one set during the initialization.
+
+        Parameters
+        ----------
+         alphai: vector of incidence angles
+
+        Returns
+        -------
+        vector of intensities of the reflectivity signal
+        """
+        # get layer properties
+        t, sig, rho, delta, xiL = self._get_layer_prop()
+
+        deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
+        lam = utilities.en2lam(self.exp.energy)
+        if self.method == 2:
+            qL = [-abs(self.qL_zero), abs(self.qL_zero)]
+        else:
+            qL = [0, ]
+        qz = 4 * numpy.pi / lam * numpy.sin(numpy.radians(alphai))
+        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.xiV, self.nu,
+                            None, qL, qz, self.sample_width, self.beam_width,
+                            1e-4, 1000, deltaA, self.method, 1, self.vert)
+        R = R.mean(axis=0)
+        return self.scale_simulation(self.convolute_resolution(alphai, R))
+
+    def simulate_map(self, qL, qz):
+        """
+        performs diffuse reflectivity calculation for the rectangular grid of
+        reciprocal space positions define by qL and qz.  This method uses the
+        method and geometry set during the initialization of the class.
+
+        Parameters
+        ----------
+         qL:        lateral coordinate in reciprocal space
+                    (vector with NqL components)
+         qz:        vertical coordinate in reciprocal space
+                    (vector with Nqz components)
+
+        Returns
+        -------
+         matrix of intensities of the reflectivity signal, with shape (len(qL),
+         len(qz))
+        """
+        # get layer properties
+        t, sig, rho, delta, xiL = self._get_layer_prop()
+
+        deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
+        lam = utilities.en2lam(self.exp.energy)
+        localqL = numpy.copy(qL)
+        if self.method == 2:
+            localqL[qL == 0] = self.qL_zero
+
+        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.xiV, self.nu,
+                            None, localqL, qz, self.sample_width,
+                            self.beam_width, 1e-4, 1000, deltaA, self.method,
+                            1, self.vert)
+        return self.scale_simulation(R)
+
+    def _xrrdiffv2(self, lam, delta, thick, sigma, xiL, H, xiV, nu, alphai, qL,
+                   qz, samplewidth, beamwidth, eps, nmax, deltaA, method, scan,
+                   vert):
+        """
+        simulation of diffuse reflectivity from a rough multilayer. Exact or
+        simplified DWBA, fractal roughness model, Ming model of the vertical
+        correlation, various scattering geometries
+
+        Parameters
+        ----------
+         lam:       x-ray wavelength in Angstrom
+         delta:     vector with the 1-n values (N+1 components, 1st
+                    component..layer at the free surface, last
+                    component..substrate)
+         thick:     vector with thicknesses (N components)
+         sigma:     vector with rms roughnesses (N+1 components)
+         xiL:       vector with lateral correlation lengths (N+1 components)
+         H:         Hurst factor (scalar)
+         xiV:       vertical correlation: 0..full replication,
+                    > 0 and nu > 0.. see below,
+                    > 0 and nu = 0..vertical correlation length (scalar)
+         nu:        exponent in the vertical correlation function
+                    exp(-abs(z_m-z_n)*(qL/max(qL))**nu/xiV) (scalar)
+         alphai     incidence angle (scalar for scan=2, ignored for scan=1, 3)
+         qL:        lateral coordinate in reciprocal space
+                    (vector with NqL components)
+         qz:        vertical coordinate in reciprocal space
+                    (vector with Nqz components)
+         samplewidth:   width of the irradiated sample area (scalar), =0..the
+                        irradiated are is assumed constant
+         beamwidth: width of the primary beam (scalar)
+         eps:       small number
+         nmax:      max number of terms in the Taylor series of the lateral
+                    correlation function
+         deltaA:    effective value of 1-n in simple DWBA
+                    (scalar, ignored for method=2)
+         method:    1..simple DWBA, 2..full DWBA
+         scan:      1..standard coplanar geometry, 2..standard GISAXS geometry
+                    with constant incidence angle, =3..quasi omega/2theta scan
+                    in GISAXS geometry (incidence and central-exit angles are
+                    equal)
+         vert:      0..no integration over the vertical divergence, 1..with
+                    integration over the vertical divergence
+
+        Returns
+        -------
+        diffint: diffuse reflectivity intensity matrix
+
+        additionally the used incidence and exit angles are stored in
+        _smap_alphai, _smap_alphaf
+        """
+        # worker function definitions
+        def coherent(alphai, K, delta, thick, N, NqL, Nqz):
+            """
+            calculate coherent reflection/transmission signal of a multilayer
+
+            Parameters
+            ----------
+             alphai:    matrix of incidence angles in radians (NqL x Nqz
+                        components)
+             K:         x-ray wave-vector (2*pi/lambda)
+             delta:     vector with the 1-n values (N+1 components, 1st
+                        component..layer at the free surface, last
+                        component..substrate)
+             thick:     vector with thicknesses (N components)
+             N:         number layers in the stack
+             NqL:       number of lateral q-points to calculate
+             Nqz:       number of vertical q-points to calculate
+
+            Returns
+            -------
+             [T, R, R0, k0, kz]: transmission, reflection, surface reflection,
+                                 z-component of k-vector,
+                                 z-component of k-vector in the material.
+            """
+            k0 = -K * numpy.sin(alphai)
+            kz = numpy.zeros((N+1, NqL, Nqz), dtype=numpy.complex)
+            T = numpy.zeros((N+1, NqL, Nqz), dtype=numpy.complex)
+            R = numpy.zeros((N+1, NqL, Nqz), dtype=numpy.complex)
+            for jn in range(N+1):
+                kz[jn, ...] = -K * numpy.sqrt(numpy.sin(alphai)**2 -
+                                              2 * delta[jn])
+
+            T[N, ...] = numpy.ones((NqL, Nqz), dtype=numpy.complex)
+            kzs = kz[N, ...]  # kz in substrate
+            for jn in range(N-1, -1, -1):
+                kzn = kz[jn, ...]
+                tF = 2 * kzn / (kzn + kzs)
+                rF = (kzn - kzs) / (kzn + kzs)
+                phi = numpy.exp(1j * kzn * thick[jn])
+                T[jn, ...] = phi / tF * (T[jn+1, ...] + rF * R[jn+1, ...])
+                R[jn, ...] = 1 / phi / tF * (rF * T[jn+1, ...] + R[jn+1, ...])
+                kzs = numpy.copy(kzn)
+
+            tF = 2 * k0 / (k0 + kzn)
+            rF = (k0 - kzn) / (k0 + kzn)
+            T0 = 1 / tF * (T[0, ...] + rF * R[0, ...])
+            R0 = 1 / tF * (rF * T[0, ...] + R[0, ...])
+
+            T /= T0
+            R /= T0
+            R0 /= T0
+
+            return T, R, R0, k0, kz
+
+        def correl(a, b, L, H, eps, nmax, vert, K, NqL, Nqz, isurf):
+            """
+            correlation function
+
+            Parameters
+            ----------
+             a:     lateral correlation parameter
+             b:     vertical correlation parameter
+             L:     lateral correlation length
+             H:     Hurst factor (scalar)
+             eps:   small number (decides integration cut-off), typical 1e-3
+             nmax:  max number of terms in the Taylor series of the lateral
+                    correlation function
+             vert:  flag to tell decide if integration over vertical divergence
+                    is used: 0..no integration, 1..with integration
+             K:     length of the x-ray wave-vector (2*pi/lambda)
+             NqL:   number of lateral q-points to calculate
+             Nqz:   number of vertical q-points to calculate
+             isurf: array with NqL, Nqz flags to tell if there is a positive
+                    incidence and exit angle
+
+            Returns
+            -------
+            psi: correlation function
+            """
+            psi = numpy.zeros((NqL, Nqz), dtype=numpy.complex)
+            if H == 0.5 or H == 1:
+                dpsi = numpy.zeros_like(psi, dtype=numpy.complex)
+                m = isurf > 0
+                n = 1
+                s = numpy.copy(b)
+                errm = numpy.inf
+                if H == 1 and vert == 0:
+                    def f(a, n):
+                        return numpy.exp(-a**2/4/n) / 2 / n**2
+                elif H == 0.5 and vert == 0:
+                    def f(a, n):
+                        return 1. / (n**2 + a**2)**(3/2.)
+                elif H == 1 and vert == 1:
+                    def f(a, n):
+                        return numpy.sqrt(numpy.pi/n**3) * numpy.exp(-a**2/4/n)
+                elif H == 0.5 and vert == 1:
+                    def f(a, n):
+                        return 2. / (n**2 + a**2)
+
+                while errm > eps and n < nmax:
+                    dpsi[m] = s[m] * f(a[m], n)
+                    if n > 1:
+                        errm = abs(numpy.max(dpsi[m] / psi[m]))
+                    psi[m] += dpsi[m]
+                    s[m] *= b[m]/float(n)
+                    n += 1
+            else:
+                if vert == 0:
+                    kern = kernel
+                else:
+                    kern = kernelvert
+                for jL in range(NqL):
+                    for jz in range(Nqz):
+                        if isurf[jL, jz] == 1:
+                            xmax = (-numpy.log(eps / b[jL, jz]))**(1/(2*H))
+                            psi[jL, jz] = cquad(kern, 0.0, numpy.real(xmax),
+                                                epsrel=eps, epsabs=0,
+                                                limit=nmax, args=(a[jL, jz],
+                                                b[jL, jz], H))
+
+            if vert == 0:
+                psi *= 2 * numpy.pi * L ** 2
+            else:
+                psi *= 2 * numpy.pi * L / K
+            return psi
+
+        def kernelvert(x, a, b, H):
+            """
+            integration kernel with vertical integration
+
+            Parameters
+            ----------
+             x:     independent parameter of the function
+             a:     lateral correlation parameter
+             b:     vertical correlation parameter
+             H:     Hurst factor (scalar)
+
+            Returns
+            -------
+            function value
+            """
+            w = numpy.exp(b * numpy.exp(-x**(2*H))) - 1
+            F = 2 * numpy.cos(a*x) * w
+            return F
+
+        def kernel(x, a, b, H):
+            """
+            integration kernel without vertical integration
+
+            Parameters
+            ----------
+             x:     independent parameter of the function
+             a:     lateral correlation parameter
+             b:     vertical correlation parameter
+             H:     Hurst factor (scalar)
+
+            Returns
+            -------
+            function value
+            """
+            w = numpy.exp(b * numpy.exp(-x**(2*H))) - 1
+            F = x * j0(a*x) * w
+            return F
+
+        def cquad(func, a, b, **kwargs):
+            """
+            complex quadrature by spliting real and imaginary part using scipy
+            """
+            def real_func(*args):
+                return numpy.real(func(*args))
+
+            def imag_func(*args):
+                return numpy.imag(func(*args))
+            real_integral = integrate.quad(real_func, a, b, **kwargs)
+            imag_integral = integrate.quad(imag_func, a, b, **kwargs)
+            return (real_integral[0] + 1j*imag_integral[0])
+
+        # begin of _xrrdiffv2
+        K = 2 * numpy.pi / lam
+
+        N = len(thick)
+        NqL = len(qL)
+        Nqz = len(qz)
+
+        QZ, QL = numpy.meshgrid(qz, qL)
+
+        # scan types:
+        if scan == 1:  # coplanar geometry
+            Q = numpy.sqrt(QL**2 + QZ**2)
+            QP = numpy.abs(QL)
+            th = numpy.arcsin(Q / 2 / K)
+            om = numpy.arctan2(QL, QZ)
+            ALPHAI = th + om
+            ALPHAF = th - om
+        elif scan == 2:  # GISAXS geometry with constant incidence angle
+            ALPHAI = numpy.radians(alphai) * numpy.ones((NqL, Nqz))
+            ALPHAF = numpy.arcsin(QZ / K - numpy.sin(numpy.radians(alphai)))
+            PHI = numpy.arcsin(QL / K / numpy.cos(ALPHAF))
+            QP = K * numpy.sqrt(numpy.cos(ALPHAF)**2 + numpy.cos(ALPHAI)**2 -
+                                2*numpy.cos(ALPHAF) * numpy.cos(ALPHAI) *
+                                numpy.cos(PHI))
+        elif scan == 3:  # with quasi omega/2theta scan in GISAXS geometry
+            ALPHAI = numpy.arcsin(QZ * (K - numpy.sqrt(K**2 - QL**2)) / QL**2)
+            ALPHAF = numpy.arcsin(QZ / K - numpy.sin(ALPHAI))
+            PHI = numpy.arcsin(QL / K / numpy.cos(ALPHAF))
+            QP = K * numpy.sqrt(numpy.cos(ALPHAF)**2 + numpy.cos(ALPHAI)**2 -
+                                2*numpy.cos(ALPHAF) * numpy.cos(ALPHAI) *
+                                numpy.cos(PHI))
+        else:
+            raise ValueError("Invalid value of parameter 'scan'")
+
+        # removing the values under the horizon
+        isurf = heaviside(ALPHAI) * heaviside(ALPHAF)
+
+        # non-disturbed states:
+        if method == 1:
+            k01 = -K * numpy.sin(ALPHAI)
+            kz1 = -K * numpy.sqrt(numpy.sin(ALPHAI)**2 - 2*deltaA)
+            k02 = -K * numpy.sin(ALPHAF)
+            kz2 = -K * numpy.sqrt(numpy.sin(ALPHAF)**2 - 2*deltaA)
+            T1 = 2 * k01 / (k01 + kz1)
+            T2 = 2 * k02 / (k02 + kz2)
+            R01 = (k01 - kz1) / (k01 + kz1)
+            R02 = (k02 - kz2) / (k02+kz2)
+            R1 = numpy.zeros((NqL, Nqz), dtype=numpy.complex)
+            R2 = numpy.copy(R1)
+            nproc = 1
+        else:  # method == 2
+            T1, R1, R01, k01, kz1 = coherent(ALPHAI, K, delta, thick, N,
+                                             NqL, Nqz)
+            T2, R2, R02, k02, kz2 = coherent(ALPHAF, K, delta, thick, N,
+                                             NqL, Nqz)
+            nproc = 4
+
+        # sample surface
+        if beamwidth > 0:
+            S = samplewidth * numpy.sin(ALPHAI) / beamwidth
+            S[S > 1] = 1
+        else:
+            S = 1
+
+        # z-coordinates
+        z = numpy.zeros(N+1)
+        for jn in range(1, N+1):
+            z[jn] = z[jn-1] - thick[jn-1]
+
+        # calculation of the deltas
+        delt = numpy.zeros(N+1, dtype=numpy.complex)
+        for jn in range(N+1):
+            if jn == 0:
+                delt[jn] = delta[jn]
+            if jn > 0:
+                delt[jn] = delta[jn] - delta[jn-1]
+
+        # double sum over interfaces
+        result = numpy.zeros((NqL, Nqz))
+        for jn in range(N+1):
+            # if method == 1 and (H == 1 or H == 0.5):
+            #     print(jn)
+            if nu != 0 or xiV == 0:
+                jmdol = 1
+            else:
+                jmdol = numpy.argmin(numpy.abs(z - (z[jn] -
+                                               xiV * numpy.log(eps))))
+
+            for ja in range(nproc):
+                if method == 1:
+                    Qn = -kz1 - kz2
+                    An = T1 * T2 * numpy.exp(-1j*Qn*z[jn])
+                else:  # method == 2
+                    if ja == 0:
+                        An = T1[jn, ...] * T2[jn, ...]
+                        Qn = -kz1[jn, ...] - kz2[jn, ...]
+                    elif ja == 1:
+                        An = T1[jn, ...] * R2[jn, ...]
+                        Qn = -kz1[jn, ...] + kz2[jn, ...]
+                    elif ja == 2:
+                        An = R1[jn, ...] * T2[jn, ...]
+                        Qn = kz1[jn, ...] - kz2[jn, ...]
+                    elif ja == 3:
+                        An = R1[jn, ...] * R2[jn, ...]
+                        Qn = kz1[jn, ...] + kz2[jn, ...]
+                for jm in range(jmdol, jn+1):
+                    if jm == jn:
+                        weight = 1
+                    else:
+                        weight = 2
+                    # if method == 1 and (H != 0.5 and H != 1) and ja==1:
+                    #     print(jn, jm)
+                    # vertical correlation function:
+                    if xiV > 0:
+                        CV = numpy.exp(-abs(z[jn] - z[jm]) *
+                                       (QP/numpy.max(QP))**nu / xiV)
+                    else:
+                        CV = 1
+                    # effective values of sigma and lateral correl. length:
+                    try:
+                        LP = ((float(xiL[jn])**(-2*H) +
+                               float(xiL[jm])**(-2*H)) / 2) ** (-1 / 2 / H)
+                    except ZeroDivisionError:
+                        LP = 0
+                    sig = pymath.sqrt(sigma[jn] * sigma[jm])
+                    for jb in range(nproc):
+                        if method == 1:
+                            Qm = -kz1 - kz2
+                            Am = T1 * T2 * numpy.exp(-1j * Qm * z[jm])
+                        else:  # method == 2
+                            # if H != 0.5 or H != 1:
+                            #    print(ja, jb, jn, jm)
+                            if jb == 0:
+                                Am = T1[jm, ...] * T2[jm, ...]
+                                Qm = -kz1[jm, ...] - kz2[jm, ...]
+                            elif jb == 1:
+                                Am = T1[jm, ...] * R2[jm, ...]
+                                Qm = -kz1[jm, ...] + kz2[jm, ...]
+                            elif jb == 2:
+                                Am = R1[jm, ...] * T2[jm, ...]
+                                Qm = kz1[jm, ...] - kz2[jm, ...]
+                            elif jb == 3:
+                                Am = R1[jm, ...] * R2[jm, ...]
+                                Qm = +kz1[jm, ...] + kz2[jm, ...]
+                        # lateral correlation function:
+                        Psi = correl(QP*LP, Qn*numpy.conj(Qm)*sig**2, LP, H,
+                                     eps, nmax, vert, K, NqL, Nqz, isurf)
+                        result += numpy.real(CV * delt[jn] *
+                                             numpy.exp(-Qn**2 *
+                                                       sigma[jn]**2/2) /
+                                             Qn * An *
+                                             numpy.conj(delt[jm] *
+                                             numpy.exp(-Qm**2*sigma[jm]**2/2) /
+                                             Qm * Am) * Psi) * weight
+
+        result[isurf == 0] = 0
+        self._smap_R01 = R01 * isurf
+        self._smap_R02 = R02 * isurf
+        self._smap_alphai = numpy.degrees(ALPHAI*isurf)
+        self._smap_alphaf = numpy.degrees(ALPHAF*isurf)
+        return result * S * K**4 / (16*numpy.pi**2)
