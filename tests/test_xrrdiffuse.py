@@ -23,7 +23,7 @@ import xrayutilities as xu
 
 
 class Test_DiffuseReflectivityModel(unittest.TestCase):
-    diffmax = 2e-6
+    dmax = 2e-6
     # define used layer stack
     sub = xu.simpack.Layer(xu.materials.Si, numpy.inf, roughness=1,
                            lat_correl=100)
@@ -57,8 +57,8 @@ class Test_DiffuseReflectivityModel(unittest.TestCase):
         sim2 = self.m2.simulate(self.ai)
         sim3 = self.m3.simulate(self.ai)
 
-        self.assertTrue((numpy.mean(sim1) - numpy.mean(sim2)) < self.diffmax)
-        self.assertTrue((numpy.mean(sim1) - numpy.mean(sim3)) < self.diffmax)
+        self.assertTrue(abs(numpy.mean(sim1) - numpy.mean(sim2)) < self.dmax)
+        self.assertTrue(abs(numpy.mean(sim1) - numpy.mean(sim3)) < self.dmax)
 
 
 if __name__ == '__main__':

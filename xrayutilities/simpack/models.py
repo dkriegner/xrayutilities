@@ -15,10 +15,12 @@
 #
 # Copyright (C) 2016-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+from __future__ import division
+
 import abc
+import math as pymath
 
 import numpy
-import math as pymath
 import scipy.constants as constants
 import scipy.integrate as integrate
 import scipy.interpolate as interpolate
