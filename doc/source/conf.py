@@ -33,9 +33,10 @@ import sphinx_rtd_theme
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
     'numpydoc',
     'rst2pdf.pdfbuilder']
 
@@ -366,33 +367,10 @@ pdf_extensions = ['inkscape', 'vectorpdf']
 
 
 # my additions for pre-processing the docstring
-# parameter list of functions should be found and changed to be properly
-# formated in the output
-
 def process_docstring(app, what, name, obj, options, lines):
-    # highlight parameters names
-    # insert section highlighting
+    # insert note block
     for i in range(len(lines)):
-        # replace/protect * character
-        lines[i] = re.sub(r'\*', r'\\*', lines[i])
-        # insert note block
-        lines[i] = re.sub(r'^\s*Note:', r'.. note:: Note:', lines[i])
-        # parameter names
-        lines[i] = re.sub(
-            r'^(\s*)([\w,()]+)(\s*:|\s{2,}|\s\.{1,}\s)',
-            r'\1:\2: ',
-            lines[i])
-        # section names (multiline matching)
-        if re.match('^\s*-{3,}\s*$', lines[i]):
-            try:
-                lines[i] = re.sub(
-                    r'^([a-zA-Z0-9_,:\s]*)',
-                    r'\1:',
-                    lines[i - 1])
-                lines[i] = ' '
-            except:
-                pass
-
+        lines[i] = re.sub(r'^\s*Note:', r'.. note::', lines[i])
 
 def setup(app):
     app.connect('autodoc-process-docstring', process_docstring)
