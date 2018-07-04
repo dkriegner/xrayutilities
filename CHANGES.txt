@@ -1,3 +1,6 @@
+v1.5.0, 2018-07-04
+
+* improved docstring formating
 * simulation code for diffuse X-ray reflectivity
 * more flexibility in defining materials Wyckoff positions
 * convenience function to calculate diffracted intensities of thin films to
