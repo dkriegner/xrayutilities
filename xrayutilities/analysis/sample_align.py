@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
@@ -57,40 +57,54 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
 
     Parameters
     ----------
-     angles:    detector angles for which the position of the beam was
-                measured
-     channels:  detector channels where the beam was found
+    angles :    array-like
+        detector angles for which the position of the beam was measured
+    channels :  array-like
+        detector channels where the beam was found
 
-    keyword arguments:
-     stdev     standard deviation of the beam position
-     plot:     flag to specify if a visualization of the fit should be done
-     usetilt   whether to use model considering a detector tilt, i.e. deviation
-               angle of the pixel direction from orthogonal to the primary beam
-               (default: True)
-     datap:    plot format of data points
-     modelline:  plot format of modelline
-     modeltilt:  plot format of modeltilt
-     fignum:     figure number to use for the plot
-     mlabel:     label of the model w/o tilt to be used in the plot
-     mtiltlabel:  label of the model with tilt to be used in the plot
-     dlabel:    label of the data line to be used in the plot
-     figtitle:  boolean to tell if the figure title should show the fit
-                parameters
+    stdev :     array-like, optional
+        standard deviation of the beam position
+    plot :      bool, optional
+        flag to specify if a visualization of the fit should be done
+    usetilt :   bool, optional
+        whether to use model considering a detector tilt, i.e. deviation angle
+        of the pixel direction from orthogonal to the primary beam
+        (default: True)
+
+    Other Parameters
+    ----------------
+    datap :     str, optional
+        plot format of data points
+    modelline : str, optional
+        plot format of modelline
+    modeltilt : str, optional
+        plot format of modeltilt
+    fignum :    int or str, optional
+        figure number to use for the plot
+    mlabel :    str
+        label of the model w/o tilt to be used in the plot
+    mtiltlabel : str
+        label of the model with tilt to be used in the plot
+    dlabel :    str
+        label of the data line to be used in the plot
+    figtitle :  bool
+        flag to tell if the figure title should show the fit parameters
 
     Returns
     -------
-     (pixelwidth,centerch,tilt)
-
-    pixelwidth:  the width of one detector channel @ 1m distance, which is
-                 negative in case the hit channel number decreases upon an
-                 increase of the detector angle.
-    centerch: center channel of the detector
-    tilt: tilt of the detector from perpendicular to the beam
-          (will be zero in case of usetilt=False)
+    pixelwidth :    float
+        the width of one detector channel @ 1m distance, which is negative in
+        case the hit channel number decreases upon an increase of the detector
+        angle.
+    centerch :      float
+        center channel of the detector
+    tilt :          float
+        tilt of the detector from perpendicular to the beam (will be zero in
+        case of usetilt=False)
 
     Note:
-     L/pixelwidth*pi/180 = channel/degree for large detector distance with the
-     sample detector disctance L
+      L/pixelwidth*pi/180 = channel/degree for large detector distance with the
+      sample detector disctance L
     """
 
     if stdev is None:
@@ -105,10 +119,12 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
 
         Parameters
         ----------
-         p ... [L/w_pix*pi/180 ~= channel/degree, center_channel,
-                detector_tilt] with L sample detector disctance, and
-               w_pix the width of one detector channel
-         x ... independent variable of the model: detector angle (degree)
+        p :     list
+            [L/w_pix*pi/180 ~= channel/degree, center_channel, detector_tilt]
+            with L sample detector disctance, and w_pix the width of one
+            detector channel
+        x :     array-like
+            independent variable of the model: detector angle (degree)
         """
         rad = radians(x)
         r = math.degrees(p[0]) * sin(rad) / \
@@ -283,33 +299,46 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
 
     Parameters
     ----------
-     angle:         array of angles in degree of measured detector spectra
-     mca_spectra :  corresponding detector spectra
-                    (shape: (len(angle), Nchannels)
+    angle :     array-like
+        array of angles in degree of measured detector spectra
+    mca_spectra :   array-like
+        corresponding detector spectra (shape: (len(angle), Nchannels)
 
-    keyword arguments:
-     r_i:           primary beam direction as vector [xyz][+-]; default: 'y+'
-     detaxis:       detector arm rotation axis [xyz][+-]; default: 'x+'
+    r_i :       str, optional
+        primary beam direction as vector [xyz][+-]; default: 'y+'
+    detaxis :   str, optional
+        detector arm rotation axis [xyz][+-]; default: 'x+'
 
-    other options are passed to psd_chdeg function, options include:
-     plot:     flag to specify if a visualization of the fit should be done
-     usetilt:  whether to use model considering a detector tilt, i.e.
-               deviation angle of the pixel direction from orthogonal to the
-               primary beam) (default: True)
-
-    Note:  see help of psd_chdeg for more options
+    Other parameters
+    ----------------
+    plot :      bool
+        flag to specify if a visualization of the fit should be done
+    usetilt :   bool
+        whether to use model considering a detector tilt, i.e.  deviation angle
+        of the pixel direction from orthogonal to the primary beam
+        (default: True)
 
     Returns
     -------
-     pixelwidth (at one meter distance), center_channel[, detector_tilt]
+    pixelwidth :    float
+        width of the pixel at one meter distance, pixelwidth is negative in
+        case the hit channel number decreases upon an increase of the detector
+        angle
+    center_channel : float
+        central channel of the detector
+    detector_tilt : float, optional
+        if usetilt=True the fitted tilt of the detector is also returned
 
-    Note:  L/pixelwidth*pi/180 ~= channel/degree, with the sample detector
-           distance L
+    Note:
+      L/pixelwidth*pi/180 ~= channel/degree, with the sample detector
+      distance L
 
-    pixelwidth is negative in case the hit channel number decreases upon an
-    increase of the detector angle The function also prints out how a linear
-    detector can be initialized using the results obtained from this
-    calibration. Carefully check the results
+    The function also prints out how a linear detector can be initialized using
+    the results obtained from this calibration. Carefully check the results
+
+    See Also
+    --------
+    psd_chdeg :  low level function with more configurable options
     """
 
     if "detaxis" in keyargs:
@@ -407,8 +436,8 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
             tilt = detparam[2]
         else:
             tilt = 0
-        print("\tdetector initialization with: init_linear('%s',%.2f,%d"
-              ",pixelwidth=%.4e,distance=1.,tilt=%.2f)"
+        print("\tdetector initialization with: init_linear('%s', %.2f, %d"
+              ", pixelwidth=%.4e, distance=1., tilt=%.2f)"
               % (detaxis, abs(detparam[1]), mca_spectra.shape[1],
                  abs(detparam[0]), tilt))
 
@@ -429,44 +458,51 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     it determines the detector tilt possible rotations and offsets in the
     detector arm angles
 
-    parameters
+    Parameters
     ----------
-     angle1 ..... outer detector arm angle
-     angle2 ..... inner detector arm angle
-     ccdimages .. images of the ccd taken at the angles given above
-     detaxis .... detector arm rotation axis
-                  default: ['z+','y-']
-     r_i ........ primary beam direction [xyz][+-]
-                  default 'x+'
+    angle1 :    array-like
+        outer detector arm angle
+    angle2 :    array-like
+        inner detector arm angle
+    ccdimages : array-like
+        images of the ccd taken at the angles given above
+    detaxis :   list of str
+        detector arm rotation axis; default: ['z+', 'y-']
+    r_i :       str
+        primary beam direction [xyz][+-]; default 'x+'
 
-    keyword_arguments:
-        plot .... flag to determine if results and intermediate results should
-                  be plotted; default: True
-        cut_off . cut off intensity to decide if image is used for the
-                  determination or not; default: 0.7 = 70%
-        start ... sequence of start values of the fit for parameters, which can
-                  not be estimated automatically or might want to be fixed.
-                  These are: pwidth1, pwidth2, distance, tiltazimuth, tilt,
-                  detector_rotation, outerangle_offset.
-                  By default (None, None, 1, 0, 0, 0, 0) is used.
-        fix ..... fix parameters of start
-                  (default: (False, False, True, False, False, False, False))
-                  It is strongly recommended to either fix the distance or the
-                  pwidth1,2 values.
-        fig ..... matplotlib figure used for plotting the error
-                  default: None (creates own figure)
-        wl ...... wavelength of the experiment in Angstrom (default:
-                  config.WAVELENGTH) value does not really matter here but does
-                  affect the scaling of the error
-        plotlog . flag to specify if the created error plot should be on
-                  log-scale
-        nwindow . window size for determination of the center of mass position
-                  after the center of mass of every full image is determined,
-                  the center of mass is determined again using a window of
-                  size nwindow in order to reduce the effect of hot pixels.
-        debug ... flag to specify that you want to see verbose output and
-                  saving of images to show if the CEN determination works
-
+    plot :      bool, optional
+        flag to determine if results and intermediate results should be
+        plotted; default: True
+    cut_off :   float, optional
+        cut off intensity to decide if image is used for the determination or
+        not; default: 0.7 = 70%
+    start :     tuple, optional
+        sequence of start values of the fit for parameters, which can not be
+        estimated automatically or might want to be fixed.  These are: pwidth1,
+        pwidth2, distance, tiltazimuth, tilt, detector_rotation,
+        outerangle_offset.  By default (None, None, 1, 0, 0, 0, 0) is used.
+    fix :       tuple of bool
+        fix parameters of start (default: (False, False, True, False, False,
+        False, False)) It is strongly recommended to either fix the distance or
+        the pwidth1, 2 values.
+    fig :       Figure, optional
+        matplotlib figure used for plotting the error default: None (creates
+        own figure)
+    wl :        float or str
+        wavelength of the experiment in Angstrom (default: config.WAVELENGTH)
+        value does not really matter here but does affect the scaling of the
+        error
+    plotlog :   bool
+        flag to specify if the created error plot should be on log-scale
+    nwindow :   int
+        window size for determination of the center of mass position after the
+        center of mass of every full image is determined, the center of mass is
+        determined again using a window of size nwindow in order to reduce the
+        effect of hot pixels.
+    debug :     bool
+        flag to specify that you want to see verbose output and saving of
+        images to show if the CEN determination works
     """
 
     if plot:
@@ -650,8 +686,8 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         print("total time needed for fit: %.2fsec" % (time.time() - t0))
         print("fitted parameters: epsilon: %10.4e (%d,%s) "
               % (epsmin, fitmin.info, repr(fitmin.stopreason)))
-        print("param: (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot,"
-              "outerangle_offset)")
+        print("param: (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt, "
+              "detrot, outerangle_offset)")
         print("param: %.2f %.2f %10.4e %10.4e %.4f %.1f %.2f %.3f %.3f"
               % (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, tilt,
                  detrot, outerangle_offset))
@@ -681,13 +717,14 @@ def _peak_position(img, nwindow, plot=False):
 
     Parameters
     ----------
-     img:       detector image data as 2D array
-     nwindow:   to avoid influence of hot pixels far away from the peak
-                position the center of mass approach is repeated with a window
-                around the COM of the full image.
-     COM of the size (nwindow, nwindow)
-     plot:      (optional) the result of the of the determination can be saved
-                as a plot
+    img :       array-like
+        detector image data as 2D array
+    nwindow :   int
+        to avoid influence of hot pixels far away from the peak position the
+        center of mass approach is repeated with a window around the COM of the
+        full image. COM of the size (nwindow, nwindow) is returned
+    plot :      bool, optional
+        the result of the of the determination can be saved as a plot
     """
     nw = nwindow // 2
     [cen1r, cen2r] = center_of_mass(img)
@@ -806,36 +843,51 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
 
     parameters
     ----------
-     angle1 ..... outer detector arm angle
-     angle2 ..... inner detector arm angle
-     n1,n2 ...... pixel number at which the primary beam was observed
-     detaxis .... detector arm rotation axis
-                  default: ['z+','y-']
-     detdir1,2 .. detector pixel directions of first and second pixel
-                  coordinates; e.g. 'y+'
-     r_i ........ primary beam direction [xyz][+-]; default 'x+'
+    angle1 :    array-like
+        outer detector arm angle
+    angle2 :    array-like
+        inner detector arm angle
+    n1, n2 :    int
+        pixel number at which the primary beam was observed
+    detaxis :   list of str
+        detector arm rotation axis; default: ['z+', 'y-']
+    r_i :       str
+        primary beam direction [xyz][+-]; default 'x+'
+    detdir1, detdir2 :  str
+        detector pixel directions of first and second pixel coordinates;
+        e.g. 'y+'
 
-    keyword_arguments:
-        start ... sequence of start values of the fit for parameters,
-                  which can not be estimated automatically
-                  these are: pwidth1, pwidth2, distance, tiltazimuth, tilt,
-                  detector_rotation,outerangle_offset.
-                  By default: (None, None, 1, 0, 0, 0, 0)
-        fix ..... fix parameters of start
-        full_output   flag to tell if to return fit object with final
-                      parameters and detector directions
-        wl ...... wavelength of the experiment in Angstrom (default: 1)
-                  value does not matter here and does only affect the scaling
-                  of the error
-        debug ... flag to tell if you want to see debug output of the script
-                 (switch this to true only if you can handle it :))
+    start :     tuple, optional
+        sequence of start values of the fit for parameters, which can not be
+        estimated automatically or might want to be fixed.  These are: pwidth1,
+        pwidth2, distance, tiltazimuth, tilt, detector_rotation,
+        outerangle_offset.  By default (None, None, 1, 0, 0, 0, 0) is used.
+    fix :       tuple of bool
+        fix parameters of start (default: (False, False, True, False, False,
+        False, False)) It is strongly recommended to either fix the distance or
+        the pwidth1, 2 values.
+    fig :       Figure, optional
+        matplotlib figure used for plotting the error default: None (creates
+        own figure)
+    full_output : bool
+        flag to tell if to return fit object with final parameters and detector
+        directions
+    wl :        float or str
+        wavelength of the experiment in Angstrom (default: 1)
+        value does not really matter here but does affect the scaling of the
+        error
+    debug :     bool
+        flag to tell if you want to see debug output of the script (switch this
+        to true only if you can handle it :))
 
-    returns
+    Returns
     -------
-        eps   final epsilon of the fit
-
-    if full_output:
-        eps, param, fit
+    float
+        final epsilon of the fit
+    param :     list, optional
+        if full_output: fit parameters
+    fit :       object, optional
+        if full_output: fit object
     """
 
     def areapixel(params, detectorDir1, detectorDir2, r_i, detectorAxis,
@@ -848,51 +900,54 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
 
         Parameters
         ----------
-        *args:          detector angles and channel numbers
-                dAngles as numpy array, lists or Scalars in total
-                        len(detectorAxis) must be given starting with the outer
-                        most circle all arguments must have the same shape or
-                        length
-                channel numbers n1 and n2 where the primary beam hits the
-                        detector same length as the detector values
+        params :    list
+            parameters of the detector calibration model
+            (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt, detrot)
 
-        params:         parameters of the detector calibration model
-                        (cch1,cch2,pwidth1,pwidth2,tiltazimuth,tilt,detrot)
-                cch1,2: center pixel, in direction of self.r_i at zero
-                        detectorAngles
-                pwidth1,2: width of one pixel (same unit as distance)
-                distance: distance of center pixel from center of rotation
-                tiltazimuth: direction of the tilt vector in the detector plane
-                             (in degree)
-                tilt: tilt of the detector plane around an axis normal to the
-                      direction given by the tiltazimuth
-                detrot: detector rotation around the primary beam direction as
-                        given by r_i
+             - cch1, cch2: center pixel, in direction of self.r_i at zero
+               detectorAngles;
+             - pwidth1, pwidth2: width of one pixel (same unit as distance);
+             - distance: distance of center pixel from center of rotation;
+             - tiltazimuth: direction of the tilt vector in the detector plane
+               (in degree);
+             - tilt: tilt of the detector plane around an axis normal to the
+               direction given by the tiltazimuth;
+             - detrot: detector rotation around the primary beam direction as
+               given by r_i;
 
-        detectorDir1:   direction of the detector (along the pixel
-                        direction 1); e.g. 'z+' means higher pixel numbers at
-                        larger z positions
-        detectorDir2:   direction of the detector (along the pixel
-                        direction 2); e.g. 'x+'
+        detectorDir1 :  str
+            direction of the detector (along the pixel direction 1); e.g. 'z+'
+            means higher pixel numbers at larger z positions
+        detectorDir2 :  str
+            direction of the detector (along the pixel direction 2); e.g. 'x+'
+        r_i :           str
+            primary beam direction e.g. 'x+'
+        detectorAxis :  list or tuple
+            detector circles e.g. ['z+', 'y-'] would mean a detector arm with a
+            two rotations
+        *args :     array-like
+            detector angles and channel numbers;
+            *dAngles* as numpy array, lists or Scalars in total
+            len(detectorAxis) must be given starting with the outer most
+            circle. All arguments must have the same shape or length.
+            *channel numbers* n1 and n2 where the primary beam hits the
+            detector with same length as the detector values
 
-        r_i:            primary beam direction e.g. 'x+'
-        detectorAxis:   list or tuple of detector circles
-                        e.g. ['z+','y-'] would mean a detector arm with a two
-                        rotations
-
-        **kwargs:       possible keyword arguments
-            delta:      giving delta angles to correct the given ones for
-                        misalignment delta must be an numpy array or list of
-                        len(*dAngles) used angles are than *args - delta
-            wl:         x-ray wavelength in angstroem (default: 1 (since it
-                        does not matter here))
-            deg:        flag to tell if angles are passed as degree
-                        (default: True)
+        delta :         list, optional
+            giving delta angles to correct the given ones for misalignment
+            delta must be an numpy array or list of len(*dAngles) used angles
+            are than *args - delta
+        wl :            float or str, optional
+            x-ray wavelength in angstroem (default: 1 (since it does not matter
+            here))
+        deg :           bool, optional
+            flag to tell if angles are passed as degree (default: True)
 
         Returns
         -------
-        reciprocal space position of detector pixels n1,n2 in a numpy.ndarray
-        of shape ( len(args) , 3 )
+        ndarray
+            reciprocal space position of detector pixels n1, n2 in a
+            numpy.ndarray of shape ( len(args) , 3 )
         """
 
         # check detector circle argument
@@ -1036,26 +1091,30 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
 
         parameters
         ----------
-         param           fit parameters
-                         (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth,
-                          tilt, detrot, outerangle_offset)
-         x               independent variables
-                         (angle1, angle2, n1, n2) with shape (4, Npoints)
-         detectorDir1:   direction of the detector (along the pixel
-                         direction 1); e.g. 'z+' means higher pixel numbers at
-                         larger z positions
-         detectorDir2:   direction of the detector (along the pixel
-                         direction 2); e.g. 'x+'
-         r_i:            primary beam direction e.g. 'x+'
-         detectorAxis:   list or tuple of detector circles
-                         e.g. ['z+', 'y-'] would mean a detector arm with a two
-                         rotations
-         wl:             wavelength of the experiment in Angstroem
+        param :         list
+            fit parameters (cch1, cch2, pwidth1, pwidth2, distance,
+            tiltazimuth, tilt, detrot, outerangle_offset)
+        x :             array-like
+            independent variables (angle1, angle2, n1, n2) with
+            shape (4, Npoints)
+        detectorDir1 :  str
+            direction of the detector (along the pixel direction 1); e.g. 'z+'
+            means higher pixel numbers at larger z positions
+        detectorDir2 :  str
+            direction of the detector (along the pixel direction 2); e.g. 'x+'
+        r_i :           str
+            primary beam direction e.g. 'x+'
+        detectorAxis :  list or tuple
+            detector circles e.g. ['z+', 'y-'] would mean a detector arm with a
+            two rotations
+        wl :            float or str
+            wavelength of the experiment in Angstroem
 
         Returns
         -------
-         reciprocal space position of detector pixels n1,n2 in a numpy.ndarray
-         of shape (3, x.shape[1])
+        ndarray
+            reciprocal space position of detector pixels n1, n2 in a
+            numpy.ndarray of shape (3, x.shape[1])
         """
 
         angle1 = x[0, :]
@@ -1196,51 +1255,62 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
     set of symmetric reflections can be used for the detector parameter
     determination. for this not only the detector parameters but in addition
     the sample orientation and wavelength need to be fit.  Both images from the
-    primary beam hkl = (0,0,0) and from a symmetric reflection hkl = (h,k,l)
-    need to be given for a successful run.
+    primary beam hkl = (0, 0, 0) and from a symmetric reflection
+    hkl = (h, k, l) need to be given for a successful run.
 
-    parameters
+    Parameters
     ----------
-     sampleang .. sample rocking angle (needed to align the reflections (same
-                  rotation direction as inner detector rotation)) other sample
-                  angle are not allowed to be changed during the scans
-     angle1 ..... outer detector arm angle
-     angle2 ..... inner detector arm angle
-     ccdimages .. images of the ccd taken at the angles given above
-     hkls ....... array/list of hkl values for every image
-     experiment . Experiment class object needed to get the UB matrix for the
-                  hkl peak treatment
-     material ... material used as reference crystal
-     detaxis .... detector arm rotation axis
-                  default: ['z+','y-']
-     r_i ........ primary beam direction [xyz][+-]
-                  default 'x+'
+    sampleang : array-like
+        sample rocking angle (needed to align the reflections (same rotation
+        direction as inner detector rotation)) other sample angle are not
+        allowed to be changed during the scans
+    angle1 :    array-like
+        outer detector arm angle
+    angle2 :    array-like
+        inner detector arm angle
+    ccdimages : array-like
+        images of the ccd taken at the angles given above
+    hkls :      list or array-like
+        hkl values for every image
+    experiment : Experiment
+        Experiment class object needed to get the UB matrix for the hkl peak
+        treatment
+    material :  Crystal
+        material used as reference crystal
+    detaxis :   list of str
+        detector arm rotation axis; default: ['z+', 'y-']
+    r_i :       str
+        primary beam direction [xyz][+-]; default 'x+'
 
-    keyword_arguments:
-        plot .... flag to determine if results and intermediate results should
-                  be plotted. default: True
-        cut_off . cut off intensity to decide if image is used for the
-                  determination or not. default: 0.1 = 10%
-        start ... sequence of start values of the fit for parameters,
-                  which can not be estimated automatically or might want to be
-                  fixed.  These are: pwidth1, pwidth2, distance, tiltazimuth,
-                  tilt, detector_rotation, outerangle_offset, sampletilt,
-                  sampletiltazimuth, wavelength.
-                  By default (None, None, 1, 0, 0, 0, 0, 0, 0, 'config').
-        fix ..... fix parameters of start (default: (False, False, True,
-                  False, False, False, False, False, False, False))
-                  It is strongly recommended to either fix the distance or the
-                  pwidth1,2 values.
-        fig ..... matplotlib figure used for plotting the error.
-                  default: None (creates own figure)
-        plotlog . flag to specify if the created error plot should be on
-                  log-scale
-        nwindow . window size for determination of the center of mass position
-                  after the center of mass of every full image is determined,
-                  the center of mass is determined again using a window of
-                  size nwindow in order to reduce the effect of hot pixels.
-        debug ... flag to tell if you want to see debug output of the script
-                  (switch this to true only if you can handle it :))
+    plot :      bool, optional
+        flag to determine if results and intermediate results should be
+        plotted; default: True
+    cut_off :   float, optional
+        cut off intensity to decide if image is used for the determination or
+        not; default: 0.7 = 70%
+    start :     tuple, optional
+        sequence of start values of the fit for parameters, which can not be
+        estimated automatically or might want to be fixed.  These are: pwidth1,
+        pwidth2, distance, tiltazimuth, tilt, detector_rotation,
+        outerangle_offset, sampletilt, sampletiltazimuth, wavelength.  By
+        default (None, None, 1, 0, 0, 0, 0, 0, 0, 'config').
+    fix :       tuple of bool
+        fix parameters of start (default: (False, False, True, False, False,
+        False, False, False, False, False)) It is strongly recommended to
+        either fix the distance or the pwidth1, 2 values.
+    fig :       Figure, optional
+        matplotlib figure used for plotting the error default: None (creates
+        own figure)
+    plotlog :   bool
+        flag to specify if the created error plot should be on log-scale
+    nwindow :   int
+        window size for determination of the center of mass position after the
+        center of mass of every full image is determined, the center of mass is
+        determined again using a window of size nwindow in order to reduce the
+        effect of hot pixels.
+    debug :     bool
+        flag to specify that you want to see verbose output and saving of
+        images to show if the CEN determination works
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.area_'
@@ -1485,45 +1555,55 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
     it determines the detector tilt possible rotations and offsets in the
     detector arm angles
 
-    parameters
+    Parameters
     ----------
-     sang ....... sample rocking angle (rotation direction of inner detector
-                  rotation)
-     angle1 ..... outer detector arm angle
-     angle2 ..... inner detector arm angle
-     n1,n2 ...... pixel number at which the beam was observed
-     hkls ....... Miller indices of the reflection were the images were taken
-                  (use (0,0,0)) for primary beam
-     experiment . Experiment class object needed to get the UB matrix needed
-                  for the hkl peak treatment
-     material ... material used as reference crystal
-     detaxis .... detector arm rotation axis
-                  default: ['z+','y-']
-     detdir1,2 .. detector pixel directions of first and second pixel
-                  coordinates; e.g. 'y+'
-     r_i ........ primary beam direction [xyz][+-]
-                  default 'x+'
+    sang :      array-like
+        sample rocking angle (rotation direction of inner detector rotation)
+    angle1 :    array-like
+        outer detector arm angle
+    angle2 :    array-like
+        inner detector arm angle
+    n1, n2 :    array-like
+        pixel number at which the beam was observed
+    hkls :      tuple or list
+        Miller indices of the reflection were the images were taken (use
+        (0, 0, 0)) for primary beam
+    experiment : Experiment
+        Experiment class object needed to get the UB matrix needed for the hkl
+        peak treatment
+    material :  Crystal
+        material used as reference crystal
+    detaxis :   str
+        detector arm rotation axis default: ['z+', 'y-']
+    detdir1, detdir2 : str
+        detector pixel directions of first and second pixel coordinates;
+        e.g. 'y+'
+    r_i :       str
+        primary beam direction [xyz][+-] default 'x+'
 
-    keyword_arguments:
-        start ... sequence of start values of the fit for parameters,
-                  which can not be estimated automatically.
-                  these are:
-                  pwidth1, pwidth2, distance, tiltazimuth, tilt,
-                  detector_rotation, outerangle_offset, sampletilt,
-                  sampletiltazimuth, wavelength.
-                  By default: (None, None, 1, 0, 0, 0, 0, 0, 0, 1.0)
-        fix ..... fix parameters of start
-        full_output .. flag to tell if to return fit object with final
-                       parameters and detector directions
-        debug ... flag to tell if you want to see debug output of the script
-                  (switch this to true only if you can handle it :))
+    start :     tuple or list, optional
+        sequence of start values of the fit for parameters, which can not be
+        estimated automatically.  these are: pwidth1, pwidth2, distance,
+        tiltazimuth, tilt, detector_rotation, outerangle_offset, sampletilt,
+        sampletiltazimuth, wavelength.
+        By default: (None, None, 1, 0, 0, 0, 0, 0, 0, 1.0)
+    fix :       tuple or list, optional
+        fix parameters of start
+    full_output : bool, optional
+        flag to tell if to return fit object with final parameters and detector
+        directions
+    debug :     bool, optional
+        flag to tell if you want to see debug output of the script (switch this
+        to true only if you can handle it :))
 
-    returns
+    Returns
     -------
-        eps   final epsilon of the fit
-
-    if full_output:
-        eps,param,fit
+    float
+        final epsilon of the fit
+    param :     list, optional
+        if full_output: fit parameters
+    fit :       object, optional
+        if full_output: fit object
     """
 
     def areapixel2(params, detectorDir1, detectorDir2, r_i, detectorAxis,
@@ -1536,53 +1616,53 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
 
         Parameters
         ----------
-        *args:          sample,detector angles and channel numbers
-                sAngle  sample rocking angle as numpy array, lists or Scalars
-                dAngles as numpy array, lists or Scalars.
-                        in total len(detectorAxis) values must be given
-                        starting with the outer most circle. all arguments must
-                        have the same shape or length.
-                channel numbers n1 and n2 where the primary beam hits the
-                        detector with the same length as the detector values
+        params :        list or tuple
+            parameters of the detector calibration model
+            (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt, detrot):
+            cch1, 2: center pixel, in direction of r_i at zero detectorAngles;
+            pwidth1, 2: width of one pixel (same unit as distance);
+            distance: distance of center pixel from center of rotation;
+            tiltazimuth: direction of the tilt vector in the detector plane (in
+            degree);
+            tilt: tilt of the detector plane around an axis normal to the
+            direction given by the tiltazimuth;
+            detrot: detector rotation around the primary beam direction as
+            given by r_i
+        detectorDir1 :  str
+            direction of the detector (along the pixel direction 1); e.g. 'z+'
+            means higher pixel numbers at larger z positions
+        detectorDir2 :  str
+            direction of the detector (along the pixel direction 2); e.g. 'x+'
+        r_i :           str
+            primary beam direction e.g. 'x+'
+        detectorAxis :  list or tuple
+            detector circles; e.g. ['z+', 'y-'] would mean a detector arm with
+            a two rotations
+        *args :         array-like
+            sample, detector angles and channel numbers;
+            *sAngle* sample rocking angle as numpy array, lists or Scalars.
+            *dAngles* as numpy array, lists or Scalars. In total
+            len(detectorAxis) values must be given starting with the outer most
+            circle. All arguments must have the same shape or length.
+            *channel numbers* `n1` and `n2` where the primary beam hits the
+            detector with the same length as the detector values
 
-        params:         parameters of the detector calibration model
-                        (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt,
-                         detrot)
-                cch1,2: center pixel, in direction of self.r_i at zero
-                        detectorAngles
-                pwidth1,2: width of one pixel (same unit as distance)
-                distance: distance of center pixel from center of rotation
-                tiltazimuth: direction of the tilt vector in the detector plane
-                             (in degree)
-                tilt: tilt of the detector plane around an axis normal to the
-                      direction given by the tiltazimuth
-                detrot: detector rotation around the primary beam direction as
-                        given by r_i
-
-        detectorDir1:   direction of the detector (along the pixel
-                        direction 1); e.g. 'z+' means higher pixel numbers at
-                        larger z positions
-        detectorDir2:   direction of the detector (along the pixel
-                        direction 2); e.g. 'x+'
-
-        r_i:            primary beam direction e.g. 'x+'
-        detectorAxis:   list or tuple of detector circles.
-                        e.g. ['z+','y-'] would mean a detector arm with a two
-                        rotations
-
-        **kwargs:       possible keyword arguments
-            delta:      giving delta angles to correct the given ones for
-                        misalignment. delta must be an numpy array or list of
-                        len(*dAngles). used angles are than *args - delta
-            UB:         orientation matrix of the sample
-            wl:         x-ray wavelength in angstroem
-            deg:        flag to tell if angles are passed as degree (default:
-                        True)
+        delta :     list of array-like, optional
+            giving delta angles to correct the given ones for misalignment.
+            delta must be an numpy array or list of len(*dAngles). used angles
+            are than *args - delta
+        UB :        array-like, optional
+            orientation matrix of the sample
+        wl :        float or str, optional
+            x-ray wavelength in angstroem
+        deg :       bool, optional
+            flag to tell if angles are passed as degree (default: True)
 
         Returns
         -------
-        reciprocal space position of detector pixels n1,n2 in a numpy.ndarray
-        of shape ( len(args) , 3 )
+        ndarray
+            reciprocal space position of detector pixels n1, n2 in a
+            numpy.ndarray of shape (len(args) , 3)
         """
 
         # check detector circle argument
@@ -1705,25 +1785,29 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
 
         parameters
         ----------
-         param           fit parameters (cch1, cch2, pwidth1, pwidth2,
-                         distance, tiltazimuth, tilt, detrot,
-                         outerangle_offset, sampletilt, sampletiltazimuth,
-                         wavelength)
-         x               independent variables; contains (sang, angle1, angle2,
-                         n1, n2, hkls) with shape (8, Npoints)
-         detectorDir1:   direction of the detector (along the pixel
-                         direction 1); e.g. 'z+' means higher pixel numbers at
-                         larger z positions
-         detectorDir2:   direction of the detector (along the pixel
-                         direction 2); e.g. 'x+'
-         r_i:            primary beam direction e.g. 'x+'
-         detectorAxis:   list or tuple of detector circles; e.g. ['z+','y-']
-                         would mean a detector arm with a two rotations
+        param :         list or tuple
+            fit parameters (cch1, cch2, pwidth1, pwidth2, distance,
+            tiltazimuth, tilt, detrot, outerangle_offset, sampletilt,
+            sampletiltazimuth, wavelength)
+        x :             array-like
+            independent variables; contains (sang, angle1, angle2, n1, n2,
+            hkls) with shape (8, Npoints)
+        detectorDir1 :  str
+            direction of the detector (along the pixel direction 1); e.g. 'z+'
+            means higher pixel numbers at larger z positions
+        detectorDir2 :  str
+            direction of the detector (along the pixel direction 2); e.g. 'x+'
+        r_i :           str
+            primary beam direction e.g. 'x+'
+        detectorAxis :  list or tuple
+            detector circles; e.g. ['z+', 'y-'] would mean a detector arm with
+            a two rotations
 
         Returns
         -------
-         reciprocal space position of detector pixels n1,n2 in a numpy.ndarray
-         of shape ( 3, x.shape[1] )
+        ndarray
+            reciprocal space position of detector pixels n1, n2 in a
+            numpy.ndarray of shape (3, x.shape[1])
         """
 
         sang = x[0, :]
@@ -1932,25 +2016,29 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
 
     Parameters
     ----------
-     primarybeam :   primary beam channel number
-     angles :        list or numpy.array with angles
-     channels :      list or numpy.array with corresponding detector channels
-     plot:           flag to specify if a visualization of the fit is wanted
-                     default: True
+    primarybeam :   int
+        primary beam channel number
+    angles :        list or array-like
+        incidence angles
+    channels :      list or array-like
+        corresponding detector channels
+    plot :          bool, optional
+        flag to specify if a visualization of the fit is wanted default : True
 
     Returns
     -------
-     omega : angle at which the sample is parallel to the beam
+    float
+        angle at which the sample is parallel to the beam
 
     Examples
     --------
-    >>> psd_refl_align(500,[0,0.1,0.2,0.3],[550,600,640,700])
+    >>> psd_refl_align(500, [0, 0.1, 0.2, 0.3], [550, 600, 640, 700])
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.psd_refl_'
                                                        'align')
 
-    p, rsq = xumath.linregress(channels, angles)
+    p, rsq = xumath.linregress(numpy.asarray(channels), numpy.asarray(angles))
     zeropos = numpy.polyval(p, primarybeam)
 
     if plot:
@@ -1977,6 +2065,7 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
                    linewidth=1.5)
         plt.xlabel("PSD Channel")
         plt.ylabel("sample angle")
+        plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.psd_refl_align: sample is parallel to beam at "
@@ -1998,27 +2087,29 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
     Parameters
     ----------
-     phi:       azimuths in which the reflection was aligned (deg)
-     aomega:    aligned omega values (deg)
-     zeros:     (optional) angles at which surface is parallel to
-                the beam (deg). For the analysis the angles
-                (aomega-zeros) are used.
-     omega0:    if specified the nominal value of the reflection is not
-                included as fit parameter, but is fixed to the specified
-                value. This value is MANDATORY if ONLY TWO AZIMUTHs are
-                given.
-     plot:      flag to specify if a visualization of the fit is wanted.
-                default: True
+    phi :       list, tuple or array-like
+        azimuths in which the reflection was aligned (deg)
+    aomega :    list, tuple or array-like
+        aligned omega values (deg)
+    zeros :     list, tuple or array-like, optional
+        angles at which surface is parallel to the beam (deg). For the analysis
+        the angles (aomega - zeros) are used.
+    omega0 :    float, optional
+        if specified the nominal value of the reflection is not included as fit
+        parameter, but is fixed to the specified value. This value is MANDATORY
+        if ONLY TWO AZIMUTHs are given.
+    plot :      bool, optional
+        flag to specify if a visualization of the fit is wanted.
+        default: True
 
     Returns
     -------
-    [omega0,phi0,miscut]
-
-    list with fitted values for
-     omega0:    the omega value of the reflection should be close to
-                the nominal one
-     phi0:      the azimuth in which the primary beam looks upstairs
-     miscut:    amplitude of the sinusoidal variation == miscut angle
+    omega0 :    float
+        the omega value of the reflection should be close to the nominal one
+    phi0 :      float
+        the azimuth in which the primary beam looks upstairs
+    miscut :    float
+        amplitude of the sinusoidal variation == miscut angle
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.miscut_'
@@ -2033,7 +2124,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
     if omega0 is None:
         # first guess for the parameters
-        # omega0,phi0,miscut
+        # omega0, phi0, miscut
         p0 = (om.mean(), a[om.argmax()], om.max() - om.min())
 
         def fitfunc(p, phi):
@@ -2042,7 +2133,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
     else:
         # first guess for the parameters
-        p0 = (a[om.argmax()], om.max() - om.min())  # omega0,phi0,miscut
+        p0 = (a[om.argmax()], om.max() - om.min())  # omega0, phi0, miscut
 
         def fitfunc(p, phi):
             return abs(p[1]) * \
@@ -2096,26 +2187,37 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
 
     Parameters
     ----------
-     om,tt: angular coordinates of the measurement (numpy.ndarray)
-            either with size of psd or of psd.shape[0]
-     psd:   intensity values needed for fitting
-     omalign: aligned omega value, used as first guess in the fit
-     ttalign: aligned two theta values used as first guess in the fit
-              these values are also used to set the range for the fit:
-              the peak should be within +/-frange\AA^{-1} of those values
-     exphxrd: experiment class used for the conversion between angular and
-              reciprocal space.
-     frange:  data range used for the fit in both directions
-              (see above for details default:(0.03,0.03) unit: \AA^{-1})
-     peaktype: can be 'Gauss' or 'Lorentz' to fit either of the two peak
-               shapes
-     plot:  if True (default) function will plot the result of the fit in
-            comparison with the measurement.
+    om, tt :    array-like
+        angular coordinates of the measurement either with size of psd or of
+        psd.shape[0]
+    psd :       array-like
+        intensity values needed for fitting
+    omalign :   float
+        aligned omega value, used as first guess in the fit
+    ttalign :   float
+        aligned two theta values used as first guess in the fit these values
+        are also used to set the range for the fit: the peak should be within
+        +/-frange\AA^{-1} of those values
+    exphxrd :   Experiment
+        experiment class used for the conversion between angular and reciprocal
+        space.
+    frange :    tuple of float, optional
+        data range used for the fit in both directions (see above for details
+        default:(0.03, 0.03) unit: \AA^{-1})
+    peaktype :  {'Gauss', 'Lorentz'}
+        peak type to fit
+    plot :      bool, optional
+        if True (default) function will plot the result of the fit in
+        comparison with the measurement.
 
     Returns
     -------
-    omfit,ttfit,params,covariance: fitted angular values, and the fit
-            parameters (of the Gaussian/Lorentzian) as well as their errors
+    omfit, ttfit :  float
+        fitted angular values
+    params :        list
+        fit parameters (of the Gaussian/Lorentzian)
+    covariance :    ndarray
+        covariance matrix of the fit parameters
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.fit_bragg'
