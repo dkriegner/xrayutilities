@@ -23,12 +23,11 @@ nchannel = 1500  # number of channels of the detector
 
 # intensity normalizer function responsible for count time and absorber
 # correction
-absfun = lambda d: d["detcorr"] / d["psd2"].astype(numpy.float)
 normalizer_detcorr = xu.IntensityNormalizer(
     "MCA",
     mon="Monitor",
     time="Seconds",
-    absfun=absfun)
+    absfun=lambda d: d["detcorr"] / d["psd2"].astype(numpy.float))
 
 # substrate material used for Bragg peak calculation to correct for
 # experimental offsets
