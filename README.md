@@ -15,7 +15,7 @@ simulation of crystal truncation rods as well as fundamental parameters powder
 diffraction is included.
 
 
-Copyright (C) 2009-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
@@ -201,3 +201,11 @@ creates a tarball in the directory dist, which contains everything needed for
 the installation of xrayutilities
 
 
+Coding style
+============
+
+We try to follow the PEP8 Style Guide where possible
+https://www.python.org/dev/peps/pep-0008/
+Noteable exceptions are docstrings which sometimes would get misformated when PEP8 is followed strictly.
+
+For docstrings we follow the http://numpydoc.readthedocs.io style.
