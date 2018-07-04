@@ -50,13 +50,16 @@ def blockAverage1D(data, Nav):
 
     Parameters
     ----------
-     data:   data which should be contracted (length N)
-     Nav:    number of values which should be averaged
+    data :  array-like
+        data which should be contracted (length N)
+    Nav :   int
+        number of values which should be averaged
 
     Returns
     -------
-    block averaged numpy array of data type numpy.double
-    (length ceil(N/Nav))
+    ndarray
+        block averaged numpy array of data type numpy.double
+        (length ceil(N/Nav))
     """
 
     if not isinstance(data, (numpy.ndarray, list)):
@@ -76,17 +79,22 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
 
     Parameters
     ----------
-     data2d:    array of 2D data shape (N,M)
-     Nav1,2:    a field of (Nav1 x Nav2) values is contracted
+    data2d :        ndarray
+        array of 2D data shape (N, M)
+    Nav1, Nav2 :    int
+        a field of (Nav1 x Nav2) values is contracted
 
-    **kwargs:   optional keyword argument
-      roi:      region of interest for the 2D array. e.g. [20,980,40,960]
-                N = 980-20; M = 960-40
+    kwargs :        dict, optional
+        optional keyword argument
+    roi :           tuple or list, optional
+        region of interest for the 2D array. e.g. [20, 980, 40, 960],
+        reduces M, and M!
 
     Returns
     -------
-    block averaged numpy array with type numpy.double with shape
-    ( ceil(N/Nav1), ceil(M/Nav2) )
+    ndarray
+        block averaged numpy array with type numpy.double with shape
+        (ceil(N/Nav1), ceil(M/Nav2))
     """
 
     if not isinstance(data2d, (numpy.ndarray)):
@@ -99,7 +107,7 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
     if config.VERBOSITY >= config.DEBUG:
         N, M = (roi[1] - roi[0], roi[3] - roi[2])
         print("xu.normalize.blockAverage2D: roi: %s" % (str(roi)))
-        print("xu.normalize.blockAverage2D: Nav1,2: %d,%d" % (Nav1, Nav2))
+        print("xu.normalize.blockAverage2D: Nav1, 2: %d,%d" % (Nav1, Nav2))
         print("xu.normalize.blockAverage2D: number of points: (%d,%d)"
               % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2))))
 
@@ -117,17 +125,21 @@ def blockAveragePSD(psddata, Nav, **kwargs):
 
     Parameters
     ----------
-     psddata:   array of 2D data shape (Nspectra,Nchannels)
-     Nav:       number of channels which should be averaged
+    psddata :   ndarray
+        array of 2D data shape (Nspectra, Nchannels)
+    Nav :       int
+        number of channels which should be averaged
 
-    **kwargs:   optional keyword argument
-      roi:      region of interest for the 2D array. e.g. [20,980]
-                Nchannels = 980-20
+    kwargs :    dict, optional
+        optional keyword argument
+    roi :       tuple or list
+        region of interest for the 2D array. e.g. [20, 980] Nchannels = 980-20
 
     Returns
     -------
-    block averaged psd spectra as numpy array with type numpy.double
-    of shape ( Nspectra , ceil(Nchannels/Nav) )
+    ndarray
+        block averaged psd spectra as numpy array with type numpy.double of
+        shape (Nspectra , ceil(Nchannels/Nav))
     """
 
     if not isinstance(psddata, (numpy.ndarray)):
@@ -148,7 +160,7 @@ def blockAveragePSD(psddata, Nav, **kwargs):
 class IntensityNormalizer(object):
 
     """
-    generic class for correction of intensity (point detector,or MCA,
+    generic class for correction of intensity (point detector, or MCA,
     single CCD frames) for count time and absorber factors
     the class must be supplied with a absorber correction function
     and works with data structures provided by xrayutilities.io classes or the
@@ -161,25 +173,31 @@ class IntensityNormalizer(object):
 
         Parameters
         ----------
-         det : detector field name of the data structure
+        det :       str
+            detector field name of the data structure
 
-        **keyargs:
-          mon : monitor field name
-          time: count time field name or count time as float
-          av_mon: average monitor value (default: data[mon].mean())
-          smoothmon: number of monitor values used to get a smooth monitor
-                     signal
-          absfun: absorber correction function to be used as in
-                  absorber_corrected_intensity = data[det]*absfun(data)
-          flatfield: flatfield of the detector; shape must be the same as
-                     data[det], and is only applied for MCA detectors
-          darkfield: darkfield of the detector; shape must be the same as
-                     data[det], and is only applied for MCA detectors
+        mon :       str, optional
+            monitor field name
+        time:       float or str, optional
+            count time field name or count time as float
+        av_mon :    float, optional
+            average monitor value (default: data[mon].mean())
+        smoothmon : int
+            number of monitor values used to get a smooth monitor signal
+        absfun :    callable, optional
+            absorber correction function to be used as in
+            ``absorber_corrected_intensity = data[det]*absfun(data)``
+        flatfield : ndarray
+            flatfield of the detector; shape must be the same as data[det], and
+            is only applied for MCA detectors
+        darkfield : ndarray
+            darkfield of the detector; shape must be the same as data[det], and
+            is only applied for MCA detectors
 
         Examples
         --------
         >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
-                absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
+        >>>     absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
         """
 
         for k in keyargs.keys():
@@ -375,15 +393,17 @@ class IntensityNormalizer(object):
 
         Parameters
         ----------
-         data: data object from xrayutilities.io classes (numpy.recarray)
-         ccd:  optionally CCD data can be given as separate ndarray of
-               shape (len(data), n1, n2), where n1, n2 is the shape of the
-               CCD image.
+        data :  numpy.recarray
+            data object from xrayutilities.io classes
+        ccd :   ndarray, optional
+            optionally CCD data can be given as separate ndarray of shape
+            (len(data), n1, n2), where n1, n2 is the shape of the CCD image.
 
         Returns
         -------
-         corrint: corrected intensity as numpy.ndarray of the same shape as
-                  data[det] (or ccd.shape)
+        corrint :   ndarray
+            corrected intensity as numpy.ndarray of the same shape as data[det]
+            (or ccd.shape)
         """
         if numpy.any(ccd):
             rawdata = ccd

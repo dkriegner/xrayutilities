@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2009-2010,2013
+# Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
 # Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
@@ -31,7 +31,7 @@ class Gridder3D(Gridder):
 
         # check input
         if nx <= 0 or ny <= 0 or nz <= 0:
-            raise exception.InputError('None of nx,ny and nz can be smaller '
+            raise exception.InputError('None of nx, ny and nz can be smaller '
                                        'than 1!')
 
         self.xmin = 0
@@ -49,7 +49,7 @@ class Gridder3D(Gridder):
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx,ny
+        Class method to allocate memory for the gridder based on the nx, ny
         class attributes.
         """
         self._gdata = numpy.zeros((self.nx, self.ny, self.nz),
@@ -101,10 +101,13 @@ class Gridder3D(Gridder):
 
         Parameters
         ----------
-         xmin,ymin,zmin:   minimum value of the gridding range in x,y,z
-         xmax,ymax,zmax:   maximum value of the gridding range in x,y,z
-         fixed: flag to turn fixed range gridding on (True (default))
-                or off (False)
+        xmin, ymin, zmin :  float
+            minimum value of the gridding range in x, y, z
+        xmax, ymax, zmax :  float
+            maximum value of the gridding range in x, y, z
+        fixed :             bool, optional
+            flag to turn fixed range gridding on (True (default)) or off
+            (False)
         """
         self.fixed_range = fixed
         self.xmin = xmin
@@ -129,7 +132,7 @@ class Gridder3D(Gridder):
 
         if x.size != y.size or y.size != z.size or z.size != data.size:
             raise exception.InputError("XU.%s: size of given datasets "
-                                       "(x,y,z,data) is not equal!"
+                                       "(x, y, z, data) is not equal!"
                                        % self.__class__.__name__)
 
         if not self.fixed_range:
@@ -149,10 +152,14 @@ class Gridder3D(Gridder):
 
         Parameters
         ----------
-        x ............... numpy array of arbitrary shape with x positions
-        y ............... numpy array of arbitrary shape with y positions
-        z ............... numpy array fo arbitrary shape with z positions
-        data ............ numpy array of arbitrary shape with data values
+        x :     ndarray
+            numpy array of arbitrary shape with x positions
+        y :	ndarray
+            numpy array of arbitrary shape with y positions
+        z :	ndarray
+            numpy array fo arbitrary shape with z positions
+        data :	ndarray
+            numpy array of arbitrary shape with data values
         """
 
         x, y, z, data = self._checktransinput(x, y, z, data)
@@ -184,15 +191,18 @@ class FuzzyGridder3D(Gridder3D):
 
         Parameters
         ----------
-         x ............... numpy array of arbitrary shape with x positions
-         y ............... numpy array of arbitrary shape with y positions
-         z ............... numpy array fo arbitrary shape with z positions
-         data ............ numpy array of arbitrary shape with data values
-        keyword arguments:
-         width ........... width of one data point. If not given half the bin
-                           size will be used. The width can be given as scalar
-                           if it is equal for all three dimensions, or as
-                           sequence of length 3.
+        x :	ndarray
+            numpy array of arbitrary shape with x positions
+        y :	ndarray
+            numpy array of arbitrary shape with y positions
+        z :     ndarray
+            numpy array fo arbitrary shape with z positions
+        data :	ndarray
+            numpy array of arbitrary shape with data values
+        width :	float, tuple or list, optional
+            width of one data point. If not given half the bin size will be
+            used. The width can be given as scalar if it is equal for all three
+            dimensions, or as sequence of length 3.
         """
 
         for k in kwargs.keys():

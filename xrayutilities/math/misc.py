@@ -26,14 +26,19 @@ def center_of_mass(pos, data, background='none', full_output=False):
 
     Parameters
     ----------
-     pos:  position of the data points
-     data: data values
-     background: type of background, either 'none', 'constant' or 'linear'
-     full_output: return background cleaned data and background-parameters
+    pos :  array-like
+        position of the data points
+    data :  array-like
+        data values
+    background : {'none', 'constant', 'linear'}
+        type of background, either 'none', 'constant' or 'linear'
+    full_output : bool
+        return background cleaned data and background-parameters
 
     Returns
     -------
-     center of mass position (single float)
+    float
+        center of mass position
     """
     # subtract background
     slope = 0
@@ -66,12 +71,15 @@ def fwhm_exp(pos, data):
 
     Parameters
     ----------
-     pos:  position of the data points
-     data: data values
+    pos :   array-like
+        position of the data points
+    data :  array-like
+        data values
 
     Returns
     -------
-     fwhm value (single float)
+    float
+        fwhm value
     """
 
     m = data.max()

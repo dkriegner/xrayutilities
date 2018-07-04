@@ -52,7 +52,7 @@ with lzma.open(os.path.join('data', 'f0_InterTables.dat.xz'), 'r') as itf:
 # add F1 and F2 from database
 with lzma.open(os.path.join('data', 'f1f2_asf_Kissel.dat.xz'), 'r') as kf:
     add_f1f2_from_kissel(dbf, kf)
-# with lzma.open(os.path.join('data','f1f2_Henke.dat'), 'r') as hf:
+# with lzma.open(os.path.join('data', 'f1f2_Henke.dat'), 'r') as hf:
 #    add_f1f2_from_henkedb(dbf, hf)
 
 # Also its possible to add custom data from different databases; e.g.
@@ -60,6 +60,6 @@ with lzma.open(os.path.join('data', 'f1f2_asf_Kissel.dat.xz'), 'r') as kf:
 # possible for specific elements only, therefore extract the data from
 # Hephaestus or any other source producing ASCII files with three columns
 # (energy (eV), f1, f2). To import such data use:
-# add_f1f2_from_ascii_file(dbf, os.path.join('data','Ga.f1f2'), 'Ga')
+# add_f1f2_from_ascii_file(dbf, os.path.join('data', 'Ga.f1f2'), 'Ga')
 
 dbf.Close()

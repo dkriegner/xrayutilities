@@ -23,18 +23,20 @@ from .. import config
 
 def getindex3d(x, y, z, xgrid, ygrid, zgrid):
     """
-    gives the indices of the point x,y,z in the grid given by xgrid ygrid zgrid
-    xgrid,ygrid,zgrid must be arrays containing equidistant points
+    gives the indices of the point x, y, z in the grid given by xgrid ygrid
+    zgrid xgrid, ygrid, zgrid must be arrays containing equidistant points
 
     Parameters
     ----------
-     x, y, z:     coordinates of the point of interest (float)
-     xgrid, ygrid, zgrid:     grid coordinates in x, y, z direction (array)
+    x, y, z :   float
+        coordinates of the point of interest
+    xgrid, ygrid, zgrid :   array-like
+        grid coordinates in x, y, z direction
 
     Returns
     -------
-     ix, iy, iz:  index of the closest gridpoint (lower left) of the point
-                  (x, y, z)
+    ix, iy, iz :  int
+        indices of the closest gridpoint (lower left) of the point (x, y, z)
     """
 
     dx = xgrid[1] - xgrid[0]
@@ -49,39 +51,43 @@ def getindex3d(x, y, z, xgrid, ygrid, zgrid):
     # to speed things up this is assumed to be the case
     # if (ix < 0 or ix > xgrid.size):
     #     print("Warning: point (%8.4f, %8.4f, %8.4f) out of range in x "
-    #           "coordinate!"%(x,y,z))
+    #           "coordinate!"%(x, y, z))
     # if(iy < 0 or iy > ygrid.size):
     #     print("Warning: point (%8.4f, %8.4f, %8.4f) out of range in y "
-    #           "coordinate!"%(x,y,z))
+    #           "coordinate!"%(x, y, z))
     # if (iz < 0 or iz > zgrid.size):
     #     print("Warning: point (%8.4f, %8.4f, %8.4f) out of range in z "
-    #           "coordinate!"%(x,y,z))
+    #           "coordinate!"%(x, y, z))
 
     return ix, iy, iz
 
 
 def get_qx_scan3d(gridder, qypos, qzpos, **kwargs):
     """
-    extract qx line scan at position y,z from a
+    extract qx line scan at position y, z from a
     gridded reciprocal space map by taking the closest line of the
     intensity matrix, or summing up a given area around this position
 
     Parameters
     ----------
-     gridder:       3d xrayutilities.Gridder3D object containing the data
-     qypos,qzpos:   position at which the line scan should be extracted
+    gridder :       Gridder3D
+        3d xrayutilities.Gridder3D object containing the data
+    qypos, qzpos :  float
+        position at which the line scan should be extracted
 
-    **kwargs:       possible keyword arguments:
-      qrange:       integration range perpendicular to scan direction
-      qmin,qmax:    minimum and maximum value of extracted scan axis
+    qrange :        float, optional
+        integration range perpendicular to scan direction
+    qmin, qmax :    float, optional
+        minimum and maximum value of extracted scan axis
 
     Returns
     -------
-     qx,qxint: qx scan coordinates and intensities
+    qx, qxint :     ndarray
+        qx scan coordinates and intensities
 
     Examples
     --------
-    >>> qxcut,qxcut_int = get_qx_scan3d(gridder,0,0,qrange=0.03)
+    >>> qxcut, qxcut_int = get_qx_scan3d(gridder, 0, 0, qrange=0.03)
     """
 
     if not isinstance(gridder, xugridder.Gridder3D):
@@ -97,7 +103,7 @@ def get_qx_scan3d(gridder, qypos, qzpos, **kwargs):
     qxmax = min(gridder.xaxis.max(), kwargs.get('qmax', numpy.inf))
     qrange = kwargs.get('qrange', 0.)
 
-    # find line corresponding to qypos,qzpos
+    # find line corresponding to qypos, qzpos
     ixmin, iymin, izmin = getindex3d(
         qxmin, qypos - qrange / 2., qzpos - qrange / 2.,
         gridder.xaxis, gridder.yaxis, gridder.zaxis)
@@ -124,26 +130,30 @@ def get_qx_scan3d(gridder, qypos, qzpos, **kwargs):
 
 def get_qy_scan3d(gridder, qxpos, qzpos, **kwargs):
     """
-    extract qy line scan at position x,z from a
+    extract qy line scan at position x, z from a
     gridded reciprocal space map by taking the closest line of the
     intensity matrix, or summing up a given area around this position
 
     Parameters
     ----------
-     gridder:       3d xrayutilities.Gridder3D object containing the data
-     qxpos,qzpos:   position at which the line scan should be extracted
+    gridder :       Gridder3D
+        3d xrayutilities.Gridder3D object containing the data
+    qxpos, qzpos :  float
+        position at which the line scan should be extracted
 
-    **kwargs:       possible keyword arguments:
-     qrange:        integration range perpendicular to scan direction
-     qmin,qmax:     minimum and maximum value of extracted scan axis
+    qrange :        float, optional
+        integration range perpendicular to scan direction
+    qmin, qmax :    float, optional
+        minimum and maximum value of extracted scan axis
 
     Returns
     -------
-     qy,qyint: qy scan coordinates and intensities
+    qy, qyint :     ndarray
+        qy scan coordinates and intensities
 
     Examples
     --------
-    >>> qycut,qycut_int = get_qy_scan3d(gridder,0,0,qrange=0.03)
+    >>> qycut, qycut_int = get_qy_scan3d(gridder, 0, 0, qrange=0.03)
     """
 
     if not isinstance(gridder, xugridder.Gridder3D):
@@ -159,7 +169,7 @@ def get_qy_scan3d(gridder, qxpos, qzpos, **kwargs):
     qymax = min(gridder.yaxis.max(), kwargs.get('qmax', numpy.inf))
     qrange = kwargs.get('qrange', 0.)
 
-    # find line corresponding to qxpos,qzpos
+    # find line corresponding to qxpos, qzpos
     ixmin, iymin, izmin = getindex3d(
         qxpos - qrange / 2., qymin, qzpos - qrange / 2.,
         gridder.xaxis, gridder.yaxis, gridder.zaxis)
@@ -174,7 +184,7 @@ def get_qy_scan3d(gridder, qxpos, qzpos, **kwargs):
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.analysis.get_qy_scan3d: %d points used for integration"
                   % ((izmax - izmin + 1) * (ixmax - ixmin + 1)))
-        return gridder.yaxis[iymin:iymax + 1],\
+        return gridder.yaxis[iymin:iymax + 1], \
             (gridder.data[ixmin:ixmax + 1,
                           iymin:iymax + 1,
                           izmin:izmax + 1].sum(axis=2)).sum(axis=0) /\
@@ -186,26 +196,30 @@ def get_qy_scan3d(gridder, qxpos, qzpos, **kwargs):
 
 def get_qz_scan3d(gridder, qxpos, qypos, **kwargs):
     """
-    extract qz line scan at position x,y from a
+    extract qz line scan at position x, y from a
     gridded reciprocal space map by taking the closest line of the
     intensity matrix, or summing up a given area around this position
 
     Parameters
     ----------
-     gridder:       3d xrayutilities.Gridder3D object containing the data
-     qxpos,qypos:   position at which the line scan should be extracted
+    gridder :       Gridder3D
+        3d xrayutilities.Gridder3D object containing the data
+    qxpos, qypos :  float
+        position at which the line scan should be extracted
 
-    **kwargs:       possible keyword arguments:
-     qrange:        integration range perpendicular to scan direction
-     qmin,qmax:     minimum and maximum value of extracted scan axis
+    qrange :        float, optional
+        integration range perpendicular to scan direction
+    qmin, qmax :    float, optional
+        minimum and maximum value of extracted scan axis
 
     Returns
     -------
-     qz,qzint: qz scan coordinates and intensities
+    qz, qzint :     ndarray
+        qz scan coordinates and intensities
 
     Examples
     --------
-    >>> qzcut,qzcut_int = get_qz_scan3d(gridder,0,0,qrange=0.03)
+    >>> qzcut, qzcut_int = get_qz_scan3d(gridder, 0, 0, qrange=0.03)
     """
 
     if not isinstance(gridder, xugridder.Gridder3D):
@@ -221,7 +235,7 @@ def get_qz_scan3d(gridder, qxpos, qypos, **kwargs):
     qzmax = min(gridder.zaxis.max(), kwargs.get('qmax', numpy.inf))
     qrange = kwargs.get('qrange', 0.)
 
-    # find line corresponding to qxpos,qzpos
+    # find line corresponding to qxpos, qzpos
     ixmin, iymin, izmin = getindex3d(
         qxpos - qrange / 2., qypos - qrange / 2., qzmin,
         gridder.xaxis, gridder.yaxis, gridder.zaxis)

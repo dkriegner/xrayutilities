@@ -81,20 +81,34 @@ class SPECScan(object):
         """
         Constructor for the SPECScan class.
 
-        required arguments:
-         name ............. name of the scan
-         scannr ........... Number of the scan in the specfile
-         command .......... command used to write the scan
-         date ............. starting date of the scan
-         time ............. starting time of the scan
-         itime ............ integration time
-         colnames ......... list of names of the data columns
-         hoffset .......... file byte offset to the header of the scan
-         doffset .......... file byte offset to the data section of the scan
-         fname ............ file name of the SPEC file the scan belongs to
-         imopnames ........ motor names for the initial motor positions array
-         imopvalues ....... intial motor positions array
-         scan_status ...... is one of the values
+        Parameters
+        ----------
+        name :	    str
+            name of the scan
+        scannr :    int
+            Number of the scan in the specfile
+        command :   str
+            command used to write the scan
+        date :	    str
+            starting date of the scan
+        time :      str
+            starting time of the scan
+        itime :	    int
+            integration time
+        colnames :  list
+            list of names of the data columns
+        hoffset :   int
+            file byte offset to the header of the scan
+        doffset :   int
+            file byte offset to the data section of the scan
+        fname :	    str
+            file name of the SPEC file the scan belongs to
+        imopnames : list of str
+            motor names for the initial motor positions array
+        imopvalues : list
+            intial motor positions array
+        scan_status : {'OK', 'NODATA', 'CORRUPTED', 'ABORTED'}
+            scan status as string
         """
         self.name = name  # name of the scan
         self.nr = scannr  # number of the scan
@@ -178,11 +192,16 @@ class SPECScan(object):
         calculates the number of lines used to store the MCA data from the
         number of columns and the
 
-        required input aguments:
-         mca_column_format ....... number of columns used to save the data
-         mca_channels ............ number of MCA channels stored
-         mca_start ............... first channel that is stored
-         mca_stop ................ last channel that is stored
+        Parameters
+        ----------
+        mca_column_format : int
+            number of columns used to save the data
+        mca_channels :	    int
+            number of MCA channels stored
+        mca_start :	    int
+            first channel that is stored
+        mca_stop :          int
+            last channel that is stored
         """
         self.has_mca = True
         self.mca_column_format = mca_column_format
@@ -367,14 +386,16 @@ class SPECScan(object):
 
         Parameters
         ----------
-         *args:  arguments for the plot: first argument is the name of x-value
-                 column the following pairs of arguments are the y-value names
-                 and plot styles allowed are 3,5,7,... number of arguments
-
-         **keyargs:
-          newfig:  if True a new figure instance will be created otherwise an
-                   existing one will be used
-          logy:    if True a semilogy plot will be done
+        args :  list
+            arguments for the plot: first argument is the name of x-value
+            column the following pairs of arguments are the y-value names and
+            plot styles allowed are 3, 5, 7,... number of arguments
+        keyargs :   dict, optional
+        newfig :    bool, optional
+            if True a new figure instance will be created otherwise an existing
+            one will be used
+        logy :      bool, optional
+            if True a semilogy plot will be done
         """
         flag, plt = utilities.import_matplotlib_pyplot('XU.io.SPECScan')
         if not flag:
@@ -432,17 +453,20 @@ class SPECScan(object):
         group. Additional custom attributes to the scan group can be passed as
         a dictionary via the optattrs keyword argument.
 
-        input arguments:
-         h5f ........ a HDF5 file object or its filename
+        Parameters
+        ----------
+        h5f :	 file-handle or str
+            a HDF5 file object or its filename
 
-        optional keyword arguments:
-         group ...... name or group object of the HDF5 group where to store the
-                      data
-         title ...... a string with the title for the data, defaults to the
-                      name of scan if empty
-         optattrs ... a dictionary with optional attributes to store for the
-                      data
-         comp ....... activate compression - true by default
+        group :	 str, optional
+            name or group object of the HDF5 group where to store the data
+        title :	 str, optional
+            a string with the title for the data, defaults to the name of scan
+            if empty
+        optattrs : dict, optional
+            a dictionary with optional attributes to store for the data
+        comp :	 bool, optional
+            activate compression - true by default
         """
 
         with xu_h5open(h5f, 'a') as h5:
@@ -512,15 +536,19 @@ class SPECScan(object):
 
         Parameters
         ----------
-         specscan:  SPECScan object
-         key:       name of the key to return; e.g. 'UMONO' or 'D'
-         firstonly: flag to specify if all instances or only the first one
-                    should be returned
+        specscan :  SPECScan
+        key :       str
+            name of the key to return; e.g. 'UMONO' or 'D'
+        firstonly : bool, optional
+            flag to specify if all instances or only the first one should be
+            returned
 
         Returns
         -------
-         valuestring (if firstonly=True)
-         or [str1, str2, ...] (if firstonly=False)
+        valuestring :   str
+            header value (if firstonly=True)
+        [str1, str2, ...] : list
+            header values (if firstonly=False)
         """
         if not self.header:
             self.ReadData()
@@ -551,8 +579,10 @@ class SPECFile(object):
 
         Parameters
         ----------
-         filename:  filename of the spec file
-         path:      path to the specfile (optional)
+        filename :  str
+            filename of the spec file
+        path :      str, optional
+            path to the specfile
         """
         self.full_filename = os.path.join(path, filename)
         self.filename = os.path.basename(self.full_filename)
@@ -577,7 +607,8 @@ class SPECFile(object):
 
         See also
         --------
-         scanI attributes of the SPECFile object
+        scanI
+            attributes of the SPECFile object, where 'I' is the scan number
         """
         return self.scan_list[index]
 
@@ -628,11 +659,12 @@ class SPECFile(object):
         extension and leading path.  If the method is called after an previous
         update only the scans not written to the file meanwhile are saved.
 
-        required arguments:
-         h5f .................... a HDF5 file object or its filename
-
-        optional keyword arguments:
-         comp .................. activate compression - true by default
+        Parameters
+        ----------
+        h5f :   file-handle or str
+            a HDF5 file object or its filename
+        comp :  bool, optional
+            activate compression - true by default
         """
         with xu_h5open(h5f, 'a') as h5:
             groupname = os.path.splitext(os.path.splitext(self.filename)[0])[0]
@@ -919,9 +951,12 @@ class SPECLog(object):
 
         Parameters
         ----------
-         filename:  SPEC log file name
-         prompt:    SPEC command prompt (e.g. 'PSIC' or 'SPEC')
-         path:      (optional) directory where the SPEC log can be found
+        filename :  str
+            SPEC log file name
+        prompt :    str
+            SPEC command prompt (e.g. 'PSIC' or 'SPEC')
+        path :      str, optional
+            directory where the SPEC log can be found
         """
         self.filename = filename
         self.full_filename = os.path.join(path, self.filename)
@@ -971,33 +1006,34 @@ def geth5_scan(h5f, scans, *args, **kwargs):
 
     Parameters
     ----------
-     h5f:     file object of a HDF5 file opened using h5py or its filename
-     scans:   number of the scans of the reciprocal space map (int,tuple or
-              list)
+    h5f :       file-handle or str
+        file object of a HDF5 file opened using h5py or its filename
+    scans :     int, tuple or list
+        number of the scans of the reciprocal space map
+    args :      str, optional
+        names of the motors. to read reciprocal space maps measured in coplanar
+        diffraction give:
 
-     *args:   names of the motors (optional) (strings)
-     to read reciprocal space maps measured in coplanar diffraction give:
-     omname:  e.g. name of the omega motor (or its equivalent)
-     ttname:  e.g. name of the two theta motor (or its equivalent)
+         - omname: name of the omega motor (or its equivalent)
+         - ttname: name of the two theta motor (or its equivalent)
 
-     **kwargs (optional):
-       samplename:  string with the hdf5-group containing the scan data
-                    if ommited the first child node of h5f.root will be used
-       rettype:     how to return motor positions. by default a list of arrays
-                    is returned. when rettype == 'numpy' a record array will
-                    be returned.
+    kwargs :    dict, optional
+    samplename: str, optional
+        string with the hdf5-group containing the scan data if ommited the
+        first child node of h5f.root will be used
+    rettype:    {'list', 'numpy'}, optional
+        how to return motor positions. by default a list of arrays is returned.
+        when rettype == 'numpy' a record array will be returned.
 
     Returns
     -------
-     MAP
-
-     or
-
-     [ang1,ang2,...],MAP:
-                angular positions of the center channel of the position
-                sensitive detector (numpy.ndarray 1D) together with all the
-                data values as stored in the data file (includes the
-                intensities e.g. MAP['MCA']).
+    [ang1, ang2, ...] :     list
+        angular positions of the center channel of the position sensitive
+        detector (numpy.ndarray 1D), this list is omitted if no `args` are
+        given
+    MAP :   ndarray
+        the data values as stored in the data file (includes the intensities
+        e.g. MAP['MCA']).
 
     Examples
     --------
@@ -1078,25 +1114,25 @@ def getspec_scan(specf, scans, *args, **kwargs):
 
     Parameters
     ----------
-     specf:   SPECFile object
-     scans:   number of the scans of the reciprocal space map (int,tuple or
-              list)
-     args:   names of the motors and counters (strings)
-
-    keyword arguments:
-     rettype:     how to return motor positions. by default a list of arrays
-                  is returned. when rettype == 'numpy' a record array will
-                  be returned.
+    specf :     SPECFile
+        file object
+    scans :     int, tuple or list
+        number of the scans
+    args :      str
+        names of the motors and counters
+    rettype :   {'list', 'numpy'}, optional
+        how to return motor positions. by default a list of arrays is returned.
+        when rettype == 'numpy' a record array will be returned.
 
     Returns
     -------
-     [ang1,ang2,...]:
-                coordinates and counters from the SPEC file
+    [ang1, ang2, ...] : list
+        coordinates and counters from the SPEC file
 
     Examples
     --------
     >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma',
-                                            'Counter2')
+    >>>                                     'Counter2')
     """
     if not args:
         return

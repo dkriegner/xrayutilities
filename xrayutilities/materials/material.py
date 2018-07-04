@@ -70,11 +70,15 @@ def Cij2Cijkl(cij):
     Converts the elastic constants matrix (tensor of rank 2) to
     the full rank 4 cijkl tensor.
 
-    required input arguments:
-     cij ................ (6,6) cij matrix as a numpy array
+    Parameters
+    ----------
+    cij :   array-like
+        (6, 6) cij matrix
 
-    return value:
-     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+    Returns
+    -------
+    cijkl   ndarray
+        (3, 3, 3, 3) cijkl tensor as numpy array
     """
 
     # first have to build a 9x9 matrix from the 6x6 one
@@ -100,13 +104,17 @@ def Cij2Cijkl(cij):
 def Cijkl2Cij(cijkl):
     """
     Converts the full rank 4 tensor of the elastic constants to
-    the (6,6) matrix of elastic constants.
+    the (6, 6) matrix of elastic constants.
 
-    required input arguments:
-     cijkl .............. (3,3,3,3) cijkl tensor as numpy array
+    Parameters
+    ----------
+    cijkl   ndarray
+        (3, 3, 3, 3) cijkl tensor as numpy array
 
-    return value:
-     cij ................ (6,6) cij matrix as a numpy array
+    Returns
+    -------
+    cij :   array-like
+        (6, 6) cij matrix
     """
 
     cij = numpy.empty((6, 6), dtype=numpy.double)
@@ -208,7 +216,7 @@ class Material(utilities.ABC):
 
         Parameters
         ----------
-         en:    energy of the x-rays, if omitted the value from the
+        en :    energy of the x-rays, if omitted the value from the
                 xrayutilities configuration is used
 
         Returns
@@ -224,14 +232,16 @@ class Material(utilities.ABC):
 
         Parameters
         ----------
-         en:    energy of the x-rays, if omitted the value from the
-                xrayutilities configuration is used
-         deg:   return angle in degree if True otherwise radians (default:True)
+        en :    float or str, optional
+            energy of the x-rays in eV, if omitted the value from the
+            xrayutilities configuration is used
+        deg :   bool, optional
+            return angle in degree if True otherwise radians (default:True)
 
         Returns
         -------
-         Angle of total external reflection
-
+        float
+            Angle of total external reflection
         """
         rn = 1. - self.delta(en)
 
@@ -249,11 +259,13 @@ class Material(utilities.ABC):
 
         Parameters
         ----------
-         en:    energy of the x-rays (in eV, optional)
+        en :    float or str, optional
+            energy of the x-rays in eV
 
         Returns
         -------
-         the absorption length in um
+        float
+            the absorption length in um
         """
         if isinstance(en, basestring) and en == 'config':
             en = utilities.energy(config.ENERGY)
@@ -283,17 +295,21 @@ class Amorphous(Material):
 
         Parameters
         ----------
-         name:      name of the material. To allow automatic parsing of the
-                    chemical elements use the abbreviation of the chemical
-                    element from the periodic table. To specify alloys, use
-                    e.g. 'Ir0.2Mn0.8' or 'H2O'.
-         density:   mass density in kg/m^3
-         atoms:     list of atoms together with their fractional content.
-                    When the name is a simply chemical formula then this can be
-                    None.  To specify more complicated materials [('Ir', 0.2),
-                    ('Mn', 0.8), ...]. Instead of the elements as string you
-                    can also use an Atom object. If the contents to not add up
-                    to 1 they will be corrected without notice.
+        name :      str
+            name of the material. To allow automatic parsing of the chemical
+            elements use the abbreviation of the chemical element from the
+            periodic table. To specify alloys, use e.g. 'Ir0.2Mn0.8' or 'H2O'.
+        density :   float
+            mass density in kg/m^3
+        atoms :     list, optional
+            list of atoms together with their fractional content.  When the
+            name is a simply chemical formula then this can be None.  To
+            specify more complicated materials use [('Ir', 0.2), ('Mn', 0.8),
+            ...].  Instead of the elements as string you can also use an Atom
+            object.  If the contents to not add up to 1 they will be corrected
+            without notice.
+        cij :       array-like, optional
+            elasticity matrix
         """
         super(Amorphous, self).__init__(name, cij)
         self._density = density
@@ -326,11 +342,13 @@ class Amorphous(Material):
 
         Parameters
         ----------
-         cstring:   string containing the chemical fomula
+        cstring :   str
+            string containing the chemical fomula
 
         Returns
         -------
-         list of tuples with chemical element and atomic fraction
+        list of tuples
+            chemical element and atomic fraction
         """
         if re.findall('[\(\)]', cstring):
             raise ValueError('unsupported chemical formula (%s) given.'
@@ -358,13 +376,16 @@ class Amorphous(Material):
 
         Parameters
         ----------
-         q:     momentum transfer for which the atomic scattering factor
-                should be calculated
-         en:    x-ray energy (eV)
+        q :     float or array-like
+            momentum transfer for which the atomic scattering factor should be
+            calculated
+        en :    float or str
+            x-ray energy (eV)
 
         Returns
         -------
-         list of atomic scattering factors for every atom in the unit cell
+        list
+            atomic scattering factors for every atom in the unit cell
         """
         f = {}
         for at, occ in self.base:
@@ -379,12 +400,12 @@ class Amorphous(Material):
 
         Parameters
         ----------
-         en:    x-ray energy eV, if omitted the value from the xrayutilities
-                configuration is used
+        en :    float, array-like or str, optional
+            energy of the x-rays in eV
 
         Returns
         -------
-         delta (float)
+        float or array-like
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
@@ -409,12 +430,12 @@ class Amorphous(Material):
 
         Parameters
         ----------
-         en:    x-ray energy eV, if omitted the value from the xrayutilities
-                configuration is used
+        en :    float, array-like or str, optional
+            energy of the x-rays in eV
 
         Returns
         -------
-         beta (float)
+        float or array-like
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
@@ -487,18 +508,16 @@ class Crystal(Material):
     def fromCIF(cls, ciffilename):
         """
         Create a Crystal from a CIF file. The CIF-filename will be used as name
-        of the created Crystal.  Note: since the CIF file parser is currently
-        not able to detect the correct space group of the material all
-        materials created by this method will be represented by the P1
-        space-group!
+        of the created Crystal.
 
         Parameters
         ----------
-         ciffilename:  filename of the CIF file
+        ciffilename :  str
+            filename of the CIF file
 
         Returns
         -------
-         Crystal instance
+        Crystal
         """
         cf = cif.CIFFile(ciffilename)
         lat = cf.SGLattice()
@@ -550,8 +569,8 @@ class Crystal(Material):
 
         Parameters
         ----------
-         hkl:   list or numpy array with the Miller indices
-                (or Q(h,k,l) is also possible)
+        hkl :   list or array-like
+            Miller indices (or Q(h, k, l) is also possible)
 
         """
         return self.lattice.GetQ(*hkl)
@@ -562,8 +581,8 @@ class Crystal(Material):
 
         Parameters
         ----------
-         q:     list or numpy array with the Q-position. its also possible to
-                use HKL(qx, qy, qz).
+        q :   list or array-like
+             Q-position. its also possible to use HKL(qx, qy, qz).
 
         """
         return self.lattice.GetHKL(*q)
@@ -575,19 +594,16 @@ class Crystal(Material):
 
         Parameters
         ----------
-         pos: list or numpy array with the fractional coordinated in the
-              unit cell
-
-        keyword arguments:
-         maxdist:  maximum distance wanted in the list of neighbors
-                   (default: 7)
+        pos :       list or array-like
+            fractional coordinate in the unit cell
+        maxdist :   float
+            maximum distance wanted in the list of neighbors (default: 7)
 
         Returns
         -------
-         list of tuples with (distance,atomType,multiplicity) giving distance
-         (sorted) and type of neighboring atoms together with the amount of
-         atoms at the given distance
-
+        list of tuples
+            (distance, atomType, multiplicity) giving distance sorted list of
+            atoms
         """
 
         for k in kwargs.keys():
@@ -656,23 +672,24 @@ class Crystal(Material):
 
         Parameters
         ----------
-         h,k,l:  Miller indices of the lattice planes given either as
-                 list,tuple or seperate arguments
+        h, k, l :  list, tuple or floats
+            Miller indices of the lattice planes given either as list, tuple or
+            seperate arguments
 
         Returns
         -------
-         d:   the lattice plane spacing as float
+        float
+            the lattice plane spacing
 
         Examples
         --------
-        >>> xu.materials.Si.planeDistance(0,0,4)
+        >>> xu.materials.Si.planeDistance(0, 0, 4)
         1.3577600000000001
 
         or
 
-        >>> xu.materials.Si.planeDistance((1,1,1))
+        >>> xu.materials.Si.planeDistance((1, 1, 1))
         3.1356124059796255
-
         """
         if len(hkl) < 3:
             hkl = hkl[0]
@@ -688,7 +705,8 @@ class Crystal(Material):
 
         Returns
         -------
-        mass density in kg/m^3
+        float
+            mass density in kg/m^3
         """
         m = 0.
         for at, pos, occ, b in self.lattice.base():
@@ -705,13 +723,16 @@ class Crystal(Material):
 
         Parameters
         ----------
-         q:     momentum transfer for which the atomic scattering factor
-                should be calculated
-         en:    x-ray energy (eV)
+        q :     float or array-like
+            momentum transfer for which the atomic scattering factor should be
+            calculated
+        en :    float or str
+            x-ray energy (eV)
 
         Returns
         -------
-         list of atomic scattering factors for every atom in the unit cell
+        list
+            atomic scattering factors for every atom in the unit cell
         """
         f = {}
         if self.lattice.nsites > 0:
@@ -735,12 +756,13 @@ class Crystal(Material):
 
         Parameters
         ----------
-         en:    x-ray energy eV, if omitted the value from the xrayutilities
-                configuration is used
+        en :    float or str, optional
+            x-ray energy eV, if omitted the value from the xrayutilities
+            configuration is used
 
         Returns
         -------
-         delta (float)
+        float
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
@@ -762,12 +784,13 @@ class Crystal(Material):
 
         Parameters
         ----------
-         en:    x-ray energy eV, if omitted the value from the xrayutilities
-                configuration is used
+        en :    float or str, optional
+            x-ray energy eV, if omitted the value from the xrayutilities
+            configuration is used
 
         Returns
         -------
-         beta (float)
+        float
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
@@ -811,13 +834,15 @@ class Crystal(Material):
 
         Parameters
         ----------
-         temp:      actual temperature (K)
-         qnorm:     norm of the q-vector(s) for which the factor should be
-                    calculated
+        temp :      float
+            actual temperature (K)
+        qnorm :     float or array-like
+            norm of the q-vector(s) for which the factor should be calculated
 
         Returns
         -------
-         the Debye Waller factor(s) with the same shape as qnorm
+        float or array-like
+            the Debye Waller factor(s) with the same shape as qnorm
         """
         if temp != 0 and self.thetaDebye:
             # W(q) = 3/2* hbar^2*q^2/(m*kB*tD) * (D1(tD/T)/(tD/T) + 1/4)
@@ -848,15 +873,20 @@ class Crystal(Material):
 
         Parameters
         ----------
-         q:     momentum transfer in (1/A)
-         en:    xray energy in eV, if omitted the value from the xrayutilities
-                configuration is used
-         temp:  temperature used for Debye-Waller-factor calculation
-         polarization:  either 'S' (default) sigma or 'P' pi polarization
+        q :     list, tuple or array-like
+            momentum transfer vector in (1/A)
+        en :    float or str, optional
+            x-ray energy eV, if omitted the value from the xrayutilities
+            configuration is used
+        temp :  float, optional
+            temperature used for Debye-Waller-factor calculation
+        polarization :  {'S', 'P'}, optional
+            sigma or pi polarization
 
         Returns
         -------
-         (abs(chih_real),abs(chih_imag)) complex polarizability
+        tuple
+            (abs(chih_real), abs(chih_imag)) complex polarizability
         """
 
         if isinstance(q, (list, tuple)):
@@ -913,13 +943,16 @@ class Crystal(Material):
 
         Parameters
         ----------
-         Q:     momentum transfer (1/A)
-         en:    x-ray energy (eV), if omitted the value from the xrayutilities
-                configuration is used
+        Q :     list, tuple or array-like
+            momentum transfer vector (1/A)
+        en :    float or str, optional
+            x-ray energy eV, if omitted the value from the xrayutilities
+            configuration is used
 
         Returns
         -------
-         deltaTheta: peak shift in degree
+        float
+            peak shift in degree
         """
 
         if isinstance(en, basestring) and en == 'config':
@@ -944,15 +977,18 @@ class Crystal(Material):
 
         Parameters
         ----------
-         q:     vectorial momentum transfer (vectors as list,tuple
-                or numpy array are valid)
-         en:    energy in eV, if omitted the value from the xrayutilities
-                configuration is used
-         temp:  temperature used for Debye-Waller-factor calculation
+        q :     list, tuple or array-like
+            vectorial momentum transfer
+        en :    float or str, optional
+            x-ray energy eV, if omitted the value from the xrayutilities
+            configuration is used
+        temp :  float
+            temperature used for Debye-Waller-factor calculation
 
         Returns
         -------
-         the complex structure factor
+        complex
+            the complex structure factor
         """
 
         if isinstance(q, (list, tuple)):
@@ -990,14 +1026,17 @@ class Crystal(Material):
 
         Parameters
         ----------
-         q0:    vectorial momentum transfer (vectors as list,tuple
-                or numpy array are valid)
-         en:    list, tuple or array of energy values in eV
-         temp:  temperature used for Debye-Waller-factor calculation
+        q0 :    list, tuple or array-like
+            vectorial momentum transfer
+        en :    list, tuple or array-like
+            energy values in eV
+        temp :  float
+            temperature used for Debye-Waller-factor calculation
 
         Returns
         -------
-         complex valued structure factor array
+        array-like
+            complex valued structure factor array
         """
         if isinstance(q0, (list, tuple)):
             q = numpy.array(q0, dtype=numpy.double)
@@ -1038,17 +1077,21 @@ class Crystal(Material):
 
         Parameters
         ----------
-         q:     vectorial momentum transfers;
-                list of vectores (list, tuple or array) of length 3
-                e.g.: (Si.Q(0,0,4),Si.Q(0,0,4.1),...) or
-                numpy.array([Si.Q(0,0,4),Si.Q(0,0,4.1)])
-         en0:   energy value in eV, if omitted the value from the xrayutilities
-                configuration is used
-         temp:  temperature used for Debye-Waller-factor calculation
+        q :     list of vectors or array-like
+            vectorial momentum transfers; list of vectores (list, tuple or
+            array) of length 3
+            e.g.: (Si.Q(0, 0, 4), Si.Q(0, 0, 4.1),...) or
+            numpy.array([Si.Q(0, 0, 4), Si.Q(0, 0, 4.1)])
+        en0 :   float or str, optional
+            x-ray energy eV, if omitted the value from the xrayutilities
+            configuration is used
+        temp :  float
+            temperature used for Debye-Waller-factor calculation
 
         Returns
         -------
-         complex valued structure factor array
+        array-like
+            complex valued structure factor array
         """
         if isinstance(q, (list, tuple, numpy.ndarray)):
             q = numpy.asarray(q, dtype=numpy.double)
@@ -1083,8 +1126,10 @@ class Crystal(Material):
         """
         Applies a certain strain on the lattice of the material. The result is
         a change in the base vectors of the real space as well as reciprocal
-        space lattice.  The full strain matrix (3x3) needs to be given.  Note:
-        NO elastic response of the material will be considered!
+        space lattice.  The full strain matrix (3x3) needs to be given.
+
+        Note:
+            NO elastic response of the material will be considered!
         """
         # let strain act on the unit cell vectors
         self.lattice.ApplyStrain(strain)
@@ -1100,12 +1145,13 @@ class Crystal(Material):
     def distances(self):
         """
         function to obtain distances of atoms in the crystal up to the unit
-        cell size (largest value of a,b,c is the cut-off)
+        cell size (largest value of a, b, c is the cut-off)
 
         returns a list of tuples with distance d and number of occurence n
-        [(d1,n1),(d2,n2),...]
+        [(d1, n1), (d2, n2),...]
 
-        Note: if the base of the material is empty the list will be empty
+        Note:
+            if the base of the material is empty the list will be empty
         """
 
         if self.lattice.nsites == 0:
@@ -1164,12 +1210,13 @@ def CubicElasticTensor(c11, c12, c44):
 
     Parameters
     ----------
-     c11,c12,c44:   independent components of the elastic tensor of cubic
-                    materials
+    c11, c12, c44 : float
+        independent components of the elastic tensor of cubic materials
 
     Returns
     -------
-     6x6 matrix with elastic constants
+   cij :    ndarray
+        6x6 matrix with elastic constants
     """
     m = numpy.zeros((6, 6), dtype=numpy.double)
     m[0, 0] = c11
@@ -1192,13 +1239,13 @@ def HexagonalElasticTensor(c11, c12, c13, c33, c44):
 
     Parameters
     ----------
-     c11,c12,c13,c33,c44:   independent components of the elastic tensor of
-                            a hexagonal material
+    c11, c12, c13, c33, c44 :   float
+        independent components of the elastic tensor of a hexagonal material
 
     Returns
     -------
-     6x6 matrix with elastic constants
-
+   cij :    ndarray
+        6x6 matrix with elastic constants
     """
     m = numpy.zeros((6, 6), dtype=numpy.double)
     m[0, 0] = m[1, 1] = c11
@@ -1219,12 +1266,13 @@ def WZTensorFromCub(c11ZB, c12ZB, c44ZB):
 
     Parameters
     ----------
-     c11,c12,c44:   independent components of the elastic tensor of cubic
-                    materials
+    c11, c12, c44 : float
+        independent components of the elastic tensor of cubic materials
 
     Returns
     -------
-     6x6 matrix with elastic constants
+    cij :   ndarray
+        6x6 matrix with elastic constants
 
     Implementation according to a patch submitted by Julian Stangl
     """
@@ -1280,11 +1328,14 @@ class Alloy(Crystal):
 
         Parameters
         ----------
-         latA, latB:    property (lattice parameter/angle) of material A and B.
-                        A property can be a scalar or vector.
-         x:             fraction of material B in the alloy.
-         name:          label of the property which is interpolated. Can be
-                        'a', 'b', 'c', 'alpha', 'beta', or 'gamma'.
+        latA, latB :    float or vector
+            property (lattice parameter/angle) of material A and B.  A property
+            can be a scalar or vector.
+        x :             float
+            fraction of material B in the alloy.
+        name :          str, optional
+            label of the property which is interpolated. Can be 'a', 'b', 'c',
+            'alpha', 'beta', or 'gamma'.
         """
         return (latB - latA) * x + latA
 
@@ -1378,16 +1429,18 @@ class Alloy(Crystal):
 
         Parameters
         ----------
-         hkl : Miller Indices
-         sub : substrate material or lattice constant (Instance of Crystal
-               class or float)
-         exp : Experiment class from which the Transformation object and ndir
-               are needed
+        hkl : list or array-like
+            Miller Indices
+        sub : Crystal, or float
+            substrate material or lattice constant
+        exp : Experiment
+            object from which the Transformation object and ndir are needed
 
         Returns
         -------
-         qy,qz : reciprocal space coordinates of the corners of the relaxation
-                 triangle
+        qy, qz : float
+            reciprocal space coordinates of the corners of the relaxation
+            triangle
 
         """
         hkl = self._checkarray(hkl, "hkl")
@@ -1454,20 +1507,25 @@ class CubicAlloy(Alloy):
 
         Parameters
         ----------
-         q_perp : perpendicular peak position of the reflection
-                  hkl of the alloy in reciprocal space
-         hkl : Miller indices of the measured symmetric reflection (also
-               defines the surface normal
-         inpr : Miller indices of a Bragg peak defining the inplane reference
-                direction
-         asub:   substrate lattice constant
-         relax:  degree of relaxation (needed to obtain the content from
-                 symmetric reciprocal space position)
+        q_perp :    float
+            perpendicular peak position of the reflection hkl of the alloy in
+            reciprocal space
+        hkl :       list
+            Miller indices of the measured symmetric reflection (also defines
+            the surface normal
+        inpr :      list
+            Miller indices of a Bragg peak defining the inplane reference
+            direction
+        asub :      float
+            substrate lattice parameter
+        relax :     float
+            degree of relaxation (needed to obtain the content from symmetric
+            reciprocal space position)
 
         Returns
         -------
-         content : the content of B in the alloy determined from the input
-                   variables
+        content :   float
+            the content of B in the alloy determined from the input variables
 
         """
 
@@ -1528,21 +1586,26 @@ class CubicAlloy(Alloy):
 
         Parameters
         ----------
-         q_inp : inplane peak position of reflection hkl of
-                 the alloy in reciprocal space
-         q_perp : perpendicular peak position of the reflection
-                  hkl of the alloy in reciprocal space
-         hkl : Miller indices of the measured asymmetric reflection
-         sur : Miller indices of the surface (determines the perpendicular
-               direction)
+        q_inp :     float
+            inplane peak position of reflection hkl of the alloy in reciprocal
+            space
+        q_perp :    float
+            perpendicular peak position of the reflection hkl of the alloy in
+            reciprocal space
+        hkl :       list
+            Miller indices of the measured asymmetric reflection
+        sur :       list
+            Miller indices of the surface (determines the perpendicular
+            direction)
 
         Returns
         -------
-         content, [a_inplane, a_perp, a_bulk_perp(x), eps_inplane, eps_perp]:
-                the content of B in the alloy determined from the input
-                variables and the lattice constants calculated from the
-                reciprocal space positions as well as the strain (eps) of the
-                layer
+        content :   float
+            content of B in the alloy determined from the input variables
+        list
+            [a_inplane a_perp, a_bulk_perp(x), eps_inplane, eps_perp];
+            lattice parameters calculated from the reciprocal space positions
+            as well as the strain (eps) of the layer
         """
 
         # check input parameters
@@ -1610,14 +1673,16 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
 
     Parameters
     ----------
-     sub:         substrate material
-     layer:       bulk material of the layer
-     relaxation:  degree of relaxation 0: pseudomorphic, 1: relaxed
-                  (default: 0)
-     trans:       Transformation which transforms lattice directions into a
-                  surface orientated coordinate frame (x,y inplane, z out of
-                  plane). If None a (001) surface geometry of a cubic material
-                  is assumed.
+    sub :       Crystal
+        substrate material
+    layer :     Crystal
+        bulk material of the layer
+    relaxation : float, optional
+        degree of relaxation 0: pseudomorphic, 1: relaxed (default: 0)
+    trans :     Tranform
+        Transformation which transforms lattice directions into a surface
+        orientated coordinate frame (x, y inplane, z out of plane). If None a
+        (001) surface geometry of a cubic material is assumed.
 
     Returns
     -------

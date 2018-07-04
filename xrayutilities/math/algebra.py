@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module providing analytic algebraic functions not implemented in scipy or any
@@ -27,16 +27,17 @@ import numpy
 
 def solve_quartic(a4, a3, a2, a1, a0):
     """
-    analytic solution [1] of the general quartic equation. The solved equation
-    takes the form:
-
-    a4*z**4 + a3*z**3 + a2*z**2 + a1*z + a0
+    analytic solution [1]_ of the general quartic equation. The solved equation
+    takes the form :math:`a_4 z^4 + a_3 z^3 + a_2 z^2 + a_1 z + a_0`
 
     Returns
     -------
-     tuple of the four (complex) solutions of aboves equation.
+    tuple
+        tuple of the four (complex) solutions of aboves equation.
 
-    [1] http://mathworld.wolfram.com/QuarticEquation.html
+    References
+    ----------
+    .. [1] http://mathworld.wolfram.com/QuarticEquation.html
     """
     a4 = numpy.asarray(a4)
     a3 = numpy.asarray(a3)

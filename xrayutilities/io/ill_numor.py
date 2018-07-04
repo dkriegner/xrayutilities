@@ -42,10 +42,10 @@ class numorFile(object):
     call. This class should work for created at station D23 using the mad
     acquisition system.
 
-    Required constructor arguments:
-    ------------------------------
-     filename:  a string with the name of the data file
-
+    Parameters
+    ----------
+    filename :  str
+        a string with the name of the data file
     """
 
     columns = {0: ('detector', 'monitor', 'time', 'gamma', 'omega', 'psi'),
@@ -59,8 +59,10 @@ class numorFile(object):
 
         Parameters
         ----------
-         filename:  a string with the name of the data file
-         path:      (optional) directory of the data file
+        filename :  str
+            a string with the name of the data file
+        path :      str, optional
+            directory of the data file
         """
         self.filename = filename
         if path is None:
@@ -183,27 +185,25 @@ def numor_scan(scannumbers, *args, **kwargs):
 
     Parameters
     ----------
-     scannumbers:  number of the numors, or list of numbers. This will be
-                   transformed to a string and used as a filename (int, str,
-                   or iterable (list, tuple))
-     *args:   names of the motors (optional) (strings)
-              e.g.: 'omega', 'gamma'
-     **kwargs: keyword arguments are passed on to numorFile. e.g. 'path' for
-               the files directory
+    scannumbers :   int or str or iterable
+        number of the numors, or list of numbers. This will be transformed to a
+        string and used as a filename
+    args :          str, optional
+        names of the motors e.g.: 'omega', 'gamma'
+    kwargs :        dict
+        keyword arguments are passed on to numorFile. e.g. 'path' for the files
+        directory
 
     Returns
     -------
-     data
-
-     or
-
-     [ang1,ang2,...],data:
-                angular positions position together with all the
-                data values.
+    [ang1, ang2, ...] :     list
+        angular positions list, omitted if no args are given
+    data :                  ndarray
+        all the data values.
 
     Examples
     --------
-    >>> [om,gam],data = xu.io.numor_scan(414363,'omega','gamma')
+    >>> [om, gam], data = xu.io.numor_scan(414363, 'omega', 'gamma')
     """
 
     if isinstance(scannumbers, (str, int)):

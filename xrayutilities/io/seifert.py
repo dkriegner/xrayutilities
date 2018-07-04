@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2010,2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a set of  routines to convert Seifert ASCII files to HDF5
@@ -106,11 +106,16 @@ class SeifertMultiScan(object):
         """
         Parse data from a multiscan Seifert file.
 
-        required input arguments:
-         filename ................... name of the NJA file
-         m_scan ..................... name of the scan axis
-         m2 ......................... name of the second moving motor
-         path ....................... path to the datafile
+        Parameters
+        ----------
+        filename :  str
+            name of the NJA file
+        m_scan :    str
+            name of the scan axis
+        m2 :        str
+            name of the second moving motor
+        path :      str, optional
+            path to the datafile
         """
         self.Filename = os.path.join(path, filename)
 
@@ -192,10 +197,12 @@ class SeifertScan(object):
         """
         Constructor for a SeifertScan object.
 
-        required input arguments:
-         filename:  a string with the name of the file to read
-         path:      path to the datafile
-
+        Parameters
+        ----------
+        filename :  str
+            a string with the name of the file to read
+        path :      str, optional
+            path to the datafile
         """
         self.Filename = os.path.join(path, filename)
 
@@ -281,32 +288,35 @@ class SeifertScan(object):
 def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
                    Nchannels=1280):
     """
-    parses multiple Seifert *.nja files and concatenates the results.  for
+    parses multiple Seifert ``*.nja`` files and concatenates the results.  for
     parsing the xrayutilities.io.SeifertMultiScan class is used. The function
     can be used for parsing maps measured with the Meteor1D and point detector.
 
     Parameters
     ----------
-     filetemplate:  template string for the file names, can contain
-                    a %d which is replaced by the scan number or be a
-                    list of filenames
-     scannrs:       int or list of scan numbers
-     path:          common path to the filenames
-     scantype:      type of datafile: can be either "map" (reciprocal space map
-                    measured with a regular Seifert job (default)) or "tsk"
-                    (MCA spectra measured using the TaskInterpreter)
-
-     Nchannels:     number of channels of the MCA (needed for "tsk"
-                    measurements)
+    filetemplate :  str
+        template string for the file names, can contain a %d which is replaced
+        by the scan number or be a list of filenames
+    scannrs :       int or list, optional
+        scan number(s)
+    path :          str, optional
+        common path to the filenames
+    scantype :      {'map', 'tsk'}, optional
+        type of datafile: can be either 'map' (reciprocal space map measured
+        with a regular Seifert job (default)) or 'tsk' (MCA spectra measured
+        using the TaskInterpreter)
+    Nchannels :     int, optional
+        number of channels of the MCA (needed for 'tsk' measurements)
 
     Returns
     -------
-     om,tt,psd: as flattened numpy arrays
+    om, tt, psd :   ndarray
+        positions and data as flattened numpy arrays
 
     Examples
     --------
-     >>> om,tt,psd = xrayutilities.io.getSeifert_map("samplename_%d.xrdml",
-                                                     [1,2], path="./data")
+    >>> om, tt, psd = xrayutilities.io.getSeifert_map("samplename_%d.xrdml",
+    >>>                                               [1, 2], path="./data")
     """
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)

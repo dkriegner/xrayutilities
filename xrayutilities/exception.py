@@ -44,8 +44,11 @@ class InputError(Exception):
     might depend on the value of the arguments itself)
 
     Attibutes
-        expr -- input expression in which the error occurred
-        msg  -- explanation of the error
+    ---------
+    expr :  str
+        input expression in which the error occurred
+    msg :   str
+        explanation of the error
     """
 
     def __init__(self, msg):

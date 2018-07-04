@@ -47,16 +47,17 @@ def _makebounds(boundsin):
 
     Parameters
     ----------
-     boundsin:   list/tuple/array of bounds, or fixed values. the number of
-                 entries needs to be equal to the number of angle in the
-                 goniometer given to the q2ang_general function
-                 example input for four gonimeter angles:
-                 ((0, 90), 0, (0, 180), (0, 90))
+    boundsin :  list or tuple or array-like
+        bounds, or fixed values. the number of entries needs to be equal to the
+        number of angle in the goniometer given to the q2ang_general function
+        example input for four gonimeter angles: ((0, 90), 0, (0, 180), (0,
+        90))
 
     Returns
     -------
-     bounds to be handed over to the scipy.minimize routine. The function will
-     expand
+    tuple
+        bounds to be handed over to the scipy.minimize routine. The function
+        will expand fixed values to two equal bounds
     """
     boundsout = []
     for b in boundsin:
@@ -84,15 +85,20 @@ def _errornorm_q2ang(angles, qvec, hxrd, U=numpy.identity(3)):
 
     Parameters
     ----------
-     angles   iterable object with angles of the goniometer
-     qvec     vector with three q-coordinates
-     hxrd     experiment class to be used for the q calculation
-     U        orientation matrix
+    angles :    iterable
+        iterable object with angles of the goniometer
+    qvec :      list or tuple or array-like
+        vector with three q-coordinates
+    hxrd :      Experiment
+        experiment class to be used for the q calculation
+    U :         array-like, optional
+        orientation matrix
 
     Returns
     -------
-     q-space error between the current fit-guess and the user-specified
-     position
+    error : float
+        q-space error between the current fit-guess and the user-specified
+        position
     """
 
     qcalc = hxrd.Ang2Q.point(*angles, UB=U)
@@ -106,9 +112,12 @@ def exitAngleConst(angles, alphaf, hxrd):
 
     Parameters
     ----------
-     angles:    fit parameters of Q2AngFit
-     alphaf:    the exit angle which should be fixed
-     hxrd:      the Experiment object to use for qconversion
+    angles :    iterable
+        fit parameters of Q2AngFit
+    alphaf :    float
+        the exit angle which should be fixed
+    hxrd :      Experiment
+        the Experiment object to use for qconversion
     """
     qconv = hxrd._A2QConversion
     # calc kf
@@ -136,32 +145,38 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
 
     Parameters
     ----------
-     qvec:      q-vector for which the angular positions should be calculated
-     expclass:  experimental class used to define the goniometer for which the
-                angles should be calculated.
+    qvec :      tuple or list or array-like
+        q-vector for which the angular positions should be calculated
+    expclass :  Experiment
+        experimental class used to define the goniometer for which the angles
+        should be calculated.
 
-     keyword arguments(optional):
-      bounds:   list of bounds of the goniometer angles. The number of bounds
-                must correspond to the number of goniometer angles in the
-                expclass.  Angles can also be fixed by supplying only one value
-                for a particular angle. e.g.:
-                ((low, up), fix, (low2, up2), (low3, up3))
-      ormat:    orientation matrix of the sample to be used in the conversion
-      startvalues:  start values for the fit, which can significantly speed up
-                    the conversion. The number of values must correspond to the
-                    number of angles in the goniometer of the expclass
-      constraints:  sequence of constraint dictionaries. This allows applying
-                    arbitrary (e.g. pseudo-angle) contraints by supplying
-                    according constraint functions. (see
-                    scipy.optimize.minimize). The supplied function will be
-                    called with the arguments (angles, qvec, Experiment, U).
+    bounds :    tuple or list
+        bounds of the goniometer angles. The number of bounds must correspond
+        to the number of goniometer angles in the expclass.  Angles can also be
+        fixed by supplying only one value for a particular angle. e.g.: ((low,
+        up), fix, (low2, up2), (low3, up3))
+    ormat :     array-like
+        orientation matrix of the sample to be used in the conversion
+    startvalues :   array-like
+        start values for the fit, which can significantly speed up the
+        conversion. The number of values must correspond to the number of
+        angles in the goniometer of the expclass
+    constraints :   tuple
+        sequence of constraint dictionaries. This allows applying arbitrary
+        (e.g. pseudo-angle) contraints by supplying according constraint
+        functions. (see scipy.optimize.minimize). The supplied function will be
+        called with the arguments (angles, qvec, Experiment, U).
 
     Returns
     -------
-     fittedangles, qerror, errcode:
-        list of fitted goniometer angles, the error in reciprocal space and the
-        errcode of the scipy minimize function. for a successful fit the error
-        code should be <=2
+    fittedangles :  list
+        list of fitted goniometer angles
+    qerror :        float
+        error in reciprocal space
+    errcode :       int
+        error-code of the scipy minimize function. for a successful fit the
+        error code should be <=2
     """
 
     # check input parameters

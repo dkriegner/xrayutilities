@@ -48,11 +48,13 @@ def VecNorm(v):
 
     Parameters
     ----------
-     v .......... vector as list or numpy array
+    v :     list or array-like
+        input vector
 
     Returns
     -------
-     float holding the vector norm
+    float
+        vector norm
     """
     if len(v) != 3:
         raise ValueError("Vector must be of size 3, but has size %d!" % len(v))
@@ -66,11 +68,13 @@ def VecUnit(v):
 
     Parameters
     ----------
-     v ........... vector as list or numpy array
+    v :     list or array-like
+        input vector
 
     Returns
     -------
-     numpy array with the unit vector
+    ndarray
+        unit vector of `v`
     """
     vtmp = _checkvec(v)
     return numpy.copy(vtmp) / VecNorm(vtmp)
@@ -82,12 +86,12 @@ def VecDot(v1, v2):
 
     Parameters
     ----------
-     v1 .............. vector as numpy array or list
-     v2 .............. vector as numpy array or list
+    v1, v2 :    list or array-like
+        input vectors
 
     Returns
     -------
-     float value
+    float
     """
     if len(v1) != 3 or len(v2) != 3:
         raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
@@ -102,13 +106,14 @@ def VecCross(v1, v2, out=None):
 
     Parameters
     ----------
-     v1 .............. vector as numpy array or list
-     v2 .............. vector as numpy array or list
-     out ............. optional output vector
+    v1, v2 :    list or array-like
+        input vectors
+    out :       list or array-like, optional
+        output vector
 
     Returns
     -------
-     float value
+    float
     """
     if len(v1) != 3 or len(v2) != 3:
         raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
@@ -131,16 +136,15 @@ def VecAngle(v1, v2, deg=False):
 
     Parameters
     ----------
-     v1 .............. vector as numpy array or list
-     v2 .............. vector as numpy array or list
-
-    optional keyword arguments:
-     deg ............. (default: false) return result in degree
-                       otherwise in radiants
+    v1, v2 :    list or array-like
+        input vectors
+    deg:        bool
+        True: return result in degree, False: in radiants
 
     Returns
     -------
-     float value with the angle inclined by the two vectors
+    float
+        the angle included by the two vectors `v1` and `v2`
     """
     u1 = VecNorm(v1)
     u2 = VecNorm(v2)
@@ -159,11 +163,13 @@ def getVector(string):
 
     Parameters
     ----------
-     string   [xyz][+-]
+    string:     str
+        vector string following the synthax [xyz][+-]
 
     Returns
     -------
-     vector along the given direction as numpy array
+    ndarray
+        vector along the given direction
     """
 
     if len(string) != 2:
@@ -179,7 +185,7 @@ def getVector(string):
         v = [0, 0, 1.]
     else:
         raise InputError("wrong first character of string given "
-                         "(needs to be one of x,y,z)")
+                         "(needs to be one of x, y, z)")
 
     if string[1] == '+':
         v = numpy.asarray(v) * (+1)
@@ -197,15 +203,17 @@ def getSyntax(vec):
     returns vector direction in the syntax
     'x+' 'z-' or equivalents
     therefore works only for principle vectors of the coordinate system
-    like e.g. [1,0,0] or [0,2,0]
+    like e.g. [1, 0, 0] or [0, 2, 0]
 
     Parameters
     ----------
-     vec:   vector of length 3
+    vec :   list or array-like
+        vector of length 3
 
     Returns
     -------
-     [xyz][+-]
+    str
+        vector string following the synthax [xyz][+-]
     """
     v = _checkvec(vec)
     if len(v) != 3:

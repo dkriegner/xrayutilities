@@ -56,7 +56,8 @@ energies = {
 # CuKb:  1.392246(14)
 # MoKa1: 0.70931713(41)
 # Xray data booklet:
-# CoKa1,2 energies
+# CoKa1
+# CoKa2
 
 
 def set_bit(f, offset):
@@ -81,15 +82,17 @@ def lam2en(inp):
 
     Parameters
     ----------
-     inp : wavelength in Angstrom
+    inp :   float or str
+        wavelength in Angstrom
 
     Returns
     -------
-     float, energy in eV
+    float
+        energy in eV
 
     Examples
     --------
-     >>> energy = lam2en(1.5406)
+    >>> energy = lam2en(1.5406)
     """
     #  E(eV) = h*c/(e * lambda(A)) *1e10
     inp = wavelength(inp)
@@ -104,15 +107,17 @@ def en2lam(inp):
 
     Parameters
     ----------
-     inp : energy in eV
+    inp :   float or str
+        energy in eV
 
     Returns
     -------
-     float, wavlength in Angstrom
+    float
+        wavlength in Angstrom
 
     Examples
     --------
-     >>> wavelength = en2lam(8048)
+    >>> wavelength = en2lam(8048)
     """
     #  lambda(A) = h*c/(e * E(eV)) *1e10
     inp = energy(inp)
@@ -129,12 +134,14 @@ def energy(en):
 
     Parameters
     ----------
-     en: energy either as scalar or array with value in eV, which
-         will be returned unchanged; or string with name of emission line
+    en :    float, array-like or str
+        energy either as scalar or array with value in eV, which will be
+        returned unchanged; or string with name of emission line
 
     Returns
     -------
-     energy in eV as float
+    float or array-like
+        energy in eV
     """
 
     if isinstance(en, numbers.Number):
@@ -155,14 +162,15 @@ def wavelength(wl):
 
     Parameters
     ----------
-     wl: wavelength; If scalar or array the wavelength in Angstrom will be
-         returned unchanged, string with emission name is converted to
-         wavelength
+    wl :    float, array-like or str
+        wavelength; If scalar or array the wavelength in Angstrom will be
+        returned unchanged, string with emission name is converted to
+        wavelength
 
     Returns
     -------
-     wavelength in Angstrom as float
-
+    float or array-like
+        wavelength in Angstrom
     """
 
     if isinstance(wl, numbers.Number):
@@ -187,16 +195,21 @@ def exchange_path(orig, new, keep=0, replace=None):
 
     Parameters
     ----------
-     orig:  original path which should be replaced by the new path
-     new:   new path which should be used instead
-     keep:  (optional) number of inner most directory names which should be
-            kept the same in the output (default = 0)
-     replace:  (optional) number of outer most directory names which should be
-               replaced in the output (default = None)
+    orig :      str
+        original path which should be replaced by the new path
+    new :       str
+        new path which should be used instead
+    keep :      int, optional
+        number of inner most directory names which should be kept the same in
+        the output (default = 0)
+    replace :   int, optional
+        number of outer most directory names which should be replaced in the
+        output (default = None)
 
     Returns
     -------
-     directory path string
+    str
+        directory path string
 
     Examples
     --------
@@ -243,16 +256,21 @@ def exchange_filepath(orig, new, keep=0, replace=None):
 
     Parameters
     ----------
-     orig:  original filename which should have its data root replaced
-     new:   new path which should be used instead
-     keep:  (optional) number of inner most directory names which should be
-            kept the same in the output (default = 0)
-     replace:  (optional) number of outer most directory names which should be
-               replaced in the output (default = None)
+    orig :      str
+        original filename which should have its data root replaced
+    new :       str
+        new path which should be used instead
+    keep :      int, optional
+        number of inner most directory names which should be kept the same in
+        the output (default = 0)
+    replace :   int, optional
+        number of outer most directory names which should be replaced in the
+        output (default = None)
 
     Returns
     -------
-     filename string
+    str
+        filename string
 
     Examples
     --------

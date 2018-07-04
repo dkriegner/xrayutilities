@@ -35,38 +35,49 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
 
     Parameters
     ----------
-     reflmod:   preconfigured SpecularReflectivityModel
-     params:    instance of lmfits Parameters class. For every layer the
-                parameters '{}_thickness', '{}_roughness', '{}_density', with
-                '{}' representing the layer name are supported. In addition the
-                setup parameters:
-                - 'I0' primary beam intensity
-                - 'background' background added to the simulation
-                - 'sample_width' size of the sample along the beam
-                - 'beam_width' width of the beam in the same units
-                - 'resolution_width' width of the resolution function in deg
-                - 'shift' experimental shift of the incidence angle array
-     ai:        array of incidence angles for the calculation
-     data:      experimental data which should be fitted
-     eps:       (optional) error bar of the data
-     xmin:      minimum value of ai which should be used. a mask
-                is generated to cut away other data
-     xmax:      maximum value of ai which should be used. a mask
-                is generated to cut away other data
-     plot:      flag to decide wheter an plot should be created showing the
-                fit's progress. If plot is a string it will be used as figure
-                name, which makes reusing the figures easier.
-     verbose:   flag to tell if the variation of the fitting error should be
-                output during the fit.
-     elog:      logarithmic error during the fit
-     maxfev:    maximum number of function evaluations during the leastsq
-                optimization
+    reflmod :   SpecularReflectivityModel
+        preconfigured model used for the fitting
+    params :    lmfit.Parameters
+        instance of lmfits Parameters class. For every layer the parameters
+        '{}_thickness', '{}_roughness', '{}_density', with '{}' representing
+        the layer name are supported. In addition the setup parameters:
+
+          - 'I0' primary beam intensity
+          - 'background' background added to the simulation
+          - 'sample_width' size of the sample along the beam
+          - 'beam_width' width of the beam in the same units
+          - 'resolution_width' width of the resolution function in deg
+          - 'shift' experimental shift of the incidence angle array
+
+    ai :        array-like
+        array of incidence angles for the calculation
+    data :      array-like
+        experimental data which should be fitted
+    eps :       array-like, optional
+        error bar of the data
+    xmin :      float, optional
+        minimum value of ai which should be used. a mask is generated to cut
+        away other data
+    xmax :      float, optional
+        maximum value of ai which should be used. a mask is generated to cut
+        away other data
+    plot :      bool, optional
+        flag to decide wheter an plot should be created showing the fit's
+        progress. If plot is a string it will be used as figure name, which
+        makes reusing the figures easier.
+    verbose :   bool, optional
+        flag to tell if the variation of the fitting error should be output
+        during the fit.
+    elog :      bool, optional
+        logarithmic error during the fit
+    maxfev :    int, optional
+        maximum number of function evaluations during the leastsq optimization
 
     Returns
     -------
-     res: MinimizerResult object from lmfit, which contains the fitted
-          parameters in res.params (see res.params.pretty_print) or try
-          lmfit.report_fit(res)
+    res : lmfit.MinimizerResult
+        object from lmfit, which contains the fitted parameters in res.params
+        (see res.params.pretty_print) or try lmfit.report_fit(res)
     """
     lmfit = utilities.import_lmfit('XU.simpack')
 
@@ -103,12 +114,16 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
 
         Parameters
         ----------
-         pars:      fit Parameters
-         ai:        array of incidence angles
-         reflmod:   reflectivity model object
-         **kwargs:
-          data:     experimental data of same shape as ai (default: None)
-          eps:      experimental error bars of same shape as ai (default None)
+        pars :      lmfit.Parameters
+            fit parameters
+        ai :        array-like
+            array of incidence angles
+        reflmod :   SpecularReflectivityModel
+            reflectivity model object
+        data :      array-like, optional
+            experimental data of same shape as ai (default: None)
+        eps :       array-like
+            experimental error bars of same shape as ai (default: None)
         """
         data = kwargs.get('data', None)
         eps = kwargs.get('eps', None)

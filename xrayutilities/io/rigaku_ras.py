@@ -58,12 +58,12 @@ class RASFile(object):
     Represents a RAS data file. The file is read during the
     constructor call
 
-    Required constructor arguments:
-    ------------------------------
-     filename:  a string with the name of the ras-file
-
-    keyword argument (optional):
-     path:      path to the data file
+    Parameters
+    ----------
+    filename :  str
+        name of the ras-file
+    path :      str, optional
+        path to the data file
     """
 
     def __init__(self, filename, path=None):
@@ -109,10 +109,12 @@ class RASScan(object):
     Represents a single Scan portion of a RAS data file. The scan is parsed
     during the constructor call
 
-    Required constructor arguments:
-    ------------------------------
-     filename:  file name of the data file
-     pos:       seek position of the RAS_HEADER_START line
+    Parameters
+    ----------
+    filename :  str
+        file name of the data file
+    pos :       int
+        seek position of the 'RAS_HEADER_START' line
     """
 
     def __init__(self, filename, pos):
@@ -211,31 +213,33 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
 
     Parameters
     ----------
-     scanname:  name of the scans, for multiple scans this needs to be a
-                template string
-     scannumbers:  number of the scans of the reciprocal space map (int,tuple
-                   or list)
+    scanname :      str
+        name of the scans, for multiple scans this needs to be a template
+        string
+    scannumbers :   int, tuple or list
+        number of the scans of the reciprocal space map
+    args :          str, optional
+        names of the motors. to read reciprocal space maps measured in coplanar
+        diffraction give:
 
-     *args:   names of the motors (optional) (strings)
-     to read reciprocal space maps measured in coplanar diffraction give:
-     omname:  e.g. name of the omega motor (or its equivalent)
-     ttname:  e.g. name of the two theta motor (or its equivalent)
-     **kwargs:  keyword arguments forwarded to RASFile function
+            - omname:  name of the omega motor (or its equivalent)
+            - ttname:  name of the two theta motor (or its equivalent)
+
+    kwargs :        dict
+        keyword arguments forwarded to RASFile function
 
     Returns
     -------
-     rasdata
-
-     or
-
-     [ang1,ang2,...],rasdata:
-                angular positions are extracted from the respective scan header
-                together with all the data values as stored in the data file
-                (includes the intensities e.g. rasdata['int']).
+    [ang1, ang2, ...] :     list
+        angular positions are extracted from the respective scan header, or
+        motor positions during the scan. this is omitted if no `args` are given
+    rasdata :   ndarray
+        the data values (includes the intensities e.g. rasdata['int']).
 
     Examples
     --------
-    >>> [om,tt],MAP = xu.io.getras_scan('text%05d.ras',36,'Omega','TwoTheta')
+    >>> [om, tt], MAP = xu.io.getras_scan('text%05d.ras', 36, 'Omega',
+    >>>                                   'TwoTheta')
     """
 
     if isinstance(scannumbers, (list, tuple)):

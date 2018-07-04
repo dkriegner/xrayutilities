@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2009-2010,2013
+# Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
 # Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
@@ -46,7 +46,7 @@ class Gridder2D(Gridder):
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx,ny
+        Class method to allocate memory for the gridder based on the nx, ny
         class attributes.
         """
 
@@ -61,8 +61,10 @@ class Gridder2D(Gridder):
 
         Parameters
         ----------
-         filename:  output filename
-         header:    optional header for the data file.
+        filename :  str
+            output filename
+        header :    str, optional
+            optional header for the data file.
         """
         numpy.savetxt(filename, numpy.vstack((self.xmatrix.flat,
                                               self.ymatrix.flat,
@@ -76,8 +78,10 @@ class Gridder2D(Gridder):
 
         Parameters
         ----------
-        nx ............ number of points in x-direction
-        ny ............ number of points in y-direction
+        nx :	 int
+            number of points in x-direction
+        ny :	 int
+            number of points in y-direction
         """
         self.nx = nx
         self.ny = ny
@@ -110,10 +114,13 @@ class Gridder2D(Gridder):
 
         Parameters
         ----------
-         xmin,ymin:   minimum value of the gridding range in x,y
-         xmax,ymax:   maximum value of the gridding range in x,y
-         fixed: flag to turn fixed range gridding on (True (default))
-                or off (False)
+        xmin, ymin :    float
+            minimum value of the gridding range in x, y
+        xmax, ymax :    float
+            maximum value of the gridding range in x, y
+        fixed :         bool, optional
+            flag to turn fixed range gridding on (True (default)) or off
+            (False)
         """
         self.fixed_range = fixed
         self.xmin = xmin
@@ -135,7 +142,7 @@ class Gridder2D(Gridder):
 
         if x.size != y.size or y.size != data.size:
             raise exception.InputError("XU.%s: size of given datasets "
-                                       "(x,y,data) is not equal!"
+                                       "(x, y, data) is not equal!"
                                        % self.__class__.__name__)
 
         if not self.fixed_range:
@@ -152,9 +159,12 @@ class Gridder2D(Gridder):
 
         Parameters
         ----------
-        x ............... numpy array of arbitrary shape with x positions
-        y ............... numpy array of arbitrary shape with y positions
-        data ............ numpy array of arbitrary shape with data values
+        x :     ndarray
+            numpy array of arbitrary shape with x positions
+        y :	ndarray
+            numpy array of arbitrary shape with y positions
+        data :	ndarray
+            numpy array of arbitrary shape with data values
         """
         x, y, data = self._checktransinput(x, y, data)
         # remove normalize flag for C-code
@@ -184,14 +194,16 @@ class FuzzyGridder2D(Gridder2D):
 
         Parameters
         ----------
-         x ............... numpy array of arbitrary shape with x positions
-         y ............... numpy array of arbitrary shape with y positions
-         data ............ numpy array of arbitrary shape with data values
-        keyword arguments:
-         width ........... width of one data point. If not given half the bin
-                           size will be used. The width can be given as scalar
-                           if it is equal for both data dimensions, or as
-                           sequence of length 2.
+        x :	ndarray
+            numpy array of arbitrary shape with x positions
+        y :	ndarray
+            numpy array of arbitrary shape with y positions
+        data :	ndarray
+            numpy array of arbitrary shape with data values
+        width :	 float or tuple or list, optional
+            width of one data point. If not given half the bin size will be
+            used. The width can be given as scalar if it is equal for both data
+            dimensions, or as sequence of length 2.
         """
 
         for k in kwargs.keys():
@@ -232,7 +244,7 @@ class Gridder2DList(Gridder2D):
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx,ny
+        Class method to allocate memory for the gridder based on the nx, ny
         class attributes.
         """
 
@@ -262,10 +274,12 @@ class Gridder2DList(Gridder2D):
 
         Parameters
         ----------
-        x ............... numpy array of arbitrary shape with x positions
-        y ............... numpy array of arbitrary shape with y positions
-        data ............ array,list,tuple with data of same length as x,y but
-                          of arbitrary type
+        x :     ndarray
+            numpy array of arbitrary shape with x positions
+        y :     ndarray
+            numpy array of arbitrary shape with y positions
+        data :  ndarray, list or tuple
+            data of same length as x, y but of arbitrary type
         """
 
         x, y, data = self._checktransinput(x, y, data)

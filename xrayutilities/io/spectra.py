@@ -198,16 +198,16 @@ class SPECTRAFile(object):
     Constructor call. This class should work for data stored at
     beamlines P08 and BW2 at HASYLAB.
 
-    Required constructor arguments:
-    ------------------------------
-     filename ............. a string with the name of the SPECTRA file
+    Parameters
+    ----------
+    filename :  str
+        a string with the name of the SPECTRA file
 
-    Optional keyword arguments:
-    --------------------------
-     mcatmp ............... template for the MCA files
-     mcastart,mcastop ..... start and stop index for the MCA files, if not
-                            given, the class tries to determine the start and
-                            stop index automatically.
+    mcatmp :    str, optional
+        template for the MCA files
+    mcastart, mcastop : int, optional
+        start and stop index for the MCA files, if not given, the class tries
+        to determine the start and stop index automatically.
     """
 
     def __init__(self, filename, mcatmp=None, mcastart=None, mcastop=None):
@@ -246,17 +246,23 @@ class SPECTRAFile(object):
         If the mca attribute is not None mca data will be stored to an
         chunked array of with name mcaname.
 
-        required input arguments:
-         h5file .............. string or HDF5 file object
-         name ................ name of the group where to store the data
+        Parameters
+        ----------
+        h5file :    file-handle or str
+            HDF5 file object or name
+        name :	    str
+            name of the group where to store the data
 
-        optional keyword arguments:
-         group ............... root group where to store the data
-         mcaname ............. Name of the MCA in the HDF5 file
+        group :	    str, optional
+            root group where to store the data
+        mcaname :   str, optional
+            Name of the MCA in the HDF5 file
 
-        Return value:
-        The method returns None in the case of everything went fine, True
-        otherwise.
+        Returns
+        -------
+        bool or None
+            The method returns None in the case of everything went fine, True
+            otherwise.
         """
         with xu_h5open(h5file, 'w') as h5:
             # create the group where to store the data
@@ -347,9 +353,11 @@ class SPECTRAFile(object):
 
             Parameters
             ----------
-             l:     list
-             k:     key
-             v:     value
+            l :     list
+            k :     str
+                key
+            v :     object
+                value
             """
             kcnt = 0
             key = k
@@ -405,7 +413,7 @@ class SPECTRAFile(object):
                         key = "_" + key
                     value = value.strip()
                     if config.VERBOSITY >= config.DEBUG:
-                        print("XU.io.SPECTRAFile.Read: comment: k,v: %s, %s"
+                        print("XU.io.SPECTRAFile.Read: comment: k, v: %s, %s"
                               % (key, value))
 
                     try:
@@ -434,7 +442,7 @@ class SPECTRAFile(object):
                         key = "_" + key
                     value = value.strip()
                     if config.VERBOSITY >= config.DEBUG:
-                        print("XU.io.SPECTRAFile.Read: parameter: k,v: %s, %s"
+                        print("XU.io.SPECTRAFile.Read: parameter: k, v: %s, %s"
                               % (key, value))
 
                     try:
@@ -491,7 +499,7 @@ class SPECTRAFile(object):
                         rec_list.append(tuple(dlist))
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.io.SPECTRAFile.Read: data columns: name,type: %s, %s"
+            print("XU.io.SPECTRAFile.Read: data columns: name, type: %s, %s"
                   % (col_names, col_types))
         if rec_list:
             self.data.data = rec.fromrecords(rec_list, formats=col_types,
@@ -511,28 +519,32 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
 
     Parameters
     ----------
-     h5f:     file object of a HDF5 file opened using h5py
-     scans:   number of the scans of the reciprocal space map (int,tuple or
-              list)
+    h5f :       file-handle or str
+        file object of a HDF5 file opened using h5py
+    scans :     int, tuple or list
+        number of the scans of the reciprocal space map
+    args:       str, optional
+        arbitrary number of motor names
 
-    *args:   arbitrary number of motor names (strings)
-     omname:  name of the omega motor (or its equivalent)
-     ttname:  name of the two theta motor (or its equivalent)
+            - omname:  name of the omega motor (or its equivalent)
+            - ttname:  name of the two theta motor (or its equivalent)
 
-    **kwargs (optional):
-     mca:        name of the mca data (if available) otherwise None
-                 (default: "MCA")
-     samplename: string with the hdf5-group containing the scan data
-                 if omitted the first child node of h5f.root will be used
-                 to determine the sample name
+    kwargs :    dict, optional
+    mca :       str, optional
+        name of the mca data (if available) otherwise None (default: "MCA")
+    samplename : str, optional
+        string with the hdf5-group containing the scan data if omitted the
+        first child node of h5f.root will be used to determine the sample name
 
     Returns
     -------
-     [ang1,ang2,...],MAP:
-                angular positions of the center channel of the position
-                sensitive detector (numpy.ndarray 1D) together with all the
-                data values as stored in the data file (includes the
-                intensities e.g. MAP['MCA']).
+    [ang1, ang2, ...] : list
+        angular positions of the center channel of the position
+        sensitive detector (numpy.ndarray 1D). one entry for every
+        `args`-argument given to the function
+    MAP :   ndarray
+        the data values as stored in the data file (includes the intensities
+        e.g. MAP['MCA']).
     """
 
     with xu_h5open(h5file) as h5:

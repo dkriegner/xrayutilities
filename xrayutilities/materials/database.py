@@ -46,9 +46,12 @@ class DataBase(object):
         Creates a new database. If the database file already exists
         its content is delete.
 
-        required input arguments:
-         dbname .............. name of the database
-         dbdesc .............. a short description of the database
+        Parameters
+        ----------
+        dbname :    str
+            name of the database
+        dbdesc :    str
+            a short description of the database
         """
         if self.h5file is not None:
             print("database already opened - "
@@ -97,9 +100,12 @@ class DataBase(object):
         This method creates a new material. If the material group already
         exists the procedure is aborted.
 
-        required input arguments:
-         name .............. a string with the name of the material
-         description ....... a string with a description of the material
+        Parameters
+        ----------
+        name :          str
+            name of the material
+        description :   str
+            description of the material
         """
         if self.h5file is None:
             print("no database file opened!")
@@ -116,8 +122,10 @@ class DataBase(object):
         """
         Save weight of the element as float
 
-        required input argument:
-         weight .......... atomic standard weight of the element (float)
+        Parameters
+        ----------
+        weight :    float
+            atomic standard weight of the element
         """
         if not isinstance(weight, float):
             raise TypeError("weight parameter must be a float!")
@@ -129,12 +137,14 @@ class DataBase(object):
         """
         Save f0 fit parameters for the set material. The fit parameters
         are stored in the following order:
-        c,a1,b1,.......,a4,b4
+        c, a1, b1,......., a4, b4
 
-        required input argument:
-         parameters ........ list or numpy array with the fit parameters
-         subset ............ specifies under which name the f0 values should
-                             be saved
+        Parameters
+        ----------
+        parameters :    list or array-like
+            fit parameters
+        subset :        str, optional
+            name the f0 dataset
         """
         if isinstance(parameters, list):
             p = numpy.array(parameters, dtype=numpy.float32)
@@ -159,10 +169,14 @@ class DataBase(object):
         """
         Set f1, f2 values for the active material.
 
-        required input arguments:
-         en ................ list or numpy array with energy in (eV)
-         f1 ................ list or numpy array with f1 values
-         f2 ................ list or numpy array with f2 values
+        Parameters
+        ----------
+        en :    list or array-like
+            energy in (eV)
+        f1 :    list or array-like
+            f1 values
+        f2 :    list or array-like
+            f2 values
         """
         if isinstance(en, (list, tuple)):
             end = numpy.array(en, dtype=numpy.float32)
@@ -211,8 +225,10 @@ class DataBase(object):
         operations like setting and getting optical constants are done for this
         particular material.
 
-        required input arguments:
-         name ............... string with the name of the material
+        Parameters
+        ----------
+        name :  str
+            name of the material
         """
         if self.matname == name:
             return
@@ -248,10 +264,13 @@ class DataBase(object):
         Obtain the f0 scattering factor component for a particular
         momentum transfer q.
 
-        required input argument:
-         q ......... single float value or numpy array
-         dset ...... specifies which dataset (different oxidation states)
-                     should be used
+        Parameters
+        ----------
+        q :     float or array-like
+            momentum transfer
+        dset :  str, optional
+            specifies which dataset (different oxidation states)
+            should be used
         """
         # get parameters from file
         if not dset:
@@ -278,8 +297,10 @@ class DataBase(object):
         Return the second, energy dependent, real part of the scattering
         factor for a certain energy en.
 
-        required input arguments:
-         en ............. float or numpy array with the energy
+        Parameters
+        ----------
+        en :    float or array-like
+            energy
         """
         if1 = numpy.interp(en, self.f1_en, self.f1,
                            left=numpy.nan, right=numpy.nan)
@@ -291,8 +312,10 @@ class DataBase(object):
         Return the imaginary part of the scattering
         factor for a certain energy en.
 
-        required input arguments:
-         en ............. float or numpy array with the energy
+        Parameters
+        ----------
+        en :    float or array-like
+            energy
         """
         if2 = numpy.interp(en, self.f2_en, self.f2,
                            left=numpy.nan, right=numpy.nan)

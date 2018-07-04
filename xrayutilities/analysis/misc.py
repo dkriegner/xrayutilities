@@ -31,21 +31,24 @@ def getangles(peak, sur, inp):
 
     Parameters
     ----------
-
-     peak:  array which gives hkl for the peak of interest
-     sur:   hkl of the surface
-     inp:   inplane reference peak or direction
+    peak :  list or array-like
+        hkl for the peak of interest
+    sur :   list or array-like
+        hkl of the surface
+    inp :   list or array-like
+        inplane reference peak or direction
 
     Returns
     -------
-     [chi,phi] for the given peak on surface sur with inplane direction inp
-               as reference
+    list
+        [chi, phi] for the given peak on surface sur with inplane direction inp
+        as reference
 
     Examples
     --------
-     To get the angles for the -224 peak on a 111 surface type
-      [chi,phi] = getangles([-2,2,4],[1,1,1],[2,2,4])
+    To get the angles for the -224 peak on a 111 surface type
 
+    >>> [chi, phi] = getangles([-2, 2, 4], [1, 1, 1], [2, 2, 4])
     """
 
     # transform input to numpy.arrays
@@ -103,9 +106,12 @@ def getunitvector(chi, phi, ndir=(0, 0, 1), idir=(1, 0, 0)):
 
     Parameters
     ----------
-     chi, phi: spherical angles (polar and azimuthal) in degree
-     ndir:     polar/z-axis (determines chi=0)
-     idir:     azimuthal axis (determines phi=0)
+    chi, phi :  float
+        spherical angles (polar and azimuthal) in degree
+    ndir :      tuple, list or array-like
+        polar/z-axis (determines chi=0)
+    idir :      tuple, list or array-like
+        azimuthal axis (determines phi=0)
     """
     chi_axis = numpy.cross(ndir, idir)
     v = math.rotarb(ndir, chi_axis, chi)
@@ -122,17 +128,25 @@ def coplanar_intensity(mat, exp, hkl, thickness, thMono, sample_width=10,
 
     Parameters
     ----------
-    mat:          Crystal instance for structure factor calculation
-    exp:          Experimental(HXRD) class for the angle calculation
-    hkl:          Miller indices of the peak to calculate
-    thickness:    film thickness in nm
-    thMono:       Bragg angle of the monochromator (deg)
-    sample_width: width of the sample along the beam
-    beam_width:   width of the beam in the same units as the sample size
+    mat :           Crystal
+        Crystal instance for structure factor calculation
+    exp :           Experiment
+        Experimental(HXRD) class for the angle calculation
+    hkl :           list, tuple or array-like
+        Miller indices of the peak to calculate
+    thickness :     float
+        film thickness in nm
+    thMono :        float
+        Bragg angle of the monochromator (deg)
+    sample_width :  float, optional
+        width of the sample along the beam
+    beam_width :    float, optional
+        width of the beam in the same units as the sample size
 
     Returns
     -------
-     float: intensity of the peak
+    float
+        intensity of the peak
     """
     # angle calculation for geometrical factors
     om, chi, phi, tt = exp.Q2Ang(mat.Q(hkl))

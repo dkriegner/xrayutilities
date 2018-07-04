@@ -46,15 +46,21 @@ def xu_open(filename, mode='rb'):
 
     Parameters
     ----------
-     filename:  filename of the file to open (full including path)
-     mode:      mode in which the file should be opened
+    filename :  str
+        filename of the file to open (full including path)
+    mode :      str, optional
+        mode in which the file should be opened
 
     Returns
     -------
-     file handle of the opened file
+    file-handle
+        handle of the opened file
 
-    If the file does not exist an IOError is raised by the open routine, which
-    is not caught within the function
+    Raises
+    ------
+    IOError
+        If the file does not exist an IOError is raised by the open routine,
+        which is not caught within the function
     """
 
     if filename.endswith('.gz'):
@@ -89,9 +95,11 @@ class xu_h5open(object):
         """
         Parameters
         ----------
-         f:     filename or h5py.File instance
-         mode:  mode in which the file should be opened. ignored in case a
-                file handle is passed as f
+        f :     str
+            filename or h5py.File instance
+        mode :  str, optional
+            mode in which the file should be opened. ignored in case a file
+            handle is passed as f
         """
         self.closeFile = True
         self.fid = None

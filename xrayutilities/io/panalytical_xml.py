@@ -176,8 +176,10 @@ class XRDMLFile(object):
 
         Parameters
         ----------
-         fname:     filename of the XRDML file
-         path:      path to the XRDML file (optional)
+        fname :     str
+            filename of the XRDML file
+        path :      str, optional
+            path to the XRDML file
         """
         self.full_filename = os.path.join(path, fname)
         self.filename = os.path.basename(self.full_filename)
@@ -225,22 +227,26 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
 
     Parameters
     ----------
-     filetemplate: template string for the file names, can contain
-                   a %d which is replaced by the scan number or be a
-                   list of filenames
-     scannrs:      int or list of scan numbers
-     path:         common path to the filenames
-     roi:          region of interest for the PIXCel detector,
-                   for other measurements this is not usefull!
+    filetemplate :  str
+        template string for the file names, can contain a %d which is replaced
+        by the scan number or be a list of filenames
+    scannrs :       int or list, optional
+        scan number(s)
+    path :          str, optional
+        common path to the filenames
+    roi :           tuple, optional
+        region of interest for the PIXCel detector, for other measurements this
+        is not useful!
 
     Returns
     -------
-     om,tt,psd: as flattened numpy arrays
+    om, tt, psd :   ndarray
+        motor positions and data as flattened numpy arrays
 
     Examples
     --------
-     >>> om,tt,psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",
-                                                   [1,2], path="./data")
+    >>> om, tt, psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",
+    >>>                                             [1, 2], path="./data")
     """
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)
@@ -293,33 +299,38 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     xrayutilities.io.XRDMLFile class is used. The function can be used for
     parsing arbitrary scans and will return the the motor values of the scan
     motor and additionally the positions of the motors given by in the
-    "*motors" argument
+    ``*motors`` argument
 
     Parameters
     ----------
-     filetemplate: template string for the file names, can contain
-                   a %d which is replaced by the scan number or be a
-                   list of filenames given by the scannrs keyword argument
+    filetemplate :  str
+        template string for the file names, can contain a %d which is replaced
+        by the scan number or be a list of filenames given by the scannrs
+        keyword argument
 
-     *motors:      motor names to return: e.g.: 'Omega','2Theta',...
-                   one can also use abbreviations
-                   'Omega' = 'om' = 'o'
-                   '2Theta' = 'tt' = 't'
-                   'Chi' = 'c'
-                   'Phi' = 'p'
+    motors :        str
+        motor names to return: e.g.: 'Omega', '2Theta', ...  one can also use
+        abbreviations:
 
-     **kwargs:
-       scannrs:      int or list of scan numbers
-       path:         common path to the filenames
+         - 'Omega' = 'om' = 'o'
+         - '2Theta' = 'tt' = 't'
+         - 'Chi' = 'c'
+         - 'Phi' = 'p'
+
+    scannrs :       int or list, optional
+        scan number(s)
+    path :          str, optional
+        common path to the filenames
 
     Returns
     -------
-     scanmot,mot1,mot2,...,detectorint: as flattened numpy arrays
+    scanmot, mot1, mot2,..., detectorint :  ndarray
+        motor positions and data as flattened numpy arrays
 
     Examples
     --------
-     >>> scanmot,om,tt,inte = xrayutilities.io.getxrdml_scan(
-             "samplename_1.xrdml", 'om', 'tt', path="./data")
+    >>> scanmot, om, tt, inte = xrayutilities.io.getxrdml_scan(
+    >>>     "samplename_1.xrdml", 'om', 'tt', path="./data")
     """
     flatten = True
     # parse keyword arguments

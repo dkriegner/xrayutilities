@@ -34,12 +34,15 @@ def smooth(x, n):
 
     Parameters
     ----------
-     x:  1D data array
-     n:  number of data points to average
+    x : array-like
+        1D data array
+    n : int
+        number of data points to average
 
     Returns
     -------
-     xsmooth:  smoothed array with same length as x
+    xsmooth: array-like
+        smoothed array with same length as x
     """
     if x.ndim != 1:
         raise ValueError("smooth only accepts 1 dimension arrays.")
@@ -64,12 +67,15 @@ def kill_spike(data, threshold=2.):
 
     Parameters
     ----------
-     data:          1d numpy array with experimental data
-     threshold:     threshold factor to identify strange data points
+    data :          array-like
+        1d numpy array with experimental data
+    threshold :     float
+        threshold factor to identify strange data points
 
     Returns
     -------
-     1d data-array with spikes removed
+    array-like
+        1d data-array with spikes removed
     """
 
     dataout = data.copy()
@@ -95,22 +101,25 @@ def Gauss1d(x, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Gaussian
-            [XCEN,SIGMA,AMP,BACKGROUND]
-            for information: SIGMA = FWHM / (2*sqrt(2*log(2)))
-     x:     coordinate(s) where the function should be evaluated
+    x :     array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the Gaussian [XCEN, SIGMA, AMP, BACKGROUND]
+        for information: SIGMA = FWHM / (2*sqrt(2*log(2)))
 
     Returns
     -------
-    the value of the Gaussian described by the parameters p
-    at position x
+    array-like
+        the value of the Gaussian described by the parameters p at position x
 
     Examples
     --------
     Calling with a list of parameters needs a call looking as shown below
-    (note the '*') or explicit listing of the parameters:
+    (note the '*') or explicit listing of the parameters
+
     >>> Gauss1d(x,*p)
-    >>> Gauss1d(numpy.linspace(0,10,100), 5, 1, 1e3, 0)
+
+    >>> Gauss1d(numpy.linspace(0, 10, 100), 5, 1, 1e3, 0)
     """
     g = p[3] + p[2] * numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
     return g
@@ -122,15 +131,17 @@ def NormGauss1d(x, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Gaussian
-            [XCEN,SIGMA]
-            for information: SIGMA = FWHM / (2*sqrt(2*log(2)))
-     x:     coordinate(s) where the function should be evaluated
+    x :     array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the Gaussian [XCEN, SIGMA];
+        for information: SIGMA = FWHM / (2*sqrt(2*log(2)))
 
     Returns
     -------
-    the value of the normalized Gaussian described by the parameters p
-    at position x
+    array-like
+        the value of the normalized Gaussian described by the parameters p at
+        position x
     """
     g = numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
     a = numpy.sqrt(2 * numpy.pi) * p[1]
@@ -172,16 +183,19 @@ def Gauss2d(x, y, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Gauss-function
-            [XCEN,YCEN,SIGMAX,SIGMAY,AMP,BACKGROUND,ANGLE]
-            SIGMA = FWHM / (2*sqrt(2*log(2)))
-            ANGLE = rotation of the X,Y direction of the Gaussian in radians
-     x,y:   coordinate(s) where the function should be evaluated
+    x, y :  array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the Gauss-function
+        [XCEN, YCEN, SIGMAX, SIGMAY, AMP, BACKGROUND, ANGLE];
+        SIGMA = FWHM / (2*sqrt(2*log(2)));
+        ANGLE = rotation of the X, Y direction of the Gaussian in radians
 
     Returns
     -------
-    the value of the Gaussian described by the parameters p
-    at position (x,y)
+    array-like
+        the value of the Gaussian described by the parameters p at
+        position (x, y)
     """
 
     rcen_x = p[0] * numpy.cos(p[6]) - p[1] * numpy.sin(p[6])
@@ -200,15 +214,19 @@ def Gauss3d(x, y, z, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Gauss-function
-            [XCEN,YCEN,ZCEN,SIGMAX,SIGMAY,SIGMAZ,AMP,BACKGROUND]
-            SIGMA = FWHM / (2*sqrt(2*log(2)))
-     x,y,z:   coordinate(s) where the function should be evaluated
+    x, y, z : array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the Gauss-function
+        [XCEN, YCEN, ZCEN, SIGMAX, SIGMAY, SIGMAZ, AMP, BACKGROUND];
+
+        SIGMA = FWHM / (2*sqrt(2*log(2)))
 
     Returns
     -------
-    the value of the Gaussian described by the parameters p
-    at positions (x,y,z)
+    array-like
+        the value of the Gaussian described by the parameters p at
+        positions (x, y, z)
     """
 
     g = p[7] + p[6] * numpy.exp(-(((x - p[0]) / p[3]) ** 2 +
@@ -223,17 +241,20 @@ def TwoGauss2d(x, y, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Gauss-function
-            [XCEN1,YCEN1,SIGMAX1,SIGMAY1,AMP1,ANGLE1,XCEN2,YCEN2,
-            SIGMAX2,SIGMAY2,AMP2,ANGLE2,BACKGROUND]
-            SIGMA = FWHM / (2*sqrt(2*log(2)))
-            ANGLE = rotation of the X,Y direction of the Gaussian in radians
-     x,y:   coordinate(s) where the function should be evaluated
+    x, y :  array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the Gauss-function
+        [XCEN1, YCEN1, SIGMAX1, SIGMAY1, AMP1, ANGLE1, XCEN2, YCEN2, SIGMAX2,
+        SIGMAY2, AMP2, ANGLE2, BACKGROUND];
+        SIGMA = FWHM / (2*sqrt(2*log(2)))
+        ANGLE = rotation of the X, Y direction of the Gaussian in radians
 
     Returns
     -------
-    the value of the Gaussian described by the parameters p
-    at position (x,y)
+    array-like
+        the value of the Gaussian described by the parameters p
+        at position (x, y)
     """
 
     p = list(p)
@@ -251,14 +272,17 @@ def Lorentz1d(x, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Lorentz-function
-            [XCEN,FWHM,AMP,BACKGROUND]
-     x:     coordinate(s) where the function should be evaluated
+    x :     array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the Lorentz-function
+        [XCEN, FWHM, AMP, BACKGROUND]
 
     Returns
     -------
-    the value of the Lorentian described by the parameters p
-    at position (x,y)
+    array-like
+        the value of the Lorentian described by the parameters p
+        at position (x, y)
 
     """
     g = p[3] + p[2] / (1 + (2 * (x - p[0]) / p[1]) ** 2)
@@ -298,14 +322,16 @@ def NormLorentz1d(x, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Lorentzian
-            [XCEN,FWHM]
-     x:     coordinate(s) where the function should be evaluated
+    x :     array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the Lorentzian [XCEN, FWHM]
 
     Returns
     -------
-    the value of the normalized Lorentzian described by the parameters p
-    at position x
+    array-like
+        the value of the normalized Lorentzian described by the parameters p
+        at position x
     """
     g = 1.0 / (1 + (2 * (x - p[0]) / p[1]) ** 2)
     a = numpy.pi / (2. / (p[1]))
@@ -318,15 +344,18 @@ def Lorentz2d(x, y, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the Lorentz-function
-            [XCEN,YCEN,FWHMX,FWHMY,AMP,BACKGROUND,ANGLE]
-            ANGLE = rotation of the X,Y direction of the Lorentzian in radians
-     x,y:   coordinate(s) where the function should be evaluated
+    x, y :   array-like
+        coordinate(s) where the function should be evaluated
+    p :      list
+        list of parameters of the Lorentz-function
+        [XCEN, YCEN, FWHMX, FWHMY, AMP, BACKGROUND, ANGLE];
+        ANGLE = rotation of the X, Y direction of the Lorentzian in radians
 
     Returns
     -------
-    the value of the Lorentian described by the parameters p
-    at position (x,y)
+    array-like
+        the value of the Lorentian described by the parameters p
+        at position (x, y)
     """
     rcen_x = p[0] * numpy.cos(p[6]) - p[1] * numpy.sin(p[6])
     rcen_y = p[0] * numpy.sin(p[6]) + p[1] * numpy.cos(p[6])
@@ -345,15 +374,18 @@ def PseudoVoigt1d(x, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the pseudo Voigt-function
-            [XCEN,FWHM,AMP,BACKGROUND,ETA]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
-     x:     coordinate(s) where the function should be evaluated
+    x :     array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the pseudo Voigt-function
+        [XCEN, FWHM, AMP, BACKGROUND, ETA];
+        ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
 
     Returns
     -------
-    the value of the PseudoVoigt described by the parameters p
-    at position 'x'
+    array-like
+        the value of the PseudoVoigt described by the parameters p
+        at position `x`
     """
     if p[4] > 1.0:
         pv = 1.0
@@ -370,7 +402,7 @@ def PseudoVoigt1d(x, *p):
 
 def PseudoVoigt1d_der_x(x, *p):
     """
-    function to calculate the derivative of a PseudoVoigt with respect to x
+    function to calculate the derivative of a PseudoVoigt with respect to `x`
 
     for parameter description see PseudoVoigt1d
     """
@@ -394,7 +426,7 @@ def PseudoVoigt1d_der_x(x, *p):
 def PseudoVoigt1d_der_p(x, *p):
     """
     function to calculate the derivative of a PseudoVoigt with respect the
-    parameters p
+    parameters `p`
 
     for parameter description see PseudoVoigt1d
     """
@@ -438,15 +470,18 @@ def PseudoVoigt1dasym(x, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the pseudo Voigt-function
-            [XCEN,FWHMLEFT,FWHMRIGHT,AMP,BACKGROUND,ETA]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
-     x:     coordinate(s) where the function should be evaluated
+    x :     array-like
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the pseudo Voigt-function
+        [XCEN, FWHMLEFT, FWHMRIGHT, AMP, BACKGROUND, ETA];
+        ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
 
     Returns
     -------
-    the value of the PseudoVoigt described by the parameters p
-    at position 'x'
+    array-like
+        the value of the PseudoVoigt described by the parameters p
+        at position `x`
     """
     lp = copy.copy(list(p))
     lp.insert(6, p[5])
@@ -460,15 +495,18 @@ def PseudoVoigt1dasym2(x, *p):
 
     Parameters
     ----------
-     p:     list of parameters of the pseudo Voigt-function
-            [XCEN,FWHMLEFT,FWHMRIGHT,AMP,BACKGROUND,ETALEFT, ETARIGHT]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
-     x:     coordinate(s) where the function should be evaluated
+    x :     naddray
+        coordinate(s) where the function should be evaluated
+    p :     list
+        list of parameters of the pseudo Voigt-function
+        [XCEN, FWHMLEFT, FWHMRIGHT, AMP, BACKGROUND, ETALEFT, ETARIGHT];
+        ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
 
     Returns
     -------
-    the value of the PseudoVoigt described by the parameters p
-    at position 'x'
+    array-like
+        the value of the PseudoVoigt described by the parameters p
+        at position `x`
     """
     pvl = p[5] if p[5] < 1.0 else 1.0
     pvl = pvl if p[5] > 0.0 else 0.0
@@ -507,15 +545,18 @@ def PseudoVoigt2d(x, y, *p):
 
     Parameters
     ----------
-     x,y:   coordinate(s) where the function should be evaluated
-     p:     list of parameters of the pseudo Voigt-function
-            [XCEN,YCEN,FWHMX,FWHMY,AMP,BACKGROUND,ANGLE,ETA]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
+    x, y :   array-like
+        coordinate(s) where the function should be evaluated
+    p :      list
+        list of parameters of the pseudo Voigt-function
+        [XCEN, YCEN, FWHMX, FWHMY, AMP, BACKGROUND, ANGLE, ETA];
+        ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
 
     Returns
     -------
-    the value of the PseudoVoigt described by the parameters p
-    at position (x,y)
+    array-like
+        the value of the PseudoVoigt described by the parameters `p`
+        at position `(x, y)`
     """
     if p[7] > 1.0:
         pv = 1.0
@@ -537,12 +578,13 @@ def Gauss1dArea(*p):
 
     Parameters
     ----------
-     p:     list of parameters of the Gauss-function
-            [XCEN,SIGMA,AMP,BACKGROUND]
+    p :     list
+        list of parameters of the Gauss-function [XCEN, SIGMA, AMP, BACKGROUND]
 
     Returns
     -------
-    the area of the Gaussian described by the parameters p
+    float
+        the area of the Gaussian described by the parameters `p`
     """
     f = p[2] * numpy.sqrt(2 * numpy.pi) * p[1]
     return f
@@ -555,12 +597,14 @@ def Gauss2dArea(*p):
 
     Parameters
     ----------
-     p:     list of parameters of the Gauss-function
-            [XCEN,YCEN,SIGMAX,SIGMAY,AMP,ANGLE,BACKGROUND]
+    p :     list
+        list of parameters of the Gauss-function
+        [XCEN, YCEN, SIGMAX, SIGMAY, AMP, ANGLE, BACKGROUND]
 
     Returns
     -------
-    the area of the Gaussian described by the parameters p
+    float
+        the area of the Gaussian described by the parameters `p`
     """
     f = p[4] * numpy.sqrt(2 * numpy.pi) ** 2 * p[2] * p[3]
     return f
@@ -573,12 +617,14 @@ def Lorentz1dArea(*p):
 
     Parameters
     ----------
-     p:     list of parameters of the Lorentz-function
-            [XCEN,FWHM,AMP,BACKGROUND]
+    p :     list
+        list of parameters of the Lorentz-function
+        [XCEN, FWHM, AMP, BACKGROUND]
 
     Returns
     -------
-    the area of the Lorentzian described by the parameters p
+    float
+        the area of the Lorentzian described by the parameters `p`
     """
     f = p[2] * numpy.pi / (2. / (p[1]))
     return f
@@ -591,13 +637,15 @@ def PseudoVoigt1dArea(*p):
 
     Parameters
     ----------
-     p:     list of parameters of the Lorentz-function
-            [XCEN,FWHM,AMP,BACKGROUND,ETA]
-            ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
+    p :     list
+        list of parameters of the Lorentz-function
+        [XCEN, FWHM, AMP, BACKGROUND, ETA];
+        ETA: 0 ...1  0 means pure Gauss and 1 means pure Lorentz
 
     Returns
     -------
-    the area of the PseudoVoigt described by the parameters p
+    float
+        the area of the PseudoVoigt described by the parameters `p`
     """
     sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
     f = p[4] * Lorentz1dArea(*p) + (1. - p[4]) * \
@@ -607,22 +655,25 @@ def PseudoVoigt1dArea(*p):
 
 def Debye1(x):
     """
-    function to calculate the first Debye function as needed
+    function to calculate the first Debye function [1]_ as needed
     for the calculation of the thermal Debye-Waller-factor
     by numerical integration
 
-    for definition see:
-    http://en.wikipedia.org/wiki/Debye_function
-
-    D1(x) = (1/x) \int_0^x t/(exp(t)-1) dt
+    .. math:: D_1(x) = (1/x) \int_0^x t/(\exp(t)-1) dt
 
     Parameters
     ----------
-     x ... argument of the Debye function (float)
+    x : float
+        argument of the Debye function
 
     Returns
     -------
-     D1(x)  float value of the Debye function
+    float
+        D1(x)  float value of the Debye function
+
+    References
+    ----------
+    .. [1] http://en.wikipedia.org/wiki/Debye_function
      """
 
     def __int_kernel(t):
@@ -655,19 +706,22 @@ def multPeak1d(x, *args):
 
     Parameters
     ----------
-     x:         coordinate where the function should be evaluated
-     args:      list of peak/function types and parameters for every function
-                type two arguments need to be given first the type of function
-                as string with possible values 'g': Gaussian, 'l': Lorentzian,
-                'v': PseudoVoigt, 'a': asym. PseudoVoigt, 'p': polynom the
-                second type of arguments is the tuple/list of parameters of the
-                respective function. See documentation of math.Gauss1d,
-                math.Lorentz1d, math.PseudoVoigt1d, math.PseudoVoigt1dasym, and
-                numpy.polyval for details of the different function types.
+    x :     array-like
+        coordinate where the function should be evaluated
+    args :  list
+        list of peak/function types and parameters for every function type two
+        arguments need to be given first the type of function as string with
+        possible values 'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'a':
+        asym. PseudoVoigt, 'p': polynom the second type of arguments is the
+        tuple/list of parameters of the respective function. See documentation
+        of math.Gauss1d, math.Lorentz1d, math.PseudoVoigt1d,
+        math.PseudoVoigt1dasym, and numpy.polyval for details of the different
+        function types.
 
     Returns
     -------
-     value of the sum of functions at position x
+    array-like
+        value of the sum of functions at position `x`
     """
     if len(args) % 2 != 0:
         raise ValueError('number of arguments must be even!')
@@ -708,20 +762,22 @@ def multPeak2d(x, y, *args):
 
     Parameters
     ----------
-     x,y:       coordinates where the function should be evaluated
-     args:      list of peak/function types and parameters for every function
-                type two arguments need to be given first the type of function
-                as string with possible values 'g': Gaussian, 'l': Lorentzian,
-                'v': PseudoVoigt, 'c': constant the second type of arguments is
-                the tuple/list of parameters of the respective function. See
-                documentation of math.Gauss2d, math.Lorentz2d,
-                math.PseudoVoigt2d for details of the different function types.
-                The constant accepts a single float which will be added to the
-                data
+    x, y :  array-like
+        coordinates where the function should be evaluated
+    args :  list
+        list of peak/function types and parameters for every function type two
+        arguments need to be given first the type of function as string with
+        possible values 'g': Gaussian, 'l': Lorentzian, 'v': PseudoVoigt, 'c':
+        constant the second type of arguments is the tuple/list of parameters
+        of the respective function. See documentation of math.Gauss2d,
+        math.Lorentz2d, math.PseudoVoigt2d for details of the different
+        function types.  The constant accepts a single float which will be
+        added to the data
 
     Returns
     -------
-     value of the sum of functions at position (x,y)
+    array-like
+        value of the sum of functions at position `(x, y)`
     """
     if len(args) % 2 != 0:
         raise ValueError('number of arguments must be even!')
@@ -756,11 +812,13 @@ def heaviside(x):
 
     Parameters
     ----------
-     x: any scalar of ndarray object
+    x: scalar or array-like
+        argument of the step function
 
     Returns
     -------
-     s: Heaviside step function evaluated for all values of x with datatype
+    int or array-like
+        Heaviside step function evaluated for all values of `x` with datatype
         integer
     """
     return (numpy.sign(x)/2. + 0.5).astype(numpy.int8)

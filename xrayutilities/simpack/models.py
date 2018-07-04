@@ -51,15 +51,19 @@ class Model(object):
 
         Parameters
         ----------
-         experiment: Experiment class describing the diffraction geometry,
-                     energy and wavelength of the model
-         kwargs:     optional keyword arguments specifying model parameters.
-                     'resolution_width' defines the width of the resolution
-                     'I0' is the primary beam flux/intensity
-                     'background' is the background added to the simulation
-                     'energy' sets the experimental energy (in eV)
-                     'resolution_type' sets the type of resolution function
-                                 ('Gauss' (default) or 'Lorentz')
+        experiment : Experiment
+            class describing the diffraction geometry, energy and wavelength of
+            the model
+        resolution_width :  float, optional
+            defines the width of the resolution
+        I0 :                float, optional
+            the primary beam flux/intensity
+        background :        float, optional
+            the background added to the simulation
+        energy :            float or str
+            the experimental energy in eV
+        resolution_type :   {'Gauss', 'Lorentz'}, optional
+            type of resolution function, default: Gauss
         """
         for kw in kwargs:
             if kw not in ('resolution_width', 'I0', 'background', 'energy',
@@ -83,13 +87,16 @@ class Model(object):
 
         Parameters
         ----------
-         x:  x-values of the simulation, units of x also decide about the
-             unit of the resolution_width parameter
-         y:  y-values of the simulation
+        x :     array-like
+            x-values of the simulation, units of x also decide about the unit
+            of the resolution_width parameter
+        y :     array-like
+            y-values of the simulation
 
         Returns
         -------
-         convoluted y-data with same shape as y
+        array-like
+            convoluted y-data with same shape as y
         """
         if self.resolution_width == 0:
             return y
@@ -122,11 +129,13 @@ class Model(object):
 
         Parameters
         ----------
-         y:  y-values of the simulation
+        y :     array-like
+            y-values of the simulation
 
         Returns
         -------
-         scaled y values
+        array-like
+            scaled y-values
         """
         return y * self.I0 + self.background
 
@@ -144,11 +153,15 @@ class LayerModel(Model, utilities.ABC):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation. supported are:
-            'experiment': Experiment class containing geometry and energy of
-                          the experiment.
-            'surface_hkl': Miller indices of the surface (default: (001))
+        *args :         LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        **kwargs :      dict
+            optional parameters for the simulation. ones not listed below are
+            forwarded to the superclass.
+        experiment :    Experiment, optional
+            class containing geometry and energy of the experiment.
+        surface_hkl :   list or tuple, optional
+            Miller indices of the surface (default: (0, 0, 1))
         """
         exp = kwargs.pop('experiment', None)
         super(LayerModel, self).__init__(exp, **kwargs)
@@ -176,21 +189,25 @@ class LayerModel(Model, utilities.ABC):
 
         Parameters
         ----------
-         x:         independent coordinate value for the convolution with the
-                    resolution function
-         E:         electric field amplitude (complex)
-         ai, af:    incidence and exit angle of the XRD beam (in radians)
-         Ir:        reflected intensity
-         rettype:   type of the return value. 'intensity' (default): returns
-                    the diffracted beam flux convoluted with the resolution
-                    function; 'field': returns the electric field (complex)
-                    without convolution with the resolution function, 'all':
-                    returns the electric field, ai, af (both in degree), and
-                    the reflected intensity.
+        x :         array-like
+            independent coordinate value for the convolution with the
+            resolution function
+        E :         array-like
+            electric field amplitude (complex)
+        ai, af :    array-like, optional
+            incidence and exit angle of the XRD beam (in radians)
+        Ir :        array-like, optional
+            reflected intensity
+        rettype :   {'intensity', 'field', 'all'}, optional
+            type of the return value. 'intensity' (default): returns the
+            diffracted beam flux convoluted with the resolution function;
+            'field': returns the electric field (complex) without convolution
+            with the resolution function, 'all': returns the electric field,
+            ai, af (both in degree), and the reflected intensity.
 
         Returns
         -------
-         return value depends on value of rettype.
+        return value depends on value of rettype.
         """
         if rettype == 'intensity':
             ret = self.scale_simulation(
@@ -242,10 +259,12 @@ class KinematicalModel(LayerModel):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation. supported are:
-            'experiment': Experiment class containing geometry and energy of
-                          the experiment.
+        *args :     LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        **kwargs :  dict
+            optional parameters; also see LayerModel/Model.
+        experiment : Experiment
+            Experiment class containing geometry and energy of the experiment.
         """
         super(KinematicalModel, self).__init__(*args, **kwargs)
         # precalc optical properties
@@ -313,23 +332,29 @@ class KinematicalModel(LayerModel):
 
         Parameters
         ----------
-         qz:            simulation positions along qz
-         hkl:           Miller indices of the Bragg peak whos truncation rod
-                        should be calculated
-         absorption:    flag to tell if absorption correction should be used
-         refraction:    flag to tell if basic refraction correction should be
-                        performed. If refraction is True absorption correction
-                        is also included independent of the absorption flag.
-         rettype:       type of the return value. 'intensity' (default):
-                        returns the diffracted beam flux convoluted with the
-                        resolution function; 'field': returns the electric
-                        field (complex) without convolution with the resolution
-                        function, 'all': returns the electric field, ai, af
-                        (both in degree), and the reflected intensity.
+        qz :        array-like
+            simulation positions along qz
+        hkl :       list or tuple
+            Miller indices of the Bragg peak whos truncation rod should be
+            calculated
+        absorption : bool, optional
+            flag to tell if absorption correction should be used
+        refraction : bool, optional
+            flag to tell if basic refraction correction should be performed. If
+            refraction is True absorption correction is also included
+            independent of the absorption flag.
+        rettype :   {'intensity', 'field', 'all'}
+            type of the return value. 'intensity' (default): returns the
+            diffracted beam flux convoluted with the resolution function;
+            'field': returns the electric field (complex) without convolution
+            with the resolution function, 'all': returns the electric field,
+            ai, af (both in degree), and the reflected intensity.
 
         Returns
         -------
-         vector of the ratios of the diffracted and primary fluxes
+        array-like
+            return value depends on the setting of `rettype`, by default only
+            the calculate intensity is returned
         """
         rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
@@ -372,11 +397,14 @@ class KinematicalMultiBeamModel(KinematicalModel):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation. supported are:
-            'experiment': Experiment class containing geometry and energy of
-                          the experiment.
-            'surface_hkl': Miller indices of the surface (default: (001))
+        *args :     LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        **kwargs :  dict
+            optional parameters. see also LayerModel/Model.
+        experiment : Experiment
+            Experiment class containing geometry and energy of the experiment.
+        surface_hkl : list or tuple
+            Miller indices of the surface (default: (0, 0, 1))
         """
         self.surface_hkl = kwargs.pop('surface_hkl', (0, 0, 1))
         super(KinematicalMultiBeamModel, self).__init__(*args, **kwargs)
@@ -390,23 +418,29 @@ class KinematicalMultiBeamModel(KinematicalModel):
 
         Parameters
         ----------
-         qz:            simulation positions along qz
-         hkl:           Miller indices of the Bragg peak whos truncation rod
-                        should be calculated
-         absorption:    flag to tell if absorption correction should be used
-         refraction:    flag to tell if basic refraction correction should be
-                        performed. If refraction is True absorption correction
-                        is also included independent of the absorption flag.
-         rettype:       type of the return value. 'intensity' (default):
-                        returns the diffracted beam flux convoluted with the
-                        resolution function; 'field': returns the electric
-                        field (complex) without convolution with the resolution
-                        function, 'all': returns the electric field, ai, af
-                        (both in degree), and the reflected intensity.
+        qz :            array-like
+            simulation positions along qz
+        hkl :           list or tuple
+            Miller indices of the Bragg peak whos truncation rod should be
+            calculated
+        absorption :    bool, optional
+            flag to tell if absorption correction should be used
+        refraction :    bool, optional,
+            flag to tell if basic refraction correction should be performed. If
+            refraction is True absorption correction is also included
+            independent of the absorption flag.
+        rettype :       {'intensity', 'field', 'all'}
+            type of the return value. 'intensity' (default): returns the
+            diffracted beam flux convoluted with the resolution function;
+            'field': returns the electric field (complex) without convolution
+            with the resolution function, 'all': returns the electric field,
+            ai, af (both in degree), and the reflected intensity.
 
         Returns
         -------
-         vector of the ratios of the diffracted and primary fluxes
+        array-like
+            return value depends on the setting of `rettype`, by default only
+            the calculate intensity is returned
         """
         rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
 
@@ -456,9 +490,10 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
     The first layer in the model is always assumed to be the semiinfinite
     substrate indepentent of its given thickness
 
-    Note: This model should not be used in real life scenarios since the made
-          approximations severely fail for distances far from the reference
-          position.
+    Note:
+        This model should not be used in real life scenarios since the made
+        approximations severely fail for distances far from the reference
+        position.
     """
 
     def __init__(self, *args, **kwargs):
@@ -469,20 +504,26 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation; supported are:
-                    'I0' is the primary beam intensity
-                    'background' is the background added to the simulation
-                    'resolution_width' defines the width of the resolution
-                                       (deg)
-                    'polarization' polarization of the x-ray beam, either 'S',
-                                   'P' or 'both'. If set to 'both' also Cmono,
-                                   the polarization factor of the monochromator
-                                   should be set
-                    'Cmono' polarization factor of the monochromator
-                    'energy' sets the experimental energy (eV)
-                    'experiment': Experiment class containing geometry of the
-                                  sample; surface orientation!
+        *args :     LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        **kwargs:   dict
+            optional parameters for the simulation
+        I0 :        float, optional
+            the primary beam intensity
+        background : float, optional
+            the background added to the simulation
+        resolution_width : float, optional
+            the width of the resolution (deg)
+        polarization: {'S', 'P', 'both'}
+            polarization of the x-ray beam. If set to 'both' also Cmono, the
+            polarization factor of the monochromator should be set
+        Cmono :     float, optional
+            polarization factor of the monochromator
+        energy :    float or str
+            the experimental energy in eV
+        experiment : Experiment
+            Experiment class containing geometry of the sample; surface
+            orientation!
         """
         self.polarization = kwargs.pop('polarization', 'S')
         self.Cmono = kwargs.pop('Cmono', 1)
@@ -498,7 +539,8 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
 
         Parameters
         ----------
-         hkl:       Miller indices of the Bragg peak for the calculation
+        hkl :       list or tuple
+            Miller indices of the Bragg peak for the calculation
         """
         if len(hkl) < 3:
             hkl = hkl[0]
@@ -550,19 +592,23 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
 
         Parameters
         ----------
-         alphai:    vector of incidence angles (deg)
-         hkl:       Miller indices of the diffraction vector (preferable use
-                    set_hkl method to speed up repeated calculations of the
-                    same peak!)
-         geometry:  'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
-                    incidence
-         idxref:    index of the reference layer. In order to get accurate peak
-                    position of the film peak you want this to be the index of
-                    the film peak (default: 1). For the substrate use 0.
+        alphai :    array-like
+            vector of incidence angles (deg)
+        hkl :       list or tuple, optional
+            Miller indices of the diffraction vector (preferable use set_hkl
+            method to speed up repeated calculations of the same peak!)
+        geometry :  {'hi_lo', 'lo_hi'}, optional
+            'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
+            incidence
+        idxref :    int, optional
+            index of the reference layer. In order to get accurate peak
+            position of the film peak you want this to be the index of the film
+            peak (default: 1). For the substrate use 0.
 
         Returns
         -------
-         vector of intensities of the diffracted signal
+        array-like
+            vector of intensities of the diffracted signal
         """
         if hkl is not None:
             self.set_hkl(hkl)
@@ -640,22 +686,26 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
 
         Parameters
         ----------
-         alphai:    vector of incidence angles (deg)
-         hkl:       Miller indices of the diffraction vector (preferable use
-                    set_hkl method to speed up repeated calculations of the
-                    same peak!)
-         geometry:  'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
-                    incidence
-         rettype:   type of the return value. 'intensity' (default): returns
-                    the diffracted beam flux convoluted with the resolution
-                    function; 'field': returns the electric field (complex)
-                    without convolution with the resolution function, 'all':
-                    returns the electric field, ai, af (both in degree), and
-                    the reflected intensity.
+        alphai :    array-like
+            vector of incidence angles (deg)
+        hkl :       list or tuple, optional
+            Miller indices of the diffraction vector (preferable use set_hkl
+            method to speed up repeated calculations of the same peak!)
+        geometry :  {'hi_lo', 'lo_hi'}, optional
+            'hi_lo' for grazing exit (default) and 'lo_hi' for grazing
+            incidence
+        rettype :   {'intensity', 'field', 'all'}, optional
+            type of the return value. 'intensity' (default): returns the
+            diffracted beam flux convoluted with the resolution function;
+            'field': returns the electric field (complex) without convolution
+            with the resolution function, 'all': returns the electric field,
+            ai, af (both in degree), and the reflected intensity.
 
         Returns
         -------
-         vector of intensities of the diffracted signal
+        array-like
+            vector of intensities of the diffracted signal, possibly changed
+            return value due the rettype setting!
         """
         if len(self.get_polarizations()) > 1 and rettype != "intensity":
             raise ValueError('XU:DynamicalModel: return type (%s) not '
@@ -774,16 +824,22 @@ class SpecularReflectivityModel(LayerModel):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation; supported are:
-                    'I0' is the primary beam intensity
-                    'background' is the background added to the simulation
-                    'sample_width' width of the sample along the beam
-                    'beam_width' beam width in the same units as the sample
-                                 width
-                    'resolution_width' defines the width of the resolution
-                                       (deg)
-                    'energy' sets the experimental energy (eV)
+        args :      LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        kwargs:     dict
+            optional parameters for the simulation; supported are:
+        I0 :        float, optional
+            the primary beam intensity
+        background : float, optional
+            the background added to the simulation
+        sample_width : float, optional
+            width of the sample along the beam
+        beam_width : float, optional
+            beam width in the same units as the sample width
+        resolution_width : float, optional
+            width of the resolution (deg)
+        energy :    float or str
+            x-ray energy  in eV
         """
         self.sample_width = kwargs.pop('sample_width', numpy.inf)
         self.beam_width = kwargs.pop('beam_width', 0)
@@ -808,11 +864,13 @@ class SpecularReflectivityModel(LayerModel):
 
         Parameters
         ----------
-         alphai: vector of incidence angles
+        alphai :    array-like
+            vector of incidence angles
 
         Returns
         -------
-        vector of intensities of the reflectivity signal
+        array-like
+            vector of intensities of the reflectivity signal
         """
         ns, np = (len(self.lstack), len(alphai))
 
@@ -858,13 +916,17 @@ class SpecularReflectivityModel(LayerModel):
 
         Parameters
         ----------
-         nz:    number of values on which the profile should be calculated
-         plot:  flag to tell if a plot of the profile should be created
+        nz :    int
+            number of values on which the profile should be calculated
+        plot :  bool, optional
+            flag to tell if a plot of the profile should be created
 
         Returns
         -------
-         z, eprof:  coordinates and electron profile. z = 0 corresponds to the
-                    surface
+        z :     array-like
+            z-coordinates, z = 0 corresponds to the surface
+        eprof : array-like
+            electron profile
         """
         if plot:
             plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
@@ -947,27 +1009,38 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation; supported are:
-                    'I0' is the primary beam intensity
-                    'background' is the background added to the simulation
-                    'sample_width' width of the sample along the beam
-                    'beam_width' beam width in the same units as the sample
-                                 width
-                    'resolution_width' defines the width of the resolution
-                                       (deg)
-                    'energy' sets the experimental energy (eV)
-                    'H' Hurst factor defining the fractal dimension of the
-                        roughness (0..1, very slow for H != 1 or H != 0.5)
-                    'vert_correl' vertical correlation length in (Angstrom),
-                                  0 means full replication
-                    'vert_nu' exponent in the vertical correlation function
-                    'method' 1..simple DWBA (default), 2..full DWBA (slower)
-                    'vert_int' 0..no integration over the vertical divergence,
-                               1..with integration over the vertical divergence
-                    'qL_zero' value of inplane q-coordinate which can be
-                              considered 0, using method 2 it is important to
-                              avoid exact 0 and this value will be used instead
+        args :     LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        kwargs :   dict
+            optional parameters for the simulation; supported are:
+        I0 :        float, optional
+            the primary beam intensity
+        background : float, optional
+            the background added to the simulation
+        sample_width : float, optional
+            width of the sample along the beam
+        beam_width : float, optional
+            beam width in the same units as the sample width
+        resolution_width : float, optional
+            defines the width of the resolution (deg)
+        energy :    float, optional
+            sets the experimental energy (eV)
+        H :         float, optional
+            Hurst factor defining the fractal dimension of the roughness (0..1,
+            very slow for H != 1 or H != 0.5), default: 1
+        vert_correl : float, optional
+            vertical correlation length in (Angstrom), 0 means full replication
+        vert_nu :   float, optional
+            exponent in the vertical correlation function
+        method :    int, optional
+            1..simple DWBA (default), 2..full DWBA (slower)
+        vert_int :  int, optional
+            0..no integration over the vertical divergence, 1..with integration
+            over the vertical divergence
+        qL_zero :   float, optional
+            value of inplane q-coordinate which can be considered 0, using
+            method 2 it is important to avoid exact 0 and this value will be
+            used instead
         """
         self.sample_width = kwargs.pop('sample_width', numpy.inf)
         self.beam_width = kwargs.pop('beam_width', 0)
@@ -1003,11 +1076,13 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
 
         Parameters
         ----------
-         alphai: vector of incidence angles
+        alphai :    array-like
+            vector of incidence angles
 
         Returns
         -------
-        vector of intensities of the reflectivity signal
+        array-like
+            vector of intensities of the reflectivity signal
         """
         # get layer properties
         t, sig, rho, delta, xiL = self._get_layer_prop()
@@ -1033,15 +1108,17 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
 
         Parameters
         ----------
-         qL:        lateral coordinate in reciprocal space
-                    (vector with NqL components)
-         qz:        vertical coordinate in reciprocal space
-                    (vector with Nqz components)
+        qL :    array-like
+            lateral coordinate in reciprocal space (vector with NqL components)
+        qz :    array-like
+            vertical coordinate in reciprocal space (vector with Nqz
+            components)
 
         Returns
         -------
-         matrix of intensities of the reflectivity signal, with shape (len(qL),
-         len(qz))
+        array-like
+            matrix of intensities of the reflectivity signal, with shape
+            (len(qL), len(qz))
         """
         # get layer properties
         t, sig, rho, delta, xiL = self._get_layer_prop()
@@ -1066,48 +1143,63 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         simplified DWBA, fractal roughness model, Ming model of the vertical
         correlation, various scattering geometries
 
+        The used incidence and exit angles are stored in _smap_alphai,
+        _smap_alphaf
+
         Parameters
         ----------
-         lam:       x-ray wavelength in Angstrom
-         delta:     vector with the 1-n values (N+1 components, 1st
-                    component..layer at the free surface, last
-                    component..substrate)
-         thick:     vector with thicknesses (N components)
-         sigma:     vector with rms roughnesses (N+1 components)
-         xiL:       vector with lateral correlation lengths (N+1 components)
-         H:         Hurst factor (scalar)
-         xiV:       vertical correlation: 0..full replication,
-                    > 0 and nu > 0.. see below,
-                    > 0 and nu = 0..vertical correlation length (scalar)
-         nu:        exponent in the vertical correlation function
-                    exp(-abs(z_m-z_n)*(qL/max(qL))**nu/xiV) (scalar)
-         alphai     incidence angle (scalar for scan=2, ignored for scan=1, 3)
-         qL:        lateral coordinate in reciprocal space
-                    (vector with NqL components)
-         qz:        vertical coordinate in reciprocal space
-                    (vector with Nqz components)
-         samplewidth:   width of the irradiated sample area (scalar), =0..the
-                        irradiated are is assumed constant
-         beamwidth: width of the primary beam (scalar)
-         eps:       small number
-         nmax:      max number of terms in the Taylor series of the lateral
-                    correlation function
-         deltaA:    effective value of 1-n in simple DWBA
-                    (scalar, ignored for method=2)
-         method:    1..simple DWBA, 2..full DWBA
-         scan:      1..standard coplanar geometry, 2..standard GISAXS geometry
-                    with constant incidence angle, =3..quasi omega/2theta scan
-                    in GISAXS geometry (incidence and central-exit angles are
-                    equal)
-         vert:      0..no integration over the vertical divergence, 1..with
-                    integration over the vertical divergence
+        lam :       float
+            x-ray wavelength in Angstrom
+        delta :     list or array-like
+            vector with the 1-n values (N+1 components, 1st component..layer at
+            the free surface, last component..substrate)
+        thick :     list or array-like
+            vector with thicknesses (N components)
+        sigma :     list or array-like
+            vector with rms roughnesses (N+1 components)
+        xiL :       list or array-like
+            vector with lateral correlation lengths (N+1 components)
+        H :         float
+            Hurst factor (scalar)
+        xiV :       float
+            vertical correlation: 0..full replication, > 0 and nu > 0.. see
+            below, > 0 and nu = 0..vertical correlation length
+        nu :        float
+            exponent in the vertical correlation function
+            exp(-abs(z_m-z_n)*(qL/max(qL))**nu/xiV)
+        alphai :    float
+            incidence angle (scalar for scan=2, ignored for scan=1, 3)
+        qL :        array-like
+            lateral coordinate in reciprocal space (vector with NqL components)
+        qz :        array-like
+            vertical coordinate in reciprocal space (vector with Nqz
+            components)
+        samplewidth : float
+            width of the irradiated sample area (scalar), =0..the irradiated
+            are is assumed constant
+        beamwidth : float
+            width of the primary beam
+        eps :       float
+            small number
+        nmax :      int
+            max number of terms in the Taylor series of the lateral correlation
+            function
+        deltaA :    complex
+            effective value of 1-n in simple DWBA (ignored for method=2)
+        method :    int
+            1..simple DWBA, 2..full DWBA
+        scan :      int
+            1..standard coplanar geometry, 2..standard GISAXS geometry with
+            constant incidence angle, =3..quasi omega/2theta scan in GISAXS
+            geometry (incidence and central-exit angles are equal)
+        vert :      int
+            0..no integration over the vertical divergence, 1..with integration
+            over the vertical divergence
 
         Returns
         -------
-        diffint: diffuse reflectivity intensity matrix
-
-        additionally the used incidence and exit angles are stored in
-        _smap_alphai, _smap_alphaf
+        diffint :   array-like
+            diffuse reflectivity intensity matrix
         """
         # worker function definitions
         def coherent(alphai, K, delta, thick, N, NqL, Nqz):
@@ -1116,22 +1208,28 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
 
             Parameters
             ----------
-             alphai:    matrix of incidence angles in radians (NqL x Nqz
-                        components)
-             K:         x-ray wave-vector (2*pi/lambda)
-             delta:     vector with the 1-n values (N+1 components, 1st
-                        component..layer at the free surface, last
-                        component..substrate)
-             thick:     vector with thicknesses (N components)
-             N:         number layers in the stack
-             NqL:       number of lateral q-points to calculate
-             Nqz:       number of vertical q-points to calculate
+            alphai :    array-like
+                matrix of incidence angles in radians (NqL x Nqz components)
+            K :         float
+                x-ray wave-vector (2*pi/lambda)
+            delta :     array-like
+                vector with the 1-n values (N+1 components, 1st
+                component..layer at the free surface, last
+                component..substrate)
+            thick :     array-like
+                vector with thicknesses (N components)
+            N :         int
+                number layers in the stack
+            NqL :       int
+                number of lateral q-points to calculate
+            Nqz :       int
+                number of vertical q-points to calculate
 
             Returns
             -------
-             [T, R, R0, k0, kz]: transmission, reflection, surface reflection,
-                                 z-component of k-vector,
-                                 z-component of k-vector in the material.
+            T, R, R0, k0, kz : array-like
+                transmission, reflection, surface reflection, z-component of
+                k-vector, z-component of k-vector in the material.
             """
             k0 = -K * numpy.sin(alphai)
             kz = numpy.zeros((N+1, NqL, Nqz), dtype=numpy.complex)
@@ -1169,24 +1267,36 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
 
             Parameters
             ----------
-             a:     lateral correlation parameter
-             b:     vertical correlation parameter
-             L:     lateral correlation length
-             H:     Hurst factor (scalar)
-             eps:   small number (decides integration cut-off), typical 1e-3
-             nmax:  max number of terms in the Taylor series of the lateral
-                    correlation function
-             vert:  flag to tell decide if integration over vertical divergence
-                    is used: 0..no integration, 1..with integration
-             K:     length of the x-ray wave-vector (2*pi/lambda)
-             NqL:   number of lateral q-points to calculate
-             Nqz:   number of vertical q-points to calculate
-             isurf: array with NqL, Nqz flags to tell if there is a positive
-                    incidence and exit angle
+            a :     array-like
+                lateral correlation parameter
+            b :     array-like
+                vertical correlation parameter
+            L :     float
+                lateral correlation length
+            H :     float
+                Hurst factor (scalar)
+            eps :   float
+                small number (decides integration cut-off), typical 1e-3
+            nmax :  int
+                max number of terms in the Taylor series of the lateral
+                correlation function
+            vert :  int
+                flag to tell decide if integration over vertical divergence is
+                used: 0..no integration, 1..with integration
+            K :     float
+                length of the x-ray wave-vector (2*pi/lambda)
+            NqL :   int
+                number of lateral q-points to calculate
+            Nqz :   int
+                number of vertical q-points to calculate
+            isurf : array-like
+                array with NqL, Nqz flags to tell if there is a positive
+                incidence and exit angle
 
             Returns
             -------
-            psi: correlation function
+            psi :   array-like
+                correlation function
             """
             psi = numpy.zeros((NqL, Nqz), dtype=numpy.complex)
             if H == 0.5 or H == 1:
@@ -1241,14 +1351,18 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
 
             Parameters
             ----------
-             x:     independent parameter of the function
-             a:     lateral correlation parameter
-             b:     vertical correlation parameter
-             H:     Hurst factor (scalar)
+            x :     float or array-like
+                independent parameter of the function
+            a :     float
+                lateral correlation parameter
+            b :     complex
+                vertical correlation parameter
+            H :     float
+                Hurst factor (scalar)
 
             Returns
             -------
-            function value
+            float or arraylike
             """
             w = numpy.exp(b * numpy.exp(-x**(2*H))) - 1
             F = 2 * numpy.cos(a*x) * w
@@ -1260,14 +1374,18 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
 
             Parameters
             ----------
-             x:     independent parameter of the function
-             a:     lateral correlation parameter
-             b:     vertical correlation parameter
-             H:     Hurst factor (scalar)
+            x :     float or array-like
+                independent parameter of the function
+            a :     float
+                lateral correlation parameter
+            b :     complex
+                vertical correlation parameter
+            H :     float
+                Hurst factor (scalar)
 
             Returns
             -------
-            function value
+            float or arraylike
             """
             w = numpy.exp(b * numpy.exp(-x**(2*H))) - 1
             F = x * j0(a*x) * w

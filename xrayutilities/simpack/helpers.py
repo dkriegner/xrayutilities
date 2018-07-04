@@ -33,13 +33,18 @@ def coplanar_alphai(qx, qz, en='config'):
 
     Parameters
     ----------
-     qx:    inplane momentum transfer component
-     qz:    out of plane momentum transfer component
-     en:    x-ray energy (eV). By default the value from the config is used.
+    qx :    array-like
+        inplane momentum transfer component
+    qz :    array-like
+        out of plane momentum transfer component
+    en :    float or str, optional
+        x-ray energy (eV). By default the value from the config is used.
 
     Returns
     -------
-     the incidence angle in degree. points in the Laue zone are set to 'nan'.
+    alphai : array-like
+        the incidence angle in degree. points in the Laue zone are set to
+        'nan'.
     """
     if isinstance(en, basestring) and en == 'config':
         en = utilities.energy(config.ENERGY)
@@ -61,14 +66,17 @@ def get_qz(qx, alphai, en='config'):
 
     Parameters
     ----------
-     qx:        inplane momentum transfer component
-     alphai:    incidence angle (deg)
-     en:        x-ray energy (eV). By default the value from the config is
-                used.
+    qx :        array-like
+        inplane momentum transfer component
+    alphai :    array-like
+        incidence angle (deg)
+    en :        float or str, optional
+        x-ray energy (eV). By default the value from the config is used.
 
     Returns
     -------
-     the qz position for the given incidence angle
+    array-like
+        the qz position for the given incidence angle
     """
     if isinstance(en, basestring) and en == 'config':
         en = utilities.energy(config.ENERGY)

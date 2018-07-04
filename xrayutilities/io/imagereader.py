@@ -29,7 +29,7 @@ from .helper import xu_open
 class ImageReader(object):
 
     """
-    parse CCD frames in the form of tiffs or binary data (*.bin)
+    parse CCD frames in the form of tiffs or binary data (``*.bin``)
     to numpy arrays. ignore the header since it seems to contain
     no useful data
 
@@ -49,17 +49,21 @@ class ImageReader(object):
 
         Parameters
         ----------
-         nop1,nop2: number of pixels in the first and second dimension of the
-                    image
-         hdrlen:    length of the file header which should be ignored
-         flatfield: filename or data for flatfield correction. supported file
-                    types include (*.bin/*.tif (also compressed .xz or .gz)
-                    and *.npy files). otherwise a 2D numpy array should be
-                    given
-         darkfield: filename or data for darkfield correction. same types as
-                    for flat field are supported.
-         dtype:     datatype of the stored values (default: numpy.int16)
-         byte_swap: flag which determines bytes are swapped after reading
+        nop1, nop2 :    int
+            number of pixels in the first and second dimension of the image
+        hdrlen :        int, optional
+            length of the file header which should be ignored
+        flatfield :     str or ndarray, optional
+            filename or data for flatfield correction. supported file types
+            include (.bin/.tif (also compressed .xz or .gz) and .npy files).
+            otherwise a 2D numpy array should be given
+        darkfield :     str or ndarray, optional
+            filename or data for darkfield correction. same types as for flat
+            field are supported.
+        dtype :         numpy.dtype, optional
+            datatype of the stored values (default: numpy.int16)
+        byte_swap :     bool, optional
+            flag which determines bytes are swapped after reading
         """
 
         # save number of pixels per image
@@ -128,9 +132,12 @@ class ImageReader(object):
 
         Parameters
         ----------
-         filename: filename of the image to be read. so far only single
-                   filenames are supported. The data might be compressed.
-                   supported extensions: .tif, .bin and .bin.xz
+        filename :  str
+            filename of the image to be read. so far only single filenames are
+            supported. The data might be compressed.  supported extensions:
+            .tif, .bin and .bin.xz
+        path :      str, optional
+            path of the data files
         """
         if path:
             full_filename = os.path.join(path, filename)
@@ -231,7 +238,10 @@ class TIFFRead(ImageReader):
 
         Parameters
         ----------
-         filename:  file name of the TIFF-like image file
+        filename :  str
+            file name of the TIFF-like image file
+        path :      str, optional
+            path of the data file
         """
         if path:
             full_filename = os.path.join(path, filename)
@@ -293,8 +303,10 @@ class TIFFRead(ImageReader):
 
         Parameters
         ----------
-         fh:    file handle
-         ntags: number of tags in the Image File Directory
+        fh :    file-handle
+            file handle of the TIFF file
+        ntags : int
+            number of tags in the Image File Directory
         """
 
         self.imgtags = {}
@@ -328,7 +340,7 @@ class TIFFRead(ImageReader):
 
 class PerkinElmer(ImageReader):
     """
-    parse PerkinElmer CCD frames (*.tif) to numpy arrays
+    parse PerkinElmer CCD frames (``*.tif``) to numpy arrays
     Ignore the header since it seems to contain no useful data
 
     The routine was tested only for files with 2048x2048 pixel images
@@ -343,12 +355,13 @@ class PerkinElmer(ImageReader):
 
         Parameters
         ----------
-         optional keywords arguments keyargs:
-          flatfield: filename or data for flatfield correction. supported file
-                     types include (*.bin *.bin.xz and *.npy files). otherwise
-                     a 2D numpy array should be given
-          darkfield: filename or data for darkfield correction. same types as
-                     for flat field are supported.
+        flatfield :     str or ndarray, optional
+            filename or data for flatfield correction. supported file types
+            include (.bin .bin.xz and .npy files). otherwise a 2D numpy
+            array should be given
+        darkfield :     str or ndarray, optional
+            filename or data for darkfield correction. same types as for flat
+            field are supported.
         """
 
         ImageReader.__init__(self, 2048, 2048, hdrlen=8, dtype=numpy.float32,
@@ -358,7 +371,7 @@ class PerkinElmer(ImageReader):
 class RoperCCD(ImageReader):
 
     """
-    parse RoperScientific CCD frames (*.bin) to numpy arrays
+    parse RoperScientific CCD frames (``*.bin``) to numpy arrays
     Ignore the header since it seems to contain no useful data
 
     The routine was tested only for files with 4096x4096 pixel images
@@ -373,12 +386,13 @@ class RoperCCD(ImageReader):
 
         Parameters
         ----------
-         optional keywords arguments keyargs:
-          flatfield: filename or data for flatfield correction. supported file
-                     types include (*.bin *.bin.xz and *.npy files). otherwise
-                     a 2D numpy array should be given
-          darkfield: filename or data for darkfield correction. same types as
-                     for flat field are supported.
+        flatfield :     str or ndarray, optional
+            filename or data for flatfield correction. supported file types
+            include (.bin .bin.xz and .npy files). otherwise a 2D numpy
+            array should be given
+        darkfield :     str or ndarray, optional
+            filename or data for darkfield correction. same types as for flat
+            field are supported.
         """
 
         ImageReader.__init__(self, 4096, 4096, hdrlen=216, dtype=numpy.int16,
@@ -387,7 +401,7 @@ class RoperCCD(ImageReader):
 
 class Pilatus100K(ImageReader):
     """
-    parse Dectris Pilatus 100k frames (*.tiff) to numpy arrays
+    parse Dectris Pilatus 100k frames (``*.tiff``) to numpy arrays
     Ignore the header since it seems to contain no useful data
     """
 
@@ -399,12 +413,13 @@ class Pilatus100K(ImageReader):
 
         Parameters
         ----------
-         optional keywords arguments keyargs:
-          flatfield: filename or data for flatfield correction. supported file
-                     types include (*.bin *.bin.xz and *.npy files). otherwise
-                     a 2D numpy array should be given
-          darkfield: filename or data for darkfield correction. same types as
-                     for flat field are supported.
+        flatfield :     str or ndarray, optional
+            filename or data for flatfield correction. supported file types
+            include (.bin .bin.xz and .npy files). otherwise a 2D numpy
+            array should be given
+        darkfield :     str or ndarray, optional
+            filename or data for darkfield correction. same types as for flat
+            field are supported.
         """
 
         ImageReader.__init__(self, 195, 487, hdrlen=4096, dtype=numpy.int32,
@@ -417,8 +432,11 @@ def get_tiff(filename, path=None):
 
     Parameters
     ----------
-     filename: filename of the image to be read. so far only single
-               filenames are supported. The data might be compressed.
+    filename :  str
+        filename of the image to be read. so far only single filenames are
+        supported. The data might be compressed.
+    path :      str, optional
+        path of the data file
     """
 
     if config.VERBOSITY >= config.INFO_ALL:

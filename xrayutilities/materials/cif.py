@@ -66,16 +66,23 @@ def testwp(parint, wp, cifpos, digits):
 
     Parameters
     ----------
-     parint:   integer telling which Parameters the given Wyckoff position has
-     wp:       expression of the Wyckoff position (string of tuple)
-     cifpos:   (x,y,z) position of the atom in the CIF file
-     digits:   number of digits for which for a comparison of floating point
-               numbers will be rounded to
+    parint :    int
+        telling which Parameters the given Wyckoff position has
+    wp :        str or tuple
+        expression of the Wyckoff position
+    cifpos :    list, or tuple or array-like
+        (x, y, z) position of the atom in the CIF file
+    digits :    int
+        number of digits for which for a comparison of floating point numbers
+        will be rounded to
 
     Returns
     -------
-    foundflag, pars:  flag to tell if the positions match and if necessary any
-                      parameters associated with the position
+    foundflag :     bool
+        flag to tell if the positions match
+    pars :          array-like or None
+        parameters associated with the position or None if no parameters are
+        needed
     """
     def check_numbers_match(p1, p2, digits):
         p1 = p1 - numpy.round(p1, digits) // 1
@@ -165,8 +172,10 @@ class CIFFile(object):
 
         Parameters
         ----------
-         filename:  filename of the CIF file
-         digits:    number of digits to check if position is unique (optional)
+        filename :  str
+            CIF filename
+        digits :    int, optional
+            number of digits to check if position is unique
         """
         self.name = os.path.splitext(os.path.split(filename)[-1])[0]
         self.filename = filename
@@ -217,9 +226,10 @@ class CIFFile(object):
 
         Parameters
         ----------
-         dataset:   name of the dataset to use. if None the default one will be
-                    used.
-         use_p1:    force the use of P1 symmetry, default False
+        dataset :   str, optional
+            name of the dataset to use. if None the default one will be used.
+        use_p1 :    bool, optional
+            force the use of P1 symmetry, default False
         """
         if not dataset:
             dataset = self._default_dataset
@@ -255,10 +265,12 @@ class CIFDataset(object):
 
         Parameters
         ----------
-         fid:       file handle set to the beginning of the data block to be
-                    parsed
-         name:      identifier string of the dataset
-         digits:    number of digits to check if position is unique
+        fid :       filehandle
+            file handle set to the beginning of the data block to be parsed
+        name :      str
+            identifier string of the dataset
+        digits :    int
+            number of digits to check if position is unique
         """
         self.name = name
         self.digits = digits

@@ -89,8 +89,10 @@ class Atom(object):
 
         Returns
         -------
-         flag, result: if the flag is True then result contains the cached
-                       result, otherwise result is None
+        bool
+            True then result contains the cached otherwise False and result is
+            None
+        result :    database value
         """
         history = self._dbcache[prop]
         for idx, (k, result) in enumerate(history):
@@ -150,13 +152,16 @@ class Atom(object):
 
         Parameters
         ----------
-         q:     momentum transfer
-         en:    energy for which F should be calculated, if omitted the value
-                from the xrayutilities configuration is used
+        q :     float, array-like
+            momentum transfer
+        en :    float or str, optional
+            energy for which F should be calculated, if omitted the value from
+            the xrayutilities configuration is used
 
         Returns
         -------
-         f (float)
+        float or array-like
+            value(s) of the atomic structure factor
         """
         key = get_key(q, en)
         f, res = self.get_cache('f', key)

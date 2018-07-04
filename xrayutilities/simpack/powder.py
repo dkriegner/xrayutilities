@@ -158,7 +158,8 @@ class profile_data(object):
 
         Parameters
         ----------
-         kwargs keyword=value list to pre-populate the class
+        kwargs :    dict
+            keyword=value list to pre-populate the class
         """
         mydict = {}
         mydict.update(kwargs)
@@ -173,7 +174,8 @@ class profile_data(object):
 
         Parameters
         ----------
-         kwargs keyword=value pairs
+        kwargs :    dict
+            keyword=value pairs
         """
         self.dictionary.update(kwargs)
         for k, v in kwargs.items():
@@ -201,16 +203,17 @@ class FP_profile:
 
     If a convolver returns *None*, it is not multipled into the product.
 
-    Noteable class parameters:
-     max_history_length: the number of histories to cache (default=5); can be
-                         overridden if memory is an issue.
-     length_scale_m: length_scale_m sets scaling for nice printing of
-                     parameters.  if the units are in mm everywhere, set it to
-                     0.001, e.g.  convolvers which implement their own str_xxx
-                     method may use this to format their results, especially if
-                     'natural' units are not meters.  Typical is wavelengths
-                     and lattices in nm or angstroms, for example.
-
+    Parameters
+    ----------
+    max_history_length :    int
+        the number of histories to cache (default=5); can be overridden if
+        memory is an issue.
+    length_scale_m :        float
+        length_scale_m sets scaling for nice printing of parameters.  if the
+        units are in mm everywhere, set it to 0.001, e.g.  convolvers which
+        implement their own str_xxx method may use this to format their
+        results, especially if 'natural' units are not meters.  Typical is
+        wavelengths and lattices in nm or angstroms, for example.
     """
     max_history_length = 5  # max number of histories for each convolver
     length_scale_m = 1.0
@@ -226,14 +229,15 @@ class FP_profile:
 
         Parameters
         ----------
-         anglemode: 'd' if setup will be in terms of a d-spacing,
-                    otherwise 'twotheta' if setup will be at a fixed 2theta
-                    value.
-         gaussian_smoother_bins_sigma: the number of bins for post-smoothing of
-                                       data. 1.0 is good. *None* means no final
-                                       smoothing step.
-         oversampling: the number of bins internally which will get computed
-                       for each bin the the final result.
+        anglemode : {'d', 'twotheta'}
+            if setup will be in terms of a d-spacing, otherwise 'twotheta' if
+            setup will be at a fixed 2theta value.
+        gaussian_smoother_bins_sigma :  float
+            the number of bins for post-smoothing of data. 1.0 is good. *None*
+            means no final smoothing step.
+        oversampling : int
+            the number of bins internally which will get computed for each bin
+            the the final result.
         """
         if anglemode not in ("d", "twotheta"):
             raise Exception(
@@ -271,12 +275,14 @@ class FP_profile:
 
         Parameters
         ----------
-         hkl1,2:        Miller indices to be checked for equivalence
-         crystalsystem: symmetry class of the material which is considered
+        hkl1, hkl2 :    list or tuple
+            Miller indices to be checked for equivalence
+        crystalsystem : str
+            symmetry class of the material which is considered
 
         Returns
         -------
-         True or False
+        bool
         """
         return True
 
@@ -287,7 +293,8 @@ class FP_profile:
 
         Returns
         ----------
-        name of calling function
+        str
+            name of calling function
         """
         return sys._getframe(1).f_code.co_name
 
@@ -298,11 +305,13 @@ class FP_profile:
 
         Parameters
         ----------
-         b: the buffer to add to the list
+        b :     array-like
+            the buffer to add to the list
 
         Returns
         -------
-         return the same buffer, to make nesting easy.
+        b :     array-like
+            return the same buffer, to make nesting easy.
         """
         self._clean_on_pickle.add(id(b))
         return b
@@ -316,11 +325,12 @@ class FP_profile:
 
         Parameters
         ----------
-         twotheta_window_center_deg: the center position of the middle bin of
-                                     the window, in degrees
-         twotheta_window_fullwidth_deg: the full width of the window, in
-                                        degrees
-         twotheta_output_points: the number of bins in the final output
+        twotheta_window_center_deg :    float
+            the center position of the middle bin of the window, in degrees
+        twotheta_window_fullwidth_deg : float
+            the full width of the window, in degrees
+        twotheta_output_points :        int
+            the number of bins in the final output
         """
         # the saved width of the window, in degrees
         self.twotheta_window_fullwidth_deg = twotheta_window_fullwidth_deg
@@ -403,11 +413,13 @@ class FP_profile:
 
         Parameters
         ----------
-         count: a number of bins.
+        count :     int
+            a number of bins.
 
         Returns
         -------
-        a bin count somewhat larger than *count* which is efficient for FFT
+        int
+            a bin count somewhat larger than *count* which is efficient for FFT
         """
         return ft_factors[ft_factors.searchsorted(count)]
 
@@ -420,9 +432,12 @@ class FP_profile:
 
         Parameters
         ----------
-         twotheta_window_center_deg: exact position of center bin, in degrees
-         twotheta_approx_window_fullwidth_deg: approximate desired width
-         twotheta_exact_bin_spacing_deg: the exact bin spacing to use
+        twotheta_window_center_deg :            float
+            exact position of center bin, in degrees
+        twotheta_approx_window_fullwidth_deg:   float
+            approximate desired width
+        twotheta_exact_bin_spacing_deg:         float
+            the exact bin spacing to use
         """
         bins = self.get_good_bin_count(
             int(1 + twotheta_approx_window_fullwidth_deg /
@@ -438,9 +453,11 @@ class FP_profile:
 
         Parameters
         ----------
-         convolver: the name of the convolver.  name 'global', e.g., attaches
-                    to function 'conv_global'
-         kwargs: keyword-value pairs to update the convolvers dictionary.
+        convolver :     str
+            the name of the convolver.  name 'global', e.g., attaches to
+            function 'conv_global'
+        kwargs :        dict
+            keyword-value pairs to update the convolvers dictionary.
         """
         self.param_dicts["conv_" + convolver].update(kwargs)
 
@@ -457,16 +474,20 @@ class FP_profile:
 
         Parameters
         ----------
-         name: the name of the convolver to seek
-         key: any hashable object which identifies the parameters for the
-              computation
-         format: the type of the array to create, if one is not found.
+        name :      str
+            the name of the convolver to seek
+        key :       object
+            any hashable object which identifies the parameters for the
+            computation
+        format :    numpy.dtype, optional
+            the type of the array to create, if one is not found.
 
         Returns
         -------
-        flag, which is *True* if valid data were found, or *False* if the
-        returned array is zero, and *array*, which must be computed by the
-        convolver if *flag* was *False*.
+        bool
+            flag, which is *True* if valid data were found, or *False* if the
+            returned array is zero, and *array*, which must be computed by the
+            convolver if *flag* was *False*.
         """
 
         # previous computed values as a list
@@ -495,7 +516,8 @@ class FP_profile:
 
         Returns
         -------
-        list of (convolver_xxx, info_xxx) pairs
+        list
+            list of (convolver_xxx, info_xxx) pairs
         """
         info_list = []
         for k, f in self.convolver_funcs.items():
@@ -529,7 +551,8 @@ class FP_profile:
 
         Returns
         -------
-        string of formatted information
+        str
+            string of formatted information
         """
         keys = list(self.convolver_funcs.keys())
         keys.sort()  # always return info in the same order
@@ -552,7 +575,8 @@ class FP_profile:
 
         Returns
         -------
-        report on global parameters.
+        str
+            report on global parameters.
         """
         # in case it's not initialized
         self.param_dicts["conv_global"].setdefault("d", 0)
@@ -568,7 +592,8 @@ class FP_profile:
 
         Returns
         -------
-        *None*, always
+        *None*
+            always returns None
         """
         return None
 
@@ -582,21 +607,27 @@ class FP_profile:
 
         Parameters
         ----------
-         outerbound: the edge of the function farthest from the singularity,
-                     referenced to epsvals
-         innerbound: the edge closest to the singularity, referenced to
-                     epsvals
-         epsvals: the array of two-theta values or offsets
-         destination: an array into which final results are summed.  modified
-                      in place!
-         peakpos: the position of the singularity, referenced to epsvals.
-         y0: the constant offset
-         k: the scale factor
+        outerbound :    float
+            the edge of the function farthest from the singularity, referenced
+            to epsvals
+        innerbound :    float
+            the edge closest to the singularity, referenced to epsvals
+        epsvals :       array-like
+            the array of two-theta values or offsets
+        destination :   array-like
+            an array into which final results are summed.  modified in place!
+        peakpos :       float
+            the position of the singularity, referenced to epsvals.
+        y0 :            float
+            the constant offset
+        k :             float
+            the scale factor
 
         Returns
         -------
-         (*lower_index*, *upper_index*) python style bounds
-         for region of *destination* which has been modified.
+        lower_index, upper_index :  int
+            python style bounds for region of `destination` which has been
+            modified.
         """
         if k == 0:
             # nothing to do, point at the middle
@@ -614,7 +645,7 @@ class FP_profile:
         # integral(1/sqrt(eps0-eps)) from lower to upper
         exactintegral = 2 * k * (sqrt(delta2) - sqrt(delta1))
         exactintegral += y0 * (delta2 - delta1)
-        # exactintegral=max(0,exactintegral) # can never be < 0, beta out of
+        # exactintegral=max(0, exactintegral) # can never be < 0, beta out of
         # range.
         exactintegral *= 1 / dx  # normalize so sum is right
         # compute the exact centroid we need for this
@@ -728,21 +759,30 @@ class FP_profile:
 
         Parameters
         ----------
-         Lx: length of the xray filament
-         Ls: length of the sample
-         Lr: length of the receiver slit
-         R: diffractometer length, assumed symmetrical
-         twotheta: angle, in radians, of the center of the computation
-         beta: offset angle
-         epsvals: array of offsets from center of computation, in radians
+        Lx :        float
+            length of the xray filament
+        Ls :        float
+            length of the sample
+        Lr :        float
+            length of the receiver slit
+        R :         float
+            diffractometer length, assumed symmetrical
+        twotheta :  float
+            angle, in radians, of the center of the computation
+        beta :      float
+            offset angle
+        epsvals :   array-like
+            array of offsets from center of computation, in radians
 
         Returns
         -------
-         (*epsvals*, *idxmin*, *idxmax*, *I2p*, *I2m*).
-         *idxmin* and *idxmax* are the full python-style bounds of the non-zero
-         region of *I2p* and *I2m*.
-         *I2p* and *I2m* are I2+ and I2- from the paper, the contributions to
-         the intensity.
+        epsvals :           array-like
+            array of offsets from center of computation, in radians
+        idxmin, idxmax :    int
+            the full python-style bounds of the non-zero region of `I2p`
+            and `I2m`
+        I2p, I2m :          array-like
+            I2+ and I2- from the paper, the contributions to the intensity
         """
         beta1 = (Ls - Lx) / (2 * R)  # Ch&Co after eq. 15abcd
         beta2 = (Ls + Lx) / (2 * R)  # Ch&Co after eq. 15abcd, corrected by KM
@@ -883,22 +923,33 @@ class FP_profile:
 
         Parameters
         ----------
-         Lx: length of the xray filament
-         Ls: length of the sample
-         Lr: length of the receiver slit
-         R: the (assumed symmetrical) diffractometer radius
-         twotheta: angle, in radians, of the center of the computation
-         epsvals: array of offsets from center of computation, in radians
-         sollerIdeg: the full-width (both sides) cutoff angle of the incident
-                     Soller slit
-         sollerDdeg: the full-width (both sides) cutoff angle of the detector
-                     Soller slit
-         nsteps: the number of subdivisions for the integral
-         axDiv: not used
+        Lx :        float
+            length of the xray filament
+        Ls :        float
+            length of the sample
+        Lr :        float
+            length of the receiver slit
+        R :         float
+            the (assumed symmetrical) diffractometer radius
+        twotheta :  float
+            angle, in radians, of the center of the computation
+        epsvals :   array-like
+            array of offsets from center of computation, in radians
+        sollerIdeg : float
+            the full-width (both sides) cutoff angle of the incident Soller
+            slit
+        sollerDdeg : float
+            the full-width (both sides) cutoff angle of the detector Soller
+            slit
+        nsteps :    int
+            the number of subdivisions for the integral
+        axDiv :     str
+            not used
 
         Returns
         -------
-         the accumulated integral, a copy of a persistent buffer *_axial*
+        array-like
+            the accumulated integral, a copy of a persistent buffer *_axial*
         """
         beta2 = (Ls + Lx) / (2 * R)  # Ch&Co after eq. 15abcd, corrected by KM
 
@@ -981,9 +1032,10 @@ class FP_profile:
 
         Returns
         -------
-         the transform buffer, or *None* if this is being ignored
+        array-like
+            the transform buffer, or *None* if this is being ignored
         """
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         if self.param_dicts[me].get("axDiv", None) is None:
             return None
         kwargs = {}
@@ -1023,9 +1075,10 @@ class FP_profile:
 
         Returns
         -------
-         the transform buffer, or *None* if this is being ignored
+        array-like
+            the transform buffer, or *None* if this is being ignored
         """
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         kwargs = {}
         kwargs.update(self.param_dicts[me])  # get all of our parameters
         if not kwargs:
@@ -1081,12 +1134,15 @@ class FP_profile:
 
         Parameters
         ----------
-         name: the name of the convolver cache buffer to update
-         width: the width in 2-theta space of the tophat
+        name :      str
+            the name of the convolver cache buffer to update
+        width :     float
+            the width in 2-theta space of the tophat
 
         Returns
         -------
-         the updated convolver buffer, or *None* if the width was *None*
+        array-like
+            the updated convolver buffer, or *None* if the width was *None*
         """
         if width is None:
             return  # no convolver
@@ -1123,7 +1179,8 @@ class FP_profile:
 
         Returns
         -------
-         the formatted information
+        str
+            the formatted information
         """
         dd = self.param_dicts["conv_emission"]
         if not dd:
@@ -1158,13 +1215,15 @@ class FP_profile:
 
         Returns
         -------
-         the convolver for the emission and particle sizes
+        array-like
+            the convolver for the emission and particle sizes
 
-        Note: the particle size and strain stuff here is just to be consistent
-              with *Topas* and to be vaguely efficient about the computation,
-              since all of these have the same general shape.
+        Note:
+            the particle size and strain stuff here is just to be consistent
+            with *Topas* and to be vaguely efficient about the computation,
+            since all of these have the same general shape.
         """
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         kwargs = {}
         kwargs.update(self.param_dicts[me])  # get all of our parameters
         kwargs.update(self.param_dicts["conv_global"])
@@ -1234,9 +1293,10 @@ class FP_profile:
 
         Returns
         -------
-         the convolver
+        array-like
+            the convolver
         """
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         equatorial_divergence_deg = self.param_dicts[
             "conv_global"].get("equatorial_divergence_deg", None)
         if not equatorial_divergence_deg:
@@ -1272,9 +1332,10 @@ class FP_profile:
 
         Returns
         -------
-         the convolver
+        array-like
+            the convolver
         """
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         kwargs = {}
         kwargs.update(self.param_dicts[me])  # get all of our parameters
         if not kwargs:
@@ -1318,9 +1379,10 @@ class FP_profile:
 
         Returns
         -------
-         the convolver
+        array-like
+            the convolver
         """
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         kwargs = self.param_dicts[me]
         twotheta0 = self.param_dicts["conv_global"]["twotheta0"]
         diffractometer_radius = self.param_dicts[
@@ -1357,9 +1419,10 @@ class FP_profile:
 
         Returns
         -------
-         the convolver
+        array-like
+            the convolver
         """
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         # The receiver slit convolution is a top-hat of angular half-width
         # a=(slit_width/2)/diffractometer_radius
         # which has Fourier transform of sin(a omega)/(a omega)
@@ -1378,14 +1441,15 @@ class FP_profile:
 
         Returns
         -------
-         the convolver
+        array-like
+            the convolver
         """
         # omega offset defocussing from Cheary, Coelho & Cline 2004 eq. 15
         # expressed in terms of a Si PSD looking at channels with vertical
         # offset from the center between psd_window_lower_offset and
         # psd_window_upper_offset do this last, because we may ultimately take
         # a list of bounds, and return a list of convolutions, for efficiency
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         kwargs = {}
         kwargs.update(self.param_dicts[me])  # get all of our parameters
         if not kwargs:
@@ -1434,11 +1498,12 @@ class FP_profile:
 
         Returns
         -------
-         the convolver
+        array-like
+            the convolver
         """
         # create a smoother for output result, independent of real physics, if
         # wanted
-        me = self.get_function_name()  # the name of this convolver,as a string
+        me = self.get_function_name()  # the name of the convolver, as a string
         if not self.gaussian_smoother_bins_sigma:
             return  # no smoothing
         flag, buf = self.get_conv(me, self.gaussian_smoother_bins_sigma,
@@ -1462,14 +1527,16 @@ class FP_profile:
 
         Parameters
         ----------
-         convolver_names: a list of convolvers to select. If *None*, use all
-                          found convolvers.
-         compute_derivative: if *True*, also return d/dx(function) for peak
-                             position fitting
+        convolver_names:    list
+            a list of convolvers to select. If *None*, use all found
+            convolvers.
+        compute_derivative: bool
+            if *True*, also return d/dx(function) for peak position fitting
 
         Returns
         -------
-         a profile_data object with much information about the peak
+        object
+            a profile_data object with much information about the peak
         """
 
         # create a function which is the Fourier transform of the
@@ -1590,7 +1657,8 @@ class FP_profile:
 
         Returns
         -------
-        dictionary of sufficient information to reanimate instance.
+        dict
+            dictionary of sufficient information to reanimate instance.
         """
         #  do some cleanup on state before we get pickled
         # (even if main class not cleaned)
@@ -1615,8 +1683,10 @@ class FP_profile:
 
         Parameters
         ----------
-         self: an empty class instance
-         setdict: dictionary from FP_profile.__getstate__()
+        self :      FP_Profile
+            an empty class instance
+        setdict :   dict
+            dictionary from FP_profile.__getstate__()
         """
         self.__init__(anglemode=setdict["anglemode"],
                       gaussian_smoother_bins_sigma=setdict[
@@ -1669,13 +1739,16 @@ class convolver_handler(object):
 
         Parameters
         ----------
-         run:   list of flags of length of convolvers to tell which convolver
-                needs to be run
-         ttpeaks: peak positions for the convolvers
+        run :   list
+            list of flags of length of convolvers to tell which convolver needs
+            to be run
+        ttpeaks : array-like
+            peak positions for the convolvers
 
         Returns
         -------
-         list of profile_data result objects
+        list
+            list of profile_data result objects
         """
         results = []
         for c, flag, tt in zip(self.convolvers, run, ttpeaks):
@@ -1721,17 +1794,20 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         mat:        xrayutilities.material.Crystal or
-                     xrayutilities.simpack.Powder instance specifying the
-                     material for the powder calculation
-         kwargs:     optional keyword arguments
-                     same as for the Experiment base class +
-          tt_cutoff: Powder peaks are calculated up to an scattering angle of
-                     tt_cutoff (deg)
-          fpclass:   FP_profile derived class with possible convolver mixins.
-                     (default: FP_profile)
-          fpsettings: settings dictionaries for the convolvers. Default
-                      settings are loaded from the config file.
+        mat :           Crystal or Powder
+            material for the powder calculation
+        kwargs :        dict
+            optional keyword arguments same as for the Experiment base class
+            and:
+        tt_cutoff :     float, optional
+            Powder peaks are calculated up to an scattering angle of tt_cutoff
+            (deg)
+        fpclass :       FP_profile
+            FP_profile derived class with possible convolver mixins.
+            (default: FP_profile)
+        fpsettings :    dict
+            settings dictionaries for the convolvers. Default settings are
+            loaded from the config file.
         """
         if isinstance(mat, materials.Crystal):
             self.mat = Powder(mat, 1)
@@ -1828,12 +1904,13 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         fpclass: class with possible mixins which implement more convolvers
-         identity: value of the identity argument to the class constructor
+        fpclass :   FP_profile
+            class with possible mixins which implement more convolvers
 
         Returns
         -------
-         instance of fpclass
+        fpclass
+            instance of fpclass
         """
         classparams = dict()
         classparams.update(self.settings['classoptions'])
@@ -1896,9 +1973,9 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         newsettings:   dictionary with new settings. It has to include one
-                        subdictionary for every convolver which should have its
-                        settings changed.
+        newsettings :   dict
+            dictionary with new settings. It has to include one subdictionary
+            for every convolver which should have its settings changed.
         """
         if 'global' in newsettings:
             if 'dominant_wavelength' in newsettings['global']:
@@ -2017,13 +2094,15 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         tt_cutoff: upper cutoff value of 2theta until which the reflection
-                    strength are calculated
+        tt_cutoff : float
+            upper cutoff value of 2theta until which the reflection strength
+            are calculated
 
         Returns
         -------
-         numpy array with field for 'hkl' (Miller indices of the peaks),
-         'q' (q-position), and 'r' (reflection strength) of the Bragg peaks
+        ndarray
+            numpy array with field for 'hkl' (Miller indices of the peaks), 'q'
+            (q-position), and 'r' (reflection strength) of the Bragg peaks
         """
         mat = self.mat.material
         # calculate maximal Bragg indices
@@ -2038,7 +2117,7 @@ class PowderDiffraction(PowderExperiment):
         lmi = -lma
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.Powder.PowderIntensity: tt_cutoff; (hmax,kmax,lmax): "
+            print("XU.Powder.PowderIntensity: tt_cutoff; (hmax, kmax, lmax): "
                   "%6.2f (%d,%d,%d)" % (tt_cutoff, hma, kma, lma))
 
         # calculate structure factors
@@ -2066,14 +2145,16 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         data:  numpy field array with values of 'hkl' (Miller indices of the
-                peaks), 'q' (q-position), and 'r' (reflection strength) as
-                produced by the structure_factors method
+        data :  ndarray
+            numpy field array with values of 'hkl' (Miller indices of the
+            peaks), 'q' (q-position), and 'r' (reflection strength) as produced
+            by the structure_factors method
 
         Returns
         -------
-         hkl, q, ang, r: Miller indices, q-position, diffraction angle (Theta),
-                         and reflection strength of the material
+        hkl, q, ang, r : array-like
+            Miller indices, q-position, diffraction angle (Theta), and
+            reflection strength of the material
         """
         data = data[numpy.argsort(data['q'], kind='mergesort')]
         qpos = []
@@ -2123,12 +2204,14 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         ang:   theta diffraction angles for which the correction should be
-                calculated
+        ang :   aray-like
+            theta diffraction angles for which the correction should be
+            calculated
 
         Returns
         -------
-         f: array of the same shape as ang containing the correction factors
+        f :     array-like
+            array of the same shape as ang containing the correction factors
         """
         # correct data for polarization and lorentzfactor and unit cell volume
         # see L.S. Zevin : Quantitative X-Ray Diffractometry
@@ -2149,10 +2232,11 @@ class PowderDiffraction(PowderExperiment):
             The data dictionary has one entry per line with a unique identifier
             as key of the entry. The entries themself are dictionaries which
             have the following entries:
-             hkl ... (h, k, l), Miller indices of the Bragg peak
-             r ..... reflection strength of the line
-             ang ... Bragg angle of the peak (theta = 2theta/2!)
-             qpos .. reciprocal space position
+
+            * hkl :   (h, k, l), Miller indices of the Bragg peak
+            * r :     reflection strength of the line
+            * ang :   Bragg angle of the peak (theta = 2theta/2!)
+            * qpos :  reciprocal space position
         """
 
         tmp_data = self.structure_factors(tt_cutoff)
@@ -2171,10 +2255,10 @@ class PowderDiffraction(PowderExperiment):
         calculates the powder intensity and positions up to an angle of
         tt_cutoff (deg) and updates the values in:
 
-            ids ..... list of unique identifiers of the powder line
-            data .... array with intensities
-            ang ..... bragg angles of the peaks (theta=2theta/2!)
-            qpos .... reciprocal space position of intensities
+            * ids:  list of unique identifiers of the powder line
+            * data: array with intensities
+            * ang:  bragg angles of the peaks (theta=2theta/2!)
+            * qpos: reciprocal space position of intensities
         """
         tmp_data = self.structure_factors(tt_cutoff)
         hkl, qpos, ang, rs = self.merge_lines(tmp_data)
@@ -2213,15 +2297,17 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         twotheta:  two theta values at which the powder pattern should be
-                    calculated.
-         window_width: width of the calculation window of a single peak
-         mode:      multiprocessing mode, either 'multi' to use multiple
-                    processes or 'local' to restrict the calculation to a
-                    single process
+        twotheta :      array-like
+            two theta values at which the powder pattern should be calculated.
+        window_width :  float, optional
+            width of the calculation window of a single peak
+        mode :          {'multi, 'local'}, optional
+            multiprocessing mode, either 'multi' to use multiple processes or
+            'local' to restrict the calculation to a single process
 
-        Note: Bragg peaks are only included up to tt_cutoff set in
-              the class constructor!
+        Note:
+            Bragg peaks are only included up to tt_cutoff set in the class
+            constructor!
 
         Returns
         -------
@@ -2302,16 +2388,20 @@ class PowderDiffraction(PowderExperiment):
 
         Parameters
         ----------
-         twotheta:  two theta values at which the powder pattern should be
-                    calculated.
-                    Note: Bragg peaks are only included up to tt_cutoff set in
-                          the class constructor!
-         **kwargs: additional keyword arguments are passed to the Convolve
-                   function
+        twotheta :      array-like
+            two theta values at which the powder pattern should be calculated.
+        kwargs :        dict
+            additional keyword arguments are passed to the Convolve function
 
         Returns
         -------
-         output intensity values for the twotheta values given in the input
+        array-like
+            output intensity values for the twotheta values given in the input
+
+        Notes
+        -----
+        Bragg peaks are only included up to tt_cutoff set in the class
+        constructor!
         """
         self.set_sample_parameters()
         self.update_powder_lines(self._tt_cutoff)

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2011 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 import numpy
@@ -23,17 +23,20 @@ from .. import config, experiment
 
 def getindex(x, y, xgrid, ygrid):
     """
-    gives the indices of the point x,y in the grid given by xgrid ygrid
-    xgrid,ygrid must be arrays containing equidistant points
+    gives the indices of the point x, y in the grid given by xgrid ygrid
+    xgrid, ygrid must be arrays containing equidistant points
 
     Parameters
     ----------
-     x,y:           coordinates of the point of interest (float)
-     xgrid,ygrid:   grid coordinates in x and y direction (array)
+    x, y :          float
+        coordinates of the point of interest
+    xgrid, ygrid :  array-like
+        grid coordinates in x and y direction
 
     Returns
     -------
-     ix,iy:     index of the closest gridpoint (lower left) of the point (x,y)
+    ix, iy :        int
+        indices of the closest gridpoint (lower left) of the point (x, y)
     """
     dx = xgrid[1] - xgrid[0]
     dy = ygrid[1] - ygrid[0]
@@ -45,10 +48,10 @@ def getindex(x, y, xgrid, ygrid):
     # to speed things up this is assumed to be the case
     # if (ix < 0 or ix > xgrid.size):
     #     print("Warning: point (%8.4f, %8.4f) out of range in first "
-    #           "coordinate!" %(x,y) )
+    #           "coordinate!" %(x, y) )
     # if (iy < 0 or iy > ygrid.size):
     #     print("Warning: point (%8.4f, %8.4f) out of range in second "
-    #           "coordinate!" %(x,y) )
+    #           "coordinate!" %(x, y) )
 
     return ix, iy
 
@@ -61,27 +64,31 @@ def get_qx_scan(qx, qz, intensity, qzpos, **kwargs):
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     qzpos:     position at which the line scan should be extracted
-
-    **kwargs:   possible keyword arguments:
-      qrange:   integration range perpendicular to scan direction
-      qmin,qmax: minimum and maximum value of extracted scan axis
-      bounds:   flag to specify if the scan bounds of the extracted scan should
-                be returned (default:False)
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    qzpos :     float
+        position at which the line scan should be extracted
+    qrange :    float, optional
+        integration range perpendicular to scan direction
+    qmin, qmax : float, optional
+        minimum and maximum value of extracted scan axis
+    bounds :    bool
+        flag to specify if the scan bounds of the extracted scan should be
+        returned (default: False)
 
     Returns
     -------
-     qx,qxint: qx scan coordinates and intensities (bounds=False)
-     qx,qxint,(qxb,qyb): qx scan coordinates and intensities + scan bounds for
-                         plotting
+    qx, qxint :     ndarray
+        qx scan coordinates and intensities
+    (qxb, qyb) :    tuple of ndarrays, optional
+        scan bounds for plotting if bounds=True
 
     Examples
     --------
-    >>> qxcut,qxcut_int = get_qx_scan(qx,qz,inten,5.0,qrange=0.03)
+    >>> qxcut, qxcut_int = get_qx_scan(qx, qz, inten, 5.0, qrange=0.03)
     """
 
     if qzpos < qz.min() or qzpos > qz.max():
@@ -90,7 +97,7 @@ def get_qx_scan(qx, qz, intensity, qzpos, **kwargs):
 
     if intensity.shape != (qx.size, qz.size):
         raise ValueError("shape of given intensity does not match "
-                         "to (qx.size,qz.size)")
+                         "to (qx.size, qz.size)")
 
     qxmin = max(qx.min(), kwargs.get('qmin', -numpy.inf))
     qxmax = min(qx.max(), kwargs.get('qmax', numpy.inf))
@@ -112,7 +119,7 @@ def get_qx_scan(qx, qz, intensity, qzpos, **kwargs):
 
     if qrange > 0:
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.analysis.get_q[x,z]_scan: %d points used "
+            print("XU.analysis.get_q[x, z]_scan: %d points used "
                   "for integration" % (izmax - izmin + 1))
         if bounds:
             return qx[ixmin:ixmax + 1], intensity[ixmin:ixmax + 1,
@@ -137,31 +144,37 @@ def get_qz_scan_int(qx, qz, intensity, qxpos, **kwargs):
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     qxpos:     position at which the line scan should be extracted
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    qxpos :     float
+        position at which the line scan should be extracted
 
-    **kwargs:   possible keyword arguments:
-      angrange: integration range in angular direction
-      qmin,qmax: minimum and maximum value of extracted scan axis
-      bounds:   flag to specify if the scan bounds of the extracted scan should
-                be returned (default:False)
-      intdir:   integration direction
-                'omega': sample rocking angle (default)
-                '2theta': scattering angle
-      wl:       wavelength used to determine angular integration positions
+    angrange :  float, optional
+        integration range in angular direction
+    qmin, qmax : float, optional
+        minimum and maximum value of extracted scan axis
+    bounds :    bool, optional
+        flag to specify if the scan bounds of the extracted scan should be
+        returned (default:False)
+    intdir :    {'omega', '2theta'}
+        integration direction: 'omega': sample rocking angle (default), or
+        '2theta': scattering angle
+    wl :       float or str, optional
+        wavelength used to determine angular integration positions
 
     Returns
     -------
-     qz,qzint: qz scan coordinates and intensities (bounds=False)
-     qz,qzint,(qzb,qzb): qz scan coordinates and intensities + scan bounds for
-                         plotting
+    qz, qzint :     ndarray
+        qz scan coordinates and intensities
+    (qzb, qzb) :    tuple, optional
+        scan bounds for plotting, returned only when `bounds = True`
 
     Examples
     --------
-    >>> qzcut,qzcut_int = get_qz_scan_int(qx,qz,inten,5.0,omrange=0.3)
+    >>> qzcut, qzcut_int = get_qz_scan_int(qx, qz, inten, 5.0, omrange=0.3)
     """
 
     lam = kwargs.get('wl', config.WAVELENGTH)
@@ -298,23 +311,26 @@ def get_qz_scan(qx, qz, intensity, qxpos, **kwargs):
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     qxpos:     position at which the line scan should be extracted
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    qxpos :     float
+        position at which the line scan should be extracted
 
     **kwargs:   possible keyword arguments:
-      qrange:   integration range perpendicular to scan direction
-      qmin,qmax: minimum and maximum value of extracted scan axis
+     qrange :   integration range perpendicular to scan direction
+     qmin, qmax : minimum and maximum value of extracted scan axis
 
     Returns
     -------
-     qz,qzint: qz scan coordinates and intensities
+    qz, qzint :     ndarray
+        qz scan coordinates and intensities
 
     Examples
     --------
-    >>> qzcut,qzcut_int = get_qz_scan(qx,qz,inten,1.5,qrange=0.03)
+    >>> qzcut, qzcut_int = get_qz_scan(qx, qz, inten, 1.5, qrange=0.03)
     """
     bounds = kwargs.get('bounds', False)
 
@@ -333,34 +349,43 @@ def get_omega_scan_q(qx, qz, intensity, qxcenter, qzcenter,
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     qxcenter:  qx-position at which the omega scan should be extracted
-     qzcenter:  qz-position at which the omega scan should be extracted
-     omrange:   range of the omega scan to extract
-     npoints:   number of points of the omega scan
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    qxcenter :  float
+        qx-position at which the omega scan should be extracted
+    qzcenter :  float
+        qz-position at which the omega scan should be extracted
+    omrange :   float
+        range of the omega scan to extract
+    npoints :   int
+        number of points of the omega scan
 
-    **kwargs:   possible keyword arguments:
-      qrange:   integration range perpendicular to scan direction
-      Nint:     number of subscans used for the integration (optionally)
-      lam:      wavelength for use in the conversion to angular coordinates
-      relative: determines if absolute or relative omega positions are returned
-                (default: True)
-      bounds:   flag to specify if the scan bounds should be returned;
-                (default: False)
+    kwargs :    dict, optional
+    qrange :    float, optional
+        integration range perpendicular to scan direction
+    Nint :      int, optional
+        number of subscans used for the integration
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
+    relative :  bool, optional
+        determines if absolute or relative omega positions are returned
+        (default: True)
+    bounds :    bool, optional
+        flag to specify if the scan bounds should be returned; (default: False)
 
     Returns
     -------
-     om,omint: omega scan coordinates and intensities (bounds=False)
-     om,omint,(qxb,qzb): omega scan coordinates and intensities +
-                         reciprocal space bounds of the extraced scan
-                         (bounds=True)
+    om, omint :     ndarray
+        omega scan coordinates and intensities
+    (qxb, qzb) :    tuple of ndarrays, optional
+        scan bounds for plotting if bounds=True
 
     Examples
     --------
-    >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
+    >>> omcut, intcut = get_omega_scan(qx, qz, intensity, 0.0, 5.0, 2.0, 200)
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)
@@ -381,34 +406,42 @@ def get_omega_scan_ang(qx, qz, intensity, omcenter, ttcenter,
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     omcenter:  omega-position at which the omega scan should be extracted
-     ttcenter:  2theta-position at which the omega scan should be extracted
-     omrange:   range of the omega scan to extract
-     npoints:   number of points of the omega scan
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    omcenter :  float
+        omega-position at which the omega scan should be extracted
+    ttcenter :  float
+        2theta-position at which the omega scan should be extracted
+    omrange :   float
+        range of the omega scan to extract
+    npoints :   int
+        number of points of the omega scan
 
-    **kwargs:   possible keyword arguments:
-      qrange:   integration range perpendicular to scan direction
-      Nint:     number of subscans used for the integration (optionally)
-      lam:      wavelength for use in the conversion to angular coordinates
-      relative: determines if absolute or relative omega positions are returned
-                (default: True)
-      bounds:   flag to specify if the scan bounds should be returned
-                (default: False)
+    qrange :    float, optional
+        integration range perpendicular to scan direction
+    Nint :      int, optional
+        number of subscans used for the integration
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
+    relative :  bool, optional
+        determines if absolute or relative omega positions are returned
+        (default: True)
+    bounds :    bool, optional
+        flag to specify if the scan bounds should be returned (default: False)
 
     Returns
     -------
-     om,omint: omega scan coordinates and intensities (bounds=False)
-     om,omint,(qxb,qzb): omega scan coordinates and intensities +
-                         reciprocal space bounds of the extraced scan
-                         (bounds=True)
+    om, omint :     ndarray
+        omega scan coordinates and intensities
+    (qxb, qzb) :    tuple of ndarrays, optional
+        scan bounds for plotting if bounds=True
 
     Examples
     --------
-    >>> omcut, intcut = get_omega_scan(qx,qz,intensity,0.0,5.0,2.0,200)
+    >>> omcut, intcut = get_omega_scan(qx, qz, intensity, 0.0, 5.0, 2.0, 200)
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)
@@ -488,22 +521,28 @@ def get_omega_scan_bounds_ang(omcenter, ttcenter, omrange, npoints, **kwargs):
 
     Parameters
     ----------
-     omcenter:  omega-position at which the omega scan should be extracted
-     ttcenter:  2theta-position at which the omega scan should be extracted
-     omrange:   range of the omega scan to extract
-     npoints:   number of points of the omega scan
+    omcenter :  float
+        omega-position at which the omega scan should be extracted
+    ttcenter :  float
+        2theta-position at which the omega scan should be extracted
+    omrange :   float
+        range of the omega scan to extract
+    npoints :   int
+        number of points of the omega scan
 
-    **kwargs:   possible keyword arguments:
-      qrange:   integration range perpendicular to scan direction
-      lam:      wavelength for use in the conversion to angular coordinates
+    qrange :    float, optional
+        integration range perpendicular to scan direction
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
 
     Returns
     -------
-     qx,qz: reciprocal space coordinates of the omega scan boundaries
+    qx, qz :    array-like
+        reciprocal space coordinates of the omega scan boundaries
 
     Examples
     --------
-    >>> qxb,qzb = get_omega_scan_bounds_ang(1.0,4.0,2.4,240,qrange=0.1)
+    >>> qxb, qzb = get_omega_scan_bounds_ang(1.0, 4.0, 2.4, 240, qrange=0.1)
     """
     lam = kwargs.get('lam', config.WAVELENGTH)
     exp = experiment.HXRD([1, 0, 0], [0, 0, 1], wl=lam)
@@ -563,35 +602,43 @@ def get_radial_scan_q(qx, qz, intensity, qxcenter, qzcenter,
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     qxcenter:  qx-position at which the radial scan should be extracted
-     qzcenter:  qz-position at which the radial scan should be extracted
-     ttrange:   two theta range of the radial scan to extract
-     npoints:   number of points of the radial scan
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    qxcenter :  float
+        qx-position at which the radial scan should be extracted
+    qzcenter :  float
+        qz-position at which the radial scan should be extracted
+    ttrange :   float
+        two theta range of the radial scan to extract
+    npoints :   int
+        number of points of the radial scan
 
-    **kwargs:   possible keyword arguments:
-      omrange:  integration range perpendicular to scan direction
-      Nint:     number of subscans used for the integration (optionally)
-      lam:      wavelength for use in the conversion to angular coordinates
-      relative: determines if absolute or relative two theta positions are
-                returned (default=True)
-      bounds:   flag to specify if the scan bounds should be returned
-                (default: False)
+    omrange :   float, optional
+        integration range perpendicular to scan direction
+    Nint :      int, optional
+        number of subscans used for the integration
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
+    relative :  bool, optional
+        determines if absolute or relative two theta positions are returned
+        (default=True)
+    bounds :    bool, optional
+        flag to specify if the scan bounds should be returned (default: False)
 
     Returns
     -------
-     om,tt,radint: omega,two theta scan coordinates and intensities
-                   (bounds=False)
-     om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
-                   reciprocal space bounds of the extraced scan (bounds=True)
+    om, tt, radint :    array-like
+        omega, two theta scan coordinates and intensities
+    (qxb, qzb) :        tuple of arrays
+        reciprocal space bounds of the extraced scan (bounds=True)
 
     Examples
     --------
     >>> omc, ttc, cut_int = get_radial_scan_q(qx, qz, intensity, 0.0, 5.0,
-                                              1.0, 100, omrange = 0.01)
+    >>>                                       1.0, 100, omrange=0.01)
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)
@@ -612,35 +659,43 @@ def get_radial_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     omcenter:  om-position at which the radial scan should be extracted
-     ttcenter:  tt-position at which the radial scan should be extracted
-     ttrange:   two theta range of the radial scan to extract
-     npoints:   number of points of the radial scan
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    omcenter :  float
+        om-position at which the radial scan should be extracted
+    ttcenter :  float
+        tt-position at which the radial scan should be extracted
+    ttrange :   float
+        two theta range of the radial scan to extract
+    npoints :   int
+        number of points of the radial scan
 
-    **kwargs:   possible keyword arguments:
-      omrange:  integration range perpendicular to scan direction
-      Nint:     number of subscans used for the integration (optionally)
-      lam:      wavelength for use in the conversion to angular coordinates
-      relative: determines if absolute or relative two theta positions are
-                returned (default=True)
-      bounds:   flag to specify if the scan bounds should be returned
-                (default: False)
+    omrange :   float, optional
+        integration range perpendicular to scan direction
+    Nint :      int, optional
+        number of subscans used for the integration
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
+    relative :  bool, optional
+        determines if absolute or relative two theta positions are returned
+        (default=True)
+    bounds :    bool, optional
+        flag to specify if the scan bounds should be returned (default: False)
 
     Returns
     -------
-     om,tt,radint: omega,two theta scan coordinates and intensities
-                   (bounds=False)
-     om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
-                   reciprocal space bounds of the extraced scan (bounds=True)
+    om, tt, radint :    array-like
+        omega, two theta scan coordinates and intensities
+    (qxb, qzb) :        tuple of arrays
+        reciprocal space bounds of the extraced scan (bounds=True)
 
     Examples
     --------
     >>> omc, ttc, cut_int = get_radial_scan_ang(qx, qz, intensity, 32.0, 64.0,
-                                                30.0, 800, omrange = 0.2)
+    >>>                                         30.0, 800, omrange=0.2)
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)
@@ -707,22 +762,24 @@ def get_radial_scan_bounds_ang(omcenter, ttcenter, ttrange, npoints, **kwargs):
 
     Parameters
     ----------
-     omcenter:  om-position at which the radial scan should be extracted
-     ttcenter:  tt-position at which the radial scan should be extracted
-     ttrange:   two theta range of the radial scan to extract
-     npoints:   number of points of the radial scan
+    omcenter :  float
+        omega-position at which the radial scan should be extracted
+    ttcenter :  float
+        two theta-position at which the radial scan should be extracted
+    ttrange :   float
+        two theta range of the radial scan to extract
+    npoints :   int
+        number of points of the radial scan
 
-    **kwargs:   possible keyword arguments:
-      omrange:  integration range perpendicular to scan direction
-      lam:      wavelength for use in the conversion to angular coordinates
+    omrange :   float, optional
+        integration range perpendicular to scan direction
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
 
     Returns
     -------
-     qxrad,qzrad: reciprocal space boundaries of radial scan
-
-    Examples
-    --------
-    >>>
+    qxrad, qzrad :  array-like
+        reciprocal space boundaries of radial scan
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)
@@ -767,33 +824,42 @@ def get_ttheta_scan_q(qx, qz, intensity, qxcenter, qzcenter, ttrange,
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     qxcenter:  qx-position at which the 2theta scan should be extracted
-     qzcenter:  qz-position at which the 2theta scan should be extracted
-     ttrange:   two theta range of the scan to extract
-     npoints:   number of points of the radial scan
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    qxcenter :  float
+        qx-position at which the 2theta scan should be extracted
+    qzcenter :  float
+        qz-position at which the 2theta scan should be extracted
+    ttrange :   float
+        two theta range of the scan to extract
+    npoints :   int
+        number of points of the radial scan
 
-    **kwargs:   possible keyword arguments:
-      omrange:  integration range in omega direction
-      Nint:     number of subscans used for the integration (optionally)
-      lam:      wavelength for use in the conversion to angular coordinates
-      relative: determines if absolute or relative two theta positions are
-                returned (default=True)
-      bounds:   flag to specify if the scan bounds should be returned
-                (default: False)
+    omrange :   float, optional
+        integration range in omega direction
+    Nint :      int, optional
+        number of subscans used for the integration
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
+    relative :  bool, optional
+        determines if absolute or relative two theta positions are returned
+        (default=True)
+    bounds :    bool, optional
+        flag to specify if the scan bounds should be returned (default: False)
 
     Returns
     -------
-     tt,ttint: two theta scan coordinates and intensities (bounds=False)
-     om,tt,radint,(qxb,qzb): radial scan coordinates and intensities +
-               reciprocal space bounds of the extraced scan (bounds=True)
+    tt, ttint :     array-like
+        two theta scan coordinates and intensities
+    (qxb, qzb) :    array-like
+        reciprocal space bounds of the extraced scan (bounds=True)
 
     Examples
     --------
-    >>> ttc,cut_int = get_ttheta_scan_q(qx,qz,intensity,0.0,4.0,4.4,440)
+    >>> ttc, cut_int = get_ttheta_scan_q(qx, qz, intensity, 0.0, 4.0, 4.4, 440)
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)
@@ -814,33 +880,44 @@ def get_ttheta_scan_ang(qx, qz, intensity, omcenter, ttcenter, ttrange,
 
     Parameters
     ----------
-     qx:        equidistant array of qx momentum transfer
-     qz:        equidistant array of qz momentum transfer
-     intensity: 2D array of gridded reciprocal space intensity with shape
-                (qx.size,qz.size)
-     omcenter:  om-position at which the 2theta scan should be extracted
-     ttcenter:  tt-position at which the 2theta scan should be extracted
-     ttrange:   two theta range of the scan to extract
-     npoints:   number of points of the radial scan
+    qx, qz :    array-like
+        equidistant arrays of `qx`/`qz` momentum transfers
+    intensity : array-like
+        2D array of gridded reciprocal space intensity with shape
+        (qx.size, qz.size)
+    omcenter :  float
+        om-position at which the 2theta scan should be extracted
+    ttcenter :  float
+        tt-position at which the 2theta scan should be extracted
+    ttrange :   float
+        two theta range of the scan to extract
+    npoints :   int
+        number of points of the radial scan
 
-    **kwargs:   possible keyword arguments:
-      omrange:  integration range in omega direction
-      Nint:     number of subscans used for the integration (optionally)
-      lam:      wavelength for use in the conversion to angular coordinates
-      relative: determines if absolute or relative two theta positions are
-                returned (default=True)
-      bounds:   flag to specify if the scan bounds should be returned
-                (default: False)
+
+    omrange :   float, optional
+        integration range in omega direction
+    Nint :      int, optional
+        number of subscans used for the integration
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
+    relative :  bool, optional
+        determines if absolute or relative two theta positions are returned
+        (default=True)
+    bounds :    bool, optional
+        flag to specify if the scan bounds should be returned (default: False)
 
     Returns
     -------
-     tt,ttint: two theta scan coordinates and intensities (bounds=False)
-     tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities +
-               reciprocal space bounds of the extraced scan (bounds=True)
+    tt, ttint :     array-like
+        two theta scan coordinates and intensities
+    (qxb, qzb) :    array-like
+        reciprocal space bounds of the extraced scan (bounds=True)
 
     Examples
     --------
-    >>> ttc,cut_int = get_ttheta_scan_ang(qx,qz,intensity,32.0,64.0,4.0,400)
+    >>> ttc, cut_int = get_ttheta_scan_ang(qx, qz, intensity,
+                                          32.0, 64.0, 4.0, 400)
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)
@@ -906,24 +983,26 @@ def get_ttheta_scan_bounds_ang(omcenter, ttcenter, ttrange, npoints, **kwargs):
 
     Parameters
     ----------
-     omcenter:  om-position at which the 2theta scan should be extracted
-     ttcenter:  tt-position at which the 2theta scan should be extracted
-     ttrange:   two theta range of the 2theta scan to extract
-     npoints:   number of points of the 2theta scan
+    omcenter :  float
+        omega-position at which the 2theta scan should be extracted
+    ttcenter :  float
+        two theta-position at which the 2theta scan should be extracted
+    ttrange :   float
+        two theta range of the 2theta scan to extract
+    npoints :   int
+        number of points of the 2theta scan
 
-    **kwargs:   possible keyword arguments:
-      omrange:  integration range in omega direction
-      lam:      wavelength for use in the conversion to angular coordinates
+    omrange :   float, optional
+        integration range in omega direction
+    lam :       float or str, optional
+        wavelength for use in the conversion to angular coordinates
 
     Returns
     -------
-     qxtt,qztt: reciprocal space boundaries of 2theta scan (bounds=False)
-     tt,ttint,(qxb,qzb): 2theta scan coordinates and intensities +
-                reciprocal space bounds of the extraced scan (bounds=True)
-
-    Examples
-    --------
-    >>>
+    qxtt, qztt :    array-like
+        2theta scan coordinates and intensities
+    (qxb, qzb) :    array-like
+        reciprocal space bounds of the extraced scan (bounds=True)
     """
 
     lam = kwargs.get('lam', config.WAVELENGTH)

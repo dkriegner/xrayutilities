@@ -55,7 +55,8 @@ class RA_Alignment(object):
 
         Parameters
         ----------
-         filename:  filename of the alignment log file
+        filename :  str
+            filename of the alignment log file
         """
 
         self.filename = filename
@@ -202,7 +203,8 @@ class RA_Alignment(object):
 
         Parameters
         ----------
-         pname:  peakname for which the alignment should be plotted
+        pname :     str
+            peakname for which the alignment should be plotted
         """
         flag, plt = utilities.import_matplotlib_pyplot('XU.io.RA_ALignment')
         if not flag:

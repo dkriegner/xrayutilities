@@ -41,13 +41,18 @@ class PowderModel(object):
 
         Parameters
         ----------
-         *args:    either one PowderList or several Powder objects can be given
-         *kwargs:  optional parameters for the simulation. supported are:
-           fpclass:  FP_profile derived class with possible convolver mixins.
-                     (default: FP_profile)
-           fpsettings: settings dictionaries for the convolvers. Default
-                       settings are loaded from the config file.
-           I0:     scaling factor for the simulation result
+        args :      PowderList or Powders
+            either one PowderList or several Powder objects can be given
+        kwargs :    dict
+            optional parameters for the simulation. supported are:
+        fpclass :   FP_profile, optional
+            derived class with possible convolver mixins.  (default:
+            FP_profile)
+        fpsettings : dict
+            settings dictionaries for the convolvers. Default settings are
+            loaded from the config file.
+        I0 :        float, optional
+            scaling factor for the simulation result
 
         In particular interesting in fpsettings might be:
         {'displacement': {'specimen_displacement': z-displacement of the sample
@@ -79,7 +84,8 @@ class PowderModel(object):
 
         Parameters
         ----------
-         params:    settings dictionaries for the convolvers.
+        params :    dict
+            settings dictionaries for the convolvers.
         """
         # set parameters for each convolver
         for pd in self.pdiff:
@@ -92,7 +98,8 @@ class PowderModel(object):
 
         Parameters
         ----------
-         lmparams:  lmfit Parameters list of sample and instrument parameters
+        lmparams :  lmfit.Parameters
+            lmfit Parameters list of sample and instrument parameters
         """
         pv = lmparams.valuesdict()
         settings = dict()
@@ -134,13 +141,9 @@ class PowderModel(object):
         function to create a fit model with all instrument and sample
         parameters.
 
-        Parameters
-        ----------
-         pass
-
         Returns
         -------
-         lmfit Parameters instance
+        lmfit.Parameters
         """
         lmfit = utilities.import_lmfit('XU.PowderModel')
 
@@ -181,16 +184,19 @@ class PowderModel(object):
 
         Parameters
         ----------
-         btype:  background type: either 'polynomial' or 'spline'. Depending on
-                this value the expected keyword arguments differ.
-         kwargs:
-            'spline':
-                x:  x-values (twotheta) of the background points
-                y:  intensity values of the background
-            'polynomial':
-                p:  polynomial coefficients from the highest degree to the
-                    constant term. len of p decides about the degree of the
-                    polynomial
+        btype :     {polynomial', 'spline'}
+            background type; Depending on this
+            value the expected keyword arguments differ.
+        kwargs :    dict
+            optional keyword arguments
+        x :     array-like, optional
+            x-values (twotheta) of the background points (if btype='spline')
+        y :     array-like, optional
+            intensity values of the background (if btype='spline')
+        p :     array-like, optional
+            polynomial coefficients from the highest degree to the constant
+            term. len of p decides about the degree of the polynomial (if
+            btype='polynomial')
         """
         if btype == 'spline':
             self._bckg_spline = interpolate.InterpolatedUnivariateSpline(
@@ -208,21 +214,24 @@ class PowderModel(object):
 
         Parameters
         ----------
-         twotheta: positions at which the powder spectrum should be evaluated
-         **kwargs:
-            background: an array of background values (same shape as twotheta)
-                        if no background is given then the background is
-                        calculated as previously set by the set_background
-                        function or is 0.
-            further keyword arguments are passed to the Convolve
-            function of of the PowderDiffraction objects
+        twotheta :  array-like
+            positions at which the powder pattern should be evaluated
+        kwargs :    dict
+            optional keyword arguments
+        background : array-like
+            an array of background values (same shape as twotheta) if no
+            background is given then the background is calculated as previously
+            set by the set_background function or is 0.
+
+
+        further keyword arguments are passed to the Convolve function of of the
+        PowderDiffraction objects
 
         Returns
         -------
-         summed powder diffraction intensity of all materials present in the
-         model
-
-        Known issue: possibility to add a background is currently missing!
+        array-like
+            summed powder diffraction intensity of all materials present in the
+            model
         """
         inte = numpy.zeros_like(twotheta)
         background = kwargs.pop('background', None)
@@ -242,18 +251,21 @@ class PowderModel(object):
 
         Parameters
         ----------
-         params:    lmfit Parameters object with all parameters set as intended
-                    by the user
-         twotheta:  angular values for the fit
-         data:      experimental intensities for the fit
-         std:       standard deviation of the experimental data. if 'None" the
-                    sqrt of the data will be used
-         maxfev:    maximal number of simulations during the least squares
-                    refinement
+        params :    lmfit.Parameters
+            object with all parameters set as intended by the user
+        twotheta :  array-like
+            angular values for the fit
+        data :      array-like
+            experimental intensities for the fit
+        std :       array-like
+            standard deviation of the experimental data. if 'None' the sqrt of
+            the data will be used
+        maxfev:     int
+            maximal number of simulations during the least squares refinement
 
         Returns
         -------
-         lmfit MinimizerResult
+        lmfit.MinimizerResult
         """
         lmfit = utilities.import_lmfit('XU.PowderModel')
 
@@ -263,12 +275,14 @@ class PowderModel(object):
 
             Parameters
             ----------
-             pars:      fit Parameters
-             tt:        array of twotheta angles
-             reflmod:   reflectivity model object
-             **kwargs:
-              data:     experimental data, same shape as tt (default: None)
-              eps:      experimental error bars, shape as tt (default None)
+            pars :      lmfit.Parameters
+                fit Parameters
+            tt :        array-like
+                array of twotheta angles
+            data :      array-like
+                experimental data, same shape as tt
+            eps :       array-like
+                experimental error bars, shape as tt
             """
             # set parameters in this instance
             self.set_lmfit_parameters(pars)
@@ -306,20 +320,25 @@ def Rietveld_error_metrics(exp, sim, weight=None, std=None,
 
     Parameters
     ----------
-     exp:       experimental datapoints
-     sim:       simulated data
-     weight:    weight factor in the least squares sum. If it is None the
-                weight is estimated from the counting statistics of 'exp'
-     std:       standard deviation of the experimental data. alternative way of
-                specifying the weight factor. when both are given weight
-                overwrites std!
-     Nvar:      number of variables in the refinement
-     disp:      flag to tell if a line with the calculated values should be
-                printed.
+    exp :       array-like
+        experimental datapoints
+    sim :       array-like
+        simulated data
+    weight :    array-like, optional
+        weight factor in the least squares sum. If it is None the weight is
+        estimated from the counting statistics of 'exp'
+    std :       array-like, optional
+        standard deviation of the experimental data. alternative way of
+        specifying the weight factor. when both are given weight overwrites
+        std!
+    Nvar :      int, optional
+        number of variables in the refinement
+    disp :      bool, optional
+        flag to tell if a line with the calculated values should be printed.
 
     Returns
     -------
-     M, Rp, Rwp, Rwpexp, chi2
+    M, Rp, Rwp, Rwpexp, chi2: float
     """
     if weight is None and std is None:
         weight = numpy.reciprocal(exp)
@@ -345,17 +364,24 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
 
     Parameters
     ----------
-     twotheta:  angle values used for the x-axis of the plot (deg)
-     exp:       experimental data (same shape as twotheta). If None only the
-                simulation and no difference will be plotted
-     sim:       simulated data
-     mask:      mask to reduce the twotheta values to the be used as
-                x-coordinates of sim
-     scale:     string specifying the scale of the y-axis. Valid are: 'linear,
-                'sqrt', and 'log'.
-     fig:       matplotlib figure name (figure will be cleared!)
-     show_diff: flag to specify if a difference curve should be shown
-     show_legend: flag to specify if a legend should be shown
+    twotheta :  array-like
+        angle values used for the x-axis of the plot (deg)
+    exp :       array-like
+        experimental data (same shape as twotheta). If None only the simulation
+        and no difference will be plotted
+    sim :       array-like
+        simulated data
+    mask :      array-like, optional
+        mask to reduce the twotheta values to the be used as x-coordinates of
+        sim
+    scale :     {'linear', 'sqrt', 'log'}, optional
+        string specifying the scale of the y-axis.
+    fig :       str or int, optional
+        matplotlib figure name (figure will be cleared!)
+    show_diff : bool, optional
+        flag to specify if a difference curve should be shown
+    show_legend: bool, optional
+        flag to specify if a legend should be shown
     """
     plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
     if not plot:

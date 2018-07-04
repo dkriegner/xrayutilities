@@ -39,14 +39,19 @@ def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a:         cubic lattice parameter in Angstroem
-     biso:      Debye Waller factors, list of three values for X,Y,Z elements
-     occ:       occupation numbers for the elements X,Y,Z
+    X, Y, Z :   str or Element
+        elements
+    a :         float
+        cubic lattice parameter in Angstroem
+    biso :      list of floats, optional
+        Debye Waller factors for X, Y, Z elements
+    occ :       list of floats, optional
+        occupation numbers for the elements X, Y, Z
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
@@ -62,14 +67,21 @@ def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a:         cubic lattice parameter in Angstroem
-     b2dis:     amount of B2-type disorder (0: fully ordered, 1: fully
-                disordered)
+    X, Y, Z :   str or Element
+        elements
+    a :         float
+        cubic lattice parameter in Angstroem
+    b2dis :     float
+        amount of B2-type disorder (0: fully ordered, 1: fully disordered)
+    biso :      list of floats, optional
+        Debye Waller factors for X, Y, Z elements
+    occ :       list of floats, optional
+        occupation numbers for the elements X, Y, Z
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
@@ -90,14 +102,21 @@ def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a:         cubic lattice parameter in Angstroem
-     a2dis:     amount of A2-type disorder (0: fully ordered, 1: fully
-                disordered)
+    X, Y, Z :   str or Element
+        elements
+    a :         float
+        cubic lattice parameter in Angstroem
+    a2dis :     float
+        amount of A2-type disorder (0: fully ordered, 1: fully disordered)
+    biso :      list of floats, optional
+        Debye Waller factors for X, Y, Z elements
+    occ :       list of floats, optional
+        occupation numbers for the elements X, Y, Z
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
@@ -123,16 +142,25 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a:         cubic lattice parameter in Angstroem
-     do3disxy:  amount of DO_3-type disorder between X and Y atoms
-                (0: fully ordered, 1: fully disordered)
-     do3disxz:  amount of DO_3-type disorder between X and Z atoms
-                (0: fully ordered, 1: fully disordered)
+    X, Y, Z :   str or Element
+        elements
+    a :         float
+        cubic lattice parameter in Angstroem
+    do3disxy :  float
+        amount of DO_3-type disorder between X and Y atoms (0: fully ordered,
+        1: fully disordered)
+    do3disxz :  float
+        amount of DO_3-type disorder between X and Z atoms (0: fully ordered,
+        1: fully disordered)
+    biso :      list of floats, optional
+        Debye Waller factors for X, Y, Z elements
+    occ :       list of floats, optional
+        occupation numbers for the elements X, Y, Z
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
@@ -153,17 +181,20 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
 
 def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
     """
-    Full Heusler structure with formula (XY)X′Z structure;
+    Full Heusler structure with formula (XY)X'Z structure;
     space group F-43m (216)
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a:         cubic lattice parameter in Angstroem
+    X, Y, Z :   str or Element
+        elements
+    a :         float
+        cubic lattice parameter in Angstroem
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('(%s%s)%s\'%s' % (x.basename, y.basename,
@@ -181,12 +212,15 @@ def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a,c:       tetragonal lattice parameters in Angstroem
+    X, Y, Z :   str or Element
+        elements
+    a, c :      float
+        tetragonal lattice parameters in Angstroem
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
@@ -203,12 +237,15 @@ def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a,c:       tetragonal lattice parameters in Angstroem
+    X, Y, Z :   str or Element
+        elements
+    a, c :      float
+        tetragonal lattice parameters in Angstroem
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
@@ -226,12 +263,15 @@ def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
 
     Parameters
     ----------
-     X,Y,Z:     elements, either as string or instance of Element
-     a,c:       hexagonal lattice parameters in Angstroem
+    X, Y, Z :   str or Element
+        elements
+    a, c :      float
+        hexagonal lattice parameters in Angstroem
 
     Returns
     -------
-     instance of Crystal describing the Heusler material
+    Crystal
+        Crystal describing the Heusler material
     """
     x, y, z = check_elements(X, Y, Z)
     return Crystal('%s%s%s' % (x.basename, y.basename, z.basename),
@@ -247,12 +287,15 @@ def chemical_composition(mat, natoms=4):
 
     Parameters
     ----------
-     mat:       instance of Crystal
-     natoms:    number of atoms to normalize the formula
+    mat :       Crystal
+        instance of Crystal
+    natoms :    int
+        number of atoms to normalize the formula
 
     Returns
     -------
-     string representation of the chemical composition
+    str
+        representation of the chemical composition
     """
     elem = {}
     for a in mat.lattice.base():

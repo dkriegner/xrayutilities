@@ -34,11 +34,12 @@ class Transform(object):
 
         Parameters
         ----------
-         args:     object to transform, list or numpy array of shape
-                    (...,n) (...,n,n), (...,n,n,n,n) where n is the size of
-                    the transformation matrix.
-         rank:      rank of the supplied object. allowed values are 1, 2,
-                    and 4
+        args :      list or array-like
+            object to transform, list or numpy array of shape (..., n)
+            (..., n, n), (..., n, n, n, n) where n is the size of the
+            transformation matrix.
+        rank :      int
+            rank of the supplied object. allowed values are 1, 2, and 4
         """
         if self.imatrix is None:
             try:
@@ -57,11 +58,12 @@ class Transform(object):
 
         Parameters
         ----------
-         args:     object to transform, list or numpy array of shape
-                    (...,n) (...,n,n), (...,n,n,n,n) where n is the size of
-                    the transformation matrix.
-         rank:      rank of the supplied object. allowed values are 1, 2,
-                    and 4
+        args :      list or array-like
+            object to transform, list or numpy array of shape (..., n)
+            (..., n, n), (..., n, n, n, n) where n is the size of the
+            transformation matrix.
+        rank :      int
+            rank of the supplied object. allowed values are 1, 2, and 4
         """
 
         m = self.matrix
@@ -70,10 +72,10 @@ class Transform(object):
             out = numpy.einsum('ij,...j', m, args)
         elif rank == 2:  # argument is a matrix
             # out_ij = m_ik * m_jl * args_kl
-            out = numpy.einsum('ik,jl,...kl', m, m, args)
+            out = numpy.einsum('ik, jl,...kl', m, m, args)
         elif rank == 4:
             # cp_ijkl = m_in * m_jo * m_kp * m_lq * args_nopq
-            out = numpy.einsum('in,jo,kp,lq,...nopq', m, m, m, m, args)
+            out = numpy.einsum('in, jo, kp, lq,...nopq', m, m, m, m, args)
 
         return out
 
@@ -97,13 +99,13 @@ class CoordinateTransform(Transform):
 
         Parameters
         ----------
-         v1:     list, tuple or numpy array with new base vector 1
-         v2:     list, tuple or numpy array with new base vector 2
-         v3:     list, tuple or numpy array with new base vector 3
+        v1, v2, v3 :     list, tuple or array-like
+            new base vectors
 
         Returns
         -------
-         An instance of a Transform class
+        Transform
+            An instance of a Transform class
         """
         e1 = vector._checkvec(v1)
         e2 = vector._checkvec(v2)
@@ -152,7 +154,8 @@ class AxisToZ(CoordinateTransform):
 
         Parameters
         ----------
-         newzaxis:  list or numpy array with new z-axis
+        newzaxis :  list or array-like
+            new z-axis
         """
         newz = vector._checkvec(newzaxis)
 
@@ -188,7 +191,8 @@ class AxisToZ_keepXY(CoordinateTransform):
 
         Parameters
         ----------
-         newzaxis:  list or numpy array with new z-axis
+        newzaxis :  list or array-like
+            new z-axis
         """
         newz = vector._checkvec(newzaxis)
 
@@ -282,13 +286,16 @@ def ArbRotation(axis, alpha, deg=True):
 
     Parameters
     ----------
-     axis:  numpy.array or list of length 3
-     alpha: rotation angle in degree (deg=True) or in rad (deg=False)
-     deg:   boolean which determines the input format of ang (default: True)
+    axis :  list or array-like
+        rotation axis
+    alpha : float
+        rotation angle in degree (deg=True) or in rad (deg=False)
+    deg :   bool
+        determines the input format of ang (default: True)
 
     Returns
     -------
-     instance of Transform
+    Transform
     """
     axis = vector._checkvec(axis)
     e = axis / numpy.linalg.norm(axis)
@@ -310,18 +317,22 @@ def rotarb(vec, axis, ang, deg=True):
 
     Parameters
     ----------
-     vec:   numpy.array or list of length 3
-     axis:  numpy.array or list of length 3
-     ang:   rotation angle in degree (deg=True) or in rad (deg=False)
-     deg:   boolean which determines the input format of ang (default: True)
+    vec :   list or array-like
+        vector to rotate
+    axis :  list or array-like
+        rotation axis
+    ang :   float
+        rotation angle in degree (deg=True) or in rad (deg=False)
+    deg :   bool
+        determines the input format of ang (default: True)
 
     Returns
     -------
-     rotvec:  rotated vector as numpy.array
+    rotvec :  rotated vector as numpy.array
 
     Examples
     --------
-    >>> rotarb([1,0,0],[0,0,1],90)
+    >>> rotarb([1, 0, 0],[0, 0, 1], 90)
     array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
     """
     return ArbRotation(axis, ang, deg)(vec)

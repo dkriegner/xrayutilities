@@ -33,12 +33,17 @@ class FileDirectory(object):
     def __init__(self, datapath, ext, parser, **keyargs):
         """
 
-        required arguments:
-        datapath ..... directory of the files
-        ext .......... extension of the files in the datapath
-        parser ....... Parser class for the data files.
-
-        further keyword arguments are passed to the constructor of the parser
+        Parameters
+        ----------
+        datapath :  str
+            directory of the files
+        ext :       str
+            extension of the files in the datapath
+        parser :    class
+            Parser class for the data files.
+        keyargs :   dict
+            further keyword arguments are passed to the constructor of the
+            parser
         """
 
         self.datapath = os.path.normpath(datapath)
@@ -69,12 +74,13 @@ class FileDirectory(object):
 
         Parameters
         ----------
-         h5f ..... a HDF5 file object or name
-
-        optional keyword arguments:
-         group ... group where to store the data (defaults to pathname if
-                   group is empty string)
-         comp .... activate compression - true by default
+        h5f :   file-handle or str
+            a HDF5 file object or name
+        group : str, optional
+            group where to store the data (defaults to pathname if group is
+            empty string)
+        comp :  bool, optional
+            activate compression - true by default
         """
         with xu_h5open(h5f, 'a') as h5:
             if isinstance(group, str):

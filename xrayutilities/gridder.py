@@ -32,9 +32,9 @@ def delta(min_value, max_value, n):
 
     Parameters
     ----------
-    min_value ........... axis minimum value
-    max_value ........... axis maximum value
-    n ................... number of steps
+   min_value :	 axis minimum value
+   max_value :	 axis maximum value
+   n :	 number of steps
     """
     if n != 1:
         return (float(max_value) - float(min_value)) / float(n - 1)
@@ -48,9 +48,12 @@ def axis(min_value, max_value, n):
 
     Parameters
     ----------
-    min_value ........... axis minimum value
-    max_value ........... axis maximum value
-    n ................... number of steps
+    min_value : float
+        axis minimum value
+    max_value :	float
+        axis maximum value
+    n :	        int
+        number of steps
     """
 
     if n != 1:
@@ -197,8 +200,10 @@ class Gridder1D(Gridder):
 
         Parameters
         ----------
-         filename:  output filename
-         header:    optional header for the data file.
+        filename :  str
+            output filename
+        header :    str, optional
+            optional header for the data file.
         """
         numpy.savetxt(filename, numpy.vstack((self.xaxis, self.data)).T,
                       header=header, fmt='%.6g %.4g')
@@ -222,10 +227,13 @@ class Gridder1D(Gridder):
 
         Parameters
         ----------
-         min:   minimum value of the gridding range
-         max:   maximum value of the gridding range
-         fixed: flag to turn fixed range gridding on (True (default))
-                or off (False)
+        min :   float
+            minimum value of the gridding range
+        max :   float
+            maximum value of the gridding range
+        fixed : bool, optional
+            flag to turn fixed range gridding on (True (default)) or off
+            (False)
         """
         self.fixed_range = fixed
         self.xmin = min
@@ -243,7 +251,7 @@ class Gridder1D(Gridder):
         data = self._prepare_array(data)
 
         if x.size != data.size:
-            raise InputError("XU.%s: size of given datasets (x,data)"
+            raise InputError("XU.%s: size of given datasets (x, data)"
                              " is not equal!" % self.__class__.__name__)
 
         if not self.fixed_range:
@@ -260,8 +268,10 @@ class Gridder1D(Gridder):
 
         Parameters
         ----------
-         x ............... numpy array of arbitrary shape with x positions
-         data ............ numpy array of arbitrary shape with data values
+        x :	 ndarray
+            numpy array of arbitrary shape with x positions
+        data :	 ndarray
+            numpy array of arbitrary shape with data values
         """
         x, data = self._checktransinput(x, data)
         # remove normalize flag for C-code, normalization is always performed
@@ -287,10 +297,13 @@ class FuzzyGridder1D(Gridder1D):
 
         Parameters
         ----------
-         x ............... numpy array of arbitrary shape with x positions
-         data ............ numpy array of arbitrary shape with data values
-         width ........... width of one data point. If not given half the bin
-                           size will be used.
+        x :	 ndarray
+            numpy array of arbitrary shape with x positions
+        data :	 ndarray
+            numpy array of arbitrary shape with data values
+        width :	 float, optional
+            width of one data point. If not given half the bin size will be
+            used.
         """
         x, data = self._checktransinput(x, data)
 
@@ -326,8 +339,10 @@ class npyGridder1D(Gridder1D):
 
         Parameters
         ----------
-         x ............... numpy array of arbitrary shape with x positions
-         data ............ numpy array of arbitrary shape with data values
+        x :	 ndarray
+            numpy array of arbitrary shape with x positions
+        data :	 ndarray
+            numpy array of arbitrary shape with data values
         """
 
         x, data = self._checktransinput(x, data)

@@ -54,15 +54,21 @@ def GradedBuffer(xfrom, xto, nsteps, thickness, relaxation=1):
 
     Parameters
     ----------
-     xfrom:     begin of the composition gradient
-     xto:       end of the composition gradient
-     nsteps:    number of steps of the gradient
-     thickness: total thickness of the Buffer in A
-     relaxation:    relaxation of the buffer
+    xfrom :     float
+        begin of the composition gradient
+    xto :       float
+        end of the composition gradient
+    nsteps :    int
+        number of steps of the gradient
+    thickness : float
+        total thickness of the Buffer in A
+    relaxation : float
+        relaxation of the buffer
 
     Returns
     -------
-     layer object needed for the Darwin model simulation
+    list
+        layer list needed for the Darwin model simulation
     """
     subthickness = thickness/nsteps
     gradedx = numpy.linspace(xfrom, xto, nsteps)
@@ -90,21 +96,25 @@ class DarwinModel(LayerModel):
 
         Parameters
         ----------
-         qz:        momentum transfer values for the calculation
-         qx,qy:     inplane momentum transfer (not implemented!)
-         *kwargs:   optional parameters for the simulation. supported are:
-            'I0' is the primary beam intensity
-            'background' is the background added to the simulation
-            'resolution_width' defines the width of the resolution
-                               (deg)
-            'polarization' polarization of the x-ray beam, either 'S',
-                                   'P' or 'both'. If set to 'both' also Cmono,
-                                   the polarization factor of the monochromator
-                                   should be set
-            'experiment': Experiment class containing geometry and energy of
-                          the experiment.
-            'Cmono' polarization factor of the monochromator
-            'energy' sets the experimental energy (eV)
+        qz :        array-like
+            momentum transfer values for the calculation
+        qx, qy :    float, optional
+            inplane momentum transfer (not implemented!)
+        I0 :        float, optional
+            the primary beam intensity
+        background : float, optional
+            the background added to the simulation
+        resolution_width :  float, optional
+            width of the resolution function (deg)
+        polarization : {'S', 'P', 'both'}
+            polarization of the x-ray beam. If set to 'both' also Cmono, the
+            polarization factor of the monochromator should be set
+        experiment : Experiment, optional
+            experiment class containing geometry and energy of the experiment.
+        Cmono :     float, optional
+            polarization factor of the monochromator
+        energy :    float or str, optional
+            x-ray energy in eV
         """
         self.polarization = kwargs.pop('polarization', 'S')
         exp = kwargs.pop('experiment', None)
@@ -141,14 +151,16 @@ class DarwinModel(LayerModel):
 
         Parameters
         ----------
-         pdict: property dictionary, contains all the properties for the
-                structure factor calculation
-         pol:   polarization of the x-rays (either 'S' or 'P')
+        pdict :     dict
+            property dictionary, contains all the properties for the structure
+            factor calculation
+        pol :       {'S', 'P'}
+            polarization of the x-rays; sigma or pi
 
         Returns
         -------
-         r, rbar, t: reflection, backside reflection, and tranmission
-                     coefficients
+        r, rbar, t :    float or array-like
+            reflection, backside reflection, and tranmission coefficients
         """
         pass
 
@@ -159,10 +171,18 @@ class DarwinModel(LayerModel):
 
         Parameters
         ----------
-         ra, rabar, ta: relfection, backside reflection, and transmission
-                        coefficients of layer A
-         rb, rbbar, tb: same for layer B
-         d:             distance between the layers
+        ra, rabar, ta : float or array-like
+            reflection, backside reflection, and transmission coefficients of
+            layer A
+        rb, rbbar, tb : float or array-like
+            same for layer B
+        d :             float
+            distance between the layers
+
+        Returns
+        -------
+        r, rbar, t :    float or array-like
+            reflection, backside reflection, and tranmission coefficients
         """
         self.ncalls += 1
         e = numpy.exp(-1j*self.qz*d)
@@ -180,9 +200,9 @@ class DarwinModel(LayerModel):
 
         Parameters
         ----------
-         ml:        monolayer sequence of the sample. This should be created
-                    with the function make_monolayer(). see its documentation
-                    for details
+        ml :        iterable
+            monolayer sequence of the sample. This should be created with the
+            function make_monolayer(). see its documentation for details
         """
         self.ncalls = 0
         Ih = {'S': numpy.zeros(len(self.qz)), 'P': numpy.zeros(len(self.qz))}
@@ -206,20 +226,24 @@ class DarwinModel(LayerModel):
 
         Parameters
         ----------
-         ml:        monolayer sequence of the calculation block. This should be
-                    created with the function make_monolayer(). see its
-                    documentation for details
-         r:         reflection factor of the upper layers (needed for the
-                    recursion)
-         rbar:      back-side reflection factor of the upper layers (needed for
-                    the recursion)
-         t:         transmission factor of the upper layers (needed for the
-                    recursion)
-         pol:       polarization of the x-rays (either 'S' or 'P')
+        ml :        iterable
+            monolayer sequence of the calculation block. This should be created
+            with the function make_monolayer(). see its documentation for
+            details
+        r :         float or array-like
+            reflection factor of the upper layers (needed for the recursion)
+        rbar :      float or array-like
+            back-side reflection factor of the upper layers (needed for the
+            recursion)
+        t :         float or array-like
+            transmission factor of the upper layers (needed for the recursion)
+        pol :       {'S', 'P'}
+            polarization of the x-rays
 
         Returns
         -------
-         r, rbar, t: reflection and transmission of the full stack
+        r, rbar, t : float or array-like
+            reflection and transmission of the full stack
         """
         if isinstance(ml, list):
             rm, rmbar, tm = (None, None, None)
@@ -259,15 +283,19 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
 
         Parameters
         ----------
-         x:     chemical composition parameter
-         apar:  inplane lattice parameter of the material below the current
-                layer (onto which the present layer is strained to). This value
-                also served as a reference for the relaxation parameter.
-         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
+        x :         float
+            chemical composition parameter
+        apar :      float
+            inplane lattice parameter of the material below the current layer
+            (onto which the present layer is strained to). This value also
+            served as a reference for the relaxation parameter.
+        r :         float
+            relaxation parameter. 1=relaxed, 0=pseudomorphic
 
         Returns
         -------
-         dperp, apar
+        dperp :     float
+        apar :      float
         """
         raise NotImplementedError("abstract method needs to be overwritten")
 
@@ -277,25 +305,29 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
 
         Parameters
         ----------
-         s:     layer model. list of layer dictionaries including possibility
-                to form superlattices. As an example 5 repetitions of a
-                Si(10nm)/Ge(15nm) superlattice on Si would like like:
-                s = [(5, [{'t': 100, 'x': 0, 'r': 0},
-                          {'t': 150, 'x': 1, 'r': 0}]),
-                     {'t': 3500000, 'x': 0, 'r': 0}]
-                the dictionaries must contain 't': thickness in A, 'x':
-                chemical composition, and either 'r': relaxation or 'ai':
-                inplane lattice parameter.
-                Future implementations for asymmetric peaks might include layer
-                type 'l' (not yet implemented). Already now any additional
-                property in the dictionary will be handed on to the returned
-                monolayer list.
-         asub:  inplane lattice parameter of the substrate
+        s :     list
+            layer model. list of layer dictionaries including possibility to
+            form superlattices. As an example 5 repetitions of a
+            Si(10nm)/Ge(15nm) superlattice on Si would like like:
+
+            >>> s = [(5, [{'t': 100, 'x': 0, 'r': 0},
+            >>>           {'t': 150, 'x': 1, 'r': 0}]),
+            >>>      {'t': 3500000, 'x': 0, 'r': 0}]
+
+            the dictionaries must contain 't': thickness in A, 'x': chemical
+            composition, and either 'r': relaxation or 'ai': inplane lattice
+            parameter.
+            Future implementations for asymmetric peaks might include layer
+            type 'l' (not yet implemented). Already now any additional property
+            in the dictionary will be handed on to the returned monolayer list.
+        asub :  float
+            inplane lattice parameter of the substrate
 
         Returns
         -------
-         monolayer list in a format understood by the simulate and xGe_profile
-         methods
+        list
+            monolayer list in a format understood by the simulate and
+            xGe_profile methods
         """
         ml = []
         ai = self.asub
@@ -309,15 +341,18 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
 
         Parameters
         ----------
-         s:     layer model. list of layer dictionaries
-         ml:    list of layers below what should be added (needed for
-                recursion)
-         apar:  inplane lattice parameter of the current surface
+        s :     list
+            layer model. list of layer dictionaries
+        ml :    list
+            list of layers below what should be added (needed for recursion)
+        apar :  float
+            inplane lattice parameter of the current surface
 
         Returns
         -------
-         monolayer list in a format understood by the simulate and prop_profile
-         methods
+        list
+            monolayer list in a format understood by the simulate and
+            prop_profile methods
         """
 
         if isinstance(s, tuple):
@@ -377,15 +412,18 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
 
         Parameters
         ----------
-         ml:    monolayer list created by make_monolayer()
-         prop:  name of the property which should be evaluated. Use 'x' for the
-                chemical composition and 'ai' for the inplane lattice
-                parameter.
+        ml :    list
+            monolayer list created by make_monolayer()
+        prop :  str
+            name of the property which should be evaluated. Use 'x' for the
+            chemical composition and 'ai' for the inplane lattice parameter.
 
         Returns
         -------
-         zm, propx:   z-position, value of the property prop for every
-                      monolayer. z=0 is the surface
+        zm :    ndarray
+            z-position, z-0 is the surface
+        propx : ndarray
+            value of the property prop for every monolayer
         """
 
         def startinterval(start, inter, N):
@@ -463,15 +501,21 @@ class DarwinModelSiGe001(DarwinModelAlloy):
 
         Parameters
         ----------
-         x:     chemical composition parameter
-         apar:  inplane lattice parameter of the material below the current
-                layer (onto which the present layer is strained to). This value
-                also served as a reference for the relaxation parameter.
-         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
+        x :     float
+            chemical composition parameter
+        apar :  float
+            inplane lattice parameter of the material below the current layer
+            (onto which the present layer is strained to). This value also
+            served as a reference for the relaxation parameter.
+        r :     float, optional
+            relaxation parameter. 1=relaxed, 0=pseudomorphic
 
         Returns
         -------
-         dperp, apar
+        dperp : float
+            perpendicular d-spacing
+        apar :  float
+            inplane lattice parameter
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
@@ -482,9 +526,10 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         """
         calculates the needed atomic structure factors
 
-        Parameters (optional)
-        ---------------------
-         temp:      temperature used for the Debye model
+        Parameters
+        ----------
+        temp :  float, optional
+            temperature used for the Debye model
         """
         en = self.exp.energy
         q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
@@ -499,16 +544,18 @@ class DarwinModelSiGe001(DarwinModelAlloy):
 
         Parameters
         ----------
-         pdict: property dictionary, contains the layer properties:
-           x:   Ge-content of the layer (0: Si, 1: Ge)
-           l:   index of the layer in the unit cell (0, 1, 2, 3). important for
-                    asymmetric peaks only!
-         pol:   polarization of the x-rays (either 'S' or 'P')
+        pdict :     dict
+            property dictionary, contains the layer properties:
+            'x':   Ge-content of the layer (0: Si, 1: Ge);
+            'l':   index of the layer in the unit cell (0, 1, 2, 3). important
+                   for asymmetric peaks only!
+        pol :       {'S', 'P'}
+            polarization of the x-rays
 
         Returns
         -------
-         r, rbar, t: reflection, backside reflection, and tranmission
-                     coefficients
+        r, rbar, t : float or array-like
+            reflection, backside reflection, and tranmission coefficients
         """
         ainp = pdict.get('ai')
         xGe = pdict.get('x')
@@ -569,15 +616,21 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
 
         Parameters
         ----------
-         x:     chemical composition parameter
-         apar:  inplane lattice parameter of the material below the current
-                layer (onto which the present layer is strained to). This value
-                also served as a reference for the relaxation parameter.
-         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
+        x :     float
+            chemical composition parameter
+        apar :  float
+            inplane lattice parameter of the material below the current layer
+            (onto which the present layer is strained to). This value also
+            served as a reference for the relaxation parameter.
+        r :     float
+            relaxation parameter. 1=relaxed, 0=pseudomorphic
 
         Returns
         -------
-         dperp, apar
+        dperp : float
+            perpendicular d-spacing
+        apar :  float
+            inplane lattice parameter
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
@@ -588,9 +641,10 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         """
         calculates the needed atomic structure factors
 
-        Parameters (optional)
-        ---------------------
-         temp:      temperature used for the Debye model
+        Parameters
+        ----------
+        temp :      float, optional
+            temperature used for the Debye model
         """
         en = self.exp.energy
         q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
@@ -608,14 +662,16 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
 
         Parameters
         ----------
-         pdict: property dictionary, contains the layer properties:
-           x:   In-content of the layer (0: GaAs, 1: InAs)
-         pol:   polarization of the x-rays (either 'S' or 'P')
+        pdict :     dict
+            property dictionary, contains the layer properties:
+            'x':   In-content of the layer (0: GaAs, 1: InAs)
+        pol :       {'S', 'P'}
+            polarization of the x-rays
 
         Returns
         -------
-         r, rbar, t: reflection, backside reflection, and tranmission
-                     coefficients
+        r, rbar, t : float or array-like
+            reflection, backside reflection, and tranmission coefficients
         """
         ainp = pdict.get('ai')
         xInAs = pdict.get('x')
@@ -665,15 +721,21 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
 
         Parameters
         ----------
-         x:     chemical composition parameter
-         apar:  inplane lattice parameter of the material below the current
-                layer (onto which the present layer is strained to). This value
-                also served as a reference for the relaxation parameter.
-         r:     relaxation parameter. 1=relaxed, 0=pseudomorphic
+        x :     float
+            chemical composition parameter
+        apar :  float
+            inplane lattice parameter of the material below the current layer
+            (onto which the present layer is strained to). This value also
+            served as a reference for the relaxation parameter.
+        r :     float
+            relaxation parameter. 1=relaxed, 0=pseudomorphic
 
         Returns
         -------
-         dperp, apar
+        dperp : float
+            perpendicular d-spacing
+        apar :  float
+            inplane lattice parameter
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
@@ -684,9 +746,10 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         """
         calculates the needed atomic structure factors
 
-        Parameters (optional)
-        ---------------------
-         temp:      temperature used for the Debye model
+        Parameters
+        ----------
+        temp :  float, optional
+            temperature used for the Debye model
         """
         en = self.exp.energy
         q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
@@ -704,14 +767,16 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
 
         Parameters
         ----------
-         pdict: property dictionary, contains the layer properties:
-           x:   Al-content of the layer (0: GaAs, 1: AlAs)
-         pol:   polarization of the x-rays (either 'S' or 'P')
+        pdict :     dict
+            property dictionary, contains the layer properties:
+            'x':   Al-content of the layer (0: GaAs, 1: AlAs)
+        pol :       {'S', 'P'}
+            polarization of the x-rays
 
         Returns
         -------
-         r, rbar, t: reflection, backside reflection, and tranmission
-                     coefficients
+        r, rbar, t : float or array-like
+            reflection, backside reflection, and tranmission coefficients
         """
         ainp = pdict.get('ai')
         xAlAs = pdict.get('x')

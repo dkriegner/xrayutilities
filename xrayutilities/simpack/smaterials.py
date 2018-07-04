@@ -53,10 +53,11 @@ class SMaterial(object):
 
         Parameters
         ----------
-         material:  Material object containing optical/crystal properties of
-                    for the simulation
-         kwargs:    optional properties of the material needed for the
-                    simulation
+        material :  Material (Crystal, or Amorphous)
+            Material object containing optical/crystal properties of for the
+            simulation
+        kwargs :    dict
+            optional properties of the material needed for the simulation
         """
         self.name = material.name
         self.material = material
@@ -165,12 +166,15 @@ class MaterialList(collections.MutableSequence):
 class Layer(SMaterial):
     """
     Object describing part of a thin film sample. The properties of a layer
-    are:
+    are :
 
-    material:   an xrayutilties material describing optical and crystal
-                properties of the thin film
-    thickness:  film thickness in Angstrom
-    roughness:  root mean square roughness of the top interface in Angstrom
+    Attributes
+    ----------
+    material :  Material (Crystal or Amorhous)
+        an xrayutilties material describing optical and crystal properties of
+        the thin film
+    thickness : float
+        film thickness in Angstrom
     """
 
     def __init__(self, material, thickness, **kwargs):
@@ -179,17 +183,22 @@ class Layer(SMaterial):
 
         Parameters
         ----------
-         material:  an xrayutilities material to describe the properties of the
-                    layer
-         thickness: thickness of the layer in Angstrom
-         kwargs:    optional keyword arguments with further layer properties.
-                    'roughness' is the root mean square roughness (\AA)
-                    'density' relativ density of the material; 1 for nominal
-                    density
-                    'relaxation' is the degree of relaxation in case of
-                    crystalline thin films
-                    'lat_correl' is the lateral correlation length for diffuse
-                    reflectivity calculations
+        material :  Material (Crystal or Amorhous)
+            an xrayutilties material describing optical and crystal properties
+            of the thin film
+        thickness : float
+            film thickness in Angstrom
+        kwargs :    dict
+            optional keyword arguments with further layer properties.
+        roughness : float, optional
+            root mean square roughness of the top interface in Angstrom
+        density :    float, optional
+            relativ density of the material; 1 for nominal density
+        relaxation : float, optional
+            the degree of relaxation in case of crystalline thin films
+        lat_correl : float, optional
+            the lateral correlation length for diffuse reflectivity
+            calculations
         """
         for kw in kwargs:
             if kw not in ('roughness', 'density', 'relaxation', 'lat_correl'):
@@ -235,11 +244,15 @@ class GradedLayerStack(CrystalStack):
 
         Parameters
         ----------
-         alloy:     Alloy function which allows to create a material with
-                    chemical composition 'x' by alloy(x)
-         xfrom/xto: chemical composition from the bottom to top
-         nsteps:    number of sublayers in the graded buffer
-         thickness: total thickness of the graded stack
+        alloy :         function
+            Alloy function which allows to create a material with chemical
+            composition 'x' by alloy(x)
+        xfrom, xto :    float
+            chemical composition from the bottom to top
+        nsteps :        int
+            number of sublayers in the graded buffer
+        thickness :     float
+            total thickness of the graded stack
         """
         nfrom = alloy(xfrom).name
         nto = alloy(xto).name
@@ -303,16 +316,23 @@ class Powder(SMaterial):
     Object describing part of a powder sample. The properties of a powder
     are:
 
-    material:   an xrayutilties material (Crystal) describing optical and
-                crystal properties of the thin film
-    volume:     powder's volume (in pseudo units, since only the relative
-                volume enters the calculation)
+    Attributes
+    ----------
+    material :   Crystal
+        an xrayutilties material (Crystal) describing optical and crystal
+        properties of the powder
+    volume :     float
+        powder's volume (in pseudo units, since only the relative volume enters
+        the calculation)
 
-    Optionally also the following can be set:
-     crystallite_size_lor: Lorentzian crystallite size fwhm (m)
-     crystallite_size_gauss: Gaussian crystallite size fwhm (m)
-     strain_lor: extra peak width proportional to tan(theta)
-     strain_gauss: extra peak width proportional to tan(theta)
+    crystallite_size_lor :      float, optional
+        Lorentzian crystallite size fwhm (m)
+    crystallite_size_gauss :    float, optional
+        Gaussian crystallite size fwhm (m)
+    strain_lor :                float, optional
+        extra peak width proportional to tan(theta)
+    strain_gauss :              float, optional
+        extra peak width proportional to tan(theta)
     """
 
     def __init__(self, material, volume, **kwargs):
@@ -321,14 +341,21 @@ class Powder(SMaterial):
 
         Parameters
         ----------
-         material:  a Crystal to describe the properties of the powder
-         volume:    volume of the powder (pseudo units)
-         kwargs:    optional keyword arguments with further powder properties.
-           'crystallite_size_lor': Lorentzian crystallite size fwhm (m)
-           'crystallite_size_gauss': Gaussian crystallite size fwhm (m)
-           'strain_lor', 'strain_gauss':
-                extra peak width proportional to tan(theta),
-                typically interpreted as microstrain broadening
+        material :      Crystal
+            an xrayutilties material (Crystal) describing optical and crystal
+            properties of the powder
+        volume :        float
+            powder's volume (in pseudo units, since only the relative volume
+            enters the calculation)
+        kwargs :        dict
+            optional keyword arguments with further powder properties.
+        crystallite_size_lor :      float, optional
+            Lorentzian crystallite size fwhm (m)
+        crystallite_size_gauss :    float, optional
+            Gaussian crystallite size fwhm (m)
+        strain_lor, strain_gauss :  float, optional
+            extra peak width proportional to tan(theta);
+            typically interpreted as microstrain broadening
         """
         for kw in kwargs:
             if kw not in ('crystallite_size_lor', 'crystallite_size_gauss',

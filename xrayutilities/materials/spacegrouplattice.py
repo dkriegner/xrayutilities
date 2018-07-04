@@ -215,13 +215,17 @@ class WyckoffBase(list):
 
         Parameters
         ----------
-         atom:   atom object to be added
-         pos:    Wyckoff position of the atom, along with its parameters.
-                 Examples: ('2i', (0.1, 0.2, 0.3)), or '1a'
-         occ:    occupancy (default=1.0)
-         b:      b-factor of the atom used as exp(-b*q**2/(4*pi)**2) to reduce
-                 the intensity of this atom (only used in case of temp=0 in
-                 StructureFactor and chi calculation)
+        atom :   Atom
+            object to be added
+        pos :    tuple or str
+            Wyckoff position of the atom, along with its parameters.
+            Examples: ('2i', (0.1, 0.2, 0.3)), or '1a'
+        occ :    float, optional
+            occupancy (default=1.0)
+        b :      float, optional
+            b-factor of the atom used as exp(-b*q**2/(4*pi)**2) to reduce the
+            intensity of this atom (only used in case of temp=0 in
+            StructureFactor and chi calculation)
         """
         atom = self._checkatom(atom)
         pos = self._checkpos(pos)
@@ -250,11 +254,12 @@ class WyckoffBase(list):
 
         Parameters
         ----------
-         item: WyckoffBase entry to check if its present in this list
+        item :  tuple or list
+            WyckoffBase entry to check if its present in this list
 
         Returns
         -------
-         True or False
+        bool
         """
         for atom, p, occ, b in self:
             if atom == item[0] and p == item[1] and b == item[3]:
@@ -269,11 +274,12 @@ class WyckoffBase(list):
 
         Parameters
         ----------
-         item: WyckoffBase entry
+        item :  tuple or list
+            WyckoffBase entry
 
         Returns
         -------
-         int
+        int
         """
         for i, (atom, p, occ, b) in enumerate(self):
             if atom == item[0] and p == item[1] and b == item[3]:
@@ -296,29 +302,33 @@ class SGLattice(object):
 
         Parameters
         ----------
-         sgrp:  Space group number (or string)
-         *args: space group parameters. depending on the space group number
-                this are 1 (cubic) to 6 (triclinic) parameters.
-                cubic: a (lattice parameter).
-                hexagonal: a, c.
-                trigonal: a, c.
-                tetragonal: a, c.
-                orthorhombic: a, b, c.
-                monoclinic: a, b, c, beta (in degree).
-                triclinic: a, b, c, alpha, beta, gamma (in degree).
-         **kwargs: optional parameters
-            atoms: list of elements either as Element object or string with the
-                   element name. If you specify atoms you have to also give the
-                   same number of Wyckoff positions
-            pos:   list of the atoms Wyckoff positions along with its
-                   parameters. If a position has no free parameter the
-                   parameters can be omitted. Example:
-                   [('2i', (0.1, 0.2, 0.3)), '1a']
-            occ:   site occupation for the atoms. This is optional and defaults
-                   to 1 if not given.
-            b:     b-factor of the atom used as exp(-b*q**2/(4*pi)**2) to
-                   reduce the intensity of this atom (only used in case of
-                   temp=0 in StructureFactor and chi calculation)
+        sgrp :  int or str
+            Space group number
+        *args : float
+            space group parameters. depending on the space group number this
+            are 1 (cubic) to 6 (triclinic) parameters.
+            cubic : a (lattice parameter).
+            hexagonal : a, c.
+            trigonal : a, c.
+            tetragonal : a, c.
+            orthorhombic : a, b, c.
+            monoclinic : a, b, c, beta (in degree).
+            triclinic : a, b, c, alpha, beta, gamma (in degree).
+        atoms :     list, optional
+            list of elements either as Element object or string with the
+            element name. If you specify atoms you have to also give the same
+            number of Wyckoff positions
+        pos :       list, optional
+            list of the atoms Wyckoff positions along with its parameters. If a
+            position has no free parameter the parameters can be omitted.
+            Example: [('2i', (0.1, 0.2, 0.3)), '1a']
+        occ :       list, optional
+            site occupation for the atoms. This is optional and defaults to 1
+            if not given.
+        b :         list, optional
+            b-factor of the atom used as exp(-b*q**2/(4*pi)**2) to reduce the
+            intensity of this atom (only used in case of temp=0 in
+            StructureFactor and chi calculation)
         """
         self.space_group = str(sgrp)
         self.space_group_nr = int(self.space_group.split(':')[0])
@@ -525,12 +535,12 @@ class SGLattice(object):
 
         Examples
         --------
-        >>> xu.materials.Si.lattice.GetPoint(0,0,4)
+        >>> xu.materials.Si.lattice.GetPoint(0, 0, 4)
         array([  0.     ,   0.     ,  21.72416])
 
         or
 
-        >>> xu.materials.Si.lattice.GetPoint((1,1,1))
+        >>> xu.materials.Si.lattice.GetPoint((1, 1, 1))
         array([ 5.43104,  5.43104,  5.43104])
         """
         if len(args) == 1:
@@ -565,12 +575,15 @@ class SGLattice(object):
         """
         Applies a certain strain on a lattice. The result is a change
         in the base vectors. The full strain matrix (3x3) needs to be given.
-        Note: Here you specify the strain and not the stress -> NO elastic
-              response of the material will be considered!
+
+        Note:
+            Here you specify the strain and not the stress -> NO elastic
+            response of the material will be considered!
 
         Parameters
         ----------
-         eps:    a 3x3 matrix with all strain components
+        eps :    array-like
+            a 3x3 matrix with all strain components
         """
         if isinstance(eps, (list, tuple)):
             eps = numpy.asarray(eps, dtype=numpy.double)
@@ -601,14 +614,16 @@ class SGLattice(object):
 
         Parameters
         ----------
-         hkl1,2:        Miller indices to be checked for equivalence
-         equalq:        If False the length of the two q-vactors will be
-                        compared. If True it is assumed that the length of the
-                        q-vectors of hkl1 and hkl2 is equal!
+        hkl1, hkl2 :    list
+            Miller indices to be checked for equivalence
+        equalq :        bool
+            If False the length of the two q-vactors will be compared. If True
+            it is assumed that the length of the q-vectors of hkl1 and hkl2 is
+            equal!
 
         Returns
         -------
-         True or False
+        bool
         """
         def leftShift(tup, n):
             try:
@@ -744,12 +759,14 @@ class SGLattice(object):
 
         Parameters
         ----------
-         sglat:   space group lattice instance to be converted to P1.
+        sglat :   SGLattice
+            space group lattice instance to be converted to P1.
 
         Returns
         -------
-        SGLattice instance with the same properties as sglat, however in the P1
-        setting.
+        SGLattice
+            instance with the same properties as sglat, however in the P1
+            setting.
         """
         a, b, c, alpha, beta, gamma = (sglat.a, sglat.b, sglat.c, sglat.alpha,
                                        sglat.beta, sglat.gamma)

@@ -50,15 +50,19 @@ def linregress(x, y):
 
     Parameters
     ----------
-     x,y:   data coordinates and values
+    x, y :  array-like
+        data coordinates and values
 
     Returns
     -------
-     p, rsq: parameters of the linear fit (slope, offest) and the R^2 value
+    p :     tuple
+        parameters of the linear fit (slope, offset)
+    rsq:    float
+        R^2 value
 
     Examples
     --------
-     >>> (k, d), R2 = xu.math.linregress(x, y)
+    >>> (k, d), R2 = xu.math.linregress(x, y)
     """
     mask = numpy.logical_not(numpy.isnan(y))
     lx, ly = (x[mask], y[mask])
@@ -86,32 +90,38 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
 
     Parameters
     ----------
-     xdata:     xcoordinates of the data to be fitted
-     ydata:     ycoordinates of the data which should be fit
+    xdata :     array_like
+        x-coordinates of the data to be fitted
+    ydata :     array_like
+        y-coordinates of the data which should be fit
 
-    keyword parameters:
-     iparams:   initial paramters for the fit,
-                determined automatically if not specified
-     peaktype:  type of peak to fit: 'Gauss', 'Lorentz', 'PseudoVoigt',
-                'PseudoVoigtAsym', 'PseudoVoigtAsym2'
-     maxit:     maximal iteration number of the fit
-     background:    type of background, either 'constant' or 'linear'
-     plot:      flag to ask for a plot to visually judge the fit.
-                If plot is a string it will be used as figure name, which
-                makes reusing the figures easier.
-     func_out:  returns the fitted function, which takes the independent
-                variables as only argument (f(x))
+    iparams :   list, optional
+        initial paramters, determined automatically if not specified
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}, optional
+        type of peak to fit
+    maxit :     int, optional
+        maximal iteration number of the fit
+    background : {'constant', 'linear'}, optional
+        type of background function
+    plot :      bool or str, optional
+        flag to ask for a plot to visually judge the fit. If plot is a string
+        it will be used as figure name, which makes reusing the figures easier.
+    func_out :  bool, optional
+        returns the fitted function, which takes the independent variables as
+        only argument (f(x))
 
     Returns
     -------
-     params,sd_params,itlim[,fitfunc]
-
-    the parameters as defined in function Gauss1d/Lorentz1d/PseudoVoigt1d/
-    PseudoVoigt1dasym(x, *param). In the case of linear background one more
-    parameter is included! For every parameter the corresponding errors of the
-    fit 'sd_params' are returned. A boolean flag 'itlim', which is False in
-    the case of a successful fit is added by default. Further the function
-    used in the fit can be returned (see func_out).
+    params :    list
+        the parameters as defined in function `Gauss1d/Lorentz1d/PseudoVoigt1d/
+        PseudoVoigt1dasym`. In the case of linear background one more parameter
+        is included!
+    sd_params : list
+        For every parameter the corresponding errors are returned.
+    itlim :     bool
+        flag to tell if the iteration limit was reached, should be False
+    fitfunc :   function, optional
+        the function used in the fit can be returned (see func_out).
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.math.peak_fit')
@@ -186,14 +196,16 @@ def _getfit_func(peaktype, background):
 
     Parameters
     ----------
-     peaktype:  type of peak to fit: 'Gauss', 'Lorentz', 'PseudoVoigt',
-                'PseudoVoigtAsym'
-     background:    type of background, either 'constant' or 'linear'
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+        type of peak function
+    background : {'constant', 'linear'}
+        type of background function
 
     Returns
     -------
-     f, f_dx, f_dp: fit function, function of derivative regarding x, and
-                    functions of derivatives regarding the parameters
+    f, f_dx, f_dp : functions
+        fit function, function of derivative regarding `x`, and functions of
+        derivatives regarding the parameters
     """
     gfunc_dx = None
     gfunc_dp = None
@@ -256,10 +268,12 @@ def _check_iparams(iparams, peaktype, background):
 
     Parameters
     ----------
-     iparams:   initial paramters for the fit
-     peaktype:  type of peak to fit: 'Gauss', 'Lorentz', 'PseudoVoigt',
-                'PseudoVoigtAsym'
-     background:    type of background, either 'constant' or 'linear'
+    iparams :   list
+        initial paramters for the fit
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+        type of peak to fit
+    background : {'constant', 'linear'}
+        type of background
 
     """
     if not any(iparams):
@@ -293,11 +307,14 @@ def _guess_iparams(xdata, ydata, peaktype, background):
 
     Parameters
     ----------
-     xdata:     xcoordinates of the data to be fitted
-     ydata:     ycoordinates of the data which should be fit
-     peaktype:  type of peak to fit: 'Gauss', 'Lorentz', 'PseudoVoigt',
-                'PseudoVoigtAsym'
-     background:    type of background, either 'constant' or 'linear'
+    xdata :     array-like
+        x-coordinates of the data to be fitted
+    ydata :     array-like
+        y-coordinates of the data which should be fit
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+        type of peak to fit
+    background : {'constant', 'linear'}
+        type of background, either
 
     Returns
     -------
@@ -342,23 +359,24 @@ def gauss_fit(xdata, ydata, iparams=[], maxit=300):
 
     Parameters
     ----------
-     xdata:     xcoordinates of the data to be fitted
-     ydata:     ycoordinates of the data which should be fit
-
-    keyword parameters:
-     iparams:   initial paramters for the fit,
-                determined automatically if not given
-     maxit:     maximal iteration number of the fit
+    xdata :     array-like
+        x-coordinates of the data to be fitted
+    ydata :     array-like
+        y-coordinates of the data which should be fit
+    iparams:    list, optional
+        initial paramters for the fit, determined automatically if not given
+    maxit :     int, optional
+        maximal iteration number of the fit
 
     Returns
     -------
-     params,sd_params,itlim
-
-    the Gauss parameters as defined in function Gauss1d(x, *param) and their
-    errors of the fit, as well as a boolean flag which is false in the case of
-    a successful fit
+    params :    list
+        the parameters as defined in function ``Gauss1d(x, *param)``
+    sd_params : list
+        For every parameter the corresponding errors are returned.
+    itlim :     bool
+        flag to tell if the iteration limit was reached, should be False
     """
-
     return peak_fit(xdata, ydata, iparams=iparams,
                     peaktype='Gauss', maxit=maxit)
 
@@ -370,19 +388,27 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
 
     Parameters
     ----------
-     x,y:     data coordinates (do NOT need to be regularly spaced)
-     data:    data set used for fitting (e.g. intensity at the data coords)
-     start:   set of starting parameters for the fit
-              used as first parameter of function fit_function
-     drange:  limits for the data ranges used in the fitting algorithm,
-              e.g. it is clever to use only a small region around the peak
-              which should be fitted: [xmin,xmax,ymin,ymax]
-     fit_function:  function which should be fitted,
-                    must accept the parameters (x,y,*params)
+    x, y :      array-like
+        data coordinates (do NOT need to be regularly spaced)
+    data :      array-like
+        data set used for fitting (e.g. intensity at the data coords)
+    start :     list
+        set of starting parameters for the fit used as first parameter of
+        function fit_function
+    drange :    list
+        limits for the data ranges used in the fitting algorithm, e.g. it is
+        clever to use only a small region around the peak which should be
+        fitted: [xmin, xmax, ymin, ymax]
+    fit_function : callable
+        function which should be fitted, must be of form accept the parameters
+        ``fit_functionf (x, y, *params) -> ndarray``
 
     Returns
     -------
-     (fitparam,cov)   the set of fitted parameters and covariance matrix
+    fitparam :  list
+        fitted parameters
+    cov :       array-like
+        covariance matrix
     """
     s = time.time()
     if config.VERBOSITY >= config.INFO_ALL:
@@ -438,23 +464,30 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
 
     Parameters
     ----------
-     x:  x-coordinate of the data
-     data:  data array with same length as x
-     peakpos:  initial parameters for the peak positions
-     peakwidth:  initial values for the peak width
-     dranges:  list of tuples with (min,max) value of the data ranges to use.
-               does not need to have the same number of entries as peakpos
-     peaktype: type of peaks to be used: can be either 'Gaussian' or
-               'Lorentzian'
+    x :     array-like
+        x-coordinate of the data
+    data :  array-like
+        data array with same length as `x`
+    peakpos : list
+        initial parameters for the peak positions
+    peakwidth : list
+        initial values for the peak width
+    dranges : list of tuples
+        list of tuples with (min, max) value of the data ranges to use.  does
+        not need to have the same number of entries as peakpos
+    peaktype : {'Gaussian', 'Lorentzian'}
+        type of peaks to be used
 
     Returns
     -------
-     pos,sigma,amp,background
-
-    pos:  list of peak positions derived by the fit
-    sigma:  list of peak width derived by the fit
-    amp:  list of amplitudes of the peaks derived by the fit
-    background:  array of background values at positions x
+    pos :       list
+        peak positions derived by the fit
+    sigma :     list
+        peak width derived by the fit
+    amp :       list
+        amplitudes of the peaks derived by the fit
+    background :    array-like
+        background values at positions `x`
     """
     if peaktype == 'Gaussian':
         pfunc = Gauss1d
@@ -470,10 +503,14 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         function to calculate the derivative of the signal of multiple peaks
         and background w.r.t. the x-coordinate
 
-        p: list of parameters, for every peak there needs to be position,
-           sigma, amplitude and at the end two values for the linear background
-           function (b0,b1)
-        x: x-coordinate
+        Parameters
+        ----------
+        p :     list
+            parameters, for every peak there needs to be position, sigma,
+            amplitude and at the end two values for the linear background
+            function (b0, b1)
+        x :     array-like
+            x-coordinate
         """
         derx = numpy.zeros(x.size)
 
@@ -494,10 +531,14 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         function to calculate the derivative of the signal of multiple peaks
         and background w.r.t. the parameters
 
-        p: list of parameters, for every peak there needs to be position,
-           sigma, amplitude and at the end two values for the linear background
-           function (b0,b1)
-        x: x-coordinate
+        Parameters
+        ----------
+        p :     list
+            parameters, for every peak there needs to be position, sigma,
+            amplitude and at the end two values for the linear background
+            function (b0, b1)
+        x :     array-like
+            x-coordinate
 
         returns derivative w.r.t. all the parameters with shape (len(p),x.size)
         """
@@ -532,10 +573,14 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         """
         function to calculate the signal of multiple peaks and background
 
-        p: list of parameters, for every peak there needs to be position,
-           sigma, amplitude and at the end two values for the linear background
-           function (k,d)
-        x: x-coordinate
+        Parameters
+        ----------
+        p :     list
+            list of parameters, for every peak there needs to be position,
+            sigma, amplitude and at the end two values for the linear
+            background function (k, d)
+        x :     array-like
+            x-coordinate
         """
         f = numpy.zeros(x.size)
 
@@ -631,18 +676,25 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
 
     Parameters
     ----------
-     x:  x-coordinate of the data
-     fpos:  list of positions of the peaks
-     fwidth:  list of width of the peaks
-     famp:  list of amplitudes of the peaks
-     background:  array with background values
-     dranges:  list of tuples with (min,max) value of the data ranges to use.
-               does not need to have the same number of entries as fpos
-     peaktype: type of peaks to be used: can be either 'Gaussian' or
-               'Lorentzian'
-
-     fig:  matplotlib figure number or name
-     fact: factor to use as multiplicator in the plot
+    x :         array-like
+        x-coordinate of the data
+    fpos :      list
+        positions of the peaks
+    fwidth :    list
+        width of the peaks
+    famp :      list
+        amplitudes of the peaks
+    background :  array-like
+        background values, same shape as `x`
+    dranges :   list of tuples
+        list of (min, max) values of the data ranges to use.  does not need to
+        have the same number of entries as fpos
+    peaktype : {'Gaussian', 'Lorentzian'}
+        type of peaks to be used
+    fig :       int, or str
+        matplotlib figure number or name
+    fact :      float
+        factor to use as multiplicator in the plot
     """
     success, plt = utilities.import_matplotlib_pyplot('XU.math.multPeakPlot')
     if not success:

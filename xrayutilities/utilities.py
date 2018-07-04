@@ -32,13 +32,15 @@ def import_matplotlib_pyplot(funcname='XU'):
 
     Parameters
     ----------
-     funcname:  identification string of the calling function
+    funcname :      str
+        identification string of the calling function
 
     Returns
     -------
-     flag, pyplot: the flag is True if the loading was successful and False
-                   otherwise. On success pyplot is the matplotlib.pyplot
-                   package.
+    flag :  bool
+        the flag is True if the loading was successful and False otherwise.
+    pyplot
+        On success pyplot is the matplotlib.pyplot package.
     """
     try:
         from matplotlib import pyplot as plt
@@ -62,7 +64,7 @@ def import_lmfit(funcname='XU'):
                           "(https://pypi.python.org/pypi/lmfit)" % funcname)
 
 
-def maplog(inte, dynlow="config", dynhigh="config", **keyargs):
+def maplog(inte, dynlow="config", dynhigh="config"):
     """
     clips values smaller and larger as the given bounds and returns the log10
     of the input array. The bounds are given as exponent with base 10 with
@@ -71,22 +73,22 @@ def maplog(inte, dynlow="config", dynhigh="config", **keyargs):
 
     Parameters
     ----------
-     inte : numpy.array, values to be cut in range
-     dynlow : 10^(-dynlow) will be the minimum cut off
-     dynhigh : 10^(-dynhigh) will be the maximum cut off
-
-    optional keyword arguments (NOT IMPLEMENTED):
-     abslow: 10^(abslow) will be taken as lower boundary
-     abshigh: 10^(abshigh) will be taken as higher boundary
+    inte :      ndarray
+        numpy.array, values to be cut in range
+    dynlow :    float, optional
+        10^(-dynlow) will be the minimum cut off
+    dynhigh :   float, optional
+        10^(-dynhigh) will be the maximum cut off
 
     Returns
     -------
-     numpy.array of the same shape as inte, where values smaller/larger then
-     10^(-dynlow,dynhigh) were replaced by 10^(-dynlow,dynhigh)
+    ndarray
+        numpy.array of the same shape as inte, where values smaller/larger than
+        10^(-dynlow, dynhigh) were replaced by 10^(-dynlow, dynhigh)
 
     Examples
     --------
-     >>> lint = maplog(int,5,2)
+    >>> lint = maplog(int, 5, 2)
     """
     if dynlow == "config":
         dynlow = config.DYNLOW

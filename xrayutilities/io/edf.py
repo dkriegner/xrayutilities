@@ -67,20 +67,26 @@ class EDFFile(object):
     def __init__(self, fname, nxkey="Dim_1", nykey="Dim_2",
                  dtkey="DataType", path="", header=True, keep_open=False):
         """
-        required arguments:
-        fname ....... name of the EDF file of type .edf or .edf.gz
+        Parameters
+        ----------
+        fname :	    str
+            name of the EDF file of type .edf or .edf.gz
 
-        keyword arguments:
-        nxkey ....... name of the header key that holds the number of
-                      points in x-direction
-        nykey ....... name of the header key that holds the number of
-                      points in y-direction
-        dtkey ....... name of the header key that holds the datatype
-                      for the binary data
-        path ........ path to the EDF file
-        header ...... has header (default true)
-        keep_open ... if True the file handle is kept open between multiple
-                      calls which can cause significant speed-ups
+        nxkey :	    str, optional
+            name of the header key that holds the number of points in
+            x-direction
+        nykey :	    str, optional
+            name of the header key that holds the number of points in
+            y-direction
+        dtkey :	    str, optional
+            name of the header key that holds the datatype for the binary data
+        path :      str, optional
+            path to the EDF file
+        header :    bool, optional
+            has header (default true)
+        keep_open : bool, optional
+            if True the file handle is kept open between multiple calls which
+            can cause significant speed-ups
         """
 
         self.filename = fname
@@ -243,7 +249,8 @@ class EDFFile(object):
 
         Parameters
         ----------
-         nimg:      number of the image which should be read (starts with 0)
+        nimg :      int, optional
+            number of the image which should be read (starts with 0)
         """
         if self.fid:
             binfid = self.fid
@@ -313,12 +320,12 @@ class EDFFile(object):
 
         Parameters
         ----------
-         h5f ...... a HDF5 file object or name
-
-        optional keyword arguments:
-         group .... group where to store the data (default to the root of the
-                    file)
-         comp ..... activate compression - true by default
+        h5f :	    file-handle or str
+            a HDF5 file object or name
+        group :     str, optional
+            group where to store the data (default to the root of the file)
+        comp :	    bool, optional
+            activate compression - true by default
         """
         with xu_h5open(h5f, 'a') as h5:
             if isinstance(group, str):
@@ -379,13 +386,13 @@ class EDFDirectory(FileDirectory):
     def __init__(self, datapath, ext="edf", **keyargs):
         """
 
-        required arguments:
-        datapath ..... directory of the EDF file
-
-        optional keyword arguments:
-        ext .......... extension of the ccd files in the datapath
-                       (default: "edf")
-
-        further keyword arguments are passed to EDFFile
+        Parameters
+        ----------
+        datapath :	str
+            directory of the EDF file
+        ext :           str, optional
+            extension of the ccd files in the datapath (default: "edf")
+        keyargs :       dict, optional
+            further keyword arguments are passed to EDFFile
         """
         super(EDFDirectory, self).__init__(datapath, ext, EDFFile, **keyargs)
