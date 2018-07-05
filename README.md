@@ -85,10 +85,11 @@ The following requirements are needed for installing and using *xrayutilities*:
 - h5py
 - scipy (version >= 0.13.0)
 - numpy (version >= 1.8)
-- lmfit (optionally)
-- matplotlib (optionally)
-- unittest2 (optionally - only if you want to run the tests)
-- numpydoc (optionally - only when you want to build the documentation)
+- lmfit (optional)
+- matplotlib (optional)
+- unittest2 (optional - only if you want to run the tests)
+- sphinx (optional - only when you want to build the documentation)
+- numpydoc (optional - only when you want to build the documentation)
 
 refer to your operating system documentation to find out how to install
 those packages. On Microsoft Windows refer to the Documentation for the

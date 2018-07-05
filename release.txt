@@ -72,6 +72,14 @@ following steps:
  * install package locally 'python setup.py install'
  * use 'python setup.py test' to test your installation
 
+GIT tagging
+-----------
+
+tag the version in the GIT repository and publish the version tag to Github
+
+  git tag -a vX -m "version X"
+  git push origin vX
+
 UPDATE WEBPAGE
 ==============
 
@@ -92,7 +100,7 @@ files on sourceforge can be moved/archived using
 
 sftp://USERNAME@frs.sourceforge.net/home/frs/project/x/xr/xrayutilities
 
-however upon such a move the download statistics are lost.
+however, upon such a move the download statistics are lost.
 
 UPDATE PyPI PACKAGE
 ===================
@@ -104,3 +112,12 @@ Upload new version to the Python package index by
 On a windows machine run
 
   twine upload --config-file PATH_TO_pypirc dist/*
+
+or download the artifacts from AppVeyor and publish them to PyPI using twine
+
+Github release and mailing list anouncement
+===========================================
+
+Finally announce the new release on Github (which will also upload the new
+version to Sourceforge) and drop a mail to the user mailinglist:
+xrayutilities-users@lists.sourceforge.net
