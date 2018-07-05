@@ -2144,7 +2144,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
     p1, success = optimize.leastsq(errfunc, p0, args=(a, om), maxfev=10000)
     if config.VERBOSITY >= config.INFO_ALL:
-        print("xu.analysis.misfit_calc: leastsq optimization return value: "
+        print("xu.analysis.miscut_calc: leastsq optimization return value: "
               "%d" % success)
 
     if plot:
@@ -2162,10 +2162,10 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
         ret = [omega0] + [p1[0] % 360., abs(p1[1])]
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("xu.analysis.misfit_calc: \n"
+        print("xu.analysis.miscut_calc: \n"
               "\t fitted reflection angle: %8.3f \n"
               "\t looking upstairs at phi: %8.2f \n"
-              "\t mixcut angle: %8.3f \n" % (ret[0], ret[1], ret[2]))
+              "\t miscut angle: %8.3f \n" % (ret[0], ret[1], ret[2]))
 
     return ret
 
