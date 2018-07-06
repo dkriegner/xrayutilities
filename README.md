@@ -178,35 +178,3 @@ The API-documentation can also be browsed by
     pydoc -p PORT
 
 in any web-browser, after the installation is finished.
-
-To build the PDF documentation from the docu-sources use:
-
-    python setup.py build build_doc -b pdf
-
-You will need sphinx, numpydoc and rst2pdf.
-
-Or generate a texinfo file using
-
-    python setup.py build_doc -b texinfo
-    cd build/sphinx/texinfo; make
-
-
-Packaging
-=========
-
-create a tarball for redistribution of xrayutilities without the use of git
-
-    python setup.py sdist
-
-creates a tarball in the directory dist, which contains everything needed for
-the installation of xrayutilities
-
-
-Coding style
-============
-
-We try to follow the PEP8 Style Guide where possible
-https://www.python.org/dev/peps/pep-0008/
-Noteable exceptions are docstrings which sometimes would get misformated when PEP8 is followed strictly.
-
-For docstrings we follow the http://numpydoc.readthedocs.io style.
