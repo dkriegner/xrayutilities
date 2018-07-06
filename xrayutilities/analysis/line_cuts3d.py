@@ -17,8 +17,8 @@
 
 import numpy
 
-from .. import gridder3d as xugridder
 from .. import config
+from .. import gridder3d as xugridder
 
 
 def getindex3d(x, y, z, xgrid, ygrid, zgrid):

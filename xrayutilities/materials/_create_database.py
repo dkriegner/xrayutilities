@@ -19,9 +19,8 @@ script to create the HDF5 database from the raw data of XOP
 this file is only needed for administration
 """
 
-import os.path
-
 import lzma
+import os.path
 
 # local import
 from database import (DataBase, add_f0_from_intertab, add_f1f2_from_kissel,

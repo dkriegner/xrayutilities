@@ -30,11 +30,12 @@ import numpy
 import scipy.optimize as optimize
 from numpy import cos, degrees, radians, sin, tan
 from scipy.ndimage.measurements import center_of_mass
-from scipy.odr import odrpack as odr
 from scipy.odr import models
+from scipy.odr import odrpack as odr
 
+from .. import config, cxrayutilities
 from .. import math as xumath
-from .. import config, cxrayutilities, utilities
+from .. import utilities
 from ..exception import InputError
 from ..math import fwhm_exp
 

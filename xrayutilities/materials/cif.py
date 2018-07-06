@@ -26,8 +26,9 @@ import warnings
 import numpy
 import scipy.optimize
 
+from . import elements
 from . import spacegrouplattice as sgl
-from . import elements, wyckpos
+from . import wyckpos
 from .. import config
 
 re_data = re.compile(r"^data_", re.IGNORECASE)

@@ -17,8 +17,8 @@
 
 import numpy
 
-from . import elements as e
 from . import __path__
+from . import elements as e
 from .material import (Crystal, CubicAlloy, CubicElasticTensor,
                        HexagonalElasticTensor, WZTensorFromCub)
 from .spacegrouplattice import SGLattice
@@ -239,6 +239,8 @@ Mn3Ge_cub = Crystal("Mn3Ge (cub)", SGLattice('221', 3.8019,
 Mn3Ge = Crystal("Mn3Ge (hex)", SGLattice('194', 5.34, 4.31,
                                          atoms=[e.Mn, e.Ge],
                                          pos=[('6h', 1/6.), '2d']))
+Pt3Cr = Crystal("Pt3Cr", SGLattice('221', 3.876,
+                                   atoms=[e.Pt, e.Cr], pos=['3c', '1a']))
 TiN = Crystal("TiN",
               SGLattice(225, 4.235, atoms=[e.Ti, e.N], pos=['4a', '4b']))
 

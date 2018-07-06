@@ -21,8 +21,7 @@ miscellaneous functions helpful in the analysis and experiment
 
 import numpy
 
-from .. import config
-from .. import math
+from .. import config, math
 
 
 def getangles(peak, sur, inp):

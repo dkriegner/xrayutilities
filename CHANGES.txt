@@ -1,3 +1,5 @@
+* clean README and add new CONTRIBUTIONS instructions
+
 v1.5.0, 2018-07-04
 
 * improved docstring formating

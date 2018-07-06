@@ -95,9 +95,9 @@ from multiprocessing.managers import BaseManager
 import numpy
 from numpy import abs as nabs
 from numpy import arcsin as nasin
+from numpy import asarray
 from numpy import cos as ncos
 from numpy import sin as nsin
-from numpy import asarray
 from scipy.special import sici  # for the sine and cosine integral
 
 # package internal imports
