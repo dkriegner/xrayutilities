@@ -1489,7 +1489,7 @@ class Experiment(object):
             yi = self._A2QConversion.r_i
             idc = self._A2QConversion.detectorAxis[-1]
             xi = math.getVector(idc)
-            if numpy.linalg.norm(numpy.cross(xi, yi)) < config.EPSILON:
+            if norm(numpy.cross(xi, yi)) < config.EPSILON:
                 # this is the case when a detector rotation around the primary
                 # beam direction is installed
                 idc = self._A2QConversion.detectorAxis[-2]
@@ -1714,7 +1714,7 @@ class Experiment(object):
 
         if len(q.shape) != 2:
             q = q.reshape(3, 1)
-        return q
+        return q.T
 
 
 class HXRD(Experiment):
@@ -1921,131 +1921,119 @@ class HXRD(Experiment):
 
         # start calculation for each given Q-point
         if foutp:
-            angle = numpy.zeros((6, q.shape[1]))
+            angle = numpy.zeros((6, q.shape[0]))
         else:
-            angle = numpy.zeros((4, q.shape[1]))
-        for i in range(q.shape[1]):
-            qvec = q[:, i]
+            angle = numpy.zeros((4, q.shape[0]))
 
-            if trans:
-                qvec = self.Transform(qvec)
+        if trans:
+            q = self.Transform(q)
 
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: qvec= %s" % repr(qvec))
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.HXRD.Q2Ang: q= %s" % repr(q))
 
-            qa = math.VecNorm(qvec)
-            tth = 2. * numpy.arcsin(qa / 2. / k)
+        qa = math.VecNorm(q)
+        tth = 2. * numpy.arcsin(qa / 2. / k)
 
-            # calculation of the sample azimuth phi (scattering plane
-            # spanned by qvec[1] and qvec[2] directions)
+        # calculation of the sample azimuth phi (scattering plane
+        # spanned by qvec[1] and qvec[2] directions)
 
-            chi = -numpy.arctan2(math.VecDot(x, qvec),
-                                 math.VecDot(z, qvec))
-            if numpy.abs(math.VecDot(z, qvec)) < config.EPSILON:
-                if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.HXRD: Given peak is perpendicular to ndir-"
-                          "reference direction (might be inplane or "
-                          "unreachable)")
+        chi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, z))
+        if numpy.any(numpy.abs(math.VecDot(q, z)) < config.EPSILON):
+            if config.VERBOSITY >= config.INFO_LOW:
+                print("XU.HXRD: some position is perpendicular to ndir-"
+                      "reference direction (might be inplane or "
+                      "unreachable)")
 
-            if geom == 'hi_lo':
-                # +: high incidence geometry
-                om = tth / 2. + math.VecAngle(z, qvec)
-                phi = -numpy.arctan2(
-                    math.VecDot(x, qvec),
-                    math.VecDot(y, qvec))
-            elif geom == 'lo_hi':
-                # -: low incidence geometry
-                om = tth / 2. - math.VecAngle(z, qvec)
-                phi = -numpy.arctan2(
-                    -1 * math.VecDot(x, qvec),
-                    -1 * math.VecDot(y, qvec))
-            elif geom == 'real':
-                phi = -numpy.arctan2(
-                    math.VecDot(x, qvec),
-                    math.VecDot(y, qvec))
-                if numpy.abs(phi) <= numpy.pi / 2.:
-                    sign = +1.
-                    phi = -numpy.arctan2(
-                        math.VecDot(x, qvec),
-                        math.VecDot(y, qvec))
-                else:
-                    sign = -1.
-                    phi = -numpy.arctan2(
-                        -1 * math.VecDot(x, qvec),
-                        -1 * math.VecDot(y, qvec))
-                om = tth / 2 + sign * math.VecAngle(z, qvec)
-            elif geom == 'realTilt':
-                phi = 0.
-                om = tth / 2 + numpy.arctan2(
-                    math.VecDot(y, qvec),
-                    numpy.sqrt(math.VecDot(z, qvec) ** 2 +
-                               math.VecDot(x, qvec) ** 2))
+        if geom == 'hi_lo':
+            # +: high incidence geometry
+            om = tth / 2. + math.VecAngle(q, z)
+            phi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
+        elif geom == 'lo_hi':
+            # -: low incidence geometry
+            om = tth / 2. - math.VecAngle(q, z)
+            phi = -numpy.arctan2(-1 * math.VecDot(q, x),
+                                 -1 * math.VecDot(q, y))
+        elif geom == 'real':
+            phi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
+            sign = numpy.ones(q.shape[0])
+            m = numpy.abs(phi) > numpy.pi / 2.
+            phi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
+            sign[m] = -1
+            phi[m] = -numpy.arctan2(-1 * math.VecDot(q, x),
+                                    -1 * math.VecDot(q, y))
+            om = tth / 2 + sign * math.VecAngle(q, z)
+        elif geom == 'realTilt':
+            phi = 0.
+            om = tth / 2 + numpy.arctan2(
+                math.VecDot(q, y),
+                numpy.sqrt(math.VecDot(q, z) ** 2 + math.VecDot(q, x) ** 2))
 
-            # refraction correction at incidence and exit facet
-            psi_i = 0.
-            psi_d = 0.  # needed if refrac is false and full_output
-            if refrac:
-                beta = tth - om
-                if config.VERBOSITY >= config.DEBUG:
-                    print("XU.HXRD.Q2Ang: considering refraction "
-                          "correction for omega, beta: %.3f %.3f"
-                          % (om, beta))
+        # refraction correction at incidence and exit facet
+        psi_i = numpy.zeros_like(tth)
+        psi_d = numpy.zeros_like(tth)  # if refrac is false and full_output
+        if refrac:
+            beta = tth - om
 
-                ki = k * (numpy.cos(om) * y - numpy.sin(om) * z)
-                kd = k * (numpy.cos(beta) * y + numpy.sin(beta) * z)
+            ki = k * (numpy.cos(om)[:, numpy.newaxis] * y[numpy.newaxis, :] -
+                      numpy.sin(om)[:, numpy.newaxis] * z[numpy.newaxis, :])
+            kd = k * (numpy.cos(beta)[:, numpy.newaxis] * y[numpy.newaxis, :] +
+                      numpy.sin(beta)[:, numpy.newaxis] * z[numpy.newaxis, :])
 
-                # refraction at incidence facet
-                if numpy.dot(fi, ki) > 0:
-                    print("XU.HXRD: Warning, incidence facet not hit by "
-                          "primary beam! check your input!")
-                    om = numpy.nan
-                    tth = numpy.nan
-                else:
-                    cosbi = numpy.abs(numpy.dot(fi, ki) / norm(ki))
-                    cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbi ** 2))
+            # refraction at incidence facet
+            m = math.VecDot(ki, fi) > 0
+            if numpy.any(m):
+                print("XU.HXRD: Warning, incidence facet not hit by "
+                      "primary beam for all positions! check your input!")
+                om[m] = numpy.nan
+                tth[m] = numpy.nan
+            mnot = numpy.logical_not(m)
+            cosbi = numpy.abs(math.VecDot(ki, fi) / math.VecNorm(ki))
+            cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbi ** 2))
 
-                    ki0 = self.k0 * (n * ki / norm(ki) -
-                                     numpy.sign(numpy.dot(fi, ki)) *
-                                     (n * cosbi - cosb0) * fi)
-                    om = math.VecAngle(y, ki0)
-                    psi_i = numpy.arcsin(numpy.dot(ki0, x) / self.k0)
-                    tth = -1
-                    if config.VERBOSITY >= config.DEBUG:
-                        print("XU.HXRD.Q2Ang: ki, ki0 = %s %s"
-                              % (repr(ki), repr(ki0)))
+            ki0 = self.k0 * (n * math.VecUnit(ki) -
+                             (numpy.sign(math.VecDot(ki, fi)) *
+                             (n * cosbi - cosb0))[:, numpy.newaxis] *
+                             fi[numpy.newaxis, :])
+            om[mnot] = math.VecAngle(ki0, y)
+            psi_i[mnot] = numpy.arcsin(math.VecDot(ki0, x) / self.k0)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.HXRD.Q2Ang: ki, ki0 = %s %s"
+                      % (repr(ki), repr(ki0)))
 
-                # refraction at exit facet
-                if numpy.dot(fd, kd) < 0:
-                    print("XU.HXRD: Warning, exit facet not hit by "
-                          "diffracted beam! check your input!")
-                    om = numpy.nan
-                    tth = numpy.nan
-                elif tth == -1:
-                    cosbd = numpy.abs(numpy.dot(fd, kd) / norm(kd))
-                    cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbd ** 2))
+            # refraction at exit facet
+            m = math.VecDot(kd, fd) < 0
+            if numpy.any(m):
+                print("XU.HXRD: Warning, exit facet not hit by "
+                      "diffracted beam! check your input!")
+                om[m] = numpy.nan
+                tth[m] = numpy.nan
 
-                    kd0 = self.k0 * (n * kd / norm(kd) -
-                                     numpy.sign(numpy.dot(fd, kd)) *
-                                     (n * cosbd - cosb0) * fd)
-                    tth = math.VecAngle(ki0, kd0)
-                    psi_d = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
-                    if config.VERBOSITY >= config.DEBUG:
-                        print("XU.HXRD.Q2Ang: kd, kd0 = %s %s"
-                              % (repr(kd), repr(kd0)))
+            cosbd = numpy.abs(math.VecDot(kd, fd) / math.VecNorm(kd))
+            cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbd ** 2))
 
-            if geom == 'realTilt':
-                angle[0, i] = om
-                angle[1, i] = chi
-                angle[3, i] = tth
-            else:
-                angle[0, i] = om
-                angle[2, i] = phi
-                angle[3, i] = tth
-            if foutp:
-                angle[4, i] = psi_i
-                angle[5, i] = psi_d
+            kd0 = self.k0 * (n * math.VecUnit(kd) -
+                             (numpy.sign(math.VecDot(kd, fd)) *
+                             (n * cosbd - cosb0))[:, numpy.newaxis] *
+                             fd[numpy.newaxis, :])
+            tth[mnot] = math.VecAngle(ki0, kd0)
+            psi_d[mnot] = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
+            if config.VERBOSITY >= config.DEBUG:
+                print("XU.HXRD.Q2Ang: kd, kd0 = %s %s"
+                      % (repr(kd), repr(kd0)))
 
-        if q.shape[1] == 1:
+        if geom == 'realTilt':
+            angle[0, :] = om
+            angle[1, :] = chi
+            angle[3, :] = tth
+        else:
+            angle[0, :] = om
+            angle[2, :] = phi
+            angle[3, :] = tth
+        if foutp:
+            angle[4, :] = psi_i
+            angle[5, :] = psi_d
+
+        if q.shape[0] == 1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.HXRD.Q2Ang: om, chi, phi, tth,[psi_i, psi_d] = %s"
@@ -2171,39 +2159,36 @@ class NonCOP(Experiment):
         trans = keyargs.get('trans', True)
         deg = keyargs.get('deg', True)
 
-        angle = numpy.zeros((4, q.shape[1]))
+        angle = numpy.zeros((4, q.shape[0]))
         # set parameters for the calculation
         z = self.Transform(self.ndir)  # z
         y = self.Transform(self.idir)  # y
         x = self.Transform(self.scatplane)  # x
 
-        for i in range(q.shape[1]):
-            qvec = q[:, i]
+        if trans:
+            q = self.Transform(q)
 
-            if trans:
-                qvec = self.Transform(qvec)
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.NonCop.Q2Ang: q= %s" % repr(q))
 
-            if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: qvec= %s" % repr(qvec))
+        qa = math.VecNorm(q)
+        tth = 2. * numpy.arcsin(qa / 2. / self.k0)
+        om = tth / 2.
 
-            qa = math.VecNorm(qvec)
-            tth = 2. * numpy.arcsin(qa / 2. / self.k0)
-            om = tth / 2.
+        # calculation of the sample azimuth
+        # the sign depends on the phi movement direction
+        phi = -1 * numpy.arctan2(
+            math.VecDot(q, x),
+            math.VecDot(q, y)) - numpy.pi / 2.
 
-            # calculation of the sample azimuth
-            # the sign depends on the phi movement direction
-            phi = -1 * numpy.arctan2(
-                math.VecDot(x, qvec),
-                math.VecDot(y, qvec)) - numpy.pi / 2.
+        chi = (math.VecAngle(q, z))
 
-            chi = (math.VecAngle(z, qvec))
+        angle[0, :] = om
+        angle[1, :] = chi
+        angle[2, :] = phi
+        angle[3, :] = tth
 
-            angle[0, i] = om
-            angle[1, i] = chi
-            angle[2, i] = phi
-            angle[3, i] = tth
-
-        if q.shape[1] == 1:
+        if q.shape[0] == 1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.HXRD.Q2Ang: [om, chi, phi, tth] = %s" % repr(angle))
@@ -2321,7 +2306,7 @@ class GID(Experiment):
                              % str(q))
 
         # calculate angle to inplane reference direction
-        aref = numpy.arctan2(math.VecDot(x, q), math.VecDot(y, q))
+        aref = numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
 
         # calculate scattering angle
         qa = math.VecNorm(q)
