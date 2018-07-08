@@ -174,7 +174,7 @@ def get_qz_scan_int(qx, qz, intensity, qxpos, **kwargs):
 
     Examples
     --------
-    >>> qzcut, qzcut_int = get_qz_scan_int(qx, qz, inten, 5.0, omrange=0.3)
+    >>> qzcut, qzcut_int = get_qz_scan_int(qx, qz, inten, 5.0, angrange=0.3)
     """
 
     lam = kwargs.get('wl', config.WAVELENGTH)
