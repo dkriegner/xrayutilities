@@ -35,22 +35,11 @@ from .sample_align import fit_bragg_peak
 
 # functions from line_cuts.py
 from .line_cuts import get_qx_scan
+from .line_cuts import get_qy_scan
 from .line_cuts import get_qz_scan
-from .line_cuts import get_qz_scan_int
-
-from .line_cuts import get_omega_scan_q
-from .line_cuts import get_omega_scan_ang
-
-from .line_cuts import get_radial_scan_q
-from .line_cuts import get_radial_scan_ang
-
-from .line_cuts import get_ttheta_scan_q
-from .line_cuts import get_ttheta_scan_ang
-
-# functions from line_cuts3d.py
-from .line_cuts3d import get_qx_scan3d
-from .line_cuts3d import get_qy_scan3d
-from .line_cuts3d import get_qz_scan3d
+from .line_cuts import get_omega_scan
+from .line_cuts import get_radial_scan
+from .line_cuts import get_ttheta_scan
 
 # misc
 from .misc import getangles

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012, 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 import matplotlib as mpl
@@ -67,7 +67,6 @@ INT = xu.maplog(gridder.data.transpose(), 6, 0)
 
 # plot the intensity as contour plot
 plt.figure()
-plt.clf()
 cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend='min')
 plt.xlabel(r'$Q_{[110]}$ ($\AA^{-1}$)')
 plt.ylabel(r'$Q_{[001]}$ ($\AA^{-1}$)')
@@ -76,3 +75,17 @@ cb.set_label(r"$\log($Int$)$ (cps)")
 
 tr = SiGe.RelaxationTriangle([0, 0, 4], Si, hxrd)
 plt.plot(tr[0], tr[1], 'ko')
+
+# line cut with integration along 2theta to remove beam footprint broadening
+qzc, qzint, cmask = xu.analysis.get_radial_scan([qy, qz], psd, [0, 4.5],
+                                                1001, 0.105, intdir='2theta')
+
+# show used data on the reciprocal space map
+plt.tricontour(qy, qz, cmask, (0.999,), colors='r')
+
+# plot line cut
+plt.figure()
+plt.semilogy(qzc, qzint)
+plt.xlabel(r'scattering angle (deg)')
+plt.ylabel(r'intensity (arb. u.)')
+plt.tight_layout()
