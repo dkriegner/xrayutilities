@@ -26,7 +26,7 @@ import scipy.integrate as integrate
 import scipy.interpolate as interpolate
 from scipy.special import erf, j0
 
-from . import LayerStack
+from . import Layer, LayerStack
 from .. import config, utilities
 from ..exception import InputError
 from ..experiment import Experiment
@@ -166,7 +166,11 @@ class LayerModel(Model, utilities.ABC):
         exp = kwargs.pop('experiment', None)
         super(LayerModel, self).__init__(exp, **kwargs)
         if len(args) == 1:
-            self.lstack = args[0]
+            if isinstance(args[0], Layer):
+                self.lstack = LayerStack('Stack for %s'
+                                         % self.__class__.__name__, *args)
+            else:
+                self.lstack = args[0]
         else:
             self.lstack = LayerStack('Stack for %s' % self.__class__.__name__,
                                      *args)

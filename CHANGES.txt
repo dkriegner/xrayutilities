@@ -1,3 +1,6 @@
+* allow single Layer object as argument in LayerModel
+* rewrite of line cut functions, shorter code, faster execution, more
+  versatile
 * avoid loops in Experiment.Q2Ang functions
 * clean README and add new CONTRIBUTIONS instructions
 
