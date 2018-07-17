@@ -110,6 +110,8 @@ class PowderModel(object):
             settings[name] = dict()
 
         self.I0 = pv.pop('primary_beam_intensity', 1)
+        set_splbkg = False
+        spliney = {}
         for p in pv:
             if p.startswith('phase_'):  # sample phase parameters
                 midx = 0
@@ -119,8 +121,11 @@ class PowderModel(object):
                 name = self.materials.namelist[midx]
                 attrname = p[p.find(name) + len(name) + 1:]
                 setattr(self.materials[midx], attrname, pv[p])
-            elif p.startswith('background_'):
+            elif p.startswith('background_coeff'):
                 self._bckg_pol[int(p.split('_')[-1])] = pv[p]
+            elif p.startswith('background_spl_coeff'):
+                set_splbkg = True
+                spliney[int(p.split('_')[-1])] = pv[p]
             else:  # instrument parameters
                 for k in settings:
                     if p.startswith(k):
@@ -134,6 +139,10 @@ class PowderModel(object):
                             name = p[len(k) + 1:]
                             settings[k][name] = pv[p]
                         break
+        if set_splbkg:
+            self._bckg_spline = interpolate.InterpolatedUnivariateSpline(
+                self._bckg_spline._data[0],
+                [spliney[k] for k in sorted(spliney)], ext=0)
         self.set_parameters(settings)
 
     def create_fitparameters(self):
@@ -176,6 +185,10 @@ class PowderModel(object):
         if self._bckg_type == 'polynomial':
             for i, coeff in enumerate(self._bckg_pol):
                 params.add('background_coeff_%d' % i, value=coeff, vary=False)
+        elif self._bckg_type == 'spline':
+            for i, coeff in enumerate(self._bckg_spline._data[1]):
+                params.add('background_spl_coeff_%d' % i, value=coeff,
+                           vary=False)
         return params
 
     def set_background(self, btype, **kwargs):

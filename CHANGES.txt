@@ -1,3 +1,4 @@
+* add spline coefficients to PowderModel fits
 * allow single Layer object as argument in LayerModel
 * rewrite of line cut functions, shorter code, faster execution, more
   versatile
