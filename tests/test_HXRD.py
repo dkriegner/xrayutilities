@@ -25,9 +25,8 @@ class TestQ2Ang_HXRD(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.mat = xu.materials.GeTe
-        qconv = xu.QConversion(['x+', 'y+', 'z-'], 'x+', [0, 1, 0])
         inp = numpy.cross(cls.mat.Q(1, -1, 0), cls.mat.Q(1, 1, 1))
-        cls.hxrd = xu.HXRD(inp, cls.mat.Q(1, 1, 1), qconv=qconv)
+        cls.hxrd = xu.FourC(inp, cls.mat.Q(1, 1, 1))
         cls.hkltest = (1, 3, 2)
 
     def test_Q2Ang_hxrd_point(self):

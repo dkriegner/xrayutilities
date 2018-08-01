@@ -38,6 +38,7 @@ from . import simpack
 
 from .experiment import Experiment
 from .experiment import HXRD
+from .experiment import FourC
 from .experiment import NonCOP
 from .experiment import GID
 from .experiment import GISAXS

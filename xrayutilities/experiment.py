@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -2045,6 +2045,45 @@ class HXRD(Experiment):
             return angle
 
 
+class FourC(HXRD):
+
+    """
+    class describing high angle x-ray diffraction experiments
+    the class helps with calculating the angles of Bragg reflections
+    as well as helps with analyzing measured data
+
+    the class describes a four circle (omega, chi, phi, twotheta) goniometer to
+    help with coplanar x-ray diffraction experiments. Nevertheless 3D data can
+    be treated with the use of linear and area detectors.  see help self.Ang2Q
+    """
+
+    def __init__(self, idir, ndir, **keyargs):
+        """
+        initialization routine for the FourC Experiment class
+
+        Parameters
+        ----------
+        idir, ndir, keyargs :
+            same as for the Experiment base class -> please look at the
+            docstring of Experiment.__init__ for more details
+        geometry :      {'hi_lo', 'lo_hi', 'real'}, optional
+            determines the scattering geometry :
+
+                - 'hi_lo' (default) high incidence-low exit
+                - 'lo_hi' low incidence - high exit
+                - 'real' general geometry - q-coordinates determine
+                  high or low incidence
+
+        """
+        if "qconv" not in keyargs:
+            # 3S+1D goniometer (standard four-circle goniometer,
+            # omega, chi, phi, theta)
+            keyargs['qconv'] = QConversion(['x+', 'y+', 'z-'],
+                                           'x+', [0, 1, 0])
+
+        HXRD.__init__(self, idir, ndir, **keyargs)
+
+
 class NonCOP(Experiment):
 
     """
@@ -2054,9 +2093,9 @@ class NonCOP(Experiment):
     used to align asymmetric peaks, like in the case of a polefigure
     measurement.
 
-    The class describes a four circle (omega, twotheta) goniometer to help with
-    x-ray diffraction experiments. Linear and area detectors can be treated as
-    described in "help self.Ang2Q"
+    The class describes a four circle (omega, chi, phi, twotheta) goniometer to
+    help with x-ray diffraction experiments. Linear and area detectors can be
+    treated as described in "help self.Ang2Q"
     """
 
     def __init__(self, idir, ndir, **keyargs):

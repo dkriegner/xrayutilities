@@ -1,3 +1,5 @@
+* new FourC experiment class, equivalent to HXRD, but using a four circle
+  goniometer for consistent Q2Ang and Ang2Q functions
 * add spline coefficients to PowderModel fits
 * allow single Layer object as argument in LayerModel
 * rewrite of line cut functions, shorter code, faster execution, more
