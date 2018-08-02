@@ -85,7 +85,8 @@ class Test_PowderModel(unittest.TestCase):
                                (152.022, 157.204)]).T
 
     def setUp(self):
-        self.tt, self.det, self.sig = numpy.loadtxt(fullfilename, unpack=True)
+        with xu.io.xu_open(fullfilename) as fid:
+            self.tt, self.det, self.sig = numpy.loadtxt(fid, unpack=True)
         self.mask = numpy.logical_and(self.tt > 18, self.tt < 148)
         self.pm = xu.simpack.PowderModel(self.LaB6_powder, I0=1.10e6,
                                          fpsettings=self.settings)
