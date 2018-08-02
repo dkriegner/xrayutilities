@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # import module objects
 
@@ -34,6 +34,7 @@ from .material import WZTensorFromCub
 
 from .predefined_materials import *
 
+from .plot import show_reciprocal_space_plane
 from .database import DataBase
 from .database import init_material_db
 from .database import add_f0_from_intertab
