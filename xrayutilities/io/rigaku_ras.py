@@ -97,10 +97,8 @@ class RASFile(object):
                     break
                 else:
                     continue
-        try:
+        if len(self.scans) > 0:
             self.scan = self.scans[0]
-        except:
-            pass
 
 
 class RASScan(object):
@@ -158,20 +156,20 @@ class RASScan(object):
                 mopos = line.split(' ', 1)[-1].strip().strip('"')
                 try:
                     mopos = float(mopos)
-                except:
+                except ValueError:
                     pass
                 position[idx] = mopos
             elif re_scanaxis.match(line):
                 self.scan_axis = line.split(' ', 1)[-1].strip().strip('"')
             elif re_datacount.match(line):
-                l = line.split(' ', 1)[-1].strip().strip('"')
-                self.length = int(float(l))
+                length = line.split(' ', 1)[-1].strip().strip('"')
+                self.length = int(float(length))
             elif re_measspeed.match(line):
-                l = line.split(' ', 1)[-1].strip().strip('"')
-                self.meas_speed = float(l)
+                speed = line.split(' ', 1)[-1].strip().strip('"')
+                self.meas_speed = float(speed)
             elif re_measstep.match(line):
-                l = line.split(' ', 1)[-1].strip().strip('"')
-                self.meas_step = float(l)
+                step = line.split(' ', 1)[-1].strip().strip('"')
+                self.meas_step = float(step)
             elif re_headerend.match(line):
                 break
 
@@ -269,7 +267,7 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
                 scanlength = len(sdata)
                 try:
                     buf = sdata[motname]
-                except:
+                except KeyError:
                     buf = scan.init_mopo[motname] * numpy.ones(scanlength)
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 

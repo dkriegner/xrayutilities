@@ -1510,7 +1510,7 @@ class Experiment(object):
             yi = self._A2QConversion.r_i
             try:
                 zi = math.getVector(sampleor)
-            except:
+            except InputError:
                 raise InputError('invalid value of sample orientation, use '
                                  'either [xyz][+-] syntax or det/sam!')
             if numpy.all(numpy.abs(yi) == numpy.abs(zi)):

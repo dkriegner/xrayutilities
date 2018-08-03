@@ -167,9 +167,8 @@ class EDFFile(object):
                             # split key and value of the header entry
                             if not ml_value_flag:
                                 try:
-                                    [key, value] = edf_kv_split.split(
-                                        line, 1)
-                                except:
+                                    key, value = edf_kv_split.split(line, 1)
+                                except ValueError:
                                     print("XU.io.EDFFile.Parse: "
                                           "line: %s" % line)
 
@@ -226,7 +225,7 @@ class EDFFile(object):
                 tval = numpy.array(header['motor_pos'].split(),
                                    dtype=numpy.double)
                 self.motors = dict(zip(tkeys, tval))
-            except:
+            except ValueError:
                 print("XU.io.EDFFile.ReadData: Warning: header conversion "
                       "of motor positions failed")
 
@@ -236,7 +235,7 @@ class EDFFile(object):
                 tval = numpy.array(header['counter_pos'].split(),
                                    dtype=numpy.double)
                 self.counters = dict(zip(tkeys, tval))
-            except:
+            except ValueError:
                 print("XU.io.EDFFile.ReadData: Warning: header conversion "
                       "of counter values failed")
 
@@ -275,13 +274,13 @@ class EDFFile(object):
 
         try:
             data = numpy.frombuffer(bindata, count=tot_nofp, dtype=fmt_str)
-        except:
+        except ValueError:
             if fmt_str == 'L':
                 fmt_str = 'I'
                 try:
                     data = numpy.frombuffer(bindata, count=tot_nofp,
                                             dtype=fmt_str)
-                except:
+                except ValueError:
                     raise IOError("XU.io.EDFFile: data format (%s) has "
                                   "different byte-length, from amount of data "
                                   "one expects %d bytes per entry"

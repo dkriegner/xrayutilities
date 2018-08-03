@@ -28,5 +28,5 @@ PEP8 is followed strictly. For docstrings we follow the [numpydoc style][5].
 [1]: https://sourceforge.net/p/xrayutilities/mailman/xrayutilities-users
 [2]: https://github.com/dkriegner/xrayutilities/issues
 [3]: https://www.python.org/dev/peps/pep-0008/
-[4]: https://pypi.org/project/pep8/
+[4]: https://pypi.org/project/pycodestyle/
 [5]: http://numpydoc.readthedocs.io

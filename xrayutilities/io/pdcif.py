@@ -309,10 +309,7 @@ class pdESG(pdCIF):
             tell = 0
             while True:  # try to parse all scans
                 tell = fh.tell()
-                try:
-                    self._parse_single(fh, breakAfterData=True)
-                except:
-                    break
+                self._parse_single(fh, breakAfterData=True)
                 if tell == fh.tell():
                     break
                 # copy changing data from header

@@ -61,7 +61,7 @@ class DataBase(object):
         # tryp to open the database file
         try:
             self.h5file = h5py.File(self.fname, 'w')
-        except:
+        except OSError:
             print('cannot create database file %s!' % (self.fname))
             return None
 
@@ -81,7 +81,7 @@ class DataBase(object):
 
         try:
             self.h5file = h5py.File(self.fname, mode)
-        except:
+        except OSError:
             print("cannot open database file %s!" % (self.fname))
 
     def Close(self):
@@ -159,7 +159,7 @@ class DataBase(object):
 
         try:
             del self.h5group['f0/%s' % subset]
-        except:
+        except KeyError:
             pass
 
         self.h5group.create_dataset('f0/%s' % subset, data=p)
@@ -201,17 +201,17 @@ class DataBase(object):
 
         try:
             del self.h5group['en_f12']
-        except:
+        except KeyError:
             pass
 
         try:
             del self.h5group['f1']
-        except:
+        except KeyError:
             pass
 
         try:
             del self.h5group['f2']
-        except:
+        except KeyError:
             pass
 
         self.h5group.create_dataset('en_f12', data=end)
@@ -234,28 +234,28 @@ class DataBase(object):
             return
         try:
             self.h5group = self.h5file[name]
-        except:
+        except KeyError:
             print("XU.materials.database: material '%s' not existing!" % name)
 
         try:
             self.f0_params = self.h5group['f0']
-        except:
+        except KeyError:
             self.f0_params = None
         try:
             self.f1_en = self.h5group['en_f12']
             self.f1 = self.h5group['f1']
-        except:
+        except KeyError:
             self.f1_en = None
             self.f1 = None
         try:
             self.f2_en = self.h5group['en_f12']
             self.f2 = self.h5group['f2']
-        except:
+        except KeyError:
             self.f2_en = None
             self.f2 = None
         try:
             self.weight = self.h5group.attrs['atomic_standard_weight']
-        except:
+        except KeyError:
             self.weight = None
         self.matname = name
 
@@ -634,19 +634,15 @@ def add_f1f2_from_kissel(db, kf):
                     lb = kf.readline().decode("utf-8")
                     lb = lb.strip()
                     lb = multiblank.split(lb)
-                    try:
-                        en = float(lb[0]) * 1000  # convert energy
-                        # to account for wrong f1 definition in Henke db
-                        f1 = float(lb[4]) - float(enum)
-                        f2 = float(lb[5])
-                        en_list.append(en)
-                        f1_list.append(f1)
-                        f2_list.append(f2)
-                        if en == 10000000.:
-                            db.SetF1F2(en_list, f1_list, f2_list)
-                            break
-                    except:
-                        print(lb)
+                    en = float(lb[0]) * 1000  # convert energy
+                    # to account for wrong f1 definition in Henke db
+                    f1 = float(lb[4]) - float(enum)
+                    f2 = float(lb[5])
+                    en_list.append(en)
+                    f1_list.append(f1)
+                    f2_list.append(f2)
+                    if en == 10000000.:
+                        db.SetF1F2(en_list, f1_list, f2_list)
                         break
 
 
@@ -659,7 +655,7 @@ def add_f1f2_from_ascii_file(db, asciifile, element):
     # parse the f1f2 file
     try:
         af = numpy.loadtxt(asciifile)
-    except:
+    except OSError:
         print("cannot open f1f2 database file")
         return None
     db.SetMaterial(element)
@@ -708,11 +704,7 @@ def add_mass_from_NIST(db, nistfile):
                     lb = lb.strip()
                     if standardw.match(lb):
                         lb = multiblank.split(lb)
-                        try:
-                            # extract weight
-                            w = float(number.findall(lb[-1])[0])
-                            db.SetWeight(w * scipy.constants.atomic_mass)
-                            break
-                        except:
-                            print(lb)
-                            break
+                        # extract weight
+                        w = float(number.findall(lb[-1])[0])
+                        db.SetWeight(w * scipy.constants.atomic_mass)
+                        break

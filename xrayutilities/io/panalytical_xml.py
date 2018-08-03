@@ -101,20 +101,20 @@ class XRDMLMeasurement(object):
                     aunit = p.get("unit")
 
                     # read axis data
-                    l = p.findall(self.namespace + "listPositions")
+                    listp = p.findall(self.namespace + "listPositions")
                     s = p.findall(self.namespace + "startPosition")
                     e = p.findall(self.namespace + "endPosition")
-                    if l:  # listPositions
-                        l = l[0]
-                        data_list = numpy.fromstring(l.text, sep=" ")
+                    if listp:  # listPositions
+                        listp = listp[0]
+                        data_list = numpy.fromstring(listp.text, sep=" ")
                         data_list = data_list.tolist()
                     elif s:  # start endPosition
                         data_list = numpy.linspace(
                             float(s[0].text), float(e[0].text),
                             nofpoints).tolist()
                     else:  # commonPosition
-                        l = p.find(self.namespace + "commonPosition")
-                        data_list = numpy.fromstring(l.text, sep=" ")
+                        c = p.find(self.namespace + "commonPosition")
+                        data_list = numpy.fromstring(c.text, sep=" ")
                         data_list = data_list.tolist()
                         is_scalar = 1
 
@@ -188,7 +188,7 @@ class XRDMLFile(object):
         root = d.getroot()
         try:
             namespace = root.tag[:root.tag.index('}')+1]
-        except:
+        except ValueError:
             namespace = ''
 
         slist = root.findall(namespace+"xrdMeasurement")
@@ -405,7 +405,7 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
             for mot in motnames:
                 try:
                     angles = numpy.vstack((angles, s[mot]))
-                except:  # motor is not array
+                except ValueError:  # motor is not array
                     angles = numpy.vstack(
                         (angles, s[mot] * numpy.ones(detshape)))
             motvals = numpy.concatenate((motvals, angles), axis=1)

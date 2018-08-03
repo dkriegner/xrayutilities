@@ -334,7 +334,7 @@ class SGLattice(object):
         self.space_group_nr = int(self.space_group.split(':')[0])
         try:
             self.space_group_suf = ':' + self.space_group.split(':')[1]
-        except:
+        except IndexError:
             self.space_group_suf = get_default_sgrp_suf(self.space_group_nr)
 
         if self.space_group_suf != '':

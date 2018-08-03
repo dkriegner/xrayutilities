@@ -646,7 +646,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
             print("XU.math.multPeakFit: fit NOT converged (%s)"
                   % fit.stopreason[0])
             return None, None, None, None
-    except:
+    except IndexError:
         print("XU.math.multPeakFit: fit most probably NOT converged (%s)"
               % str(fit.stopreason))
         return None, None, None, None

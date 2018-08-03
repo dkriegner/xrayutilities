@@ -78,21 +78,18 @@ DEBUG = xuParser.getint(sect, "debug")
 VERBOSITY = xuParser.getint(sect, "verbosity")
 try:
     WAVELENGTH = xuParser.getfloat(sect, "wavelength")
-except:
-    WAVELENGTH = numpy.nan
-if numpy.isnan(WAVELENGTH):
+except ValueError:
     WAVELENGTH = xuParser.get(sect, "wavelength")
+except configparser.NoOptionError:
+    pass
 
 try:
     ENERGY = xuParser.getfloat(sect, "energy")
-except:
-    ENERGY = numpy.nan
-if numpy.isnan(ENERGY):
+except ValueError:
     ENERGY = xuParser.get(sect, "energy")
-if ENERGY == 'NaN':
+except configparser.NoOptionError:
     ENERGY = utilities_noconf.lam2en(utilities_noconf.wavelength(WAVELENGTH))
-else:  # energy was given and wavelength is calculated from given energy
-    WAVELENGTH = utilities_noconf.en2lam(utilities_noconf.energy(ENERGY))
+WAVELENGTH = utilities_noconf.en2lam(utilities_noconf.energy(ENERGY))
 
 # number of threads in parallel section of c-code
 NTHREADS = xuParser.getint(sect, "nthreads")

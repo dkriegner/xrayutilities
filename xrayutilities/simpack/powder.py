@@ -1704,7 +1704,7 @@ class FP_profile:
             )
             # override clearing of this by set_window
             self.lor_widths = setdict["lor_widths"]
-        except:
+        except AttributeError:
             pass
 
 
@@ -2077,14 +2077,10 @@ class PowderDiffraction(PowderExperiment):
                 settings, run, ttpeaks = input.get(True)
             except TypeError:
                 break
-            try:
-                handler = self.conv_handlers[idx]
-                handler.update_parameters(settings)
-                results = handler.calc(run, ttpeaks)
-                output.put((idx, results))  # put results on output queue
-            except:
-                traceback.print_exc()
-                break
+            handler = self.conv_handlers[idx]
+            handler.update_parameters(settings)
+            results = handler.calc(run, ttpeaks)
+            output.put((idx, results))  # put results on output queue
         self._running = False
 
     def structure_factors(self, tt_cutoff):

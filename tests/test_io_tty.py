@@ -42,8 +42,8 @@ class TestIO_TTY(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.motor, cls.data = xu.io.gettty08_scan(testfiletmp, (29, 30),
-                                                  cls.motorname, path=datadir)
+        (cls.motor, dummy), cls.data = xu.io.gettty08_scan(
+            testfiletmp, (29, 30), cls.motorname, 'chi', path=datadir)
         cls.inte = cls.data[cls.countername]
 
     def test_datashape(self):

@@ -654,7 +654,7 @@ def PseudoVoigt1dArea(*p):
 
 
 def Debye1(x):
-    """
+    r"""
     function to calculate the first Debye function [1]_ as needed
     for the calculation of the thermal Debye-Waller-factor
     by numerical integration

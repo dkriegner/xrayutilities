@@ -11,8 +11,10 @@ Is everything running fine? perform the tests and run the examples
 
   # change the version in VERSION
   # update copyright notice in doc/source/conf.py
-  pep8 xrayutilities
+  pycodestyle xrayutilities
   # allowed output is:
+  # xrayutilities/materials/elements.py:36:1: E741 ambiguous variable name 'O'
+  # xrayutilities/materials/elements.py:139:1: E741 ambiguous variable name 'I'
   # xrayutilities/math/fit.py:100:80: E501 line too long (100 > 79 characters)
   # xrayutilities/math/fit.py:199:80: E501 line too long (90 > 79 characters)
   # xrayutilities/math/fit.py:273:80: E501 line too long (90 > 79 characters)

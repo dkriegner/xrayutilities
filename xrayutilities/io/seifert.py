@@ -206,13 +206,6 @@ class SeifertScan(object):
         """
         self.Filename = os.path.join(path, filename)
 
-        try:
-            self.fid = xu_open(self.Filename)
-        except:
-            raise IOError(
-                "error opening Seifert datafile %s" %
-                (self.Filename))
-
         self.hdr = SeifertHeader()
         self.data = []
         self.axispos = {}
@@ -222,12 +215,9 @@ class SeifertScan(object):
                 print("XU.io.SeifertScan: parsing file: %s" % self.Filename)
             self.parse()
 
-        try:
-            if self.hdr.NumScans != 1:
-                self.data.shape = (int(self.data.shape[0] / self.hdr.NoValues),
-                                   int(self.hdr.NoValues), 2)
-        except:
-            pass
+        if self.hdr.NumScans != 1:
+            self.data.shape = (int(self.data.shape[0] / self.hdr.NoValues),
+                               int(self.hdr.NoValues), 2)
 
     def parse(self):
         if config.VERBOSITY >= config.INFO_ALL:
@@ -257,14 +247,12 @@ class SeifertScan(object):
                     # leave them as strings if this is not possible
                     try:
                         value = float(value)
-                    except:
+                    except ValueError:
                         pass
 
                     if key == "Axis":
                         axes = value
-                        try:
-                            self.axispos[value]
-                        except:
+                        if value not in self.axispos:
                             self.axispos[value] = []
                     elif key == "Pos":
                         self.axispos[axes] += [value, ]
@@ -273,7 +261,7 @@ class SeifertScan(object):
                 else:
                     try:
                         tmplist.append(float(e))
-                    except:
+                    except ValueError:
                         pass
 
             if tmplist != []:

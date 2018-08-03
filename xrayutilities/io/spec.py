@@ -407,7 +407,7 @@ class SPECScan(object):
         try:
             xname = args[0]
             xdata = self.data[xname]
-        except:
+        except ValueError:
             raise InputError("name of the x-axis is invalid!")
 
         alist = args[1:]
@@ -425,7 +425,7 @@ class SPECScan(object):
             ystyle = alist[i + 1]
             try:
                 ydata = self.data[yname]
-            except:
+            except ValueError:
                 raise InputError("no column with name %s exists!" % yname)
                 continue
             if logy:
@@ -623,7 +623,7 @@ class SPECFile(object):
 
             try:
                 scannr = int(index)
-            except:
+            except ValueError:
                 raise AttributeError("scannumber needs to be convertable to "
                                      "integer")
 
@@ -784,7 +784,7 @@ class SPECFile(object):
                     try:
                         for value in line_list:
                             init_motor_values.append(float(value))
-                    except:
+                    except ValueError:
                         pass
 
                 # if the line contains the number of colunmns
@@ -825,19 +825,19 @@ class SPECFile(object):
                     # this is the case when a scan is broken and no data has
                     # been written, but nevertheless a comment is in the file
                     # that tells us that the scan was aborted
-                    try:
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
-                                     date, time, itime, col_names,
-                                     scan_header_offset, scan_data_offset,
-                                     self.full_filename, self.init_motor_names,
-                                     init_motor_values, "NODATA")
-                    except:
-                        scan_data_offset = self.last_offset
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
-                                     date, time, itime, col_names,
-                                     scan_header_offset, scan_data_offset,
-                                     self.full_filename, self.init_motor_names,
-                                     init_motor_values, "NODATA")
+                    s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+                                 date, time, itime, col_names,
+                                 scan_header_offset, scan_data_offset,
+                                 self.full_filename, self.init_motor_names,
+                                 init_motor_values, "NODATA")
+#                   DK: 3.8.2018: keep in case exception need to be caught
+#                   except:
+#                       scan_data_offset = self.last_offset
+#                       s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+#                                    date, time, itime, col_names,
+#                                    scan_header_offset, scan_data_offset,
+#                                    self.full_filename, self.init_motor_names,
+#                                    init_motor_values, "NODATA")
 
                     self.scan_list.append(s)
 
@@ -882,19 +882,19 @@ class SPECFile(object):
                     # data or abort notice of the first scan; first store
                     # current scan as aborted then start new scan parsing
 
-                    try:
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
-                                     date, time, itime, col_names,
-                                     scan_header_offset, scan_data_offset,
-                                     self.full_filename, self.init_motor_names,
-                                     init_motor_values, "ABORTED")
-                    except:
-                        scan_data_offset = self.last_offset
-                        s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
-                                     date, time, itime, col_names,
-                                     scan_header_offset, scan_data_offset,
-                                     self.full_filename, self.init_motor_names,
-                                     init_motor_values, "ABORTED")
+                    s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+                                 date, time, itime, col_names,
+                                 scan_header_offset, scan_data_offset,
+                                 self.full_filename, self.init_motor_names,
+                                 init_motor_values, "ABORTED")
+#                   DK: 3.8.2018: keep in case exception need to be caught
+#                   except:
+#                       scan_data_offset = self.last_offset
+#                       s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
+#                                    date, time, itime, col_names,
+#                                    scan_header_offset, scan_data_offset,
+#                                    self.full_filename, self.init_motor_names,
+#                                    init_motor_values, "ABORTED")
 
                     self.scan_list.append(s)
 
@@ -1073,7 +1073,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                     buf = sdata[motname]
                     scanshape = buf.shape
                     angles[motname] = numpy.concatenate((angles[motname], buf))
-                except:
+                except ValueError:
                     notscanmotors.append(i)
             if len(notscanmotors) == len(args):
                 scanshape = len(sdata)
@@ -1162,7 +1162,7 @@ def getspec_scan(specf, scans, *args, **kwargs):
                 buf = sdata[motname]
                 scanshape = buf.shape
                 angles[motname] = numpy.concatenate((angles[motname], buf))
-            except:
+            except ValueError:
                 notscanmotors.append(i)
         if len(notscanmotors) == len(args):
             scanshape = len(sdata)

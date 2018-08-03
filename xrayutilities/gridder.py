@@ -173,11 +173,8 @@ class Gridder(utilities.ABC):
         """
         Clear so far gridded data to reuse this instance of the Gridder
         """
-        try:
-            self._gdata[...] = 0
-            self._gnorm[...] = 0
-        except:
-            pass
+        self._gdata[...] = 0
+        self._gnorm[...] = 0
 
 
 class Gridder1D(Gridder):

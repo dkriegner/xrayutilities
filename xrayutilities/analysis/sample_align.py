@@ -1816,9 +1816,9 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         angle2 = x[2, :]
         n1 = x[3, :]
         n2 = x[4, :]
-        h = x[5, :]
-        k = x[6, :]
-        l = x[7, :]
+        H = x[5, :]
+        K = x[6, :]
+        L = x[7, :]
 
         # use only positive tilt and sample tilt
         param[6] = abs(param[6])
@@ -1843,7 +1843,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
             sang, angle1, angle2, n1, n2, delta=[0, param[8], 0.],
             distance=1., UB=ubmat, wl=wl)
 
-        return (qx - h) ** 2 + (qy - k) ** 2 + (qz - l) ** 2
+        return (qx - H) ** 2 + (qy - K) ** 2 + (qz - L) ** 2
 
     Npoints = len(ang1)
 
@@ -2177,7 +2177,7 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 #################################################
 def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
                    peaktype='Gauss', plot=True):
-    """
+    r"""
     helper function to determine the Bragg peak position in a reciprocal
     space map used to obtain the position needed for correction of the data.
     the determination is done by fitting a two dimensional Gaussian

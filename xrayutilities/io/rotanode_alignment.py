@@ -62,7 +62,7 @@ class RA_Alignment(object):
         self.filename = filename
         try:
             self.fid = xu_open(self.filename)
-        except:
+        except FileNotFoundError:
             self.fid = None
             raise IOError("error opening alignment log file %s"
                           % self.filename)
@@ -175,7 +175,7 @@ class RA_Alignment(object):
     def __del__(self):
         try:
             self.fid.close()
-        except:
+        except AttributeError:
             pass
 
     def keys(self):

@@ -184,7 +184,7 @@ class CIFFile(object):
 
         try:
             self.fid = open(self.filename, "rb")
-        except:
+        except FileNotFoundError:
             raise IOError("cannot open CIF file %s" % self.filename)
 
         if config.VERBOSITY >= config.INFO_ALL:
@@ -401,7 +401,7 @@ class CIFDataset(object):
                 elif re_name.match(line):
                     try:
                         self.name = shlex.split(line)[1]
-                    except:
+                    except IndexError:
                         pass
                 if loop_start:
                     loop_labels.append(line.strip())
@@ -462,7 +462,7 @@ class CIFDataset(object):
                         uiso = 0
                     biso = 8 * numpy.pi**2 * uiso
                     self.atoms.append((atom, apos, occ, biso))
-                except:
+                except IndexError:
                     if config.VERBOSITY >= config.INFO_LOW:
                         print('XU.material: could not parse atom line: "%s"'
                               % line.strip())

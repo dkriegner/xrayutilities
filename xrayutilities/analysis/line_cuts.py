@@ -61,7 +61,7 @@ def _get_cut(pos_along, pos_perp, intensity, dis, npoints):
 
 
 def get_qz_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
-    """
+    r"""
     extracts a qz scan from reciprocal space map data with integration along
     either, the perpendicular plane in q-space, omega (sample rocking angle) or
     2theta direction. For the integration in angular space (omega, or 2theta)
@@ -147,7 +147,7 @@ def get_qz_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
 
 def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
-    """
+    r"""
     extracts a qy scan from reciprocal space map data with integration along
     either, the perpendicular plane in q-space, omega (sample rocking angle) or
     2theta direction. For the integration in angular space (omega, or 2theta)
@@ -234,7 +234,7 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
 
 def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
-    """
+    r"""
     extracts a qx scan from reciprocal space map data with integration along
     either, the perpendicular plane in q-space, omega (sample rocking angle) or
     2theta direction. For the integration in angular space (omega, or 2theta)

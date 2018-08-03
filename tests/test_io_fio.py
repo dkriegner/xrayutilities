@@ -56,8 +56,8 @@ class TestIO_FIO(unittest.TestCase):
         cls.motor = cls.sdata[cls.motorname]
         cls.inte = cls.sdata[cls.countername]
         cls.fiofile.Save2HDF5(cls.h5file, scanname)
-        [cls.h5tt, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
-            cls.h5file, [19], cls.motorname, cls.countername)
+        [cls.h5tt, dummy, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
+            cls.h5file, [19], cls.motorname, 'ZS', cls.countername)
 
     @classmethod
     def tearDownClass(cls):

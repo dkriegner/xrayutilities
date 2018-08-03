@@ -201,7 +201,7 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
             scanlength = len(sdata)
             try:
                 buf = sdata[motname]
-            except:
+            except ValueError:
                 buf = scan.init_mopo[motname] * numpy.ones(scanlength)
             angles[motname] = numpy.concatenate((angles[motname], buf))
 

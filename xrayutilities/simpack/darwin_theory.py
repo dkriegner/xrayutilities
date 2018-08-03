@@ -451,7 +451,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                     propx = numpy.append(propx, lprop)
                 try:
                     curlzp = lzp[-1]
-                except:
+                except IndexError:
                     curlzp = lzp
                 lzp = numpy.append(lzp, lzp+curlzp)
                 lprop = numpy.append(lprop, lprop)

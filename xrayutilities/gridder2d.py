@@ -215,10 +215,10 @@ class FuzzyGridder2D(Gridder2D):
 
         if 'width' in kwargs:
             try:
-                l = len(kwargs['width'])
-            except:
-                l = 1
-            if l == 2:
+                length = len(kwargs['width'])
+            except TypeError:
+                length = 1
+            if length == 2:
                 wx, wy = kwargs['width']
             else:
                 wx = kwargs['width']

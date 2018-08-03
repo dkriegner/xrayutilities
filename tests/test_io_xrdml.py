@@ -41,7 +41,7 @@ class TestIO_XRDML(unittest.TestCase):
     def setUpClass(cls):
         cls.xrdmlfile = xu.io.XRDMLFile(fullfilename)
         cls.data1 = cls.xrdmlfile.scan['detector']
-        cls.motor, cls.data2 = xu.io.getxrdml_scan(fullfilename)
+        cls.motor, dummy, cls.data2 = xu.io.getxrdml_scan(fullfilename, 'Phi')
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.data1.shape)

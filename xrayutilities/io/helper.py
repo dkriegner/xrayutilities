@@ -76,7 +76,7 @@ def xu_open(filename, mode='rb'):
                 import contextlib
                 import lzma
                 fid = contextlib.closing(lzma.LZMAFile(filename, mode))
-            except:
+            except ImportError:
                 raise TypeError("File compression type not supported! Install "
                                 "pyliblzma or switch to Python >3.3")
     else:

@@ -155,8 +155,8 @@ class MaterialList(collections.MutableSequence):
     __rmul__ = __mul__
 
     def __str__(self):
-        l = ',\n  '.join([str(entry) for entry in self.list])
-        s = '{name} [\n  {l}\n]'.format(name=self.name, l=l)
+        layer = ',\n  '.join([str(entry) for entry in self.list])
+        s = '{name} [\n  {layer}\n]'.format(name=self.name, layer=layer)
         return s
 
     def __repr__(self):
@@ -258,8 +258,8 @@ class GradedLayerStack(CrystalStack):
         nto = alloy(xto).name
         super(GradedLayerStack, self).__init__('(' + nfrom + '-' + nto + ')')
         for x in numpy.linspace(xfrom, xto, nsteps):
-            l = Layer(alloy(x), thickness/nsteps, **kwargs)
-            self.append(l)
+            layer = Layer(alloy(x), thickness/nsteps, **kwargs)
+            self.append(layer)
 
 
 class PseudomorphicStack001(CrystalStack):
@@ -270,11 +270,11 @@ class PseudomorphicStack001(CrystalStack):
     trans = Transform(numpy.identity(3))
 
     def make_epitaxial(self, i):
-        l = self.list[i]
+        layer = self.list[i]
         if i == 0:
-            return l
+            return layer
         psub = self.list[i-1].material
-        mpseudo = PseudomorphicMaterial(psub, l.material, l.relaxation,
+        mpseudo = PseudomorphicMaterial(psub, layer.material, layer.relaxation,
                                         trans=self.trans)
         self.list[i].material = mpseudo
 
@@ -405,7 +405,7 @@ class Powder(SMaterial):
                 if nsplit[-1] == 'biso':
                     self.material.lattice._wbase[idx] = (wp[0], wp[1], wp[2],
                                                          value)
-        except:
+        except AttributeError:
             pass
         super(Powder, self).__setattr__(name, value)
 

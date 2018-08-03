@@ -44,7 +44,7 @@ class Transform(object):
         if self.imatrix is None:
             try:
                 self.imatrix = numpy.linalg.inv(self.matrix)
-            except:
+            except numpy.linalg.LinAlgError:
                 raise Exception("XU.math.Transform: matrix cannot be inverted"
                                 " - seems to be singular")
 

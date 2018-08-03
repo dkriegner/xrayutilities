@@ -80,7 +80,7 @@ class numorFile(object):
         multispace split. splits string at two or more spaces after stripping
         it.
         """
-        return re.split('\s\s+', string.strip())
+        return re.split(r'\s\s+', string.strip())
 
     def Read(self):
         """
@@ -235,7 +235,7 @@ def numor_scan(scannumbers, *args, **kwargs):
             scanlength = len(sdata)
             try:
                 buf = sdata[motname]
-            except:
+            except ValueError:
                 mv = [v for k, v in scan.init_mopo.items()
                       if motname in k][0]
                 buf = mv * numpy.ones(scanlength)
