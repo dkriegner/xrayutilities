@@ -95,19 +95,40 @@ EDF files are mostly used to store CCD frames at ESRF recorded from various diff
 .. seealso::
    the fully working example provided in the ``examples`` directory perfectly suited for reading data from beamline ID01
 
+Reading XRDML files
+^^^^^^^^^^^^^^^^^^^
+
+.. _xrdmlexample:
+
+Files recorded by `Panalytical <http://www.panalytical.com>`_ diffractometers in the ``.xrdml`` format can be parsed.
+All supported file formats can also be parsed transparently when they are saved as compressed files using common compression formats. The parsing of such compressed ``.xrdml`` files conversion to reciprocal space and visualization by gridding is shown below::
+
+    import xrayutilities as xu
+    om, tt, psd = xu.io.getxrdml_map('rsm_%d.xrdml.bz2', [1, 2, 3, 4, 5],
+                                     path='data')
+    # or using the more flexible function
+    tt, om, psd = xu.io.getxrdml_scan('rsm_%d.xrdml.bz2', 'Omega',
+                                      scannrs=[1, 2, 3, 4, 5], path='data')
+    # single files can also be opened directly using the low level approach
+    xf = xu.io.XRDMLFile('data/rsm_1.xrdml.bz2')
+    # then see xf.scan and its attributes
+
+
+.. seealso::
+   the fully working example provided in the ``examples`` directory
 
 Other formats
 ^^^^^^^^^^^^^
 
 Other formats which can be read include
 
- * files recorded from `Panalytical <http://www.panalytical.com>`_ diffractometers in the ``.xrdml`` format.
+ * Rigaku ``.ras`` files.
  * files produces by the experimental control software at Hasylab/Desy (spectra).
+ * numor files from the ILL neutron facility
  * ccd images in the tiff file format produced by RoperScientific CCD cameras and Perkin Elmer detectors.
  * files from recorded by Seifert diffractometer control software (``.nja``)
- * basic support is also provided for reading of ``cif`` files from structure
-   database to extract unit cell parameters. Currently all materials read from
-   CIF files are, however, represented by the P1 space-group.
+ * support is also provided for reading of ``cif`` files from structure
+   databases to extract unit cell parameters as well es read data from those files (pdCIF, ESG files)
 
 See the ``examples`` directory for more information and working example scripts.
 
@@ -149,8 +170,7 @@ Similar functions exist for other experimental geometries. For grazing incidence
 
 There is on implementation of a GID 2S+2D diffractometer. Be sure to check if the order of the detector circles fits your goniometer, otherwise define one yourself!
 
-There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space.
-::
+There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space.::
 
     import xrayutilities as xu
     import numpy
@@ -199,9 +219,8 @@ This is often needed after transforming data measured at equally spaced angular 
 In 1D this process actually equals the calculation of a histogram.
 Below you find the most basic way of using the Gridder in 2D. Other dimensions work very similar.
 
-The most easiest use (what most user might need) is:
+The most easiest use (what most user might need) is::
 
-::
     import xrayutilities as xu # import Python package
     g = xu.Gridder2D(100, 101) # initialize the Gridder object, which will
     # perform Gridding to a regular grid with 100x101 points
@@ -209,11 +228,13 @@ The most easiest use (what most user might need) is:
     g(x, y, data) # call the gridder with the data
     griddata = g.data # the data attribute contains the gridded data.
 
+
 _.. note: previously you could use the Gridder's gdata object, which was always an internal buffer and should not be used anymore!
 
 A more complicated example showing also sequential gridding is shown below. You need sequential gridding when you can not load all data at the same time, which is often problematic with 3D data sets. In such cases you need to specify the data range before the first call to the gridder.
 
 ::
+
     import xrayutilities as xu # import Python package
     g = xu.Gridder2D(100, 101) # initialize the Gridder object
     g.KeepData(True)
@@ -226,6 +247,61 @@ A more complicated example showing also sequential gridding is shown below. You 
     g(x, y, data) # call the gridder with the new data
     griddata = g.data # the data attribute contains the combined gridded data.
 
+
+Gridder2D for visualization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Based on the example of parsed data from XRDML files shown above (xrdmlexample_) we show here how to use the ``Gridder2D`` class together with matplotlibs contourf.
+
+::
+
+    Si = xu.materials.Si
+    hxrd = xu.HXRD(Si.Q(1, 1, 0), Si.Q(0, 0, 1))
+    qx, qy, qz = hxrd.Ang2Q(om, tt)
+    gridder = xu.Gridder2D(200, 600)
+    gridder(qy, qz, psd)
+    INT = xu.maplog(gridder.data.transpose(), 6, 0)
+    # plot the intensity as contour plot
+    plt.figure()
+    cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend='min')
+    plt.xlabel(r'$Q_{[110]}$ ($\AA^{-1}$)')
+    plt.ylabel(r'$Q_{[001]}$ ($\AA^{-1}$)')
+    cb = plt.colorbar(cf)
+    cb.set_label(r"$\log($Int$)$ (cps)")
+    plt.tight_layout()
+
+The shown script results in the plot of the reciprocal space map shown below.
+
+.. figure:: pics/rsm_xrdml.png
+   :alt: measured reciprocal space map around the (004) of a SiGe superlattice on Si(001)
+   :width: 400 px
+
+Line cuts from reciprocal space maps
+------------------------------------
+
+Using the ``analysis`` subpackage one can produce line cuts. Starting from the reciprocal space data produced by the reciprocal space conversion as in the last example code we extract radial scan along the crystal truncation rod. For the extraction of line scans the respective functions offer to integrate the data along certain directions. In the present case integration along '2Theta' gives the best result since a broadening in that direction was caused by the beam footprint in the particular experiment.::
+
+    # line cut with integration along 2theta to remove beam footprint broadening
+    qzc, qzint, cmask = xu.analysis.get_radial_scan([qy, qz], psd, [0, 4.5],
+                                                    1001, 0.155, intdir='2theta')
+
+    # line cut with integration along omega
+    qzc_om, qzint_om, cmask_om = xu.analysis.get_radial_scan([qy, qz], psd, [0, 4.5],
+                                                    1001, 0.155, intdir='omega')
+    plt.figure()
+    plt.semilogy(qzc, qzint, label='Int-dir 2Theta')
+    plt.semilogy(qzc_om, qzint_om, label='Int-dir Omega')
+    plt.xlabel(r'scattering angle (deg)')
+    plt.ylabel(r'intensity (arb. u.)')
+    plt.legend()
+    plt.tight_layout()
+
+.. figure:: pics/line_cut_radial.png
+   :alt: radial line cut extracted from a space map around the (004) of a SiGe superlattice on Si(001)
+   :width: 400 px
+
+.. seealso::
+   the fully working example provided in the ``examples`` directory and the other line cut functions in :class:`~xrayutilities.analysis.line_cuts`
 
 Using the ``material`` class
 ----------------------------

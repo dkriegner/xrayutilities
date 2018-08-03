@@ -52,6 +52,14 @@ xrayutilities.materials.material module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.materials.plot module
+-----------------------------------
+
+.. automodule:: xrayutilities.materials.plot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.materials.predefined\_materials module
 ----------------------------------------------------
 
