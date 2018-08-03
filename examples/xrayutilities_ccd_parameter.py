@@ -26,8 +26,8 @@ import os
 import re
 
 import xrayutilities as xu
-import xrayutilities_id01_functions as id01
 
+import xrayutilities_id01_functions as id01
 
 s = xu.io.SPECFile(specfile)
 specscan = s.scan3

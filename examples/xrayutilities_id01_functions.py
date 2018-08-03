@@ -17,9 +17,10 @@
 
 # ALSO LOOK AT THE FILE xrayutilities_example_plot_3D_ESRF_ID01.py
 
-import xrayutilities as xu
-import re
 import collections
+import re
+
+import xrayutilities as xu
 from matplotlib.pylab import *
 
 # define root of the local data directory (needed because we assume the data

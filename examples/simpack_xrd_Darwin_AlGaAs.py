@@ -21,7 +21,6 @@ from scipy.special import erf
 
 mpl.rcParams['font.size'] = 16.0
 en = 'CuKa1'
-h, k, l = (0, 0, 4)
 qz = linspace(4.3, 4.6, 4000)
 
 GaAs = xu.materials.GaAs
@@ -42,6 +41,7 @@ def period(xavg, xwell, wellratio, thick, sigmaup, sigmadown):
     return lambda z: xb + (xwell-xb)*(erf((z-tb)/sigmaup) +
                                       erf(-(z-(tb+twell))/sigmadown))/2.
 
+
 sideal = [{'t': 3500000, 'x': 0, 'r': 1},  # 350um substrate
           {'t': 10000, 'x': 0.5, 'r': 1},  # 1um buffer (relaxed)
           # 5 period superlattice with interdiffusion
@@ -59,19 +59,19 @@ sample = [{'t': 3500000, 'x': 0, 'r': 1},  # 350um substrate
 mlideal = dm.make_monolayers(sideal)
 Iideal = dm.simulate(mlideal)
 ml = dm.make_monolayers(sample)
-I = dm.simulate(ml)
+Isim = dm.simulate(ml)
 
 figure('XU-simpack AlGaAs (Darwin)', figsize=(10, 5))
 clf()
 
 subplot(121)
 semilogy(qz, Iideal, 'm-', lw=2, label='ideal')
-semilogy(qz, I, 'r-', lw=2, label='SL5')
+semilogy(qz, Isim, 'r-', lw=2, label='SL5')
 ylim(0.5*dm.background, dm.I0)
 xlim(qz.min(), qz.max())
 plt.locator_params(axis='x', nbins=5)
-xlabel('Qz ($1/\AA$)')
-ylabel('Intensity (arb.u.)')
+xlabel(r'Qz ($1/\AA$)')
+ylabel('Intensity (arb. u.)')
 legend(fontsize='small')
 
 subplot(122)

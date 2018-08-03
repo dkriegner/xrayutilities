@@ -42,18 +42,18 @@ def hotpixelkill(ccd):
     # ignored by the gridder
     return ccd
 
-# identify hot pixels numbers from a series of dark images
 
+# identify hot pixels numbers from a series of dark images
 # open a series of 2D detector frames
 ccdavg = numpy.empty(0)
 n = 0
-for f in glob.glob("G:\data\dark*.edf"):
+for f in glob.glob(r"G:\data\dark*.edf"):
     e = xu.io.EDFFile(f)
     ccdraw = e.data
-    try:
-        ccdavg += ccdraw
-    except:
+    if len(ccdavg) == 0:
         ccdavg = ccdraw.astype(numpy.float)
+    else:
+        ccdavg += ccdraw
     n += 1
 
 ccdavg /= float(n)

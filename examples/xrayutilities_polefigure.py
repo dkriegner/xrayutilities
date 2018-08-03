@@ -51,11 +51,11 @@ tup = []
 label = []
 for ind in hkls:
     tup.append(Ge.Q(*ind))
-    l = r'$('
+    lab = r'$('
     for index in ind:
-        l += '%s' % (r'\bar' if index < 0 else '') + str(abs(index))
-    l += ')$'
-    label.append(l)
+        lab += '%s' % (r'\bar' if index < 0 else '') + str(abs(index))
+    lab += ')$'
+    label.append(lab)
 
 df = xu.io.XRDMLFile(os.path.join(datadir, "polefig_Ge113.xrdml.bz2"))
 s = df.scan
