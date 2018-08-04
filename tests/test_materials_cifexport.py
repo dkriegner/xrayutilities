@@ -15,6 +15,7 @@
 #
 # Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import os
 import tempfile
 import unittest
 
@@ -24,6 +25,8 @@ xu.config.VERBOSITY = 0
 
 
 class Test_CIF_export(unittest.TestCase):
+    filename = ''
+
     @classmethod
     def setUpClass(cls):
         cls.materials = []
@@ -31,12 +34,21 @@ class Test_CIF_export(unittest.TestCase):
             if isinstance(obj, xu.materials.Crystal):
                 cls.materials.append(obj)
 
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            os.remove(cls.filename)
+        except FileNotFoundError:
+            pass
+
     def test_export(self):
         for m in self.materials:
-            with tempfile.NamedTemporaryFile(mode='w') as fid:
-                m.toCIF(fid.name)
-                c = xu.materials.Crystal.fromCIF(fid.name)
-                self.assertEqual(m, c)
+            with tempfile.NamedTemporaryFile(mode='w', delete=False) as fid:
+                self.filename = fid.name
+            m.toCIF(self.filename)
+            c = xu.materials.Crystal.fromCIF(self.filename)
+            self.assertEqual(m, c)
+            os.remove(self.filename)
 
 
 if __name__ == '__main__':
