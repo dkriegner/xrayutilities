@@ -38,7 +38,7 @@ class Test_CIF_export(unittest.TestCase):
     def tearDownClass(cls):
         try:
             os.remove(cls.filename)
-        except FileNotFoundError:
+        except OSError:
             pass
 
     def test_export(self):

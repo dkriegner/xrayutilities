@@ -62,7 +62,7 @@ class RA_Alignment(object):
         self.filename = filename
         try:
             self.fid = xu_open(self.filename)
-        except FileNotFoundError:
+        except OSError:
             self.fid = None
             raise IOError("error opening alignment log file %s"
                           % self.filename)

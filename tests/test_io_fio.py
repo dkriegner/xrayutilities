@@ -63,7 +63,7 @@ class TestIO_FIO(unittest.TestCase):
     def tearDownClass(cls):
         try:
             os.remove(cls.h5file)
-        except FileNotFoundError:
+        except OSError:
             pass
 
     def test_datashape(self):

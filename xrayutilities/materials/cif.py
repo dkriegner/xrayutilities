@@ -186,7 +186,7 @@ class CIFFile(object):
 
         try:
             self.fid = open(self.filename, "rb")
-        except FileNotFoundError:
+        except OSError:
             raise IOError("cannot open CIF file %s" % self.filename)
 
         if config.VERBOSITY >= config.INFO_ALL:
