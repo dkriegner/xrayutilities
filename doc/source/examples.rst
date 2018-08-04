@@ -26,7 +26,9 @@ Both methods have their pros and cons. For example when you parse the spec-files
 
 Both methods work incremental, so they do not start at the beginning of the file when you reread it, but start from the last position they were reading and work with files including data from linear detectors.
 
-An working example for both methods is given in the following.::
+An working example for both methods is given in the following.
+
+.. code-block:: python
 
     import xrayutilities as xu
     import os
@@ -54,7 +56,7 @@ An working example for both methods is given in the following.::
 
 In the following it is shown how to re-parsing the SPEC file for new scans and reread the scans (1) or update the HDF5 file(2)
 
-::
+.. code-block:: python
 
     s.Update() # reparse for new scans in open SPECFile instance
 
@@ -73,7 +75,9 @@ In the following it is shown how to re-parsing the SPEC file for new scans and r
 Reading EDF files
 ^^^^^^^^^^^^^^^^^
 
-EDF files are mostly used to store CCD frames at ESRF recorded from various different detectors. This format is therefore used in combination with SPEC files. In an example the EDFFile class is used to parse the data from EDF files and store them to an HDF5 file. HDF5 if perfectly suited because it can handle large amount of data and compression.::
+EDF files are mostly used to store CCD frames at ESRF recorded from various different detectors. This format is therefore used in combination with SPEC files. In an example the EDFFile class is used to parse the data from EDF files and store them to an HDF5 file. HDF5 if perfectly suited because it can handle large amount of data and compression.
+
+.. code-block:: python
 
     import xrayutilities as xu
     import numpy
@@ -91,14 +95,11 @@ EDF files are mostly used to store CCD frames at ESRF recorded from various diff
         e.ReadData()
         e.Save2HDF5(h5file, group="/frelon_%04d" % i)
 
-
 .. seealso::
    the fully working example provided in the ``examples`` directory perfectly suited for reading data from beamline ID01
 
 Reading XRDML files
 ^^^^^^^^^^^^^^^^^^^
-
-.. _xrdmlexample:
 
 Files recorded by `Panalytical <http://www.panalytical.com>`_ diffractometers in the ``.xrdml`` format can be parsed.
 All supported file formats can also be parsed transparently when they are saved as compressed files using common compression formats. The parsing of such compressed ``.xrdml`` files conversion to reciprocal space and visualization by gridding is shown below::
@@ -137,7 +138,7 @@ Angle calculation using ``experiment`` and ``material`` classes
 
 Methods for high angle x-ray diffraction experiments. Mostly for experiments performed in coplanar scattering geometry. An example will be given for the calculation of the position of Bragg reflections.
 
-::
+.. code-block:: python
 
     import xrayutilities as xu
     Si = xu.materials.Si  # load material from materials submodule
@@ -161,7 +162,9 @@ One could also call::
 to specify the energy explicitly.
 The ``HXRD`` class by default describes a four-circle goniometer as described in more detail `here <http://www.certif.com/spec_manual/fourc_4_1.html>`_.
 
-Similar functions exist for other experimental geometries. For grazing incidence diffraction one might use::
+Similar functions exist for other experimental geometries. For grazing incidence diffraction one might use
+
+.. code-block:: python
 
     gid = xu.GID(Si.Q(1, -1, 0), Si.Q(0, 0, 1))
     # calculate angles and print them to the screen
@@ -170,7 +173,9 @@ Similar functions exist for other experimental geometries. For grazing incidence
 
 There is on implementation of a GID 2S+2D diffractometer. Be sure to check if the order of the detector circles fits your goniometer, otherwise define one yourself!
 
-There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space.::
+There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space.
+
+.. code-block:: python
 
     import xrayutilities as xu
     import numpy
@@ -182,8 +187,9 @@ There exists also a powder diffraction class, which is able to convert powder sc
     theta = arange(0, 70, 0.01)
     q = xup.Ang2Q(theta)
 
-
 More information about powdered materials can be obtained from the :class:`~xrayutilities.simpack.powder.PowderDiffraction` class. It contains information about peak positions and intensities
+
+.. code-block:: python
 
  >>> print(xu.simpack.PowderDiffraction(xu.materials.In))
     Powder diffraction object
@@ -219,7 +225,9 @@ This is often needed after transforming data measured at equally spaced angular 
 In 1D this process actually equals the calculation of a histogram.
 Below you find the most basic way of using the Gridder in 2D. Other dimensions work very similar.
 
-The most easiest use (what most user might need) is::
+The most easiest use (what most user might need) is
+
+.. code-block:: python
 
     import xrayutilities as xu # import Python package
     g = xu.Gridder2D(100, 101) # initialize the Gridder object, which will
@@ -228,12 +236,11 @@ The most easiest use (what most user might need) is::
     g(x, y, data) # call the gridder with the data
     griddata = g.data # the data attribute contains the gridded data.
 
-
-_.. note: previously you could use the Gridder's gdata object, which was always an internal buffer and should not be used anymore!
+.. note: previously you could use the Gridder's gdata object, which was always an internal buffer and should not be used anymore!
 
 A more complicated example showing also sequential gridding is shown below. You need sequential gridding when you can not load all data at the same time, which is often problematic with 3D data sets. In such cases you need to specify the data range before the first call to the gridder.
 
-::
+.. code-block:: python
 
     import xrayutilities as xu # import Python package
     g = xu.Gridder2D(100, 101) # initialize the Gridder object
@@ -251,9 +258,9 @@ A more complicated example showing also sequential gridding is shown below. You 
 Gridder2D for visualization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Based on the example of parsed data from XRDML files shown above (xrdmlexample_) we show here how to use the ``Gridder2D`` class together with matplotlibs contourf.
+Based on the example of parsed data from XRDML files shown above (`Reading XRDML files`_) we show here how to use the ``Gridder2D`` class together with matplotlibs contourf.
 
-::
+.. code-block:: python
 
     Si = xu.materials.Si
     hxrd = xu.HXRD(Si.Q(1, 1, 0), Si.Q(0, 0, 1))
@@ -279,7 +286,9 @@ The shown script results in the plot of the reciprocal space map shown below.
 Line cuts from reciprocal space maps
 ------------------------------------
 
-Using the ``analysis`` subpackage one can produce line cuts. Starting from the reciprocal space data produced by the reciprocal space conversion as in the last example code we extract radial scan along the crystal truncation rod. For the extraction of line scans the respective functions offer to integrate the data along certain directions. In the present case integration along '2Theta' gives the best result since a broadening in that direction was caused by the beam footprint in the particular experiment.::
+Using the ``analysis`` subpackage one can produce line cuts. Starting from the reciprocal space data produced by the reciprocal space conversion as in the last example code we extract radial scan along the crystal truncation rod. For the extraction of line scans the respective functions offer to integrate the data along certain directions. In the present case integration along '2Theta' gives the best result since a broadening in that direction was caused by the beam footprint in the particular experiment.
+
+.. code-block:: python
 
     # line cut with integration along 2theta to remove beam footprint broadening
     qzc, qzint, cmask = xu.analysis.get_radial_scan([qy, qz], psd, [0, 4.5],
@@ -311,7 +320,9 @@ materials.
 
 Examples show how to define a new material by defining its lattice and deriving a new material, furthermore materials can be used to calculate the structure factor of a Bragg reflection for an specific energy or the energy dependency of its structure factor for anomalous scattering. Data for this are taken from a database which is included in the download.
 
-First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we should the definition of zincblende InP as well as for its hexagonal wurtzite polytype as two examples::
+First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we should the definition of zincblende InP as well as for its hexagonal wurtzite polytype as two examples
+
+.. code-block:: python
 
     import xrayutilities as xu
 
@@ -339,7 +350,10 @@ First defining a new material from scratch is shown. This is done from the space
                                           atoms=[In, P], pos=[('2b', 0),
                                                               ('2b', 3/8.)]))
 
-InP (in both variants) is already included in the xu.materials module and can be loaded by::
+
+InP (in both variants) is already included in the xu.materials module and can be loaded by
+
+.. code-block:: python
 
     InP = xu.materials.InP
     InPWZ = xu.materials.InPWZ
@@ -347,7 +361,9 @@ InP (in both variants) is already included in the xu.materials module and can be
 Similar definitions exist for many other materials.
 
 
-Using the material properties the calculation of the reflection strength of a Bragg reflection can be done as follows::
+Using the material properties the calculation of the reflection strength of a Bragg reflection can be done as follows
+
+.. code-block:: python
 
     import xrayutilities as xu
     import numpy
@@ -364,7 +380,9 @@ Using the material properties the calculation of the reflection strength of a Br
         print(" |F| = %8.3f" % numpy.abs(F))
 
 
-Similar also the energy dependence of the structure factor can be determined::
+Similar also the energy dependence of the structure factor can be determined
+
+.. code-block:: python
 
     import matplotlib.pyplot as plt
 
@@ -378,7 +396,9 @@ Similar also the energy dependence of the structure factor can be determined::
 
 
 
-It is also possible to calculate the components of the structure factor of atoms, which may be needed for input into XRD simulations.::
+It is also possible to calculate the components of the structure factor of atoms, which may be needed for input into XRD simulations.
+
+.. code-block:: python
 
     # f = f0(|Q|) + f1(en) + j * f2(en)
     import xrayutilities as xu
@@ -393,6 +413,32 @@ It is also possible to calculate the components of the structure factor of atoms
     print("f1: %8.4g" % Fe.f1(en))
     print("f2: %8.4g" % Fe.f2(en))
 
+
+Visualization of the Bragg peaks in a reciprocal space plane
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to explore which peaks are available and reachable in coplanar diffraction geometry and what their relationship between different materials is ``xrayutilities`` provides a function which generates a slightly interactive plot which helps you with this task.
+
+.. code-block:: python
+
+    import xrayutilities as xu
+    mat = xu.materials.Crystal('GaTe',
+                               xu.materials.SGLattice(194, 4.06, 16.96,
+                                                      atoms=['Ga', 'Te'],
+                                                      pos=[('4f', 0.17),
+                                                           ('4f', 0.602)]))
+    ttmax = 160
+    sub = xu.materials.Si
+    hsub = xu.HXRD(sub.Q(1, 1, -2), sub.Q(1, 1, 1))
+    ax, h = xu.materials.show_reciprocal_space_plane(sub, hsub, ttmax=160)
+    hxrd = xu.HXRD(mat.Q(1, 0, 0), mat.Q(0, 0, 1))
+    ax, h2 = xu.materials.show_reciprocal_space_plane(mat, hxrd, ax=ax)
+
+The generated plot shows all the existing Bragg spots, their `(hkl)` label is shown when the mouse is over a certain spot and the diffraction angles calculated by the given :class:`~xrayutilities.HXRD` object is printed when you click on a certain spot. Not that the primary beam is assumed to come from the left, meaning that high incidence geometry occurs for all peaks with positive inplane momentum transfer.
+
+.. figure:: pics/reciprocal_space_plane.png
+   :alt: cut of reciprocal space for cubic Si(111) and a hexagonal material with c-axis along [111] of the substrate
+   :width: 500 px
 
 Calculation of diffraction angles for a general geometry
 --------------------------------------------------------
