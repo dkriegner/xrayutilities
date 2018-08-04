@@ -44,5 +44,6 @@ class TestIO_SPEC_RA_Log(unittest.TestCase):
         self.assertEqual(self.niterations,
                          numpy.sum(numpy.sum(self.logfile.iterations)))
 
+
 if __name__ == '__main__':
     unittest.main()

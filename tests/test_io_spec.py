@@ -58,7 +58,7 @@ class TestIO_SPEC(unittest.TestCase):
     def tearDownClass(cls):
         try:
             os.remove(cls.h5file)
-        except:
+        except FileNotFoundError:
             pass
 
     def test_datashape(self):

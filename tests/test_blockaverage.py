@@ -53,5 +53,6 @@ class TestBlockAverageFunctions(unittest.TestCase):
             (self.seq2d.shape[0],
              numpy.ceil(self.seq2d.shape[1] / float(self.n))))
 
+
 if __name__ == '__main__':
     unittest.main()

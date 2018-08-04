@@ -45,7 +45,7 @@ class TestIO_CBF(unittest.TestCase):
     def tearDown(self):
         try:
             os.remove(self.h5file)
-        except:
+        except FileNotFoundError:
             pass
 
     def test_datashape(self):

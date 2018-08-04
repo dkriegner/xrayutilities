@@ -51,5 +51,6 @@ class TestMAT_CIF(unittest.TestCase):
                                xu.materials.CuMnAs.StructureFactor(Q),
                                places=3)
 
+
 if __name__ == '__main__':
     unittest.main()

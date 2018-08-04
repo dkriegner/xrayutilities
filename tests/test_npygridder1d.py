@@ -51,5 +51,6 @@ class TestNpyGridder1D(unittest.TestCase):
                 self.data[i],
                 places=12)
 
+
 if __name__ == '__main__':
     unittest.main()

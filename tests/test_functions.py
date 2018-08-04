@@ -101,5 +101,6 @@ class TestMathFunctions(unittest.TestCase):
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
 
+
 if __name__ == '__main__':
     unittest.main()

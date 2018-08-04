@@ -74,14 +74,15 @@ class TestGridder3D(unittest.TestCase):
         aj, ak, al = numpy.indices((self.nx, self.ny, self.nz))
         aj, ak, al = numpy.ravel(aj), numpy.ravel(ak), numpy.ravel(al)
         for i in range(self.nx * self.ny * self.nz):
-            j, k, l = (aj[i], ak[i], al[i])
-            if k == 2 * j and l == j:
+            j, k, m = (aj[i], ak[i], al[i])
+            if k == 2 * j and m == j:
                 self.assertAlmostEqual(
-                    self.gridder.data[j, k, l],
+                    self.gridder.data[j, k, m],
                     self.data[j],
                     places=12)
             else:
-                self.assertEqual(self.gridder.data[j, k, l], 0.)
+                self.assertEqual(self.gridder.data[j, k, m], 0.)
+
 
 if __name__ == '__main__':
     unittest.main()

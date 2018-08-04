@@ -38,5 +38,6 @@ class Test_CIF_export(unittest.TestCase):
                 c = xu.materials.Crystal.fromCIF(fid.name)
                 self.assertEqual(m, c)
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -70,5 +70,6 @@ class TestGridder2D(unittest.TestCase):
             else:
                 self.assertEqual(self.gridder.data[j, k], 0.)
 
+
 if __name__ == '__main__':
     unittest.main()

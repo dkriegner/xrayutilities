@@ -50,5 +50,6 @@ class TestFuzzyGridder1D(unittest.TestCase):
             v = 0.25 * (self.data[i-1] + self.data[i+1]) + 0.5 * self.data[i]
             self.assertAlmostEqual(self.gridder.data[i], v, places=12)
 
+
 if __name__ == '__main__':
     unittest.main()

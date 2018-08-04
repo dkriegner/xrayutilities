@@ -59,5 +59,6 @@ class TestQ2Ang_HXRD(unittest.TestCase):
         for i in range(3):
             self.assertAlmostEqual(qout[i], self.hkltest[i], places=10)
 
+
 if __name__ == '__main__':
     unittest.main()
