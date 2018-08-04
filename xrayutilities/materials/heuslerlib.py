@@ -279,34 +279,3 @@ def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
                              atoms=[x, y, z],
                              pos=['2a', '2c', '2d'],
                              b=biso, occ=occ))
-
-
-def chemical_composition(mat, natoms=4):
-    """
-    determine chemical composition from occupancy of atomic positions.
-
-    Parameters
-    ----------
-    mat :       Crystal
-        instance of Crystal
-    natoms :    int
-        number of atoms to normalize the formula
-
-    Returns
-    -------
-    str
-        representation of the chemical composition
-    """
-    elem = {}
-    for a in mat.lattice.base():
-        e = a[0].name
-        occ = a[2]
-        if e in elem:
-            elem[e] += occ
-        else:
-            elem[e] = occ
-    natom = sum([elem[e] for e in elem])
-    cstr = ''
-    for e in elem:
-        cstr += '%s%.2f ' % (e, elem[e]/float(natom)*natoms)
-    return(cstr)

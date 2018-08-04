@@ -45,3 +45,4 @@ from .database import add_mass_from_NIST
 from .database import add_f1f2_from_ascii_file
 
 from .cif import CIFFile
+from .cif import cifexport

@@ -43,13 +43,15 @@ re_atomx = re.compile(r"^\s*_atom_site_fract_x", re.IGNORECASE)
 re_atomy = re.compile(r"^\s*_atom_site_fract_y", re.IGNORECASE)
 re_atomz = re.compile(r"^\s*_atom_site_fract_z", re.IGNORECASE)
 re_uiso = re.compile(r"^\s*_atom_site_U_iso_or_equiv", re.IGNORECASE)
+re_biso = re.compile(r"^\s*_atom_site_B_iso_or_equiv", re.IGNORECASE)
 re_atomocc = re.compile(r"^\s*_atom_site_occupancy", re.IGNORECASE)
 re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
 re_quote = re.compile(r"'")
-re_spacegroupnr = re.compile(r"^\s*_space_group_IT_number|"
-                             "_symmetry_Int_Tables_number", re.IGNORECASE)
-re_spacegroupname = re.compile(r"^\s*_symmetry_space_group_name_H-M",
+re_spacegroupnr = re.compile(r"^\s*(_space_group_IT_number|"
+                             "_symmetry_Int_Tables_number)", re.IGNORECASE)
+re_spacegroupname = re.compile(r"^\s*(_symmetry_space_group_name_H-M|"
+                               "_space_group_name_H-M_alt)",
                                re.IGNORECASE)
 re_spacegroupsetting = re.compile(r"^\s*_symmetry_cell_setting", re.IGNORECASE)
 re_cell_a = re.compile(r"^\s*_cell_length_a", re.IGNORECASE)
@@ -374,6 +376,7 @@ class CIFDataset(object):
                 ay_idx = None
                 az_idx = None
                 uiso_idx = None
+                biso_idx = None
                 occ_idx = None
             elif re_labelline.match(line):
                 if re_cell_a.match(line):
@@ -402,7 +405,7 @@ class CIFDataset(object):
                     try:
                         self.name = shlex.split(line)[1]
                     except IndexError:
-                        pass
+                        self.name = None
                 if loop_start:
                     loop_labels.append(line.strip())
                     if re_symop.match(line):  # start of symmetry op. loop
@@ -426,6 +429,8 @@ class CIFDataset(object):
                         az_idx = len(loop_labels) - 1
                     elif re_uiso.match(line):
                         uiso_idx = len(loop_labels) - 1
+                    elif re_biso.match(line):
+                        biso_idx = len(loop_labels) - 1
                     elif re_atomocc.match(line):
                         occ_idx = len(loop_labels) - 1
 
@@ -458,9 +463,13 @@ class CIFDataset(object):
                     if numpy.isnan(occ):
                         occ = 1
                     uiso = floatconv(asplit[uiso_idx]) if uiso_idx else 0
+                    biso = floatconv(asplit[biso_idx]) if biso_idx else 0
                     if numpy.isnan(uiso):
                         uiso = 0
-                    biso = 8 * numpy.pi**2 * uiso
+                    if numpy.isnan(biso):
+                        biso = 0
+                    if biso == 0:
+                        biso = 8 * numpy.pi**2 * uiso
                     self.atoms.append((atom, apos, occ, biso))
                 except IndexError:
                     if config.VERBOSITY >= config.INFO_LOW:
@@ -637,3 +646,79 @@ class CIFDataset(object):
             for pos in atom[1]:
                 ostr += str(numpy.round(pos, self.digits)) + "\n"
         return ostr
+
+
+def cifexport(filename, mat):
+    """
+    function to export a Crystal instance to CIF file. This in particular
+    includes the atomic coordinates, however, ignores for example the elastic
+    paramters.
+    """
+
+    general = """data_global
+_chemical_formula_sum '{chemsum}'
+_cell_length_a {a:.5f}
+_cell_length_b {b:.5f}
+_cell_length_c {c:.5f}
+_cell_angle_alpha {alpha:.4f}
+_cell_angle_beta {beta:.4f}
+_cell_angle_gamma {gamma:.4f}
+_cell_volume {vol:.3f}
+_space_group_crystal_system {csystem}
+_space_group_IT_number {sgrpnr}
+_space_group_name_H-M_alt '{hmsymb}'
+"""
+
+    csystem = mat.lattice.crystal_system
+    if len(mat.lattice.space_group_suf) > 0:
+        csystem = csystem[:-len(mat.lattice.space_group_suf)]
+
+    ctxt = general.format(chemsum=mat.chemical_composition(with_spaces=True),
+                          a=mat.a, b=mat.b, c=mat.c,
+                          alpha=mat.alpha, beta=mat.beta, gamma=mat.gamma,
+                          vol=mat.lattice.UnitCellVolume(),
+                          csystem=csystem,
+                          sgrpnr=mat.lattice.space_group_nr,
+                          hmsymb=mat.lattice.name)
+
+    sgrpsuf = mat.lattice.space_group_suf[1:]
+    if sgrpsuf:
+        ctxt += '_symmetry_cell_setting {suf}\n'.format(suf=sgrpsuf)
+
+    symloop = """
+loop_
+_space_group_symop_operation_xyz
+"""
+
+    gplabel = sorted(wyckpos.wp[mat.lattice.space_group].keys(),
+                     key=lambda s: int(s[:-1]))[-1]
+    gp = wyckpos.wp[mat.lattice.space_group][gplabel]
+
+    for pos in gp[1]:
+        symloop += "'" + pos.strip('()') + "'\n"
+
+    atomloop = """
+loop_
+_atom_site_label
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_B_iso_or_equiv
+"""
+    nidx = 0
+    allatoms = list(mat.lattice.base())
+    for at, pos, occ, b in mat.lattice._wbase:
+        wm, wl, dummy = re.split('([a-z])', pos[0])
+        nsite = int(wm)
+        x, y, z = allatoms[nidx][1]
+        atomloop += '%s %d %c %.5f %.5f %.5f %.4f %.4f\n' % (
+            at.name, nsite, wl, x, y, z, occ, b)
+        nidx += nsite
+
+    with open(filename, 'w') as f:
+        f.write(ctxt)
+        f.write(symloop)
+        f.write(atomloop)

@@ -200,13 +200,14 @@ class WyckoffBase(list):
         elif isinstance(pos, (tuple, list)):
             if len(pos) == 1:
                 pos = (pos[0], None)
-            else:
-                if len(pos) == 2:
-                    if isinstance(pos[1], numbers.Number):
-                        pos = (pos[0], (pos[1], ))
+            elif len(pos) == 2:
+                if isinstance(pos[1], numbers.Number):
+                    pos = (pos[0], (pos[1], ))
                 else:
-                    if isinstance(pos[1], numbers.Number):
-                        pos = (pos[0], pos[1:])
+                    pos = (pos[0], tuple(pos[1]))
+            else:
+                if isinstance(pos[1], numbers.Number):
+                    pos = (pos[0], tuple(pos[1:]))
         return pos
 
     def append(self, atom, pos, occ=1.0, b=0.):
@@ -262,9 +263,46 @@ class WyckoffBase(list):
         bool
         """
         for atom, p, occ, b in self:
-            if atom == item[0] and p == item[1] and b == item[3]:
+            if (atom == item[0] and self.pos_eq(p, item[1]) and
+                    numpy.isclose(b, item[3], atol=1e-4)):
                 return True
         return False
+
+    @staticmethod
+    def entry_eq(e1, e2):
+        """
+        compare two entries including all its properties to be equal
+
+        Parameters
+        ----------
+        e1, e2:     tuple
+            tuples with length 4 containing the entries of WyckoffBase which
+            should be compared
+        """
+        if (e1[0] == e2[0] and WyckoffBase.pos_eq(e1[1], e2[1]) and
+                numpy.all(numpy.isclose(e1[2:], e2[2:], atol=1e-4))):
+            return True
+        return False
+
+    @staticmethod
+    def pos_eq(pos1, pos2):
+        """
+        compare Wyckoff positions
+
+        Parameters
+        ----------
+        pos1, pos2:     tuple
+            tuples with Wyckoff label and optional parameters
+        """
+        if pos1[0] != pos2[0]:
+            return False
+        if pos1[1] == pos2[1]:
+            return True
+        else:
+            for f1, f2 in zip(pos1[1], pos2[1]):
+                if not numpy.isclose(f1 % 1, f2 % 1, atol=1e-5):
+                    return False
+        return True
 
     def index(self, item):
         """
@@ -282,7 +320,8 @@ class WyckoffBase(list):
         int
         """
         for i, (atom, p, occ, b) in enumerate(self):
-            if atom == item[0] and p == item[1] and b == item[3]:
+            if (atom == item[0] and self.pos_eq(p, item[1]) and
+                    numpy.isclose(b, item[3], atol=1e-4)):
                 return i
         raise ValueError("%s is not in list" % str(item))
 
@@ -528,6 +567,27 @@ class SGLattice(object):
         self._set_params_from_sym()
         self._paramhelp[2] = cos(radians(value))
         self._setlat()
+
+    def __eq__(self, other):
+        """
+        compare another SGLattice instance to decide if both are equal.
+        To be equal they have to use the same space group, have equal lattice
+        paramters and contain equal atoms in their base.
+        """
+        if self.space_group != other.space_group:
+            return False
+        # compare lattice parameters
+        for prop in self.free_parameters:
+            if getattr(self, prop) != getattr(other, prop):
+                return False
+        # compare atoms in base
+        for e in self._wbase:
+            if e not in other._wbase:
+                return False
+            idx = other._wbase.index(e)
+            if not WyckoffBase.entry_eq(e, other._wbase[idx]):
+                return False
+        return True
 
     def GetPoint(self, *args):
         """

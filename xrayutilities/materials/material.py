@@ -25,6 +25,7 @@ amorphous which can be useful for calculation of their optical properties.
 """
 import abc
 import copy
+import fractions
 import numbers
 import operator
 import re
@@ -507,8 +508,8 @@ class Crystal(Material):
     @classmethod
     def fromCIF(cls, ciffilename):
         """
-        Create a Crystal from a CIF file. The CIF-filename will be used as name
-        of the created Crystal.
+        Create a Crystal from a CIF file. The default data-set from the cif
+        file will be used to create the Crystal.
 
         Parameters
         ----------
@@ -521,7 +522,18 @@ class Crystal(Material):
         """
         cf = cif.CIFFile(ciffilename)
         lat = cf.SGLattice()
-        return cls(cf.name, lat)
+        return cls(cf.data[cf._default_dataset].name, lat)
+
+    def toCIF(self, ciffilename):
+        """
+        Export the Crystal to a CIF file.
+
+        Parameters
+        ----------
+        ciffilename :  str
+            filename of the CIF file
+        """
+        cif.cifexport(ciffilename, self)
 
     @property
     def a(self):
@@ -563,6 +575,19 @@ class Crystal(Material):
     def B(self):
         return self.lattice.qtransform.matrix
 
+    def __eq__(self, other):
+        """
+        compare if another Crystal instance is equal to the current one.
+        Currently this considers only the lattice to be equal. Additional
+        parameters like thetaDebye and the eleastic parameters are ignored.
+
+        Parameters
+        ----------
+        other:  Crystal
+            another instance of Crystal to compare
+        """
+        return self.lattice == other.lattice
+
     def Q(self, *hkl):
         """
         Return the Q-space position for a certain material.
@@ -586,6 +611,61 @@ class Crystal(Material):
 
         """
         return self.lattice.GetHKL(*q)
+
+    def chemical_composition(self, natoms=None, with_spaces=False):
+        """
+        determine chemical composition from occupancy of atomic positions.
+
+        Parameters
+        ----------
+        mat :       Crystal
+            instance of Crystal
+        natoms :    int, optional
+            number of atoms to normalize the formula, if None some automatic
+            normalization is attempted using the greatest common divisor of the
+            number of atoms per unit cell. If the number of atoms of any
+            element is fractional natoms=1 is used.
+        with_spaces : bool, optional
+            add spaces between the different entries in the output string for
+            CIF combatibility
+
+        Returns
+        -------
+        str
+            representation of the chemical composition
+        """
+        elem = {}
+        for a in self.lattice.base():
+            e = a[0].name
+            occ = a[2]
+            if e in elem:
+                elem[e] += occ
+            else:
+                elem[e] = occ
+        natom = sum([elem[e] for e in elem])
+        isint = True
+        for e in elem:
+            if not float(elem[e]).is_integer():
+                isint = False
+        # determine number of atoms
+        if not natoms:
+            if isint:
+                gcdfunc = numpy.frompyfunc(fractions.gcd, 2, 1)
+                gcd = numpy.ufunc.reduce(gcdfunc, [int(elem[e]) for e in elem])
+                natoms = natom/gcd
+            else:
+                natoms = 1
+
+        # generate output strig
+        cstr = ''
+        fmtstr = '%d' if isint else '%.2f'
+        for e in elem:
+            n = elem[e] / float(natom) * natoms
+            cstr += e
+            if n != 1:
+                cstr += fmtstr % n
+            cstr += ' ' if with_spaces else ''
+        return cstr.strip()
 
     def environment(self, *pos, **kwargs):
         """
