@@ -203,6 +203,8 @@ class WyckoffBase(list):
             elif len(pos) == 2:
                 if isinstance(pos[1], numbers.Number):
                     pos = (pos[0], (pos[1], ))
+                elif pos[1] is None:
+                    pos = (pos[0], None)
                 else:
                     pos = (pos[0], tuple(pos[1]))
             else:
