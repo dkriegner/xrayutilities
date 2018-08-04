@@ -25,7 +25,6 @@ amorphous which can be useful for calculation of their optical properties.
 """
 import abc
 import copy
-import fractions
 import numbers
 import operator
 import re
@@ -650,8 +649,7 @@ class Crystal(Material):
         # determine number of atoms
         if not natoms:
             if isint:
-                gcdfunc = numpy.frompyfunc(fractions.gcd, 2, 1)
-                gcd = numpy.ufunc.reduce(gcdfunc, [int(elem[e]) for e in elem])
+                gcd = math.gcd([int(elem[e]) for e in elem])
                 natoms = natom/gcd
             else:
                 natoms = 1

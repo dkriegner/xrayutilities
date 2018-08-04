@@ -74,3 +74,4 @@ from .fit import multGaussPlot
 
 from .misc import fwhm_exp
 from .misc import center_of_mass
+from .misc import gcd

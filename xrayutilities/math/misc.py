@@ -13,7 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+
+import fractions
+import math
+import sys
 
 import numpy
 
@@ -119,3 +123,26 @@ def fwhm_exp(pos, data):
         return numpy.abs(pl - p0)*2
     else:
         return numpy.abs(pr - pl)
+
+
+def gcd(lst):
+    """
+    greatest common divisor function using library functions
+
+    Parameters
+    ----------
+    lst:    array-like
+        array of integer values for which the greatest common divisor should be
+        determined
+
+    Returns
+    -------
+    gcd:    int
+    """
+    if numpy.version.version >= '1.15.0':
+        return numpy.gcd.reduce(lst)
+    elif sys.version_info >= (3, 6):
+        gcdfunc = numpy.frompyfunc(math.gcd, 2, 1)
+    else:
+        gcdfunc = numpy.frompyfunc(fractions.gcd, 2, 1)
+    return numpy.ufunc.reduce(gcdfunc, lst)
