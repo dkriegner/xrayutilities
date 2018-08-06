@@ -141,7 +141,7 @@ def gcd(lst):
     """
     if numpy.version.version >= '1.15.0':
         return numpy.gcd.reduce(lst)
-    elif sys.version_info >= (3, 6):
+    elif sys.version_info >= (3, 5):
         gcdfunc = numpy.frompyfunc(math.gcd, 2, 1)
     else:
         gcdfunc = numpy.frompyfunc(fractions.gcd, 2, 1)
