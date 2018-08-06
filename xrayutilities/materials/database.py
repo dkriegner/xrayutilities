@@ -448,7 +448,7 @@ def init_material_db(db):
 
 
 # functions to read database files
-def add_f0_from_intertab(db, itf):
+def add_f0_from_intertab(db, itf, verbose=False):
     """
     Read f0 data from International Tables of Crystallography and add
     it to the database.
@@ -474,8 +474,9 @@ def add_f0_from_intertab(db, itf):
                 elemstate = '2p'
             ename = re.sub('[^A-Za-z]', '', lb[2])
 
-            print("{pyname} = Atom('{name}', {num})".format(
-                pyname=ename+elemstate, name=lb[2], num=lb[1]))
+            if verbose:
+                print("{pyname} = Atom('{name}', {num})".format(
+                    pyname=ename+elemstate, name=lb[2], num=lb[1]))
             db.SetMaterial(ename)
             # make two dummy reads
             for i in range(2):
@@ -496,7 +497,7 @@ def add_f0_from_intertab(db, itf):
             db.SetF0([c, a1, b1, a2, b2, a3, b3, a4, b4], subset=elemstate)
 
 
-def add_f0_from_xop(db, xop):
+def add_f0_from_xop(db, xop, verbose=False):
     """
     Read f0 data from f0_xop.dat and add
     it to the database.
@@ -521,8 +522,9 @@ def add_f0_from_xop(db, xop):
                 elemstate = elemstate.replace(o, r)
             ename = re.sub('[^A-Za-z]', '', lb[2])
 
-            print("{pyname} = Atom('{name}', {num})".format(
-                pyname=ename+elemstate, name=lb[2], num=lb[1]))
+            if verbose:
+                print("{pyname} = Atom('{name}', {num})".format(
+                    pyname=ename+elemstate, name=lb[2], num=lb[1]))
             db.SetMaterial(ename)
 
             # make nine dummy reads
@@ -546,7 +548,7 @@ def add_f0_from_xop(db, xop):
             db.SetF0([c, a1, b1, a2, b2, a3, b3, a4, b4, a5, b5])
 
 
-def add_f1f2_from_henkedb(db, hf):
+def add_f1f2_from_henkedb(db, hf, verbose=False):
     """
     Read f1 and f2 data from Henke database and add
     it to the database.
@@ -570,7 +572,8 @@ def add_f1f2_from_henkedb(db, hf):
             # check if this is not some funny isotope
 
             if invalidelem.findall(ename) == []:
-                print("set element %s" % ename)
+                if verbose:
+                    print("set element %s" % ename)
                 db.SetMaterial(ename)
                 # make one dummy read
                 for i in range(5):
@@ -596,7 +599,7 @@ def add_f1f2_from_henkedb(db, hf):
                         break
 
 
-def add_f1f2_from_kissel(db, kf):
+def add_f1f2_from_kissel(db, kf, verbose=False):
     """
     Read f1 and f2 data from Henke database and add
     it to the database.
@@ -620,7 +623,8 @@ def add_f1f2_from_kissel(db, kf):
             # check if this is not some funny isotope
 
             if invalidelem.findall(ename) == []:
-                print("set element %s" % ename)
+                if verbose:
+                    print("set element %s" % ename)
                 db.SetMaterial(ename)
                 # make 28 dummy reads
                 for i in range(28):
@@ -646,7 +650,7 @@ def add_f1f2_from_kissel(db, kf):
                         break
 
 
-def add_f1f2_from_ascii_file(db, asciifile, element):
+def add_f1f2_from_ascii_file(db, asciifile, element, verbose=False):
     """
     Read f1 and f2 data for specific element from ASCII file (3 columns) and
     save it to the database.
@@ -666,7 +670,7 @@ def add_f1f2_from_ascii_file(db, asciifile, element):
     db.SetF1F2(en, f1, f2)
 
 
-def add_mass_from_NIST(db, nistfile):
+def add_mass_from_NIST(db, nistfile, verbose=False):
     """
     Read atoms standard mass and save it to the database.
     The mass of the natural isotope mixture is taken from the NIST data!
@@ -695,7 +699,8 @@ def add_mass_from_NIST(db, nistfile):
                 lb = multiblank.split(lb)
                 ename = lb[-1]
 
-                print("set element %s" % ename)
+                if verbose:
+                    print("set element %s" % ename)
                 db.SetMaterial(ename)
 
                 # read data
