@@ -15,4 +15,5 @@ xrayutilities.egg-info/
 
 # test coverage data
 .coverage
+.coveragerc
 htmlcov

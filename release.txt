@@ -22,8 +22,11 @@ Is everything running fine? perform the tests and run the examples
   python2 setup.py test
   python3 setup.py test
   # optionally check the coverage
+  # also see http://coverage.readthedocs.io/en/coverage-4.2/subprocess.html
+  export COVERAGE_PROCESS_START=.coveragerc
   coverage run --source xrayutilities setup.py test
-  coverage html --omit='test_*'
+  coverage combine
+  coverage html
 
 run the examples
 
