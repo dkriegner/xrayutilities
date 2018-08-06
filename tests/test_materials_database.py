@@ -32,7 +32,8 @@ class TestDatabase(unittest.TestCase):
         cls.el = xu.materials.elements.dummy
         # test create database
         if sys.version_info >= (3, 3):
-            cls.dbfilename = tempfile.NamedTemporaryFile(delete=False).name
+            with tempfile.NamedTemporaryFile(delete=False) as fid:
+                cls.dbfilename = fid.name
             cmd = [sys.executable,
                    os.path.join(xu.__path__[0],
                                 'materials/_create_database.py'),
