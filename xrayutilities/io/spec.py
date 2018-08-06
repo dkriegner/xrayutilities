@@ -825,19 +825,12 @@ class SPECFile(object):
                     # this is the case when a scan is broken and no data has
                     # been written, but nevertheless a comment is in the file
                     # that tells us that the scan was aborted
+                    scan_data_offset = self.last_offset
                     s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
                                  date, time, itime, col_names,
                                  scan_header_offset, scan_data_offset,
                                  self.full_filename, self.init_motor_names,
                                  init_motor_values, "NODATA")
-#                   DK: 3.8.2018: keep in case exception need to be caught
-#                   except:
-#                       scan_data_offset = self.last_offset
-#                       s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
-#                                    date, time, itime, col_names,
-#                                    scan_header_offset, scan_data_offset,
-#                                    self.full_filename, self.init_motor_names,
-#                                    init_motor_values, "NODATA")
 
                     self.scan_list.append(s)
 

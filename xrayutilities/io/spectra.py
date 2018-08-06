@@ -346,14 +346,14 @@ class SPECTRAFile(object):
         Read the data from the file.
         """
 
-        def addkeyval(l, k, v):
+        def addkeyval(lst, k, v):
             """
             add new key to a list. if key already exists a number will be
             appended to the key name
 
             Parameters
             ----------
-            l :     list
+            lst :   list
             k :     str
                 key
             v :     object
@@ -361,10 +361,10 @@ class SPECTRAFile(object):
             """
             kcnt = 0
             key = k
-            while key in l:
+            while key in lst:
                 key = k + "_%i" % (kcnt + 1)
                 kcnt += 1
-            l[key] = v
+            lst[key] = v
 
         col_names = []
         col_units = []
@@ -476,7 +476,7 @@ class SPECTRAFile(object):
                             name = name.replace(':', '_')
                         except IndexError:
                             lv = re_wspaces.split(line)
-                            index = int(l[1])
+                            index = int(lv[1])
                             dtype = lv[-1]
                             name = "".join(lv[2:-1])
                             name = name.replace(':', '_')

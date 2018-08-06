@@ -299,7 +299,7 @@ def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         ret = _get_cut(qpos[0], om-ocut, intensity, intrange/2, npoints)
     elif intdir == '2theta':
         # needs testing
-        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
+        om, chi, phi, tt = hxrd.Q2Ang(*qpos, trans=False, geometry='realTilt')
         ocut, dmy, dmy, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
                                            trans=False, geometry='realTilt')
         ret = _get_cut(qpos[0], tt-ttcut, intensity, intrange/2, npoints)
