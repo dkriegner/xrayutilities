@@ -147,7 +147,7 @@ class FastScan(object):
                 try:
                     return self.specscan.init_motor_pos['INIT_MOPO_%s'
                                                         % motorname]
-                except ValueError:
+                except KeyError:
                     raise ValueError("given motorname '%s' not found in the "
                                      "Spec-data" % motorname)
         else:
