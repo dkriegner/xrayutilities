@@ -780,13 +780,10 @@ class SGLattice(object):
                 else:
                     return False
 
-        if equalq:
-            return checkequal(tuple(hkl1), tuple(hkl2))
-        else:
+        if not equalq:
             if math.VecNorm(self.GetQ(hkl1)) != math.VecNorm(self.GetQ(hkl2)):
                 return False
-            else:
-                return checkequal(tuple(hkl1), tuple(hkl2))
+        return checkequal(tuple(hkl1), tuple(hkl2))
 
     def __str__(self):
         ostr = "{sg} {cs} {n}: a = {a:.4f}, b = {b:.4f} c= {c:.4f}\n" +\

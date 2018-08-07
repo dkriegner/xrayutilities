@@ -13,8 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import math
 import unittest
 
 import numpy
@@ -24,8 +25,8 @@ from numpy import arccos, cos, radians, sin, sqrt
 
 class TestMaterialsTransform(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
-        cls.a, cls.b, cls.c = numpy.random.rand(3)*2 + 4
+    def setUp(cls):
+        cls.a, cls.b, cls.c = numpy.random.rand(3) * 2 + 4
         cls.alpha, cls.beta, cls.gamma = numpy.random.rand(3) * 60 + 60
         cls.p1mat = xu.materials.Crystal(
             'P1', xu.materials.SGLattice(1, cls.a, cls.b, cls.c,
@@ -67,3 +68,63 @@ class TestMaterialsTransform(unittest.TestCase):
 
         for j in range(9):
             self.assertAlmostEqual(b.flat[j], self.p1mat.B.flat[j], places=10)
+
+    def test_Bmatrix_after_a_setter(self):
+        self.a = numpy.random.rand() * 2 + 4
+        self.p1mat.lattice.a = self.a
+        self.test_Bmatrix()
+
+    def test_Bmatrix_after_alpha_setter(self):
+        self.alpha = numpy.random.rand() * 60 + 60
+        self.p1mat.lattice.alpha = self.alpha
+        self.test_Bmatrix()
+
+    def test_Bmatrix_after_all_setters(self):
+        # change materials unit cell parameters to test setters
+        self.a, self.b, self.c = numpy.random.rand(3) * 2 + 4
+        self.alpha, self.beta, self.gamma = numpy.random.rand(3) * 60 + 60
+        self.p1mat.lattice.a = self.a
+        self.p1mat.lattice.b = self.b
+        self.p1mat.lattice.c = self.c
+        self.p1mat.lattice.alpha = self.alpha
+        self.p1mat.lattice.beta = self.beta
+        self.p1mat.lattice.gamma = self.gamma
+        self.test_Bmatrix()
+
+    def test_environment(self):
+        maxdist = numpy.max((self.a, self.b, self.c)) + 0.01
+        e = self.p1mat.environment((0, 0, 0), maxdist=maxdist)
+
+        self.assertTrue(len(e) >= 4)
+        for dis in (0.0, self.a, self.b, self.c):
+            found = False
+            for d, at, mult in e:
+                if math.isclose(d, dis):
+                    found = True
+            self.assertTrue(found)
+
+    def test_environment_Si(self):
+        a = xu.materials.Si.a
+        e = xu.materials.Si.environment(0.125, 0.125, 0.125)
+
+        self.assertAlmostEqual(e[0][0], a*math.sqrt(3)/8, places=10)
+        self.assertEqual(e[0][1], xu.materials.elements.Si)
+        self.assertAlmostEqual(e[0][2], 2.0)
+
+    def test_isequivalent(self):
+
+        hkl1 = (1, 2, 3)
+        materials = ['C', 'C_HOPG', 'TiO2', 'GeTe', 'Ag2Se']
+        hkl2lst = [((2, 1, -3), (2, 2, 3)),
+                   ((1, -3, 3), (1, -2, 3)),
+                   ((-2, 1, 3), (3, 2, 1)),
+                   ((1, 2, 3), (1, 3, 2)),
+                   ((-1, -2, -3), (1, 2, -3))]
+        for mname, hkl2s in zip(materials, hkl2lst):
+            mat = getattr(xu.materials, mname)
+            self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
+            self.assertFalse(mat.lattice.isequivalent(hkl1, hkl2s[1]))
+
+
+if __name__ == '__main__':
+    unittest.main()
