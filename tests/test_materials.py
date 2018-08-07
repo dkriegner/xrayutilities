@@ -99,7 +99,7 @@ class TestMaterialsTransform(unittest.TestCase):
         for dis in (0.0, self.a, self.b, self.c):
             found = False
             for d, at, mult in e:
-                if math.isclose(d, dis):
+                if numpy.isclose(d, dis):
                     found = True
             self.assertTrue(found)
 
