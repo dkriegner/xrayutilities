@@ -33,11 +33,13 @@ re_symop = re.compile(r"^\s*("
                       "_space_group_symop_operation_xyz|"
                       "_symmetry_equiv_pos_as_xyz)")
 re_name = re.compile(r"^\s*_chemical_formula_sum")
-re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)\s*$")
+# re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)\s*$")
+re_atom = re.compile(r"^\s*_atom_site_type_symbol\s*$")
 re_atomx = re.compile(r"^\s*_atom_site_fract_x")
 re_atomy = re.compile(r"^\s*_atom_site_fract_y")
 re_atomz = re.compile(r"^\s*_atom_site_fract_z")
 re_uiso = re.compile(r"^\s*_atom_site_U_iso_or_equiv")
+re_biso = re.compile(r"^\s*_atom_site_B_iso_or_equiv")
 re_atomocc = re.compile(r"^\s*_atom_site_occupancy")
 re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
@@ -139,6 +141,7 @@ class CIFFile(object):
                 ay_idx = None
                 az_idx = None
                 uiso_idx = None
+                biso_idx = None
                 occ_idx = None
             elif re_labelline.match(line):
                 if re_cell_a.match(line):
@@ -185,6 +188,8 @@ class CIFFile(object):
                         az_idx = len(loop_labels) - 1
                     elif re_uiso.match(line):
                         uiso_idx = len(loop_labels) - 1
+                    elif re_biso.match(line):
+                        biso_idx = len(loop_labels) -1
                     elif re_atomocc.match(line):
                         occ_idx = len(loop_labels) - 1
 
@@ -219,9 +224,14 @@ class CIFFile(object):
                         floatconv(asplit[ay_idx]),
                         floatconv(asplit[az_idx]))
                 occ = floatconv(asplit[occ_idx]) if occ_idx else 1
-                uiso = floatconv(asplit[uiso_idx]) if uiso_idx else 0
-                biso = 8 * numpy.pi**2 * uiso
-                self.atoms.append((alabel, apos, occ, biso))
+                if uiso_idx:
+                    uiso = floatconv(asplit[uiso_idx])
+                if biso_idx:
+                    uiso = 3.*floatconv(asplit[biso_idx])/(8.*numpy.pi**2)
+                else:
+                    uiso = 0
+
+                self.atoms.append((alabel, apos, occ, uiso))
 
     def SymStruct(self):
         """

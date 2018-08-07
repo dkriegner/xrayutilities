@@ -26,6 +26,7 @@ import sys
 
 import numpy
 
+
 cliopts = []
 cliopts.append(("without-openmp", None, "build without OpenMP support"))
 
@@ -46,7 +47,7 @@ except:
     pass
 
 # set default flags
-without_openmp = False
+without_openmp = True
 
 for opts, values in options.get_option_order():
     if opts == "without-openmp":
