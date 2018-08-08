@@ -781,7 +781,8 @@ class SGLattice(object):
                     return False
 
         if not equalq:
-            if math.VecNorm(self.GetQ(hkl1)) != math.VecNorm(self.GetQ(hkl2)):
+            if not numpy.isclose(math.VecNorm(self.GetQ(hkl1)),
+                                 math.VecNorm(self.GetQ(hkl2))):
                 return False
         return checkequal(tuple(hkl1), tuple(hkl2))
 
