@@ -1713,7 +1713,7 @@ class Experiment(object):
             raise TypeError("Q vector must be a list, tuple or numpy array")
 
         if len(q.shape) != 2:
-            q = q.reshape(3, 1)
+            q = q.reshape(3, -1)
         return q.T
 
 
