@@ -401,7 +401,7 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
         fitted: [xmin, xmax, ymin, ymax]
     fit_function : callable
         function which should be fitted, must be of form accept the parameters
-        ``fit_functionf (x, y, *params) -> ndarray``
+        ``fit_function (x, y, *params) -> ndarray``
 
     Returns
     -------
