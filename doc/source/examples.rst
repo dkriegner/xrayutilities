@@ -286,7 +286,11 @@ The shown script results in the plot of the reciprocal space map shown below.
 Line cuts from reciprocal space maps
 ------------------------------------
 
-Using the ``analysis`` subpackage one can produce line cuts. Starting from the reciprocal space data produced by the reciprocal space conversion as in the last example code we extract radial scan along the crystal truncation rod. For the extraction of line scans the respective functions offer to integrate the data along certain directions. In the present case integration along '2Theta' gives the best result since a broadening in that direction was caused by the beam footprint in the particular experiment.
+Using the ``analysis`` subpackage one can produce line cuts. Starting from the reciprocal space data produced by the reciprocal space conversion as in the last example code we extract radial scan along the crystal truncation rod. For the extraction of line scans the respective functions offer to integrate the data along certain directions. In the present case integration along '2Theta' gives the best result since a broadening in that direction was caused by the beam footprint in the particular experiment. For different line cut functions various integration directions are possible. They are visualized in the figure below.
+
+.. figure:: pics/line_cut_intdir.png
+   :alt: possible integration directions for line cuts, here shown overlaid to experimental reciprocal space map data which are broadened due to the beam footprint
+   :width: 300 px
 
 .. code-block:: python
 

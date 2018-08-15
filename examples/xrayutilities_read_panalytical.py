@@ -18,6 +18,7 @@
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy
 import xrayutilities as xu
 
 # plot settings for matplotlib
@@ -53,7 +54,7 @@ omalign, ttalign, p, cov = xu.analysis.fit_bragg_peak(
 
 # convert angular coordinates to reciprocal space + correct for offsets
 qx, qy, qz = hxrd.Ang2Q(om, tt, delta=[omalign - omnominal,
-                                         ttalign - ttnominal])
+                                       ttalign - ttnominal])
 
 # calculate data on a regular grid of 200x201 points
 gridder = xu.Gridder2D(200, 600)
@@ -69,20 +70,31 @@ cb = plt.colorbar(cf)
 cb.set_label(r"$\log($Int$)$ (cps)")
 
 tr = SiGe.RelaxationTriangle([0, 0, 4], Si, hxrd)
-plt.plot(tr[0], tr[1], 'ko')
+# plt.plot(tr[0], tr[1], 'ko')
 plt.tight_layout()
 
 # line cut with integration along 2theta to remove beam footprint broadening
-qzc, qzint, cmask = xu.analysis.get_radial_scan([qy, qz], psd, [0, 4.5],
-                                                1001, 0.155, intdir='2theta')
+qycpos, qzcpos = [0, 4.5]
+omp, dummy, dummy, ttp = hxrd.Q2Ang(0, qycpos, qzcpos, trans=False)
+qzc, qzint, cmask = xu.analysis.get_radial_scan(
+    [qy, qz], psd, (qycpos, qzcpos), 1001, 0.155, intdir='2theta')
 
 # show used data on the reciprocal space map
 plt.tricontour(qy, qz, cmask, (0.999,), colors='r')
+
+# show possible integration directions
+f = 1.02
+plt.plot([qycpos/f, qycpos*f], [qzcpos/f, qzcpos*f], label='radial')
+a = numpy.radians(numpy.linspace(- 2, 2, 100))
+plt.plot(qycpos*numpy.cos(a)+qzcpos*numpy.sin(a),
+         -qycpos*numpy.sin(a)+qzcpos*numpy.cos(a), label='Omega')
+qx, qy, qz = hxrd.Ang2Q(omp, ttp+numpy.linspace(-2, 2, 100))
+plt.plot(qy, qz, label='2Theta')
+plt.legend()
 
 # plot line cut
 plt.figure()
 plt.semilogy(qzc, qzint)
 plt.xlabel(r'scattering angle (deg)')
 plt.ylabel(r'intensity (arb. u.)')
-plt.legend()
 plt.tight_layout()
