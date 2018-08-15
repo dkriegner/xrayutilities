@@ -1012,97 +1012,110 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation; supported are:
-                    'I0' is the primary beam intensity
-                    'background' is the background added to the simulation
-                    'sample_width' width of the sample along the beam
-                    'beam_width' beam width in the same units as the sample
-                                 width
-                    'resolution_width' defines the width of the resolution
-                                       (deg)
-                    'energy' sets the experimental energy (eV)
+        args :      LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        kwargs:     dict
+            optional parameters for the simulation; supported are:
+        I0 :        float, optional
+            the primary beam intensity
+        background : float, optional
+            the background added to the simulation
+        sample_width : float, optional
+            width of the sample along the beam
+        beam_width : float, optional
+            beam width in the same units as the sample width
+        resolution_width : float, optional
+            width of the resolution (deg)
+        energy :    float or str
+            x-ray energy  in eV
+        polarization:   ['P', 'S']
+            x-ray polarization
         """
-        self.polarization = kwargs.pop('polarization','P')
+        self.polarization = kwargs.pop('polarization', 'P')
         super(DynamicalReflectivityModel, self).__init__(*args, **kwargs)
         self._setOpticalConstants()
 
     def _setOpticalConstants(self):
-        self.n_indices = numpy.asarray([1 + l.material.chi0(en=self.exp.energy)/2
-                                 for l in self.lstack])
+        self.n_indices = numpy.asarray(
+            [l.material.idx_refraction(en=self.exp.energy)
+             for l in self.lstack])
         # append n = 1 for vacuum
         self.n_indices = numpy.append(self.n_indices, 1)[::-1]
 
     def _getTransferMatrices(self, alphai):
-        '''
+        """
         Calculation of Refraction and Translation Matrices per angle per layer.
-        '''
-
+        """
+        arr = numpy.asarray
         # Set heights for each layer
-        heights = numpy.array([l.thickness for l in self.lstack[1:]])
+        heights = arr([l.thickness for l in self.lstack[1:]])
         heights = numpy.cumsum(heights)[::-1]
-        heights = numpy.insert(heights, 0, 0.) # first interface is at z=0
+        heights = numpy.insert(heights, 0, 0.)  # first interface is at z=0
 
         # set K-vector in each layer
-        kz_angles = -self.exp.k0*numpy.sqrt(numpy.array([n**2-numpy.cos(numpy.deg2rad(alphai))**2
-                                  for n in self.n_indices]).T)
+        kz_angles = -self.exp.k0 * numpy.sqrt(arr(
+            [n**2 - numpy.cos(numpy.radians(alphai))**2
+             for n in self.n_indices]).T)
 
         # set Roughness for each layer
-        roughness = numpy.array([l.roughness for l in self.lstack[1:]])[::-1]
-        roughness = numpy.insert(roughness, 0, 0.) # first interface is at z=0
+        roughness = arr([l.roughness for l in self.lstack[1:]])[::-1]
+        roughness = numpy.insert(roughness, 0, 0.)  # first interface is at z=0
 
-        # Roughness is approximated by a Gaussian Statistics model modification of the transfer matrix elements
-        # using Groce-Nevot factors (GNF).
+        # Roughness is approximated by a Gaussian Statistics model modification
+        # of the transfer matrix elements using Groce-Nevot factors (GNF).
 
-        GNF_factor_P = numpy.array([ numpy.array([numpy.exp(-(kz_next - kz)**2 * (rough**2) / 2)
-                                                  for (kz,kz_next,rough,hgt) in zip(kz_1angle, kz_1angle[1:],roughness[1:], heights[1:])])
-                                                  for kz_1angle in kz_angles])
-
-        GNF_factor_M = numpy.array(
-            [numpy.array([numpy.exp(-(kz_next + kz) ** 2 * (rough ** 2) / 2)
-                          for (kz, kz_next, rough, hgt) in zip(kz_1angle, kz_1angle[1:], roughness[1:], heights[1:])])
+        GNF_factor_P = arr(
+            [arr([numpy.exp(-(kz_next - kz)**2 * (rough**2) / 2)
+                  for (kz, kz_next, rough) in zip(kz_1angle,
+                                                  kz_1angle[1:],
+                                                  roughness[1:])])
              for kz_1angle in kz_angles])
 
+        GNF_factor_M = arr(
+            [arr([numpy.exp(-(kz_next + kz) ** 2 * (rough ** 2) / 2)
+                  for (kz, kz_next, rough) in zip(kz_1angle,
+                                                  kz_1angle[1:],
+                                                  roughness[1:])])
+             for kz_1angle in kz_angles])
 
         if self.polarization is 'S':
+            p_factor_angles = arr(
+                [arr([(kz + kz_next) / (2 * kz)
+                      for kz, kz_next in zip(kz_1angle, kz_1angle[1:])])
+                 for kz_1angle in kz_angles])
 
-            p_factor_angles = numpy.array([
-                                           numpy.array([(kz + kz_next) / (2 * kz)
-                                                        for kz, kz_next in
-                                                     zip(kz_1angle, kz_1angle[1:])])
-                                           for kz_1angle in kz_angles])
-
-            m_factor_angles = numpy.array([
-                                           numpy.array([(kz - kz_next) / (2 * kz)
-                                                        for kz, kz_next in
-                                                     zip(kz_1angle, kz_1angle[1:])])
-                                           for kz_1angle in kz_angles])
+            m_factor_angles = arr(
+                [arr([(kz - kz_next) / (2 * kz)
+                      for kz, kz_next in zip(kz_1angle, kz_1angle[1:])])
+                 for kz_1angle in kz_angles])
         else:
-            p_factor_angles = numpy.array([
-                                           numpy.array([(n_next ** 2 * kz + n ** 2 * kz_next) / (2 * n_next ** 2 * kz) for
-                                                     (kz, kz_next, n, n_next) in
-                                                     zip(kz_1angle, kz_1angle[1:], self.n_indices, self.n_indices[1:])])
-                                           for kz_1angle in kz_angles])
-            m_factor_angles = numpy.array([
-                                           numpy.array([(n_next ** 2 * kz - n ** 2 * kz_next) / (2 * n_next ** 2 * kz) for
-                                                     (kz, kz_next, n, n_next) in
-                                                     zip(kz_1angle, kz_1angle[1:], self.n_indices, self.n_indices[1:])])
-                                           for kz_1angle in kz_angles])
+            p_factor_angles = arr(
+                [arr([(n_next**2*kz + n**2*kz_next) / (2*n_next**2*kz)
+                      for (kz, kz_next, n, n_next) in zip(
+                        kz_1angle, kz_1angle[1:],
+                        self.n_indices, self.n_indices[1:])])
+                 for kz_1angle in kz_angles])
+            m_factor_angles = arr(
+                [arr([(n_next**2*kz - n**2*kz_next) / (2*n_next**2*kz)
+                      for (kz, kz_next, n, n_next) in zip(
+                        kz_1angle, kz_1angle[1:],
+                        self.n_indices, self.n_indices[1:])])
+                 for kz_1angle in kz_angles])
 
         # Translation Matrices dim =(angle,layer,2,2)
-        T_matrices = numpy.array([
-                            numpy.array(
-                            [([numpy.exp(-1.j * kz * height), 0], [0, numpy.exp(1.j * kz * height)])
-                             for kz, height in zip(kz_1angle, heights)])
-                        for kz_1angle in kz_angles])
+        T_matrices = arr(
+            [arr([([numpy.exp(-1.j*kz*height), 0],
+                   [0, numpy.exp(1.j*kz*height)])
+                  for kz, height in zip(kz_1angle, heights)])
+             for kz_1angle in kz_angles])
 
-        R_matrices = numpy.array([
-                                     numpy.array([([p, m], [m, p]) for p, m in zip(P_factor, M_factor)])
-                                     for (P_factor, M_factor) in zip(p_factor_angles, m_factor_angles)])
+        R_matrices = arr(
+            [arr([([p, m], [m, p]) for p, m in zip(P_fact, M_fact)])
+             for (P_fact, M_fact) in zip(p_factor_angles, m_factor_angles)])
 
-        for R_mat, GNF_P, GNF_M in zip(R_matrices,GNF_factor_P, GNF_factor_M):
-            R_mat[0,0] = R_mat[0,0] * GNF_P
-            R_mat[0,1] = R_mat[0,1] * GNF_M
+        for R_mat, GNF_P, GNF_M in zip(R_matrices, GNF_factor_P, GNF_factor_M):
+            R_mat[0, 0] = R_mat[0, 0] * GNF_P
+            R_mat[0, 1] = R_mat[0, 1] * GNF_M
             R_mat[1, 0] = R_mat[1, 0] * GNF_M
             R_mat[1, 1] = R_mat[1, 1] * GNF_P
 
@@ -1110,18 +1123,24 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
 
     def simulate(self, alphai):
         """
-        Simulates the Dynamical Reflectivity as a function of angle of incidence
+        Simulates the Dynamical Reflectivity as a function of angle of
+        incidence
 
         Parameters
         ----------
-         alphai: np.ndarray or list of incidence angles
+        alphai :    array-like
+            vector of incidence angles
 
         Returns
         -------
-        vector of intensities of the reflectivity and transmitivitty signals
+        reflectivity:   array-like
+            vector of intensities of the reflectivity signal
+        transmitivitty: array-like
+            vector of intensities of the transmitted signal
         """
         # Get Refraction and Translation Matrices for each angle of incidence
-        if alphai[0] < 1.e-5: alphai[0] = 1.e-5 # cutoff
+        if alphai[0] < 1.e-5:
+            alphai[0] = 1.e-5  # cutoff
 
         T_matrices, R_matrices = self._getTransferMatrices(alphai)
 
@@ -1135,29 +1154,37 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
             M_angles[angle] = M
 
         # Reflectance and Transmittance
-        R = numpy.array([numpy.abs((M[0, 1] / M[1, 1])) ** 2 for M in M_angles])
-        T = numpy.array([numpy.abs((1. / M[1, 1])) ** 2 for M in M_angles])
+        R = numpy.array([numpy.abs((M[0, 1] / M[1, 1]))**2 for M in M_angles])
+        T = numpy.array([numpy.abs((1. / M[1, 1]))**2 for M in M_angles])
 
         return R, T
 
     def scanEnergy(self, energies, angle):
-        #TODO: this is quite inefficient, too many calls to internal functions.
-        #TODO: DO not return normalized refelctivity.
+        # TODO: this is quite inefficient, too many calls to internal functions
+        # TODO: DO not return normalized refelctivity
         """
-        Simulates the Dynamical Reflectivity as a function of photon energy as fixed angle.
+        Simulates the Dynamical Reflectivity as a function of photon energy at
+        fixed angle.
+
         Parameters
         ----------
-        energies: np.ndarray or list of photon energies (in eV).
+        energies: np.ndarray or list
+            photon energies (in eV).
         angle : float
+            fixed incidence angle
+
         Returns
         -------
-        vector of intensities of the reflectivity and transmitivitty signals
+        reflectivity:   array-like
+            vector of intensities of the reflectivity signal
+        transmitivitty: array-like
+            vector of intensities of the transmitted signal
         """
-        R_energies, T_energies = numpy.array([]),numpy.array([])
+        R_energies, T_energies = numpy.array([]), numpy.array([])
         for energy in energies:
             self.exp.energy = energy
             self._setOpticalConstants()
-            T_matrices, R_matrices = self._getTransferMatrices([angle,0])
+            T_matrices, R_matrices = self._getTransferMatrices([angle, 0])
             T_matrix = T_matrices[0]
             R_matrix = R_matrices[0]
             pairwiseRT = [numpy.dot(t, r) for r, t in zip(R_matrix, T_matrix)]
@@ -1166,14 +1193,15 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
                 M = numpy.dot(M, pair)
             R = numpy.abs(M[0, 1] / M[1, 1]) ** 2
             T = numpy.abs(1. / M[1, 1]) ** 2
-            R_energies = numpy.append(R_energies,R)
-            T_energies = numpy.append(T_energies,T)
+            R_energies = numpy.append(R_energies, R)
+            T_energies = numpy.append(T_energies, T)
         return R_energies, T_energies
 
 
 class ResonantReflectivityModel(SpecularReflectivityModel):
     """
     model for specular reflectivity calculations
+    CURRENTLY UNDER DEVELOPEMENT! DO NOT USE!
     """
     def __init__(self, *args, **kwargs):
         """
@@ -1183,16 +1211,24 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
 
         Parameters
         ----------
-         *args:     either one LayerStack or several Layer objects can be given
-         *kwargs:   optional parameters for the simulation; supported are:
-                    'I0' is the primary beam intensity
-                    'background' is the background added to the simulation
-                    'sample_width' width of the sample along the beam
-                    'beam_width' beam width in the same units as the sample
-                                 width
-                    'resolution_width' defines the width of the resolution
-                                       (deg)
-                    'energy' sets the experimental energy (eV)
+        args :      LayerStack or Layers
+            either one LayerStack or several Layer objects can be given
+        kwargs:     dict
+            optional parameters for the simulation; supported are:
+        I0 :        float, optional
+            the primary beam intensity
+        background : float, optional
+            the background added to the simulation
+        sample_width : float, optional
+            width of the sample along the beam
+        beam_width : float, optional
+            beam width in the same units as the sample width
+        resolution_width : float, optional
+            width of the resolution (deg)
+        energy :    float or str
+            x-ray energy  in eV
+        polarization:   ['P', 'S']
+            x-ray polarization
         """
         self.polarization = kwargs.pop('polarization', 'S')
         super(ResonantReflectivityModel, self).__init__(*args, **kwargs)
@@ -1204,11 +1240,13 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
 
         Parameters
         ----------
-         alphai: vector of incidence angles
+        alphai :    array-like
+            vector of incidence angles
 
         Returns
         -------
-        vector of intensities of the reflectivity signal
+        array-like
+            vector of intensities of the reflectivity signal
         """
         ns, np = (len(self.lstack), len(alphai))
 
@@ -1217,15 +1255,15 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
         rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
         cd = self.cd
-        qzvec = 4 * numpy.pi * numpy.sin(numpy.deg2rad(alphai)) / utilities.en2lam(self.exp.energy)
+        qzvec = 4 * numpy.pi * numpy.sin(numpy.radians(alphai)) /\
+            utilities.en2lam(self.exp.energy)
         qvec = numpy.array([[0., 0., qz] for qz in qzvec])
-        chihP = numpy.array([[l.material.chih(q, en=self.exp.energy, polarization=self.polarization)
-                                   for q in qvec] for l in self.lstack])
+        chihP = numpy.array([[l.material.chih(q, en=self.exp.energy,
+                                              polarization=self.polarization)
+                              for q in qvec]
+                             for l in self.lstack])
 
-        # chihP = numpy.array([l.material.chih(q, en=self.exp.energy, polarization=self.polarization)
-        #                      for l in self.lstack for q in qvec])
-
-        if self.polarization in ['S','P']:
+        if self.polarization in ['S', 'P']:
             cd = cd + chihP
         else:
             cd = cd
