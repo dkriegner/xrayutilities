@@ -313,18 +313,21 @@ class CIFDataset(object):
                 element = getattr(elements, el)
             except AttributeError:  # el not found, typ. due to oxidation state
                 f = re.search('[0-9]', el)
-                elname = el[:f.start()]
-                if hasattr(elements, elname):
-                    # here one might want to find a closer alternative than the
-                    # neutral atom, but the effect this has should be minimal,
-                    # currently simply the neutral atom is used
-                    if config.VERBOSITY >= config.INFO_LOW:
-                        print('XU.material: element %s used instead of %s'
-                              % (elname, cifstring))
-                    element = getattr(elements, elname)
+                if not f and el == '?':
+                    element = elements.dummy
                 else:
-                    raise ValueError('XU.material: element (%s) could not be '
-                                     'found' % (cifstring))
+                    elname = el[:f.start()]
+                    if hasattr(elements, elname):
+                        # here one might want to find a closer alternative than
+                        # the neutral atom, but the effect this has should be
+                        # minimal, currently simply the neutral atom is used
+                        if config.VERBOSITY >= config.INFO_LOW:
+                            print('XU.material: element %s used instead of %s'
+                                  % (elname, cifstring))
+                        element = getattr(elements, elname)
+                    else:
+                        raise ValueError('XU.material: element (%s) could not'
+                                         ' be found' % (cifstring))
             return element
 
         def floatconv(string):
