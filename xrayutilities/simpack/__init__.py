@@ -39,6 +39,7 @@ from .models import SpecularReflectivityModel
 from .models import DiffuseReflectivityModel
 from .models import SimpleDynamicalCoplanarModel
 from .models import DynamicalModel
+from .models import DynamicalReflectivityModel
 
 from .darwin_theory import GradedBuffer
 from .darwin_theory import DarwinModel

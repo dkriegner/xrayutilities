@@ -911,6 +911,445 @@ class SpecularReflectivityModel(LayerModel):
             ks = k
 
         R = shape * abs(ER / ET)**2
+        return R
+        # return self.scale_simulation(self.convolute_resolution(alphai, R))
+
+    def densityprofile(self, nz, plot=False):
+        """
+        calculates the electron density of the layerstack from the thickness
+        and roughness of the individual layers
+
+        Parameters
+        ----------
+         nz:    number of values on which the profile should be calculated
+         plot:  flag to tell if a plot of the profile should be created
+
+        Returns
+        -------
+         z, eprof:  coordinates and electron profile. z = 0 corresponds to the
+                    surface
+        """
+        if plot:
+            try:
+                from matplotlib import pyplot as plt
+            except ImportError:
+                plot = False
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.simpack: Warning: plot "
+                          "functionality not available")
+
+        rel = constants.physical_constants['classical electron radius'][0]
+        rel *= 1e10
+        nl = len(self.lstack)
+
+        # get layer properties
+        t = numpy.asarray([l.thickness for l in self.lstack])
+        sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
+        rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
+        delta = numpy.real(self.cd)
+
+        totT = numpy.sum(t[1:])
+        zmin = -totT - 10 * sig[0]
+        zmax = 5 * sig[-1]
+
+        z = numpy.linspace(zmin, zmax, nz)
+        pre_factor = 2 * numpy.pi / self.exp.wavelength**2 / rel * 1e24
+
+        # generate delta-rho values and interface positions
+        zz = numpy.zeros(nl)
+        dr = numpy.zeros(nl)
+        dr[-1] = delta[-1] * rho[-1] * pre_factor
+        for i in range(nl-1, 0, -1):
+            zz[i-1] = zz[i] - t[i]
+            dr[i-1] = delta[i-1] * rho[i-1] * pre_factor
+
+        # calculate profile from contribution of all interfaces
+        prof = numpy.zeros(nz)
+        w = numpy.zeros((nl, nz))
+        for i in range(nl):
+            s = (1 + erf((z - zz[i]) / sig[i] / numpy.sqrt(2))) / 2
+            mask = s < (1 - 1e-10)
+            w[i, mask] = s[mask] / (1 - s[mask])
+            mask = numpy.logical_not(mask)
+            w[i, mask] = 1e10
+
+        c = numpy.ones((nl, nz))
+        for i in range(1, nl):
+            c[i, :] = w[i-1, :] * c[i-1, :]
+        c0 = w[-1, :] * c[-1, :]
+        norm = numpy.sum(c, axis=0) + c0
+
+        for i in range(nl):
+            c[i] /= norm
+
+        for j in range(nz):
+            prof[j] = numpy.sum(dr * c[:, j])
+
+        if plot:
+            plt.figure('XU:density_profile', figsize=(5, 3))
+            plt.plot(z, prof, 'k-', lw=2, label='electron density')
+            plt.xlabel(r'z ($\AA$)')
+            plt.ylabel(r'electron density (e$^-$ cm$^{-3}$)')
+            plt.tight_layout()
+
+        return z, prof
+
+
+class DynamicalReflectivityModel(LayerModel):
+    """
+    model for Dynamical Specular Reflectivity Simulations.
+    It uses the transfer Matrix methods as given in chapter 3
+    "Daillant, J., & Gibaud, A. (2008). X-ray and Neutron Reflectivity"
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        constructor for a reflectivity model. The arguments consist of a
+        LayerStack or individual Layer(s). Optional parameters are specified
+        in the keyword arguments.
+
+        Parameters
+        ----------
+         *args:     either one LayerStack or several Layer objects can be given
+         *kwargs:   optional parameters for the simulation; supported are:
+                    'I0' is the primary beam intensity
+                    'background' is the background added to the simulation
+                    'sample_width' width of the sample along the beam
+                    'beam_width' beam width in the same units as the sample
+                                 width
+                    'resolution_width' defines the width of the resolution
+                                       (deg)
+                    'energy' sets the experimental energy (eV)
+        """
+        self.sample_width = kwargs.pop('sample_width', numpy.inf)
+        self.beam_width = kwargs.pop('beam_width', 0)
+        self.polarization = kwargs.pop('polarization','P')
+        super(DynamicalReflectivityModel, self).__init__(*args, **kwargs)
+        self._setOpticalConstants()
+
+    def _setOpticalConstants(self):
+        self.n_indices = numpy.asarray([1 + l.material.chi0(en=self.exp.energy)/2
+                                 for l in self.lstack])
+        # append n = 1 for vacuum
+        self.n_indices = numpy.append(self.n_indices, 1)[::-1]
+
+    def _getTransferMatrices(self, alphai):
+        '''
+        Calculation of Refraction and Translation Matrices per angle per layer.
+        '''
+
+        # Set heights for each layer
+        heights = numpy.array([l.thickness for l in self.lstack[1:]])
+        heights = numpy.cumsum(heights)[::-1]
+        heights = numpy.insert(heights, 0, 0.) # first interface is at z=0
+
+        # set K-vector in each layer
+        kz_angles = -self.exp.k0*numpy.sqrt(numpy.array([n**2-numpy.cos(numpy.deg2rad(alphai))**2
+                                  for n in self.n_indices]).T)
+
+        # set Roughness for each layer
+        roughness = numpy.array([l.roughness for l in self.lstack[1:]])[::-1]
+        roughness = numpy.insert(roughness, 0, 0.) # first interface is at z=0
+
+        # Roughness is approximated by a Gaussian Statistics model modification of the transfer matrix elements
+        # using Groce-Nevot factors (GNF).
+
+        GNF_factor_P = numpy.array([ numpy.array([numpy.exp(-(kz_next - kz)**2 * (rough**2) / 2)
+                                                  for (kz,kz_next,rough,hgt) in zip(kz_1angle, kz_1angle[1:],roughness[1:], heights[1:])])
+                                                  for kz_1angle in kz_angles])
+
+        GNF_factor_M = numpy.array(
+            [numpy.array([numpy.exp(-(kz_next + kz) ** 2 * (rough ** 2) / 2)
+                          for (kz, kz_next, rough, hgt) in zip(kz_1angle, kz_1angle[1:], roughness[1:], heights[1:])])
+             for kz_1angle in kz_angles])
+
+
+        if self.polarization is 'S':
+
+            p_factor_angles = numpy.array([
+                                           numpy.array([(kz + kz_next) / (2 * kz)
+                                                        for kz, kz_next in
+                                                     zip(kz_1angle, kz_1angle[1:])])
+                                           for kz_1angle in kz_angles])
+
+            m_factor_angles = numpy.array([
+                                           numpy.array([(kz - kz_next) / (2 * kz)
+                                                        for kz, kz_next in
+                                                     zip(kz_1angle, kz_1angle[1:])])
+                                           for kz_1angle in kz_angles])
+        else:
+            p_factor_angles = numpy.array([
+                                           numpy.array([(n_next ** 2 * kz + n ** 2 * kz_next) / (2 * n_next ** 2 * kz) for
+                                                     (kz, kz_next, n, n_next) in
+                                                     zip(kz_1angle, kz_1angle[1:], self.n_indices, self.n_indices[1:])])
+                                           for kz_1angle in kz_angles])
+            m_factor_angles = numpy.array([
+                                           numpy.array([(n_next ** 2 * kz - n ** 2 * kz_next) / (2 * n_next ** 2 * kz) for
+                                                     (kz, kz_next, n, n_next) in
+                                                     zip(kz_1angle, kz_1angle[1:], self.n_indices, self.n_indices[1:])])
+                                           for kz_1angle in kz_angles])
+
+        # Translation Matrices dim =(angle,layer,2,2)
+        T_matrices = numpy.array([
+                            numpy.array(
+                            [([numpy.exp(-1.j * kz * height), 0], [0, numpy.exp(1.j * kz * height)])
+                             for kz, height in zip(kz_1angle, heights)])
+                        for kz_1angle in kz_angles])
+
+        R_matrices = numpy.array([
+                                     numpy.array([([p, m], [m, p]) for p, m in zip(P_factor, M_factor)])
+                                     for (P_factor, M_factor) in zip(p_factor_angles, m_factor_angles)])
+
+        for R_mat, GNF_P, GNF_M in zip(R_matrices,GNF_factor_P, GNF_factor_M):
+            R_mat[0,0] = R_mat[0,0] * GNF_P
+            R_mat[0,1] = R_mat[0,1] * GNF_M
+            R_mat[1, 0] = R_mat[1, 0] * GNF_M
+            R_mat[1, 1] = R_mat[1, 1] * GNF_P
+
+        return T_matrices, R_matrices
+
+    def simulate(self, alphai):
+        """
+        Simulates the Dynamical Reflectivity as a function of angle of incidence
+
+        Parameters
+        ----------
+         alphai: np.ndarray or list of incidence angles
+
+        Returns
+        -------
+        vector of intensities of the reflectivity and transmitivitty signals
+        """
+        # Get Refraction and Translation Matrices for each angle of incidence
+        if alphai[0] < 1.e-5: alphai[0] = 1.e-5 # cutoff
+
+        T_matrices, R_matrices = self._getTransferMatrices(alphai)
+
+        # Calculate the Transfer Matrix
+        M_angles = numpy.zeros((alphai.size, 2, 2), dtype=numpy.complex128)
+        for (angle, R), T in zip(enumerate(R_matrices), T_matrices):
+            pairwiseRT = [numpy.dot(t, r) for r, t in zip(R, T)]
+            M = numpy.identity(2, dtype=numpy.complex128)
+            for pair in pairwiseRT:
+                M = numpy.dot(M, pair)
+            M_angles[angle] = M
+
+        # Reflectance and Transmittance
+        R = numpy.array([numpy.abs((M[0, 1] / M[1, 1])) ** 2 for M in M_angles])
+        T = numpy.array([numpy.abs((1. / M[1, 1])) ** 2 for M in M_angles])
+
+        return R, T
+
+    def scanEnergy(self, energies, angle):
+        #TODO: this is quite inefficient, too many calls to internal functions.
+        #TODO: DO not return normalized refelctivity.
+        """
+        Simulates the Dynamical Reflectivity as a function of photon energy as fixed angle.
+        Parameters
+        ----------
+        energies: np.ndarray or list of photon energies (in eV).
+        angle : float
+        Returns
+        -------
+        vector of intensities of the reflectivity and transmitivitty signals
+        """
+        R_energies, T_energies = numpy.array([]),numpy.array([])
+        for energy in energies:
+            self.exp.energy = energy
+            self._setOpticalConstants()
+            T_matrices, R_matrices = self._getTransferMatrices([angle,0])
+            T_matrix = T_matrices[0]
+            R_matrix = R_matrices[0]
+            pairwiseRT = [numpy.dot(t, r) for r, t in zip(R_matrix, T_matrix)]
+            M = numpy.identity(2, dtype=numpy.complex128)
+            for pair in pairwiseRT:
+                M = numpy.dot(M, pair)
+            R = numpy.abs(M[0, 1] / M[1, 1]) ** 2
+            T = numpy.abs(1. / M[1, 1]) ** 2
+            R_energies = numpy.append(R_energies,R)
+            T_energies = numpy.append(T_energies,T)
+        return R_energies, T_energies
+
+    def densityprofile(self, nz, plot=False):
+        """
+        calculates the electron density of the layerstack from the thickness
+        and roughness of the individual layers
+
+        Parameters
+        ----------
+         nz:    number of values on which the profile should be calculated
+         plot:  flag to tell if a plot of the profile should be created
+
+        Returns
+        -------
+         z, eprof:  coordinates and electron profile. z = 0 corresponds to the
+                    surface
+        """
+        if plot:
+            try:
+                from matplotlib import pyplot as plt
+            except ImportError:
+                plot = False
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print("XU.simpack: Warning: plot "
+                          "functionality not available")
+
+        rel = constants.physical_constants['classical electron radius'][0]
+        rel *= 1e10
+        nl = len(self.lstack)
+
+        # get layer properties
+        t = numpy.asarray([l.thickness for l in self.lstack])
+        sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
+        rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
+        delta = numpy.real(self.cd)
+
+        totT = numpy.sum(t[1:])
+        zmin = -totT - 10 * sig[0]
+        zmax = 5 * sig[-1]
+
+        z = numpy.linspace(zmin, zmax, nz)
+        pre_factor = 2 * numpy.pi / self.exp.wavelength**2 / rel * 1e24
+
+        # generate delta-rho values and interface positions
+        zz = numpy.zeros(nl)
+        dr = numpy.zeros(nl)
+        dr[-1] = delta[-1] * rho[-1] * pre_factor
+        for i in range(nl-1, 0, -1):
+            zz[i-1] = zz[i] - t[i]
+            dr[i-1] = delta[i-1] * rho[i-1] * pre_factor
+
+        # calculate profile from contribution of all interfaces
+        prof = numpy.zeros(nz)
+        w = numpy.zeros((nl, nz))
+        for i in range(nl):
+            s = (1 + erf((z - zz[i]) / sig[i] / numpy.sqrt(2))) / 2
+            mask = s < (1 - 1e-10)
+            w[i, mask] = s[mask] / (1 - s[mask])
+            mask = numpy.logical_not(mask)
+            w[i, mask] = 1e10
+
+        c = numpy.ones((nl, nz))
+        for i in range(1, nl):
+            c[i, :] = w[i-1, :] * c[i-1, :]
+        c0 = w[-1, :] * c[-1, :]
+        norm = numpy.sum(c, axis=0) + c0
+
+        for i in range(nl):
+            c[i] /= norm
+
+        for j in range(nz):
+            prof[j] = numpy.sum(dr * c[:, j])
+
+        if plot:
+            plt.figure('XU:density_profile', figsize=(5, 3))
+            plt.plot(z, prof, 'k-', lw=2, label='electron density')
+            plt.xlabel(r'z ($\AA$)')
+            plt.ylabel(r'electron density (e$^-$ cm$^{-3}$)')
+            plt.tight_layout()
+
+        return z, prof
+
+
+class ResonantReflectivityModel(LayerModel):
+    """
+    model for specular reflectivity calculations
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        constructor for a reflectivity model. The arguments consist of a
+        LayerStack or individual Layer(s). Optional parameters are specified
+        in the keyword arguments.
+
+        Parameters
+        ----------
+         *args:     either one LayerStack or several Layer objects can be given
+         *kwargs:   optional parameters for the simulation; supported are:
+                    'I0' is the primary beam intensity
+                    'background' is the background added to the simulation
+                    'sample_width' width of the sample along the beam
+                    'beam_width' beam width in the same units as the sample
+                                 width
+                    'resolution_width' defines the width of the resolution
+                                       (deg)
+                    'energy' sets the experimental energy (eV)
+        """
+        self.polarization = kwargs.pop('polarization', 'S')
+        self.sample_width = kwargs.pop('sample_width', numpy.inf)
+        self.beam_width = kwargs.pop('beam_width', 0)
+        super(ResonantReflectivityModel, self).__init__(*args, **kwargs)
+        # precalc optical properties
+        self.init_cd()
+
+    def init_cd(self):
+        """
+        calculates the needed optical parameters for the simulation. If any of
+        the materials/layers is changing its properties this function needs to
+        be called again before another correct simulation is made. (Changes of
+        thickness and roughness do NOT require this!)
+        """
+        self.cd = numpy.asarray([-l.material.chi0(en=self.exp.energy)/2
+                                 for l in self.lstack])
+
+    def simulate(self, alphai):
+        """
+        performs the actual reflectivity calculation for the specified
+        incidence angles
+
+        Parameters
+        ----------
+         alphai: vector of incidence angles
+
+        Returns
+        -------
+        vector of intensities of the reflectivity signal
+        """
+        ns, np = (len(self.lstack), len(alphai))
+
+        # get layer properties
+        t = numpy.asarray([l.thickness for l in self.lstack])
+        sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
+        rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
+        cd = self.cd
+        qzvec = 4 * numpy.pi * numpy.sin(numpy.deg2rad(alphai)) / utilities.en2lam(self.exp.energy)
+        qvec = numpy.array([[0., 0., qz] for qz in qzvec])
+        chihP = numpy.array([[l.material.chih(q, en=self.exp.energy, polarization=self.polarization)
+                                   for q in qvec] for l in self.lstack])
+
+        # chihP = numpy.array([l.material.chih(q, en=self.exp.energy, polarization=self.polarization)
+        #                      for l in self.lstack for q in qvec])
+
+        if self.polarization in ['S','P']:
+            cd = cd + chihP
+        else:
+            cd = cd
+
+        sai = numpy.sin(numpy.radians(alphai))
+
+        if self.beam_width > 0:
+            shape = self.sample_width * sai / self.beam_width
+            shape[shape > 1] = 1
+        else:
+            shape = numpy.ones(np)
+
+        ETs = numpy.ones(np, dtype=numpy.complex)
+        ERs = numpy.zeros(np, dtype=numpy.complex)
+        ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[0] * rho[0])
+
+        for i in range(ns):
+            if i < ns-1:
+                k = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[i+1] * rho[i+1])
+                phi = numpy.exp(1j * k * t[i+1])
+            else:
+                k = -self.exp.k0 * sai
+                phi = numpy.ones(np)
+            r = (k - ks) / (k + ks) * numpy.exp(-2 * sig[i]**2 * k * ks)
+            ET = phi * (ETs + r * ERs)
+            ER = (r * ETs + ERs) / phi
+            ETs = ET
+            ERs = ER
+            ks = k
+
+        R = shape * abs(ER / ET)**2
         return self.scale_simulation(self.convolute_resolution(alphai, R))
 
     def densityprofile(self, nz, plot=False):

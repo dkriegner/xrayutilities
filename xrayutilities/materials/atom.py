@@ -55,7 +55,7 @@ def get_key(*args):
 
 
 class Atom(object):
-    max_cache_length = 10
+    max_cache_length = 1000
 
     def __init__(self, name, num):
         self.name = name

@@ -1,3 +1,5 @@
+* new dynamical reflectivity code (contributed by Numan Laanait,
+  nlaanait@gmail.com)
 * unittest and code quality updates
 * show_reciprocal_space_plane function to plot a cut in reciprocal space
   together with the peak positionn of a given material
