@@ -523,6 +523,19 @@ class Crystal(Material):
         lat = cf.SGLattice()
         return cls(cf.data[cf._default_dataset].name, lat)
 
+    def loadLatticefromCIF(self, ciffilename):
+        """
+        load the unit cell data (lattice) from the CIF file. Other material
+        properties stay unchanged.
+
+        Parameters
+        ----------
+        ciffilename :  str
+            filename of the CIF file
+        """
+        cf = cif.CIFFile(ciffilename)
+        self.lattice = cf.SGLattice()
+
     def toCIF(self, ciffilename):
         """
         Export the Crystal to a CIF file.
