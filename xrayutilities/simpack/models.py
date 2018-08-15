@@ -1046,71 +1046,67 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         """
         Calculation of Refraction and Translation Matrices per angle per layer.
         """
-        arr = numpy.asarray
         # Set heights for each layer
-        heights = arr([l.thickness for l in self.lstack[1:]])
+        heights = numpy.asarray([l.thickness for l in self.lstack[1:]])
         heights = numpy.cumsum(heights)[::-1]
         heights = numpy.insert(heights, 0, 0.)  # first interface is at z=0
 
         # set K-vector in each layer
-        kz_angles = -self.exp.k0 * numpy.sqrt(arr(
+        kz_angles = -self.exp.k0 * numpy.sqrt(numpy.asarray(
             [n**2 - numpy.cos(numpy.radians(alphai))**2
              for n in self.n_indices]).T)
 
         # set Roughness for each layer
-        roughness = arr([l.roughness for l in self.lstack[1:]])[::-1]
+        roughness = numpy.asarray([l.roughness for l in self.lstack[1:]])[::-1]
         roughness = numpy.insert(roughness, 0, 0.)  # first interface is at z=0
 
         # Roughness is approximated by a Gaussian Statistics model modification
         # of the transfer matrix elements using Groce-Nevot factors (GNF).
 
-        GNF_factor_P = arr(
-            [arr([numpy.exp(-(kz_next - kz)**2 * (rough**2) / 2)
-                  for (kz, kz_next, rough) in zip(kz_1angle,
-                                                  kz_1angle[1:],
-                                                  roughness[1:])])
+        GNF_factor_P = numpy.asarray(
+            [[numpy.exp(-(kz_next - kz)**2 * (rough**2) / 2)
+              for (kz, kz_next, rough) in zip(kz_1angle, kz_1angle[1:],
+                                              roughness[1:])]
              for kz_1angle in kz_angles])
 
-        GNF_factor_M = arr(
-            [arr([numpy.exp(-(kz_next + kz) ** 2 * (rough ** 2) / 2)
-                  for (kz, kz_next, rough) in zip(kz_1angle,
-                                                  kz_1angle[1:],
-                                                  roughness[1:])])
+        GNF_factor_M = numpy.asarray(
+            [[numpy.exp(-(kz_next + kz) ** 2 * (rough ** 2) / 2)
+              for (kz, kz_next, rough) in zip(kz_1angle, kz_1angle[1:],
+                                              roughness[1:])]
              for kz_1angle in kz_angles])
 
         if self.polarization is 'S':
-            p_factor_angles = arr(
-                [arr([(kz + kz_next) / (2 * kz)
-                      for kz, kz_next in zip(kz_1angle, kz_1angle[1:])])
+            p_factor_angles = numpy.asarray(
+                [[(kz + kz_next) / (2 * kz)
+                  for kz, kz_next in zip(kz_1angle, kz_1angle[1:])]
                  for kz_1angle in kz_angles])
 
-            m_factor_angles = arr(
-                [arr([(kz - kz_next) / (2 * kz)
-                      for kz, kz_next in zip(kz_1angle, kz_1angle[1:])])
+            m_factor_angles = numpy.asarray(
+                [[(kz - kz_next) / (2 * kz)
+                  for kz, kz_next in zip(kz_1angle, kz_1angle[1:])]
                  for kz_1angle in kz_angles])
         else:
-            p_factor_angles = arr(
-                [arr([(n_next**2*kz + n**2*kz_next) / (2*n_next**2*kz)
-                      for (kz, kz_next, n, n_next) in zip(
-                        kz_1angle, kz_1angle[1:],
-                        self.n_indices, self.n_indices[1:])])
+            p_factor_angles = numpy.asarray(
+                [[(n_next**2*kz + n**2*kz_next) / (2*n_next**2*kz)
+                  for (kz, kz_next, n, n_next) in zip(kz_1angle, kz_1angle[1:],
+                                                      self.n_indices,
+                                                      self.n_indices[1:])]
                  for kz_1angle in kz_angles])
-            m_factor_angles = arr(
-                [arr([(n_next**2*kz - n**2*kz_next) / (2*n_next**2*kz)
-                      for (kz, kz_next, n, n_next) in zip(
-                        kz_1angle, kz_1angle[1:],
-                        self.n_indices, self.n_indices[1:])])
+            m_factor_angles = numpy.asarray(
+                [[(n_next**2*kz - n**2*kz_next) / (2*n_next**2*kz)
+                  for (kz, kz_next, n, n_next) in zip(kz_1angle, kz_1angle[1:],
+                                                      self.n_indices,
+                                                      self.n_indices[1:])]
                  for kz_1angle in kz_angles])
 
-        # Translation Matrices dim =(angle,layer,2,2)
-        T_matrices = arr(
-            [arr([([numpy.exp(-1.j*kz*height), 0],
-                   [0, numpy.exp(1.j*kz*height)])
-                  for kz, height in zip(kz_1angle, heights)])
+        # Translation Matrices dim = (angle, layer, 2, 2)
+        T_matrices = numpy.asarray(
+            [[([numpy.exp(-1.j*kz*height), 0], [0, numpy.exp(1.j*kz*height)])
+              for kz, height in zip(kz_1angle, heights)]
              for kz_1angle in kz_angles])
 
-        R_matrices = arr(
-            [arr([([p, m], [m, p]) for p, m in zip(P_fact, M_fact)])
+        R_matrices = numpy.asarray(
+            [[([p, m], [m, p]) for p, m in zip(P_fact, M_fact)]
              for (P_fact, M_fact) in zip(p_factor_angles, m_factor_angles)])
 
         for R_mat, GNF_P, GNF_M in zip(R_matrices, GNF_factor_P, GNF_factor_M):
