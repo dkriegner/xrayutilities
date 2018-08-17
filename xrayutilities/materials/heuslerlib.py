@@ -22,7 +22,7 @@ implement convenience functions to define Heusler materials.
 from . import Crystal, SGLattice, elements
 
 
-def check_elements(*elem):
+def _check_elements(*elem):
     ret = []
     for el in elem:
         if isinstance(el, str):
@@ -53,7 +53,7 @@ def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
                    SGLattice(225, a, atoms=[x, y, z], pos=['8c', '4a', '4b'],
                              b=biso, occ=occ))
@@ -83,7 +83,7 @@ def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
                    SGLattice(225, a,
                              atoms=[x, y, z, y, z],
@@ -118,7 +118,7 @@ def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
                    SGLattice(225, a,
                              atoms=[x, x, x, y, y, y, z, z, z],
@@ -162,7 +162,7 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
                    SGLattice(225, a,
                              atoms=[x, y, z,
@@ -196,7 +196,7 @@ def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('(%s%s)%s\'%s' % (x.basename, y.basename,
                                      x.basename, z.basename),
                    SGLattice(216, a, atoms=[x, x, y, z],
@@ -222,7 +222,7 @@ def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
                    SGLattice(139, a, c,
                              atoms=[x, y, z],
@@ -247,7 +247,7 @@ def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
                    SGLattice(119, a, c,
                              atoms=[x, x, y, z],
@@ -273,7 +273,7 @@ def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
     Crystal
         Crystal describing the Heusler material
     """
-    x, y, z = check_elements(X, Y, Z)
+    x, y, z = _check_elements(X, Y, Z)
     return Crystal('%s%s%s' % (x.basename, y.basename, z.basename),
                    SGLattice(194, a, c,
                              atoms=[x, y, z],
