@@ -52,6 +52,12 @@
 # will use the software only for non-commercial research purposes and will
 # indemnify and hold harmless the United States Government for any and all
 # damages or liabilities that arise out of any use by you.
+#
+# changelog:
+#
+# 15 August, 2018 -- MHM
+# fixed apparent error in flip of eps0 across twotheta=90 around line 681
+#
 
 """
 This module contains the core definitions for the XRD Fundamental Parameneters
@@ -672,7 +678,7 @@ class FP_profile:
             (outerbound, innerbound), side='left')
 
         # peak has been squeezed out, nothing to do
-        if abs(outerbound - innerbound) < 2 * dx or idx1 - idx0 < 2:
+        if abs(outerbound - innerbound) < (2*dx) or abs(idx1 - idx0) < 2:
             # preserve the exact centroid: requires summing into two channels
             # for a peak this narrow, no attempt to preserve the width.
             # note that x1 (1-f1) + (x1+dx) f1 = mu has solution
