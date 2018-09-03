@@ -16,6 +16,7 @@
 # Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 from __future__ import division
 
+import io
 import itertools
 import operator
 import os
@@ -169,25 +170,31 @@ class CIFFile(object):
     parse all of them into the the data dictionary. By default all methods
     access the first data set found in the file.
     """
-    def __init__(self, filename, digits=3):
+    def __init__(self, filestr, digits=3):
         """
         initialization of the CIFFile class
 
         Parameters
         ----------
-        filename :  str
-            CIF filename
+        filestr :  str, bytes
+            CIF filename or string representation of the CIF file
         digits :    int, optional
             number of digits to check if position is unique
         """
-        self.name = os.path.splitext(os.path.split(filename)[-1])[0]
-        self.filename = filename
         self.digits = digits
 
-        try:
-            self.fid = open(self.filename, "rb")
-        except OSError:
-            raise IOError("cannot open CIF file %s" % self.filename)
+        if os.path.isfile(filestr):
+            self.filename = filestr
+            try:
+                self.fid = open(self.filename, "rb")
+            except OSError:
+                raise IOError("cannot open CIF file %s" % self.filename)
+        else:
+            self.filename = '__from_str__'
+            if isinstance(filestr, bytes):
+                self.fid = io.BytesIO(filestr)
+            else:
+                self.fid = io.BytesIO(bytes(filestr.encode('ascii')))
 
         if config.VERBOSITY >= config.INFO_ALL:
             print('XU.material: parsing cif file %s' % self.filename)
@@ -655,7 +662,7 @@ def cifexport(filename, mat):
     """
     function to export a Crystal instance to CIF file. This in particular
     includes the atomic coordinates, however, ignores for example the elastic
-    paramters.
+    parameters.
     """
 
     general = """data_global
