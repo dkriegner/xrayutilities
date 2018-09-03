@@ -82,8 +82,7 @@ R_kin = xrr_model.simulate(alpha)
 
 # Reflectance
 fig, ax = plt.subplots(1, 1, figsize=(12, 6))
-R_dyn, R_kin = get_R(alpha)
-ax.plot(alpha, R_dyn, label='TransferMatrix')
+ax.plot(alpha, Reflec_S, label='TransferMatrix')
 ax.plot(alpha, R_kin, label='SpecularReflectivityModel', linestyle='dashed')
 ax.legend(loc='upper right')
 ax.set_xlabel(r'$\alpha$ (deg)')
