@@ -624,7 +624,7 @@ class Crystal(Material):
         """
         return self.lattice.GetHKL(*q)
 
-    def chemical_composition(self, natoms=None, with_spaces=False):
+    def chemical_composition(self, natoms=None, with_spaces=False, ndigits=2):
         """
         determine chemical composition from occupancy of atomic positions.
 
@@ -640,6 +640,8 @@ class Crystal(Material):
         with_spaces : bool, optional
             add spaces between the different entries in the output string for
             CIF combatibility
+        ndigits :   int, optional
+            number of digits to which floating point numbers are rounded to
 
         Returns
         -------
@@ -669,7 +671,7 @@ class Crystal(Material):
 
         # generate output strig
         cstr = ''
-        fmtstr = '%d' if isint else '%.2f'
+        fmtstr = '%d' if isint else '%%.%df' % ndigits
         for e in elem:
             n = elem[e] / float(natom) * natoms
             cstr += e
