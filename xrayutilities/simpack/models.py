@@ -1131,7 +1131,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         -------
         reflectivity:   array-like
             vector of intensities of the reflectivity signal
-        transmitivitty: array-like
+        transmitivity: array-like
             vector of intensities of the transmitted signal
         """
         # Get Refraction and Translation Matrices for each angle of incidence
@@ -1173,7 +1173,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         -------
         reflectivity:   array-like
             vector of intensities of the reflectivity signal
-        transmitivitty: array-like
+        transmitivity: array-like
             vector of intensities of the transmitted signal
         """
         R_energies, T_energies = numpy.array([]), numpy.array([])
