@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module with a function wrapper to scipy.optimize.leastsq
 for fitting of a 2D function to a peak or a 1D Gauss fit with
@@ -669,7 +669,7 @@ def multGaussPlot(*args, **kwargs):
 
 
 def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
-                 peaktype='Gaussian', fig="xu_plot", fact=1.):
+                 peaktype='Gaussian', fig="xu_plot", ax=None, fact=1.):
     """
     function to plot multiple Gaussian/Lorentz peaks with background values
     given by an array
@@ -691,8 +691,10 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
         have the same number of entries as fpos
     peaktype : {'Gaussian', 'Lorentzian'}
         type of peaks to be used
-    fig :       int, or str
+    fig :       int, str, or None
         matplotlib figure number or name
+    ax :        matplotlib.Axes
+        matplotlib axes as alternative to the figure name
     fact :      float
         factor to use as multiplicator in the plot
     """
@@ -700,7 +702,10 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
     if not success:
         return
 
-    plt.figure(fig)
+    if fig:
+        plt.figure(fig)
+    if ax:
+        plt.sca(ax)
     # plot single peaks
     if dranges:
         mask = numpy.array([False] * x.size)

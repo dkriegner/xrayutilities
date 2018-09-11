@@ -1,3 +1,4 @@
+* CIF exporter and possibility to parse CIF files from string representations
 * new reflectivity code based on transfer matrices (contributed by Numan
   Laanait, nlaanait@gmail.com)
 * unittest and code quality updates
