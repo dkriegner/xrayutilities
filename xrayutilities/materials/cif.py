@@ -190,6 +190,11 @@ class CIFFile(object):
             except OSError:
                 raise IOError("cannot open CIF file %s" % self.filename)
         else:
+            if filestr.count('\n') == 0:
+                print('XU.material.CIFFile: "filestr" contains only one line '
+                      'but a file with that name does not exist! Continuing '
+                      'with the assumption this one line string is the '
+                      'content of a CIF file!')
             self.filename = '__from_str__'
             if isinstance(filestr, bytes):
                 self.fid = io.BytesIO(filestr)
@@ -197,7 +202,7 @@ class CIFFile(object):
                 self.fid = io.BytesIO(bytes(filestr.encode('ascii')))
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.material: parsing cif file %s' % self.filename)
+            print('XU.material: parsing CIF file %s' % self.filename)
         self._default_dataset = None
         self.data = {}
         self.Parse()
