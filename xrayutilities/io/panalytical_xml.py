@@ -161,6 +161,9 @@ class XRDMLMeasurement(object):
 
     def __str__(self):
         ostr = "XRDML Measurement\n"
+        if self.material:
+            ostr += "Material: '%s'; hkl: %s\n" % (self.material,
+                                                   str(self.hkl))
         for k in self.ddict.keys():
             ostr += "%s with %s points\n" % (k, str(self.ddict[k].shape))
 
