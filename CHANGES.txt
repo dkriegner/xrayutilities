@@ -1,3 +1,4 @@
+* Panalytical XRDML: parse hkl from file if present
 * CIF exporter and possibility to parse CIF files from string representations
 * new reflectivity code based on transfer matrices (contributed by Numan
   Laanait, nlaanait@gmail.com)

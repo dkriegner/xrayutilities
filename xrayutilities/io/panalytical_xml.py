@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Panalytical XML (www.XRDML.com) data file parser
@@ -48,7 +48,12 @@ class XRDMLMeasurement(object):
         # get scans in <xrdMeasurement>
         slist = measurement.findall(self.namespace + "scan")
 
+        self.hkl = (numpy.nan, numpy.nan, numpy.nan)
+        self.material = ""
         self.ddict = {}
+        for field in ["countTime", "detector",
+                      "beamAttenuationFactors", "hkl"]:
+            self.ddict[field] = []
         is_scalar = 0
 
         # loop over all scan entries - scan points
@@ -61,13 +66,20 @@ class XRDMLMeasurement(object):
                           "(part of the data unavailable)!")
             else:
                 self.scanmotname = s.get("scanAxis")
+                reflection = s.find(self.namespace + "reflection")
+                if reflection:
+                    self.material = reflection.find(self.namespace +
+                                                    "material").text
+                    hkl = reflection.find(self.namespace + "hkl")
+                    hkl_h = int(hkl.find(self.namespace + "h").text)
+                    hkl_k = int(hkl.find(self.namespace + "k").text)
+                    hkl_l = int(hkl.find(self.namespace + "l").text)
+                    self.hkl = (hkl_h, hkl_k, hkl_l)
                 points = s.find(self.namespace + "dataPoints")
 
                 # add count time to output data
                 countTime = points.find(self.namespace +
                                         "commonCountingTime").text
-                if "countTime" not in self.ddict:
-                    self.ddict["countTime"] = []
                 self.ddict["countTime"].append(float(countTime))
 
                 # check for intensities first to get number of points in scan
@@ -76,8 +88,6 @@ class XRDMLMeasurement(object):
                 data_list = (numpy.fromstring(data, sep=" ") /
                              float(countTime)).tolist()
                 nofpoints = len(data_list)
-                if "detector" not in self.ddict:
-                    self.ddict["detector"] = []
                 self.ddict["detector"].append(data_list)
                 # if present read beamAttenuationFactors
                 # they are already corrected in the data file, but may be
@@ -89,8 +99,6 @@ class XRDMLMeasurement(object):
                     data_list = numpy.fromstring(data, sep=" ")
                     data_list = data_list.tolist()
                     nofpoints = len(data_list)
-                    if "beamAttenuationFactors" not in self.ddict:
-                        self.ddict["beamAttenuationFactors"] = []
                     self.ddict["beamAttenuationFactors"].append(data_list)
 
                 # read the axes position
@@ -210,14 +218,6 @@ class XRDMLFile(object):
         return ostr
 
 
-def getOmPixcel(omraw, ttraw):
-    """
-    function to reshape the Omega values into a form needed for
-    further treatment with xrayutilities
-    """
-    return (omraw[:, numpy.newaxis] * numpy.ones(ttraw.shape)).flatten()
-
-
 def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     """
     parses multiple XRDML file and concatenates the results for parsing the
@@ -248,6 +248,13 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     >>> om, tt, psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",
     >>>                                             [1, 2], path="./data")
     """
+    def getOmPixcel(omraw, ttraw):
+        """
+        function to reshape the Omega values into a form needed for
+        further treatment with xrayutilities
+        """
+        return (omraw[:, numpy.newaxis] * numpy.ones(ttraw.shape)).flatten()
+
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)
     tt = numpy.zeros(0)
