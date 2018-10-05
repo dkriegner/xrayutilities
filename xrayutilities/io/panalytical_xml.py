@@ -68,13 +68,15 @@ class XRDMLMeasurement(object):
                 self.scanmotname = s.get("scanAxis")
                 reflection = s.find(self.namespace + "reflection")
                 if reflection:
-                    self.material = reflection.find(self.namespace +
-                                                    "material").text
+                    m = reflection.find(self.namespace + "material")
+                    if m:
+                        self.material = m.text
                     hkl = reflection.find(self.namespace + "hkl")
-                    hkl_h = int(hkl.find(self.namespace + "h").text)
-                    hkl_k = int(hkl.find(self.namespace + "k").text)
-                    hkl_l = int(hkl.find(self.namespace + "l").text)
-                    self.hkl = (hkl_h, hkl_k, hkl_l)
+                    if hkl:
+                        hkl_h = int(hkl.find(self.namespace + "h").text)
+                        hkl_k = int(hkl.find(self.namespace + "k").text)
+                        hkl_l = int(hkl.find(self.namespace + "l").text)
+                        self.hkl = (hkl_h, hkl_k, hkl_l)
                 points = s.find(self.namespace + "dataPoints")
 
                 # add count time to output data
