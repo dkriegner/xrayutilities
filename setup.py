@@ -20,6 +20,7 @@ import glob
 import os.path
 import sys
 from distutils.command.install import INSTALL_SCHEMES
+from distutils.errors import DistutilsArgError
 from distutils.fancy_getopt import FancyGetopt
 
 import numpy
@@ -42,7 +43,7 @@ try:
     # search the arguments for options we would like to use
     # get new args with the custom options stripped away
     args, opts = options.getopt(args)
-except:
+except DistutilsArgError:
     pass
 
 # set default flags
@@ -51,7 +52,6 @@ without_openmp = False
 for opts, values in options.get_option_order():
     if opts == "without-openmp":
         without_openmp = True
-
 
 copt = {'msvc': [],
         'mingw32': ['-std=c99'],
@@ -80,6 +80,7 @@ class build_ext_subclass(build_ext):
             for e in self.extensions:
                 e.extra_link_args = lopt[c]
         build_ext.build_extensions(self)
+
 
 cmdclass = {'build_ext': build_ext_subclass}
 

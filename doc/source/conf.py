@@ -372,5 +372,6 @@ def process_docstring(app, what, name, obj, options, lines):
     for i in range(len(lines)):
         lines[i] = re.sub(r'^\s*Note:', r'.. note::', lines[i])
 
+
 def setup(app):
     app.connect('autodoc-process-docstring', process_docstring)
