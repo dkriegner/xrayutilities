@@ -57,11 +57,12 @@ def smooth(x, n):
     return y[n:-n + 1]
 
 
-def kill_spike(data, threshold=2.):
+def kill_spike(data, threshold=2., offset=None):
     """
     function to smooth **single** data points which differ from the average of
-    the neighboring data points by more than the threshold factor. Such spikes
-    will be replaced by the mean value of the next neighbors.
+    the neighboring data points by more than the threshold factor or more than
+    the offset value. Such spikes will be replaced by the mean value of the
+    next neighbors.
 
     .. warning:: Use this function carefully not to manipulate your data!
 
@@ -69,8 +70,12 @@ def kill_spike(data, threshold=2.):
     ----------
     data :          array-like
         1d numpy array with experimental data
-    threshold :     float
-        threshold factor to identify strange data points
+    threshold :     float or None
+        threshold factor to identify outlier data points. If None it will be
+        ignored.
+    offset :        None or float
+        offset value to identify outlier data points. If None it will be
+        ignored.
 
     Returns
     -------
@@ -81,16 +86,22 @@ def kill_spike(data, threshold=2.):
     dataout = data.copy()
 
     mean = (data[:-2] + data[2:]) / 2.
-    mask = numpy.logical_or(
-        numpy.abs(data[1:-1] * threshold) < numpy.abs(mean),
-        numpy.abs(data[1:-1] / threshold) > numpy.abs(mean))
+    mask = numpy.zeros_like(data[1:-1], dtype=numpy.bool)
+    if threshold:
+        mask = numpy.logical_or(
+            mask, numpy.logical_or(data[1:-1] * threshold < mean,
+                                   data[1:-1] / threshold > mean))
+    if offset:
+        mask = numpy.logical_or(
+            mask, numpy.logical_or(data[1:-1] + offset < mean,
+                                   data[1:-1] - offset > mean))
     # ensure that only single value are corrected and neighboring are ignored
     for i in range(1, len(mask) - 1):
         if mask[i - 1] and mask[i] and mask[i + 1]:
             mask[i - 1] = False
             mask[i + 1] = False
 
-    dataout[1:-1][mask] = (numpy.abs(mean))[mask]
+    dataout[1:-1][mask] = mean[mask]
 
     return dataout
 
