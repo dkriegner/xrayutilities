@@ -157,20 +157,43 @@ sgrp_params = {'cubic:1': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
                              ('a', 'b', 'c', 'alpha', 'beta', 'gamma'))}
 
 
+def get_possible_sgrp_suf(sgrp_nr):
+    """
+    determine possible space group suffix. Multiple suffixes might be possible
+    for one space group due to different origin choice, unique axis, or choice
+    of the unit cell shape.
+
+    Parameters
+    ----------
+    sgrp_nr :   int
+        space group number
+
+    Returns
+    -------
+    str or list
+        either an empty string or a list of possible valid suffix strings
+    """
+    sgrp_suf = ''
+    if sgrp_nr in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
+        sgrp_suf = [':b', ':c']
+    elif sgrp_nr in [48, 50, 59, 68, 70, 85, 86, 88, 125, 126,
+                     129, 130, 133, 134, 137, 138, 141, 142,
+                     201, 203, 222, 224, 227, 228]:
+        sgrp_suf = [':1', ':2']
+    elif sgrp_nr in [146, 148, 155, 160, 161, 166, 167]:
+        sgrp_suf = [':H', ':R']
+    return sgrp_suf
+
+
 def get_default_sgrp_suf(sgrp_nr):
     """
     determine default space group suffix
     """
-    sgrp_suf = ''
-    if sgrp_nr in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
-        sgrp_suf = ':b'
-    elif sgrp_nr in [48, 50, 59, 68, 70, 85, 86, 88, 125, 126,
-                     129, 130, 133, 134, 137, 138, 141, 142,
-                     201, 203, 222, 224, 227, 228]:
-        sgrp_suf = ':1'
-    elif sgrp_nr in [146, 148, 155, 160, 161, 166, 167]:
-        sgrp_suf = ':H'
-    return sgrp_suf
+    possibilities = get_possible_sgrp_suf(sgrp_nr)
+    if possibilities:
+        return possibilities[0]
+    else:
+        return ''
 
 
 class WyckoffBase(list):

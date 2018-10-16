@@ -16,6 +16,7 @@
 # Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 from __future__ import division
 
+import copy
 import io
 import itertools
 import operator
@@ -31,6 +32,12 @@ from . import elements
 from . import spacegrouplattice as sgl
 from . import wyckpos
 from .. import config
+
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
 
 re_data = re.compile(r"^data_", re.IGNORECASE)
 re_loop = re.compile(r"^loop_", re.IGNORECASE)
@@ -522,89 +529,103 @@ class CIFDataset(object):
 
         if not hasattr(self, 'sgrp_suf'):
             if hasattr(self, 'sgrp_nr'):
-                self.sgrp_suf = sgl.get_default_sgrp_suf(self.sgrp_nr)
-        if hasattr(self, 'sgrp_nr'):
-            self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
-            allwyckp = wyckpos.wp[self.sgrp]
-            if config.VERBOSITY >= config.INFO_ALL:
-                print('XU.material: space group identified as %s' % self.sgrp)
+                self.sgrp_suf = sgl.get_possible_sgrp_suf(self.sgrp_nr)
+            else:
+                self.sgrp_suf = ''
+        if isinstance(self.sgrp_suf, basestring):
+            suffixes = [self.sgrp_suf, ]
+        else:
+            suffixes = copy.copy(self.sgrp_suf)
+        for sgrp_suf in suffixes:
+            self.sgrp_suf = sgrp_suf
+            if hasattr(self, 'sgrp_nr'):
+                self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
+                allwyckp = wyckpos.wp[self.sgrp]
+                if config.VERBOSITY >= config.INFO_ALL:
+                    print('XU.material: attempting space group %s' % self.sgrp)
 
-        # determine all unique positions for definition of a P1 space group
-        symops = self.symops
-        if not symops and hasattr(self, 'sgrp') and self.atoms:
-            label = sorted(allwyckp.keys(), key=lambda s: int(s[:-1]))
-            symops = allwyckp[label[-1]][1]
-            if config.VERBOSITY >= config.INFO_ALL:
-                print('XU.material: no symmetry operations in CIF-Dataset '
-                      'using built in general positions.')
-        self.unique_positions = []
-        for el, (x, y, z), occ, biso in self.atoms:
-            unique_pos = []
-            for symop in symops:
-                pos = eval(symop, {'x': x, 'y': y, 'z': z})
-                pos = numpy.asarray(pos)
-                # check that position is within unit cell
-                pos = pos - numpy.round(pos, self.digits) // 1
-                # check if position is unique
-                unique = True
-                for upos in unique_pos:
-                    if (numpy.round(upos, self.digits) ==
-                            numpy.round(pos, self.digits)).all():
-                        unique = False
-                if unique:
-                    unique_pos.append(pos)
-            self.unique_positions.append((el, unique_pos, occ, biso))
+            # determine all unique positions for definition of a P1 space group
+            symops = self.symops
+            if not symops and hasattr(self, 'sgrp') and self.atoms:
+                label = sorted(allwyckp.keys(), key=lambda s: int(s[:-1]))
+                symops = allwyckp[label[-1]][1]
+                if config.VERBOSITY >= config.INFO_ALL:
+                    print('XU.material: no symmetry operations in CIF-Dataset '
+                          'using built in general positions.')
+            self.unique_positions = []
+            for el, (x, y, z), occ, biso in self.atoms:
+                unique_pos = []
+                for symop in symops:
+                    pos = eval(symop, {'x': x, 'y': y, 'z': z})
+                    pos = numpy.asarray(pos)
+                    # check that position is within unit cell
+                    pos = pos - numpy.round(pos, self.digits) // 1
+                    # check if position is unique
+                    unique = True
+                    for upos in unique_pos:
+                        if (numpy.round(upos, self.digits) ==
+                                numpy.round(pos, self.digits)).all():
+                            unique = False
+                    if unique:
+                        unique_pos.append(pos)
+                self.unique_positions.append((el, unique_pos, occ, biso))
 
-        # determine Wyckoff positions and free parameters of unit cell
-        if hasattr(self, 'sgrp'):
-            self.wp = []
-            self.occ = []
-            self.elements = []
-            self.biso = []
-            keys = list(allwyckp.keys())
-            wpn = [int(re.sub(r"([a-z])", r"", k)) for k in keys]
-            for i, (el, (x, y, z), occ, biso) in enumerate(self.atoms):
-                # candidate positions from number of unique atoms
-                natoms = len(self.unique_positions[i][1])
-                wpcand = []
-                for j, n in enumerate(wpn):
-                    if n == natoms:
-                        wpcand.append((keys[j], allwyckp[keys[j]]))
-                for j, (k, wp) in enumerate(
-                        sorted(wpcand, key=operator.itemgetter(1))):
-                    parint, poslist = wp
-                    for positem in poslist:
-                        foundwp, xyz = testwp(parint, positem,
-                                              (x, y, z), self.digits)
+            # determine Wyckoff positions and free parameters of unit cell
+            if hasattr(self, 'sgrp'):
+                self.wp = []
+                self.occ = []
+                self.elements = []
+                self.biso = []
+                keys = list(allwyckp.keys())
+                wpn = [int(re.sub(r"([a-z])", r"", k)) for k in keys]
+                for i, (el, (x, y, z), occ, biso) in enumerate(self.atoms):
+                    # candidate positions from number of unique atoms
+                    natoms = len(self.unique_positions[i][1])
+                    wpcand = []
+                    for j, n in enumerate(wpn):
+                        if n == natoms:
+                            wpcand.append((keys[j], allwyckp[keys[j]]))
+                    for j, (k, wp) in enumerate(
+                            sorted(wpcand, key=operator.itemgetter(1))):
+                        parint, poslist = wp
+                        for positem in poslist:
+                            foundwp, xyz = testwp(parint, positem,
+                                                  (x, y, z), self.digits)
+                            if foundwp:
+                                if xyz is None:
+                                    self.wp.append(k)
+                                else:
+                                    self.wp.append((k, list(xyz)))
+                                self.elements.append(el)
+                                self.occ.append(occ)
+                                self.biso.append(biso)
+                                break
                         if foundwp:
-                            if xyz is None:
-                                self.wp.append(k)
-                            else:
-                                self.wp.append((k, list(xyz)))
-                            self.elements.append(el)
-                            self.occ.append(occ)
-                            self.biso.append(biso)
                             break
-                    if foundwp:
-                        break
-            if config.VERBOSITY >= config.INFO_ALL:
-                print('XU.material: %d Wyckoff positions found for %d sites'
-                      % (len(self.wp), len(self.atoms)))
-            if config.VERBOSITY >= config.INFO_LOW:
-                if len(self.wp) != len(self.atoms):
-                    print('XU.material: missing Wyckoff positions (%d)'
-                          % (len(self.atoms) - len(self.wp)))
-            # free unit cell parameters
-            self.crystal_system, nargs = sgl.sgrp_sym[self.sgrp_nr]
-            self.crystal_system += self.sgrp_suf
-            self.uc_params = []
-            p2idx = {'a': 0, 'b': 1, 'c': 2,
-                     'alpha': 0, 'beta': 1, 'gamma': 2}
-            for pname in sgl.sgrp_params[self.crystal_system][0]:
-                if pname in ('a', 'b', 'c'):
-                    self.uc_params.append(self.lattice_const[p2idx[pname]])
-                if pname in ('alpha', 'beta', 'gamma'):
-                    self.uc_params.append(self.lattice_angles[p2idx[pname]])
+                if config.VERBOSITY >= config.INFO_ALL:
+                    print('XU.material: %d of %d Wyckoff positions identified'
+                          % (len(self.wp), len(self.atoms)))
+                    if len(self.wp) < len(self.atoms):
+                        print('XU.material: space group %s seems not to fit'
+                              % self.sgrp)
+
+                # free unit cell parameters
+                self.crystal_system, nargs = sgl.sgrp_sym[self.sgrp_nr]
+                self.crystal_system += self.sgrp_suf
+                self.uc_params = []
+                p2i = {'a': 0, 'b': 1, 'c': 2,
+                       'alpha': 0, 'beta': 1, 'gamma': 2}
+                for pname in sgl.sgrp_params[self.crystal_system][0]:
+                    if pname in ('a', 'b', 'c'):
+                        self.uc_params.append(self.lattice_const[p2i[pname]])
+                    if pname in ('alpha', 'beta', 'gamma'):
+                        self.uc_params.append(self.lattice_angles[p2i[pname]])
+
+                if len(self.wp) == len(self.atoms):
+                    if config.VERBOSITY >= config.INFO_ALL:
+                        print('XU.material: identified space group as %s'
+                              % self.sgrp)
+                    break
 
     def SGLattice(self, use_p1=False):
         """
