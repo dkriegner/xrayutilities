@@ -1762,14 +1762,15 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
     This function returns a material whos lattice is pseudomorphic on a
     particular substrate material. The two materials must have similar unit
     cell definitions for the algorithm to work correctly, i.e. it does not work
-    for combiniations of materials with different lattice symmetry.
+    for combiniations of materials with different lattice symmetry. It is also
+    crucial that the layer object includes values for the elastic tensor.
 
     Parameters
     ----------
     sub :       Crystal
         substrate material
     layer :     Crystal
-        bulk material of the layer
+        bulk material of the layer, including its elasticity tensor
     relaxation : float, optional
         degree of relaxation 0: pseudomorphic, 1: relaxed (default: 0)
     trans :     Tranform
@@ -1781,6 +1782,11 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
     -------
     An instance of Crystal holding the new pseudomorphically
     strained material.
+
+    Raises
+    ------
+    InputError
+        If the layer material has no elastic parameters
     """
     def get_inplane(lat):
         """determine inplane lattice parameter"""
@@ -1789,6 +1795,9 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
 
     if not trans:
         trans = math.Transform(numpy.identity(3))
+
+    if numpy.all(layer.cijkl == 0):
+        raise InputError("'layer' argument needs elastic parameters")
 
     slat = sub.lattice
     llat = layer.lattice
@@ -1801,6 +1810,9 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
 
     eperp = -epar * (cT[1, 1, 2, 2] + cT[2, 2, 0, 0]) / (cT[2, 2, 2, 2])
     eps = trans.inverse(numpy.diag((epar, epar, eperp)), rank=2)
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU.materials.PseudomorphicMaterial: applying strain (inplane, "
+              "perpendicular): %.4g %.4g" % (epar, eperp))
 
     # create the pseudomorphic material
     pmlatt = copy.copy(layer.lattice)
