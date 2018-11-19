@@ -40,6 +40,7 @@ import glob
 import os.path
 import re
 
+import h5py
 import numpy
 
 # relative imports
@@ -229,9 +230,18 @@ class FastScanCCD(FastScan):
     """
 
     def __init__(self, *args, **kwargs):
-        super(FastScanCCD, self).__init__(*args, **kwargs)
-        self.edffile = None
+        """
+        Parameters
+        ----------
+        imagefiletype : str, optional
+            image file extension, either 'edf' / 'edf.gz' (default) or 'h5'
+
+        other parameters are passed on to FastScanCCD
+        """
+        self.imagefiletype = kwargs.pop('imagefiletype', 'edf')
+        self.imgfile = None
         self.nimages = None
+        super(FastScanCCD, self).__init__(*args, **kwargs)
 
     def _getCCDnumbers(self, ccdnr):
         """
@@ -285,9 +295,9 @@ class FastScanCCD(FastScan):
 
         return g2l
 
-    def _read_edfimage(self, filename, imgindex, nav, roi, filterfunc):
+    def _read_image(self, filename, imgindex, nav, roi, filterfunc):
         """
-        helper function to obtain one frame from a EDF file
+        helper function to obtain one frame from an EDF/HDF5 file
 
         Parameters
         ----------
@@ -311,22 +321,27 @@ class FastScanCCD(FastScan):
         Returns
         -------
         ndarray
-            numpy 2D array with EDF frame
+            numpy 2D array with the detector frame
         """
         if roi is None:
             kwdict = {}
         else:
             kwdict = {'roi': roi}
-        if not self.edffile:
-            self.edffile = EDFFile(filename, keep_open=True)
+        if 'edf' in self.imagefiletype:
+            if not self.imgfile:
+                self.imgfile = EDFFile(filename, keep_open=True)
+            else:
+                if self.imgfile.filename != filename:
+                    self.imgfile = EDFFile(filename, keep_open=True)
+            ccdfilt = self.imgfile.ReadData(imgindex)
         else:
-            if self.edffile.filename != filename:
-                self.edffile = EDFFile(filename, keep_open=True)
-
+            fileroot = os.path.splitext(os.path.splitext(filename)[0])[0]
+            if not self.imgfile:
+                self.imgfile = h5py.File(fileroot + '.h5', 'r')
+            ccdfilt = self.imgfile.get(
+                os.path.split(fileroot)[-1] + '_%04d' % imgindex).value
         if filterfunc:
-            ccdfilt = filterfunc(self.edffile.ReadData(imgindex))
-        else:
-            ccdfilt = self.edffile.ReadData(imgindex)
+            ccdfilt = filterfunc(ccdfilt)
         if roi is None and nav[0] == 1 and nav[1] == 1:
             return ccdfilt
         else:
@@ -348,10 +363,18 @@ class FastScanCCD(FastScan):
         ccdfiletmp :    str
             ccd file template string
         """
-        if not self.edffile:
-            self.edffile = EDFFile(ccdfiletmp % fileoffset, keep_open=True)
-        if self.nimages is None:
-            self.nimages = self.edffile.nimages
+        if 'edf' in self.imagefiletype:
+            if not self.imgfile:
+                self.imgfile = EDFFile(ccdfiletmp % fileoffset, keep_open=True)
+            if self.nimages is None:
+                self.nimages = self.imgfile.nimages
+        else:
+            fileroot = os.path.splitext(os.path.splitext(ccdfiletmp
+                                                         % fileoffset)[0])[0]
+            if not self.imgfile:
+                self.imgfile = h5py.File(fileroot + '.h5', 'r')
+            if self.nimages is None:
+                self.nimages = len(self.imgfile.items())
         filenumber = int((imgnum - imgoffset) // self.nimages + fileoffset)
         imgindex = int((imgnum - imgoffset) % self.nimages)
         return imgindex, filenumber
@@ -459,7 +482,7 @@ class FastScanCCD(FastScan):
 
         # read ccd shape from first image
         filename = ccdtemplate % nextNr
-        ccdshape = self._read_edfimage(filename, 0, nav, roi, filterfunc).shape
+        ccdshape = self._read_image(filename, 0, nav, roi, filterfunc).shape
         ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
         if config.VERBOSITY >= config.INFO_ALL:
             print('XU.io.FastScanCCD: allocated ccddata array with %d bytes'
@@ -471,7 +494,7 @@ class FastScanCCD(FastScan):
             imgindex, filenumber = self._get_image_number(imgnum, nextNr,
                                                           nextNr, ccdtemplate)
             filename = ccdtemplate % filenumber
-            ccd = self._read_edfimage(filename, imgindex, nav, roi, filterfunc)
+            ccd = self._read_image(filename, imgindex, nav, roi, filterfunc)
             ccddata[i, :, :] = ccd
         return self.xvalues, self.yvalues, ccddata
 
@@ -486,9 +509,10 @@ class FastScanCCD(FastScan):
         ccdnr :     array-like or str
             array with ccd file numbers of length length(FastScanCCD.data) OR a
             string with the data column name for the file ccd-numbers
-        roi :       tuple
-            region of interest on the 2D detector. A list of lower and upper
-            bounds of detector channels for the two pixel directions.
+        roi :       tuple or list
+            region of interest on the 2D detector. Either a list of lower and
+            upper bounds of detector channels for the two pixel directions as
+            tuple or a list of mask arrays
         datadir :   str, optional
             the CCD filenames are usually parsed from the SPEC file.  With this
             option the directory used for the data can be overwritten.  Specify
@@ -519,7 +543,13 @@ class FastScanCCD(FastScan):
         ccdtemplate, nextNr = self.getccdFileTemplate(
             self.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
 
-        ccdroi = numpy.empty(self.xvalues.size)
+        if isinstance(roi, list):
+            lmask = roi
+            lroi = None
+        else:
+            lmask = [numpy.ones((roi[1]-roi[0], roi[3]-roi[2])), ]
+            lroi = roi
+        ccdroi = numpy.empty((len(lmask), self.xvalues.size))
 
         # go through the ccd-frames
         for i, imgnum in enumerate(ccdnumbers):
@@ -527,10 +557,14 @@ class FastScanCCD(FastScan):
             imgindex, filenumber = self._get_image_number(imgnum, nextNr,
                                                           nextNr, ccdtemplate)
             filename = ccdtemplate % filenumber
-            ccd = self._read_edfimage(filename, imgindex, [1, 1], roi,
-                                      filterfunc)
-            ccdroi[i] = numpy.sum(ccd)
-        return self.xvalues, self.yvalues, ccdroi
+            ccd = self._read_image(filename, imgindex, [1, 1], lroi,
+                                   filterfunc)
+            for j, m in enumerate(lmask):
+                ccdroi[j, i] = numpy.sum(ccd[m])
+        if len(lmask) == 1:
+            return self.xvalues, self.yvalues, ccdroi[0]
+        else:
+            return self.xvalues, self.yvalues, ccdroi
 
     def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
                 replacedir=None, nav=[1, 1], gridrange=None, filterfunc=None):
@@ -593,7 +627,7 @@ class FastScanCCD(FastScan):
 
         # read ccd shape from first image
         filename = ccdtemplate % nextNr
-        ccdshape = self._read_edfimage(filename, 0, nav, roi, filterfunc).shape
+        ccdshape = self._read_image(filename, 0, nav, roi, filterfunc).shape
         ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
         if config.VERBOSITY >= config.INFO_ALL:
             print('XU.io.FastScanCCD: allocated ccddata array with %d bytes'
@@ -611,8 +645,8 @@ class FastScanCCD(FastScan):
                         imgindex, filenumber = self._get_image_number(
                             imgnum, nextNr, nextNr, ccdtemplate)
                         filename = ccdtemplate % filenumber
-                        ccd = self._read_edfimage(filename, imgindex, nav,
-                                                  roi, filterfunc)
+                        ccd = self._read_image(filename, imgindex, nav,
+                                               roi, filterfunc)
                         ccddata[i, j, ...] += ccd
                         framecount += 1
                     ccddata[i, j, ...] /= float(framecount)
@@ -862,8 +896,8 @@ class FastScanSeries(object):
                 imgindex, filenumber = fsccd._get_image_number(
                     imgnum, nextNr, nextNr, ccdtemplate)
                 filename = ccdtemplate % filenumber
-                ccd = fsccd._read_edfimage(filename, imgindex, nav, roi,
-                                           filterfunc)
+                ccd = fsccd._read_image(filename, imgindex, nav, roi,
+                                        filterfunc)
                 ccdav += ccd
             g3d(qx[fsidx, ...], qy[fsidx, ...], qz[fsidx, ...], ccdav)
 
@@ -957,8 +991,8 @@ class FastScanSeries(object):
                     imgindex, filenumber = fsccd._get_image_number(
                         imgnum, nextNr, nextNr, ccdtemplate)
                     filename = ccdtemplate % filenumber
-                    ccd = fsccd._read_edfimage(filename, imgindex, nav, roi,
-                                               filterfunc)
+                    ccd = fsccd._read_image(filename, imgindex, nav, roi,
+                                            filterfunc)
                     output[i] += numpy.sum(ccd[mask])
 
         return fsccd.xvalues, fsccd.yvalues, output
@@ -1105,8 +1139,8 @@ class FastScanSeries(object):
         imgindex, filenumber = fsccd._get_image_number(
                         valuelist[0][1], nextNr, nextNr, ccdtemplate)
         filename = ccdtemplate % filenumber
-        ccdshape = fsccd._read_edfimage(filename, imgindex, nav, roi,
-                                        filterfunc).shape
+        ccdshape = fsccd._read_image(filename, imgindex, nav, roi,
+                                     filterfunc).shape
         ccddata = numpy.zeros((len(self.fastscans), ccdshape[0], ccdshape[1]))
         motors = []
 
@@ -1130,8 +1164,8 @@ class FastScanSeries(object):
                     imgindex, filenumber = fsccd._get_image_number(
                         imgnum, nextNr, nextNr, ccdtemplate)
                     filename = ccdtemplate % filenumber
-                    ccd = fsccd._read_edfimage(filename, imgindex, nav, roi,
-                                               filterfunc)
+                    ccd = fsccd._read_image(filename, imgindex, nav, roi,
+                                            filterfunc)
                     ccddata[i, ...] += ccd
                     framecount += 1
                 ccddata[i, ...] /= float(framecount)
