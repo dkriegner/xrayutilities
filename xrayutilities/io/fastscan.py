@@ -410,6 +410,8 @@ class FastScanCCD(FastScan):
         fmtstr :    str
             format string for the CCD file name using one number to build the
             real file name
+        filenr :    int
+            starting file number
         """
         hline = specscan.getheader_element('C imageFile')
         re_ccdfiles = re.compile(r'dir\[([a-zA-Z0-9_.%/]*)\] '
