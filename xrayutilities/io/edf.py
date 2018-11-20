@@ -358,8 +358,7 @@ class EDFFile(object):
                 ca_name += '_{n:04d}'
 
             for n in range(self.nimages):
-                if self.nimages != 1:
-                    d = self.ReadData(n)
+                d = self.ReadData(n)
                 name = ca_name.format(n=n)
                 try:
                     ca = g.create_dataset(name, data=d, **kwds)
