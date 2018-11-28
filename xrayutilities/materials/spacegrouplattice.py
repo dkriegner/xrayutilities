@@ -457,24 +457,27 @@ class SGLattice(object):
                 try:
                     x = w[1][i]
                 except TypeError:
-                    print('XU.materials: Wyckoff position needs parameters'
-                          '-> wrong material definition')
+                    print('XU.materials: Wyckoff position %s of %s needs '
+                          'parameters (%d) -> wrong material definition'
+                          % (w[0], str(self.space_group), parint))
                     raise
                 i += 1
             if parint & 2:
                 try:
                     y = w[1][i]
                 except TypeError:
-                    print('XU.materials: Wyckoff position needs parameters'
-                          '-> wrong material definition')
+                    print('XU.materials: Wyckoff position %s of %s needs '
+                          'parameters (%d) -> wrong material definition'
+                          % (w[0], str(self.space_group), parint))
                     raise
                 i += 1
             if parint & 4:
                 try:
                     z = w[1][i]
                 except TypeError:
-                    print('XU.materials: Wyckoff position needs parameters'
-                          '-> wrong material definition')
+                    print('XU.materials: Wyckoff position %s of %s needs '
+                          'parameters (%d) -> wrong material definition'
+                          % (w[0], str(self.space_group), parint))
                     raise
             for p in poslist:
                 pos = eval(p, {'x': x, 'y': y, 'z': z})
