@@ -148,7 +148,7 @@ Source Installation
 Express instructions
 --------------------
 
- * install the dependencies (Windows: `pythonxy <http://www.pythonxy.com>`_; Linux/Unix: see below for dependencies).
+ * install the dependencies (Windows: `Python(x,y) <https://python-xy.github.io/>`_ or `WinPython <https://winpython.github.io/>`_; Linux/Unix: see below for dependencies).
  * download *xrayutilities* from `here <https://sourceforge.net/projects/xrayutilities>`_ or use git to check out the `latest <https://sourceforge.net/p/xrayutilities/code/>`_ version.
  * open a command line and navigate to the downloaded sources and execute:
 
@@ -179,7 +179,8 @@ The needed dependencies are:
  * **HDF5** a versatile binary data format (library is implemented in C).
    Although the library is not called directly, it is needed by the h5py Python
    module (see below).
- * **Python** the scripting language in which most of *xrayutilities* code is written in. (version 2.7 or >= 3.2)
+ * **Python** the scripting language in which most of *xrayutilities* code is written in. (version 2.7 or >= 3.2, including python dev headers)
+ * **setuptools** python package installer
  * **git** a version control system used to keep track on the *xrayutilities* development. (only needed for development)
 
 Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
