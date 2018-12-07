@@ -479,6 +479,12 @@ class SGLattice(object):
                           'parameters (%d) -> wrong material definition'
                           % (w[0], str(self.space_group), parint))
                     raise
+                i += 1
+            if w[1]:
+                if i != len(w[1]):
+                    raise TypeError('XU.materials: too many parameters for '
+                                    'Wyckoff position')
+
             for p in poslist:
                 pos = eval(p, {'x': x, 'y': y, 'z': z})
                 pos = numpy.asarray(pos)
