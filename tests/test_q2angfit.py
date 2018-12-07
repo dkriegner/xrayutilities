@@ -32,7 +32,7 @@ class TestQ2AngFit(unittest.TestCase):
         cls.hxrd = xu.HXRD((1, 0, 0), (0, 0, 1), en=cls.energy,
                            qconv=cls.qconv)
         cls.bounds = (0, (-180, 180), 0, (-1, 90), (-1, 90))
-        qz = numpy.random.rand()
+        qz = numpy.random.rand() + 1
         cls.qvec = numpy.array(((numpy.random.rand()-0.5)*qz, 0, qz))
 
     def test_q2angfit(self):
