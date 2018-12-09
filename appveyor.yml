@@ -42,13 +42,12 @@ install:
       }
       else
       {
-        $env:Path="$env:MINICONDA;$env:MINICONDA\Scripts;$env:Path"
+        $env:Path="$env:MINICONDA;$env:MINICONDA\Scripts;$env:MINICONDA\Library\bin;$env:Path"
         [Environment]::SetEnvironmentVariable("Path", "$env:MINICONDA;$env:MINICONDA\Scripts;$env:Path", [EnvironmentVariableTarget]::User)
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         conda info -a
         conda install -q cython numpy scipy wheel h5py
-        activate base
         python -m pip install --upgrade --ignore-installed pip
       }
       python -m pip install --upgrade --ignore-installed unittest2
