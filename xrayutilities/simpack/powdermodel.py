@@ -39,6 +39,10 @@ class PowderModel(object):
         or individual Powder(s). Optional parameters are specified in the
         keyword arguments.
 
+        Note:
+        After the end-of-use it is advisable to call the `close()` method to
+        cleanup the multiprocessing calculation!
+
         Parameters
         ----------
         args :      PowderList or Powders
@@ -71,6 +75,7 @@ class PowderModel(object):
                                         *args)
         self.I0 = kwargs.pop('I0', 1.0)
         self.pdiff = []
+        kwargs['enable_simulation'] = True
         for mat in self.materials:
             self.pdiff.append(PowderDiffraction(mat, **kwargs))
 
@@ -314,6 +319,10 @@ class PowderModel(object):
         fitres = self.minimizer.minimize(maxfev=maxfev)
         self.set_lmfit_parameters(fitres.params)
         return fitres
+
+    def close(self):
+        for pd in self.pdiff:
+            pd.close()
 
     def __str__(self):
         """

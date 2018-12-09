@@ -1798,6 +1798,12 @@ class PowderDiffraction(PowderExperiment):
             ang ..... Bragg angles of the peaks (Theta!)
             qpos .... reciprocal space position of intensities
 
+        If `enable_simulation` is set to True the `Convolve` and `Calculate`
+        methods can be used to calculated a powder pattern. Upon such
+        initialization it is strongly recommend to call the `close` method to
+        clean up the multiprocessing threads when no further calculations will
+        be performed.
+
         Parameters
         ----------
         mat :           Crystal or Powder
@@ -1808,6 +1814,9 @@ class PowderDiffraction(PowderExperiment):
         tt_cutoff :     float, optional
             Powder peaks are calculated up to an scattering angle of tt_cutoff
             (deg)
+        enable_simulation:  False, optional
+            enables the initialization of the convolvers. Call `close()` after
+            you are finished with your instance!
         fpclass :       FP_profile
             FP_profile derived class with possible convolver mixins.
             (default: FP_profile)
@@ -1828,6 +1837,7 @@ class PowderDiffraction(PowderExperiment):
         self.fpclass = kwargs.pop('fpclass', FP_profile)
         self.settings = self.load_settings_from_config(
             kwargs.pop('fpsettings', {}))
+        self._enable_sim = kwargs.pop('enable_simulation', False)
 
         PowderExperiment.__init__(self, **kwargs)
 
@@ -1851,6 +1861,18 @@ class PowderDiffraction(PowderExperiment):
         self.__ww = None
 
         # initialize multiprocessing
+        if self._enable_sim:
+            self._init_multiprocessing()
+        # set wavelength from class constructor
+        if 'wl' in kwargs:
+            self._set_wavelength_pd(kwargs['wl'])
+        if 'en' in kwargs:
+            self._set_energy_pd(kwargs['en'])
+
+    def _init_multiprocessing(self):
+        """
+        initialize multiprocessing for powder pattern calculation
+        """
         np = config.NTHREADS
         self.nproc = np if np != 0 else multiprocessing.cpu_count()
         self.chunks = chunkify(list(self.data.keys()), self.nproc)
@@ -1874,11 +1896,9 @@ class PowderDiffraction(PowderExperiment):
             th.daemon = True
             th.start()
         atexit.register(self.__stop__)
-        # set wavelength from class constructor
-        if 'wl' in kwargs:
-            self._set_wavelength_pd(kwargs['wl'])
-        if 'en' in kwargs:
-            self._set_energy_pd(kwargs['en'])
+
+    def close(self):
+        self.__stop__()
 
     def __stop__(self):
         self._running = False
@@ -2315,71 +2335,77 @@ class PowderDiffraction(PowderExperiment):
         -------
          output intensity values for the twotheta values given in the input
         """
-        t_start = time.time()
+        if self._enable_sim:
+            t_start = time.time()
 
-        out = numpy.zeros_like(twotheta)
-        tt = self.twotheta = twotheta
-        self.window_width = window_width
-        ww = self.window_width
+            out = numpy.zeros_like(twotheta)
+            tt = self.twotheta = twotheta
+            self.window_width = window_width
+            ww = self.window_width
 
-        # check if twotheta range extends above tt_cutoff
-        if tt.max() > self._tt_cutoff:
-            warnings.warn('twotheta range is larger then tt_cutoff. Possibly '
-                          'Bragg peaks in the convolution range are not '
-                          'considered!')
+            # check if twotheta range extends above tt_cutoff
+            if tt.max() > self._tt_cutoff:
+                warnings.warn('twotheta range is larger then tt_cutoff. '
+                              'Possibly Bragg peaks in the convolution range '
+                              'are not considered!')
 
-        if mode == 'local':
-            for h, d in self.data.items():
-                if not d['active']:
-                    continue
-                ttpeak = 2 * d['ang']
-                # check if peak is in data range to be calculated
-                if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
-                    continue
-                idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
-                                                       tt < ttpeak + ww/2))
-                d['conv'].set_parameters(twotheta0_deg=ttpeak)
-                result = d['conv'].compute_line_profile()
-                out[idx] += numpy.interp(tt[idx], result.twotheta_deg,
-                                         result.peak*d['r'], left=0, right=0)
-        else:
-            # prepare multiprocess calculation
-            for idx, chunk in enumerate(self.chunks):
-                run = []
-                ttpeaks = []
-                for h in chunk:
-                    ttpeak = 2 * self.data[h]['ang']
-                    ttpeaks.append(ttpeak)
-                    if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
-                        run.append(False)
-                    else:
-                        run.append(True)
-                    if not self.data[h]['active']:
-                        run[-1] = False
-                # start calculation in other processes
-                self.threads[idx][1].put((self.settings, run, ttpeaks))
-            gotit = set(range(self.nproc))
-            while gotit:
-                # receive ready calculations
-                idx, res = self.output_queue.get(True)
-                chunk = self.chunks[idx]
-                for h, r in zip(chunk, res):
-                    if r is None:
+            if mode == 'local':
+                for h, d in self.data.items():
+                    if not d['active']:
                         continue
-                    else:
+                    ttpeak = 2 * d['ang']
+                    # check if peak is in data range to be calculated
+                    if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
+                        continue
+                    idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
+                                                           tt < ttpeak + ww/2))
+                    d['conv'].set_parameters(twotheta0_deg=ttpeak)
+                    result = d['conv'].compute_line_profile()
+                    out[idx] += numpy.interp(tt[idx], result.twotheta_deg,
+                                             result.peak*d['r'], left=0,
+                                             right=0)
+            else:
+                # prepare multiprocess calculation
+                for idx, chunk in enumerate(self.chunks):
+                    run = []
+                    ttpeaks = []
+                    for h in chunk:
                         ttpeak = 2 * self.data[h]['ang']
-                        mask = numpy.argwhere(
-                            numpy.logical_and(tt > ttpeak - ww/2,
-                                              tt < ttpeak + ww/2))
+                        ttpeaks.append(ttpeak)
+                        if (ttpeak - ww/2 > tt.max() or
+                                ttpeak + ww/2 < tt.min()):
+                            run.append(False)
+                        else:
+                            run.append(True)
+                        if not self.data[h]['active']:
+                            run[-1] = False
+                    # start calculation in other processes
+                    self.threads[idx][1].put((self.settings, run, ttpeaks))
+                gotit = set(range(self.nproc))
+                while gotit:
+                    # receive ready calculations
+                    idx, res = self.output_queue.get(True)
+                    chunk = self.chunks[idx]
+                    for h, r in zip(chunk, res):
+                        if r is None:
+                            continue
+                        else:
+                            ttpeak = 2 * self.data[h]['ang']
+                            mask = numpy.argwhere(
+                                numpy.logical_and(tt > ttpeak - ww/2,
+                                                  tt < ttpeak + ww/2))
 
-                        out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
-                                                  r.peak*self.data[h]['r'],
-                                                  left=0, right=0)
-                gotit.discard(idx)  # got that result, don't expect more
+                            out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
+                                                      r.peak*self.data[h]['r'],
+                                                      left=0, right=0)
+                    gotit.discard(idx)  # got that result, don't expect more
 
-        if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.Powder.Convolute: exec time=", time.time() - t_start)
-        return out
+            if config.VERBOSITY >= config.INFO_ALL:
+                print("XU.Powder.Convolute: exec time=", time.time() - t_start)
+            return out
+        else:
+            print("XU.Powder: not initialized for calculation -> exiting!")
+            return None
 
     def Calculate(self, twotheta, **kwargs):
         """
@@ -2405,10 +2431,14 @@ class PowderDiffraction(PowderExperiment):
         Bragg peaks are only included up to tt_cutoff set in the class
         constructor!
         """
-        self.set_sample_parameters()
-        self.update_powder_lines(self._tt_cutoff)
-        self.set_window()
-        return self.Convolve(twotheta, **kwargs)
+        if self._enable_sim:
+            self.set_sample_parameters()
+            self.update_powder_lines(self._tt_cutoff)
+            self.set_window()
+            return self.Convolve(twotheta, **kwargs)
+        else:
+            print("XU.Powder: not initialized for calculation -> exiting!")
+            return None
 
     def __str__(self):
         """

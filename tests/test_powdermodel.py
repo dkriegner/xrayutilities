@@ -96,6 +96,7 @@ class Test_PowderModel(unittest.TestCase):
         x = numpy.arange(10, 140+numpy.random.rand()*10,
                          0.0075+numpy.random.rand()*0.005)
         sim = self.pm.simulate(x)
+        self.pm.close()
         self.assertEqual(len(sim), len(x))
         self.assertTrue(numpy.all(sim >= 0))
 
@@ -104,6 +105,7 @@ class Test_PowderModel(unittest.TestCase):
                          0.0075+numpy.random.rand()*0.005)
         st_sim = self.pm.simulate(x, mode='local')
         mt_sim = self.pm.simulate(x, mode='multi')
+        self.pm.close()
         self.assertAlmostEqual(numpy.sum(numpy.abs(st_sim - mt_sim)), 0.0)
 
     def test_fitting(self):
@@ -132,6 +134,7 @@ class Test_PowderModel(unittest.TestCase):
         M, Rp, Rwp, Rwpexp, chi2 = xu.simpack.Rietveld_error_metrics(
             self.det[self.mask], fitsim, std=self.sig[self.mask],
             Nvar=fitres2.nvarys, disp=False)
+        self.pm.close()
 
         self.assertTrue(chi2 < self.chi2max)
 

@@ -37,7 +37,7 @@ def main():
 
     print("Creating Fe powder ...")
     Fe_powder = xu.simpack.Powder(FeBCC, 1, crystallite_size_gauss=cryst_size)
-    pd = xu.simpack.PowderDiffraction(Fe_powder)
+    pd = xu.simpack.PowderDiffraction(Fe_powder, enable_simulation=True)
     tt = numpy.arange(5, 120, 0.01)
     inte = pd.Calculate(tt)
 
@@ -47,6 +47,7 @@ def main():
     # Co_powder = xu.simpack.Powder(xu.materials.Co, 5)  # 5 times more Co
     # pm = xu.simpack.PowderModel(Fe_powder + Co_powder, I0=100)
     # inte = pm.simulate(tt)
+    # pm.close()  # after end-of-use for cleanup
 
     plt.figure()
     ax = plt.subplot(111)
@@ -64,7 +65,7 @@ def main():
     plt.setp(bax.get_yticklabels(), visible=False)
 
     ax.set_xlim(5, 120)
-
+    pd.close()
 
 if __name__ == '__main__':
     freeze_support()

@@ -272,6 +272,7 @@ If the correct settings are included in the config file the powder diffraction s
                                   crystallite_size_gauss=200e-9)
     pm = xu.simpack.PowderModel(Fe_powder, Co_powder, I0=100)
     inte = pm.simulate(tt)
+    # pm.close()  # after end-of-use
 
 
 Note that in MS windows you need to encapsulate this code into a dummy function to allow for the multiprocessing module to work correctly. The code then must look like::
@@ -288,6 +289,7 @@ Note that in MS windows you need to encapsulate this code into a dummy function 
                                       crystallite_size_gauss=200e-9)
         pm = xu.simpack.PowderModel(Fe_powder, Co_powder, I0=100)
         inte = pm.simulate(tt)
+        pm.close()
 
     if __name__ == '__main__':
         freeze_support()
