@@ -26,7 +26,8 @@ from ..math import VecNorm
 
 def show_reciprocal_space_plane(
         mat, exp, ttmax=None, maxqout=0.01, scalef=100, ax=None, color=None,
-        show_Laue=True, show_legend=True):
+        show_Laue=True, show_legend=True, projection='perpendicular',
+        label=None):
     """
     show a plot of the coplanar diffraction plane with peak positions for the
     respective material. the size of the spots is scaled with the strength of
@@ -42,7 +43,7 @@ def show_reciprocal_space_plane(
     ttmax:      float, optional
         maximal 2Theta angle to consider, by default 180deg
     maxqout:    float, optional
-        maximal out of plane q as fraction of exp.k0
+        maximal out of plane q for plotted Bragg peaks as fraction of exp.k0
     scalef:     float, optional
         scale factor for the marker size
     ax:         matplotlib.Axes, optional
@@ -53,6 +54,15 @@ def show_reciprocal_space_plane(
         flag to indicate if the Laue zones should be indicated
     show_legend:    bool, optional
         flag to indiate if a legend should be shown
+    projection: 'perpendicular', 'polar', optional
+        type of projection for Bragg peaks which do not fall into the
+        diffraction plane. 'perpendicular' (default) uses only the inplane
+        component in the scattering plane, whereas 'polar' uses the vectorial
+        absolute value of the two inplane components. See also the 'maxqout'
+        option.
+    label:  None or str, optional
+        label to be used for the legend. If 'None' the name of the material
+        will be used.
 
     Returns
     -------
@@ -164,10 +174,14 @@ def show_reciprocal_space_plane(
     y = numpy.empty_like(d['r'][m])
     s = numpy.empty_like(d['r'][m])
     for i, (qv, r) in enumerate(zip(d['qvec'][m], d['r'][m])):
-        x[i] = qv[1]
+        if projection == 'perpendicular':
+            x[i] = qv[1]
+        else:
+            x[i] = numpy.sign(qv[1])*numpy.sqrt(qv[0]**2 + qv[1]**2)
         y[i] = qv[2]
         s[i] = r*scalef
-    h = plt.scatter(x, y, s=s, zorder=2, label=mat.name)
+    label = label if label else mat.name
+    h = plt.scatter(x, y, s=s, zorder=2, label=label)
     if color:
         h.set_color(color)
 
