@@ -66,6 +66,8 @@ class Atom(object):
         self.basename = re.sub('[^A-Za-z]', '', name)
         self.num = num
         self.__weight = None
+        self.__color = None
+        self.__radius = numpy.nan
         self._dbcache = dict([(prop, []) for prop in ('f0', 'f1', 'f2', 'f')])
 
     def __key__(self):
@@ -82,6 +84,20 @@ class Atom(object):
             _db.SetMaterial(self.basename)
             self.__weight = _db.weight
         return self.__weight
+
+    @property
+    def color(self):
+        if self.__color is None:
+            _db.SetMaterial(self.basename)
+            self.__color = _db.color
+        return self.__color
+
+    @property
+    def radius(self):
+        if self.__radius is numpy.nan:
+            _db.SetMaterial(self.basename)
+            self.__radius = _db.radius
+        return self.__radius
 
     def get_cache(self, prop, key):
         """

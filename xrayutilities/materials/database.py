@@ -39,6 +39,8 @@ class DataBase(object):
         self.f2_en = None
         self.f2 = None
         self.weight = None
+        self.color = None
+        self.radius = numpy.nan
         self.matname = None
 
     def Create(self, dbname, dbdesc):
@@ -131,6 +133,36 @@ class DataBase(object):
             raise TypeError("weight parameter must be a float!")
 
         self.h5group.attrs['atomic_standard_weight'] = weight
+        self.h5file.flush()
+
+    def SetColor(self, color):
+        """
+        Save color of the element for visualization
+
+        Parameters
+        ----------
+        color :    tuple, str
+            matplotlib color for the element
+        """
+        if not isinstance(color, (tuple, str)):
+            raise TypeError("color parameter must be a tuple or str!")
+
+        self.h5group.attrs['color'] = color
+        self.h5file.flush()
+
+    def SetRadius(self, radius):
+        """
+        Save atomic radius for visualization
+
+        Parameters
+        ----------
+        radius:     float
+            atomic radius in Angstrom
+        """
+        if not isinstance(radius, float):
+            raise TypeError("radius parameter must be a float!")
+
+        self.h5group.attrs['atomic_radius'] = radius
         self.h5file.flush()
 
     def SetF0(self, parameters, subset='default'):
@@ -257,6 +289,14 @@ class DataBase(object):
             self.weight = self.h5group.attrs['atomic_standard_weight']
         except KeyError:
             self.weight = None
+        try:
+            self.radius = self.h5group.attrs['atomic_radius']
+        except KeyError:
+            self.radius = numpy.nan
+        try:
+            self.color = self.h5group.attrs['color']
+        except KeyError:
+            self.color = None
         self.matname = name
 
     def GetF0(self, q, dset='default'):
@@ -439,12 +479,12 @@ def init_material_db(db):
     db.CreateMaterial("Ds", "Darmstadtium")
     db.CreateMaterial("Rg", "Roentgenium")
     db.CreateMaterial("Cn", "Copernicium")
-    db.CreateMaterial("Uut", "Ununtrium")
-    db.CreateMaterial("Uuq", "Flerovium")
-    db.CreateMaterial("Uup", "Ununpentium")
-    db.CreateMaterial("Uuh", "Livermorium")
-    db.CreateMaterial("Uus", "Ununseptium")
-    db.CreateMaterial("Uuo", "Ununoctium")
+    db.CreateMaterial("Nh", "Nihonium")
+    db.CreateMaterial("Fl", "Flerovium")
+    db.CreateMaterial("Mc", "Moscovium")
+    db.CreateMaterial("Lv", "Livermorium")
+    db.CreateMaterial("Ts", "Tennessine")
+    db.CreateMaterial("Og", "Oganesson")
 
 
 # functions to read database files
@@ -679,6 +719,7 @@ def add_mass_from_NIST(db, nistfile, verbose=False):
     commentline = re.compile(r"^#")
     isotope = re.compile(r"^Atomic Number =")
     standardw = re.compile(r"^Standard Atomic Weight")
+    relativew = re.compile(r"^Relative Atomic Mass")
     number = re.compile(r"[0-9.]+")
     multiblank = re.compile(r"\s+")
 
@@ -707,9 +748,48 @@ def add_mass_from_NIST(db, nistfile, verbose=False):
                 while True:
                     lb = nf.readline()
                     lb = lb.strip()
-                    if standardw.match(lb):
+                    if relativew.match(lb):
                         lb = multiblank.split(lb)
-                        # extract weight
+                        # extract fallback weight
                         w = float(number.findall(lb[-1])[0])
                         db.SetWeight(w * scipy.constants.atomic_mass)
+                    elif standardw.match(lb):
+                        lb = multiblank.split(lb)
+                        # extract average weight
+                        try:
+                            w = float(number.findall(lb[-1])[0])
+                            db.SetWeight(w * scipy.constants.atomic_mass)
+                        except IndexError:
+                            pass
                         break
+
+
+def add_color_from_JMOL(db, cfile, verbose=False):
+    """
+    Read color from JMOL color table and save it to the database.
+    """
+    with open(cfile, "r") as f:
+        for line in f.readlines():
+            s = line.split()
+            ename = s[1]
+            color = [float(num)/255. for num in s[2].strip('[]').split(',')]
+            color = tuple(color)
+            if verbose:
+                print("set element %s" % ename)
+            db.SetMaterial(ename)
+            db.SetColor(color)
+
+
+def add_radius_from_WIKI(db, dfile, verbose=False):
+    """
+    Read radius from Wikipedia radius table and save it to the database.
+    """
+    with open(dfile, "r") as f:
+        for line in f.readlines():
+            s = line.split(',')
+            ename = s[1]
+            radius = float(s[3]) / 100.
+            if verbose:
+                print("set element %s" % ename)
+            db.SetMaterial(ename)
+            db.SetRadius(radius)

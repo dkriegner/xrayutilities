@@ -1,3 +1,4 @@
+* add new 'radius' and 'color' properties to Elements
 * improve testing of various unit cell settings in CIFFile
 * fix bug in handling negative data in kill_spike, thanks to reihel for
   reporting

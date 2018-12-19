@@ -37,8 +37,9 @@ import os.path
 import sys
 
 # local import
-from database import (DataBase, add_f0_from_intertab, add_f1f2_from_kissel,
-                      add_mass_from_NIST, init_material_db)
+from database import (DataBase, add_color_from_JMOL, add_f0_from_intertab,
+                      add_f1f2_from_kissel, add_mass_from_NIST,
+                      add_radius_from_WIKI, init_material_db)
 
 verbose = False
 
@@ -67,6 +68,8 @@ dbf.SetF0([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # atomic structure factors
 dbf.SetF1F2((0, 1e5), (0, 0), (0, 0))  # zero dispersion correction
 
 add_mass_from_NIST(dbf, os.path.join(dataroot, 'nist_atom.dat'), verbose)
+add_color_from_JMOL(dbf, os.path.join(dataroot, 'colors.dat'), verbose)
+add_radius_from_WIKI(dbf, os.path.join(dataroot, 'atomic_radius.dat'), verbose)
 
 # add F0(Q) for every element
 # with lzma.open(os.path.join('data', 'f0_xop.dat.xz'), 'r') as xop:
