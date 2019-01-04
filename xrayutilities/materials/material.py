@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -1294,6 +1294,110 @@ class Crystal(Material):
             ret.append((self._distances[i], self._dis_hist[i]))
 
         return ret
+
+    def show_unitcell(self, fig=None, subplot=111, scale=0.6, complexity=11,
+                      linewidth=2):
+        """
+        primitive visualization of the unit cell using matplotlibs basic 3D
+        functionality -> expect rendering inaccuracies!
+
+        Note:
+            For more precise visualization export to CIF and use a proper
+            crystal structure viewer.
+
+        Parameters
+        ----------
+        fig :   matplotlib Figure or None, optional
+        subplot :   int or list, optional
+            subplot to use for the visualization. This argument of fowarded to
+            the first argument of matplotlibs `add_subplot` function
+        scale :     float, optional
+            scale the size of the atoms by this additional factor. By default
+            the size of the atoms corresponds to 60% of their atomic radius.
+        complexity :    int, optional
+            number of steps to approximate the atoms as spheres. higher values
+            cause significant slower plotting.
+        linewidth :     float, optional
+            line thickness of the unit cell outline
+        """
+        plot, plt = utilities.import_matplotlib_pyplot('XU.materials')
+        try:
+            import mpl_toolkits.mplot3d
+        except ImportError:
+            plot = False
+
+        if not plot:
+            print('matplotlib (including mplot3d) needed for show_unitcell()')
+            return
+
+        if fig is None:
+            fig = plt.figure()
+        ax = fig.add_subplot(subplot, projection='3d')
+
+        phi, theta = numpy.mgrid[0:numpy.pi:1j*complexity,
+                                 0:2*numpy.pi:1j*complexity]
+
+        for a, pos, occ, b in self.lattice.base():
+            r = a.radius * scale
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    for k in range(-1, 2):
+                        atpos = (pos + [i, j, k])
+                        inunitcell = True
+                        for l in range(3):
+                            if (atpos[l] < -config.EPSILON or
+                                    atpos[l] > 1+config.EPSILON):
+                                inunitcell = False
+                        if inunitcell:
+                            vecpos = atpos[0]*self.a1 + atpos[1]*self.a2 +\
+                                     atpos[2]*self.a3
+                            x = r*numpy.sin(phi)*numpy.cos(theta) + vecpos[0]
+                            y = r*numpy.sin(phi)*numpy.sin(theta) + vecpos[1]
+                            z = r*numpy.cos(phi) + vecpos[2]
+                            ax.plot_surface(x, y, z,  rstride=1, cstride=1,
+                                            color=a.color, alpha=occ,
+                                            linewidth=0)
+
+        # plot unit cell outlines
+        ax.plot([0, self.a1[0]], [0, self.a1[1]], [0, self.a1[2]], color='k',
+                lw=linewidth)
+        ax.plot([0, self.a2[0]], [0, self.a2[1]], [0, self.a2[2]], color='k',
+                lw=linewidth)
+        ax.plot([0, self.a3[0]], [0, self.a3[1]], [0, self.a3[2]], color='k',
+                lw=linewidth)
+        ax.plot([self.a1[0], self.a1[0]+self.a2[0]],
+                [self.a1[1], self.a1[1]+self.a2[1]],
+                [self.a1[2], self.a1[2]+self.a2[2]], color='k', lw=linewidth)
+        ax.plot([self.a1[0], self.a1[0]+self.a3[0]],
+                [self.a1[1], self.a1[1]+self.a3[1]],
+                [self.a1[2], self.a1[2]+self.a3[2]], color='k', lw=linewidth)
+        ax.plot([self.a2[0], self.a1[0]+self.a2[0]],
+                [self.a2[1], self.a1[1]+self.a2[1]],
+                [self.a2[2], self.a1[2]+self.a2[2]], color='k', lw=linewidth)
+        ax.plot([self.a2[0], self.a2[0]+self.a3[0]],
+                [self.a2[1], self.a2[1]+self.a3[1]],
+                [self.a2[2], self.a2[2]+self.a3[2]], color='k', lw=linewidth)
+        ax.plot([self.a3[0], self.a1[0]+self.a3[0]],
+                [self.a3[1], self.a1[1]+self.a3[1]],
+                [self.a3[2], self.a1[2]+self.a3[2]], color='k', lw=linewidth)
+        ax.plot([self.a3[0], self.a2[0]+self.a3[0]],
+                [self.a3[1], self.a2[1]+self.a3[1]],
+                [self.a3[2], self.a2[2]+self.a3[2]], color='k', lw=linewidth)
+        ax.plot([self.a1[0]+self.a2[0], self.a1[0]+self.a2[0]+self.a3[0]],
+                [self.a1[1]+self.a2[1], self.a1[1]+self.a2[1]+self.a3[1]],
+                [self.a1[2]+self.a2[2], self.a1[2]+self.a2[2]+self.a3[2]],
+                color='k', lw=linewidth)
+        ax.plot([self.a1[0]+self.a3[0], self.a1[0]+self.a2[0]+self.a3[0]],
+                [self.a1[1]+self.a3[1], self.a1[1]+self.a2[1]+self.a3[1]],
+                [self.a1[2]+self.a3[2], self.a1[2]+self.a2[2]+self.a3[2]],
+                color='k', lw=linewidth)
+        ax.plot([self.a2[0]+self.a3[0], self.a1[0]+self.a2[0]+self.a3[0]],
+                [self.a2[1]+self.a3[1], self.a1[1]+self.a2[1]+self.a3[1]],
+                [self.a2[2]+self.a3[2], self.a1[2]+self.a2[2]+self.a3[2]],
+                color='k', lw=linewidth)
+
+        ax.set_aspect("equal")
+        plt.tight_layout()
 
 
 def CubicElasticTensor(c11, c12, c44):

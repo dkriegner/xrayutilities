@@ -324,10 +324,11 @@ materials.
 
 Examples show how to define a new material by defining its lattice and deriving a new material, furthermore materials can be used to calculate the structure factor of a Bragg reflection for an specific energy or the energy dependency of its structure factor for anomalous scattering. Data for this are taken from a database which is included in the download.
 
-First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we should the definition of zincblende InP as well as for its hexagonal wurtzite polytype as two examples
+First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we show the definition of zincblende InP as well as for its hexagonal wurtzite polytype together with a quick visualization of the unit cells.
 
 .. code-block:: python
 
+    import matplotlib.pyplot as plt
     import xrayutilities as xu
 
     # elements (which contain their x-ray optical properties) are loaded from
@@ -353,7 +354,15 @@ First defining a new material from scratch is shown. This is done from the space
         "InP(WZ)", xu.materials.SGLattice(186, 4.1423, 6.8013,
                                           atoms=[In, P], pos=[('2b', 0),
                                                               ('2b', 3/8.)]))
+    f = plt.figure()
+    InP.show_unitcell(fig=f, subplot=121)
+    title('InP zincblende')
+    InPWZ.show_unitcell(fig=f, subplot=122)
+    title('InP wurtzite')
 
+.. figure:: pics/show_unitcell.png
+   :alt: primitive unit cell visualization with matplotlib. Note that the rendering has mistakes but can nevertheless help to spot errors in material definition.
+   :width: 350 px
 
 InP (in both variants) is already included in the xu.materials module and can be loaded by
 
