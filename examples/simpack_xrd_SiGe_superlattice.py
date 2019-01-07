@@ -60,7 +60,7 @@ t0 = time.time()
 mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
                                           surface_hkl=(0, 0, 1),
                                           resolution_width=resol)
-Imult = mk.simulate(qz, hkl=(h, k, l), refraction=True)
+Imult = mk.simulate(qz, hkl=(H, K, L), refraction=True)
 t1 = time.time()
 print("%.3f sec for kinematical multibeam calculation" % (t1-t0))
 
@@ -71,7 +71,7 @@ thMono = arcsin(qGe220 * lam / (4*pi))
 md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai,
                                Cmono=cos(2 * thMono),
                                polarization='both')
-Idyn = md.simulate(ai, hkl=(h, k, l))
+Idyn = md.simulate(ai, hkl=(H, K, L))
 t1 = time.time()
 print("%.3f sec for acurate dynamical calculation" % (t1-t0))
 
