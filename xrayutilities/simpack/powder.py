@@ -2303,9 +2303,10 @@ class PowderDiffraction(PowderExperiment):
                     fp.set_parameters(convolver=k, **v)
                 self.data[h] = {'qpos': q, 'ang': a, 'r': r,
                                 'conv': fp, 'active': active}
-                self.conv_handlers[self.next_proc].add_convolver(fp)
-                self.chunks[self.next_proc].append(h)
-                self.next_proc = (self.next_proc + 1) % self.nproc
+                if self._enable_sim:
+                    self.conv_handlers[self.next_proc].add_convolver(fp)
+                    self.chunks[self.next_proc].append(h)
+                    self.next_proc = (self.next_proc + 1) % self.nproc
         for h in self.data:
             if h not in ids:
                 # make entry inactive
