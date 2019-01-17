@@ -206,6 +206,23 @@ class Layer(SMaterial):
         kwargs['thickness'] = thickness
         super(Layer, self).__init__(material, **kwargs)
 
+    def __getattr__(self, name):
+        """
+        return default values for properties if they were not set
+        """
+        if name == "density":
+            return 1
+        elif name == "roughness":
+            return 0
+        elif name == "lat_correl":
+            return numpy.inf
+        elif name == "relaxation":
+            return 1
+        else:
+            clsname = self.__class__.__name__
+            raise AttributeError("'%s' object has no attribute '%s'"
+                                 % (clsname, name))
+
 
 class LayerStack(MaterialList):
     """
