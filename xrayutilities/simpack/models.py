@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from __future__ import division
 
@@ -35,7 +35,7 @@ from ..math import NormGauss1d, NormLorentz1d, heaviside, solve_quartic
 
 def startdelta(start, delta, num):
     end = start + delta * (num - 1)
-    return numpy.linspace(start, end, num)
+    return numpy.linspace(start, end, int(num))
 
 
 class Model(object):
@@ -65,9 +65,12 @@ class Model(object):
         resolution_type :   {'Gauss', 'Lorentz'}, optional
             type of resolution function, default: Gauss
         """
+        local_fit_params = ['resolution_width', 'I0', 'background', 'energy', ]
+        if not hasattr(self, 'fit_paramnames'):
+            self.fit_paramnames = []
+        self.fit_paramnames += local_fit_params
         for kw in kwargs:
-            if kw not in ('resolution_width', 'I0', 'background', 'energy',
-                          'resolution_type'):
+            if kw not in local_fit_params + ['resolution_type', ]:
                 raise TypeError('%s is an invalid keyword argument' % kw)
 
         if experiment:
@@ -79,7 +82,15 @@ class Model(object):
         self.I0 = kwargs.get('I0', 1)
         self.background = kwargs.get('background', 0)
         if 'energy' in kwargs:
-            self.exp.energy = kwargs['energy']
+            self.energy = kwargs['energy']
+
+    @property
+    def energy(self):
+        return self.exp.energy
+
+    @energy.setter
+    def energy(self, en):
+        self.exp.energy = en
 
     def convolute_resolution(self, x, y):
         """
@@ -165,6 +176,8 @@ class LayerModel(Model, utilities.ABC):
         """
         exp = kwargs.pop('experiment', None)
         super(LayerModel, self).__init__(exp, **kwargs)
+        self.lstack_params = []
+        self.xlabelstr = 'x (1)'
         if len(args) == 1:
             if isinstance(args[0], Layer):
                 self.lstack = LayerStack('Stack for %s'
@@ -271,7 +284,10 @@ class KinematicalModel(LayerModel):
             Experiment class containing geometry and energy of the experiment.
         """
         super(KinematicalModel, self).__init__(*args, **kwargs)
+        self.lstack_params += ['thickness', ]
+        self.xlabelstr = r'momentum transfer $Q_z$ ($\AA^{-1}$)'
         # precalc optical properties
+        self._init_en = 0
         self.init_chi0()
 
     def init_chi0(self):
@@ -281,8 +297,10 @@ class KinematicalModel(LayerModel):
         be called again before another correct simulation is made. (Changes of
         thickness does NOT require this!)
         """
-        self.chi0 = numpy.asarray([l.material.chi0(en=self.exp.energy)
-                                   for l in self.lstack])
+        if self._init_en != self.energy:  # recalc properties if energy changed
+            self.chi0 = numpy.asarray([l.material.chi0(en=self.energy)
+                                       for l in self.lstack])
+            self._init_en = self.energy
 
     def _prepare_kincalculation(self, qz, hkl):
         """
@@ -308,9 +326,9 @@ class KinematicalModel(LayerModel):
         fhkl = numpy.empty(len(self.lstack), dtype=numpy.complex)
         for i, l in enumerate(self.lstack):
             m = l.material
-            fhkl[i] = m.StructureFactor(m.Q(*hkl), en=self.exp.energy) /\
+            fhkl[i] = m.StructureFactor(m.Q(*hkl), en=self.energy) /\
                 m.lattice.UnitCellVolume()
-            f[i, :] = m.StructureFactorForQ(qv, en0=self.exp.energy) /\
+            f[i, :] = m.StructureFactorForQ(qv, en0=self.energy) /\
                 m.lattice.UnitCellVolume()
 
         E = numpy.zeros(len(qz), dtype=numpy.complex)
@@ -360,6 +378,7 @@ class KinematicalModel(LayerModel):
             return value depends on the setting of `rettype`, by default only
             the calculate intensity is returned
         """
+        self.init_chi0()
         rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
         z = numpy.zeros(len(self.lstack))
@@ -446,6 +465,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
             return value depends on the setting of `rettype`, by default only
             the calculate intensity is returned
         """
+        self.init_chi0()
         rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
 
         # calculate interface positions for integer unit-cell thickness
@@ -529,9 +549,13 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             Experiment class containing geometry of the sample; surface
             orientation!
         """
+        if not hasattr(self, 'fit_paramnames'):
+            self.fit_paramnames = []
+        self.fit_paramnames += ['Cmono', ]
         self.polarization = kwargs.pop('polarization', 'S')
         self.Cmono = kwargs.pop('Cmono', 1)
         super(SimpleDynamicalCoplanarModel, self).__init__(*args, **kwargs)
+        self.xlabelstr = 'incidence angle (deg)'
         self.hkl = None
         self.chih = None
         self.chimh = None
@@ -546,32 +570,38 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         hkl :       list or tuple
             Miller indices of the Bragg peak for the calculation
         """
-        if len(hkl) < 3:
-            hkl = hkl[0]
+        if hkl is not None:
             if len(hkl) < 3:
-                raise InputError("need 3 Miller indices")
+                hkl = hkl[0]
+                if len(hkl) < 3:
+                    raise InputError("need 3 Miller indices")
+            newhkl = numpy.asarray(hkl)
+        else:
+            newhkl = self.hkl
 
-        self.hkl = numpy.asarray(hkl)
+        if self.energy != self._init_en or numpy.any(newhkl != self.hkl):
+            self.hkl = newhkl
+            self._init_en = self.energy
 
-        # calculate chih
-        self.chih = {'S': [], 'P': []}
-        self.chimh = {'S': [], 'P': []}
-        for l in self.lstack:
-            q = l.material.Q(self.hkl)
-            thetaB = numpy.arcsin(numpy.linalg.norm(q) / 2 / self.exp.k0)
-            ch = l.material.chih(q, en=self.exp.energy, polarization='S')
-            self.chih['S'].append(-ch[0] + 1j*ch[1])
-            self.chih['P'].append((-ch[0] + 1j*ch[1]) *
-                                  numpy.abs(numpy.cos(2*thetaB)))
-            if not getattr(l, 'inversion_sym', False):
-                ch = l.material.chih(-q, en=self.exp.energy, polarization='S')
-            self.chimh['S'].append(-ch[0] + 1j*ch[1])
-            self.chimh['P'].append((-ch[0] + 1j*ch[1]) *
-                                   numpy.abs(numpy.cos(2*thetaB)))
+            # calculate chih
+            self.chih = {'S': [], 'P': []}
+            self.chimh = {'S': [], 'P': []}
+            for l in self.lstack:
+                q = l.material.Q(self.hkl)
+                thetaB = numpy.arcsin(numpy.linalg.norm(q) / 2 / self.exp.k0)
+                ch = l.material.chih(q, en=self.energy, polarization='S')
+                self.chih['S'].append(-ch[0] + 1j*ch[1])
+                self.chih['P'].append((-ch[0] + 1j*ch[1]) *
+                                      numpy.abs(numpy.cos(2*thetaB)))
+                if not getattr(l, 'inversion_sym', False):
+                    ch = l.material.chih(-q, en=self.energy, polarization='S')
+                self.chimh['S'].append(-ch[0] + 1j*ch[1])
+                self.chimh['P'].append((-ch[0] + 1j*ch[1]) *
+                                       numpy.abs(numpy.cos(2*thetaB)))
 
-        for pol in ('S', 'P'):
-            self.chih[pol] = numpy.asarray(self.chih[pol])
-            self.chimh[pol] = numpy.asarray(self.chimh[pol])
+            for pol in ('S', 'P'):
+                self.chih[pol] = numpy.asarray(self.chih[pol])
+                self.chimh[pol] = numpy.asarray(self.chimh[pol])
 
     def _prepare_dyncalculation(self, geometry):
         """
@@ -614,8 +644,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         array-like
             vector of intensities of the diffracted signal
         """
-        if hkl is not None:
-            self.set_hkl(hkl)
+        self.set_hkl(hkl)
 
         # return values
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
@@ -715,8 +744,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
             raise ValueError('XU:DynamicalModel: return type (%s) not '
                              'supported with multiple polarizations!')
             rettype = 'intensity'
-        if hkl is not None:
-            self.set_hkl(hkl)
+        self.set_hkl(hkl)
 
         # return values
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
@@ -840,15 +868,24 @@ class SpecularReflectivityModel(LayerModel):
             width of the sample along the beam
         beam_width : float, optional
             beam width in the same units as the sample width
+        offset :    float, optional
+            angular offset of the incidence angle (deg)
         resolution_width : float, optional
             width of the resolution (deg)
         energy :    float or str
             x-ray energy  in eV
         """
+        if not hasattr(self, 'fit_paramnames'):
+            self.fit_paramnames = []
+        self.fit_paramnames += ['sample_width', 'beam_width', 'offset']
         self.sample_width = kwargs.pop('sample_width', numpy.inf)
         self.beam_width = kwargs.pop('beam_width', 0)
+        self.offset = kwargs.pop('offset', 0)
         super(SpecularReflectivityModel, self).__init__(*args, **kwargs)
+        self.lstack_params += ['thickness', 'roughness', 'density']
+        self.xlabelstr = 'incidence angle (deg)'
         # precalc optical properties
+        self._init_en = 0
         self.init_cd()
 
     def init_cd(self):
@@ -858,8 +895,10 @@ class SpecularReflectivityModel(LayerModel):
         be called again before another correct simulation is made. (Changes of
         thickness and roughness do NOT require this!)
         """
-        self.cd = numpy.asarray([-l.material.chi0(en=self.exp.energy)/2
-                                 for l in self.lstack])
+        if self._init_en != self.energy:
+            self.cd = numpy.asarray([-l.material.chi0(en=self.energy)/2
+                                     for l in self.lstack])
+            self._init_en = self.energy
 
     def simulate(self, alphai):
         """
@@ -876,15 +915,16 @@ class SpecularReflectivityModel(LayerModel):
         array-like
             vector of intensities of the reflectivity signal
         """
+        self.init_cd()
         ns, np = (len(self.lstack), len(alphai))
-
+        lai = alphai - self.offset
         # get layer properties
         t = numpy.asarray([l.thickness for l in self.lstack])
         sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
         rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
         cd = self.cd
 
-        sai = numpy.sin(numpy.radians(alphai))
+        sai = numpy.sin(numpy.radians(lai))
 
         if self.beam_width > 0:
             shape = self.sample_width * sai / self.beam_width
@@ -911,7 +951,7 @@ class SpecularReflectivityModel(LayerModel):
             ks = k
 
         R = shape * abs(ER / ET)**2
-        return self.scale_simulation(self.convolute_resolution(alphai, R))
+        return self.scale_simulation(self.convolute_resolution(lai, R))
 
     def densityprofile(self, nz, plot=False):
         """
@@ -1033,14 +1073,17 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         """
         self.polarization = kwargs.pop('polarization', 'P')
         super(DynamicalReflectivityModel, self).__init__(*args, **kwargs)
+        self._init_en_opt
         self._setOpticalConstants()
 
     def _setOpticalConstants(self):
-        self.n_indices = numpy.asarray(
-            [l.material.idx_refraction(en=self.exp.energy)
-             for l in self.lstack])
-        # append n = 1 for vacuum
-        self.n_indices = numpy.append(self.n_indices, 1)[::-1]
+        if self._init_en_opt != self.energy:
+            self.n_indices = numpy.asarray(
+                [l.material.idx_refraction(en=self.energy)
+                 for l in self.lstack])
+            # append n = 1 for vacuum
+            self.n_indices = numpy.append(self.n_indices, 1)[::-1]
+            self._init_en_opt = self.energy
 
     def _getTransferMatrices(self, alphai):
         """
@@ -1134,14 +1177,16 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         transmitivity: array-like
             vector of intensities of the transmitted signal
         """
+        self._setOpticalConstants()
+        lai = alphai - self.offset
         # Get Refraction and Translation Matrices for each angle of incidence
-        if alphai[0] < 1.e-5:
-            alphai[0] = 1.e-5  # cutoff
+        if lai[0] < 1.e-5:
+            lai[0] = 1.e-5  # cutoff
 
-        T_matrices, R_matrices = self._getTransferMatrices(alphai)
+        T_matrices, R_matrices = self._getTransferMatrices(lai)
 
         # Calculate the Transfer Matrix
-        M_angles = numpy.zeros((alphai.size, 2, 2), dtype=numpy.complex128)
+        M_angles = numpy.zeros((lai.size, 2, 2), dtype=numpy.complex128)
         for (angle, R), T in zip(enumerate(R_matrices), T_matrices):
             pairwiseRT = [numpy.dot(t, r) for r, t in zip(R, T)]
             M = numpy.identity(2, dtype=numpy.complex128)
@@ -1178,7 +1223,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         """
         R_energies, T_energies = numpy.array([]), numpy.array([])
         for energy in energies:
-            self.exp.energy = energy
+            self.energy = energy
             self._setOpticalConstants()
             T_matrices, R_matrices = self._getTransferMatrices([angle, 0])
             T_matrix = T_matrices[0]
@@ -1244,17 +1289,19 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         array-like
             vector of intensities of the reflectivity signal
         """
+        self.init_cd()
         ns, np = (len(self.lstack), len(alphai))
+        lai = alphai - self.offset
 
         # get layer properties
         t = numpy.asarray([l.thickness for l in self.lstack])
         sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
         rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
         cd = self.cd
-        qzvec = 4 * numpy.pi * numpy.sin(numpy.radians(alphai)) /\
-            utilities.en2lam(self.exp.energy)
+        qzvec = 4 * numpy.pi * numpy.sin(numpy.radians(lai)) /\
+            utilities.en2lam(self.energy)
         qvec = numpy.array([[0., 0., qz] for qz in qzvec])
-        chihP = numpy.array([[l.material.chih(q, en=self.exp.energy,
+        chihP = numpy.array([[l.material.chih(q, en=self.energy,
                                               polarization=self.polarization)
                               for q in qvec]
                              for l in self.lstack])
@@ -1264,7 +1311,7 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         else:
             cd = cd
 
-        sai = numpy.sin(numpy.radians(alphai))
+        sai = numpy.sin(numpy.radians(lai))
 
         if self.beam_width > 0:
             shape = self.sample_width * sai / self.beam_width
@@ -1291,7 +1338,7 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
             ks = k
 
         R = shape * abs(ER / ET)**2
-        return self.scale_simulation(self.convolute_resolution(alphai, R))
+        return self.scale_simulation(self.convolute_resolution(lai, R))
 
 
 class DiffuseReflectivityModel(SpecularReflectivityModel):
@@ -1348,15 +1395,17 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             method 2 it is important to avoid exact 0 and this value will be
             used instead
         """
-        self.sample_width = kwargs.pop('sample_width', numpy.inf)
-        self.beam_width = kwargs.pop('beam_width', 0)
+        if not hasattr(self, 'fit_paramnames'):
+            self.fit_paramnames = []
+        self.fit_paramnames += ['H', 'vert_correl', 'vert_nu']
         self.H = kwargs.pop('H', 1)
-        self.xiV = kwargs.pop('vert_correl', 0)
-        self.nu = kwargs.pop('vert_nu', 0)
+        self.vert_correl = kwargs.pop('vert_correl', 0)
+        self.vert_nu = kwargs.pop('vert_nu', 0)
         self.method = kwargs.pop('method', 1)
         self.vert = kwargs.pop('vert_int', 0)
         self.qL_zero = kwargs.pop('qL_zero', 5e-5)
         super(DiffuseReflectivityModel, self).__init__(*args, **kwargs)
+        self.lstack_params += ['lat_correl', ]
 
     def _get_layer_prop(self):
         """
@@ -1364,6 +1413,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         simulations
         """
         nl = len(self.lstack)
+        self.init_cd()
 
         t = numpy.asarray([float(l.thickness) for l in self.lstack[nl:0:-1]])
         sig = [float(getattr(l, 'roughness', 0)) for l in self.lstack[nl::-1]]
@@ -1390,21 +1440,23 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         array-like
             vector of intensities of the reflectivity signal
         """
+        lai = alphai - self.offset
         # get layer properties
         t, sig, rho, delta, xiL = self._get_layer_prop()
 
         deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
-        lam = utilities.en2lam(self.exp.energy)
+        lam = utilities.en2lam(self.energy)
         if self.method == 2:
             qL = [-abs(self.qL_zero), abs(self.qL_zero)]
         else:
             qL = [0, ]
-        qz = 4 * numpy.pi / lam * numpy.sin(numpy.radians(alphai))
-        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.xiV, self.nu,
-                            None, qL, qz, self.sample_width, self.beam_width,
-                            1e-4, 1000, deltaA, self.method, 1, self.vert)
+        qz = 4 * numpy.pi / lam * numpy.sin(numpy.radians(lai))
+        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.vert_correl,
+                            self.vert_nu, None, qL, qz, self.sample_width,
+                            self.beam_width, 1e-4, 1000, deltaA, self.method,
+                            1, self.vert)
         R = R.mean(axis=0)
-        return self.scale_simulation(self.convolute_resolution(alphai, R))
+        return self.scale_simulation(self.convolute_resolution(lai, R))
 
     def simulate_map(self, qL, qz):
         """
@@ -1430,13 +1482,13 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         t, sig, rho, delta, xiL = self._get_layer_prop()
 
         deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
-        lam = utilities.en2lam(self.exp.energy)
+        lam = utilities.en2lam(self.energy)
         localqL = numpy.copy(qL)
         if self.method == 2:
             localqL[qL == 0] = self.qL_zero
 
-        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.xiV, self.nu,
-                            None, localqL, qz, self.sample_width,
+        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.vert_correl,
+                            self.vert_nu, None, localqL, qz, self.sample_width,
                             self.beam_width, 1e-4, 1000, deltaA, self.method,
                             1, self.vert)
         return self.scale_simulation(R)
