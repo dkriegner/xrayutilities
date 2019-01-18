@@ -20,7 +20,13 @@ import unittest
 import numpy
 import xrayutilities as xu
 
+try:
+    import lmfit
+except ImportError:
+    lmfit = None
 
+
+@unittest.skipIf(lmfit is None, "the lmfit Python package is needed")
 class Test_KinematicalModel(unittest.TestCase):
     # define used layer stack
     sub = xu.simpack.Layer(xu.materials.GaAs, numpy.inf)

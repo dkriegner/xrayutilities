@@ -20,7 +20,13 @@ import unittest
 import numpy
 import xrayutilities as xu
 
+try:
+    import lmfit
+except ImportError:
+    lmfit = None
 
+
+@unittest.skipIf(lmfit is None, "the lmfit Python package is needed")
 class Test_SpecularReflectivityModel(unittest.TestCase):
     # define used layer stack
     lSiO2 = xu.simpack.Layer(xu.materials.SiO2, numpy.inf, roughness=3.0)
