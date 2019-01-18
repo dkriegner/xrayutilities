@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities utilities contains a conglomeration of useful functions
@@ -23,6 +23,9 @@ this part of utilities does not need the config class
 import abc
 import numbers
 import os.path
+import re
+import sys
+from ast import parse
 
 import numpy
 import scipy.constants
@@ -284,3 +287,24 @@ def exchange_filepath(orig, new, keep=0, replace=None):
             return exchange_path(orig, new, replace=replace)
     else:
         return orig
+
+
+def makeNaturalName(name, check=False):
+    ret = re.sub('[^0-9a-zA-Z]', '_', name.strip())
+    isvalid = is_valid_variable_name(ret)
+    if not check or isvalid:
+        return ret
+    elif not isvalid:
+        raise ValueError("'{}' is not valid variable name".format(ret))
+
+
+def is_valid_variable_name(name):
+    # Python 3
+    if sys.version_info >= (3, 0):
+        return name.isidentifier()
+    # Python 2
+    try:
+        parse('{} = None'.format(name))
+        return True
+    except (SyntaxError, ValueError, TypeError):
+        return False

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import collections
 import copy
@@ -21,6 +21,7 @@ import numbers
 
 import numpy
 
+from .. import utilities
 from ..materials import Crystal, PseudomorphicMaterial
 from ..math import CoordinateTransform, Transform
 
@@ -59,7 +60,7 @@ class SMaterial(object):
         kwargs :    dict
             optional properties of the material needed for the simulation
         """
-        self.name = material.name
+        self.name = utilities.makeNaturalName(material.name, check=True)
         self.material = material
         for kw in kwargs:
             setattr(self, kw, kwargs[kw])

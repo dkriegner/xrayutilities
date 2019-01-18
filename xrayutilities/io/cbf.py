@@ -22,18 +22,11 @@ import re
 
 import numpy
 
-from .. import config, cxrayutilities
+from .. import config, cxrayutilities, utilities
 from .filedir import FileDirectory
 from .helper import xu_h5open, xu_open
 
 cbf_name_start_num = re.compile(r"^\d")
-
-
-def makeNaturalName(name):
-    ret = name.replace(" ", "_")
-    ret = ret.replace("-", "_")
-    ret = ret.replace(".", "_")
-    return ret
 
 
 class CBFFile(object):
@@ -119,7 +112,7 @@ class CBFFile(object):
             name = os.path.splitext(name)[0]
             # perform a second time for case of .cbf.gz files
             name = os.path.splitext(name)[0]
-            name = makeNaturalName(name)
+            name = utilities.makeNaturalName(name)
             if cbf_name_start_num.match(name):
                 name = "ccd_" + name
             if config.VERBOSITY >= config.INFO_ALL:

@@ -26,7 +26,7 @@ import struct
 
 import numpy
 
-from .. import config
+from .. import config, utilities
 from .filedir import FileDirectory
 from .helper import xu_h5open, xu_open
 
@@ -53,13 +53,6 @@ DataTypeDict = {"SignedByte": "b",
 # troubles
 # UnsignedLong is only 4byte, on my 64bit machine using UnsignedLong:"L"
 # caused troubles ("I" works)
-
-
-def makeNaturalName(name):
-    ret = name.replace(" ", "_")
-    ret = ret.replace("-", "_")
-    ret = ret.replace(".", "_")
-    return ret
 
 
 class EDFFile(object):
@@ -342,7 +335,7 @@ class EDFFile(object):
             ca_name = os.path.splitext(ca_name)[0]
             # perform a second time for case of .edf.gz files
             ca_name = os.path.splitext(ca_name)[0]
-            ca_name = makeNaturalName(ca_name)
+            ca_name = utilities.makeNaturalName(ca_name)
             if edf_name_start_num.match(ca_name):
                 ca_name = "ccd_" + ca_name
             if config.VERBOSITY >= config.INFO_ALL:
@@ -370,7 +363,7 @@ class EDFFile(object):
 
                 # finally we have to append the attributes
                 for k in self.header.keys():
-                    ca.attrs[makeNaturalName(k)] = self.header[k]
+                    ca.attrs[utilities.makeNaturalName(k)] = self.header[k]
 
 
 class EDFDirectory(FileDirectory):

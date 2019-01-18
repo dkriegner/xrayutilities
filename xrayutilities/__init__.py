@@ -68,6 +68,7 @@ from .utilities import wavelength
 from .utilities import energy
 from .utilities import set_bit
 from .utilities import clear_bit
+from .utilities import makeNaturalName
 
 # load version
 import pkg_resources

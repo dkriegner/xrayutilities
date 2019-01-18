@@ -63,13 +63,6 @@ SPEC_errorbm20 = re.compile(r"^MI:")
 scan_status_flags = ["OK", "NODATA", "ABORTED", "CORRUPTED"]
 
 
-def makeNaturalName(name):
-    ret = name.replace(" ", "_")
-    ret = ret.replace("-", "_")
-    ret = ret.replace(".", "_")
-    return ret
-
-
 class SPECScan(object):
     """
     Represents a single SPEC scan. This class is usually not called by the
@@ -137,9 +130,9 @@ class SPECScan(object):
         self.init_motor_pos = {}
         if len(imopnames) == len(imopvalues):
             for i in range(len(imopnames)):
+                natmotname = utilities.makeNaturalName(imopnames[i])
                 self.init_motor_pos[
-                    "INIT_MOPO_" +
-                    makeNaturalName(imopnames[i])] = float(imopvalues[i])
+                    "INIT_MOPO_" + natmotname] = float(imopvalues[i])
         else:
             print("XU.io.spec.SPECScan: Warning: incorrect number of "
                   "initial motor positions")
@@ -151,9 +144,9 @@ class SPECScan(object):
             # number of initial motor positions should not change without new
             # file header!
             for i in range(min(len(imopnames), len(imopvalues))):
+                natmotname = utilities.makeNaturalName(imopnames[i])
                 self.init_motor_pos[
-                    "INIT_MOPO_" +
-                    makeNaturalName(imopnames[i])] = float(imopvalues[i])
+                    "INIT_MOPO_" + natmotname] = float(imopvalues[i])
             # read the rest of the positions into dummy INIT_MOPO__NONAME__%03d
             for i in range(len(imopnames), len(imopvalues)):
                 self.init_motor_pos["INIT_MOPO___NONAME__%03d" % (i)] = \
@@ -1072,8 +1065,9 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                 scanshape = len(sdata)
             for i in notscanmotors:
                 motname = args[i]
+                natmotname = utilities.makeNaturalName(motname)
                 buf = numpy.ones(scanshape) * \
-                    h5scan.attrs["INIT_MOPO_%s" % makeNaturalName(motname)]
+                    h5scan.attrs["INIT_MOPO_%s" % natmotname]
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
     # create return values in correct order
@@ -1163,7 +1157,7 @@ def getspec_scan(specf, scans, *args, **kwargs):
             motname = args[i]
             buf = (numpy.ones(scanshape) *
                    sscan.init_motor_pos["INIT_MOPO_%s"
-                                        % makeNaturalName(motname)])
+                                        % utilities.makeNaturalName(motname)])
             angles[motname] = numpy.concatenate((angles[motname], buf))
 
     # create return values in correct order
