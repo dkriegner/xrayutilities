@@ -15,6 +15,8 @@
 #
 # Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import warnings
+
 import numpy
 
 from . import models
@@ -80,6 +82,8 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
         object from lmfit, which contains the fitted parameters in res.params
         (see res.params.pretty_print) or try lmfit.report_fit(res)
     """
+    warnings.warn("deprecated function -> change to FitModel",
+                  DeprecationWarning)
     lmfit = utilities.import_lmfit('XU.simpack')
 
     if plot:

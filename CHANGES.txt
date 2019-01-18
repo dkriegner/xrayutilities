@@ -1,3 +1,8 @@
+* deprecate the fit_xrr function, which will be remove in the next major
+  version -> use the new FitModel
+* new FitModel class for fitting of instances of LayerModel
+* fix bug in PowderDiffraction used with enable_simulation=False
+
 v1.5.1, 2019-01-07
 
 * simple unit cell visualization function: Crystal.show_unitcell()
