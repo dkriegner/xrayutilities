@@ -17,9 +17,9 @@
 
 import math
 import os
-import tempfile
 import subprocess
 import sys
+import tempfile
 import unittest
 
 import numpy

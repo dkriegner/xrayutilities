@@ -15,7 +15,6 @@
 #
 # Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import os
 import unittest
 
 import numpy
