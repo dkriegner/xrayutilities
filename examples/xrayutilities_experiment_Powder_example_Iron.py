@@ -67,6 +67,7 @@ def main():
     ax.set_xlim(5, 120)
     pd.close()
 
+
 if __name__ == '__main__':
     freeze_support()
     main()
