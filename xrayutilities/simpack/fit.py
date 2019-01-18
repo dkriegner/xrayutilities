@@ -13,10 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
+from . import models
 from .. import config, utilities
 from ..exception import InputError
 
@@ -220,3 +221,237 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
                 plot=True)
 
     return res
+
+
+class FitModel(object):
+    """
+    Wrapper for the lmfit Model class working for instances of LayerModel
+
+    Typically this means that after initialization of `FitModel` you want to
+    use make_params to get a `lmfit.Parameters` list which one customizes for
+    fitting.
+
+    Later on you can call `fit` and `eval` methods with those parameter list.
+    """
+    def __init__(self, lmodel, verbose=False, plot=False, elog=True, **kwargs):
+        """
+        initialization of a FitModel which uses lmfit for the actual fitting,
+        and generates an according lmfit.Model internally for the given
+        pre-configured LayerModel, or subclasses thereof which includes models
+        for reflectivity, kinematic and dynamic diffraction.
+
+        Parameters
+        ----------
+        lmodel :    LayerModel
+            pre-configured instance of LayerModel or any subclass
+        verbose :   bool, optional
+            flag to enable verbose printing during fitting
+        plot :      bool or str, optional
+            flag to decide wheter an plot should be created showing the fit's
+            progress. If plot is a string it will be used as figure name, which
+            makes reusing the figures easier.
+        elog :      bool, optional
+            flag to enable a logarithmic error metric between model and data.
+            Since the dynamic range of data is often large its often benefitial
+            to keep this enabled.
+        kwargs :    dict, optional
+            additional keyword arguments are forwarded to the `simulate` method
+            of `lmodel`
+        """
+        self.verbose = verbose
+        self.plot = plot
+        self.elog = elog
+        lmfit = utilities.import_lmfit('XU.simpack')
+
+        assert isinstance(lmodel, models.LayerModel)
+        self.lmodel = lmodel
+        # generate dynamic function for model evalution
+        funcstr = "def func(x, "
+        # add LayerModel parameters
+        for p in self.lmodel.fit_paramnames:
+            funcstr += "{}, ".format(p)
+        # add LayerStack parameters
+        for lname in self.lmodel.lstack.namelist:
+            for param in self.lmodel.lstack_params:
+                funcstr += '{}_{}, '.format(lname, param)
+        funcstr += "lmodel=self.lmodel, **kwargs):\n"
+        # define modelfunc content
+        for p in self.lmodel.fit_paramnames:
+            funcstr += "    setattr(lmodel, '{}', {})\n".format(p, p)
+        for i, lname in enumerate(self.lmodel.lstack.namelist):
+            for param in self.lmodel.lstack_params:
+                varname = '{}_{}'.format(lname, param)
+                cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
+                funcstr += cmd.format(i, param, varname)
+        # perform actual model calculation
+        funcstr += "    return lmodel.simulate(x, **kwargs)"
+
+        namespace = {'self': self}
+        exec(funcstr, globals(), namespace)
+        self.func = namespace['func']
+        self.emetricfunc = numpy.log10 if self.elog else lambda x: x
+
+        def _residual(params, data, weights, **kwargs):
+            """
+            Return the residual. This is a (simplified, only real values)
+            reimplementation of the lmfit.Model._residual function which adds
+            the possibility of a logarithmic error metric.
+
+            Default residual: (data-model)*weights.
+            """
+            scale = self.emetricfunc
+            model = scale(self.eval(params, **kwargs))
+            sdata = scale(data)
+            mask = numpy.logical_and(numpy.isfinite(model),
+                                     numpy.isfinite(sdata))
+            diff = model[mask] - sdata[mask]
+            if weights is not None and scale(1) == 1:
+                diff *= weights
+            return numpy.asarray(diff).ravel()
+
+        self.lmm = lmfit.Model(self.func,
+                               name=self.lmodel.__class__.__name__, **kwargs)
+        self.lmm._residual = _residual
+        for method in ('set_param_hint', 'print_param_hints', 'eval',
+                       'make_params'):
+            setattr(self, method, getattr(self.lmm, method))
+        # set default parameter hints
+        self._default_hints()
+        self.set_fit_limits()
+
+    def set_fit_limits(self, xmin=-numpy.inf, xmax=numpy.inf, mask=None):
+        """
+        set fit limits. If mask is given it must have the same size as the
+        `data` and `x` variables given to fit. If mask is None it will be
+        generated from xmin and xmax.
+
+        Parameters
+        ----------
+        xmin :  float, optional
+            minimum value of x-values to include in the fit
+        xmax :  float, optional
+            maximum value of x-values to include in the fit
+        mask :  boolean array, optional
+            mask to be used for the data given to the fit
+        """
+        self.mask = mask
+        self.xmin = xmin
+        self.xmax = xmax
+
+    def fit(self, data, params, x, weights=None, fit_kws=None, **kwargs):
+        """
+        wrapper around lmfit.Model.fit which enables plotting during the
+        fitting
+
+        Parameters
+        ----------
+        data :      ndarray
+            experimental values
+        params :    lmfit.Parameters
+            list of parameters for the fit, use make_params for generation
+        x :         ndarray
+            independent variable (incidence angle or q-position depending on
+            the model)
+        weights :   ndarray, optional
+            values of weights for the fit, same size as data
+        fit_kws :   dict, optional
+            Options to pass to the minimizer being used
+        kwargs :    dict, optional
+            keyword arguments which are passed to lmfit.Model.fit
+
+        Returns
+        -------
+        lmfit.ModelResult
+        """
+        if self.mask:
+            mask = self.mask
+        else:
+            mask = numpy.logical_and(x >= self.xmin, x <= self.xmax)
+        mweights = weights
+        if mweights is not None:
+            mweights = weights[mask]
+
+        if self.plot:
+            flag, plt = utilities.import_matplotlib_pyplot('XU.simpack')
+        # plot of initial values
+        if self.plot:
+            plt.ion()
+            if isinstance(self.plot, basestring):
+                self.fig = plt.figure(self.plot)
+            else:
+                self.fig = plt.figure('XU:FitModel')
+            plt.clf()
+            self.ax = plt.subplot(111)
+            if self.elog:
+                self.ax.set_yscale("log", nonposy='clip')
+            if weights is not None:
+                eline = plt.errorbar(x, data, yerr=1/weights, ecolor='0.3',
+                                     fmt='ko', errorevery=int(x.size/80),
+                                     label='data')[0]
+            else:
+                eline, = plt.plot(x, data, 'ko', label='data')
+            if self.verbose:
+                init, = plt.plot(x, self.eval(params, x=x),
+                                 '-', color='0.5', label='initial')
+            if eline:
+                zord = eline.zorder+2
+            else:
+                zord = 1
+            fline, = plt.plot(x[mask], self.eval(params, x=x[mask]),
+                              'r-', lw=2, label='fit', zorder=zord)
+            plt.legend()
+            plt.xlabel(self.lmodel.xlabelstr)
+            plt.ylabel('Intensity (arb. u.)')
+            plt.show()
+        else:
+            fline = None
+
+        # create callback function
+        def cb_func(params, niter, resid, *args, **kwargs):
+            x = kwargs['x']
+            if self.verbose:
+                print('{:04d} {:12.3e}'.format(niter, numpy.sum(resid**2)))
+            if self.plot and niter % 20 == 0:
+                plt.sca(self.ax)
+                fline.set_ydata(self.eval(params, x=x))
+                plt.draw()
+                plt.pause(0.001)  # enable better mpl backend compatibility
+
+        res = self.lmm.fit(data[mask], params, x=x[mask], weights=mweights,
+                           fit_kws=fit_kws, iter_cb=cb_func)
+
+        # final update of plot
+        if self.plot:
+            plt.sca(self.ax)
+            plt.plot(x, self.eval(res.params, x=x),
+                     'g-', lw=1, label='fit', zorder=fline.zorder-1)
+            cb_func(res.params, -1, res.residual, data, mweights, x=x[mask])
+            plt.tight_layout()
+
+        return res
+
+    def _default_hints(self):
+        """
+        set useful hints for parameters all LayerModels have
+        """
+        # general parameters
+        for pn in self.lmodel.fit_paramnames:
+            self.set_param_hint(pn, value=getattr(self.lmodel, pn), vary=False)
+        for pn in ('I0', 'background'):
+            self.set_param_hint(pn, vary=True, min=0)
+        self.set_param_hint('resolution_width', min=0, vary=False)
+        self.set_param_hint('energy', min=1000, vary=False)
+
+        # parameters of the layerstack
+        for l in self.lmodel.lstack:
+            for param in self.lmodel.lstack_params:
+                varname = '{}_{}'.format(l.name, param)
+                self.set_param_hint(varname, value=getattr(l, param), min=0)
+                if param == 'density':
+                    self.set_param_hint(varname, max=2)
+                if param == 'thickness':
+                    self.set_param_hint(varname, max=2*getattr(l, param))
+                if param == 'roughness':
+                    self.set_param_hint(varname, max=50)
+        varname = '{}_{}'.format(self.lmodel.lstack[0].name, 'thickness')
+        self.set_param_hint(varname, vary=False)
