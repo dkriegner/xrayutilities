@@ -65,7 +65,14 @@ class SMaterial(object):
         for kw in kwargs:
             setattr(self, kw, kwargs[kw])
 
-        if isinstance(self.material, Crystal):
+    @property
+    def material(self):
+        return self._material
+
+    @material.setter
+    def material(self, material):
+        self._material = material
+        if isinstance(material, Crystal):
             self._structural_params = []
             # make lattice parameters attributes
             for param, value in material.lattice.free_parameters.items():
@@ -92,6 +99,7 @@ class SMaterial(object):
                 setattr(self, name, wp[3])
 
     def __setattr__(self, name, value):
+        super(SMaterial, self).__setattr__(name, value)
         try:
             if name in self.material.lattice.free_parameters:
                 setattr(self.material.lattice, name, value)
@@ -116,7 +124,6 @@ class SMaterial(object):
                                                          value)
         except AttributeError:
             pass
-        super(SMaterial, self).__setattr__(name, value)
 
     def __radd__(self, other):
         return MaterialList('%s + %s' % (other.name, self.name), other, self)
