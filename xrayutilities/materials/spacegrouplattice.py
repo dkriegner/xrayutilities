@@ -420,7 +420,7 @@ class SGLattice(object):
             if isinstance(key, basestring):
                 self._parameters[p] = self.free_parameters[key]
             else:
-                self._parameters[p] = sgrp_params[self.crystal_system][1][i]
+                self._parameters[p] = key
 
         # set atom positions in the lattice base
         self._wbase = WyckoffBase()
@@ -674,6 +674,12 @@ class SGLattice(object):
             Here you specify the strain and not the stress -> NO elastic
             response of the material will be considered!
 
+        Note:
+            Although the symmetry of the crystal can be lowered by this
+            operation the spacegroup remains unchanged! The 'free_parameters'
+            attribute is, however, updated to mimic the possible reduction of
+            the symmetry.
+
         Parameters
         ----------
         eps :    array-like
@@ -700,6 +706,18 @@ class SGLattice(object):
         self._paramhelp[3] = sin(ra)
         # set new transformations
         self._setlat()
+        # update free_parameters
+        for p, v in self.free_parameters.items():
+            self.free_parameters[p] = self._parameters[p]
+        # artificially reduce symmetry if needed
+        for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
+            key = sgrp_params[self.crystal_system][1][i]
+            if isinstance(key, basestring):
+                if self._parameters[p] != self.free_parameters[key]:
+                    self.free_parameters[p] = self._parameters[p]
+            else:
+                if self._parameters[p] != key:
+                    self.free_parameters[p] = self._parameters[p]
 
     def isequivalent(self, hkl1, hkl2, equalq=False):
         """
