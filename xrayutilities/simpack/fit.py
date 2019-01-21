@@ -285,14 +285,14 @@ class FitModel(object):
         # define modelfunc content
         for p in self.lmodel.fit_paramnames:
             funcstr += "    setattr(lmodel, '{}', {})\n".format(p, p)
-        for i, lname in enumerate(self.lmodel.lstack.namelist):
+        for i, l in enumerate(self.lmodel.lstack):
             for param in self.lmodel.lstack_params:
-                varname = '{}_{}'.format(lname, param)
+                varname = '{}_{}'.format(l.name, param)
                 cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
                 funcstr += cmd.format(i, param, varname)
             if self.lmodel.lstack_structural_params:
                 for param in l._structural_params:
-                    varname = '{}_{}'.format(lname, param)
+                    varname = '{}_{}'.format(l.name, param)
                     cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
                     funcstr += cmd.format(i, param, varname)
         # perform actual model calculation
