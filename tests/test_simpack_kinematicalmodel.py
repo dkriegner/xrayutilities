@@ -30,7 +30,7 @@ except ImportError:
 class Test_KinematicalModel(unittest.TestCase):
     # define used layer stack
     sub = xu.simpack.Layer(xu.materials.GaAs, numpy.inf)
-    lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 994.98, relaxation=0.0)
+    lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 995.64, relaxation=0.0)
     pls = xu.simpack.PseudomorphicStack001('AlGaAs on GaAs', sub, lay)
     hkl = (0, 0, 4)
 
