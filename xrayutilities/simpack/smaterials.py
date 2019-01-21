@@ -65,6 +65,59 @@ class SMaterial(object):
         for kw in kwargs:
             setattr(self, kw, kwargs[kw])
 
+        if isinstance(self.material, Crystal):
+            self._structural_params = []
+            # make lattice parameters attributes
+            for param, value in material.lattice.free_parameters.items():
+                self._structural_params.append(param)
+                setattr(self, param, value)
+            # make attributes from atom positions
+            for i, wp in enumerate(material.lattice._wbase):
+                if wp[1][1] is not None:
+                    for j, p in enumerate(wp[1][1]):
+                        name = '_'.join(('at%d' % i, wp[0].name,
+                                         wp[1][0], str(j), 'pos'))
+                        self._structural_params.append(name)
+                        setattr(self, name, p)
+            # make attributes from atom occupations
+            for i, wp in enumerate(material.lattice._wbase):
+                name = '_'.join(('at%d' % i, wp[0].name,
+                                 wp[1][0], 'occupation'))
+                self._structural_params.append(name)
+                setattr(self, name, wp[2])
+            # make attributes from Debye waller exponents
+            for i, wp in enumerate(material.lattice._wbase):
+                name = '_'.join(('at%d' % i, wp[0].name, wp[1][0], 'biso'))
+                self._structural_params.append(name)
+                setattr(self, name, wp[3])
+
+    def __setattr__(self, name, value):
+        try:
+            if name in self.material.lattice.free_parameters:
+                setattr(self.material.lattice, name, value)
+            if name.startswith('at'):
+                nsplit = name.split('_')
+                idx = int(nsplit[0][2:])
+                wp = self.material.lattice._wbase[idx]
+                # wyckoff position parameter
+                if nsplit[-1] == 'pos':
+                    pidx = int(nsplit[-2])
+                    wyckpos = (wp[1][0], list(wp[1][1]))
+                    wyckpos[1][pidx] = value
+                    self.material.lattice._wbase[idx] = (wp[0], wyckpos, wp[2],
+                                                         wp[3])
+                # site occupation
+                if nsplit[-1] == 'occupation':
+                    self.material.lattice._wbase[idx] = (wp[0], wp[1], value,
+                                                         wp[3])
+                # site DW exponent
+                if nsplit[-1] == 'biso':
+                    self.material.lattice._wbase[idx] = (wp[0], wp[1], wp[2],
+                                                         value)
+        except AttributeError:
+            pass
+        super(SMaterial, self).__setattr__(name, value)
+
     def __radd__(self, other):
         return MaterialList('%s + %s' % (other.name, self.name), other, self)
 
@@ -381,51 +434,6 @@ class Powder(SMaterial):
                 raise TypeError('%s is an invalid keyword argument' % kw)
         kwargs['volume'] = volume
         super(Powder, self).__init__(material, **kwargs)
-        # make lattice parameters attributes
-        for param, value in material.lattice.free_parameters.items():
-            setattr(self, param, value)
-        # make attributes from atom positions
-        for i, wp in enumerate(material.lattice._wbase):
-            if wp[1][1] is not None:
-                for j, p in enumerate(wp[1][1]):
-                    name = '_'.join(('at%d' % i, wp[0].name,
-                                     wp[1][0], str(j), 'pos'))
-                    setattr(self, name, p)
-        # make attributes from atom occupations
-        for i, wp in enumerate(material.lattice._wbase):
-            name = '_'.join(('at%d' % i, wp[0].name, wp[1][0], 'occupation'))
-            setattr(self, name, wp[2])
-        # make attributes from Debye waller exponents
-        for i, wp in enumerate(material.lattice._wbase):
-            name = '_'.join(('at%d' % i, wp[0].name, wp[1][0], 'biso'))
-            setattr(self, name, wp[3])
-
-    def __setattr__(self, name, value):
-        try:
-            if name in self.material.lattice.free_parameters:
-                setattr(self.material.lattice, name, value)
-            if name.startswith('at'):
-                nsplit = name.split('_')
-                idx = int(nsplit[0][2:])
-                wp = self.material.lattice._wbase[idx]
-                # wyckoff position parameter
-                if nsplit[-1] == 'pos':
-                    pidx = int(nsplit[-2])
-                    wyckpos = (wp[1][0], list(wp[1][1]))
-                    wyckpos[1][pidx] = value
-                    self.material.lattice._wbase[idx] = (wp[0], wyckpos, wp[2],
-                                                         wp[3])
-                # site occupation
-                if nsplit[-1] == 'occupation':
-                    self.material.lattice._wbase[idx] = (wp[0], wp[1], value,
-                                                         wp[3])
-                # site DW exponent
-                if nsplit[-1] == 'biso':
-                    self.material.lattice._wbase[idx] = (wp[0], wp[1], wp[2],
-                                                         value)
-        except AttributeError:
-            pass
-        super(Powder, self).__setattr__(name, value)
 
 
 class PowderList(MaterialList):
