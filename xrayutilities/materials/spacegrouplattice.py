@@ -517,7 +517,8 @@ class SGLattice(object):
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
             key = sgrp_params[self.crystal_system][1][i]
             if isinstance(key, basestring):
-                self._parameters[p] = self.free_parameters[key]
+                if p not in self.free_parameters:
+                    self._parameters[p] = self.free_parameters[key]
 
     @property
     def a(self):
