@@ -275,9 +275,12 @@ class FitModel(object):
         for p in self.lmodel.fit_paramnames:
             funcstr += "{}, ".format(p)
         # add LayerStack parameters
-        for lname in self.lmodel.lstack.namelist:
+        for l in self.lmodel.lstack:
             for param in self.lmodel.lstack_params:
-                funcstr += '{}_{}, '.format(lname, param)
+                funcstr += '{}_{}, '.format(l.name, param)
+            if self.lmodel.lstack_structural_params:
+                for param in l._structural_params:
+                    funcstr += '{}_{}, '.format(l.name, param)
         funcstr += "lmodel=self.lmodel, **kwargs):\n"
         # define modelfunc content
         for p in self.lmodel.fit_paramnames:
@@ -287,11 +290,16 @@ class FitModel(object):
                 varname = '{}_{}'.format(lname, param)
                 cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
                 funcstr += cmd.format(i, param, varname)
+            if self.lmodel.lstack_structural_params:
+                for param in l._structural_params:
+                    varname = '{}_{}'.format(lname, param)
+                    cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
+                    funcstr += cmd.format(i, param, varname)
         # perform actual model calculation
         funcstr += "    return lmodel.simulate(x, **kwargs)"
 
         namespace = {'self': self}
-        exec(funcstr, globals(), namespace)
+        exec(funcstr, {'lmodel': self.lmodel}, namespace)
         self.func = namespace['func']
         self.emetricfunc = numpy.log10 if self.elog else lambda x: x
 
@@ -395,13 +403,13 @@ class FitModel(object):
             else:
                 eline, = plt.plot(x, data, 'ko', label='data')
             if self.verbose:
-                init, = plt.plot(x, self.eval(params, x=x),
+                init, = plt.plot(x, self.eval(params, x=x, **kwargs),
                                  '-', color='0.5', label='initial')
             if eline:
                 zord = eline.zorder+2
             else:
                 zord = 1
-            fline, = plt.plot(x[mask], self.eval(params, x=x[mask]),
+            fline, = plt.plot(x[mask], self.eval(params, x=x[mask], **kwargs),
                               'r-', lw=2, label='fit', zorder=zord)
             plt.legend()
             plt.xlabel(self.lmodel.xlabelstr)
@@ -417,19 +425,20 @@ class FitModel(object):
                 print('{:04d} {:12.3e}'.format(niter, numpy.sum(resid**2)))
             if self.plot and niter % 20 == 0:
                 plt.sca(self.ax)
-                fline.set_ydata(self.eval(params, x=x))
+                fline.set_ydata(self.eval(params, **kwargs))
                 plt.draw()
                 plt.pause(0.001)  # enable better mpl backend compatibility
 
         res = self.lmm.fit(data[mask], params, x=x[mask], weights=mweights,
-                           fit_kws=fit_kws, iter_cb=cb_func)
+                           fit_kws=fit_kws, iter_cb=cb_func, **kwargs)
 
         # final update of plot
         if self.plot:
             plt.sca(self.ax)
-            plt.plot(x, self.eval(res.params, x=x),
+            plt.plot(x, self.eval(res.params, x=x, **kwargs),
                      'g-', lw=1, label='fit', zorder=fline.zorder-1)
-            cb_func(res.params, -1, res.residual, data, mweights, x=x[mask])
+            cb_func(res.params, -1, res.residual, data, mweights, x=x[mask],
+                    **kwargs)
             plt.tight_layout()
 
         return res
@@ -457,5 +466,15 @@ class FitModel(object):
                     self.set_param_hint(varname, max=2*getattr(l, param))
                 if param == 'roughness':
                     self.set_param_hint(varname, max=50)
-        varname = '{}_{}'.format(self.lmodel.lstack[0].name, 'thickness')
-        self.set_param_hint(varname, vary=False)
+            if self.lmodel.lstack_structural_params:
+                for param in l._structural_params:
+                    varname = '{}_{}'.format(l.name, param)
+                    self.set_param_hint(varname, value=getattr(l, param),
+                                        vary=False)
+                    if 'occupation' in param:
+                        self.set_param_hint(varname, min=0, max=1)
+                    if 'biso' in param:
+                        self.set_param_hint(varname, min=0, max=5)
+        if self.lmodel.lstack[0].thickness == numpy.inf:
+            varname = '{}_{}'.format(self.lmodel.lstack[0].name, 'thickness')
+            self.set_param_hint(varname, vary=False)

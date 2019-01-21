@@ -177,6 +177,7 @@ class LayerModel(Model, utilities.ABC):
         exp = kwargs.pop('experiment', None)
         super(LayerModel, self).__init__(exp, **kwargs)
         self.lstack_params = []
+        self.lstack_structural_params = False
         self.xlabelstr = 'x (1)'
         if len(args) == 1:
             if isinstance(args[0], Layer):
@@ -285,6 +286,7 @@ class KinematicalModel(LayerModel):
         """
         super(KinematicalModel, self).__init__(*args, **kwargs)
         self.lstack_params += ['thickness', ]
+        self.lstack_structural_params = True
         self.xlabelstr = r'momentum transfer $Q_z$ ($\AA^{-1}$)'
         # precalc optical properties
         self._init_en = 0
