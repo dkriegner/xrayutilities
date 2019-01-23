@@ -56,12 +56,12 @@ class SMaterial(object):
         ----------
         material :  Material (Crystal, or Amorphous)
             Material object containing optical/crystal properties of for the
-            simulation
+            simulation; a deepcopy is used internally.
         kwargs :    dict
             optional properties of the material needed for the simulation
         """
         self.name = utilities.makeNaturalName(material.name, check=True)
-        self.material = material
+        self.material = copy.deepcopy(material)
         for kw in kwargs:
             setattr(self, kw, kwargs[kw])
 
