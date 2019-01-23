@@ -394,6 +394,10 @@ class SGLattice(object):
             intensity of this atom (only used in case of temp=0 in
             StructureFactor and chi calculation)
         """
+        for k in kwargs.keys():
+            if k not in ('atoms', 'pos', 'occ', 'b'):
+                raise Exception("unknown keyword argument (%s) given: allowed "
+                                "are 'atoms', 'pos', 'occ', and 'b'" % k)
         self.space_group = str(sgrp)
         self.space_group_nr = int(self.space_group.split(':')[0])
         try:
