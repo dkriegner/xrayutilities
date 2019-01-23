@@ -24,6 +24,7 @@ cell shape parameters.
 """
 from __future__ import division
 
+import copy
 import numbers
 import sys
 from collections import OrderedDict
@@ -262,6 +263,25 @@ class WyckoffBase(list):
         atom = self._checkatom(atom)
         pos = self._checkpos(pos)
         list.__setitem__(self, key, (atom, pos, float(occ), float(b)))
+
+    def __copy__(self):
+        """
+        since we use a custom 'append' method we need to overwrite copy
+        """
+        cls = self.__class__
+        new = cls.__new__(cls)
+        for item in self:
+            new.append(*item)
+        return new
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        new = cls.__new__(cls)
+        memo[id(self)] = new
+        for item in self:
+            citem = copy.deepcopy(item, memo)
+            new.append(*citem)
+        return new
 
     def __str__(self):
         ostr = ''
@@ -850,22 +870,6 @@ class SGLattice(object):
             ostr += "Lattice base:\n"
             ostr += str(self._wbase)
         return ostr
-
-    def __copy__(self):
-        """
-        return a copy of this SGLattice instance
-        """
-        atoms = []
-        pos = []
-        occ = []
-        biso = []
-        for at, wpos, o, b in self._wbase:
-            atoms.append(at)
-            pos.append(wpos)
-            occ.append(o)
-            biso.append(b)
-        return SGLattice(self.space_group, *self.free_parameters.values(),
-                         atoms=atoms, pos=pos, occ=occ, b=biso)
 
     @classmethod
     def convert_to_P1(cls, sglat):

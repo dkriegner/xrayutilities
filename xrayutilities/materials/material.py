@@ -167,6 +167,8 @@ class Material(utilities.ABC):
                 cij = self.cij
 
             return cij[i - 1, j - 1]
+        else:
+            raise AttributeError
 
     def _getmu(self):
         return self.cij[3, 3]
@@ -1502,7 +1504,7 @@ class Alloy(Crystal):
 
     def __init__(self, matA, matB, x):
         self.check_compatibility(matA, matB)
-        lat = copy.copy(matA.lattice)
+        lat = copy.deepcopy(matA.lattice)
         super(Alloy, self).__init__("None", lat, matA.cij)
         self.matA = matA
         self.matB = matB
@@ -1919,7 +1921,7 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
               "perpendicular): %.4g %.4g" % (epar, eperp))
 
     # create the pseudomorphic material
-    pmlatt = copy.copy(layer.lattice)
+    pmlatt = copy.deepcopy(layer.lattice)
     pmat = Crystal(layer.name, pmlatt, layer.cij)
     pmat.ApplyStrain(eps)
     return pmat
