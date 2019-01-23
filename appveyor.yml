@@ -32,6 +32,8 @@ install:
   - ps: |
       $env:package_version=(Get-Content -Path VERSION)
       Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
+      # fix error due to Python 2.7 deprecation
+      $env:PYTHONWARNINGS="ignore:::pip._internal.cli.base_command"
       # install dependencies
       if($env:MINICONDA -eq $null)
       {
