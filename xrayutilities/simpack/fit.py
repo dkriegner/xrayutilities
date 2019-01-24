@@ -101,13 +101,13 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
                              % pname)
         pname = '{}_roughness'.format(lname)
         if pname not in params:
-            params.add(pname, value=getattr(l, 'roughness', 0), vary=False)
+            params.add(pname, value=l.roughness, vary=False)
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.simpack.fit_xrr: adding fixed parameter %s to model"
                       % pname)
         pname = '{}_density'.format(lname)
         if pname not in params:
-            params.add(pname, value=getattr(l, 'density', 1), vary=False)
+            params.add(pname, value=l.density, vary=False)
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.simpack.fit_xrr: adding fixed parameter %s to model"
                       % pname)
@@ -461,9 +461,9 @@ class FitModel(object):
                 varname = '{}_{}'.format(l.name, param)
                 self.set_param_hint(varname, value=getattr(l, param), min=0)
                 if param == 'density':
-                    self.set_param_hint(varname, max=2)
+                    self.set_param_hint(varname, max=1.5*l.material.density)
                 if param == 'thickness':
-                    self.set_param_hint(varname, max=2*getattr(l, param))
+                    self.set_param_hint(varname, max=2*l.thickness)
                 if param == 'roughness':
                     self.set_param_hint(varname, max=50)
             if self.lmodel.lstack_structural_params:

@@ -922,8 +922,9 @@ class SpecularReflectivityModel(LayerModel):
         lai = alphai - self.offset
         # get layer properties
         t = numpy.asarray([l.thickness for l in self.lstack])
-        sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
-        rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
+        sig = numpy.asarray([l.roughness for l in self.lstack])
+        rho = numpy.asarray([l.density/l.material.density
+                             for l in self.lstack])
         cd = self.cd
 
         sai = numpy.sin(numpy.radians(lai))
@@ -989,8 +990,9 @@ class SpecularReflectivityModel(LayerModel):
 
         # get layer properties
         t = numpy.asarray([l.thickness for l in self.lstack])
-        sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
-        rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
+        sig = numpy.asarray([l.roughness for l in self.lstack])
+        rho = numpy.asarray([l.density/l.material.density
+                             for l in self.lstack])
         delta = numpy.real(self.cd)
 
         totT = numpy.sum(t[1:])
@@ -1297,8 +1299,9 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
 
         # get layer properties
         t = numpy.asarray([l.thickness for l in self.lstack])
-        sig = numpy.asarray([getattr(l, 'roughness', 0) for l in self.lstack])
-        rho = numpy.asarray([getattr(l, 'density', 1) for l in self.lstack])
+        sig = numpy.asarray([l.roughness for l in self.lstack])
+        rho = numpy.asarray([l.density/l.material.density
+                             for l in self.lstack])
         cd = self.cd
         qzvec = 4 * numpy.pi * numpy.sin(numpy.radians(lai)) /\
             utilities.en2lam(self.energy)
@@ -1418,11 +1421,10 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         self.init_cd()
 
         t = numpy.asarray([float(l.thickness) for l in self.lstack[nl:0:-1]])
-        sig = [float(getattr(l, 'roughness', 0)) for l in self.lstack[nl::-1]]
-        rho = [float(getattr(l, 'density', 1)) for l in self.lstack[nl::-1]]
+        sig = [float(l.roughness) for l in self.lstack[nl::-1]]
+        rho = [l.density/l.material.density for l in self.lstack[nl::-1]]
         delta = self.cd * numpy.asarray(rho)
-        xiL = [float(getattr(l, 'lat_correl', numpy.inf))
-               for l in self.lstack[nl::-1]]
+        xiL = [float(l.lat_correl) for l in self.lstack[nl::-1]]
 
         return t, sig, rho, delta, xiL
 

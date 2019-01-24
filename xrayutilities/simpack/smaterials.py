@@ -253,7 +253,8 @@ class Layer(SMaterial):
         roughness : float, optional
             root mean square roughness of the top interface in Angstrom
         density :    float, optional
-            relative density of the material; 1 for nominal density
+            density of the material in kg/m^3; If not specified the density of
+            the material will be used.
         relaxation : float, optional
             the degree of relaxation in case of crystalline thin films
         lat_correl : float, optional
