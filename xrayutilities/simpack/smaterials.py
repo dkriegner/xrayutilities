@@ -99,31 +99,30 @@ class SMaterial(object):
                 setattr(self, name, wp[3])
 
     def __setattr__(self, name, value):
-        super(SMaterial, self).__setattr__(name, value)
-        try:
-            if name in self.material.lattice.free_parameters:
-                setattr(self.material.lattice, name, value)
-            if name.startswith('at'):
-                nsplit = name.split('_')
-                idx = int(nsplit[0][2:])
-                wp = self.material.lattice._wbase[idx]
-                # wyckoff position parameter
-                if nsplit[-1] == 'pos':
-                    pidx = int(nsplit[-2])
-                    wyckpos = (wp[1][0], list(wp[1][1]))
-                    wyckpos[1][pidx] = value
-                    self.material.lattice._wbase[idx] = (wp[0], wyckpos, wp[2],
-                                                         wp[3])
-                # site occupation
-                if nsplit[-1] == 'occupation':
-                    self.material.lattice._wbase[idx] = (wp[0], wp[1], value,
-                                                         wp[3])
-                # site DW exponent
-                if nsplit[-1] == 'biso':
-                    self.material.lattice._wbase[idx] = (wp[0], wp[1], wp[2],
-                                                         value)
-        except AttributeError:
-            pass
+        object.__setattr__(self, name, value)
+        if hasattr(self, 'material'):
+            if isinstance(self.material, Crystal):
+                if name in self.material.lattice.free_parameters:
+                    setattr(self.material.lattice, name, value)
+                if name.startswith('at'):
+                    nsplit = name.split('_')
+                    idx = int(nsplit[0][2:])
+                    wp = self.material.lattice._wbase[idx]
+                    # wyckoff position parameter
+                    if nsplit[-1] == 'pos':
+                        pidx = int(nsplit[-2])
+                        wyckpos = (wp[1][0], list(wp[1][1]))
+                        wyckpos[1][pidx] = value
+                        self.material.lattice._wbase[idx] = (wp[0], wyckpos,
+                                                             wp[2], wp[3])
+                    # site occupation
+                    if nsplit[-1] == 'occupation':
+                        self.material.lattice._wbase[idx] = (wp[0], wp[1],
+                                                             value, wp[3])
+                    # site DW exponent
+                    if nsplit[-1] == 'biso':
+                        self.material.lattice._wbase[idx] = (wp[0], wp[1],
+                                                             wp[2], value)
 
     def __radd__(self, other):
         return MaterialList('%s + %s' % (other.name, self.name), other, self)
@@ -254,7 +253,7 @@ class Layer(SMaterial):
         roughness : float, optional
             root mean square roughness of the top interface in Angstrom
         density :    float, optional
-            relativ density of the material; 1 for nominal density
+            relative density of the material; 1 for nominal density
         relaxation : float, optional
             the degree of relaxation in case of crystalline thin films
         lat_correl : float, optional
@@ -272,7 +271,7 @@ class Layer(SMaterial):
         return default values for properties if they were not set
         """
         if name == "density":
-            return 1
+            return self.material.density
         elif name == "roughness":
             return 0
         elif name == "lat_correl":
@@ -280,9 +279,7 @@ class Layer(SMaterial):
         elif name == "relaxation":
             return 1
         else:
-            clsname = self.__class__.__name__
-            raise AttributeError("'%s' object has no attribute '%s'"
-                                 % (clsname, name))
+            return super(Layer, self).__getattribute__(name)
 
 
 class LayerStack(MaterialList):

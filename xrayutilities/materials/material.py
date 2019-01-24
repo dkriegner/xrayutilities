@@ -168,7 +168,7 @@ class Material(utilities.ABC):
 
             return cij[i - 1, j - 1]
         else:
-            raise AttributeError
+            object.__getattribute__(self, name)
 
     def _getmu(self):
         return self.cij[3, 3]
