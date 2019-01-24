@@ -107,7 +107,7 @@ Currently only the Parrat formalism including non-correlated roughnesses is incl
     ai = linspace(0, 5, 10000)
     Ixrr = m.simulate(ai)
 
-In addition to the layer thickness also the roughness and relative density of a Layer can be set since they are important for the reflectivity calculation. This can be done upon definition of the :class:`~xrayutilities.simpack.smaterials.Layer` or also manipulated at any later stage.
+In addition to the layer thickness also the roughness and density (in kg/m^3) of a Layer can be set since they are important for the reflectivity calculation. This can be done upon definition of the :class:`~xrayutilities.simpack.smaterials.Layer` or also manipulated at any later stage.
 Such x-ray reflectivity calculations can also be fitted to experimental data using the :class:`~xrayutilities.simpack.fit.FitModel` class which is shown in detail in the example below (which is also included in the example directory). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. This package allows to build complicated models including bounds and correlations between parameters.
 
 .. code-block:: python
@@ -142,7 +142,8 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
 
     # set some parameter limitations
     fitm.set_param_hint('SiO2_density', vary=False)
-    fitm.set_param_hint('Al2O3_density', min=0.8, max=1.2)
+    fitm.set_param_hint('Al2O3_density', min=0.8*xu.materials.Al2O3.density,
+                        max=1.2*xu.materials.Al2O3.density)
     p = fitm.make_params()
     fitm.set_fit_limits(xmin=0.05, xmax=8.0)
 

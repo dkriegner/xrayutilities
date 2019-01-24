@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 
@@ -48,7 +48,8 @@ fitm = xu.simpack.FitModel(m, plot=True, verbose=True)
 
 # set some parameter limitations
 fitm.set_param_hint('SiO2_density', vary=False)
-fitm.set_param_hint('Al2O3_density', min=0.8, max=1.2)
+fitm.set_param_hint('Al2O3_density', min=0.8*xu.materials.Al2O3.density,
+                    max=1.2*xu.materials.Al2O3.density)
 p = fitm.make_params()
 fitm.set_fit_limits(xmin=0.05, xmax=8.0)
 
