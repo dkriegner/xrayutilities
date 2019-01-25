@@ -572,7 +572,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         hkl :       list or tuple
             Miller indices of the Bragg peak for the calculation
         """
-        if hkl is not None:
+        if hkl != (None, ):
             if len(hkl) < 3:
                 hkl = hkl[0]
                 if len(hkl) < 3:
