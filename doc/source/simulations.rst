@@ -111,6 +111,7 @@ In addition to the layer thickness also the roughness and density (in kg/m^3) of
 Such x-ray reflectivity calculations can also be fitted to experimental data using the :class:`~xrayutilities.simpack.fit.FitModel` class which is shown in detail in the example below (which is also included in the example directory). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. This package allows to build complicated models including bounds and correlations between parameters.
 
 .. code-block:: python
+    :linenos:
 
     from matplotlib.pylab import *
     import xrayutilities as xu
@@ -240,6 +241,64 @@ We will compare the (004) Bragg peak calculated with different models and but ot
 As can be seen in the images we find that for the AlGaAs system all models except the very basic kinematical model yield an very similar diffraction signal. The second kinematic diffraction model considering the contribution of multiple Bragg peaks on the same truncation rod fails to describe only the ratio of substrate and layer signal, but otherwise results in a very similar line shape as the traces obtained by the dynamic theory.
 
 For the SiGe/Si bilayer system bigger differences between the kinematic and dynamic models are found. Further also the difference between the simpler and more sophisticated dynamic model gets obvious further away from the reference position. Interestingly also the multibeam kinematic theory differs considerable from the best dynamic model. As is evident from this second comparison the correct choice of model for the particular system under condideration is crucial for comparison with experimental data.
+
+Fitting of diffraction data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All diffraction models can be embedded into the :class:`~xrayutilities.simpack.fit.FitModel` class, which is suitable to refine the model parameters. Below (and in the ``examples`` directory) a runnable script is shown which shows the fitting for a pseudomorphic InMnAs epilayer on InAs(001). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. As one can see below the :func:`~xrayutilities.simpack.FitModel.set_param_hint` function can be used to set up the respective fit parameters including their boundaries and possible correlation with other parameters of the model. It should be equally possible to fit more complex layer structures, however, I expect that one needs to adjust manually the starting parameters to yield something very reasonable. Since this capabilities are rather new please report back any success/problems you have with this via the mailing list.
+
+.. code-block:: python
+    :linenos:
+
+    import xrayutilities as xu
+    from matplotlib.pylab import *
+
+    # global parameters
+    wavelength = xu.wavelength('CuKa1')
+    offset = -0.035  # angular offset of the zero position of the data
+
+    # set up LayerStack for simulation: InAs(001)/(In,Mn)As(~25 nm)
+    InAs = xu.materials.InAs
+    InAs.lattice.a = 6.057
+    lInAs = xu.simpack.Layer(InAs, inf)
+    InMnAs = xu.materials.Crystal('InMnAs', xu.materials.SGLattice(
+        216, 6.050, atoms=('In', 'Mn', 'As'), pos=('4a', '4a', '4c'),
+        occ=(0.99, 0.01, 1)), cij=InAs.cij)
+    lInMnAs = xu.simpack.Layer(InMnAs, 254, relaxation=0)
+    pstack = xu.simpack.PseudomorphicStack001('list', lInAs, lInMnAs)
+
+    # set up simulation object
+    thetaMono = arcsin(wavelength/(2 * xu.materials.Ge.planeDistance(2, 2, 0)))
+    Cmono = cos(2 * thetaMono)
+    dyn = xu.simpack.DynamicalModel(pstack, I0=1.5e9, background=0,
+                                    resolution_width=2e-3, polarization='both',
+                                    Cmono=Cmono)
+    fitmdyn = xu.simpack.FitModel(dyn)
+    fitmdyn.set_param_hint('InMnAs_c', vary=True, min=6.02, max= 6.06)
+    fitmdyn.set_param_hint('InAs_a', vary=True)
+    fitmdyn.set_param_hint('InMnAs_a', expr='InAs_a')
+    fitmdyn.set_param_hint('resolution_width', vary=True)
+    params = fitmdyn.make_params()
+
+    # plot experimental data
+    f = figure(figsize=(7,5))
+    d = xu.io.RASFile('inas_layer_radial_002_004.ras.bz2', path='data'))
+    scan = d.scans[-1]
+    tt = scan.data[scan.scan_axis] - offset
+    semilogy(tt, scan.data['int'], 'o-', ms=3, label='data')
+
+    # perform fit and plot the result
+    fitmdyn.lmodel.set_hkl((0, 0, 4))
+    ai = (d.scans[-1].data[d.scan.scan_axis] - offset)/2
+    fitr = fitmdyn.fit(d.scans[-1].data['int'], params, ai)
+    print(fitr.fit_report())  # for older lmfit use: lmfit.report_fit(fitr)
+
+
+The resulting figure shows reasonable agreement between the dynamic diffraction simulation and the experimental data.
+
+.. figure:: pics/fit_xrd.svg
+   :alt: (004) diffraction data and fitted model of InMnAs epilayer on InAs  
+   :width: 400 px
 
 .. _pdiff-simulations:
 
