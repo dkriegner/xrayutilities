@@ -196,7 +196,7 @@ latex_elements = {
     # 'pointsize': '10pt',
 
     # Additional stuff for the LaTeX preamble.
-    'preamble': '\\usepackage{enumitem}\n\setlistdepth{15}',
+    'preamble': '\\usepackage{enumitem}\n\\setlistdepth{15}',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
