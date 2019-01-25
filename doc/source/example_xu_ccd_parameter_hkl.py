@@ -54,6 +54,7 @@ def hotpixelkill(ccd):
     ccd[303, 96] = 0
     return ccd
 
+
 # read images and angular positions from the data file
 # this might differ for data taken at different beamlines since
 # they way how motor positions are stored is not always consistent
