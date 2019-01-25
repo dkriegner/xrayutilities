@@ -26,6 +26,13 @@ from ..materials import Crystal, PseudomorphicMaterial
 from ..math import CoordinateTransform, Transform
 
 
+# python 2to3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
+
+
 def _multiply(a, b):
     """
     implement multiplication of SMaterial and MaterialList with integer
@@ -155,6 +162,8 @@ class MaterialList(collections.MutableSequence):
     """
 
     def __init__(self, name, *args):
+        if not isinstance(name, basestring):
+            raise TypeError("'name' argument must be a string")
         self.name = name
         self.list = list()
         self.namelist = list()
