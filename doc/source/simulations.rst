@@ -94,7 +94,12 @@ The mentioned parameters can be supplied to the constructor method of all model 
 Reflectivity calculation and fitting
 ------------------------------------
 
-Currently only the Parrat formalism including non-correlated roughnesses is included for specular x-ray reflectivity calculations. A minimal working example for a reflectivity calculation follows.::
+This section shows the calculation and fitting of specular x-ray reflectivity curves as well as the calculation of diffuse x-ray reflectivity curves/maps.
+
+Specular x-ray reflectivity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For the specular reflectivity models currently only the Parrat formalism including non-correlated roughnesses is implemented. A minimal working example for a reflectivity calculation follows.::
 
     # building a stack of layers
     sub = xu.simpack.Layer(xu.materials.GaAs, inf, roughness=2.0)
@@ -168,6 +173,52 @@ After building a :class:`~xrayutilities.simpack.models.SpecularReflectivityModel
 .. figure:: pics/xrr_densityprofile.svg
    :alt: XRR density profile resulting from the XRR fit shown above
    :width: 300 px
+   
+Diffuse reflectivity calculations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For the calculation of diffuse x-ray reflectivity the :class:`~xrayutilities.simpack.smaterials.LayerStack` is built equally as shown before. The only difference is that an additional parameter for the lateral correlation length of the roughness can be included: `lat_correl`. The :class:`~xrayutilities.simpack.models.DiffuseReflectivityModel` also takes special parameters which change the vertical correlection length and the way how the diffuse reflectivity is calculated (to be document in more detail). For a Si/Ge superlattice with 5 periods the calculation of the diffuse reflectivity signal at the specular rod is calculated using the :func:`~xrayutilities.simpack.models.DiffuseReflectivityModel.simulate` method. A map of the diffuse reflectivity which can be obtained in the coplanar reflection plane can be calculated with the :func:`~xrayutilities.simpack.models.DiffuseReflectivityModel.simulate_map` method.
+
+.. code-block:: python
+    :linenos:
+
+    from matplotlib.pylab import *
+    import xrayutilities as xu
+    sub = xu.simpack.Layer(xu.materials.Si, inf, roughness=1, lat_correl=100)
+    lay1 = xu.simpack.Layer(xu.materials.Si, 200, roughness=1, lat_correl=200)
+    lay2 = xu.simpack.Layer(xu.materials.Ge, 70, roughness=3, lat_correl=50)
+    ls = xu.simpack.LayerStack('SL 5', sub+5*(lay2+lay1))
+
+    alphai = arange(0.17, 2, 0.001)  # for the calculation on the specular rod
+    qz = arange(0, 0.5, 0.0005)  # for the map calculation
+    qL = arange(-0.02, 0.02, 0.0003)
+
+    m = xu.simpack.DiffuseReflectivityModel(ls, sample_width=10, beam_width=1,
+                                            energy='CuKa1', vert_correl=1000,
+                                            vert_nu=0, H=1, method=2, vert_int=0)
+    d = m.simulate(alphai)
+    imap = m.simulate_map(qL, qz)
+
+    figure()
+    subplot(121)
+    semilogy(alphai, d, label='diffuse XRR')
+    xlabel('incidence angle (deg)')
+    ylabel('intensity (arb. u.)')
+    ylim(1e-6, 1e-4)
+    
+    subplot(122)
+    pcolor(qL, qz, imap.T, norm=mpl.colors.LogNorm())
+    xlabel(r'Q$_\parallel$ ($\AA^{-1}$)')
+    ylabel(r'Q$_\perp$ ($\AA^{-1}$)')
+    colorbar()
+    tight_layout()
+
+
+The resulting figure shows the simulation result. Currently you have to refer to the docstrings and implementation for further details.
+
+.. figure:: pics/xrr_diffuse.png
+   :alt: Diffuse x-ray reflectivity of a Si/Ge multilayer
+   :width: 550 px
 
 Diffraction calculation
 -----------------------
