@@ -44,7 +44,7 @@ def _multiply(a, b):
         raise ValueError("multiplication factor needs to be positive!")
     m = MaterialList('%d * (%s)' % (b, a.name), a)
     for i in range(b-1):
-        m.append(a)
+        m.append(copy.deepcopy(a))
     return m
 
 
@@ -174,16 +174,25 @@ class MaterialList(collections.MutableSequence):
             raise TypeError('%s can only contain SMaterial as entries!'
                             % self.__class__.__name__)
 
-    def _get_unique_name(self, v):
-        if v.name not in self.namelist:
-            return v.name
-        else:
-            num = 1
-            name = '{name}_{num:d}'.format(name=v.name, num=num)
+    def _set_unique_name(self, v):
+        if v.name in self.namelist:
+            splitname = v.name.split('_')
+            if len(splitname) > 1:
+                try:
+                    num = int(splitname[-1])
+                    basename = '_'.join(splitname[:-1])
+                except ValueError:
+                    num = 1
+                    basename = v.name
+            else:
+                num = 1
+                basename = v.name
+            name = '{name}_{num:d}'.format(name=basename, num=num)
             while name in self.namelist:
                 num += 1
-                name = '{name}_{num:d}'.format(name=v.name, num=num)
-            return name
+                name = '{name}_{num:d}'.format(name=basename, num=num)
+            v.name = name
+        return v.name
 
     def __len__(self): return len(self.list)
 
@@ -193,7 +202,8 @@ class MaterialList(collections.MutableSequence):
 
     def __setitem__(self, i, v):
         self.check(v)
-        self.namelist[i] = self._get_unique_name(v)
+        self._set_unique_name(v)
+        self.namelist[i] = v.name
         self.list[i] = v
 
     def insert(self, i, v):
@@ -203,7 +213,8 @@ class MaterialList(collections.MutableSequence):
             vs = [v, ]
         for j, val in enumerate(vs):
             self.check(val)
-            self.namelist.insert(i+j, self._get_unique_name(val))
+            self._set_unique_name(val)
+            self.namelist.insert(i+j, val.name)
             self.list.insert(i+j, val)
 
     def __radd__(self, other):
