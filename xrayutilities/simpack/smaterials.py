@@ -202,8 +202,7 @@ class MaterialList(collections.MutableSequence):
 
     def __setitem__(self, i, v):
         self.check(v)
-        self._set_unique_name(v)
-        self.namelist[i] = v.name
+        self.namelist[i] = self._set_unique_name(v)
         self.list[i] = v
 
     def insert(self, i, v):
@@ -213,8 +212,7 @@ class MaterialList(collections.MutableSequence):
             vs = [v, ]
         for j, val in enumerate(vs):
             self.check(val)
-            self._set_unique_name(val)
-            self.namelist.insert(i+j, val.name)
+            self.namelist.insert(i+j, self._set_unique_name(val))
             self.list.insert(i+j, val)
 
     def __radd__(self, other):
@@ -381,7 +379,7 @@ class PseudomorphicStack001(CrystalStack):
 
     def __setitem__(self, i, v):
         self.check(v)
-        self.namelist[i] = self._get_unique_name(v)
+        self.namelist[i] = self._set_unique_name(v)
         self.list[i] = v
         for j in range(i, len(self)):
             self.make_epitaxial(j)
@@ -393,7 +391,7 @@ class PseudomorphicStack001(CrystalStack):
             vs = [v, ]
         for j, val in enumerate(vs):
             self.check(val)
-            self.namelist.insert(i+j, self._get_unique_name(val))
+            self.namelist.insert(i+j, self._set_unique_name(val))
             self.list.insert(i+j, copy.copy(val))
             for k in range(i+j, len(self)):
                 self.make_epitaxial(k)
