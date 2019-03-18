@@ -64,7 +64,7 @@ vlines([xu.math.VecNorm(lay.material.Q(H, K, L)) for lay in pls], 1e-9, 1,
        linestyles='dashed')
 legend(fontsize='small')
 xlim(qz.min(), qz.max())
-xlabel(r'Qz ($1/\AA$)')
+xlabel(r'Qz ($1/\mathrm{\AA}$)')
 ylabel('Intensity (arb. u.)')
 tight_layout()
 show()

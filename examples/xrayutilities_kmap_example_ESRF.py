@@ -80,18 +80,18 @@ numpy.savez_compressed('RSM3D.npz', qx=g3d.xaxis, qy=g3d.yaxis, qz=g3d.zaxis,
 figure()
 subplot(221)
 pcolormesh(qx, qy, data.sum(axis=2).T, norm=mpl.colors.LogNorm())
-xlabel(r'Qx ($\AA^{-1}$)')
-ylabel(r'Qy ($\AA^{-1}$)')
+xlabel(r'Qx ($\mathrm{\AA}^{-1}$)')
+ylabel(r'Qy ($\mathrm{\AA}^{-1}$)')
 
 subplot(222)
 pcolormesh(qx, qz, data.sum(axis=1).T, norm=mpl.colors.LogNorm())
-xlabel(r'Qx ($\AA^{-1}$)')
-ylabel(r'Qz ($\AA^{-1}$)')
+xlabel(r'Qx ($\mathrm{\AA}^{-1}$)')
+ylabel(r'Qz ($\mathrm{\AA}^{-1}$)')
 
 subplot(223)
 pcolormesh(qy, qz, data.sum(axis=0).T, norm=mpl.colors.LogNorm())
-xlabel(r'Qy ($\AA^{-1}$)')
-ylabel(r'Qz ($\AA^{-1}$)')
+xlabel(r'Qy ($\mathrm{\AA}^{-1}$)')
+ylabel(r'Qz ($\mathrm{\AA}^{-1}$)')
 tight_layout()
 
 #############################################################

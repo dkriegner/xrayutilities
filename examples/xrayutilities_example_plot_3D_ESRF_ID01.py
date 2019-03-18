@@ -92,14 +92,14 @@ qx, qy, qz, gint, gridder = id01.gridmap(s, SCANNR, hxrd, nx, ny, nz)
 # plot 2D sums using matplotlib
 plt.figure()
 plt.contourf(qx, qy, xu.maplog(gint.sum(axis=2), 2.8, 1.5).T, 50)
-plt.xlabel(r"QX ($1/\AA$)")
-plt.ylabel(r"QY ($1/\AA$)")
+plt.xlabel(r"QX ($1/\mathrm{\AA}$)")
+plt.ylabel(r"QY ($1/\mathrm{\AA}$)")
 plt.colorbar()
 # plt.savefig(os.path.join("pics","filename.png"))
 
 # plot 2D slice using matplotlib
 plt.figure()
 plt.contourf(qx, qy, xu.maplog(gint[:, :, 81:89].sum(axis=2), 3.75, 0).T, 50)
-plt.xlabel(r"QX ($1/\AA$)")
-plt.ylabel(r"QY ($1/\AA$)")
+plt.xlabel(r"QX ($1/\mathrm{\AA}$)")
+plt.ylabel(r"QY ($1/\mathrm{\AA}$)")
 plt.colorbar()

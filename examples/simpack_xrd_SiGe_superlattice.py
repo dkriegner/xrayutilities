@@ -85,7 +85,7 @@ vlines([4*2*pi/l.material.a3[-1] for l in pls[-2:]], 1e-9, 1,
        linestyles='dashed', label="kin. peak-pos")
 legend(fontsize='small')
 xlim(qz.min(), qz.max())
-xlabel(r'Qz ($1/\AA$)')
+xlabel(r'Qz ($1/\mathrm{\AA}$)')
 ylabel('Intensity (arb. u.)')
 tight_layout()
 show()

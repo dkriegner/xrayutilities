@@ -78,8 +78,8 @@ plt.pcolormesh(qy, qz, psd, norm=LogNorm(MIN, MAX))
 
 for i in range(1, 4):
     plt.subplot(1, 3, i)
-    plt.xlabel(r'$Q_{[110]}$ ($\AA^{-1}$)')
-    plt.ylabel(r'$Q_{[001]}$ ($\AA^{-1}$)')
+    plt.xlabel(r'$Q_{[110]}$ ($\mathrm{\AA}^{-1}$)')
+    plt.ylabel(r'$Q_{[001]}$ ($\mathrm{\AA}^{-1}$)')
     plt.xlim(-0.13, 0.13)
     plt.ylim(4.538, 4.654)
     plt.xticks((-0.1, 0.0, 0.1))
