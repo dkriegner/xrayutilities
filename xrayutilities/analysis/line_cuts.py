@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2018-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -236,7 +236,7 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
 def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     r"""
-    extracts a qx scan from reciprocal space map data with integration along
+    extracts a qx scan from 3D reciprocal space map data with integration along
     either, the perpendicular plane in q-space, omega (sample rocking angle) or
     2theta direction. For the integration in angular space (omega, or 2theta)
     the coplanar diffraction geometry with qy and qz as diffraction plane is
@@ -250,9 +250,9 @@ def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     intensity : array-like
         3D array of reciprocal space intensity with shape equal to the
         qpos entries
-    cutpos :    float or tuple/list
-        y/z-position at which the line scan should be extracted. this must be a
-        float for 2D data (z-position) and a tuple with two values for 3D data
+    cutpos :    tuple/list
+        y/z-position at which the line scan should be extracted. this must be
+        and a tuple/list with the qy, qz cut position
     npoints :   int
         number of points in the output data
     intrange :  float
@@ -274,14 +274,14 @@ def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     Returns
     -------
     qx, qxint :     ndarray
-        qy scan coordinates and intensities
+        qx scan coordinates and intensities
     used_mask :     ndarray
         mask of used data, shape is the same as the input intensity: True for
         points which contributed, False for all others
 
     Examples
     --------
-    >>> qxcut, qxcut_int, mask = get_qy_scan([qx, qy, qz], inten, [0, 2.0],
+    >>> qxcut, qxcut_int, mask = get_qx_scan([qx, qy, qz], inten, [0, 2.0],
                                              250, intrange=0.01)
     """
     intdir = kwargs.get('intdir', 'q')
