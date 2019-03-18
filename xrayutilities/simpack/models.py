@@ -287,7 +287,7 @@ class KinematicalModel(LayerModel):
         super(KinematicalModel, self).__init__(*args, **kwargs)
         self.lstack_params += ['thickness', ]
         self.lstack_structural_params = True
-        self.xlabelstr = r'momentum transfer $Q_z$ ($\AA^{-1}$)'
+        self.xlabelstr = r'momentum transfer $Q_z$ ($\mathrm{\AA^{-1}}$)'
         # precalc optical properties
         self._init_en = 0
         self.init_chi0()
@@ -1035,7 +1035,7 @@ class SpecularReflectivityModel(LayerModel):
         if plot:
             plt.figure('XU:density_profile', figsize=(5, 3))
             plt.plot(z, prof, 'k-', lw=2, label='electron density')
-            plt.xlabel(r'z ($\AA$)')
+            plt.xlabel(r'z ($\mathrm{\AA}$)')
             plt.ylabel(r'electron density (e$^-$ cm$^{-3}$)')
             plt.tight_layout()
 

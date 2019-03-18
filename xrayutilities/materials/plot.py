@@ -185,8 +185,8 @@ def show_reciprocal_space_plane(
     if color:
         h.set_color(color)
 
-    plt.xlabel(r'$Q$ inplane ($\AA^{-1}$)')
-    plt.ylabel(r'$Q$ out of plane ($\AA^{-1}$)')
+    plt.xlabel(r'$Q$ inplane ($\mathrm{\AA^{-1}}$)')
+    plt.ylabel(r'$Q$ out of plane ($\mathrm{\AA^{-1}}$)')
 
     if show_legend:
         if len(fig.legends) == 1:
