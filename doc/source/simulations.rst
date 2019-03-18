@@ -208,8 +208,8 @@ For the calculation of diffuse x-ray reflectivity the :class:`~xrayutilities.sim
     
     subplot(122)
     pcolor(qL, qz, imap.T, norm=mpl.colors.LogNorm())
-    xlabel(r'Q$_\parallel$ ($\AA^{-1}$)')
-    ylabel(r'Q$_\perp$ ($\AA^{-1}$)')
+    xlabel(r'Q$_\parallel$ ($\mathrm{\AA^{-1}}$)')
+    ylabel(r'Q$_\perp$ ($\mathrm{\AA^{-1}}$)')
     colorbar()
     tight_layout()
 
