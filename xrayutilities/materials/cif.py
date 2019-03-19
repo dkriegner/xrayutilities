@@ -45,8 +45,8 @@ re_symop = re.compile(r"^\s*("
                       "_space_group_symop_operation_xyz|"
                       "_symmetry_equiv_pos_as_xyz)", re.IGNORECASE)
 re_name = re.compile(r"^\s*_chemical_formula_sum", re.IGNORECASE)
-re_atom = re.compile(r"^\s*(_atom_site_label|_atom_site_type_symbol)\s*$",
-                     re.IGNORECASE)
+re_atom = re.compile(r"^\s*_atom_site_label\s*$", re.IGNORECASE)
+re_atomtyp = re.compile(r"^\s*_atom_site_type_symbol\s*$", re.IGNORECASE)
 re_atomx = re.compile(r"^\s*_atom_site_fract_x", re.IGNORECASE)
 re_atomy = re.compile(r"^\s*_atom_site_fract_y", re.IGNORECASE)
 re_atomz = re.compile(r"^\s*_atom_site_fract_z", re.IGNORECASE)
@@ -435,11 +435,14 @@ class CIFDataset(object):
                             print('XU.material: symop-loop identified')
                         symop_loop = True
                         symop_idx = len(loop_labels) - 1
-                    elif re_atom.match(line):  # start of atom position loop
+                    elif re_atom.match(line) or re_atomtyp.match(line):
+                        # start of atom position loop
                         if config.VERBOSITY >= config.DEBUG:
                             print('XU.material: atom position-loop identified')
                         atom_loop = True
-                        alab_idx = len(loop_labels) - 1
+                        if not list(filter(re_atomtyp.match, loop_labels)):
+                            # ensure precedence of atom_site_type_symbol
+                            alab_idx = len(loop_labels) - 1
                     elif re_atomx.match(line):
                         ax_idx = len(loop_labels) - 1
                         if config.VERBOSITY >= config.DEBUG:
@@ -691,6 +694,14 @@ def cifexport(filename, mat):
     parameters.
     """
 
+    def unique_label(basename, names):
+        num = 1
+        name = '{name}{num:d}'.format(name=basename, num=num)
+        while name in names:
+            num += 1
+            name = '{name}{num:d}'.format(name=basename, num=num)
+        return name
+
     general = """data_global
 _chemical_formula_sum '{chemsum}'
 _cell_length_a {a:.5f}
@@ -736,6 +747,7 @@ _space_group_symop_operation_xyz
     atomloop = """
 loop_
 _atom_site_label
+_atom_site_type_symbol
 _atom_site_symmetry_multiplicity
 _atom_site_Wyckoff_symbol
 _atom_site_fract_x
@@ -746,12 +758,14 @@ _atom_site_B_iso_or_equiv
 """
     nidx = 0
     allatoms = list(mat.lattice.base())
+    names = []
     for at, pos, occ, b in mat.lattice._wbase:
         wm, wl, dummy = re.split('([a-z])', pos[0])
         nsite = int(wm)
         x, y, z = allatoms[nidx][1]
-        atomloop += '%s %d %c %.5f %.5f %.5f %.4f %.4f\n' % (
-            at.name, nsite, wl, x, y, z, occ, b)
+        names.append(unique_label(at.name, names))
+        atomloop += '%s %s %d %c %.5f %.5f %.5f %.4f %.4f\n' % (
+            names[-1], at.name, nsite, wl, x, y, z, occ, b)
         nidx += nsite
 
     with open(filename, 'w') as f:

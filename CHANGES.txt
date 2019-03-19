@@ -1,3 +1,4 @@
+* CIF export: make _atom_site_label unique
 * change of SMaterial.density to a unit of kg/m3
 * deprecate the fit_xrr function, which will be remove in the next major
   version -> use the new FitModel
