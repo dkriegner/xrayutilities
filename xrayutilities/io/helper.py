@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -116,7 +116,7 @@ class xu_h5open(object):
 
     def __enter__(self):
         if self.fid:
-            if not self.fid.fid.valid:
+            if not self.fid.id.valid:
                 self.fid = h5py.File(self.filename, self.mode)
         else:
             self.fid = h5py.File(self.filename, self.mode)
