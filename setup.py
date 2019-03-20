@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import glob
 import os.path
@@ -157,6 +157,7 @@ setup(
     extras_require={
         'plot': ["matplotlib"],
         'fit': ["lmfit"],
+        'lzma': ["lzma"],
         },
     include_dirs=[numpy.get_include()],
     ext_modules=[extmodul],

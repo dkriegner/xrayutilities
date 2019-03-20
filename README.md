@@ -87,6 +87,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 - numpy (version >= 1.8)
 - lmfit (optional)
 - matplotlib (optional)
+- python-lzma (optional)
 
 When building from source you also might need:
 
