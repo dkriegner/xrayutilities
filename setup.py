@@ -153,7 +153,7 @@ setup(
             ]
         },
     data_files=[('xrayutilities', ['VERSION'])],
-    requires=['numpy', 'scipy', 'h5py'],
+    install_requires=['numpy', 'scipy', 'h5py'],
     extras_require={
         'plot': ["matplotlib"],
         'fit': ["lmfit"],
