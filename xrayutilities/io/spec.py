@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a class for observing a SPEC data file
@@ -42,7 +42,8 @@ SPEC_time_format = re.compile(r"\d\d:\d\d:\d\d")
 SPEC_multi_blank = re.compile(r"\s+")
 SPEC_multi_blank2 = re.compile(r"\s\s+")
 # denotes a numeric value
-SPEC_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+")
+SPEC_int_value = re.compile(r"[+-]?\d+")
+SPEC_num_value = re.compile(r"([+-]?\d*\.*\d*[eE]*[+-]*\d+|[+-]?[Ii][Nn][Ff]|[Nn][Aa][Nn])")
 SPEC_dataline = re.compile(r"^[+-]*\d.*")
 
 SPEC_scan = re.compile(r"^#S")
@@ -343,7 +344,7 @@ class SPECScan(object):
                         record_list.append(tuple(line_list))
                 else:
                     # reading and MCA spectrum
-                    tmp_list = SPEC_num_value.findall(line)
+                    tmp_list = SPEC_int_value.findall(line)
                     for x in tmp_list:
                         mca_tmp_list.append(float(x))
 
