@@ -13,9 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2018-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import os
 import tempfile
 import unittest
 
@@ -25,8 +24,6 @@ xu.config.VERBOSITY = 0
 
 
 class Test_CIF_export(unittest.TestCase):
-    filename = ''
-
     @classmethod
     def setUpClass(cls):
         cls.materials = []
@@ -34,21 +31,13 @@ class Test_CIF_export(unittest.TestCase):
             if isinstance(obj, xu.materials.Crystal):
                 cls.materials.append(obj)
 
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            os.remove(cls.filename)
-        except OSError:
-            pass
-
     def test_export(self):
         for m in self.materials:
-            with tempfile.NamedTemporaryFile(mode='w', delete=False) as fid:
-                self.filename = fid.name
-            m.toCIF(self.filename)
-            c = xu.materials.Crystal.fromCIF(self.filename)
-            self.assertEqual(m, c)
-            os.remove(self.filename)
+            with tempfile.NamedTemporaryFile(mode='w') as fid:
+                filename = fid.name
+                m.toCIF(filename)
+                c = xu.materials.Crystal.fromCIF(filename)
+                self.assertEqual(m, c)
 
 
 if __name__ == '__main__':
