@@ -868,21 +868,11 @@ class SPECFile(object):
                     # consecutive file headers in the data file without any
                     # data or abort notice of the first scan; first store
                     # current scan as aborted then start new scan parsing
-
                     s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
                                  date, time, itime, col_names,
-                                 scan_header_offset, scan_data_offset,
+                                 scan_header_offset, None,
                                  self.full_filename, self.init_motor_names,
-                                 init_motor_values, "ABORTED")
-#                   DK: 3.8.2018: keep in case exception need to be caught
-#                   except:
-#                       scan_data_offset = self.last_offset
-#                       s = SPECScan("scan_%i" % (scannr), scannr, scancmd,
-#                                    date, time, itime, col_names,
-#                                    scan_header_offset, scan_data_offset,
-#                                    self.full_filename, self.init_motor_names,
-#                                    init_motor_values, "ABORTED")
-
+                                 init_motor_values, "NODATA")
                     self.scan_list.append(s)
 
                     # reset control flags
@@ -902,9 +892,6 @@ class SPECFile(object):
                     scan_has_mca = False
                     scan_header_offset = self.last_offset
                     scan_status = "OK"
-                    if config.VERBOSITY >= config.INFO_LOW:
-                        print("XU.io.SPECFile.Parse: processing scan nr. %i"
-                              "..." % scannr)
 
                 # store the position of the file pointer
                 self.last_offset += linelength
