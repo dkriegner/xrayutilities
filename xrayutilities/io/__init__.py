@@ -31,7 +31,5 @@ from .rigaku_ras import RASFile, RASScan, getras_scan
 from .rotanode_alignment import RA_Alignment
 from .seifert import SeifertMultiScan, SeifertScan, getSeifert_map
 # for backward compatibility import also as old name
-from .spec import SPECFile, SPECLog, SPECScan
-from .spec import geth5_scan as geth5_map
-from .spec import getspec_scan
+from .spec import SPECFile, SPECLog, SPECScan, geth5_scan, getspec_scan
 from .spectra import SPECTRAFile, geth5_spectra_map
