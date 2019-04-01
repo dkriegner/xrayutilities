@@ -34,10 +34,10 @@ from math import ceil, copysign
 import numpy
 import scipy.optimize
 
-from . import cif, elements
 from .. import config, math, utilities
 from ..exception import InputError
 from ..math import VecCross, VecDot, VecNorm
+from . import cif, elements
 from .atom import Atom
 from .spacegrouplattice import WyckoffBase
 

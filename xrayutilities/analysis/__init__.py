@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities.analysis is a package for assisting with the analysis of
@@ -24,24 +24,9 @@ offered, with the ability to integrate the intensity perpendicular to the
 line cut direction.
 """
 
-# functions from sample_align.py
-from .sample_align import psd_refl_align
-from .sample_align import psd_chdeg
-from .sample_align import linear_detector_calib
-from .sample_align import area_detector_calib
-from .sample_align import area_detector_calib_hkl
-from .sample_align import miscut_calc
-from .sample_align import fit_bragg_peak
-
-# functions from line_cuts.py
-from .line_cuts import get_qx_scan
-from .line_cuts import get_qy_scan
-from .line_cuts import get_qz_scan
-from .line_cuts import get_omega_scan
-from .line_cuts import get_radial_scan
-from .line_cuts import get_ttheta_scan
-
-# misc
-from .misc import getangles
-from .misc import getunitvector
-from .misc import coplanar_intensity
+from .line_cuts import (get_omega_scan, get_qx_scan, get_qy_scan, get_qz_scan,
+                        get_radial_scan, get_ttheta_scan)
+from .misc import coplanar_intensity, getangles, getunitvector
+from .sample_align import (area_detector_calib, area_detector_calib_hkl,
+                           fit_bragg_peak, linear_detector_calib, miscut_calc,
+                           psd_chdeg, psd_refl_align)

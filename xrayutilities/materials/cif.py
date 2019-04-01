@@ -28,10 +28,10 @@ import warnings
 import numpy
 import scipy.optimize
 
+from .. import config
 from . import elements
 from . import spacegrouplattice as sgl
 from . import wyckpos
-from .. import config
 
 # python 2to3 compatibility
 try:

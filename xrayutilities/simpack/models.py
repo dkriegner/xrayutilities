@@ -26,11 +26,11 @@ import scipy.integrate as integrate
 import scipy.interpolate as interpolate
 from scipy.special import erf, j0
 
-from . import Layer, LayerStack
 from .. import config, utilities
 from ..exception import InputError
 from ..experiment import Experiment
 from ..math import NormGauss1d, NormLorentz1d, heaviside, solve_quartic
+from . import Layer, LayerStack
 
 
 def startdelta(start, delta, num):

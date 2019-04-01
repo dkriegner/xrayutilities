@@ -23,9 +23,9 @@ import numpy
 from scipy.constants import physical_constants
 from scipy.misc import derivative
 
-from . import LayerModel
 from .. import materials, utilities
 from ..math import heaviside
+from . import LayerModel
 
 
 def getit(it, key):

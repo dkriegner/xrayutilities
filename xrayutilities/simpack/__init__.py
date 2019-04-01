@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 simulation subpackage of xrayutilities.
 
@@ -25,38 +25,18 @@ In addition it provides a fitting routine for reflectivity data which is based
 on lmfit.
 """
 
-from .smaterials import SMaterial, MaterialList
-from .smaterials import Powder, PowderList
-from .smaterials import Layer, LayerStack
-from .smaterials import CrystalStack, GradedLayerStack
-from .smaterials import PseudomorphicStack001
-from .smaterials import PseudomorphicStack111
-
-from .models import Model, LayerModel
-from .models import KinematicalModel
-from .models import KinematicalMultiBeamModel
-from .models import SpecularReflectivityModel
-from .models import DiffuseReflectivityModel
-from .models import SimpleDynamicalCoplanarModel
-from .models import DynamicalModel
-from .models import DynamicalReflectivityModel
-
-from .darwin_theory import GradedBuffer
-from .darwin_theory import DarwinModel
-from .darwin_theory import DarwinModelAlloy
-from .darwin_theory import DarwinModelSiGe001
-from .darwin_theory import DarwinModelGaInAs001
-from .darwin_theory import DarwinModelAlGaAs001
-
-from .fit import fit_xrr
-from .fit import FitModel
-
-from .helpers import coplanar_alphai
-from .helpers import get_qz
-
-from .powder import FP_profile
-from .powder import PowderDiffraction
-
-from .powdermodel import PowderModel
-from .powdermodel import Rietveld_error_metrics
-from .powdermodel import plot_powder
+from .darwin_theory import (DarwinModel, DarwinModelAlGaAs001,
+                            DarwinModelAlloy, DarwinModelGaInAs001,
+                            DarwinModelSiGe001, GradedBuffer)
+from .fit import FitModel, fit_xrr
+from .helpers import coplanar_alphai, get_qz
+from .models import (DiffuseReflectivityModel, DynamicalModel,
+                     DynamicalReflectivityModel, KinematicalModel,
+                     KinematicalMultiBeamModel, LayerModel, Model,
+                     SimpleDynamicalCoplanarModel, SpecularReflectivityModel)
+from .powder import FP_profile, PowderDiffraction
+from .powdermodel import PowderModel, Rietveld_error_metrics, plot_powder
+from .smaterials import (CrystalStack, GradedLayerStack, Layer, LayerStack,
+                         MaterialList, Powder, PowderList,
+                         PseudomorphicStack001, PseudomorphicStack111,
+                         SMaterial)

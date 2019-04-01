@@ -14,64 +14,21 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .algebra import solve_quartic
-
-from .transforms import Transform
-from .transforms import CoordinateTransform
-from .transforms import AxisToZ
-from .transforms import AxisToZ_keepXY
-from .transforms import XRotation
-from .transforms import YRotation
-from .transforms import ZRotation
-from .transforms import ArbRotation
-from .transforms import rotarb
-
-from .vector import VecNorm
-from .vector import VecUnit
-from .vector import VecDot
-from .vector import VecAngle
-from .vector import VecCross
-from .vector import getVector
-from .vector import getSyntax
-
-from .functions import smooth
-from .functions import kill_spike
-from .functions import Debye1
-from .functions import Gauss1d
-from .functions import NormGauss1d
-from .functions import Gauss1d_der_x
-from .functions import Gauss1d_der_p
-from .functions import Gauss2d
-from .functions import Gauss3d
-from .functions import TwoGauss2d
-from .functions import Lorentz1d
-from .functions import NormLorentz1d
-from .functions import Lorentz1d_der_x
-from .functions import Lorentz1d_der_p
-from .functions import Lorentz2d
-from .functions import PseudoVoigt1d
-from .functions import PseudoVoigt1dasym
-from .functions import PseudoVoigt1dasym2
-from .functions import PseudoVoigt2d
-from .functions import Gauss1dArea
-from .functions import Gauss2dArea
-from .functions import Lorentz1dArea
-from .functions import PseudoVoigt1dArea
-from .functions import multPeak1d
-from .functions import multPeak2d
-from .functions import heaviside
-
-from .fit import linregress
-from .fit import fit_peak2d
-from .fit import gauss_fit
-from .fit import peak_fit
-from .fit import multPeakFit
-from .fit import multPeakPlot
-from .fit import multGaussFit
-from .fit import multGaussPlot
-
-from .misc import fwhm_exp
-from .misc import center_of_mass
-from .misc import gcd
+from .fit import (fit_peak2d, gauss_fit, linregress, multGaussFit,
+                  multGaussPlot, multPeakFit, multPeakPlot, peak_fit)
+from .functions import (Debye1, Gauss1d, Gauss1d_der_p, Gauss1d_der_x,
+                        Gauss1dArea, Gauss2d, Gauss2dArea, Gauss3d, Lorentz1d,
+                        Lorentz1d_der_p, Lorentz1d_der_x, Lorentz1dArea,
+                        Lorentz2d, NormGauss1d, NormLorentz1d, PseudoVoigt1d,
+                        PseudoVoigt1dArea, PseudoVoigt1dasym,
+                        PseudoVoigt1dasym2, PseudoVoigt2d, TwoGauss2d,
+                        heaviside, kill_spike, multPeak1d, multPeak2d, smooth)
+from .misc import center_of_mass, fwhm_exp, gcd
+from .transforms import (ArbRotation, AxisToZ, AxisToZ_keepXY,
+                         CoordinateTransform, Transform, XRotation, YRotation,
+                         ZRotation, rotarb)
+from .vector import (VecAngle, VecCross, VecDot, VecNorm, VecUnit, getSyntax,
+                     getVector)

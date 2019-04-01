@@ -18,8 +18,8 @@
 
 import numpy
 
-from . import vector
 from .. import config
+from . import vector
 
 
 class Transform(object):

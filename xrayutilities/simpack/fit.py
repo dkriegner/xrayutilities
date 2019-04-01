@@ -19,9 +19,9 @@ import warnings
 
 import numpy
 
-from . import models
 from .. import config, utilities
 from ..exception import InputError
+from . import models
 
 # python 2to3 compatibility
 try:

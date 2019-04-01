@@ -21,8 +21,8 @@ import shlex
 
 import numpy
 
-from . import xu_open
 from .. import config
+from . import xu_open
 
 re_label = re.compile(r'^\s*_')
 re_default = re.compile(r'^\s*_('

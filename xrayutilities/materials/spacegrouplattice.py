@@ -32,9 +32,9 @@ from math import cos, radians, sin, sqrt
 
 import numpy
 
-from . import elements
 from .. import math
 from ..exception import InputError
+from . import elements
 from .atom import Atom
 from .wyckpos import wp
 

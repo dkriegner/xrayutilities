@@ -14,35 +14,18 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
-
-# import module objects
-
-from .atom import Atom
-from .spacegrouplattice import SGLattice
+# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from . import elements
-from .material import Alloy
-from .material import CubicAlloy
-from .material import PseudomorphicMaterial
-from .material import Material
-from .material import Amorphous
-from .material import Crystal
-from .material import CubicElasticTensor
-from .material import HexagonalElasticTensor
-from .material import WZTensorFromCub
-
-from .predefined_materials import *
-
+from .atom import Atom
+from .cif import CIFFile, cifexport
+from .database import (DataBase, add_f0_from_intertab, add_f0_from_xop,
+                       add_f1f2_from_ascii_file, add_f1f2_from_henkedb,
+                       add_f1f2_from_kissel, add_mass_from_NIST,
+                       init_material_db)
+from .material import (Alloy, Amorphous, Crystal, CubicAlloy,
+                       CubicElasticTensor, HexagonalElasticTensor, Material,
+                       PseudomorphicMaterial, WZTensorFromCub)
 from .plot import show_reciprocal_space_plane
-from .database import DataBase
-from .database import init_material_db
-from .database import add_f0_from_intertab
-from .database import add_f0_from_xop
-from .database import add_f1f2_from_henkedb
-from .database import add_f1f2_from_kissel
-from .database import add_mass_from_NIST
-from .database import add_f1f2_from_ascii_file
-
-from .cif import CIFFile
-from .cif import cifexport
+from .predefined_materials import *
+from .spacegrouplattice import SGLattice

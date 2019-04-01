@@ -25,8 +25,8 @@ import re
 
 import numpy
 
-from . import __path__, database
 from .. import config, utilities
+from . import __path__, database
 
 # python 2to3 compatibility
 try:

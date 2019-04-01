@@ -25,7 +25,6 @@ from .. import utilities
 from ..materials import Crystal, PseudomorphicMaterial
 from ..math import CoordinateTransform, Transform
 
-
 # python 2to3 compatibility
 try:
     basestring

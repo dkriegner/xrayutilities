@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014 Raphael Grifone <raphael.grifone@esrf.fr>
-# Copyright (C) 2014-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2014-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 modules to help with the analysis of FastScan data acquired at the ESRF.
@@ -43,13 +43,12 @@ import re
 import h5py
 import numpy
 
-# relative imports
-from . import EDFFile, SPECFile
 from .. import config, utilities
 from ..gridder import delta
 from ..gridder2d import Gridder2D, Gridder2DList
 from ..gridder3d import Gridder3D
 from ..normalize import blockAverage2D
+from . import EDFFile, SPECFile
 
 # python 2to3 compatibility
 try:

@@ -14,58 +14,24 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from .helper import xu_open
-from .helper import xu_h5open
-
-from .seifert import SeifertScan
-from .seifert import SeifertMultiScan
-from .seifert import getSeifert_map
-
-from .spectra import SPECTRAFile
-from .spectra import geth5_spectra_map
-
-from .imagereader import RoperCCD
-from .imagereader import PerkinElmer
-from .imagereader import Pilatus100K
-from .imagereader import ImageReader
-from .imagereader import TIFFRead
-from .imagereader import get_tiff
-
-from .spec import SPECFile
-from .spec import SPECScan
-from .spec import SPECLog
-from .spec import geth5_scan
-from .spec import getspec_scan
-# for backward compatibility import also as old name
-from .spec import geth5_scan as geth5_map
-
-from .edf import EDFFile
-from .edf import EDFDirectory
-from .cbf import CBFFile
-from .cbf import CBFDirectory
-
-from .fastscan import FastScan
-from .fastscan import FastScanCCD
-from .fastscan import FastScanSeries
-
-from .panalytical_xml import XRDMLFile
-from .panalytical_xml import getxrdml_map
-from .panalytical_xml import getxrdml_scan
-
-from .rigaku_ras import RASScan
-from .rigaku_ras import RASFile
-from .rigaku_ras import getras_scan
-
+from .cbf import CBFDirectory, CBFFile
+from .desy_tty08 import gettty08_scan, tty08File
+from .edf import EDFDirectory, EDFFile
+from .fastscan import FastScan, FastScanCCD, FastScanSeries
+from .helper import xu_h5open, xu_open
+from .ill_numor import numor_scan, numorFile
+from .imagereader import (ImageReader, PerkinElmer, Pilatus100K, RoperCCD,
+                          TIFFRead, get_tiff)
+from .panalytical_xml import XRDMLFile, getxrdml_map, getxrdml_scan
+from .pdcif import pdCIF, pdESG
+from .rigaku_ras import RASFile, RASScan, getras_scan
 # parser for the alignment log file of the rotating anode
 from .rotanode_alignment import RA_Alignment
-
-from .desy_tty08 import tty08File
-from .desy_tty08 import gettty08_scan
-
-from .ill_numor import numorFile
-from .ill_numor import numor_scan
-
-from .pdcif import pdCIF
-from .pdcif import pdESG
+from .seifert import SeifertMultiScan, SeifertScan, getSeifert_map
+# for backward compatibility import also as old name
+from .spec import SPECFile, SPECLog, SPECScan
+from .spec import geth5_scan as geth5_map
+from .spec import getspec_scan
+from .spectra import SPECTRAFile, geth5_spectra_map
