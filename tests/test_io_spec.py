@@ -16,6 +16,7 @@
 # Copyright (C) 2015,2018 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
+import tempfile
 import unittest
 
 import numpy
@@ -41,7 +42,6 @@ class TestIO_SPEC(unittest.TestCase):
     scannr = 43
     motorname = 'Nu'
     countername = 'PSDCORR'
-    h5file = '_test_spec.h5'
 
     @classmethod
     def setUpClass(cls):
@@ -53,13 +53,6 @@ class TestIO_SPEC(unittest.TestCase):
         cls.motor, cls.inte = xu.io.getspec_scan(cls.specfile, cls.scannr,
                                                  cls.motorname,
                                                  cls.countername)
-
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            os.remove(cls.h5file)
-        except OSError:
-            pass
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.sdata.shape)
@@ -80,9 +73,10 @@ class TestIO_SPEC(unittest.TestCase):
         self.assertTrue(numpy.all(self.sdata[self.countername] == self.inte))
 
     def test_hdf5file(self):
-        self.specfile.Save2HDF5(self.h5file)
-        h5d = xu.io.geth5_scan(self.h5file, self.scannr)
-        self.assertTrue(numpy.all(self.inte == h5d[self.countername]))
+        with tempfile.NamedTemporaryFile(mode='w') as fid:
+            self.specfile.Save2HDF5(fid.name)
+            h5d = xu.io.geth5_scan(fid.name, self.scannr)
+            self.assertTrue(numpy.all(self.inte == h5d[self.countername]))
 
 
 if __name__ == '__main__':

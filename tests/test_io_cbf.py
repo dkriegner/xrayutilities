@@ -13,9 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015,2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
+import tempfile
 import unittest
 
 import h5py
@@ -35,18 +36,11 @@ class TestIO_CBF(unittest.TestCase):
     dmin = 0.0
     tpos = (500, 500)
     dtpos = 2.0
-    h5file = '_test_cbf.h5'
 
     @classmethod
     def setUpClass(cls):
         cls.cbffile = xu.io.CBFFile(testfile, path=datadir)
         cls.data = cls.cbffile.data
-
-    def tearDown(self):
-        try:
-            os.remove(self.h5file)
-        except OSError:
-            pass
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.data.shape)
@@ -59,20 +53,22 @@ class TestIO_CBF(unittest.TestCase):
                                places=10)
 
     def test_savehdf5(self):
-        self.cbffile.Save2HDF5(self.h5file)
-        with h5py.File(self.h5file) as h5f:
-            h5d = h5f[list(h5f.keys())[0]]
-            h5d = numpy.asarray(h5d)
-            self.assertTrue(numpy.all(h5d == self.data))
+        with tempfile.NamedTemporaryFile(mode='w') as fid:
+            self.cbffile.Save2HDF5(fid.name)
+            with h5py.File(fid.name) as h5f:
+                h5d = h5f[list(h5f.keys())[0]]
+                h5d = numpy.asarray(h5d)
+                self.assertTrue(numpy.all(h5d == self.data))
 
     def test_CBFDirectory(self):
-        ed = xu.io.CBFDirectory(datadir, 'cbf')
-        ed.Save2HDF5(self.h5file)
-        with h5py.File(self.h5file) as h5f:
-            h5g = h5f[os.path.split(datadir)[-1]]
-            h5d = h5g[list(h5g.keys())[0]]
-            h5d = numpy.asarray(h5d)
-            self.assertTrue(numpy.all(h5d == self.data))
+        with tempfile.NamedTemporaryFile(mode='w') as fid:
+            ed = xu.io.CBFDirectory(datadir, 'cbf')
+            ed.Save2HDF5(fid.name)
+            with h5py.File(fid.name) as h5f:
+                h5g = h5f[os.path.split(datadir)[-1]]
+                h5d = h5g[list(h5g.keys())[0]]
+                h5d = numpy.asarray(h5d)
+                self.assertTrue(numpy.all(h5d == self.data))
 
 
 if __name__ == '__main__':

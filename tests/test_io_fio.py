@@ -13,9 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015,2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
+import tempfile
 import unittest
 
 import numpy
@@ -40,7 +41,6 @@ class TestIO_FIO(unittest.TestCase):
     dtpos = 1278952.0
     motorname = 'Motor_TT'
     countername = 'MythenIntegral'
-    h5file = '_test_fio.h5'
     P08_normalizer = xu.IntensityNormalizer(
         "MCA",
         time='CountingTime',
@@ -55,16 +55,10 @@ class TestIO_FIO(unittest.TestCase):
         cls.sdata = cls.fiofile.data
         cls.motor = cls.sdata[cls.motorname]
         cls.inte = cls.sdata[cls.countername]
-        cls.fiofile.Save2HDF5(cls.h5file, scanname)
-        [cls.h5tt, dummy, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
-            cls.h5file, [19], cls.motorname, 'ZS', cls.countername)
-
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            os.remove(cls.h5file)
-        except OSError:
-            pass
+        with tempfile.NamedTemporaryFile(mode='w') as fid:
+            cls.fiofile.Save2HDF5(fid.name, scanname)
+            [cls.h5tt, dummy, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
+                fid.name, [19], cls.motorname, 'ZS', cls.countername)
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.sdata[self.motorname].shape)
