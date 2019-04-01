@@ -48,7 +48,8 @@ from ..gridder import delta
 from ..gridder2d import Gridder2D, Gridder2DList
 from ..gridder3d import Gridder3D
 from ..normalize import blockAverage2D
-from . import EDFFile, SPECFile
+from .edf import EDFFile
+from .spec import SPECFile
 
 # python 2to3 compatibility
 try:

@@ -41,6 +41,5 @@ from .q2ang_fit import Q2AngFit
 from .utilities import (clear_bit, en2lam, energy, lam2en, makeNaturalName,
                         maplog, set_bit, wavelength)
 
-
 # load package version
 __version__ = pkg_resources.get_distribution("xrayutilities").version

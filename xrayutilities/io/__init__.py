@@ -30,6 +30,5 @@ from .rigaku_ras import RASFile, RASScan, getras_scan
 # parser for the alignment log file of the rotating anode
 from .rotanode_alignment import RA_Alignment
 from .seifert import SeifertMultiScan, SeifertScan, getSeifert_map
-# for backward compatibility import also as old name
 from .spec import SPECFile, SPECLog, SPECScan, geth5_scan, getspec_scan
 from .spectra import SPECTRAFile, geth5_spectra_map

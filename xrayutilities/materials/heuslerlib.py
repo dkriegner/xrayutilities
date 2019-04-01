@@ -19,7 +19,9 @@
 implement convenience functions to define Heusler materials.
 """
 
-from . import Crystal, SGLattice, elements
+from . import elements
+from .material import Crystal
+from .spacegrouplattice import SGLattice
 
 
 def _check_elements(*elem):

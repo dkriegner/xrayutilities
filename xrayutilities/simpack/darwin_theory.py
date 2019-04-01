@@ -25,7 +25,7 @@ from scipy.misc import derivative
 
 from .. import materials, utilities
 from ..math import heaviside
-from . import LayerModel
+from .models import LayerModel
 
 
 def getit(it, key):
