@@ -15,6 +15,7 @@
 #
 # Copyright (C) 2018-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import os
 import tempfile
 import unittest
 
@@ -33,11 +34,12 @@ class Test_CIF_export(unittest.TestCase):
 
     def test_export(self):
         for m in self.materials:
-            with tempfile.NamedTemporaryFile(mode='w') as fid:
+            with tempfile.NamedTemporaryFile(mode='w', delete=False) as fid:
                 filename = fid.name
-                m.toCIF(filename)
-                c = xu.materials.Crystal.fromCIF(filename)
-                self.assertEqual(m, c)
+            m.toCIF(filename)
+            c = xu.materials.Crystal.fromCIF(filename)
+            self.assertEqual(m, c)
+            os.remove(filename)
 
 
 if __name__ == '__main__':
