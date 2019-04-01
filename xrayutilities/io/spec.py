@@ -342,7 +342,7 @@ class SPECScan(object):
                         # create a temporary list for the mca data
                         mca_tmp_list = []
                     else:
-                        record_list.append(line_list)
+                        record_list.append(tuple(line_list))
                 else:
                     # reading MCA spectrum
                     mca_tmp_list += map(int, SPEC_int_value.findall(line))
@@ -352,15 +352,16 @@ class SPECScan(object):
                     # if mca_counter exceeds the number of lines used to store
                     # MCA data: append everything to the record list
                     if mca_counter > self.mca_nof_lines:
-                        record_list.append(list(line_list) + [mca_tmp_list])
+                        record_list.append(tuple(list(line_list) + [mca_tmp_list]))
                         mca_counter = 0
 
-            # convert the lists in the data dictionary to numpy arrays
+            # convert the data to numpy arrays
+            ncol = len(record_list[0])
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.io.SPECScan.ReadData: %s: %d %d %d"
-                      % (self.name, len(record_list),
-                         len(record_list[0]), len(type_desc["names"])))
-            if len(record_list[0]) == len(type_desc["names"]):
+                      % (self.name, len(record_list), ncol,
+                         len(type_desc["names"])))
+            if ncol == len(type_desc["names"]):
                 try:
                     self.data = numpy.rec.fromrecords(record_list,
                                                       dtype=type_desc)
