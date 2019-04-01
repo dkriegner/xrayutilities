@@ -334,7 +334,7 @@ class SPECScan(object):
                         print("XU.io.SPECScan.ReadData: read scalar values %s"
                               % repr(line_list))
                     # convert strings to numbers
-                    line_list = [float(item) for item in line_list]
+                    line_list = map(float, line_list)
 
                     # increment the MCA counter if MCA data is stored
                     if self.has_mca:
@@ -342,19 +342,17 @@ class SPECScan(object):
                         # create a temporary list for the mca data
                         mca_tmp_list = []
                     else:
-                        record_list.append(tuple(line_list))
+                        record_list.append(line_list)
                 else:
-                    # reading and MCA spectrum
-                    tmp_list = SPEC_int_value.findall(line)
-                    for x in tmp_list:
-                        mca_tmp_list.append(float(x))
+                    # reading MCA spectrum
+                    mca_tmp_list += map(int, SPEC_int_value.findall(line))
 
                     # increment MCA counter
                     mca_counter = mca_counter + 1
                     # if mca_counter exceeds the number of lines used to store
                     # MCA data: append everything to the record list
                     if mca_counter > self.mca_nof_lines:
-                        record_list.append(tuple(line_list + [mca_tmp_list]))
+                        record_list.append(list(line_list) + [mca_tmp_list])
                         mca_counter = 0
 
             # convert the lists in the data dictionary to numpy arrays
