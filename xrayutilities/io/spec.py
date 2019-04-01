@@ -43,7 +43,8 @@ SPEC_multi_blank = re.compile(r"\s+")
 SPEC_multi_blank2 = re.compile(r"\s\s+")
 # denotes a numeric value
 SPEC_int_value = re.compile(r"[+-]?\d+")
-SPEC_num_value = re.compile(r"([+-]?\d*\.*\d*[eE]*[+-]*\d+|[+-]?[Ii][Nn][Ff]|[Nn][Aa][Nn])")
+SPEC_num_value = re.compile(
+    r"([+-]?\d*\.*\d*[eE]*[+-]*\d+|[+-]?[Ii][Nn][Ff]|[Nn][Aa][Nn])")
 SPEC_dataline = re.compile(r"^[+-]*\d.*")
 
 SPEC_scan = re.compile(r"^#S")
