@@ -20,6 +20,7 @@ from __future__ import print_function
 import unittest
 
 import numpy
+
 import xrayutilities as xu
 
 digits = 11

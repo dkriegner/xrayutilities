@@ -18,6 +18,7 @@
 import unittest
 
 import numpy
+
 import xrayutilities as xu
 
 

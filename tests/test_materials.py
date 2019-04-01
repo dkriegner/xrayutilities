@@ -19,8 +19,9 @@ import math
 import unittest
 
 import numpy
-import xrayutilities as xu
 from numpy import arccos, cos, radians, sin, sqrt
+
+import xrayutilities as xu
 
 
 class TestMaterialsTransform(unittest.TestCase):

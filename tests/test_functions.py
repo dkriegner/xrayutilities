@@ -18,8 +18,9 @@
 import unittest
 
 import numpy
-import xrayutilities as xu
 from scipy.integrate import nquad, quad
+
+import xrayutilities as xu
 
 
 class TestMathFunctions(unittest.TestCase):

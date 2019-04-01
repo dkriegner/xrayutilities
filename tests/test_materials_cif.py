@@ -19,6 +19,7 @@ import os.path
 import unittest
 
 import numpy
+
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0

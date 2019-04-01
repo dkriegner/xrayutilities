@@ -20,6 +20,7 @@ import tempfile
 import unittest
 
 import numpy
+
 import xrayutilities as xu
 
 testfile = 'p08_00019.FIO'
