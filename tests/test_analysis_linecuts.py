@@ -44,6 +44,7 @@ class Test_analysis_linecuts(unittest.TestCase):
         x2, d2, m2 = xu.analysis.get_radial_scan(
             [self.QY, self.QZ], data, (self.qyp, self.qzp), self.Ncut, 1,
             intdir='omega')
+        self.assertEqual(x.size, self.Ncut)
         self.assertTrue(xu.math.fwhm_exp(x, d) > xu.math.fwhm_exp(x2, d2))
 
     def test_omega_cut(self):
@@ -56,6 +57,7 @@ class Test_analysis_linecuts(unittest.TestCase):
         x2, d2, m2 = xu.analysis.get_omega_scan(
             [self.QY, self.QZ], data, (self.qyp, self.qzp), self.Ncut, 1,
             intdir='radial')
+        self.assertEqual(x.size, self.Ncut)
         self.assertTrue(xu.math.fwhm_exp(x, d) > xu.math.fwhm_exp(x2, d2))
 
     def test_ttheta_cut(self):
@@ -68,6 +70,7 @@ class Test_analysis_linecuts(unittest.TestCase):
         x2, d2, m2 = xu.analysis.get_ttheta_scan(
             [self.QY, self.QZ], data, (self.qyp, self.qzp), self.Ncut, 1,
             intdir='omega')
+        self.assertEqual(x.size, self.Ncut)
         self.assertTrue(xu.math.fwhm_exp(x, d) > xu.math.fwhm_exp(x2, d2))
 
     def test_qz_cut(self):
@@ -78,6 +81,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             [self.QY, self.QZ], data, self.qyp, self.Ncut, 1, intdir='2theta')
         x2, d2, m2 = xu.analysis.get_qz_scan(
             [self.QY, self.QZ], data, self.qyp, self.Ncut, 1, intdir='omega')
+        self.assertEqual(x.size, self.Ncut)
         self.assertTrue(xu.math.fwhm_exp(x, d) > xu.math.fwhm_exp(x2, d2))
 
     def test_qy_cut(self):
@@ -96,6 +100,7 @@ class Test_analysis_linecuts(unittest.TestCase):
         x, d, m = xu.analysis.get_qz_scan(
             [self.QY, self.QZ], data, self.qyp, self.Ncut, 0.1,
             intdir='q')
+        self.assertEqual(x.size, self.Ncut)
         self.assertAlmostEqual(
             xu.math.fwhm_exp(x, d) / (2*math.sqrt(2*math.log(2))),
             self.width2, places=4)
@@ -105,6 +110,26 @@ class Test_analysis_linecuts(unittest.TestCase):
         self.assertAlmostEqual(
             xu.math.fwhm_exp(x, d) / (2*math.sqrt(2*math.log(2))),
             self.width1, places=4)
+
+    def test_arbitrary_cut(self):
+        data = xu.math.Gauss2d(self.QY, self.QZ, self.qyp, self.qzp,
+                               self.width1, self.width2, 1, 0, 0)
+        x, d, m = xu.analysis.get_arbitrary_line(
+            [self.QY, self.QZ], data, (self.qyp, self.qzp), (1, 0), self.Ncut,
+            0.01)
+        x2, d2, m2 = xu.analysis.get_arbitrary_line(
+            [self.QY, self.QZ], data, (self.qyp, self.qzp), (0, 1), self.Ncut,
+            0.01)
+
+        self.assertEqual(x.size, self.Ncut)
+        self.assertAlmostEqual(x[numpy.argmax(d)], self.qyp, places=2)
+        self.assertAlmostEqual(x2[numpy.argmax(d2)], self.qzp, places=2)
+        self.assertAlmostEqual(
+            xu.math.fwhm_exp(x, d) / (2*math.sqrt(2*math.log(2))),
+            self.width1, places=4)
+        self.assertAlmostEqual(
+            xu.math.fwhm_exp(x2, d2) / (2*math.sqrt(2*math.log(2))),
+            self.width2, places=4)
 
 
 if __name__ == '__main__':

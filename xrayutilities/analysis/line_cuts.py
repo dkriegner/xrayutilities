@@ -17,7 +17,7 @@
 
 import numpy
 
-from .. import config
+from .. import config, math
 from ..experiment import HXRD
 from ..gridder import FuzzyGridder1D
 
@@ -533,3 +533,60 @@ def get_ttheta_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
                        intrange/2., npoints)
 
     return ret
+
+
+def get_arbitrary_line(qpos, intensity, point, vec, npoints, intrange):
+    """
+    extracts a line scan from reciprocal space map data along an arbitrary line
+    defined by the point 'point' and propergation vector 'vec'. Integration of
+    the data is performed in a cylindrical volume along the line.
+    This function works for 2D and 3D input data!
+
+    Parameters
+    ----------
+    qpos :      list of array-like objects
+        arrays of x, y (list with two components) or x, y, z (list with three
+        components) momentum transfers
+    intensity : array-like
+        2D or 3D array of reciprocal space intensity with shape equal to the
+        qpos entries
+    point :     tuple, list or array-like
+        point on the extraction line (2 or 3 coordinates)
+    vec :       tuple, list or array-like
+        propergation vector of the extraction line (2 or 3 coordinates)
+    npoints :   int
+        number of points in the output data
+    intrange :  float
+        radius of the cylindrical integration volume around the extraction line
+
+    Returns
+    -------
+    qpos, qint :     ndarray
+        line scan coordinates and intensities
+    used_mask :     ndarray
+        mask of used data, shape is the same as the input intensity: True for
+        points which contributed, False for all others
+
+    Examples
+    --------
+    >>> qcut, qint, mask = get_arbitrary_line([qx, qy, qz], inten,
+                                              (1.1, 2.2, 0.0),
+                                              (1, 1, 1), 200, 0.1)
+    """
+    # make all data 3D
+    if len(qpos) == 2:
+        lqpos = [numpy.zeros_like(qpos[0]), qpos[0], qpos[1]]
+        lpoint = [0, point[0], point[1]]
+        lvec = [0, vec[0], vec[1]]
+    else:
+        lqpos = qpos
+        lpoint = point
+        lvec = vec
+
+    # make line cut
+    lqpos = numpy.reshape(numpy.asarray([lqpos[0].ravel(), lqpos[1].ravel(),
+                                         lqpos[2].ravel()]).T, (-1, 3))
+    qalong = math.VecDot(lqpos, math.VecUnit(lvec))
+    qdistance = math.distance(lqpos[:, 0], lqpos[:, 1], lqpos[:, 2], lpoint,
+                              lvec)
+    return _get_cut(qalong, qdistance, intensity, intrange, npoints)
