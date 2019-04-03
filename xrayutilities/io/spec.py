@@ -352,7 +352,8 @@ class SPECScan(object):
                     # if mca_counter exceeds the number of lines used to store
                     # MCA data: append everything to the record list
                     if mca_counter > self.mca_nof_lines:
-                        record_list.append(tuple(list(line_list) + [mca_tmp_list]))
+                        record_list.append(tuple(list(line_list) +
+                                                 [mca_tmp_list]))
                         mca_counter = 0
 
             # convert the data to numpy arrays
