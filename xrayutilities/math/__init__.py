@@ -30,5 +30,5 @@ from .misc import center_of_mass, fwhm_exp, gcd
 from .transforms import (ArbRotation, AxisToZ, AxisToZ_keepXY,
                          CoordinateTransform, Transform, XRotation, YRotation,
                          ZRotation, rotarb)
-from .vector import (VecAngle, VecCross, VecDot, VecNorm, VecUnit, getSyntax,
-                     getVector)
+from .vector import (VecAngle, VecCross, VecDot, VecNorm, VecUnit, distance,
+                     getSyntax, getVector)

@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module with vector operations for vectors of size 3,
@@ -181,6 +181,28 @@ def VecAngle(v1, v2, deg=False):
             alpha = math.degrees(alpha)
 
     return alpha
+
+
+def distance(x, y, z, point, vec):
+    """
+    calculate the distance between the point (x, y, z) and the line defined by
+    the point and vector vec
+
+    Parameters
+    ----------
+    x :     float or ndarray
+        x coordinate(s) of the point(s)
+    y :     float or ndarray
+        y coordinate(s) of the point(s)
+    z :     float or ndarray
+        z coordinate(s) of the point(s)
+    point : tuple, list or ndarray
+        3D point on the line to which the distance should be calculated
+    vec :   tuple, list or ndarray
+        3D vector defining the propergation direction of the line
+    """
+    coords = numpy.vstack((x - point[0], y - point[1], z - point[2])).T
+    return VecNorm(VecCross(coords, numpy.asarray(vec)))/VecNorm(vec)
 
 
 def getVector(string):
