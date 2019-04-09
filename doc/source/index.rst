@@ -184,7 +184,7 @@ The needed dependencies are:
  * **git** a version control system used to keep track on the *xrayutilities* development. (only needed for development)
 
 Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
- * **Numpy** a Python module providing numerical array objects (version >= 1.8)
+ * **Numpy** a Python module providing numerical array objects (version >= 1.9)
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.11.0)
  * **h5py** a powerful Python interface to HDF5.
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optionally)
