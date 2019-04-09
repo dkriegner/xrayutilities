@@ -29,7 +29,7 @@ A 5 nm thick metallic CoFe compound layer can therefore be defined by::
 
 When several layers are defined they can be combined to a :class:`~xrayutilities.simpack.smaterials.LayerStack` which is used for the simulations below.::
 
-    sub = xu.simpack.Layer(xu.materials.Si, inf)
+    sub = xu.simpack.Layer(xu.materials.Si, float('inf'))
     lay1 = xu.simpack.Layer(xu.materials.Ge, 200)
     lay2 = xu.simpack.Layer(xu.materials.SiO2, 30)
     ls = xu.simpack.LayerStack('Si/Ge', sub, lay1, lay2)
@@ -47,7 +47,7 @@ Pseudomorphic Layers
 
 All stacks of layers described above use the materials in the layer as they are supplied. However, epitaxial systems often adopt the inplane lattice parameter of the layers beneath. To mimic this behavior you can either supply the :class:`~xrayutilities.simpack.smaterials.Layer` objects which custom :class:`~xrayutilities.materials.material.Crystal` objects which have the appropriate lattice parameters or use the :class:`~xrayutilities.simpack.PseudomorphicStack*` classes which to the adaption of the lattice parameters automatically. In this respect the 'relaxation' parameter of the :class:`~xrayutilities.simpack.smaterials.Layer` class is important since it allows to create partially/fully relaxed layers.::
 
-    sub = xu.simpack.Layer(xu.materials.Si, inf)
+    sub = xu.simpack.Layer(xu.materials.Si, float('inf'))
     buf1 = xu.simpack.Layer(xu.materials.SiGe(0.5), 5000, relaxation=1.0)
     buf2 = xu.simpack.Layer(xu.materials.SiGe(0.8), 5000, relaxation=1.0)
     lay1 = xu.simpack.Layer(xu.materials.SiGe(0.6), 50, relaxation=0.0)
@@ -102,7 +102,7 @@ Specular x-ray reflectivity
 For the specular reflectivity models currently only the Parrat formalism including non-correlated roughnesses is implemented. A minimal working example for a reflectivity calculation follows.::
 
     # building a stack of layers
-    sub = xu.simpack.Layer(xu.materials.GaAs, inf, roughness=2.0)
+    sub = xu.simpack.Layer(xu.materials.GaAs, float('inf'), roughness=2.0)
     lay1 = xu.simpack.Layer(xu.materials.AlGaAs(0.25), 75, roughness=2.5)
     lay2 = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 25, roughness=3.0)
     pls = xu.simpack.PseudomorphicStack001('pseudo', sub+5*(lay1+lay2))
