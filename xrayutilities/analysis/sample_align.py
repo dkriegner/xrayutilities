@@ -680,7 +680,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
             plt.locator_params(nbins=4, axis='x')
             if p > 1:
                 if fix[p-2]:
-                    ax.set_axis_bgcolor('0.85')
+                    ax.set_facecolor('0.85')
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
@@ -1511,7 +1511,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
             plt.locator_params(nbins=4, axis='x')
             if p > 1:
                 if fix[p-2]:
-                    ax.set_axis_bgcolor('0.85')
+                    ax.set_facecolor('0.85')
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
