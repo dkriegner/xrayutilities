@@ -128,7 +128,7 @@ def testwp(parint, wp, cifpos, digits):
             if not match[i]:
                 return False, None
         else:
-            variables.append(*v)
+            variables += v
 
     if numpy.all(match):
         return True, None
