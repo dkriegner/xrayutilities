@@ -379,7 +379,8 @@ def Rietveld_error_metrics(exp, sim, weight=None, std=None,
 
 
 def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
-                show_diff=True, show_legend=True):
+                show_diff=True, show_legend=True, labelexp='experiment',
+                labelsim='simulate', formatexp='k-.', formatsim='r-'):
     """
     Convenience function to plot the comparison between experimental and
     simulated powder diffraction data
@@ -414,10 +415,10 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     ax = plt.subplot(111)
     lines = []
     if exp is not None:
-        lines.append(ax.plot(twotheta, exp, 'k.-', label='experiment')[0])
+        lines.append(ax.plot(twotheta, exp, formatexp, label=labelexp)[0])
     if mask is None:
         mask = numpy.ones_like(twotheta, dtype=numpy.bool)
-    lines.append(ax.plot(twotheta[mask], sim, 'r-', label='simulation')[0])
+    lines.append(ax.plot(twotheta[mask], sim, formatsim, label=labelsim)[0])
 
     if show_diff:
         # plot error between simulation and experiment
