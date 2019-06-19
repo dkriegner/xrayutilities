@@ -34,6 +34,7 @@ from .models import (DiffuseReflectivityModel, DynamicalModel,
                      DynamicalReflectivityModel, KinematicalModel,
                      KinematicalMultiBeamModel, LayerModel, Model,
                      SimpleDynamicalCoplanarModel, SpecularReflectivityModel)
+from .mosaicity import mosaic_analytic
 from .powder import FP_profile, PowderDiffraction
 from .powdermodel import PowderModel, Rietveld_error_metrics, plot_powder
 from .smaterials import (CrystalStack, GradedLayerStack, Layer, LayerStack,

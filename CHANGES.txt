@@ -1,3 +1,4 @@
+* new model for calculating signal of mosaic small crystals
 * add arbitrary line cut function
 * fix parsing of empty scans in spec files
 * remove geth5_map function -> use geth5_scan instead
