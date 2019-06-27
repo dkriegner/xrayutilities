@@ -2182,15 +2182,19 @@ class PowderDiffraction(PowderExperiment):
         qpos = []
         refstrength = []
         hkl = []
+
+        def add_lines(q, ref, chkl):
+            for R, m in zip(ref, chkl):
+                qpos.append(q)
+                refstrength.append(R)
+                hkl.append(m)
+
         currq = -1
         curref = []
         currhkl = []
         for r in data:
             if abs(r[0] - currq) > config.EPSILON:
-                for R, m in zip(curref, currhkl):
-                    qpos.append(currq)
-                    refstrength.append(R)
-                    hkl.append(m)
+                add_lines(currq, curref, currhkl)
                 currq = r[0]
                 curref = [r[1], ]
                 currhkl = [r[2], ]
@@ -2212,6 +2216,8 @@ class PowderDiffraction(PowderExperiment):
                     if not added:
                         curref.append(r[1])
                         currhkl.append(r[2])
+        # add remaining lines
+        add_lines(currq, curref, currhkl)
 
         qpos = numpy.array(qpos[1:], dtype=numpy.double)
         ang = self.Q2Ang(qpos)

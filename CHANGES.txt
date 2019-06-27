@@ -1,3 +1,5 @@
+* fix bug in PowderDiffraction where the last Bragg peak before tt_cutoff was
+  omitted, thanks to NG for reporting the issue
 * new model for calculating signal of mosaic small crystals
 * add arbitrary line cut function
 * fix parsing of empty scans in spec files
