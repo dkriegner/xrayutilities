@@ -1345,7 +1345,7 @@ class Experiment(object):
 
     """
     base class for describing experiments
-    users should use the derived classes: HXRD, GID, Powder
+    users should use the derived classes: HXRD, GID, PowderExperiment
     """
 
     def __init__(self, ipdir, ndir, **keyargs):
