@@ -87,6 +87,7 @@ careful definition of all the parameters
 from __future__ import absolute_import, print_function
 
 import atexit
+import copy
 import math
 import multiprocessing
 import numbers
@@ -107,7 +108,7 @@ from numpy import sin as nsin
 from scipy.special import sici  # for the sine and cosine integral
 
 # package internal imports
-from .. import config, materials
+from .. import config, materials, utilities
 from ..experiment import PowderExperiment
 from ..math import VecNorm
 from .smaterials import Powder
@@ -1788,6 +1789,13 @@ class PowderDiffraction(PowderExperiment):
     this to one worker process.
     """
 
+    _valid_init_kwargs = copy.copy(PowderExperiment._valid_init_kwargs)
+    _valid_init_kwargs['tt_cutoff'] = '2Theta cut off value in degree'
+    _valid_init_kwargs['fpclass'] = 'FP_profile derived class'
+    _valid_init_kwargs['fpsettings'] = 'settings dictionaries'
+    _valid_init_kwargs['enable_simulation'] = 'flag to enable simulation mode'
+    del _valid_init_kwargs['sampleor']
+
     def __init__(self, mat, **kwargs):
         """
         the class is initialized with a xrayutilities.materials.Crystal
@@ -1824,6 +1832,8 @@ class PowderDiffraction(PowderExperiment):
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
         """
+        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
+                               self.__class__.__name__)
         if isinstance(mat, materials.Crystal):
             self.mat = Powder(mat, 1)
         elif isinstance(mat, Powder):

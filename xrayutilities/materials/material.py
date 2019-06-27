@@ -701,12 +701,8 @@ class Crystal(Material):
             atoms
         """
 
-        for k in kwargs.keys():
-            if k not in ['maxdist']:
-                raise Exception("unknown keyword argument given: allowed is"
-                                "only 'maxdist': maximum distance needed in "
-                                "the output")
-
+        valid_kwargs = {'maxdist': 'maximum distance needed in the output'}
+        utilities.check_kwargs(kwargs, valid_kwargs, 'Crystal.environment')
         maxdist = kwargs.get('maxdist', 7)
 
         if len(pos) < 3:

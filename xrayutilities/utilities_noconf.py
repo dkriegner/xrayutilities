@@ -308,3 +308,23 @@ def is_valid_variable_name(name):
         return True
     except (SyntaxError, ValueError, TypeError):
         return False
+
+
+def check_kwargs(kwargs, valid_kwargs, identifier):
+    """
+    Raises an TypeError if kwargs included a key which is not in valid_kwargs.
+
+    Parameters
+    ----------
+    kwargs :        dict
+        keyword arguments dictionary
+    valid_kwargs :  dict
+        dictionary with valid keyword arguments and their description
+    identifier :    str
+        string to identifier the caller of this function
+    """
+    desc = ', '.join(["'%s': %s" % (k, d) for k, d in valid_kwargs.items()])
+    for k in kwargs:
+        if k not in valid_kwargs:
+            raise TypeError("%s: unknown keyword argument ('%s') given; "
+                            "allowed are %s" % (identifier, k, desc))

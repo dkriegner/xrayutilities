@@ -27,6 +27,7 @@ The strength of the module is the versatile QConversion module which can be
 configured to describe almost any goniometer geometry.
 """
 
+import copy
 import numbers
 import re
 import warnings
@@ -70,6 +71,18 @@ class QConversion(object):
     or init_area() routines were called
     """
 
+    _valid_init_kwargs = {'en': 'x-ray energy',
+                          'wl': 'x-ray wavelength',
+                          'UB': 'orientation/orthonormalization matrix'}
+    _valid_call_kwargs = {'delta': 'angle offsets',
+                          'wl': 'x-ray wavelength',
+                          'en': 'x-ray energy',
+                          'UB': 'orientation/orthonormalization matrix',
+                          'deg': 'True if angles are in degrees',
+                          'sampledis': 'sample displacement vector'}
+    _valid_linear_kwargs = {'Nav': 'number of channels for block-average',
+                            'roi': 'region of interest'}
+
     def __init__(self, sampleAxis, detectorAxis, r_i, **kwargs):
         """
         initialize QConversion object.
@@ -102,12 +115,8 @@ class QConversion(object):
             determine not Q but (hkl) (default: identity matrix)
         """
 
-        for k in kwargs.keys():
-            if k not in ['wl', 'en', 'UB']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'en': for x-ray energy, "
-                                "'wl': x-ray wavelength, "
-                                "'UB': orientation/orthonormalization matrix")
+        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
+                               self.__class__.__name__)
 
         # initialize some needed variables
         self._kappa_dir = numpy.array((numpy.nan, numpy.nan, numpy.nan))
@@ -571,14 +580,7 @@ class QConversion(object):
             where `N` corresponds to the number of points given in the input
         """
 
-        for k in kwargs.keys():
-            if k not in ['wl', 'en', 'deg', 'UB', 'delta', 'sampledis']:
-                raise Exception("unknown keyword argument given: allowed are"
-                                "'delta': angle offsets, "
-                                "'wl/en': x-ray wavelength/energy, "
-                                "'UB': orientation/orthonormalization matrix, "
-                                "'deg': True if angles are in degrees, "
-                                "'sampledis': sample displacement vector")
+        utilities.check_kwargs(kwargs, self._valid_call_kwargs, 'Ang2Q/point')
 
         Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
             self._parse_common_kwargs(**kwargs)
@@ -671,11 +673,8 @@ class QConversion(object):
 
         """
 
-        for k in kwargs.keys():
-            if k not in ['Nav', 'roi']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'Nav': number of channels for block-average, "
-                                "'roi': region of interest")
+        utilities.check_kwargs(kwargs, self._valid_linear_kwargs,
+                               'init_linear')
 
         # detectorDir
         if not isinstance(detectorDir, basestring) or len(detectorDir) != 2:
@@ -788,17 +787,9 @@ class QConversion(object):
             raise Exception("QConversion: linear detector not initialized -> "
                             "call Ang2Q.init_linear(...)")
 
-        for k in kwargs.keys():
-            if k not in ['wl', 'en', 'deg', 'UB', 'delta', 'Nav', 'roi',
-                         'sampledis']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'delta': angle offsets, "
-                                "'wl/en': x-ray wavelength/energy, "
-                                "'UB': orientation/orthonormalization matrix, "
-                                "'deg': True if angles are in degrees, "
-                                "'Nav': number of channels for block-average, "
-                                "'roi': region of interest, "
-                                "'sampledis': sample displacement vector")
+        valid_kwargs = copy.copy(self._valid_call_kwargs)
+        valid_kwargs.update(self._valid_linear_kwargs)
+        utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2Q/linear')
 
         Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
             self._parse_common_kwargs(**kwargs)
@@ -900,12 +891,7 @@ class QConversion(object):
                 the channel numbers run from 0 .. NchX-1
         """
 
-        for k in kwargs.keys():
-            if k not in ['Nav', 'roi']:
-                raise Exception("unknown keyword argument (%s) given: allowed "
-                                "are 'Nav': number of channels for "
-                                "block-average, 'roi': region of interest"
-                                % k)
+        utilities.check_kwargs(kwargs, self._valid_linear_kwargs, 'init_area')
 
         # detectorDir
         if not isinstance(detectorDir1, basestring) or len(detectorDir1) != 2:
@@ -1054,17 +1040,9 @@ class QConversion(object):
             raise Exception("QConversion: area detector not initialized -> "
                             "call Ang2Q.init_area(...)")
 
-        for k in kwargs.keys():
-            if k not in ['wl', 'en', 'deg', 'UB', 'delta', 'Nav', 'roi',
-                         'sampledis']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'delta': angle offsets, "
-                                "'wl/en': x-ray wavelength/energy, "
-                                "'UB': orientation/orthonormalization matrix, "
-                                "'deg': True if angles are in degrees, "
-                                "'Nav': number of channels for block-average, "
-                                "'roi': region of interest, "
-                                "'sampledis': sample displacement vector")
+        valid_kwargs = copy.copy(self._valid_call_kwargs)
+        valid_kwargs.update(self._valid_linear_kwargs)
+        utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2Q/area')
 
         Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
             self._parse_common_kwargs(**kwargs)
@@ -1191,13 +1169,10 @@ class QConversion(object):
             direction. The length of the vector is k.
         """
 
-        for k in kwargs.keys():
-            if k not in ['dim', 'deg', 'Nav', 'roi']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'dim': dimensionality of the detector"
-                                "'deg': True if angles are in degrees, "
-                                "'Nav': number of channels for block-average, "
-                                "'roi': region of interest, ")
+        valid_kwargs = copy.copy(self._valid_linear_kwargs)
+        valid_kwargs['dim'] = 'dimensionality of the detector'
+        valid_kwargs['deg'] = 'True if angles are in degrees'
+        utilities.check_kwargs(kwargs, valid_kwargs, 'get_detector_pos')
 
         dim = kwargs.get('dim', 0)
 
@@ -1348,6 +1323,11 @@ class Experiment(object):
     users should use the derived classes: HXRD, GID, PowderExperiment
     """
 
+    _valid_init_kwargs = {'en': 'x-ray energy',
+                          'wl': 'x-ray wavelength',
+                          'qconv': 'reciprocal space conversion',
+                          'sampleor': 'sample orientation'}
+
     def __init__(self, ipdir, ndir, **keyargs):
         """
         initialization of an Experiment class needs the sample orientation
@@ -1392,13 +1372,8 @@ class Experiment(object):
                 for arbitrary goniometers with some restrictions.
         """
 
-        for k in keyargs.keys():
-            if k not in ['qconv', 'wl', 'en', 'sampleor']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'en': for x-ray energy, "
-                                "'wl': x-ray wavelength, "
-                                "'qconv': reciprocal space conversion, "
-                                "'sampleor': sample orientation")
+        utilities.check_kwargs(keyargs, self._valid_init_kwargs,
+                               self.__class__.__name__)
 
         if isinstance(ipdir, (list, tuple, numpy.ndarray)):
             self.idir = math.VecUnit(ipdir)
@@ -1612,15 +1587,13 @@ class Experiment(object):
             corresponds to the number of points given in the input (args)
         """
 
-        for k in kwargs.keys():
-            if k not in ['U', 'B', 'mat', 'dettype', 'delta', 'wl', 'en',
-                         'deg', 'sampledis']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'B': orthonormalization matrix, "
-                                "'U': orientation matrix, "
-                                "'mat': material object, "
-                                "'dettype': string with detector type, "
-                                "'delta, wl, en, deg, sampledis' from Ang2Q")
+        valid_kwargs = {'B': 'orthonormalization matrix',
+                        'U': 'orientation matrix',
+                        'mat': 'material object',
+                        'dettype': 'string with detector type'}
+        valid_kwargs.update(QConversion._valid_call_kwargs)
+        del valid_kwargs['UB']
+        utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2HKL')
 
         if "B" in kwargs:
             B = numpy.array(kwargs['B'])
@@ -1826,7 +1799,7 @@ class HXRD(Experiment):
         deg :       book, optional
             (default True) determines if the angles are returned in radians or
             degrees
-        geometry :  {'hi_lo', 'lo_hi', 'real'}, optional
+        geometry :  {'hi_lo', 'lo_hi', 'real', 'realTilt'}, optional
             determines the scattering geometry (default: self.geometry):
 
              - 'hi_lo' high incidence and low exit
@@ -1875,13 +1848,15 @@ class HXRD(Experiment):
                        due to refraction
         """
 
-        for k in keyargs.keys():
-            if k not in ['trans', 'deg', 'geometry', 'refrac', 'mat', 'fi',
-                         'fd', 'full_output']:
-                raise Exception("unknown keyword argument given, allowed are "
-                                "'trans', 'deg', 'geometry', 'refrac', 'mat', "
-                                "'fi', 'fd', 'full_output'; "
-                                "see documentation for details")
+        valid_kwargs = {'trans': 'flag, perform coordinate transformation',
+                        'deg': 'flag, return degrees',
+                        'geometry': 'geometry string',
+                        'refrac': 'flag',
+                        'mat': 'Crystal instance',
+                        'fi': 'incidence facet',
+                        'fd': 'exit facet',
+                        'full_output': 'see docstring for details'}
+        utilities.check_kwargs(keyargs, valid_kwargs, 'Q2Ang')
 
         q = self._prepare_qvec(Q)
 
@@ -2187,11 +2162,9 @@ class NonCOP(Experiment):
              - twotheta :   scattering angle/detector angle
         """
 
-        for k in keyargs.keys():
-            if k not in ['trans', 'deg']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'trans': coordinate transformation flag, "
-                                "'deg': degree-flag")
+        valid_kwargs = {'trans': 'coordinate transformation flag',
+                        'deg': 'degree-flag'}
+        utilities.check_kwargs(keyargs, valid_kwargs, 'Q2Ang')
 
         q = self._prepare_qvec(Q)
 
@@ -2315,11 +2288,9 @@ class GID(Experiment):
 
         """
 
-        for k in kwargs.keys():
-            if k not in ['trans', 'deg']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'trans': coordinate transformation flag, "
-                                "'deg': degree-flag")
+        valid_kwargs = {'trans': 'coordinate transformation flag',
+                        'deg': 'degree-flag'}
+        utilities.check_kwargs(keyargs, valid_kwargs, 'Q2Ang')
 
         if isinstance(Q, list):
             q = numpy.array(Q, dtype=numpy.double)

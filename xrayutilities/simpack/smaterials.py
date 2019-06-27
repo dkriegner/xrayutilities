@@ -254,6 +254,11 @@ class Layer(SMaterial):
         film thickness in Angstrom
     """
 
+    _valid_init_kwargs = {'roughness': 'root mean square roughness',
+                          'density': 'density in kg/m^3',
+                          'relaxation': 'degree of relaxation',
+                          'lat_correl': 'lateral correlation length'}
+
     def __init__(self, material, thickness, **kwargs):
         """
         constructor for the material saving its properties
@@ -278,9 +283,8 @@ class Layer(SMaterial):
             the lateral correlation length for diffuse reflectivity
             calculations
         """
-        for kw in kwargs:
-            if kw not in ('roughness', 'density', 'relaxation', 'lat_correl'):
-                raise TypeError('%s is an invalid keyword argument' % kw)
+        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
+                               self.__class__.__name__)
         kwargs['thickness'] = thickness
         super(Layer, self).__init__(material, **kwargs)
 
@@ -428,6 +432,11 @@ class Powder(SMaterial):
         extra peak width proportional to tan(theta)
     """
 
+    _valid_init_kwargs = {'crystallite_size_lor': 'Lorentzian cryst. size',
+                          'crystallite_size_gauss': 'Gaussian cryst. size',
+                          'strain_lor': 'microstrain broadening',
+                          'strain_gauss': 'microstrain broadening'}
+
     def __init__(self, material, volume, **kwargs):
         """
         constructor for the material saving its properties
@@ -450,10 +459,8 @@ class Powder(SMaterial):
             extra peak width proportional to tan(theta);
             typically interpreted as microstrain broadening
         """
-        for kw in kwargs:
-            if kw not in ('crystallite_size_lor', 'crystallite_size_gauss',
-                          'strain_lor', 'strain_gauss'):
-                raise TypeError('%s is an invalid keyword argument' % kw)
+        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
+                               self.__class__.__name__)
         kwargs['volume'] = volume
         super(Powder, self).__init__(material, **kwargs)
 

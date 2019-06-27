@@ -16,7 +16,7 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -206,10 +206,9 @@ class FuzzyGridder2D(Gridder2D):
             dimensions, or as sequence of length 2.
         """
 
-        for k in kwargs.keys():
-            if k not in ['width']:
-                raise Exception("unknown keyword argument given: allowed is"
-                                "'width': specifiying fuzzy data size")
+        valid_kwargs = {'width': 'specifiying fuzzy data size'}
+        utilities.check_kwargs(kwargs, valid_kwargs,
+                               self.__class__.__name__)
 
         x, y, data = self._checktransinput(x, y, data)
 

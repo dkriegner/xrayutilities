@@ -32,7 +32,7 @@ from math import cos, radians, sin, sqrt
 
 import numpy
 
-from .. import math
+from .. import math, utilities
 from ..exception import InputError
 from . import elements
 from .atom import Atom
@@ -414,10 +414,11 @@ class SGLattice(object):
             intensity of this atom (only used in case of temp=0 in
             StructureFactor and chi calculation)
         """
-        for k in kwargs.keys():
-            if k not in ('atoms', 'pos', 'occ', 'b'):
-                raise Exception("unknown keyword argument (%s) given: allowed "
-                                "are 'atoms', 'pos', 'occ', and 'b'" % k)
+        valid_kwargs = {'atoms': 'list of elements',
+                        'pos': 'list of Wyckoff positions',
+                        'occ': 'site occupations',
+                        'b': 'Debye Waller exponents'}
+        utilities.check_kwargs(kwargs, valid_kwargs, self.__class__.__name__)
         self.space_group = str(sgrp)
         self.space_group_nr = int(self.space_group.split(':')[0])
         try:

@@ -32,7 +32,7 @@ provide functions for normalizing intensities for
 
 import numpy
 
-from . import config, cxrayutilities, math
+from . import config, cxrayutilities, math, utilities
 from .exception import InputError
 
 # python 2to3 compatibility
@@ -199,13 +199,15 @@ class IntensityNormalizer(object):
         >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
         >>>     absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
         """
-
-        for k in keyargs.keys():
-            if k not in ['mon', 'time', 'smoothmon', 'av_mon', 'absfun',
-                         'flatfield', 'darkfield']:
-                raise Exception("unknown keyword argument given: allowed are "
-                                "'mon', 'smoothmon', 'av_mon', 'absfun'"
-                                "'flatfield' and 'darkfield'")
+        valid_kwargs = {'mon': 'monitor field name',
+                        'time': 'count time field/value',
+                        'smoothmon': 'number of monitor values to average',
+                        'av_mon': 'average monitor value',
+                        'absfun': 'absorber correction function',
+                        'flatfield': 'detector flatfield',
+                        'darkfield': 'detector darkfield'}
+        utilities.check_kwargs(keyargs, valid_kwargs,
+                               self.__class__.__name__)
 
         # check input arguments
         self._setdet(det)

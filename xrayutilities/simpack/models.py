@@ -18,6 +18,7 @@
 from __future__ import division
 
 import abc
+import copy
 import math as pymath
 
 import numpy
@@ -65,13 +66,17 @@ class Model(object):
         resolution_type :   {'Gauss', 'Lorentz'}, optional
             type of resolution function, default: Gauss
         """
-        local_fit_params = ['resolution_width', 'I0', 'background', 'energy', ]
+        local_fit_params = {'resolution_width': 'width of the resolution',
+                            'I0': 'primary beam intensity',
+                            'background': 'background intensity',
+                            'energy': 'x-ray energy in eV'}
         if not hasattr(self, 'fit_paramnames'):
             self.fit_paramnames = []
-        self.fit_paramnames += local_fit_params
-        for kw in kwargs:
-            if kw not in local_fit_params + ['resolution_type', ]:
-                raise TypeError('%s is an invalid keyword argument' % kw)
+        self.fit_paramnames += local_fit_params.keys()
+        valid_kwargs = copy.copy(local_fit_params)
+        valid_kwargs['resolution_type'] = 'resolution function typ'
+        utilities.check_kwargs(kwargs, valid_kwargs,
+                               self.__class__.__name__)
 
         if experiment:
             self.exp = experiment
