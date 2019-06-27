@@ -2143,13 +2143,13 @@ class PowderDiffraction(PowderExperiment):
                   "%6.2f (%d,%d,%d)" % (tt_cutoff, hma, kma, lma))
 
         # calculate structure factors
-        qmax = sqrt(2) * self.k0 * sqrt(1 - cos(math.radians(tt_cutoff)))
+        qmax = 2 * self.k0 * sin(math.radians(tt_cutoff/2))
         hkl = numpy.mgrid[hma:hmi-1:-1,
                           kma:kmi-1:-1,
                           lma:lmi-1:-1].reshape(3, -1).T
         q = mat.Q(hkl)
         qnorm = numpy.linalg.norm(q, axis=1)
-        m = qnorm < qmax
+        m = qnorm <= qmax
 
         data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
                                                 ('r', numpy.double),
