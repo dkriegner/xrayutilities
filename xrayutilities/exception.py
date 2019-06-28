@@ -43,8 +43,8 @@ class InputError(Exception):
     keyword argument (Note that the obligation to give keyword arguments
     might depend on the value of the arguments itself)
 
-    Attibutes
-    ---------
+    Parameters
+    ----------
     expr :  str
         input expression in which the error occurred
     msg :   str
