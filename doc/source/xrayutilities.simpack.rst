@@ -36,6 +36,14 @@ xrayutilities.simpack.models module
     :undoc-members:
     :show-inheritance:
 
+xrayutilities.simpack.mosaicity module
+--------------------------------------
+
+.. automodule:: xrayutilities.simpack.mosaicity
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xrayutilities.simpack.powder module
 -----------------------------------
 
