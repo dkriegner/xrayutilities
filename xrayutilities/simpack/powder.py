@@ -1883,6 +1883,10 @@ class PowderDiffraction(PowderExperiment):
         """
         initialize multiprocessing for powder pattern calculation
         """
+        # The structure of the multiprocessing code is as follows:
+        # There are nproc "manager"s which handle the actual convolver code.
+        # Additionally there are 4 daemon threads which listen for work to be
+        # distributed to the managers.
         np = config.NTHREADS
         self.nproc = np if np != 0 else multiprocessing.cpu_count()
         self.chunks = chunkify(list(self.data.keys()), self.nproc)
@@ -1912,9 +1916,21 @@ class PowderDiffraction(PowderExperiment):
 
     def __stop__(self):
         self._running = False
-        for th, q1, q2 in self.threads:
-            q1.put(None)
-            th.join()
+        try:  # try/except needed only for python2 compatibility
+            # end daemon threads which distribute the work load
+            for th, q1, q2 in self.threads:
+                q1.put(None)
+                th.join()
+            delattr(self, 'threads')
+            # end managers which handle the convolvers
+            delattr(self, 'conv_handlers')
+            for m in self.managers:
+                m.shutdown()
+            delattr(self, 'managers')
+        except AttributeError:
+            pass
+        if sys.version_info >= (3, 0):
+            atexit.unregister(self.__stop__)  # unregister is python3 only
 
     def load_settings_from_config(self, settings):
         """
