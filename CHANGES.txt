@@ -1,3 +1,5 @@
+* issue 76: cif parser: fix bug introduced in version 1.5.2
+
 v1.5.2, 2019-06-28
 
 * fix bug in PowderDiffraction where the last Bragg peak before tt_cutoff was

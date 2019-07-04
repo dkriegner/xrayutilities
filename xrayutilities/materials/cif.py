@@ -440,7 +440,9 @@ class CIFDataset(object):
                         if config.VERBOSITY >= config.DEBUG:
                             print('XU.material: atom position-loop identified')
                         atom_loop = True
-                        if not list(filter(re_atomtyp.match, loop_labels)):
+                        if re_atomtyp.match(line):
+                            alab_idx = len(loop_labels) - 1
+                        elif not list(filter(re_atomtyp.match, loop_labels)):
                             # ensure precedence of atom_site_type_symbol
                             alab_idx = len(loop_labels) - 1
                     elif re_atomx.match(line):
