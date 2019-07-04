@@ -278,7 +278,7 @@ class FP_profile:
         """
         function to determine if according to the convolvers included in this
         class two sets of Miller indices are equivalent. This function is only
-        calles when the class attribute 'isotropic' is False.
+        called when the class attribute 'isotropic' is False.
 
         Parameters
         ----------
