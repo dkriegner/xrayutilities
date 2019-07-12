@@ -1,3 +1,4 @@
+* packaging cleanup: remove gitignore and other dev-files
 * issue 77: complete multiprocessing cleanup upon PowderModel.close()
 * issue 76: cif parser: fix bug introduced in version 1.5.2
 

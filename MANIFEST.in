@@ -6,7 +6,10 @@ include VERSION
 include README.md
 include xrayutilities.pdf
 recursive-include doc/source *
-recursive-include examples *
+
+# examples
+recursive-include examples *.py
+graft examples/data
 
 # C source files and tests
 graft xrayutilities/src
@@ -14,3 +17,8 @@ recursive-include tests *.py
 
 # include database files
 graft xrayutilities/materials/data
+
+# exclude development files
+global-exclude .gitignore
+exclude .travis.yml
+exclude appveyor.yml
