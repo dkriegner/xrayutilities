@@ -137,7 +137,7 @@ class SPECScan(object):
                     "INIT_MOPO_" + natmotname] = float(imopvalues[i])
         else:
             print("XU.io.spec.SPECScan: Warning: incorrect number of "
-                  "initial motor positions")
+                  "initial motor positions in scan %03d" % (self.nr))
             if config.VERBOSITY >= config.INFO_ALL:
                 print(imopnames)
                 print(imopvalues)
@@ -731,12 +731,14 @@ class SPECFile(object):
                 if SPEC_newheader.match(line):
                     self.init_motor_names_fh = []
 
-                elif SPEC_initmoponames.match(line):
+                elif SPEC_initmoponames.match(line) and not scan_started:
+                    if config.VERBOSITY >= config.DEBUG:
+                        print("XU.io.SPECFile.Parse: found initial motor "
+                              "names in file header")
                     line = SPEC_initmoponames.sub("", line)
                     line = line.strip()
                     self.init_motor_names_fh = self.init_motor_names_fh + \
                         SPEC_multi_blank2.split(line)
-                    self.init_motor_names = self.init_motor_names_fh
 
                 # if the line marks the beginning of a new scan
                 elif SPEC_scan.match(line) and not scan_started:
@@ -758,7 +760,8 @@ class SPECFile(object):
                               "..." % scannr)
                     # set the init_motor_names to the ones found in the file header
                     self.init_motor_names_sh = []
-
+                    self.init_motor_names = self.init_motor_names_fh
+                    
                 # if the line contains the date and time information
                 elif SPEC_datetime.match(line) and scan_started:
                     if config.VERBOSITY >= config.DEBUG:
@@ -775,7 +778,10 @@ class SPECFile(object):
                         print("XU.io.SPECFile.Parse: found exposure time")
                     itime = float(SPEC_num_value.findall(line)[0])
                 # read the initial motor names in the scan header if present
-                elif SPEC_initmoponames.match(line):
+                elif SPEC_initmoponames.match(line) and scan_started:
+                    if config.VERBOSITY >= config.DEBUG:
+                        print("XU.io.SPECFile.Parse: found initial motor "
+                              "names in scan header")
                     line = SPEC_initmoponames.sub("", line)
                     line = line.strip()
                     self.init_motor_names_sh = self.init_motor_names_sh + \
@@ -908,6 +914,8 @@ class SPECFile(object):
                     scan_has_mca = False
                     scan_header_offset = self.last_offset
                     scan_status = "OK"
+                    self.init_motor_names_sh = []
+                    self.init_motor_names = self.init_motor_names_fh
 
                 # store the position of the file pointer
                 self.last_offset += linelength
