@@ -582,7 +582,7 @@ class CIFDataset(object):
                 self.elements = []
                 self.biso = []
                 keys = list(allwyckp.keys())
-                wpn = [int(re.sub(r"([a-z])", r"", k)) for k in keys]
+                wpn = [int(re.sub(r"([a-zA-Z])", r"", k)) for k in keys]
                 for i, (el, (x, y, z), occ, biso) in enumerate(self.atoms):
                     # candidate positions from number of unique atoms
                     natoms = len(self.unique_positions[i][1])
