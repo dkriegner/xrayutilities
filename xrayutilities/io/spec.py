@@ -758,11 +758,12 @@ class SPECFile(object):
                     if config.VERBOSITY >= config.INFO_ALL:
                         print("XU.io.SPECFile.Parse: processing scan nr. %d "
                               "..." % scannr)
-                    # set the init_motor_names to the ones found in the file header
+                    # set the init_motor_names to the ones found in
+                    # the file header
                     self.init_motor_names_sh = []
                     self.init_motor_names = self.init_motor_names_fh
-                    
-                # if the line contains the date and time information
+
+                    # if the line contains the date and time information
                 elif SPEC_datetime.match(line) and scan_started:
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.io.SPECFile.Parse: found date and time")
