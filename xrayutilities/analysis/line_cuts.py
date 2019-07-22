@@ -217,16 +217,22 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         qperp = numpy.sqrt((lqpos[0]-lcut[0])**2 + (lqpos[2]-lcut[1])**2)
         ret = _get_cut(lqpos[1], qperp, intensity, intrange/2., npoints)
     elif intdir == 'omega':
-        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
+        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
         q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt/2))
         ocut = tt / 2 + (numpy.sign(lqpos[1].ravel()) *
                          numpy.degrees(numpy.arccos(lcut[1]/q)))
         qypos = q * numpy.sin(numpy.radians(ocut - tt/2))
         ret = _get_cut(qypos, om-ocut, intensity, intrange/2., npoints)
     elif intdir == '2theta':
-        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-        ttcut = om - numpy.degrees(numpy.arcsin(numpy.sin(numpy.radians(om)) -
-                                   lcut[1]*lam/(2*numpy.pi)))
+        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
+        ttcut = (om - numpy.degrees(numpy.arcsin(numpy.sin(numpy.radians(om)) -
+                                    lcut[1]*lam/(2*numpy.pi)))) % 360
+        ttcut2 = (om +
+                  numpy.degrees(numpy.arcsin(numpy.sin(numpy.radians(om)) -
+                                lcut[1]*lam/(2*numpy.pi))) +
+                  180) % 360
+        mask = numpy.abs(tt - om) > 90
+        ttcut[mask] = ttcut2[mask]
         q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(ttcut/2))
         qypos = q * numpy.sin(numpy.radians(om - ttcut/2))
         ret = _get_cut(qypos, tt-ttcut, intensity, intrange/2., npoints)
