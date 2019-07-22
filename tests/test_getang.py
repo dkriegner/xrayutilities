@@ -50,6 +50,8 @@ class TestGetAngles(unittest.TestCase):
 
     def test_getunitvector(self):
         hkl = numpy.random.randint(-5, 5, 3)
+        while numpy.all(hkl == (0, 0, 0)):
+            hkl = numpy.random.randint(-5, 5, 3)
         chi, phi = xu.analysis.getangles(hkl, [1, 1, 1], [1, -1, 0])
         hklvec = xu.analysis.getunitvector(chi, phi, [1, 1, 1], [1, -1, 0])
         for i in range(3):
