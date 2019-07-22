@@ -21,17 +21,17 @@ import numpy
 
 import xrayutilities as xu
 
-digits = 7
+digits = 3
 
 
 class TestPeakFit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.sl, cls.back = numpy.random.rand(2)
-        cls.width = numpy.random.rand() * 0.5 + 0.25
-        cls.amp = numpy.random.rand() + 2
-        cls.pos = numpy.random.rand() * 3 + 3
-        cls.x = numpy.linspace(-1, 9, 500)
+        cls.sl, cls.back = numpy.random.rand(2) * 0.1
+        cls.width = numpy.random.rand() * 0.05 + 0.025
+        cls.amp = numpy.random.rand() + 0.7
+        cls.pos = numpy.random.rand() * 0.3 + 0.3
+        cls.x = numpy.linspace(-0.1, 0.9, 1000)
         p = [cls.pos, cls.width, cls.amp, cls.back]
         cls.fg = xu.math.Gauss1d(cls.x, *p)
         cls.fl = xu.math.Lorentz1d(cls.x, *p)
@@ -42,7 +42,7 @@ class TestPeakFit(unittest.TestCase):
     def test_gaussfit(self):
         params, sd_params, itlim = xu.math.gauss_fit(self.x, self.fg)
         self.assertAlmostEqual(params[0], self.pos, places=digits)
-        self.assertAlmostEqual(params[1], self.width, places=digits)
+        self.assertAlmostEqual(abs(params[1]), self.width, places=digits)
         self.assertAlmostEqual(params[2], self.amp, places=digits)
         self.assertAlmostEqual(params[3], self.back, places=digits)
 
@@ -51,7 +51,7 @@ class TestPeakFit(unittest.TestCase):
         params, sd_params, itlim, ffunc = xu.math.peak_fit(
             self.x, f, peaktype='Gauss', background='linear', func_out=True)
         self.assertAlmostEqual(params[0], self.pos, places=digits)
-        self.assertAlmostEqual(params[1], self.width, places=digits)
+        self.assertAlmostEqual(abs(params[1]), self.width, places=digits)
         self.assertAlmostEqual(params[2], self.amp, places=digits)
         self.assertAlmostEqual(params[3], self.back, places=digits)
         self.assertAlmostEqual(params[4], self.sl, places=digits)
@@ -60,19 +60,19 @@ class TestPeakFit(unittest.TestCase):
         params, sd_params, itlim = xu.math.peak_fit(
             self.x, self.fl, peaktype='Lorentz', background='constant')
         self.assertAlmostEqual(params[0], self.pos, places=digits)
-        self.assertAlmostEqual(params[1], self.width, places=digits)
+        self.assertAlmostEqual(abs(params[1]), self.width, places=digits)
         self.assertAlmostEqual(params[2], self.amp, places=digits)
         self.assertAlmostEqual(params[3], self.back, places=digits)
 
     def test_lorentzfit_linear(self):
         iparam = numpy.asarray([self.pos, self.width, self.amp, self.back,
                                 self.sl])
-        iparam += (numpy.random.rand(5) - 0.5) * 0.2
+        iparam += (numpy.random.rand(5) - 0.5) * 0.05
         f = self.fl + self.sl * self.x
         params, sd_params, itlim = xu.math.peak_fit(
             self.x, f, peaktype='Lorentz', background='linear', iparams=iparam)
         self.assertAlmostEqual(params[0], self.pos, places=digits)
-        self.assertAlmostEqual(params[1], self.width, places=digits)
+        self.assertAlmostEqual(abs(params[1]), self.width, places=digits)
         self.assertAlmostEqual(params[2], self.amp, places=digits)
         self.assertAlmostEqual(params[3], self.back, places=digits)
         self.assertAlmostEqual(params[4], self.sl, places=digits)
@@ -81,7 +81,7 @@ class TestPeakFit(unittest.TestCase):
         params, sd_params, itlim = xu.math.peak_fit(
             self.x, self.fv, peaktype='PseudoVoigt', background='constant')
         self.assertAlmostEqual(params[0], self.pos, places=digits)
-        self.assertAlmostEqual(params[1], self.width, places=digits)
+        self.assertAlmostEqual(abs(params[1]), self.width, places=digits)
         self.assertAlmostEqual(params[2], self.amp, places=digits)
         self.assertAlmostEqual(params[3], self.back, places=digits)
         self.assertAlmostEqual(params[4], self.eta, places=digits)
@@ -91,7 +91,7 @@ class TestPeakFit(unittest.TestCase):
         params, sd_params, itlim = xu.math.peak_fit(
             self.x, f, peaktype='PseudoVoigt', background='linear')
         self.assertAlmostEqual(params[0], self.pos, places=digits)
-        self.assertAlmostEqual(params[1], self.width, places=digits)
+        self.assertAlmostEqual(abs(params[1]), self.width, places=digits)
         self.assertAlmostEqual(params[2], self.amp, places=digits)
         self.assertAlmostEqual(params[3], self.back, places=digits)
         self.assertAlmostEqual(params[4], self.eta, places=digits)
