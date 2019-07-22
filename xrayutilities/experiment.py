@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -1934,8 +1934,8 @@ class HXRD(Experiment):
             m = numpy.abs(phi) > numpy.pi / 2.
             phi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
             sign[m] = -1
-            phi[m] = -numpy.arctan2(-1 * math.VecDot(q, x),
-                                    -1 * math.VecDot(q, y))
+            phi[m] = -numpy.arctan2(-1 * math.VecDot(q[m], x),
+                                    -1 * math.VecDot(q[m], y))
             om = tth / 2 + sign * math.VecAngle(q, z)
         elif geom == 'realTilt':
             phi = 0.
