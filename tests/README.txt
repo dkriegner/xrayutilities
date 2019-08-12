@@ -24,4 +24,4 @@ they are shipped seperately and can be downloaded at
 https://sourceforge.net/projects/xrayutilities/files/
 
 The latest 'testdata' tarball has to be unpacked and placed in the
-'tests/data' directory. 
+'tests' directory, which will place all data under 'tests/data'.
