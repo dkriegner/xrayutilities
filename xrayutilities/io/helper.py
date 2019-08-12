@@ -30,6 +30,7 @@ import sys
 import h5py
 
 from ..exception import InputError
+from .. import config
 
 # python 2to3 compatibility
 try:
@@ -62,7 +63,8 @@ def xu_open(filename, mode='rb'):
         If the file does not exist an IOError is raised by the open routine,
         which is not caught within the function
     """
-
+    if config.VERBOSITY >= config.INFO_ALL:
+        print("XU:io: opening file %s" % filename)
     if filename.endswith('.gz'):
         fid = gzip.open(filename, mode)
     elif filename.endswith('.bz2'):
