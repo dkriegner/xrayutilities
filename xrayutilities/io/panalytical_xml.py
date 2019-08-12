@@ -51,7 +51,7 @@ class XRDMLMeasurement(object):
         self.hkl = (numpy.nan, numpy.nan, numpy.nan)
         self.material = ""
         self.ddict = {}
-        for field in ["countTime", "detector",
+        for field in ["countTime", "detector", "counts",
                       "beamAttenuationFactors", "hkl"]:
             self.ddict[field] = []
         is_scalar = 0
@@ -85,23 +85,36 @@ class XRDMLMeasurement(object):
                 self.ddict["countTime"].append(float(countTime))
 
                 # check for intensities first to get number of points in scan
-                data = points.find(self.namespace + "intensities").text
+                int_elem = points.find(self.namespace + "intensities")
+                if int_elem is not None:
+                    data = int_elem.text
+                    hascounts = False
+                else:
+                    ct_elem = points.find(self.namespace + "counts")
+                    ct_npy = numpy.fromstring(ct_elem.text, sep=" ")
+                    self.ddict["counts"].append(ct_npy.tolist())
+                    data = ct_elem.text
+                    hascounts = True
                 # count time normalization; output is counts/sec
-                data_list = (numpy.fromstring(data, sep=" ") /
-                             float(countTime)).tolist()
-                nofpoints = len(data_list)
-                self.ddict["detector"].append(data_list)
+                ct_rate = numpy.fromstring(data, sep=" ") / float(countTime)
+                nofpoints = ct_rate.size
                 # if present read beamAttenuationFactors
                 # they are already corrected in the data file, but may be
                 # interesting
                 attfact = points.find(self.namespace +
                                       "beamAttenuationFactors")
-                if attfact:
-                    data = attfact.text
-                    data_list = numpy.fromstring(data, sep=" ")
-                    data_list = data_list.tolist()
-                    nofpoints = len(data_list)
-                    self.ddict["beamAttenuationFactors"].append(data_list)
+                if attfact is not None:
+                    atten = numpy.fromstring(attfact.text, sep=" ")
+                    atten_list = atten.tolist()
+                    self.ddict["beamAttenuationFactors"].append(atten_list)
+                    hasatten = True
+                else:
+                    hasatten = False
+
+                if hascounts and hasatten:
+                    self.ddict["detector"].append((ct_rate*atten).tolist())
+                else:
+                    self.ddict["detector"].append(ct_rate.tolist())
 
                 # read the axes position
                 pos = points.findall(self.namespace + "positions")

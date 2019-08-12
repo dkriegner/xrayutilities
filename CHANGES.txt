@@ -1,3 +1,4 @@
+* enable parsing of Panalytical XRDML version >2.0
 * issue 79: fix parsing of Sardana generated spec files; thanks to DS
 * issue 81: fix parsing materials with space group 47
 * packaging cleanup: remove gitignore and other dev-files
