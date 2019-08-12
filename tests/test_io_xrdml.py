@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
 import unittest
@@ -23,11 +23,14 @@ import numpy
 import xrayutilities as xu
 
 testfile = 'omega_mm.xrdml'
+testfile2 = 'cecchi_refl_30min.xrdml'
 datadir = os.path.join(os.path.dirname(__file__), 'data')
 fullfilename = os.path.join(datadir, testfile)
+fullfilename2 = os.path.join(datadir, testfile2)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
+@unittest.skipIf(not os.path.isfile(fullfilename) or
+                 not os.path.isfile(fullfilename2),
                  "additional test data needed (http://xrayutilities.sf.io)")
 class TestIO_XRDML(unittest.TestCase):
     dshape = (499,)
@@ -41,6 +44,7 @@ class TestIO_XRDML(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.xrdmlfile = xu.io.XRDMLFile(fullfilename)
+        cls.xrdmlfile2 = xu.io.XRDMLFile(fullfilename2)
         cls.data1 = cls.xrdmlfile.scan['detector']
         cls.motor, dummy, cls.data2 = xu.io.getxrdml_scan(fullfilename, 'Phi')
 
@@ -58,6 +62,10 @@ class TestIO_XRDML(unittest.TestCase):
 
     def test_datamethods(self):
         self.assertTrue(numpy.all(self.data1 == self.data2))
+
+    def test_version2(self):
+        self.assertEqual(len(self.xrdmlfile2.scan['counts']),
+                         len(self.xrdmlfile2.scan['detector']))
 
 
 if __name__ == '__main__':
