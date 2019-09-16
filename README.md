@@ -85,6 +85,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 - h5py
 - scipy (version >= 0.13.0)
 - numpy (version >= 1.8)
+- setuptools (to provide the pkg_resources module)
 - lmfit (optional)
 - matplotlib (optional)
 - python-lzma (optional)
@@ -92,7 +93,6 @@ The following requirements are needed for installing and using *xrayutilities*:
 When building from source you also might need:
 
 - python dev headers
-- setuptools
 - unittest2 (optional - only if you want to run the tests)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)
