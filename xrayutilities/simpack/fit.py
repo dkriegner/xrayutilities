@@ -375,6 +375,76 @@ class FitModel(object):
         -------
         lmfit.ModelResult
         """
+        class FitPlot(object):
+            def __init__(self, figname, logscale):
+                self.figname = figname
+                self.logscale = logscale
+                if not self.figname:
+                    self.plot = False
+                else:
+                    f, plt = utilities.import_matplotlib_pyplot('XU.simpack')
+                    self.plt = plt
+                    self.plot = f
+
+            def plot_init(self, x, data, weights, model, mask, verbose):
+                if not self.plot:
+                    return
+                self.plt.ion()
+                if isinstance(self.figname, basestring):
+                    self.fig = self.plt.figure(self.figname)
+                else:
+                    self.fig = self.plt.figure('XU:FitModel')
+                self.plt.clf()
+                self.ax = self.plt.subplot(111)
+                if self.logscale:
+                    self.ax.set_yscale("log", nonposy='clip')
+                if weights is not None:
+                    eline = self.ax.errorbar(
+                        x, data, yerr=1/weights, ecolor='0.3', fmt='ko',
+                        errorevery=int(x.size/80), label='data')[0]
+                else:
+                    eline, = self.ax.plot(x, data, 'ko', label='data')
+                if verbose:
+                    init, = self.ax.plot(
+                        x, model, '-', color='0.5', label='initial')
+                if eline:
+                    self.zord = eline.zorder+2
+                else:
+                    self.zord = 1
+                self.fline = None
+
+            def showplot(self, xlab=self.lmodel.xlabelstr,
+                         ylab='Intensity (arb. u.)'):
+                if not self.plot:
+                    return
+                self.plt.xlabel(xlab)
+                self.plt.ylabel(ylab)
+                self.plt.legend()
+                self.plt.tight_layout()
+                self.plt.show()
+
+            def updatemodelline(self, x, newmodel):
+                if not self.plot:
+                    return
+                try:
+                    self.plt.sca(self.ax)
+                except ValueError:
+                    return
+                if self.fline is None:
+                    self.fline, = self.ax.plot(
+                        x, newmodel, 'r-', lw=2, label='fit', zorder=self.zord)
+                else:
+                    self.fline.set_data(x, newmodel)
+                canvas = self.fig.canvas  # see plt.draw function (avoid show!)
+                canvas.draw_idle()
+                canvas.start_event_loop(0.001)
+
+            def addfullmodelline(self, x, y):
+                if not self.plot:
+                    return
+                self.ax.plot(x, y, 'g-', lw=1, label='full model',
+                             zorder=self.zord-1)
+
         if self.mask:
             mask = self.mask
         else:
@@ -383,63 +453,35 @@ class FitModel(object):
         if mweights is not None:
             mweights = weights[mask]
 
-        if self.plot:
-            flag, plt = utilities.import_matplotlib_pyplot('XU.simpack')
-        # plot of initial values
-        if self.plot:
-            plt.ion()
-            if isinstance(self.plot, basestring):
-                self.fig = plt.figure(self.plot)
-            else:
-                self.fig = plt.figure('XU:FitModel')
-            plt.clf()
-            self.ax = plt.subplot(111)
-            if self.elog:
-                self.ax.set_yscale("log", nonposy='clip')
-            if weights is not None:
-                eline = plt.errorbar(x, data, yerr=1/weights, ecolor='0.3',
-                                     fmt='ko', errorevery=int(x.size/80),
-                                     label='data')[0]
-            else:
-                eline, = plt.plot(x, data, 'ko', label='data')
-            if self.verbose:
-                init, = plt.plot(x, self.eval(params, x=x, **kwargs),
-                                 '-', color='0.5', label='initial')
-            if eline:
-                zord = eline.zorder+2
-            else:
-                zord = 1
-            fline, = plt.plot(x[mask], self.eval(params, x=x[mask], **kwargs),
-                              'r-', lw=2, label='fit', zorder=zord)
-            plt.legend()
-            plt.xlabel(self.lmodel.xlabelstr)
-            plt.ylabel('Intensity (arb. u.)')
-            plt.show()
-        else:
-            fline = None
+        # create initial plot
+        self.fitplot = FitPlot(self.plot, self.elog)
+        initmodel = self.eval(params, x=x, **kwargs)
+        self.fitplot.plot_init(x, data, weights, initmodel, mask, self.verbose)
+        self.fitplot.showplot()
 
         # create callback function
         def cb_func(params, niter, resid, *args, **kwargs):
-            x = kwargs['x']
             if self.verbose:
                 print('{:04d} {:12.3e}'.format(niter, numpy.sum(resid**2)))
-            if self.plot and niter % 20 == 0:
-                plt.sca(self.ax)
-                fline.set_ydata(self.eval(params, **kwargs))
-                plt.draw()
-                plt.pause(0.001)  # enable better mpl backend compatibility
+            if self.fitplot.plot and niter % 20 == 0:
+                self.fitplot.updatemodelline(kwargs['x'],
+                                             self.eval(params, **kwargs))
 
+        # perform fitting
         res = self.lmm.fit(data[mask], params, x=x[mask], weights=mweights,
                            fit_kws=fit_kws, iter_cb=cb_func, **kwargs)
 
         # final update of plot
-        if self.plot:
-            plt.sca(self.ax)
-            plt.plot(x, self.eval(res.params, x=x, **kwargs),
-                     'g-', lw=1, label='fit', zorder=fline.zorder-1)
-            cb_func(res.params, -1, res.residual, data, mweights, x=x[mask],
-                    **kwargs)
-            plt.tight_layout()
+        if self.fitplot.plot:
+            try:
+                self.fitplot.plt.sca(self.fitplot.ax)
+            except ValueError:
+                self.fitplot.plot_init(x, data, weights, initmodel, mask,
+                                       self.verbose)
+            fittedmodel = self.eval(res.params, x=x, **kwargs)
+            self.fitplot.addfullmodelline(x, fittedmodel)
+            self.fitplot.updatemodelline(x[mask], fittedmodel[mask])
+            self.fitplot.showplot()
 
         return res
 
