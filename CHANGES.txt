@@ -1,3 +1,5 @@
+v1.5.3, 2019-10-09
+
 * issue #87: fix matplotlib inline backend in FitModel.fit
 * enable parsing of Panalytical XRDML version >2.0
 * issue 79: fix parsing of Sardana generated spec files; thanks to DS
