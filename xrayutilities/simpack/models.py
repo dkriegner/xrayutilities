@@ -1082,7 +1082,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         """
         self.polarization = kwargs.pop('polarization', 'P')
         super(DynamicalReflectivityModel, self).__init__(*args, **kwargs)
-        self._init_en_opt
+        self._init_en_opt = 0
         self._setOpticalConstants()
 
     def _setOpticalConstants(self):
