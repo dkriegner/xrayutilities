@@ -29,7 +29,7 @@ import xrayutilities as xu
 
 import xrayutilities_id01_functions as id01
 
-s = xu.io.SPECFile(specfile)
+s = xu.io.SPECFile(specfile)  # insert specfile name here
 specscan = s.scan3
 en = id01.getmono_energy(specscan)
 # template for the CCD file names

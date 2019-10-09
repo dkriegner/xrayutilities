@@ -159,3 +159,6 @@ plt.xlabel(r'$Q_{[11\bar2]}$ ($\mathrm{\AA}^{-1}$)')
 plt.ylabel(r'$Q_{[\bar1\bar1\bar1]}$ ($\mathrm{\AA}^{-1}$)')
 cb = plt.colorbar(cf)
 cb.set_label(r"$\log($Int$)$ (cps)")
+
+# clean up HDF5 file (not needed in real life!)
+os.remove(h5file)

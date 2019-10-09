@@ -64,4 +64,4 @@ threshold = 10  # counts
 # threshold = ccdraw.max()*0.1 #take 10% of maximum intensity
 
 # determine hot pixels by comparison with the threshold value
-hotpixelnumbers = numpy.where(ccdraw > threshold)
+hotpixelnumbers = numpy.where(ccdavg > threshold)

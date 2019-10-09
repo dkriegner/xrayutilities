@@ -48,10 +48,13 @@ om, tt, psd = xu.io.getxrdml_map(sample + '_%d.xrdml.bz2', 1,
 # three different visualization possibilities
 # plot the intensity as contour plot
 plt.figure(figsize=(12, 6))
+ax = []
+for i in range(1, 4):
+    ax.append(plt.subplot(1, 3, i))
 
 MIN = 1
 MAX = 3e5
-plt.subplot(131)
+plt.sca(ax[0])
 plt.title('Gridder2D')
 # data on a regular grid of 200x800 points
 gridder = xu.Gridder2D(200, 300)
@@ -59,7 +62,7 @@ gridder(qy, qz, psd)
 cf = plt.pcolormesh(gridder.xaxis, gridder.yaxis, gridder.data.T,
                     norm=LogNorm(MIN, MAX))
 
-plt.subplot(132)
+plt.sca(ax[1])
 plt.title('FuzzyGridder2D')
 # data on a regular grid with FuzzyGridding
 gridder = xu.FuzzyGridder2D(200, 300)
@@ -67,7 +70,7 @@ gridder(qy, qz, psd, width=(0.0008, 0.0003))
 cf = plt.pcolormesh(gridder.xaxis, gridder.yaxis, gridder.data.T,
                     norm=LogNorm(MIN, MAX))
 
-plt.subplot(133)
+plt.sca(ax[2])
 plt.title('pcolormesh')
 # using pcolor-variants
 npixel = 255
@@ -76,8 +79,8 @@ qz.shape = qy.shape
 psd.shape = qy.shape
 plt.pcolormesh(qy, qz, psd, norm=LogNorm(MIN, MAX))
 
-for i in range(1, 4):
-    plt.subplot(1, 3, i)
+for a in ax:
+    plt.sca(a)
     plt.xlabel(r'$Q_{[110]}$ ($\mathrm{\AA}^{-1}$)')
     plt.ylabel(r'$Q_{[001]}$ ($\mathrm{\AA}^{-1}$)')
     plt.xlim(-0.13, 0.13)

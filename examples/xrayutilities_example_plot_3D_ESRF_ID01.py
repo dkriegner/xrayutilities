@@ -26,6 +26,7 @@ import xrayutilities as xu
 
 import xrayutilities_id01_functions as id01
 
+sample = 'SAMPLENAME'  # here used for the specfilename
 try:
     s
 except NameError:
