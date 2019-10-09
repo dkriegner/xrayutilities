@@ -43,6 +43,8 @@ install:
         conda info -a
         conda install -q cython numpy scipy wheel h5py matplotlib
         python -m pip install --upgrade --ignore-installed pip
+        # newer six needed for lmfit
+        python -m pip install --upgrade --ignore-installed six
         python -m pip install lmfit
       }
       python -m pip install --upgrade --ignore-installed unittest2
