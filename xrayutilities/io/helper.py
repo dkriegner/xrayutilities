@@ -29,8 +29,8 @@ import sys
 
 import h5py
 
-from ..exception import InputError
 from .. import config
+from ..exception import InputError
 
 # python 2to3 compatibility
 try:
