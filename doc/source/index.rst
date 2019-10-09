@@ -149,7 +149,7 @@ Express instructions
 --------------------
 
  * install the dependencies (Windows: `Python(x,y) <https://python-xy.github.io/>`_ or `WinPython <https://winpython.github.io/>`_; Linux/Unix: see below for dependencies).
- * download *xrayutilities* from `here <https://sourceforge.net/projects/xrayutilities>`_ or use git to check out the `latest <https://sourceforge.net/p/xrayutilities/code/>`_ version.
+ * download *xrayutilities* from `here <https://sourceforge.net/projects/xrayutilities>`_ or use git to check out the `latest <https://github.com/dkriegner/xrayutilities>`_ version.
  * open a command line and navigate to the downloaded sources and execute:
 
 .. code-block:: bash
