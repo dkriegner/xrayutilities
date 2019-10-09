@@ -22,10 +22,10 @@ Is everything running fine? perform the tests and run the examples
   python2 setup.py test
   python3 setup.py test
   # optionally check the coverage
-  # also see http://coverage.readthedocs.io/en/coverage-4.2/subprocess.html
+  # also see https://coverage.readthedocs.io/en/latest/subprocess.html 
   export COVERAGE_PROCESS_START=.coveragerc
-  coverage run --source xrayutilities setup.py test
-  coverage combine
+  coverage run --parallel-mode --source xrayutilities setup.py test
+  coverage combine --append
   coverage html
 
 run the examples
