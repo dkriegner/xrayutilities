@@ -1,6 +1,6 @@
---- build/sphinx/html/index.html.orig	2018-08-04 15:05:51.584631912 +0200
-+++ build/sphinx/html/index.html	2018-08-04 15:21:53.759695092 +0200
-@@ -54,7 +54,7 @@
+--- build/sphinx/html/index.html.orig	2019-10-09 09:52:01.373904470 +0200
++++ build/sphinx/html/index.html	2019-10-09 09:52:53.711409533 +0200
+@@ -55,7 +55,7 @@
  
            
              
@@ -9,7 +9,7 @@
            
            </a>
  
-@@ -162,6 +162,14 @@
+@@ -163,6 +163,14 @@
              
    <div class="section" id="welcome-to-xrayutilities-s-documentation">
  <h1>Welcome to xrayutilities’s documentation!<a class="headerlink" href="#welcome-to-xrayutilities-s-documentation" title="Permalink to this headline">¶</a></h1>
@@ -24,8 +24,8 @@
  <p>If you look for downloading the package go to <a class="reference external" href="https://sourceforge.net/projects/xrayutilities">Sourceforge</a> or <a class="reference external" href="https://github.com/dkriegner/xrayutilities">GitHub</a> (source distribution) or the <a class="reference external" href="https://pypi.python.org/pypi/xrayutilities">Python package index</a> (MS Windows binary).</p>
  <p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
  </div>
-@@ -752,4 +760,4 @@
-   </script> 
+@@ -735,4 +743,4 @@
+    
  
  </body>
 -</html>
