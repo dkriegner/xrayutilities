@@ -80,7 +80,7 @@ Requirements
 ------------
 The following requirements are needed for installing and using *xrayutilities*:
 
-- Python (version 2.7 or >= 3.2)
+- Python (>= 3.2, for Python 2.7 support use version up to 1.5.x)
 - C-compiler (preferential with OpenMP support)
 - h5py
 - scipy (version >= 0.13.0)
@@ -94,6 +94,7 @@ When building from source you also might need:
 
 - python dev headers
 - unittest2 (optional - only if you want to run the tests)
+- matplotlib (optional - only if running the tests/example scripts)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)
 
@@ -104,9 +105,8 @@ easiest way of the installation (Python(x,y) or WinPython).
 Python-2.7 and Python-3.X compatibility
 =======================================
 
-The current development focuses on Python-3.X and we ask all users to update to
-Python-3 if possible, however, xrayutilities can be used with Python-2.7 as
-well.  Care was taken to make this possible from the same code-base.
+The current development is for Python-3.X only. xrayutilities up to version
+1.5.x can be used with Python-2.7 as well.
 
 The Python package configuration
 ================================
