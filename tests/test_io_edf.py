@@ -56,7 +56,7 @@ class TestIO_EDF(unittest.TestCase):
     def test_savehdf5(self):
         with tempfile.NamedTemporaryFile(mode='w') as fid:
             self.edffile.Save2HDF5(fid.name)
-            with h5py.File(fid.name) as h5f:
+            with h5py.File(fid.name, 'r') as h5f:
                 h5d = h5f[list(h5f.keys())[0]]
                 h5d = numpy.asarray(h5d)
                 self.assertTrue(numpy.all(h5d == self.data))
@@ -65,7 +65,7 @@ class TestIO_EDF(unittest.TestCase):
         with tempfile.NamedTemporaryFile(mode='w') as fid:
             ed = xu.io.EDFDirectory(datadir, 'edf.gz')
             ed.Save2HDF5(fid.name)
-            with h5py.File(fid.name) as h5f:
+            with h5py.File(fid.name, 'r') as h5f:
                 h5g = h5f[os.path.split(datadir)[-1]]
                 h5d = h5g[list(h5g.keys())[0]]
                 h5d = numpy.asarray(h5d)
