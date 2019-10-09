@@ -2,7 +2,6 @@ language: python
 dist: xenial
 sudo: true
 python:
-  - "2.7"
   - "3.5"
   - "3.6"
   - "3.7"
@@ -18,6 +17,7 @@ install:
   - travis_retry pip install numpy
   - travis_retry pip install unittest2
   - travis_retry pip install h5py
+  - travis_retry pip install matplotlib
   - travis_wait 30 pip install scipy
   - travis_retry pip install lmfit
   - if [ ! "$(ls -A tests/data)" ]; then wget https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -O xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi

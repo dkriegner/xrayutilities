@@ -3,18 +3,12 @@ environment:
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python and
     # https://www.appveyor.com/docs/build-environment/#miniconda
-    - PYTHON: C:\Python27
-    - PYTHON: C:\Python27-x64
     - PYTHON: C:\Python35
     - PYTHON: C:\Python35-x64
     - PYTHON: C:\Python36
     - PYTHON: C:\Python36-x64
     - PYTHON: C:\Python37
     - PYTHON: C:\Python37-x64
-    - PYTHON_VERSION: 2.7
-      MINICONDA: C:\Miniconda
-    - PYTHON_VERSION: 2.7
-      MINICONDA: C:\Miniconda-x64
     - PYTHON_VERSION: 3.5
       MINICONDA: C:\Miniconda35
     - PYTHON_VERSION: 3.5
@@ -32,8 +26,6 @@ install:
   - ps: |
       $env:package_version=(Get-Content -Path VERSION)
       Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
-      # fix error due to Python 2.7 deprecation
-      $env:PYTHONWARNINGS="ignore:::pip._internal.cli.base_command"
       # install dependencies
       if($env:MINICONDA -eq $null)
       {
@@ -49,7 +41,7 @@ install:
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         conda info -a
-        conda install -q cython numpy scipy wheel h5py
+        conda install -q cython numpy scipy wheel h5py matplotlib
         python -m pip install --upgrade --ignore-installed pip
         python -m pip install lmfit
       }
