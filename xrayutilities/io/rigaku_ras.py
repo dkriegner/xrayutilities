@@ -246,7 +246,7 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
         scanlist = list([scannumbers])
 
     angles = dict.fromkeys(args)
-    for key in angles.keys():
+    for key in angles:
         if not isinstance(key, str):
             raise InputError("*arg values need to be strings with motornames")
         angles[key] = numpy.zeros(0)

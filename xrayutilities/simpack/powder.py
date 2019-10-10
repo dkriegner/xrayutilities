@@ -561,7 +561,7 @@ class FP_profile:
         str
             string of formatted information
         """
-        keys = list(self.convolver_funcs.keys())
+        keys = list(self.convolver_funcs)
         keys.sort()  # always return info in the same order
         # global is always first, anyways!
         keys.insert(0, keys.pop(keys.index('conv_global')))
@@ -1645,7 +1645,7 @@ class FP_profile:
         clean = self._clean_on_pickle
         pd = dict()
         pd.update(self.__dict__)
-        for thing in pd.keys():
+        for thing in pd:
             x = getattr(self, thing)
             if id(x) in clean:
                 delattr(self, thing)
@@ -1672,7 +1672,7 @@ class FP_profile:
         clean = self._clean_on_pickle
         pd = dict()
         pd.update(self.__dict__)
-        for thing in pd.keys():
+        for thing in pd:
             x = getattr(self, thing)
             if id(x) in clean:
                 del pd[thing]
@@ -1889,7 +1889,7 @@ class PowderDiffraction(PowderExperiment):
         # distributed to the managers.
         np = config.NTHREADS
         self.nproc = np if np != 0 else multiprocessing.cpu_count()
-        self.chunks = chunkify(list(self.data.keys()), self.nproc)
+        self.chunks = chunkify(list(self.data), self.nproc)
         self.next_proc = len(self.data) % self.nproc
         manager.register("conv", convolver_handler)
         self.managers = [manager() for idx in range(self.nproc)]
@@ -2491,8 +2491,7 @@ class PowderDiffraction(PowderExperiment):
                  "Int     |   Int (%)\n")
         ostr += ("   ------------------------------------"
                  "---------------------------\n")
-        for h, d in sorted(zip(self.data.keys(), self.data.values()),
-                           key=lambda t: t[1]['ang']):
+        for h, d in sorted(self.data.items(), key=lambda t: t[1]['ang']):
             if d['active']:
                 ostr += ("%15s   %8.4f   %8.3f   %10.2f  %10.2f\n"
                          % (h.__str__(), 2 * d['ang'],

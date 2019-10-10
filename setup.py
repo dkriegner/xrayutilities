@@ -73,10 +73,10 @@ class build_ext_subclass(build_ext):
     def build_extensions(self):
         c = self.compiler.compiler_type
         # set custom compiler options
-        if c in list(copt.keys()):
+        if c in copt:
             for e in self.extensions:
                 e.extra_compile_args = copt[c]
-        if c in list(lopt.keys()):
+        if c in lopt:
             for e in self.extensions:
                 e.extra_link_args = lopt[c]
         build_ext.build_extensions(self)

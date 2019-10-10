@@ -510,7 +510,7 @@ class SPECScan(object):
             g.attrs['scan_status'] = self.scan_status
 
             # write the initial motor positions as attributes
-            for k in self.init_motor_pos.keys():
+            for k in self.init_motor_pos:
                 g.attrs[k] = numpy.float(self.init_motor_pos[k])
 
             # if scan contains MCA data write also MCA parameters
@@ -1049,7 +1049,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
             scanlist = list([scans])
 
         angles = dict.fromkeys(args)
-        for key in angles.keys():
+        for key in angles:
             if not isinstance(key, str):
                 raise InputError("*arg values need to be strings with "
                                  "motornames")
@@ -1143,7 +1143,7 @@ def getspec_scan(specf, scans, *args, **kwargs):
         scanlist = list([scans])
 
     angles = dict.fromkeys(args)
-    for key in angles.keys():
+    for key in angles:
         if not isinstance(key, str):
             raise InputError("*arg values need to be strings with "
                              "motornames")
