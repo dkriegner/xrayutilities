@@ -20,8 +20,6 @@ for fitting of a 2D function to a peak or a 1D Gauss fit with
 the odr package
 """
 
-from __future__ import print_function
-
 import time
 
 import numpy

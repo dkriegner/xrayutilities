@@ -14,7 +14,6 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
-from __future__ import division
 
 import copy
 import io

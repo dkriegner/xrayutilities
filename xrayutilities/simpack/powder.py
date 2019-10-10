@@ -84,8 +84,6 @@ careful definition of all the parameters
 # in this file SI units (m) are used for wavelengths, while by default Angstrom
 # are used in the remaining of the package
 
-from __future__ import absolute_import, print_function
-
 import atexit
 import copy
 import math

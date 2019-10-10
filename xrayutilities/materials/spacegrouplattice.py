@@ -22,7 +22,6 @@ parameters of the resulting instance will be settable! A cubic lattice for
 example allows only to set its 'a' lattice parameter but none of the other unit
 cell shape parameters.
 """
-from __future__ import division
 
 import copy
 import numbers

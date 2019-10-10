@@ -15,8 +15,6 @@
 #
 # Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from __future__ import division
-
 import abc
 import copy
 import math as pymath
