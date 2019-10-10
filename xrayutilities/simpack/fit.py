@@ -396,8 +396,7 @@ class FitModel(object):
                     self.fig = self.plt.figure('XU:FitModel')
                 self.plt.clf()
                 self.ax = self.plt.subplot(111)
-                if self.logscale:
-                    self.ax.set_yscale("log", nonposy='clip')
+
                 if weights is not None:
                     eline = self.ax.errorbar(
                         x, data, yerr=1/weights, ecolor='0.3', fmt='ko',
@@ -411,6 +410,8 @@ class FitModel(object):
                     self.zord = eline.zorder+2
                 else:
                     self.zord = 1
+                if self.logscale:
+                    self.ax.set_yscale("log", nonposy='clip')
                 self.fline = None
 
             def showplot(self, xlab=self.lmodel.xlabelstr,
