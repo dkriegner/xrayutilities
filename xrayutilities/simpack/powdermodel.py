@@ -108,7 +108,7 @@ class PowderModel(object):
         """
         pv = lmparams.valuesdict()
         settings = dict()
-        h = list(self.pdiff[0].data.keys())[0]
+        h = list(self.pdiff[0].data)[0]
         fp = self.pdiff[0].data[h]['conv'].convolvers
         for conv in fp:
             name = conv[5:]

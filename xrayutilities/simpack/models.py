@@ -70,7 +70,7 @@ class Model(object):
                             'energy': 'x-ray energy in eV'}
         if not hasattr(self, 'fit_paramnames'):
             self.fit_paramnames = []
-        self.fit_paramnames += local_fit_params.keys()
+        self.fit_paramnames += local_fit_params
         valid_kwargs = copy.copy(local_fit_params)
         valid_kwargs['resolution_type'] = 'resolution function typ'
         utilities.check_kwargs(kwargs, valid_kwargs,

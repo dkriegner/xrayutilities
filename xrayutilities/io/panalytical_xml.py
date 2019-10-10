@@ -152,12 +152,12 @@ class XRDMLMeasurement(object):
                         is_scalar = 0
 
         # finally all scan data needs to be converted to numpy arrays
-        for k in self.ddict.keys():
+        for k in self.ddict:
             self.ddict[k] = numpy.array(self.ddict[k])
 
         # flatten output if only one scan was present
         if len(slist) == 1:
-            for k in self.ddict.keys():
+            for k in self.ddict:
                 self.ddict[k] = numpy.ravel(self.ddict[k])
 
         # save scanmot-values and detector counts in special arrays
@@ -165,7 +165,7 @@ class XRDMLMeasurement(object):
             self.scanmot = self.ddict['2Theta']
         elif self.scanmotname == 'Omega-2Theta':
             self.scanmot = self.ddict['Omega']
-        elif self.scanmotname in self.ddict.keys():
+        elif self.scanmotname in self.ddict:
             self.scanmot = self.ddict[self.scanmotname]
         else:
             warnings.warn('XU.io: unknown scan motor name in XRDML-File')
@@ -179,7 +179,7 @@ class XRDMLMeasurement(object):
         if self.material:
             ostr += "Material: '%s'; hkl: %s\n" % (self.material,
                                                    str(self.hkl))
-        for k in self.ddict.keys():
+        for k in self.ddict:
             ostr += "%s with %s points\n" % (k, str(self.ddict[k].shape))
 
         return ostr

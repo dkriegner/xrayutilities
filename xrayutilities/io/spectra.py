@@ -76,13 +76,13 @@ class SPECTRAFileParameters(dict):
 
     def __str__(self):
         ostr = ""
-        n = len(self.keys())
+        n = len(self)
         lmax_key = 0
         lmax_item = 0
         strlist = []
 
         # find the length of the longest key
-        for k in self.keys():
+        for k in self:
             if len(k) > lmax_key:
                 lmax_key = len(k)
 
@@ -98,14 +98,14 @@ class SPECTRAFileParameters(dict):
         kvfmt = "|%%-%is = %%-%is" % (lmax_key, lmax_item)
 
         nc = 3
-        nres = len(self.keys()) % nc
-        nrow = (len(self.keys()) - nres) / nc
+        nres = len(self) % nc
+        nrow = (len(self) - nres) / nc
 
         cnt = 0
         ostr += (3 * (lmax_key + lmax_item + 4) + 1) * "-" + "\n"
         ostr += "|Parameters:" + (3 * (lmax_key + lmax_item)) * " " + "|\n"
         ostr += (3 * (lmax_key + lmax_item + 4) + 1) * "-" + "\n"
-        for key in self.keys():
+        for key in self:
             value = self[key]
             if not isinstance(value, str):
                 value = "%f" % value
@@ -274,7 +274,7 @@ class SPECTRAFile(object):
                 return True
 
             # start with saving scan comments
-            for k in self.comments.keys():
+            for k in self.comments:
                 try:
                     g.attrs[k] = self.comments[k]
                 except IndexError:
@@ -282,7 +282,7 @@ class SPECTRAFile(object):
                           "%s = %s to group %s!" % (k, self.comments[k], name))
 
             # save scan parameters
-            for k in self.params.keys():
+            for k in self.params:
                 try:
                     g.attrs[k] = self.params[k]
                 except IndexError:
@@ -553,7 +553,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
         if "samplename" in kwargs:
             basename = kwargs["samplename"]
         else:
-            nodename = list(h5.keys())[0]
+            nodename = list(h5)[0]
             basenlist = re_underscore.split(nodename)
             basename = "_".join(basenlist[:-1])
             if config.VERBOSITY >= config.DEBUG:
@@ -566,7 +566,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
             scanlist = list([scans])
 
         angles = dict.fromkeys(args)
-        for key in angles.keys():
+        for key in angles:
             angles[key] = numpy.zeros(0)
         buf = numpy.zeros(0)
         MAP = numpy.zeros(0)
