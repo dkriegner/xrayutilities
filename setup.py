@@ -128,8 +128,6 @@ setup(
     description="package for x-ray diffraction data evaluation",
     classifiers=[
         "Programming Language :: C",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",

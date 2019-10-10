@@ -80,7 +80,7 @@ Requirements
 ------------
 The following requirements are needed for installing and using *xrayutilities*:
 
-- Python (>= 3.2, for Python 2.7 support use version up to 1.5.x)
+- Python (>= 3.3, for Python 2.7 support use version up to 1.5.x)
 - C-compiler (preferential with OpenMP support)
 - h5py
 - scipy (version >= 0.13.0)
