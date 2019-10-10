@@ -1,3 +1,4 @@
+* remove Python2 code path, improve code readability
 * fix use of the agg matplotlib backend with FitModel
 * from this point on Github master will be broken on Python 2
 
