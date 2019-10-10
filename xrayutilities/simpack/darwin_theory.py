@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 import abc
-import collections
+import collections.abc
 import copy
 import warnings
 
@@ -33,7 +33,7 @@ def getit(it, key):
     generator to obtain items from nested iterable
     """
     for elem in it:
-        if isinstance(elem, collections.Iterable):
+        if isinstance(elem, collections.abc.Iterable):
             if key in elem:
                 yield elem[key]
             else:

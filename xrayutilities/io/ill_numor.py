@@ -19,7 +19,7 @@
 module for reading ILL data files (station D23): numor files
 """
 
-import collections
+import collections.abc
 import os.path
 import re
 
@@ -208,7 +208,7 @@ def numor_scan(scannumbers, *args, **kwargs):
 
     if isinstance(scannumbers, (str, int)):
         scanlist = list([scannumbers])
-    elif isinstance(scannumbers, collections.Iterable):
+    elif isinstance(scannumbers, collections.abc.Iterable):
         scanlist = scannumbers
     else:
         raise TypeError('scannumbers is of invalid type (%s)'

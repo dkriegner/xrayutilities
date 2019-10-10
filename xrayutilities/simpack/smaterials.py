@@ -15,7 +15,7 @@
 #
 # Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import collections
+import collections.abc
 import copy
 import numbers
 
@@ -154,7 +154,7 @@ class SMaterial(object):
         return s + ')'
 
 
-class MaterialList(collections.MutableSequence):
+class MaterialList(collections.abc.MutableSequence):
     """
     class representing the basics of a list of materials for simulations within
     xrayutilities. It extends the built in list type.

@@ -17,7 +17,7 @@
 
 # ALSO LOOK AT THE FILE xrayutilities_example_plot_3D_ESRF_ID01.py
 
-import collections
+import collections.abc
 import re
 
 import xrayutilities as xu
@@ -114,7 +114,7 @@ def rawmap(specfile, scannr, experiment, angdelta=None, U=identity(3),
     nav = experiment._A2QConversion._area_nav
     roi = experiment._A2QConversion._area_roi
 
-    if not isinstance(scannr, collections.Iterable):
+    if not isinstance(scannr, collections.abc.Iterable):
         scannr = [scannr, ]
     for snr in scannr:
         specscan = getattr(specfile, 'scan%d' % snr)
