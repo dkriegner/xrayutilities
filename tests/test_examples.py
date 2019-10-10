@@ -21,8 +21,11 @@ import sys
 import unittest
 from contextlib import contextmanager
 
+import matplotlib
+
 import xrayutilities as xu
 
+matplotlib.use('agg')
 scriptdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
                          'examples')
 stdoutfile = 'example_script_output.txt'
