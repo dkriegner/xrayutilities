@@ -18,6 +18,7 @@
 import imp
 import os
 import sys
+import tempfile
 import unittest
 from contextlib import contextmanager
 
@@ -28,7 +29,6 @@ import xrayutilities as xu
 matplotlib.use('agg')
 scriptdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
                          'examples')
-stdoutfile = 'example_script_output.txt'
 scriptfiles = [
     'simpack_powdermodel.py',
     'simpack_xrd_AlGaAs.py',
@@ -85,7 +85,8 @@ class TestExampleScriptsMeta(type):
     def __new__(mcs, name, bases, dict):
         def test_generator(scriptname):
             def test(self):
-                with open(stdoutfile, 'a') as f, redirect_stdout(f):
+                with tempfile.TemporaryFile(mode='w') as fid:
+                    with fid as f, redirect_stdout(f):
                         imp.load_source('__testing__', scriptname)
             return test
 
@@ -100,13 +101,6 @@ class TestExampleScripts(unittest.TestCase, metaclass=TestExampleScriptsMeta):
     @classmethod
     def setUpClass(cls):
         os.chdir(scriptdir)
-
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            os.remove(stdoutfile)
-        except FileNotFoundError:
-            pass
 
     def tearDown(cls):
         xu.config.VERBOSITY = 0  # make no outputs during tests
