@@ -107,6 +107,7 @@ class TestExampleScripts(unittest.TestCase, metaclass=TestExampleScriptsMeta):
         flag, plt = xu.utilities.import_matplotlib_pyplot('Unittest')
         if flag:
             plt.close('all')
+            plt.ioff()  # needed to not break scripts after use of FitModel!
 
 
 if __name__ == '__main__':
