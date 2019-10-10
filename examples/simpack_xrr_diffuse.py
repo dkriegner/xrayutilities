@@ -46,6 +46,8 @@ d2 = m.simulate(alphai)
 print("elapsed time: %.4f" % (time.time() - start))
 
 figure()
+import warnings
+warnings.warn('%g %g %g %g'%(alphai.min(), alphai.max(), d1.min(), d1.max()))
 semilogy(alphai, d1, label='method=1')
 semilogy(alphai, d2, label='method=2')
 
