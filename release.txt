@@ -10,7 +10,7 @@ CHECK EVERYTHING
 Is everything running fine? perform the tests and run the examples
 
   # change the version in VERSION
-  # update copyright notice in doc/source/conf.py
+  # update copyright notice in doc/source/conf.py and README.md
   pycodestyle xrayutilities
   # allowed output is:
   # xrayutilities/materials/elements.py:36:1: E741 ambiguous variable name 'O'
