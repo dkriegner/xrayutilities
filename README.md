@@ -2,7 +2,7 @@ xrayutilities
 =============
 
 [![Build
-Status Travis CI](https://travis-ci.org/dkriegner/xrayutilities.svg?branch=master)](https://travis-ci.org/dkriegner/xrayutilities)
+Status Travis CI](https://travis-ci.com/dkriegner/xrayutilities.svg?branch=master)](https://travis-ci.com/dkriegner/xrayutilities)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/t8cb5jj0atklxay3/branch/master?svg=true)](https://ci.appveyor.com/project/dkriegner/xrayutilities)
 
 
