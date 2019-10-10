@@ -69,7 +69,7 @@ class XRDMLMeasurement(object):
                 reflection = s.find(self.namespace + "reflection")
                 if reflection:
                     m = reflection.find(self.namespace + "material")
-                    if m:
+                    if m is not None:
                         self.material = m.text
                     hkl = reflection.find(self.namespace + "hkl")
                     if hkl:
