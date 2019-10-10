@@ -293,15 +293,7 @@ def makeNaturalName(name, check=False):
 
 
 def is_valid_variable_name(name):
-    # Python 3
-    if sys.version_info >= (3, 0):
-        return name.isidentifier()
-    # Python 2
-    try:
-        parse('{} = None'.format(name))
-        return True
-    except (SyntaxError, ValueError, TypeError):
-        return False
+    return name.isidentifier()
 
 
 def check_kwargs(kwargs, valid_kwargs, identifier):

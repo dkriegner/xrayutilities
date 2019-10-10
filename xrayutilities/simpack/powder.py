@@ -1922,8 +1922,7 @@ class PowderDiffraction(PowderExperiment):
             delattr(self, 'managers')
         except AttributeError:
             pass
-        if sys.version_info >= (3, 0):
-            atexit.unregister(self.__stop__)  # unregister is python3 only
+        atexit.unregister(self.__stop__)
 
     def load_settings_from_config(self, settings):
         """

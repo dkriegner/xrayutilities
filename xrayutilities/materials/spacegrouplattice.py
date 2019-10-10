@@ -25,7 +25,6 @@ cell shape parameters.
 
 import copy
 import numbers
-import sys
 from collections import OrderedDict
 from math import cos, radians, sin, sqrt
 
@@ -36,9 +35,6 @@ from ..exception import InputError
 from . import elements
 from .atom import Atom
 from .wyckpos import wp
-
-if sys.version_info < (3, 0):
-    range = xrange
 
 
 class RangeDict(dict):

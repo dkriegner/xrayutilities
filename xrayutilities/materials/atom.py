@@ -28,7 +28,6 @@ import numpy
 from .. import config, utilities
 from . import __path__, database
 
-
 _db = database.DataBase(os.path.join(__path__[0], "data", config.DBNAME))
 _db.Open()
 

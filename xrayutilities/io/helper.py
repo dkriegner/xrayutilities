@@ -25,7 +25,7 @@ open gzipped and bzipped files
 
 import bz2
 import gzip
-import sys
+import lzma
 
 import h5py
 
@@ -64,17 +64,7 @@ def xu_open(filename, mode='rb'):
     elif filename.endswith('.bz2'):
         fid = bz2.BZ2File(filename, mode)
     elif filename.endswith('.xz'):
-        if sys.version_info >= (3, 3):
-            import lzma
-            fid = lzma.open(filename, mode)
-        else:
-            try:
-                import contextlib
-                import lzma
-                fid = contextlib.closing(lzma.LZMAFile(filename, mode))
-            except ImportError:
-                raise TypeError("File compression type not supported! Install "
-                                "pyliblzma or switch to Python >3.3")
+        fid = lzma.open(filename, mode)
     else:
         fid = open(filename, mode)
 
