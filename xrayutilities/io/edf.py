@@ -385,4 +385,4 @@ class EDFDirectory(FileDirectory):
         keyargs :       dict, optional
             further keyword arguments are passed to EDFFile
         """
-        super(EDFDirectory, self).__init__(datapath, ext, EDFFile, **keyargs)
+        super().__init__(datapath, ext, EDFFile, **keyargs)

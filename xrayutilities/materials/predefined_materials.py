@@ -254,7 +254,7 @@ class SiGe(CubicAlloy):
         """
         Si_{1-x} Ge_x cubic compound
         """
-        super(SiGe, self).__init__(Si, Ge, x)
+        super().__init__(Si, Ge, x)
 
     @staticmethod
     def lattice_const_AB(latA, latB, x, **kwargs):
@@ -272,4 +272,4 @@ class AlGaAs(CubicAlloy):
         """
         Al_{1-x} Ga_x As cubic compound
         """
-        super(AlGaAs, self).__init__(AlAs, GaAs, x)
+        super().__init__(AlAs, GaAs, x)

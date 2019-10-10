@@ -178,7 +178,7 @@ class LayerModel(Model, utilities.ABC):
             Miller indices of the surface (default: (0, 0, 1))
         """
         exp = kwargs.pop('experiment', None)
-        super(LayerModel, self).__init__(exp, **kwargs)
+        super().__init__(exp, **kwargs)
         self.lstack_params = []
         self.lstack_structural_params = False
         self.xlabelstr = 'x (1)'
@@ -287,7 +287,7 @@ class KinematicalModel(LayerModel):
         experiment : Experiment
             Experiment class containing geometry and energy of the experiment.
         """
-        super(KinematicalModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.lstack_params += ['thickness', ]
         self.lstack_structural_params = True
         self.xlabelstr = r'momentum transfer $Q_z$ ($\mathrm{\AA^{-1}}$)'
@@ -435,7 +435,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
             Miller indices of the surface (default: (0, 0, 1))
         """
         self.surface_hkl = kwargs.pop('surface_hkl', (0, 0, 1))
-        super(KinematicalMultiBeamModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def simulate(self, qz, hkl, absorption=False, refraction=True,
                  rettype='intensity'):
@@ -559,7 +559,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         self.fit_paramnames += ['Cmono', ]
         self.polarization = kwargs.pop('polarization', 'S')
         self.Cmono = kwargs.pop('Cmono', 1)
-        super(SimpleDynamicalCoplanarModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.xlabelstr = 'incidence angle (deg)'
         self.hkl = None
         self.chih = None
@@ -886,7 +886,7 @@ class SpecularReflectivityModel(LayerModel):
         self.sample_width = kwargs.pop('sample_width', numpy.inf)
         self.beam_width = kwargs.pop('beam_width', 0)
         self.offset = kwargs.pop('offset', 0)
-        super(SpecularReflectivityModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.lstack_params += ['thickness', 'roughness', 'density']
         self.xlabelstr = 'incidence angle (deg)'
         # precalc optical properties
@@ -1079,7 +1079,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
             x-ray polarization
         """
         self.polarization = kwargs.pop('polarization', 'P')
-        super(DynamicalReflectivityModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._init_en_opt = 0
         self._setOpticalConstants()
 
@@ -1279,7 +1279,7 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
             x-ray polarization
         """
         self.polarization = kwargs.pop('polarization', 'S')
-        super(ResonantReflectivityModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def simulate(self, alphai):
         """
@@ -1412,7 +1412,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         self.method = kwargs.pop('method', 1)
         self.vert = kwargs.pop('vert_int', 0)
         self.qL_zero = kwargs.pop('qL_zero', 5e-5)
-        super(DiffuseReflectivityModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.lstack_params += ['lat_correl', ]
 
     def _get_layer_prop(self):

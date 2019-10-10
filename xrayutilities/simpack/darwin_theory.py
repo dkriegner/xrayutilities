@@ -119,7 +119,7 @@ class DarwinModel(LayerModel):
         self.polarization = kwargs.pop('polarization', 'S')
         exp = kwargs.pop('experiment', None)
         self.Cmono = kwargs.pop('Cmono', 1)
-        super(LayerModel, self).__init__(exp, **kwargs)
+        super().__init__(exp, **kwargs)
 
         self.npoints = len(qz)
         self.qz = numpy.asarray(qz)

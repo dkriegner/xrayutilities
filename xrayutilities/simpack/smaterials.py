@@ -280,7 +280,7 @@ class Layer(SMaterial):
         utilities.check_kwargs(kwargs, self._valid_init_kwargs,
                                self.__class__.__name__)
         kwargs['thickness'] = thickness
-        super(Layer, self).__init__(material, **kwargs)
+        super().__init__(material, **kwargs)
 
     def __getattr__(self, name):
         """
@@ -295,7 +295,7 @@ class Layer(SMaterial):
         elif name == "relaxation":
             return 1
         else:
-            return super(Layer, self).__getattribute__(name)
+            return super().__getattribute__(name)
 
 
 class LayerStack(MaterialList):
@@ -316,7 +316,7 @@ class CrystalStack(LayerStack):
     """
 
     def check(self, v):
-        super(CrystalStack, self).check(v)
+        super().check(v)
         if not isinstance(v.material, Crystal):
             raise TypeError('CrystalStack can only contain crystalline Layers'
                             ' as entries!')
@@ -347,7 +347,7 @@ class GradedLayerStack(CrystalStack):
         """
         nfrom = alloy(xfrom).name
         nto = alloy(xto).name
-        super(GradedLayerStack, self).__init__('(' + nfrom + '-' + nto + ')')
+        super().__init__('(' + nfrom + '-' + nto + ')')
         for x in numpy.linspace(xfrom, xto, nsteps):
             layer = Layer(alloy(x), thickness/nsteps, **kwargs)
             self.append(layer)
@@ -456,7 +456,7 @@ class Powder(SMaterial):
         utilities.check_kwargs(kwargs, self._valid_init_kwargs,
                                self.__class__.__name__)
         kwargs['volume'] = volume
-        super(Powder, self).__init__(material, **kwargs)
+        super().__init__(material, **kwargs)
 
 
 class PowderList(MaterialList):

@@ -153,4 +153,4 @@ class CBFDirectory(FileDirectory):
         keyargs :   dict, optional
             further keyword arguments are passed to CBFFile
         """
-        super(CBFDirectory, self).__init__(datapath, ext, CBFFile, **keyargs)
+        super().__init__(datapath, ext, CBFFile, **keyargs)

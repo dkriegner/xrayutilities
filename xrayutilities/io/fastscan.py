@@ -235,7 +235,7 @@ class FastScanCCD(FastScan):
         self.imagefiletype = kwargs.pop('imagefiletype', 'edf')
         self.imgfile = None
         self.nimages = None
-        super(FastScanCCD, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _getCCDnumbers(self, ccdnr):
         """

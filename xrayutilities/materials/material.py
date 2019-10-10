@@ -307,7 +307,7 @@ class Amorphous(Material):
         cij :       array-like, optional
             elasticity matrix
         """
-        super(Amorphous, self).__init__(name, cij)
+        super().__init__(name, cij)
         self._density = density
         self.base = list()
         if atoms is None:
@@ -475,7 +475,7 @@ class Amorphous(Material):
         return (-2 * delta + 2j * beta)
 
     def __str__(self):
-        ostr = super(Amorphous, self).__str__()
+        ostr = super().__str__()
         ostr += "density: %.2f\n" % self.density
         if self.base:
             ostr += "atoms: "
@@ -492,7 +492,7 @@ class Crystal(Material):
     """
 
     def __init__(self, name, lat, cij=None, thetaDebye=None):
-        super(Crystal, self).__init__(name, cij)
+        super().__init__(name, cij)
 
         self.lattice = lat
         if isinstance(thetaDebye, numbers.Number):
@@ -1049,7 +1049,7 @@ class Crystal(Material):
         return dth
 
     def __str__(self):
-        ostr = super(Crystal, self).__str__()
+        ostr = super().__str__()
         ostr += "Lattice:\n"
         ostr += str(self.lattice)
         return ostr
@@ -1495,7 +1495,7 @@ class Alloy(Crystal):
     def __init__(self, matA, matB, x):
         self.check_compatibility(matA, matB)
         lat = copy.deepcopy(matA.lattice)
-        super(Alloy, self).__init__("None", lat, matA.cij)
+        super().__init__("None", lat, matA.cij)
         self.matA = matA
         self.matB = matB
         self._setxb(x)

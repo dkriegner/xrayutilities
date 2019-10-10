@@ -44,7 +44,7 @@ class RangeDict(dict):
                 if item in key:
                     return self[key]
         else:
-            return super(RangeDict, self).__getitem__(item)
+            return super().__getitem__(item)
 
 
 # space group number to symmetry and number of parameters dictionary
