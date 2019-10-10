@@ -65,7 +65,7 @@ class TestIO_CBF(unittest.TestCase):
         with tempfile.NamedTemporaryFile(mode='w') as fid:
             ed = xu.io.CBFDirectory(datadir, 'cbf')
             ed.Save2HDF5(fid.name)
-            with h5py.File(fid.name,'r') as h5f:
+            with h5py.File(fid.name, 'r') as h5f:
                 h5g = h5f[os.path.split(datadir)[-1]]
                 h5d = h5g[list(h5g.keys())[0]]
                 h5d = numpy.asarray(h5d)
