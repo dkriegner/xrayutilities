@@ -89,6 +89,7 @@ import copy
 import math
 import multiprocessing
 import numbers
+import queue
 import sys
 import threading
 import time
@@ -110,12 +111,6 @@ from .. import config, materials, utilities
 from ..experiment import PowderExperiment
 from ..math import VecNorm
 from .smaterials import Powder
-
-# python 2to3 compatibility
-try:
-    import queue
-except ImportError:
-    import Queue as queue
 
 # figure out which FFT package we have, and import it
 try:
