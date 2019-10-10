@@ -23,12 +23,6 @@ from .. import config, utilities
 from ..exception import InputError
 from . import models
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
             xmax=numpy.inf, plot=False, verbose=False, elog=True, maxfev=500):
@@ -163,7 +157,7 @@ def fit_xrr(reflmod, params, ai, data=None, eps=None, xmin=-numpy.inf,
     # plot of initial values
     if plot:
         plt.ion()
-        if isinstance(plot, basestring):
+        if isinstance(plot, str):
             plt.figure(plot)
         else:
             plt.figure('XU:fit_xrr')
@@ -390,7 +384,7 @@ class FitModel(object):
                 if not self.plot:
                     return
                 self.plt.ion()
-                if isinstance(self.figname, basestring):
+                if isinstance(self.figname, str):
                     self.fig = self.plt.figure(self.figname)
                 else:
                     self.fig = self.plt.figure('XU:FitModel')

@@ -40,12 +40,6 @@ from .wyckpos import wp
 if sys.version_info < (3, 0):
     range = xrange
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 class RangeDict(dict):
     def __getitem__(self, item):
@@ -209,7 +203,7 @@ class WyckoffBase(list):
 
     @staticmethod
     def _checkatom(atom):
-        if isinstance(atom, basestring):
+        if isinstance(atom, str):
             atom = getattr(elements, atom)
         elif not isinstance(atom, Atom):
             raise TypeError("atom must be an instance of class "
@@ -218,7 +212,7 @@ class WyckoffBase(list):
 
     @staticmethod
     def _checkpos(pos):
-        if isinstance(pos, basestring):
+        if isinstance(pos, str):
             pos = (pos, None)
         elif isinstance(pos, (tuple, list)):
             if len(pos) == 1:
@@ -441,7 +435,7 @@ class SGLattice(object):
         self._parameters = OrderedDict()
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
             key = sgrp_params[self.crystal_system][1][i]
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 self._parameters[p] = self.free_parameters[key]
             else:
                 self._parameters[p] = key
@@ -540,7 +534,7 @@ class SGLattice(object):
     def _set_params_from_sym(self):
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
             key = sgrp_params[self.crystal_system][1][i]
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 if p not in self.free_parameters:
                     self._parameters[p] = self.free_parameters[key]
 
@@ -737,7 +731,7 @@ class SGLattice(object):
         # artificially reduce symmetry if needed
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
             key = sgrp_params[self.crystal_system][1][i]
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 if self._parameters[p] != self.free_parameters[key]:
                     self.free_parameters[p] = self._parameters[p]
             else:

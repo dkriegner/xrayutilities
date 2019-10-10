@@ -32,12 +32,6 @@ import h5py
 from .. import config
 from ..exception import InputError
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 def xu_open(filename, mode='rb'):
     """
@@ -110,7 +104,7 @@ class xu_h5open(object):
             self.fid = f
             self.closeFile = False
             self.filename = f.filename
-        elif isinstance(f, basestring):
+        elif isinstance(f, str):
             self.filename = f
         else:
             raise InputError("f argument of wrong type was passed, "

@@ -41,12 +41,6 @@ from . import cif, elements
 from .atom import Atom
 from .spacegrouplattice import WyckoffBase
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 numpy.seterr(divide='ignore', invalid='ignore')
 
 map_ijkl2ij = {"00": 0, "11": 1, "22": 2,
@@ -269,7 +263,7 @@ class Material(utilities.ABC):
         float
             the absorption length in um
         """
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
         return utilities.en2lam(en) / (2 * numpy.pi * self.ibeta(en) * 2) / 1e4
 
@@ -411,7 +405,7 @@ class Amorphous(Material):
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         lam = utilities.en2lam(en)
@@ -441,7 +435,7 @@ class Amorphous(Material):
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         lam = utilities.en2lam(en)
@@ -463,7 +457,7 @@ class Amorphous(Material):
         """
         re = scipy.constants.physical_constants['classical electron radius'][0]
         re *= 1e10
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         lam = utilities.en2lam(en)
@@ -835,7 +829,7 @@ class Crystal(Material):
             return None
 
     def _get_lamen(self, en):
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
         lam = utilities.en2lam(en)
         return lam, en
@@ -988,7 +982,7 @@ class Crystal(Material):
             raise TypeError("q must be a list or numpy array!")
         qnorm = math.VecNorm(q)
 
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         if polarization not in ('S', 'P'):
@@ -1046,7 +1040,7 @@ class Crystal(Material):
             peak shift in degree
         """
 
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
         lam = utilities.en2lam(en)
         dth = numpy.degrees(
@@ -1089,7 +1083,7 @@ class Crystal(Material):
         else:
             raise TypeError("q must be a list or numpy array!")
 
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         if self.lattice.nsites == 0:
@@ -1193,7 +1187,7 @@ class Crystal(Material):
                              % str(q.shape))
         qnorm = numpy.linalg.norm(q, axis=1)
 
-        if isinstance(en0, basestring) and en0 == 'config':
+        if isinstance(en0, str) and en0 == 'config':
             en0 = utilities.energy(config.ENERGY)
 
         if self.lattice.nsites == 0:

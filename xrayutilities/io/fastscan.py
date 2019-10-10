@@ -51,12 +51,6 @@ from ..normalize import blockAverage2D
 from .edf import EDFFile
 from .spec import SPECFile
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 class FastScan(object):
 
@@ -248,7 +242,7 @@ class FastScanCCD(FastScan):
         internal function to return the ccd frame numbers from the data object
         or take them from the argument.
         """
-        if isinstance(ccdnr, basestring):
+        if isinstance(ccdnr, str):
             # check if counter is in data fields
             try:
                 ccdnumbers = self.data[ccdnr]
@@ -731,13 +725,13 @@ class FastScanSeries(object):
         self.gonio_motors = []
         # save motor names
         for arg in args:
-            if not isinstance(arg, basestring):
+            if not isinstance(arg, str):
                 raise ValueError("one of the motor name arguments is not of "
                                  "type 'str' but %s" % str(type(arg)))
             self.gonio_motors.append(arg)
 
         # create list of FastScans
-        if isinstance(filenames, basestring):
+        if isinstance(filenames, str):
             filenames = [filenames]
             scannrs = [scannrs]
         if isinstance(filenames, (tuple, list)):

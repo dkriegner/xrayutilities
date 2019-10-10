@@ -32,12 +32,6 @@ from . import elements
 from . import spacegrouplattice as sgl
 from . import wyckpos
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 re_data = re.compile(r"^data_", re.IGNORECASE)
 re_loop = re.compile(r"^loop_", re.IGNORECASE)
 re_symop = re.compile(r"^\s*("
@@ -536,7 +530,7 @@ class CIFDataset(object):
                 self.sgrp_suf = sgl.get_possible_sgrp_suf(self.sgrp_nr)
             else:
                 self.sgrp_suf = ''
-        if isinstance(self.sgrp_suf, basestring):
+        if isinstance(self.sgrp_suf, str):
             suffixes = [self.sgrp_suf, ]
         else:
             suffixes = copy.copy(self.sgrp_suf)

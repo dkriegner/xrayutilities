@@ -37,12 +37,6 @@ try:  # works in Python >3.4
 except AttributeError:  # Python 2.7
     ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 energies = {
     'CuKa1': 8047.82310,
     'CuKa2': 8027.9117,
@@ -151,7 +145,7 @@ def energy(en):
         return numpy.double(en)
     elif isinstance(en, (numpy.ndarray, list, tuple)):
         return numpy.asarray(en)
-    elif isinstance(en, basestring):
+    elif isinstance(en, str):
         return energies[en]
     else:
         raise InputError("wrong type for argument en")
@@ -180,7 +174,7 @@ def wavelength(wl):
         return numpy.double(wl)
     elif isinstance(wl, (numpy.ndarray, list, tuple)):
         return numpy.asarray(wl)
-    elif isinstance(wl, basestring):
+    elif isinstance(wl, str):
         return en2lam(energies[wl])
     else:
         raise InputError("wrong type for argument wavelength")

@@ -34,12 +34,6 @@ from .functions import (Gauss1d, Gauss1d_der_p, Gauss1d_der_x, Lorentz1d,
                         PseudoVoigt1dasym, PseudoVoigt1dasym2)
 from .misc import center_of_mass, fwhm_exp
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 def linregress(x, y):
     """
@@ -169,7 +163,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
                   "do not trust the result!")
 
     if plot:
-        if isinstance(plot, basestring):
+        if isinstance(plot, str):
             plt.figure(plot)
         else:
             plt.figure('XU:peak_fit')

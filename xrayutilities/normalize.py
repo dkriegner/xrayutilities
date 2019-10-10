@@ -35,12 +35,6 @@ import numpy
 from . import config, cxrayutilities, math, utilities
 from .exception import InputError
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 def blockAverage1D(data, Nav):
     """
@@ -234,7 +228,7 @@ class IntensityNormalizer(object):
 
         sets the detector field name
         """
-        if isinstance(det, basestring):
+        if isinstance(det, str):
             self._det = det
         else:
             self._det = None
@@ -255,7 +249,7 @@ class IntensityNormalizer(object):
 
         sets the count time field or value
         """
-        if isinstance(time, basestring):
+        if isinstance(time, str):
             self._time = time
         elif isinstance(time, (float, int)):
             self._time = float(time)
@@ -278,7 +272,7 @@ class IntensityNormalizer(object):
 
         sets the monitor field name
         """
-        if isinstance(mon, basestring):
+        if isinstance(mon, str):
             self._mon = mon
         elif isinstance(mon, type(None)):
             self._mon = None
@@ -424,7 +418,7 @@ class IntensityNormalizer(object):
         else:
             mon = 1.
         # count time
-        if isinstance(self._time, basestring):
+        if isinstance(self._time, str):
             time = data[self._time]
         elif isinstance(self._time, float):
             time = self._time

@@ -28,12 +28,6 @@ import numpy
 from .. import config, utilities
 from . import __path__, database
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 _db = database.DataBase(os.path.join(__path__[0], "data", config.DBNAME))
 _db.Open()
@@ -141,7 +135,7 @@ class Atom(object):
         f, res = self.get_cache('f1', key)
         if f:
             return res
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)
@@ -154,7 +148,7 @@ class Atom(object):
         f, res = self.get_cache('f2', key)
         if f:
             return res
-        if isinstance(en, basestring) and en == 'config':
+        if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)

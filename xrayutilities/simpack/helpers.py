@@ -19,12 +19,6 @@ import numpy
 
 from .. import config, utilities
 
-# python 2to3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 def coplanar_alphai(qx, qz, en='config'):
     """
@@ -46,7 +40,7 @@ def coplanar_alphai(qx, qz, en='config'):
         the incidence angle in degree. points in the Laue zone are set to
         'nan'.
     """
-    if isinstance(en, basestring) and en == 'config':
+    if isinstance(en, str) and en == 'config':
         en = utilities.energy(config.ENERGY)
     k = 2 * numpy.pi / utilities.en2lam(en)
     th = numpy.arcsin(numpy.sqrt(qx**2 + qz**2) / (2 * k))
@@ -78,7 +72,7 @@ def get_qz(qx, alphai, en='config'):
     array-like
         the qz position for the given incidence angle
     """
-    if isinstance(en, basestring) and en == 'config':
+    if isinstance(en, str) and en == 'config':
         en = utilities.energy(config.ENERGY)
     k = 2 * numpy.pi / utilities.en2lam(en)
     ai = numpy.radians(alphai)
