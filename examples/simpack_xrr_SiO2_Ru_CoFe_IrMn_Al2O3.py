@@ -58,4 +58,4 @@ res = fitm.fit(edata, p, ai, weights=1/eps)
 lmfit.report_fit(res, min_correl=0.5)
 
 m.densityprofile(500, plot=True)
-show(block=False)
+show()
