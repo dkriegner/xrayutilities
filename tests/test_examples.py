@@ -69,6 +69,7 @@ scriptfiles = [
     # 'xrayutilities_read_seifert.py',  # data file not included
     'xrayutilities_read_spec.py',
     'xrayutilities_reflection_strength.py',
+    'xrayutilities_show_reciprocal_space_plane.py',
 ]
 
 
