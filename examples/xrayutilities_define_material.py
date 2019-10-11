@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 import xrayutilities as xu
@@ -37,6 +37,12 @@ InP = xu.materials.Crystal(
 
 # printing of information about the defined material:
 print(InP)
+
+# A very primitive visualization of the unit cell can be performed using
+InP.show_unitcell()
+# for more sophisticated plotting I suggest you export a CIF file and use the
+# software of your choice:
+# InP.toCIF('filename.cif')
 
 # for some purposes it might be necessary to convert the SGLattice to space
 # group P1
