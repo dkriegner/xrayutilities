@@ -22,13 +22,26 @@ Is everything running fine? perform the tests and run the examples
   python2 setup.py test
   python3 setup.py test
   # optionally check the coverage
-  # also see https://coverage.readthedocs.io/en/latest/subprocess.html 
+  # also see https://coverage.readthedocs.io/en/latest/subprocess.html and
+  # set usercustomize.py (in ~/.local/lib64/pythonX/site-packages)
+  """
+  import coverage
+  coverage.process_startup()
+  """
+  # use the following .coveragerc file (in package root)
+  """
+  [run]
+  concurrency=multiprocessing
+  parallel=True
+  source=xrayutilities
+  """
   export COVERAGE_PROCESS_START=.coveragerc
-  coverage run --parallel-mode --source xrayutilities setup.py test
-  coverage combine --append
-  coverage html
+  coverage run setup.py test
+  # the database creation has to be run seperately to be measured
+  coverage run -m unittest tests/test_materials_database.py
+  coverage combine --append . examples
+  coverage report
 
-run the examples
 
 UPDATE DOCUMENTATION
 ====================
@@ -81,7 +94,7 @@ following steps:
  * (optional) execute: 'setenv /x64 /release' (use /x86 for a 32-bit build)
  * compile with: 'python setup.py build'. one might need to use
    '--without-openmp' option for building.
- * build binaries with 'python setup.py bdist_wininst bdist_wheel' 
+ * build binaries with 'python setup.py bdist_wininst bdist_wheel'
  * install package locally 'python setup.py install'
  * use 'python setup.py test' to test your installation
 
