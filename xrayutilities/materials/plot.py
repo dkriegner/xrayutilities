@@ -38,8 +38,9 @@ def show_reciprocal_space_plane(
     mat:        Crystal
         instance of Crystal for structure factor calculations
     exp:        Experiment
-        instance of Experiment (likely HXRD, or FourC). defines the inplane and
-        out of plane direction as well as the sample azimuth
+        instance of Experiment (needs to be HXRD, or FourC for onclick action
+        to work correctly). defines the inplane and out of plane direction as
+        well as the sample azimuth
     ttmax:      float, optional
         maximal 2Theta angle to consider, by default 180deg
     maxqout:    float, optional
