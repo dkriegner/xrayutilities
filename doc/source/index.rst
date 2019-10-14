@@ -174,23 +174,23 @@ Required third party software
 To keep the coding effort as small as possible *xrayutilities* depends on a
 large number of third party libraries and Python modules.
 
-The needed dependencies are:
- * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.
- * **HDF5** a versatile binary data format (library is implemented in C).
-   Although the library is not called directly, it is needed by the h5py Python
-   module (see below).
- * **Python** the scripting language in which most of *xrayutilities* code is written in. (version 2.7 or >= 3.2, including python dev headers)
+The needed runtime dependencies are:
+ * **Python** the scripting language in which most of *xrayutilities* code is written in. (>= 3.3, for Python 2.7 use *xrayutilities* 1.5.X or older)
  * **setuptools** python package installer
- * **git** a version control system used to keep track on the *xrayutilities* development. (only needed for development)
-
-Additionally, the following Python modules are needed in order to make *xrayutilities* work as intended:
  * **Numpy** a Python module providing numerical array objects (version >= 1.9)
- * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.11.0)
+ * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.13.0)
  * **h5py** a powerful Python interface to HDF5.
- * **Matplotlib** a Python module for high quality 1D and 2D plotting (optionally)
+ * **setuptools** needed to provide the *pkg_resources* module
+
+For several features optional dependencies are needed:
+ * **Matplotlib** a Python module for high quality 1D and 2D plotting (optional)
  * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR/XRD data)
- * **lzma** a Python module to (un)compress .xz files (included in the standard library in Python versions >=3.3) (optional) 
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
+
+Additionally, the following Python modules are needed when building *xrayutilities* from source:
+ * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.
+ * **Python dev header**
+ * **unittest2** needed for running the unit tests (optional)
 
 For building the documention (which you do not need to do) the requirements are:
  * **sphinx** the Python documentation generator

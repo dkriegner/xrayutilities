@@ -81,26 +81,26 @@ Requirements
 The following requirements are needed for installing and using *xrayutilities*:
 
 - Python (>= 3.3, for Python 2.7 support use version up to 1.5.x)
-- C-compiler (preferential with OpenMP support)
 - h5py
 - scipy (version >= 0.13.0)
-- numpy (version >= 1.8)
+- numpy (version >= 1.9)
 - setuptools (to provide the pkg_resources module)
 - lmfit (optional)
 - matplotlib (optional)
-- python-lzma (optional)
 
 When building from source you also might need:
 
+- C-compiler (preferential with OpenMP support)
 - python dev headers
 - unittest2 (optional - only if you want to run the tests)
 - matplotlib (optional - only if running the tests/example scripts)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)
+- rst2pdf (optional - only when you want to build the documentation)
 
 refer to your operating system documentation to find out how to install
 those packages. On Microsoft Windows refer to the Documentation for the
-easiest way of the installation (Python(x,y) or WinPython).
+easiest way of the installation (Anaconda, Python(x,y), or WinPython).
 
 Python-2.7 and Python-3.X compatibility
 =======================================
