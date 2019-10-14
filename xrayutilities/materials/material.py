@@ -33,6 +33,7 @@ from math import ceil, copysign
 
 import numpy
 import scipy.optimize
+from pkg_resources import parse_version
 
 from .. import config, math, utilities
 from ..exception import InputError
@@ -1388,7 +1389,13 @@ class Crystal(Material):
                 [self.a2[2]+self.a3[2], self.a1[2]+self.a2[2]+self.a3[2]],
                 color='k', lw=linewidth)
 
-        ax.set_aspect("equal")
+        if parse_version(plt.matplotlib.__version__) < parse_version('3.1.0'):
+            ax.set_aspect("equal")
+
+        if config.VERBOSITY >= config.INFO_LOW:
+            warnings.warn("show_unitcell: 3D projection might appear distorted"
+                          "(limited 3D capabilities of matplotlib!). Use CIF "
+                          "export and other viewers for better visualization.")
         plt.tight_layout()
 
 
