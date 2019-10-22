@@ -545,7 +545,6 @@ def add_f0_from_xop(db, xop, verbose=False):
     # some regular expressions
     elementstr = re.compile(r"^#S")
     multiblank = re.compile(r"\s+")
-    invalidelem = re.compile(r"[^A-Za-z]")
 
     while True:
         lb = xop.readline().decode("utf-8")
@@ -716,7 +715,6 @@ def add_mass_from_NIST(db, nistfile, verbose=False):
     The mass of the natural isotope mixture is taken from the NIST data!
     """
     # some regular expressions
-    commentline = re.compile(r"^#")
     isotope = re.compile(r"^Atomic Number =")
     standardw = re.compile(r"^Standard Atomic Weight")
     relativew = re.compile(r"^Relative Atomic Mass")
@@ -734,7 +732,6 @@ def add_mass_from_NIST(db, nistfile, verbose=False):
             if isotope.match(lb):
                 # found new element
                 lb = multiblank.split(lb)
-                enum = int(lb[-1])
                 lb = nf.readline()
                 lb = lb.strip()
                 lb = multiblank.split(lb)

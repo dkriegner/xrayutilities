@@ -144,7 +144,6 @@ class numorFile(object):
                 if re_spectrum.match(line):
                     # read SSSS section: initial motor positions
                     info = self.ssplit(self.getline(fid))
-                    nspectrum = int(info[0])
                     self.nspectra = int(info[2])
 
                     if re_values.match(self.getline(fid)):

@@ -43,6 +43,10 @@ try:
 except NameError:
     basestring = str
 
+__all__ = ['ABC', 'check_kwargs', 'clear_bit', 'en2lam', 'energies', 'energy',
+           'exchange_filepath', 'exchange_path', 'is_valid_variable_name',
+           'lam2en', 'makeNaturalName', 'set_bit', 'wavelength']
+
 energies = {
     'CuKa1': 8047.82310,
     'CuKa2': 8027.9117,

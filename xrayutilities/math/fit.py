@@ -521,7 +521,6 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
 
         # background contribution
         k = p[-2]
-        d = p[-1]
         b = numpy.ones(x.size) * k
 
         return derx + b
