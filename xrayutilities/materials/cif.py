@@ -22,7 +22,6 @@ import operator
 import os
 import re
 import shlex
-import warnings
 
 import numpy
 import scipy.optimize

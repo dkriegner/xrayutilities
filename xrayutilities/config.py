@@ -28,8 +28,6 @@ import configparser
 import os.path
 from ast import literal_eval
 
-import numpy
-
 from . import __path__, utilities_noconf
 
 # so far parsed config variables are

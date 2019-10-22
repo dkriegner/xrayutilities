@@ -17,7 +17,6 @@
 
 import numpy
 
-from . import __path__
 from . import elements as e
 from .heuslerlib import *
 from .material import (Crystal, CubicAlloy, CubicElasticTensor,

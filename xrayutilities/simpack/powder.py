@@ -93,7 +93,6 @@ import queue
 import sys
 import threading
 import time
-import traceback
 import warnings
 from math import cos, pi, sin, sqrt, tan
 from multiprocessing.managers import BaseManager

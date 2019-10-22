@@ -36,7 +36,6 @@ detector
 see examples/xrayutilities_kmap_ESRF.py for an example script
 """
 
-import glob
 import os.path
 import re
 
