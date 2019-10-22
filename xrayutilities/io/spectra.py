@@ -76,10 +76,8 @@ class SPECTRAFileParameters(dict):
 
     def __str__(self):
         ostr = ""
-        n = len(self)
         lmax_key = 0
         lmax_item = 0
-        strlist = []
 
         # find the length of the longest key
         for k in self:
@@ -96,10 +94,6 @@ class SPECTRAFileParameters(dict):
 
         # define the format string for a single key-value pair
         kvfmt = "|%%-%is = %%-%is" % (lmax_key, lmax_item)
-
-        nc = 3
-        nres = len(self) % nc
-        nrow = (len(self) - nres) / nc
 
         cnt = 0
         ostr += (3 * (lmax_key + lmax_item + 4) + 1) * "-" + "\n"
@@ -293,7 +287,7 @@ class SPECTRAFile(object):
             kwds = {'fletcher32': True, 'compression': 'gzip'}
 
             try:
-                dset = g.create_dataset("data", data=self.data.data, **kwds)
+                g.create_dataset("data", data=self.data.data, **kwds)
             except (RuntimeError, ValueError):
                 print("XU.io.spectra.Save2HDF5: cannot create table for "
                       "storing scan data!")
@@ -367,7 +361,6 @@ class SPECTRAFile(object):
             lst[key] = v
 
         col_names = []
-        col_units = []
         col_types = []
         rec_list = []
         with open(self.filename, 'rb') as fid:

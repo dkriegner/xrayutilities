@@ -434,11 +434,9 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                 lzp, lprop = ([], [])
                 for nreps, subml in ml:
                     lzp, lprop = _recur_prop(nreps, subml, lzp, lprop, propn)
-                d = getfirst(ml, 'd')
             else:
                 lzp = -ml['d']
                 lprop = ml[propn]
-                d = ml['d']
 
             Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
             for i in range(Nmax):

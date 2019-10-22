@@ -127,7 +127,6 @@ class EDFFile(object):
                 while True:  # until end of file
                     hdr_flag = False
                     ml_value_flag = False  # marks a multiline header
-                    byte_order = ""
                     for line in fid:  # until end of header
                         linelength = len(line)
                         offset += linelength

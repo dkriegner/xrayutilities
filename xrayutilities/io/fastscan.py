@@ -199,9 +199,7 @@ class FastScan(object):
                           gridrange[1][0], gridrange[1][1])
 
         # check if counter is in data fields
-        try:
-            inte = self.data[self.counter]
-        except ValueError:
+        if self.counter not in self.data.dtype.fields:
             raise ValueError("field named '%s' not found in data parsed from "
                              "scan #%d in file %s"
                              % (self.counter, self.scannr, self.filename))
@@ -1255,9 +1253,7 @@ class FastScanSeries(object):
 
         for fs in self.fastscans:
             # check if counter is in data fields
-            try:
-                inte = fs.data[counter]
-            except ValueError:
+            if counter not in fs.data.dtype.fields:
                 raise ValueError("field named '%s' not found in data parsed "
                                  "from scan #%d in file %s"
                                  % (counter, fs.scannr, fs.filename))

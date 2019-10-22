@@ -1177,11 +1177,9 @@ class QConversion(object):
             raise Exception("QConversion: area detector not initialized -> "
                             "call Ang2Q.init_area(...)")
 
-        Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
             Nd = Nd - 1
-        Ncirc = Ns + Nd
 
         # kwargs
         deg = kwargs.get('deg', True)
@@ -2284,7 +2282,7 @@ class GID(Experiment):
 
         valid_kwargs = {'trans': 'coordinate transformation flag',
                         'deg': 'degree-flag'}
-        utilities.check_kwargs(keyargs, valid_kwargs, 'Q2Ang')
+        utilities.check_kwargs(kwargs, valid_kwargs, 'Q2Ang')
 
         if isinstance(Q, list):
             q = numpy.array(Q, dtype=numpy.double)

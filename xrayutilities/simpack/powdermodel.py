@@ -428,8 +428,8 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
 
     plt.xlabel('2Theta (deg)')
     plt.ylabel('Intensity')
-    leg = plt.figlegend(lines, [l.get_label() for l in lines],
-                        loc='upper right', frameon=True)
+    plt.figlegend(lines, [l.get_label() for l in lines], loc='upper right',
+                  frameon=True)
     ax.set_yscale(scale)
     plt.tight_layout()
     return lines

@@ -24,8 +24,6 @@ import abc
 import numbers
 import os.path
 import re
-import sys
-from ast import parse
 
 import numpy
 import scipy.constants
@@ -36,6 +34,11 @@ try:  # works in Python >3.4
     ABC = abc.ABC
 except AttributeError:  # Python 2.7
     ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
+
+
+__all__ = ['ABC', 'check_kwargs', 'clear_bit', 'en2lam', 'energies', 'energy',
+           'exchange_filepath', 'exchange_path', 'is_valid_variable_name',
+           'lam2en', 'makeNaturalName', 'set_bit', 'wavelength']
 
 energies = {
     'CuKa1': 8047.82310,

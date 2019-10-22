@@ -227,7 +227,7 @@ class RA_Alignment(object):
             plt.sca(axis)
             plt.plot(d[2], d[0], 'k.-')
             plt.ylabel(re.sub(pname + "_", "", an))
-            twax = axis.twinx()
+            axis.twinx()
             plt.plot(d[2], d[1], 'r.-')
             plt.ylabel("Int (cps)", color='r')
             plt.grid()

@@ -121,7 +121,7 @@ class XRDMLMeasurement(object):
                 for p in pos:
                     # read axis name and unit
                     aname = p.get("axis")
-                    aunit = p.get("unit")
+                    # aunit = p.get("unit")
 
                     # read axis data
                     listp = p.findall(self.namespace + "listPositions")
@@ -404,7 +404,6 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
         d = XRDMLFile(os.path.join(path, f))
         s = d.scan
         detshape = s['detector'].shape
-        detsize = s['detector'].size
 
         if len(detshape) == 2:
             angles = numpy.ravel(s.scanmot)

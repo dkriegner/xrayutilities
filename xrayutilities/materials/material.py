@@ -1734,7 +1734,6 @@ class CubicAlloy(Alloy):
 
         # calculate lattice constants from reciprocal space positions
         n = self.Q(hkl) / VecNorm(self.Q(hkl))
-        q_hkl = self.Q(hkl)
         # the following line is not generally true! only cubic materials
         aperp = 2 * numpy.pi / q_perp * abs(VecDot(n, hkl))
 
@@ -1902,8 +1901,6 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
     if numpy.all(layer.cijkl == 0):
         raise InputError("'layer' argument needs elastic parameters")
 
-    slat = sub.lattice
-    llat = layer.lattice
     # calculate the strain
     asub = get_inplane(sub.lattice)
     abulk = get_inplane(layer.lattice)

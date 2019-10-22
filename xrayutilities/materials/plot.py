@@ -227,7 +227,6 @@ def show_reciprocal_space_plane(
         if event.inaxes == ax:
             cont, ind = h.contains(event)
             if cont:
-                i = ind['ind'][0]
                 popts = numpy.get_printoptions()
                 numpy.set_printoptions(precision=4, suppress=True)
                 angles = exp.Q2Ang(d['qvec'][m][ind['ind'][0]], trans=False,

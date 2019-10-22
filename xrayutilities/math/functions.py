@@ -466,8 +466,6 @@ def PseudoVoigt1d_der_p(x, *p):
                        Gauss1d(x, *lpg) / lpg[2]))
 
     r = pv * rl + (1 - pv) * rg
-    f = Lorentz1d(x, *lpl) + \
-        -  Gauss1d(x, *lpg)
     r = numpy.vstack((r,
                       numpy.ones(x.shape),
                       Lorentz1d(x, *lpl) - Gauss1d(x, *lpg)))

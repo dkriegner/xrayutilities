@@ -500,7 +500,7 @@ class SPECScan(object):
             if comp:
                 kwds['compression'] = 'gzip'
 
-            dset = g.create_dataset("data", data=self.data, **kwds)
+            g.create_dataset("data", data=self.data, **kwds)
 
             # write attribute data for the scan
             g.attrs['ScanNumber'] = numpy.uint(self.nr)

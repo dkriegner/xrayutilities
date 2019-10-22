@@ -225,7 +225,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         plt.ylabel("channel number")
 
         # lower plot to show deviations from linear model
-        ax2 = plt.subplot(212, sharex=ax1)
+        plt.subplot(212, sharex=ax1)
         if modelline:
             plt.plot(angp, models._unilin(fittan.beta,
                                           degrees(tan(radians(angp)))) -
