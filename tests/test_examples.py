@@ -76,7 +76,8 @@ class TestExampleScriptsMeta(type):
                     env = os.environ.copy()
                     env['MPLBACKEND'] = 'agg'
                     cmd = [sys.executable, scriptname]
-                    subprocess.run(cmd, env=env, stdout=fid, check=True)
+                    subprocess.run(cmd, env=env, cwd=scriptdir, stdout=fid,
+                                   check=True)
             return test
 
         for sf in scriptfiles:
@@ -89,9 +90,7 @@ class TestExampleScriptsMeta(type):
 @unittest.skipIf(sys.version_info < (3, 5),
                  "needs subprocess.run -> python 3.5 or newer")
 class TestExampleScripts(unittest.TestCase, metaclass=TestExampleScriptsMeta):
-    @classmethod
-    def setUpClass(cls):
-        os.chdir(scriptdir)
+    pass
 
 
 if __name__ == '__main__':
