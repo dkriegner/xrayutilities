@@ -41,19 +41,15 @@ install:
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         conda info -a
-        conda install -q cython numpy scipy wheel h5py matplotlib
-        python -m pip install --upgrade --ignore-installed pip
-        # newer six needed for lmfit
-        python -m pip install --upgrade --ignore-installed six
-        python -m pip install lmfit
+        conda install -q numpy wheel
       }
-      python -m pip install --upgrade --ignore-installed unittest2
+      python -m pip install --upgrade tox
 
 build_script:
-  - cmd: IF DEFINED MINICONDA ( python setup.py install ) ELSE ( python setup.py bdist_wheel bdist_wininst )
+  - cmd: IF DEFINED MINICONDA ( echo "Build step skipped" ) ELSE ( python setup.py bdist_wheel bdist_wininst )
 
 test_script:
-  - cmd: IF DEFINED MINICONDA ( python setup.py test) ELSE ( echo "Tests skipped" )
+  - cmd: IF DEFINED MINICONDA ( tox ) ELSE ( echo "Tests skipped" )
 
 artifacts:
   - path: dist\*
