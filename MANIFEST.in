@@ -12,11 +12,11 @@ recursive-include examples *.py
 graft examples/data
 
 # C source files and tests
-graft xrayutilities/src
+graft src
 recursive-include tests *.py
 
 # include database files
-graft xrayutilities/materials/data
+graft lib/xrayutilities/materials/data
 
 # exclude development files
 global-exclude .gitignore

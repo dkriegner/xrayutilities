@@ -50,7 +50,7 @@ install:
       python -m pip install --upgrade --ignore-installed unittest2
 
 build_script:
-  - cmd: IF DEFINED MINICONDA ( echo "Skip packaging" ) ELSE ( python setup.py bdist_wheel bdist_wininst )
+  - cmd: IF DEFINED MINICONDA ( python setup.py install ) ELSE ( python setup.py bdist_wheel bdist_wininst )
 
 test_script:
   - cmd: IF DEFINED MINICONDA ( python setup.py test) ELSE ( echo "Tests skipped" )

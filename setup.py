@@ -89,7 +89,7 @@ with open('README.md') as f:
 
 extmodul = Extension(
     'xrayutilities.cxrayutilities',
-    sources=glob.glob(os.path.join('xrayutilities', 'src', '*.c')),
+    sources=glob.glob(os.path.join('src', '*.c')),
     define_macros=user_macros
     )
 
@@ -143,7 +143,8 @@ setup(
     author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
     maintainer="Dominik Kriegner",
     maintainer_email="dominik.kriegner@gmail.com",
-    packages=find_packages(exclude=['tests']),
+    package_dir={'': 'lib'},
+    packages=find_packages('lib'),
     package_data={
         "xrayutilities": ["*.conf"],
         "xrayutilities.materials": [
