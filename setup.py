@@ -18,7 +18,9 @@
 
 import glob
 import os.path
+import subprocess
 import sys
+from distutils.command.build import build
 from distutils.command.install import INSTALL_SCHEMES
 from distutils.errors import DistutilsArgError
 from distutils.fancy_getopt import FancyGetopt
@@ -26,6 +28,7 @@ from distutils.fancy_getopt import FancyGetopt
 import numpy
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
+
 
 cliopts = []
 cliopts.append(("without-openmp", None, "build without OpenMP support"))
@@ -82,7 +85,33 @@ class build_ext_subclass(build_ext):
         build_ext.build_extensions(self)
 
 
-cmdclass = {'build_ext': build_ext_subclass}
+class build_with_database(build):
+    def build_database(self):
+        dbfilename = os.path.join(self.build_platlib, 'xrayutilities',
+                                  'materials', 'data', 'elements.db')
+        cmd = [sys.executable,
+               os.path.join('lib', 'xrayutilities', 'materials',
+                            '_create_database.py'),
+               dbfilename]
+        self.mkpath(os.path.dirname(dbfilename))
+        try:
+            if sys.version_info >= (3, 5):
+                cp = subprocess.run(cmd, stderr=subprocess.PIPE,
+                                    stdout=subprocess.PIPE, check=True)
+            else:
+                subprocess.check_output(cmd)
+        except subprocess.CalledProcessError as cpe:
+            sys.stdout.buffer.write(cpe.stdout)
+            sys.stdout.buffer.write(cpe.stderr)
+            raise
+
+    def run(self):
+        super().run()
+        self.build_database()
+
+
+cmdclass = {'build_ext': build_ext_subclass,
+            'build': build_with_database}
 
 with open('README.md') as f:
     long_description = f.read()
@@ -147,12 +176,10 @@ setup(
     packages=find_packages('lib'),
     package_data={
         "xrayutilities": ["*.conf"],
-        "xrayutilities.materials": [
-            os.path.join("data", "*.db"),
-            os.path.join("data", "*.cif")
-            ]
+        "xrayutilities.materials": [os.path.join("data", "*")]
         },
     data_files=[('xrayutilities', ['VERSION'])],
+    python_requires='~=3.3',
     install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py', 'setuptools'],
     extras_require={
         'plot': ["matplotlib"],
@@ -164,6 +191,5 @@ setup(
     cmdclass=cmdclass,
     url="http://xrayutilities.sourceforge.net",
     license="GPLv2",
-    test_suite="unittest2.collector",
     script_args=args
     )

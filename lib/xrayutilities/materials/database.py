@@ -65,7 +65,7 @@ class DataBase(object):
             self.h5file = h5py.File(self.fname, 'w')
         except OSError:
             print('cannot create database file %s!' % (self.fname))
-            return None
+            raise
 
         # set attributes to the root group with database name and
         # description

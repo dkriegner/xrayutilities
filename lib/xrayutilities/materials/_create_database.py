@@ -45,16 +45,12 @@ verbose = False
 
 if len(sys.argv) > 1:
     fname = sys.argv[1]
-else:
-    fname = 'elements.db'
 if len(sys.argv) > 2:
     dataroot = sys.argv[2]
 else:
     dataroot = os.path.join(os.path.dirname(__file__), 'data')
 
-fullfilename = os.path.join(dataroot, fname)
-
-dbf = DataBase(fullfilename)
+dbf = DataBase(fname)
 dbf.Create('elementdata',
            'Database with elemental data from XOP and Kissel databases')
 
