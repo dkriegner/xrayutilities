@@ -21,10 +21,12 @@ using the sign of the original value as sign of the plotted value.
 
 import math
 
+import matplotlib
 import numpy
 from matplotlib import scale as mscale
 from matplotlib import ticker as mticker
 from matplotlib import transforms as mtransforms
+from pkg_resources import parse_version
 
 
 class SqrtAllowNegScale(mscale.ScaleBase):
@@ -45,7 +47,10 @@ class SqrtAllowNegScale(mscale.ScaleBase):
         ``set_yscale`` will be passed along to the scale's
         constructor.
         """
-        mscale.ScaleBase.__init__(self)
+        if parse_version(matplotlib.__version__) < parse_version('3.1.0'):
+            super().__init__(**kwargs)
+        else:
+            super().__init__(axis, **kwargs)
 
     def set_default_locators_and_formatters(self, axis):
         axis.set_major_locator(SqrtTickLocator())
