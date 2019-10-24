@@ -15,18 +15,13 @@
 #
 # Copyright (C) 2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import imp
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
-from contextlib import contextmanager
 
-import matplotlib
 
-import xrayutilities as xu
-
-matplotlib.use('agg')
 scriptdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
                          'examples')
 scriptfiles = [
@@ -73,22 +68,15 @@ scriptfiles = [
 ]
 
 
-@contextmanager
-def redirect_stdout(new_target):
-    old_target, sys.stdout = sys.stdout, new_target  # replace sys.stdout
-    try:
-        yield new_target  # run some code with the replaced stdout
-    finally:
-        sys.stdout = old_target  # restore to the previous value
-
-
 class TestExampleScriptsMeta(type):
     def __new__(mcs, name, bases, dict):
         def test_generator(scriptname):
             def test(self):
                 with tempfile.TemporaryFile(mode='w') as fid:
-                    with fid as f, redirect_stdout(f):
-                        imp.load_source('__testing__', scriptname)
+                    env = os.environ.copy()
+                    env['MPLBACKEND'] = 'agg'
+                    cmd = [sys.executable, scriptname]
+                    subprocess.run(cmd, env=env, stdout=fid, check=True)
             return test
 
         for sf in scriptfiles:
@@ -98,17 +86,12 @@ class TestExampleScriptsMeta(type):
         return type.__new__(mcs, name, bases, dict)
 
 
+@unittest.skipIf(sys.version_info < (3, 5),
+                 "needs subprocess.run -> python 3.5 or newer")
 class TestExampleScripts(unittest.TestCase, metaclass=TestExampleScriptsMeta):
     @classmethod
     def setUpClass(cls):
         os.chdir(scriptdir)
-
-    def tearDown(cls):
-        xu.config.VERBOSITY = 0  # make no outputs during tests
-        flag, plt = xu.utilities.import_matplotlib_pyplot('Unittest')
-        if flag:
-            plt.close('all')
-            plt.ioff()  # needed to not break scripts after use of FitModel!
 
 
 if __name__ == '__main__':
