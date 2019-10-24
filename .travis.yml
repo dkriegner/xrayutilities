@@ -6,17 +6,11 @@ python:
   - "3.7"
 # command to install dependencies
 install:
-  - travis_retry pip install --upgrade pip wheel
-  - travis_retry pip install numpy
-  - travis_retry pip install unittest2
-  - travis_retry pip install h5py
-  - travis_retry pip install matplotlib
-  - travis_retry pip install scipy
-  - travis_retry pip install lmfit
+  - travis_retry pip install tox
   - if [ ! "$(ls -A tests/data)" ]; then wget https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -O xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi
 cache:
   pip: true
   directories:
    - tests/data
 # command to run tests
-script: python setup.py test
+script: tox

@@ -17,3 +17,4 @@ xrayutilities.egg-info/
 .coverage
 .coveragerc
 htmlcov
+.tox
