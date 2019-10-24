@@ -32,7 +32,7 @@ install:
         $env:Path="$env:PYTHON;$env:PYTHON\Scripts;$env:Path"
         [Environment]::SetEnvironmentVariable("Path", "$env:PYTHON;$env:PYTHON\Scripts;senv:Path", [EnvironmentVariableTarget]::User)
         python -m pip install --upgrade --ignore-installed pip
-        python -m pip install --upgrade numpy wheel
+        python -m pip install --upgrade numpy scipy h5py wheel
       }
       else
       {
@@ -41,7 +41,8 @@ install:
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         conda info -a
-        conda install -q numpy wheel
+        conda install -q numpy scipy h5py wheel
+        python -m pip install --upgrade --ignore-installed pip
       }
       python -m pip install --upgrade tox
 
