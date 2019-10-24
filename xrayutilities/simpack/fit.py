@@ -415,7 +415,7 @@ class FitModel(object):
                 self.plt.xlabel(xlab)
                 self.plt.ylabel(ylab)
                 self.plt.legend()
-                self.plt.tight_layout()
+                self.fig.set_tight_layout(True)
                 self.plt.show()
 
             def updatemodelline(self, x, newmodel):
