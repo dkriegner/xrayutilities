@@ -963,13 +963,10 @@ class FastScanSeries(object):
 
         # parse the images only if some q coordinates fall into the ROI
         for fsidx, fsccd in enumerate(self.fastscans):
-            mask = numpy.logical_and(numpy.logical_and(
-                numpy.logical_and(qx[fsidx] > qrange[0],
-                                  qx[fsidx] < qrange[1]),
-                numpy.logical_and(qy[fsidx] > qrange[2],
-                                  qy[fsidx] < qrange[3])),
-                numpy.logical_and(qz[fsidx] > qrange[4],
-                                  qz[fsidx] < qrange[5]))
+            mask = numpy.logical_and.reduce((
+                qx[fsidx] > qrange[0], qx[fsidx] < qrange[1],
+                qy[fsidx] > qrange[2], qy[fsidx] < qrange[3],
+                qz[fsidx] > qrange[4], qz[fsidx] < qrange[5]))
 
             if numpy.any(mask):
                 ccdtemplate, nextNr = fsccd.getccdFileTemplate(
