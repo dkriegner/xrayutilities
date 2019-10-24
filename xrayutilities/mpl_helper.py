@@ -102,7 +102,10 @@ class SqrtAllowNegScale(mscale.ScaleBase):
 
 class SqrtTickLocator(mticker.Locator):
     def __init__(self, nbins=7, symmetric=True):
-        self._base = mticker.Base(1.0)
+        if parse_version(matplotlib.__version__) < parse_version('3.1.0'):
+            self._base = mticker.Base(1.0)
+        else:
+            self._base = mticker._Edge_integer(1.0, 0)
         self.set_params(nbins, symmetric)
 
     def set_params(self, nbins, symmetric):
