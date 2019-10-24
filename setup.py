@@ -178,8 +178,8 @@ setup(
         "xrayutilities": ["*.conf"],
         "xrayutilities.materials": [os.path.join("data", "*")]
         },
-    data_files=[('xrayutilities', ['VERSION'])],
     python_requires='~=3.3',
+    setup_requires=['numpy', 'scipy', 'h5py'],
     install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py', 'setuptools'],
     extras_require={
         'plot': ["matplotlib"],
