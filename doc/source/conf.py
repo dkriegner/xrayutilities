@@ -60,7 +60,8 @@ copyright = u'2019, Dominik Kriegner, Eugen Wintersberger'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-with open(os.path.join('..', '..', 'VERSION')) as version_file:
+moduleroot = os.path.join('..', '..', 'lib', 'xrayutilities')
+with open(os.path.join(moduleroot, 'VERSION')) as version_file:
     fullversion = version_file.read().strip()
     # The short X.Y version.
     version = re.match(r'^(\d+\.)?(\d+)?', fullversion).group()

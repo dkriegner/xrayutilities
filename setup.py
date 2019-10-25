@@ -141,7 +141,7 @@ with open('README.md') as f:
 extmodul = Extension('xrayutilities.cxrayutilities',
                      sources=glob.glob(os.path.join('src', '*.c')))
 
-with open('VERSION') as version_file:
+with open('lib/xrayutilities/VERSION') as version_file:
     version = version_file.read().strip()
 
 try:
@@ -195,7 +195,7 @@ setup(
     package_dir={'': 'lib'},
     packages=find_packages('lib'),
     package_data={
-        "xrayutilities": ["*.conf"],
+        "xrayutilities": ["VERSION", "*.conf"],
         "xrayutilities.materials": [os.path.join("data", "*")]
         },
     python_requires='~=3.3',

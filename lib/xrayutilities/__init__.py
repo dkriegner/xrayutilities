@@ -26,7 +26,7 @@ Authors:
  Dominik Kriegner <dominik.kriegner@gmail.com> and
  Eugen Wintersberger <eugen.wintersberger@desy.de>
 """
-import pkg_resources
+import os
 
 # load configuration
 from . import analysis, config, io, materials, math, simpack
@@ -42,4 +42,6 @@ from .utilities import (clear_bit, en2lam, energy, lam2en, makeNaturalName,
                         maplog, set_bit, wavelength)
 
 # load package version
-__version__ = pkg_resources.get_distribution("xrayutilities").version
+from . import __path__
+with open(os.path.join(__path__[0], 'VERSION')) as version_file:
+    __version__ = version_file.read().strip()
