@@ -20,9 +20,10 @@ import glob
 import os.path
 import subprocess
 import sys
+import tempfile
 from distutils.command.build import build
 from distutils.command.install import INSTALL_SCHEMES
-from distutils.errors import DistutilsArgError
+from distutils.errors import DistutilsArgError, CompileError
 from distutils.fancy_getopt import FancyGetopt
 
 import numpy
@@ -49,40 +50,56 @@ try:
 except DistutilsArgError:
     pass
 
-# set default flags
+# get options from command line
 without_openmp = False
-
 for opts, values in options.get_option_order():
     if opts == "without-openmp":
         without_openmp = True
 
-copt = {'msvc': [],
-        'mingw32': ['-std=c99'],
-        'unix': ['-std=c99']}
-lopt = {'mingw32': [],
-        'unix': []}
 
-user_macros = []
-if not without_openmp:
-    user_macros = [('__OPENMP__', None)]
-    copt["msvc"].append('/openmp')
-    copt["mingw32"].append("-fopenmp")
-    copt["unix"].append("-fopenmp")
-    lopt["mingw32"].append("-fopenmp")
-    lopt["unix"].append("-lgomp")
+def has_flag(compiler, flagname):
+    # see https://bugs.python.org/issue26689
+    """Return a boolean indicating whether a flag name is supported on
+    the specified compiler.
+    """
+    with tempfile.NamedTemporaryFile('w', suffix='.c') as f:
+        f.write('int main (int argc, char **argv) { return 0; }')
+        try:
+            compiler.compile([f.name], extra_postargs=[flagname])
+        except CompileError:
+            return False
+    return True
 
 
 class build_ext_subclass(build_ext):
+
     def build_extensions(self):
         c = self.compiler.compiler_type
-        # set custom compiler options
+        # set standard compiler options
+        copt = {'mingw32': ['-std=c99'],
+                'unix': ['-std=c99']}
+
         if c in copt:
-            for e in self.extensions:
-                e.extra_compile_args = copt[c]
-        if c in lopt:
-            for e in self.extensions:
-                e.extra_link_args = lopt[c]
-        build_ext.build_extensions(self)
+            for flag in copt[c]:
+                if has_flag(self.compiler, flag):
+                    for e in self.extensions:
+                        e.extra_compile_args.append(flag)
+
+        # set openMP compiler options
+        if not without_openmp:
+            openmpflags = {'msvc': ('/openmp', None),
+                           'mingw32': ('-fopenmp', '-fopenmp'),
+                           'unix': ('-fopenmp', '-lgomp')}
+            if c in openmpflags:
+                flag, lib = openmpflags[c]
+                if has_flag(self.compiler, flag):
+                    for e in self.extensions:
+                        e.extra_compile_args.append(flag)
+                        if lib is not None:
+                            e.extra_link_args.append(lib)
+                        e.define_macros .append(('__OPENMP__', None))
+
+        super().build_extensions()
 
 
 class build_with_database(build):
@@ -96,8 +113,8 @@ class build_with_database(build):
         self.mkpath(os.path.dirname(dbfilename))
         try:
             if sys.version_info >= (3, 5):
-                cp = subprocess.run(cmd, stderr=subprocess.PIPE,
-                                    stdout=subprocess.PIPE, check=True)
+                subprocess.run(cmd, stderr=subprocess.PIPE,
+                               stdout=subprocess.PIPE, check=True)
             else:
                 subprocess.check_output(cmd)
         except subprocess.CalledProcessError as cpe:
@@ -116,11 +133,8 @@ cmdclass = {'build_ext': build_ext_subclass,
 with open('README.md') as f:
     long_description = f.read()
 
-extmodul = Extension(
-    'xrayutilities.cxrayutilities',
-    sources=glob.glob(os.path.join('src', '*.c')),
-    define_macros=user_macros
-    )
+extmodul = Extension('xrayutilities.cxrayutilities',
+                     sources=glob.glob(os.path.join('src', '*.c')))
 
 with open('VERSION') as version_file:
     version = version_file.read().strip()
@@ -147,6 +161,7 @@ try:
             sys.path.pop(0)
 
     cmdclass['build_doc'] = build_doc
+
 except ImportError:
     pass
 
