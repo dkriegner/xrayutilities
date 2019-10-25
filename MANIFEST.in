@@ -20,5 +20,3 @@ graft lib/xrayutilities/materials/data
 
 # exclude development files
 global-exclude .gitignore
-exclude .travis.yml
-exclude appveyor.yml
