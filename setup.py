@@ -57,17 +57,22 @@ for opts, values in options.get_option_order():
         without_openmp = True
 
 
-def has_flag(compiler, flagname):
+def has_flag(compiler, flagname, output_dir=None):
     # see https://bugs.python.org/issue26689
     """Return a boolean indicating whether a flag name is supported on
     the specified compiler.
     """
-    with tempfile.NamedTemporaryFile('w', suffix='.c') as f:
+    with tempfile.NamedTemporaryFile('w', suffix='.c', delete=False) as f:
         f.write('int main (int argc, char **argv) { return 0; }')
+        f.close()
         try:
-            compiler.compile([f.name], extra_postargs=[flagname])
+            obj = compiler.compile([f.name], output_dir=output_dir,
+                                   extra_postargs=[flagname])
+            os.remove(*obj)
         except CompileError:
             return False
+        finally:
+            os.remove(f.name)
     return True
 
 
@@ -81,7 +86,7 @@ class build_ext_subclass(build_ext):
 
         if c in copt:
             for flag in copt[c]:
-                if has_flag(self.compiler, flag):
+                if has_flag(self.compiler, flag, self.build_temp):
                     for e in self.extensions:
                         e.extra_compile_args.append(flag)
 
@@ -92,7 +97,7 @@ class build_ext_subclass(build_ext):
                            'unix': ('-fopenmp', '-lgomp')}
             if c in openmpflags:
                 flag, lib = openmpflags[c]
-                if has_flag(self.compiler, flag):
+                if has_flag(self.compiler, flag, self.build_temp):
                     for e in self.extensions:
                         e.extra_compile_args.append(flag)
                         if lib is not None:
