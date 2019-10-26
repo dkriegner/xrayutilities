@@ -24,7 +24,7 @@ environment:
 
 install:
   - ps: |
-      $env:package_version=(Get-Content -Path VERSION)
+      $env:package_version=(Get-Content -Path lib/xrayutilities/VERSION)
       Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
       # install dependencies
       if($env:MINICONDA -eq $null)
