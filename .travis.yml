@@ -8,8 +8,6 @@ jobs:
     - os: osx
       language: generic
       env: PYTHON=3.7.4
-  allow_failures:
-    - os: osx
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew update
