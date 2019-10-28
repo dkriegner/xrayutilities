@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Panalytical XML (www.XRDML.com) data file parser
@@ -127,19 +127,22 @@ class XRDMLMeasurement(object):
                     listp = p.findall(self.namespace + "listPositions")
                     s = p.findall(self.namespace + "startPosition")
                     e = p.findall(self.namespace + "endPosition")
+                    c = p.find(self.namespace + "commonPosition")
                     if listp:  # listPositions
                         listp = listp[0]
                         data_list = numpy.fromstring(listp.text, sep=" ")
                         data_list = data_list.tolist()
-                    elif s:  # start endPosition
+                    elif s and e:  # start endPosition
                         data_list = numpy.linspace(
                             float(s[0].text), float(e[0].text),
                             nofpoints).tolist()
-                    else:  # commonPosition
-                        c = p.find(self.namespace + "commonPosition")
+                    elif c is not None:  # commonPosition
                         data_list = numpy.fromstring(c.text, sep=" ")
                         data_list = data_list.tolist()
                         is_scalar = 1
+                    else:
+                        raise ValueError(
+                            "no positions for axis {} found".format(aname))
 
                     # have to append the data to the data dictionary in case
                     # the scan is complete!
