@@ -21,7 +21,7 @@ import os.path
 import subprocess
 import sys
 import tempfile
-from distutils.command.build import build
+from distutils.command.build_py import build_py
 from distutils.command.install import INSTALL_SCHEMES
 from distutils.errors import DistutilsArgError, CompileError
 from distutils.fancy_getopt import FancyGetopt
@@ -107,15 +107,16 @@ class build_ext_subclass(build_ext):
         super().build_extensions()
 
 
-class build_with_database(build):
+class build_with_database(build_py):
     def build_database(self):
-        dbfilename = os.path.join(self.build_platlib, 'xrayutilities',
+        dbfilename = os.path.join(self.build_lib, 'xrayutilities',
                                   'materials', 'data', 'elements.db')
         cmd = [sys.executable,
                os.path.join('lib', 'xrayutilities', 'materials',
                             '_create_database.py'),
                dbfilename]
         self.mkpath(os.path.dirname(dbfilename))
+        print('building database: {}'.format(dbfilename))
         try:
             if sys.version_info >= (3, 5):
                 subprocess.run(cmd, stderr=subprocess.PIPE,
@@ -132,8 +133,8 @@ class build_with_database(build):
         self.build_database()
 
 
-cmdclass = {'build_ext': build_ext_subclass,
-            'build': build_with_database}
+cmdclass = {'build_py': build_with_database,
+            'build_ext': build_ext_subclass}
 
 with open('README.md') as f:
     long_description = f.read()
