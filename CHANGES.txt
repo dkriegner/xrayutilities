@@ -1,3 +1,6 @@
+fix issue #84: edge case problemes in XRDML parser
+matplotlib compatibility improvements
+
 v1.5.3, 2019-10-09
 
 * issue #87: fix matplotlib inline backend in FitModel.fit
