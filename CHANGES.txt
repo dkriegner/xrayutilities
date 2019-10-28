@@ -1,3 +1,5 @@
+* fix issue 84: edge case problems in XRDML parser
+* use of tox to run unittests consistently in a virtual environment
 * build element database during installation from sources
 * new source layout which offers many advantages
   (https://blog.ionelmc.ro/2014/05/25/python-packaging/#the-structure)
