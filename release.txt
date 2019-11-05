@@ -80,7 +80,7 @@ To build a wheel for Microsoft Windows run
   python setup.py bdist_wheel
 
 on a Windows machine.
-If not done previously you need to build the extention modules using
+If not done previously you need to build the extension modules using
 
   python setup.py build -c <compiler_name>
 
