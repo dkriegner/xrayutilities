@@ -1,6 +1,7 @@
 
 This document describes the process of making a new release of xrayutilities.
-It is therefore not relevant for users, but for developers and packagers only.
+It is therefore not relevant for users, but only for developers and (maybe to
+some extent also for) packagers.
 
 Note: This procedure is intended for use on a Unix operating system.
 
@@ -9,38 +10,20 @@ CHECK EVERYTHING
 
 Is everything running fine? perform the tests and run the examples
 
-  # change the version in VERSION
+  # change the version in lib/xrayutilties/VERSION
   # update copyright notice in doc/source/conf.py and README.md
-  pycodestyle xrayutilities
+  pycodestyle lib
   # allowed output is:
-  # xrayutilities/materials/elements.py:36:1: E741 ambiguous variable name 'O'
-  # xrayutilities/materials/elements.py:139:1: E741 ambiguous variable name 'I'
-  # xrayutilities/math/fit.py:100:80: E501 line too long (100 > 79 characters)
-  # xrayutilities/math/fit.py:199:80: E501 line too long (90 > 79 characters)
-  # xrayutilities/math/fit.py:273:80: E501 line too long (90 > 79 characters)
-  # xrayutilities/math/fit.py:314:80: E501 line too long (90 > 79 characters)
-  python2 setup.py test
-  python3 setup.py test
-  # optionally check the coverage
-  # also see https://coverage.readthedocs.io/en/latest/subprocess.html and
-  # set usercustomize.py (in ~/.local/lib64/pythonX/site-packages)
-  """
-  import coverage
-  coverage.process_startup()
-  """
-  # use the following .coveragerc file (in package root)
-  """
-  [run]
-  concurrency=multiprocessing
-  parallel=True
-  source=xrayutilities
-  """
-  export COVERAGE_PROCESS_START=.coveragerc
-  coverage run setup.py test
-  # the database creation has to be run seperately to be measured
-  coverage run -m unittest tests/test_materials_database.py
-  coverage combine --append . examples
-  coverage report
+  # lib/xrayutilities/materials/elements.py:36:1: E741 ambiguous variable name 'O'
+  # lib/xrayutilities/materials/elements.py:139:1: E741 ambiguous variable name 'I'
+  # lib/xrayutilities/math/fit.py:100:80: E501 line too long (100 > 79 characters)
+  # lib/xrayutilities/math/fit.py:199:80: E501 line too long (90 > 79 characters)
+  # lib/xrayutilities/math/fit.py:273:80: E501 line too long (90 > 79 characters)
+  # lib/xrayutilities/math/fit.py:314:80: E501 line too long (90 > 79 characters)
+  # run the unit tests
+  tox
+  # optionally check the (total) coverage and run after tox
+  coverage run --append
 
 
 UPDATE DOCUMENTATION
