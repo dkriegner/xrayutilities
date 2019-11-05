@@ -190,7 +190,7 @@ setup(
         "(GPLv2+)"
         ],
     long_description=long_description,
-    long_description_content_type="text/markdown"
+    long_description_content_type="text/markdown",
     author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
     maintainer="Dominik Kriegner",
     maintainer_email="dominik.kriegner@gmail.com",
