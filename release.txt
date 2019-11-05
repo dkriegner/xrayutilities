@@ -62,12 +62,12 @@ the installation of xrayutilities
 
 This tarball should be uploaded to sourceforge and PyPI.
 
-To build a executable installer for Microsoft windows run
+To build a wheel for Microsoft Windows run
 
-  python setup.py bdist_wininst
+  python setup.py bdist_wheel
 
-on a windows machine.
-If not done previously you need to build the extenstion modules using
+on a Windows machine.
+If not done previously you need to build the extention modules using
 
   python setup.py build -c <compiler_name>
 
@@ -81,7 +81,7 @@ following steps:
  * (optional) execute: 'setenv /x64 /release' (use /x86 for a 32-bit build)
  * compile with: 'python setup.py build'. one might need to use
    '--without-openmp' option for building.
- * build binaries with 'python setup.py bdist_wininst bdist_wheel' 
+ * build binaries with 'python setup.py bdist_wheel'
  * install package locally 'python setup.py install'
  * use 'python setup.py test' to test your installation
 
