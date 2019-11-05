@@ -47,7 +47,7 @@ install:
       python -m pip install --upgrade tox
 
 build_script:
-  - cmd: IF DEFINED MINICONDA ( echo "Build step skipped" ) ELSE ( python setup.py bdist_wheel bdist_wininst )
+  - cmd: IF DEFINED MINICONDA ( echo "Build step skipped" ) ELSE ( python setup.py bdist_wheel )
 
 test_script:
   - cmd: IF DEFINED MINICONDA ( tox ) ELSE ( echo "Tests skipped" )
