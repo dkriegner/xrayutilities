@@ -10,6 +10,8 @@ jobs:
     - os: osx
       language: generic
       env: PYTHON=3.7.4
+  allow_failures:
+    - python: 3.8
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew update
@@ -24,6 +26,7 @@ before_install: |
     python --version
   fi
 install:
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then travis_retry pip install numpy; fi
   - travis_retry pip install tox
   - if [ ! "$(ls -A tests/data)" ]; then curl -L https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -o xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi
 cache:
