@@ -24,7 +24,6 @@ before_install: |
     python --version
   fi
 install:
-  - travis_retry pip install numpy
   - travis_retry pip install tox
   - if [ ! "$(ls -A tests/data)" ]; then curl -L https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -o xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi
 cache:
