@@ -146,6 +146,51 @@ def blockAveragePSD(psddata, Nav, **kwargs):
 
     return block_av
 
+
+def blockAverageCCD(data3d, Nav1, Nav2, **kwargs):
+    """
+    perform a block average for 2D frames inside a 3D array.
+    all data are used therefore the margin cells may differ in size
+
+    Parameters
+    ----------
+    data3d :        ndarray
+        array of 3D data shape (Nframes, N, M)
+    Nav1, Nav2 :    int
+        a field of (Nav1 x Nav2) values is contracted
+
+    kwargs :        dict, optional
+        optional keyword argument
+    roi :           tuple or list, optional
+        region of interest for the 2D array. e.g. [20, 980, 40, 960],
+        reduces M, and M!
+
+    Returns
+    -------
+    ndarray
+        block averaged numpy array with type numpy.double with shape
+        (Nframes, ceil(N/Nav1), ceil(M/Nav2))
+    """
+
+    if not isinstance(data3d, (numpy.ndarray)):
+        raise TypeError("first argument data3d must be of type numpy.ndarray")
+
+    roi = kwargs.get('roi', [0, data3d.shape[1], 0, data3d.shape[2]])
+    data = numpy.array(data3d[:, roi[0]:roi[1], roi[2]:roi[3]],
+                       dtype=numpy.double)
+
+    if config.VERBOSITY >= config.DEBUG:
+        N, M = (roi[1] - roi[0], roi[3] - roi[2])
+        print("xu.normalize.blockAverageCCD: roi: %s" % (str(roi)))
+        print("xu.normalize.blockAverageCCD: Nav1, 2: %d,%d" % (Nav1, Nav2))
+        print("xu.normalize.blockAverageCCD: number of points: (%d,%d)"
+              % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2))))
+
+    block_av = cxrayutilities.block_average_CCD(data, Nav1, Nav2,
+                                                config.NTHREADS)
+
+    return block_av
+
 # #####################################
 # #    Intensity correction class    ##
 # #####################################

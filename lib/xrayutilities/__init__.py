@@ -29,19 +29,18 @@ Authors:
 import os
 
 # load configuration
-from . import analysis, config, io, materials, math, simpack
+from . import __path__, analysis, config, io, materials, math, simpack
 from .experiment import (GID, GISAXS, HXRD, Experiment, FourC, NonCOP,
                          PowderExperiment, QConversion)
 from .gridder import FuzzyGridder1D, Gridder1D, npyGridder1D
 from .gridder2d import FuzzyGridder2D, Gridder2D, Gridder2DList
 from .gridder3d import FuzzyGridder3D, Gridder3D
 from .normalize import (IntensityNormalizer, blockAverage1D, blockAverage2D,
-                        blockAveragePSD)
+                        blockAverageCCD, blockAveragePSD)
 from .q2ang_fit import Q2AngFit
 from .utilities import (clear_bit, en2lam, energy, lam2en, makeNaturalName,
                         maplog, set_bit, wavelength)
 
 # load package version
-from . import __path__
 with open(os.path.join(__path__[0], 'VERSION')) as version_file:
     __version__ = version_file.read().strip()

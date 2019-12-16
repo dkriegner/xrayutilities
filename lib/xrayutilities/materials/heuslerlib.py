@@ -23,7 +23,6 @@ from . import elements
 from .material import Crystal
 from .spacegrouplattice import SGLattice
 
-
 __all__ = ['FullHeuslerCubic225', 'FullHeuslerCubic225_A2',
            'FullHeuslerCubic225_B2', 'FullHeuslerCubic225_DO3',
            'HeuslerHexagonal194', 'HeuslerTetragonal119',
