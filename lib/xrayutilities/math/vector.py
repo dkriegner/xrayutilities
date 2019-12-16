@@ -201,8 +201,15 @@ def distance(x, y, z, point, vec):
     vec :   tuple, list or ndarray
         3D vector defining the propergation direction of the line
     """
-    coords = numpy.vstack((x - point[0], y - point[1], z - point[2])).T
-    return VecNorm(VecCross(coords, numpy.asarray(vec)))/VecNorm(vec)
+    coords = numpy.vstack((numpy.ravel(x) - point[0],
+                           numpy.ravel(y) - point[1],
+                           numpy.ravel(z) - point[2])).T
+    ret = VecNorm(VecCross(coords, numpy.asarray(vec)))/VecNorm(vec)
+    if isinstance(x, numpy.ndarray):
+        ret = ret.reshape(x.shape)
+    else:
+        ret = ret[0]
+    return ret
 
 
 def getVector(string):
