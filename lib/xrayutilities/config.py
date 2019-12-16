@@ -106,8 +106,7 @@ POWDER = dict()
 
 subsec = 'classoptions'
 POWDER[subsec] = dict(xuParser.items("powder"))
-for k in ('oversampling',):
-    trytomake(POWDER[subsec], k, int)
+trytomake(POWDER[subsec], 'oversampling', int)
 for k in ('gaussian_smoother_bins_sigma', 'window_width'):
     trytomake(POWDER[subsec], k, float)
 
@@ -131,8 +130,7 @@ if 'emiss_wavelengths' in POWDER[subsec]:
 
 subsec = 'axial'
 POWDER[subsec] = dict(xuParser.items("powder.axial"))
-for k in ('n_integral_points',):
-    trytomake(POWDER[subsec], k, int)
+trytomake(POWDER[subsec], 'n_integral_points', int)
 for k in ('slit_length_source', 'slit_length_target', 'length_sample',
           'angI_deg', 'angD_deg'):
     trytomake(POWDER[subsec], k, float)
@@ -144,13 +142,11 @@ for k in ('absorption_coefficient', 'sample_thickness'):
 
 subsec = 'si_psd'
 POWDER[subsec] = dict(xuParser.items("powder.si_psd"))
-for k in ('si_psd_window_bounds',):
-    trytomake(POWDER[subsec], k, literal_eval)
+trytomake(POWDER[subsec], 'si_psd_window_bounds', literal_eval)
 
 subsec = 'receiver_slit'
 POWDER[subsec] = dict(xuParser.items("powder.receiver_slit"))
-for k in ('slit_width', ):
-    trytomake(POWDER[subsec], k, float)
+trytomake(POWDER[subsec], 'slit_width', float)
 
 subsec = 'tube_tails'
 POWDER[subsec] = dict(xuParser.items("powder.tube_tails"))
