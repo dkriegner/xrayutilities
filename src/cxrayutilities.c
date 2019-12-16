@@ -29,6 +29,7 @@
 extern PyObject* block_average1d(PyObject *self, PyObject *args);
 extern PyObject* block_average2d(PyObject *self, PyObject *args);
 extern PyObject* block_average_PSD(PyObject *self, PyObject *args);
+extern PyObject* block_average_CCD(PyObject *self, PyObject *args);
 
 /* functions from gridder1d.c */
 extern PyObject* pygridder1d(PyObject *self, PyObject *args);
@@ -96,6 +97,21 @@ static PyMethodDef XRU_Methods[] = {
      "-------\n"
      " block_av:    block averaged output array\n"
      "              size = (Nspec , ceil(Nch/Nav)) (out)\n"
+    },
+    {"block_average_CCD", block_average_CCD, METH_VARARGS,
+     "2D block average for a series of CCD frames\n\n"
+     "Parameters\n"
+     "----------\n"
+     " ccd:     input array/CCD frames\n"
+     "          size = (Nframes, Nch2, Nch1) \n"
+     "          Nch1 is the fast varying index\n"
+     " Nav1, 2:  number of channels to average in each dimension\n"
+     "          in total a block of Nav1 x Nav2 is averaged\n"
+     "\n"
+     "Returns\n"
+     "-------\n"
+     " block_av:     block averaged output array\n"
+     "               size = (Nframes, ceil(Nch2 / Nav2) , ceil(Nch1 / Nav1))\n"
     },
     {"gridder1d", pygridder1d, METH_VARARGS,
      "Function performs 1D gridding on 1D input data. \n\n"

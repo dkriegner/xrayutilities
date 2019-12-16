@@ -211,3 +211,76 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     return PyArray_Return(outarr);
 }
 
+PyObject* block_average_CCD(PyObject *self, PyObject *args) {
+    /*    2D block average for a series of CCD frames
+     *
+     *    Parameters
+     *    ----------
+     *    ccd:          input array/CCD frames
+     *                  size = (Nframes, Nch2, Nch1)
+     *                  Nch1 is the fast varying index
+     *    Nav1, 2:      number of channels to average in each dimension
+     *                  in total a block of Nav1 x Nav2 is averaged
+     *    nthreads:     number of threads to use in parallel section
+     *
+     *    Returns
+     *    -------
+     *    block_av:     block averaged output array
+     *                  size = (Nframes, ceil(Nch2/Nav2) , ceil(Nch1/Nav1))
+     *
+     */
+
+    int i = 0, j = 0, k = 0, l = 0, n = 0;  /* loop indices */
+    int Nframes, Nch1, Nch2;  /* number of values in input array */
+    int Nav1, Nav2;  /* number of items to average */
+    unsigned int nthreads;  /* number of threads to use */
+    PyArrayObject *input = NULL, *outarr = NULL;
+    double *cin, *cout;
+    double buf;
+    npy_intp nout[3];
+
+    /* Python argument conversion code */
+    if (!PyArg_ParseTuple(args, "O!iiI", &PyArray_Type, &input, &Nav2,
+                          &Nav1, &nthreads)) {
+        return NULL;
+    }
+
+    PYARRAY_CHECK(input, 3, NPY_DOUBLE, "input must be a 3D double array!");
+    Nframes = (int) PyArray_DIMS(input)[0];
+    Nch2 = (int) PyArray_DIMS(input)[1];
+    Nch1 = (int) PyArray_DIMS(input)[2];
+    cin = (double *) PyArray_DATA(input);
+
+    /* create output ndarray */
+    nout[0] = Nframes;
+    nout[1] = ((int) ceil(Nch2 / (float) Nav2));
+    nout[2] = ((int) ceil(Nch1 / (float) Nav1));
+    outarr = (PyArrayObject *) PyArray_SimpleNew(3, nout, NPY_DOUBLE);
+    cout = (double *) PyArray_DATA(outarr);
+
+    #ifdef __OPENMP__
+    /* set openmp thread numbers dynamically */
+    OMPSETNUMTHREADS(nthreads);
+    #endif
+
+    #pragma omp parallel for default(shared) \
+     private(i, j, k, l, n, buf) schedule(static)
+    for (n = 0; n < Nframes; n++) {
+        for (i = 0; i < Nch2; i = i + Nav2) {
+            for (j = 0; j < Nch1; j = j + Nav1) {
+                buf = 0.;
+                for (k = 0; k < Nav2 && (i + k) < Nch2; ++k) {
+                    for (l = 0; l < Nav1 && (j + l) < Nch1; ++l) {
+                        buf += cin[n* Nch1 * Nch2 + (i + k) * Nch1 + (j + l)];
+                    }
+                }
+                cout[n * nout[1] * nout[2] + (i / Nav2) * nout[1] + j / Nav1] = buf / (float)(k * l);
+            }
+        }
+    }
+
+    /* clean up */
+    Py_DECREF(input);
+
+    return PyArray_Return(outarr);
+}
