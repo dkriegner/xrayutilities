@@ -34,7 +34,8 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
      *  the parsed data values as float ndarray
      */
 
-    unsigned int i, start = 0, nx, ny, len;
+    unsigned int i, start = 0, nx, ny;
+    Py_ssize_t len;
     unsigned int parsed = 0;
     PyArrayObject *outarr = NULL;
     unsigned char *cin;
@@ -68,15 +69,15 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
     cout = (float *) PyArray_DATA(outarr);
 
     i = 0;
-    while (i < len - 10) {  /* find the start of the array */
+    while (i < (long) len - 10) {  /* find the start of the array */
         if ((cin[i] == 0x0c) && (cin[i + 1] == 0x1a) &&
             (cin[i + 2] == 0x04) && (cin[i + 3] == 0xd5)) {
             start = i + 4;
-            i = len + 10;
+            i = (long) len + 10;
         }
         i++;
     }
-    if (i == len - 10) {
+    if (i == (long) len - 10) {
         PyErr_SetString(PyExc_ValueError,
                         "start of data in stream not found!");
         return NULL;
@@ -86,8 +87,8 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
      *  and D. Kriegner */
     parser.uint8 = (const unsigned char*) cin + start;
 
-    while (parsed < (len - start)) {
-        if (*parser.uint8 != 0x80) {	
+    while (parsed < ((long) len - start)) {
+        if (*parser.uint8 != 0x80) {
 	        diff = (int) *parser.int8;
 	        parser.int8++;
 	        parsed += 1;
@@ -121,4 +122,3 @@ PyObject* cbfread(PyObject *self, PyObject *args) {
     /* return output array */
     return PyArray_Return(outarr);
 }
-
