@@ -1125,7 +1125,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
                                               roughness[1:])]
              for kz_1angle in kz_angles])
 
-        if self.polarization is 'S':
+        if self.polarization == 'S':
             p_factor_angles = numpy.asarray(
                 [[(kz + kz_next) / (2 * kz)
                   for kz, kz_next in zip(kz_1angle, kz_1angle[1:])]
