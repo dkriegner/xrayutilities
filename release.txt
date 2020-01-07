@@ -79,7 +79,8 @@ following steps:
    '--without-openmp' option for building.
  * build binaries with 'python setup.py bdist_wheel'
  * install package locally 'python setup.py install'
- * use 'python setup.py test' to test your installation
+ * use 'python setup.py test' to test your installation, or refer to the tox
+   doumentation for testing in an isolated environment
 
 GIT tagging
 -----------
