@@ -15,7 +15,7 @@ simulation of crystal truncation rods as well as fundamental parameters powder
 diffraction is included.
 
 
-Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
