@@ -22,9 +22,8 @@ Is everything running fine? perform the tests and run the examples
   # lib/xrayutilities/math/fit.py:314:80: E501 line too long (90 > 79 characters)
   # run the unit tests
   tox
-  # optionally check the (total) coverage and run after tox
-  coverage run --append
-
+  # tox coverage does not contain the database creation during building of the
+  # package.
 
 UPDATE DOCUMENTATION
 ====================
