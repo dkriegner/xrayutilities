@@ -24,7 +24,7 @@ import xrayutilities as xu
 class TestDatabase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.el = xu.materials.elements.dummy
+        cls.el = xu.materials.elements.Dummy
 
     def test_db_f0(self):
         f0 = self.el.f0(0)

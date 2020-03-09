@@ -159,10 +159,10 @@ class DataBase(object):
         radius:     float
             atomic radius in Angstrom
         """
-        if not isinstance(radius, float):
-            raise TypeError("radius parameter must be a float!")
+        if not isinstance(radius, (float, int)):
+            raise TypeError("radius parameter must be a number!")
 
-        self.h5group.attrs['atomic_radius'] = radius
+        self.h5group.attrs['atomic_radius'] = float(radius)
         self.h5file.flush()
 
     def SetF0(self, parameters, subset='default'):
@@ -364,7 +364,7 @@ class DataBase(object):
 
 
 def init_material_db(db):
-    db.CreateMaterial("dummy", "Dummy atom")
+    db.CreateMaterial("Dummy", "Dummy atom")
     db.CreateMaterial("H", "Hydrogen")
     db.CreateMaterial("D", "Deuterium")
     db.CreateMaterial("T", "Tritium")

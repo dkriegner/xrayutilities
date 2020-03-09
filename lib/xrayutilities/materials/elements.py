@@ -18,7 +18,7 @@
 
 from .atom import Atom
 
-dummy = Atom('dummy', 0)
+Dummy = Atom('Dummy', 0)
 H = Atom('H', 1)
 Hdot = Atom('H.', 1)
 H1m = Atom('H1-', 1)

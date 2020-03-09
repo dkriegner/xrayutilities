@@ -25,7 +25,7 @@ import xrayutilities as xu
 class TestStructureFactor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.at = xu.materials.elements.dummy
+        cls.at = xu.materials.elements.Dummy
         cls.mat = xu.materials.Crystal(
             'test', xu.materials.SGLattice('227:1', 4, atoms=[cls.at, ],
                                            pos=['8a', ]))

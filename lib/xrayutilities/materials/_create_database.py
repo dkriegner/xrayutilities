@@ -36,6 +36,8 @@ import lzma
 import os.path
 import sys
 
+from scipy.constants import atomic_mass
+
 # local import
 from database import (DataBase, add_color_from_JMOL, add_f0_from_intertab,
                       add_f1f2_from_kissel, add_mass_from_NIST,
@@ -59,9 +61,11 @@ init_material_db(dbf)
 # add a dummy element, this is useful not only for testing and should be
 # kept in future! It can be used for structure factor calculation tests, and
 # shows how the a database entry can be generated manually
-dbf.SetMaterial('dummy')
+dbf.SetMaterial('Dummy')
 dbf.SetF0([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # atomic structure factors
 dbf.SetF1F2((0, 1e5), (0, 0), (0, 0))  # zero dispersion correction
+dbf.SetWeight(atomic_mass)
+dbf.SetRadius(1)
 
 add_mass_from_NIST(dbf, os.path.join(dataroot, 'nist_atom.dat'), verbose)
 add_color_from_JMOL(dbf, os.path.join(dataroot, 'colors.dat'), verbose)

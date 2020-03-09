@@ -325,7 +325,7 @@ class CIFDataset(object):
             except AttributeError:  # el not found, typ. due to oxidation state
                 f = re.search('[0-9]', el)
                 if not f and el == '?':
-                    element = elements.dummy
+                    element = elements.Dummy
                 else:
                     elname = el[:f.start()]
                     if hasattr(elements, elname):
