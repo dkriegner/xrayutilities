@@ -873,6 +873,10 @@ class SpecularReflectivityModel(LayerModel):
             width of the sample along the beam
         beam_width : float, optional
             beam width in the same units as the sample width
+        beam_shape : str, optional
+            beam_shape can be either 'hat' (default) or 'gaussian'. beam_width
+            will be accordingly interpreted as width of the hat function or
+            sigma of the Gaussian function.
         offset :    float, optional
             angular offset of the incidence angle (deg)
         resolution_width : float, optional
@@ -885,6 +889,10 @@ class SpecularReflectivityModel(LayerModel):
         self.fit_paramnames += ['sample_width', 'beam_width', 'offset']
         self.sample_width = kwargs.pop('sample_width', numpy.inf)
         self.beam_width = kwargs.pop('beam_width', 0)
+        self.beam_shape = kwargs.pop('beam_shape', 'hat')
+        if self.beam_shape not in ['hat', 'gaussian']:
+            raise ValueError("invalid value for keyword argument beam_shape:"
+                             "valid are 'hat' and 'gaussian'")
         self.offset = kwargs.pop('offset', 0)
         super().__init__(*args, **kwargs)
         self.lstack_params += ['thickness', 'roughness', 'density']
@@ -933,8 +941,12 @@ class SpecularReflectivityModel(LayerModel):
         sai = numpy.sin(numpy.radians(lai))
 
         if self.beam_width > 0:
-            shape = self.sample_width * sai / self.beam_width
-            shape[shape > 1] = 1
+            if self.beam_shape == 'hat':
+                shape = self.sample_width * sai / self.beam_width
+                shape[shape > 1] = 1
+            else:
+                shape = erf(self.sample_width * sai / 2 / pymath.sqrt(2) /
+                            self.beam_width)
         else:
             shape = numpy.ones(np)
 
