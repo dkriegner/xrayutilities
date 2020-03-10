@@ -17,8 +17,8 @@
 # Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .algebra import solve_quartic
-from .fit import (fit_peak2d, gauss_fit, linregress, multGaussFit,
-                  multGaussPlot, multPeakFit, multPeakPlot, peak_fit)
+from .fit import (fit_peak2d, gauss_fit, linregress, multPeakFit, multPeakPlot,
+                  peak_fit)
 from .functions import (Debye1, Gauss1d, Gauss1d_der_p, Gauss1d_der_x,
                         Gauss1dArea, Gauss2d, Gauss2dArea, Gauss3d, Lorentz1d,
                         Lorentz1d_der_p, Lorentz1d_der_x, Lorentz1dArea,

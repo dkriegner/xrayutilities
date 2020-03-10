@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module with a function wrapper to scipy.optimize.leastsq
 for fitting of a 2D function to a peak or a 1D Gauss fit with
@@ -21,6 +21,7 @@ the odr package
 """
 
 import time
+import warnings
 
 import numpy
 import scipy.optimize as optimize
@@ -439,15 +440,6 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     return p, pcov
 
 
-def multGaussFit(*args, **kwargs):
-    """
-    convenience function to keep API stable
-    see multPeakFit for documentation
-    """
-    kwargs['peaktype'] = 'Gaussian'
-    return multPeakFit(*args, **kwargs)
-
-
 def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
                 peaktype='Gaussian'):
     """
@@ -481,6 +473,8 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     background :    array-like
         background values at positions `x`
     """
+    warnings.warn("deprecated function -> use the lmfit Python packge instead",
+                  DeprecationWarning)
     if peaktype == 'Gaussian':
         pfunc = Gauss1d
         pfunc_derx = Gauss1d_der_x
@@ -605,7 +599,17 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     p = []
 
     # background
-    k, d = numpy.polyfit(lx, ldata, 1)
+    # exclude +/-2 peakwidth around the peaks
+    bmask = numpy.ones_like(lx, dtype=bool)
+    for pp, pw in zip(peakpos, peakwidth):
+        bmask = numpy.logical_and(bmask, numpy.logical_or(lx < (pp-2*pw),
+                                                          lx > (pp+2*pw)))
+    if numpy.any(bmask):
+        k, d = numpy.polyfit(lx[bmask], ldata[bmask], 1)
+    else:
+        if(config.VERBOSITY >= config.DEBUG):
+            print("XU.math.multPeakFit: no data outside peak regions!")
+        k, d = (0, ldata.min())
 
     # peak parameters
     for i in range(len(peakpos)):
@@ -617,7 +621,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     p += [k, d]
 
     if(config.VERBOSITY >= config.DEBUG):
-        print("XU.math.multGaussFit: intial parameters")
+        print("XU.math.multPeakFit: intial parameters")
         print(p)
 
     ##########################
@@ -636,7 +640,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         if fit.stopreason[0] not in ['Sum of squares convergence']:
             print("XU.math.multPeakFit: fit NOT converged (%s)"
                   % fit.stopreason[0])
-            return None, None, None, None
+            return Nono, None, None, None
     except IndexError:
         print("XU.math.multPeakFit: fit most probably NOT converged (%s)"
               % str(fit.stopreason))
@@ -648,15 +652,6 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     background = numpy.polyval((fit.beta[-2], fit.beta[-1]), x)
 
     return fpos, fwidth, famp, background
-
-
-def multGaussPlot(*args, **kwargs):
-    """
-    convenience function to keep API stable
-    see multPeakPlot for documentation
-    """
-    kwargs['peaktype'] = 'Gaussian'
-    return multPeakPlot(*args, **kwargs)
 
 
 def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
@@ -689,6 +684,8 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
     fact :      float
         factor to use as multiplicator in the plot
     """
+    warnings.warn("deprecated function -> use the lmfit Python packge instead",
+                  DeprecationWarning)
     success, plt = utilities.import_matplotlib_pyplot('XU.math.multPeakPlot')
     if not success:
         return

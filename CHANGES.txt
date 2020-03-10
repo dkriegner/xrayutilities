@@ -1,3 +1,5 @@
+* remove multGaussFit/Plot and set multPeakFit/Plot deprecated
+  -> use the much more powerful lmfit-package instead!
 * rename dummy element to "Dummy" and set sensible default parameters
 
 v1.6.0, 2020-01-08

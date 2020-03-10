@@ -28,5 +28,3 @@ y = (xu.math.PseudoVoigt1d(x, 12, 0.2, 0.1, 10, numpy.random.rand()) +
 # furthermore a constant background (optional also linear with the option
 # background='linear') can be added
 xu.math.peak_fit(x, y, peaktype='PseudoVoigt', plot=True)
-
-# for fitting multiple peaks simultansously see xu.math.multPeakFit
