@@ -1,3 +1,4 @@
+* update documentation to recommend the use of pip for installation
 * remove multGaussFit/Plot and set multPeakFit/Plot deprecated
   -> use the much more powerful lmfit-package instead!
 * rename dummy element to "Dummy" and set sensible default parameters

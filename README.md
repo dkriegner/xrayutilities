@@ -35,7 +35,7 @@ Contents
 --------
 
 * *examples*:           directory with example scripts and configurations
-* *xrayutilities*:      directory with the sources for the Python package
+* *lib/xrayutilities*:  directory with the sources for the Python package
 * *tests*:              directory with the unittest scripts
 * *setup.py*:           distutils install script used for the package installation
 * *xrayutilities.pdf*:  pdf-file with documentation of the package
@@ -51,14 +51,15 @@ or for a user installation (without admin access) use
 
     pip install --user xrayutilities
 
-If installation using above's command fails due to missing OpenMP libraries, use
-
-    pip install --global-option="--without-openmp" xrayutilities
-
 
 Installation (source)
 =====================
 Installing xrayutilities from source is an easy process done by executing
+
+    pip install .
+
+in the source folder of xrayutilities on the command line/terminal. Directly
+calling *setup.py* by
 
     python setup.py install
 
@@ -66,15 +67,20 @@ or
 
     python setup.py install --prefix=<install_path>
 
-in the source folder of xrayutilities on the command line/terminal.  The first
-command installs in the systems default directories, whereas in the second
-command you can manually specify the installation path.
+is possible but you have to manually ensure that the dependencies are all
+installed! The first command installs xrayutilities in the systems default
+directories, whereas in the second command you can manually specify the
+installation path.
 
-By default the setup.py script tries to use OpenMP. If you do not want to use
-OpenMP or do not have it available use the *--without-openmp* option for the
-installation:
+By default the installation procedure tries to enable OpenMP support
+(recommended). It is disabled silently if OpenMP is not available. It can also
+be disable by using the *--without-openmp* option for the installation:
 
-    python setup.py --without-openmp install --prefix=<install_path>
+    pip install --global-option="--without-openmp" xrayutilities
+
+or
+
+    python setup.py --without-openmp install
 
 Requirements
 ------------
@@ -91,7 +97,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 When building from source you also might need:
 
 - C-compiler (preferential with OpenMP support)
-- python dev headers
+- Python dev headers
 - unittest2 (optional - only if you want to run the tests)
 - matplotlib (optional - only if running the tests/example scripts)
 - sphinx (optional - only when you want to build the documentation)
@@ -111,15 +117,15 @@ The current development is for Python-3.X only. xrayutilities up to version
 The Python package configuration
 ================================
 
-The following steps should only be necessary for user local installation to
-ensure the Python module is found by the Python interpreter:
-In this case the module is installed under
+The following steps should only be necessary when using non-default
+installation locations to ensure the Python module is found by the Python
+interpreter. In this case the module is installed under
 *<prefix>/lib[64]/python?.?/site-packages* on Unix systems and
 *<prefix>/Lib/site-packages* on Windows systems.
 
-If you have installed the Python package in a directory unknown to your local
-Python distribution, you have to tell Python where to look for the Package.
-There are several ways how to do this:
+If you have installed the Python package in a directory unknown to your Python
+distribution, you have to tell Python where to look for the Package.  There are
+several ways how to do this:
 
 - add the directory where the package is installed to your
   *PYTHONPATH* environment variable.
@@ -158,8 +164,11 @@ its source folder and obtain the new sources by ::
 
 or download the new tarball from sourceforge
 (http://sf.net/projects/xrayutilities) if any code changed during the update you
-need to reinstall the Python package.  To determine the path in which
-xrayutilities where installed previously use
+need to reinstall the Python package. Thats easiest achieved by
+
+    pip install .
+
+In case you are not certain about the installation location it can be determined by
 
     python -c "import xrayutilities as xu; print xu.__file__"
       /usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.pyc
@@ -168,7 +177,7 @@ if the output is e.g.: */usr/local/lib64/python2.7/site-packages/xrayutilities/_
 you previously installed xrayutilities in */usr/local*, which should be used
 again as install path. Use ::
 
-    python setup.py install --prefix=<path to install directory>
+    pip install --prefix=<path to install directory> .
 
 to install the updated package.
 

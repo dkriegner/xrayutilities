@@ -154,11 +154,9 @@ Express instructions
 
 .. code-block:: bash
 
- > python setup.py install
+ > pip install .
 
 which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in python scripts.
-
-.. note:: The python package of *xrayutilities* was formerly called ''xrutils''
 
 Detailed instructions
 ---------------------
@@ -203,22 +201,22 @@ building the C library.
 Building and installing the library and python package
 ------------------------------------------------------
 
-*xrayutilities* uses the distutils packaging system to build and install all of its components. You can perform the installation by executing
+Although the *setup.py* script can be called manually its recommended to always use pip to install *xrayutilities*, which can be done by executing
 
 .. code-block:: bash
 
- >python setup.py install
+ >pip install .
 
 or
 
 .. code-block:: bash
 
- >python setup.py install --prefix=INSTALLPATH
+ >pip install --prefix=INSTALLPATH .
 
 in the root directory of the source distribution.
 
 The *--prefix* option sets the root directory for the installation. If it is omitted
-the libary is installed under /usr/lib/ on Unix systems or in the Python installation directory on Windows.
+the libary is installed under the systems default directories (recommended).
 
 Setup of the Python package
 ---------------------------
@@ -233,9 +231,10 @@ For this case append the installation directory to your *PYTHONPATH* environment
 
 on a Unix/Linux terminal. Or, to make this configuration persistent append this line to
 your local *.bashrc* file in your home directory.
-On MS Windows you would like to create a environment variable in the
-system preferences under system in the advanced tab (Using Python(x,y) this is done automatically).
-Be sure to use the correct directory which might be similar to
+On MS Windows you would like to create a environment variable in the system
+preferences under system in the advanced tab (Using Python package managers
+this should be done automatically). Be sure to use the correct directory which
+might be similar to
 
 .. code-block:: bash
 
@@ -248,23 +247,12 @@ Notes for installing on Windows
 
 Since there is no packages manager on Windows the packages need to be installed manual
 (including all the dependecies) or a pre-packed solution needs two be used. We strongly suggest to
-use the `Python(x,y) <https://code.google.com/p/pythonxy/>`_ or
+use either `Anaconda <https://www.anaconda.com/distribution/>`_, `Python(x,y) <https://python-xy.github.io/>`_ or
 `WinPython <https://winpython.github.io/>`_ Python distributions,
 which include already all of the needed dependencies for installing *xrayutilities*.
 
-The setup of the environment variables is also done by the Python distributions.
 One can proceed with the installation of *xrayutilities* directly!
-The easiest way to do this on windows is to use the binaries distributed on the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_, otherwise one can follow the general installation instructions.
-Depending on your compiler on Microsoft Windows it might be necessary to perform the building of the Python extension separately and specify the compiler manually.
-This is done by
-
-.. code-block:: bash
-
-  python setup.py build -c <compiler_name>
-
-Using Python(x,y) you want to specify 'mingw32' as compiler name. With the WinPython it
-is recommended to use the MS Visual Studio Express 2008 (which is freely available for download)
-and can also build the code for 64bit Windows. In this case us 'msvc' as compiler name.
+The easiest way to do this on windows is to use the binaries distributed on the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ or using *pip*, otherwise one can follow the general installation instructions. On Anaconda it can also be done using the `conda-forge *xrayutilities* package <https://anaconda.org/conda-forge/xrayutilities>`_.
 
 .. _expapi:
 
