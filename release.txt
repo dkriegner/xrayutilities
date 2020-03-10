@@ -32,7 +32,7 @@ to build the documentation from scratch first one needs to rebuild the API
 documentation sources (which is done from the installed module, so make sure
 you have the latest version installed!)
 
-  sphinx-apidoc -f -o doc/source xrayutilities
+  sphinx-apidoc -f -o doc/source lib/xrayutilities
 
 In the root directory of the package execute the following to rebuild the
 documentation pdf. You will need sphinx, numpydoc and rst2pdf.
