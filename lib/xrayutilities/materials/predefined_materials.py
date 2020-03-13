@@ -140,8 +140,8 @@ CaF2 = Crystal("CaF2", SGLattice(225, 5.4631, atoms=[e.Ca, e.F],
                                  pos=['4a', '8c']))
 MnO = Crystal("MnO", SGLattice(225, 4.444, atoms=[e.Mn, e.O],
                                pos=['4a', '4b']))
-MnTe = Crystal("MnTe", SGLattice(186, 4.1429, 6.7031, atoms=[e.Mn, e.Te],
-                                 pos=[('2a', 0), ('2b', 0.25)]))
+MnTe = Crystal("MnTe", SGLattice(194, 4.1429, 6.7031, atoms=[e.Mn, e.Te],
+                                 pos=['2a', '2c']))
 GeTe = Crystal("GeTe",
                SGLattice('160:R', 5.996, 88.18, atoms=[e.Ge, e.Ge, e.Te, e.Te],
                          pos=[('1a', -0.237), ('3b', (0.5-0.237, -0.237)),
