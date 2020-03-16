@@ -215,12 +215,18 @@ tifftags = {256: 'ImageWidth',  # width
             258: 'BitsPerSample',
             259: 'Compression',
             262: 'PhotometricInterpretation',
+            270: 'ImageDescription',
             272: 'Model',
             273: 'StripOffsets',
+            278: 'RowsPerStrip',
+            279: 'StripByteCount',
             282: 'XResolution',
             283: 'YResolution',
             305: 'Software',
-            339: 'SampleFormat'}
+            306: 'DateTime',
+            315: 'Artist',
+            339: 'SampleFormat',
+            36864: 'ExifVersion',}
 
 
 class TIFFRead(ImageReader):
@@ -325,8 +331,8 @@ class TIFFRead(ImageReader):
                 fdoffset = pos - dlen['dword']
             fh.seek(fdoffset)
             if ftype == 2:
-                fdata = fh.read(flength * dlen[dtypes[ftype]]).decode("ASCII")
-                fdata = fdata.rstrip('\0')
+                fdata = fh.read(flength * dlen[dtypes[ftype]])
+                fdata = fdata.split(b'\x00')[0].decode("ascii")
             else:
                 rlen = flength * dlen[dtypes[ftype]]
                 fdata = numpy.frombuffer(fh.read(rlen), dtype=nptyp[ftype])
