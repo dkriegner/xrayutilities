@@ -226,7 +226,7 @@ tifftags = {256: 'ImageWidth',  # width
             306: 'DateTime',
             315: 'Artist',
             339: 'SampleFormat',
-            36864: 'ExifVersion',}
+            36864: 'ExifVersion'}
 
 
 class TIFFRead(ImageReader):
