@@ -93,6 +93,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 - setuptools (to provide the pkg_resources module)
 - lmfit (optional)
 - matplotlib (optional)
+- mayavi (optional, only used optionally in Crystal.show_unitcell)
 
 When building from source you also might need:
 

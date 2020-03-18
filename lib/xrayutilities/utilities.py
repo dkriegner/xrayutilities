@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities utilities contains a conglomeration of useful functions
@@ -62,6 +62,31 @@ def import_lmfit(funcname='XU'):
     except ImportError:
         raise ImportError("%s: Fitting of models needs the lmfit package "
                           "(https://pypi.python.org/pypi/lmfit)" % funcname)
+
+
+def import_mayavi_mlab(funcname='XU'):
+    """
+    lazy import function of mayavi.mlab
+
+    Parameters
+    ----------
+    funcname :      str
+        identification string of the calling function
+
+    Returns
+    -------
+    flag :  bool
+        the flag is True if the loading was successful and False otherwise.
+    mlab
+        On success mlab is the mayavi.mlab package.
+    """
+    try:
+        from mayavi import mlab
+        return True, mlab
+    except ImportError:
+        if config.VERBOSITY >= config.INFO_LOW:
+            print("%s: Warning: plot functionality not available" % funcname)
+        return False, None
 
 
 def maplog(inte, dynlow="config", dynhigh="config"):

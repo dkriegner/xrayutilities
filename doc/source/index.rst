@@ -184,6 +184,7 @@ For several features optional dependencies are needed:
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optional)
  * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR/XRD data)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
+ * **mayavi** only used optionally in Crystal.show_unitcell where it produces a superior visualization to otherwise used Matplotlib 3D plots
 
 Additionally, the following Python modules are needed when building *xrayutilities* from source:
  * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.

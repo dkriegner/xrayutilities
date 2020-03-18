@@ -33,7 +33,7 @@ from math import ceil, copysign
 
 import numpy
 import scipy.optimize
-from pkg_resources import parse_version
+from pkg_resources import parse_version as parsever
 
 from .. import config, math, utilities
 from ..exception import InputError
@@ -1289,46 +1289,107 @@ class Crystal(Material):
         return ret
 
     def show_unitcell(self, fig=None, subplot=111, scale=0.6, complexity=11,
-                      linewidth=2):
+                      linewidth=1.5, mode='matplotlib'):
         """
-        primitive visualization of the unit cell using matplotlibs basic 3D
-        functionality -> expect rendering inaccuracies!
+        visualization of the unit cell using either matplotlibs basic 3D
+        functionality (expect rendering inaccuracies!) or the mayavi mlab
+        package (accurate rendering -> recommended!)
 
         Note:
-            For more precise visualization export to CIF and use a proper
-            crystal structure viewer.
+            For more flexible visualization consider using the CIF-export
+            feature and use a proper crystal structure viewer.
 
         Parameters
         ----------
-        fig :   matplotlib Figure or None, optional
+        fig :   matplotlib Figure, Mayavi Scene, or None, optional
         subplot :   int or list, optional
-            subplot to use for the visualization. This argument of fowarded to
-            the first argument of matplotlibs `add_subplot` function
+            subplot to use for the visualization when using matplotlib. This
+            argument of fowarded to the first argument of matplotlibs
+            `add_subplot` function
         scale :     float, optional
             scale the size of the atoms by this additional factor. By default
             the size of the atoms corresponds to 60% of their atomic radius.
         complexity :    int, optional
-            number of steps to approximate the atoms as spheres. higher values
-            cause significant slower plotting.
+            number of steps to approximate the atoms as spheres. Higher values
+            make spheres more accurate, but cause slower plotting.
         linewidth :     float, optional
             line thickness of the unit cell outline
+        mode :      str, optional
+            defines the plot backend used, can be 'matplotlib' (default)
+            or 'mayavi'.
+
+        Returns
+        -------
+        figure object of either matplotlib or Mayavi
         """
-        plot, plt = utilities.import_matplotlib_pyplot('XU.materials')
-        try:
-            import mpl_toolkits.mplot3d
-        except ImportError:
-            plot = False
+        if mode == 'matplotlib':
+            plot, plt = utilities.import_matplotlib_pyplot('XU.materials')
+            try:
+                import mpl_toolkits.mplot3d
+            except ImportError:
+                plot = False
+        else:
+            plot, mlab = utilities.import_mayavi_mlab('XU.materials')
+            try:
+                import mayavi
+                from matplotlib.colors import to_rgb
+            except ImportError:
+                plot = False
 
         if not plot:
-            print('matplotlib (including mplot3d) needed for show_unitcell()')
+            print('matplotlib and/or mayavi.mlab needed for show_unitcell()')
             return
 
-        if fig is None:
-            fig = plt.figure()
-        ax = fig.add_subplot(subplot, projection='3d')
+        def plot_sphere(fig, vecpos, r, alpha, complexity, color):
+            """
+            Visualize a sphere using either matplotlib or Mayavi
+            """
+            if mode == 'matplotlib':
+                ax = fig.gca()
+                phi, theta = numpy.mgrid[0:numpy.pi:1j*complexity,
+                                         0:2*numpy.pi:1j*complexity]
 
-        phi, theta = numpy.mgrid[0:numpy.pi:1j*complexity,
-                                 0:2*numpy.pi:1j*complexity]
+                x = r*numpy.sin(phi)*numpy.cos(theta) + vecpos[0]
+                y = r*numpy.sin(phi)*numpy.sin(theta) + vecpos[1]
+                z = r*numpy.cos(phi) + vecpos[2]
+                ax.plot_surface(x, y, z,  rstride=1, cstride=1,
+                                color=color, alpha=alpha,
+                                linewidth=0)
+            else:
+                mlab.points3d(vecpos[0], vecpos[1], vecpos[2], r,
+                              opacity=alpha, transparent=False,
+                              color=to_rgb(color), resolution=complexity,
+                              scale_factor=2, figure=fig)
+
+        def plot_line(fig, start, end, color, linewidth):
+            """
+            Draw a line between two 3D points, either using matplotlib or
+            Mayavi.
+            """
+            if mode == 'matplotlib':
+                ax = fig.gca()
+                ax.plot((start[0], end[0]),
+                        (start[1], end[1]),
+                        (start[2], end[2]),
+                        color=color, lw=linewidth)
+            else:
+                mlab.plot3d((start[0], end[0]),
+                            (start[1], end[1]),
+                            (start[2], end[2]),
+                            color=to_rgb(color), tube_radius=linewidth/20,
+                            figure=fig)
+
+        if mode == 'matplotlib':
+            if fig is None:
+                fig = plt.figure()
+            elif not isinstance(fig, plt.Figure):
+                raise TypeError("'fig' argument must be a matplotlib figure!")
+            ax = fig.add_subplot(subplot, projection='3d')
+        else:
+            if fig is None:
+                fig = mlab.figure(bgcolor=(1, 1, 1))
+            elif not isinstance(fig, mayavi.core.scene.Scene):
+                raise TypeError("'fig' argument must be a Mayavi Scene!")
 
         for a, pos, occ, b in self.lattice.base():
             r = a.radius * scale
@@ -1344,59 +1405,38 @@ class Crystal(Material):
                         if inunitcell:
                             vecpos = atpos[0]*self.a1 + atpos[1]*self.a2 +\
                                      atpos[2]*self.a3
-                            x = r*numpy.sin(phi)*numpy.cos(theta) + vecpos[0]
-                            y = r*numpy.sin(phi)*numpy.sin(theta) + vecpos[1]
-                            z = r*numpy.cos(phi) + vecpos[2]
-                            ax.plot_surface(x, y, z,  rstride=1, cstride=1,
-                                            color=a.color, alpha=occ,
-                                            linewidth=0)
+                            plot_sphere(fig, vecpos, r, occ, complexity,
+                                        a.color)
 
         # plot unit cell outlines
-        ax.plot([0, self.a1[0]], [0, self.a1[1]], [0, self.a1[2]], color='k',
-                lw=linewidth)
-        ax.plot([0, self.a2[0]], [0, self.a2[1]], [0, self.a2[2]], color='k',
-                lw=linewidth)
-        ax.plot([0, self.a3[0]], [0, self.a3[1]], [0, self.a3[2]], color='k',
-                lw=linewidth)
-        ax.plot([self.a1[0], self.a1[0]+self.a2[0]],
-                [self.a1[1], self.a1[1]+self.a2[1]],
-                [self.a1[2], self.a1[2]+self.a2[2]], color='k', lw=linewidth)
-        ax.plot([self.a1[0], self.a1[0]+self.a3[0]],
-                [self.a1[1], self.a1[1]+self.a3[1]],
-                [self.a1[2], self.a1[2]+self.a3[2]], color='k', lw=linewidth)
-        ax.plot([self.a2[0], self.a1[0]+self.a2[0]],
-                [self.a2[1], self.a1[1]+self.a2[1]],
-                [self.a2[2], self.a1[2]+self.a2[2]], color='k', lw=linewidth)
-        ax.plot([self.a2[0], self.a2[0]+self.a3[0]],
-                [self.a2[1], self.a2[1]+self.a3[1]],
-                [self.a2[2], self.a2[2]+self.a3[2]], color='k', lw=linewidth)
-        ax.plot([self.a3[0], self.a1[0]+self.a3[0]],
-                [self.a3[1], self.a1[1]+self.a3[1]],
-                [self.a3[2], self.a1[2]+self.a3[2]], color='k', lw=linewidth)
-        ax.plot([self.a3[0], self.a2[0]+self.a3[0]],
-                [self.a3[1], self.a2[1]+self.a3[1]],
-                [self.a3[2], self.a2[2]+self.a3[2]], color='k', lw=linewidth)
-        ax.plot([self.a1[0]+self.a2[0], self.a1[0]+self.a2[0]+self.a3[0]],
-                [self.a1[1]+self.a2[1], self.a1[1]+self.a2[1]+self.a3[1]],
-                [self.a1[2]+self.a2[2], self.a1[2]+self.a2[2]+self.a3[2]],
-                color='k', lw=linewidth)
-        ax.plot([self.a1[0]+self.a3[0], self.a1[0]+self.a2[0]+self.a3[0]],
-                [self.a1[1]+self.a3[1], self.a1[1]+self.a2[1]+self.a3[1]],
-                [self.a1[2]+self.a3[2], self.a1[2]+self.a2[2]+self.a3[2]],
-                color='k', lw=linewidth)
-        ax.plot([self.a2[0]+self.a3[0], self.a1[0]+self.a2[0]+self.a3[0]],
-                [self.a2[1]+self.a3[1], self.a1[1]+self.a2[1]+self.a3[1]],
-                [self.a2[2]+self.a3[2], self.a1[2]+self.a2[2]+self.a3[2]],
-                color='k', lw=linewidth)
+        plot_line(fig, (0, 0, 0), self.a1, 'k', linewidth)
+        plot_line(fig, (0, 0, 0), self.a2, 'k', linewidth)
+        plot_line(fig, (0, 0, 0), self.a3, 'k', linewidth)
+        plot_line(fig, self.a1, self.a1+self.a2, 'k', linewidth)
+        plot_line(fig, self.a1, self.a1+self.a3, 'k', linewidth)
+        plot_line(fig, self.a2, self.a1+self.a2, 'k', linewidth)
+        plot_line(fig, self.a2, self.a2+self.a3, 'k', linewidth)
+        plot_line(fig, self.a3, self.a1+self.a3, 'k', linewidth)
+        plot_line(fig, self.a3, self.a2+self.a3, 'k', linewidth)
+        plot_line(fig, self.a1+self.a2, self.a1+self.a2+self.a3, 'k',
+                  linewidth)
+        plot_line(fig, self.a1+self.a3, self.a1+self.a2+self.a3, 'k',
+                  linewidth)
+        plot_line(fig, self.a2+self.a3, self.a1+self.a2+self.a3, 'k',
+                  linewidth)
 
-        if parse_version(plt.matplotlib.__version__) < parse_version('3.1.0'):
-            ax.set_aspect("equal")
+        if mode == 'matplotib':
+            if parsever(plt.matplotlib.__version__) < parsever('3.1.0'):
+                ax.set_aspect("equal")
+            if config.VERBOSITY >= config.INFO_LOW:
+                warnings.warn("show_unitcell: 3D projection might appear "
+                              "distorted (limited 3D capabilities of "
+                              "matplotlib!). Use mayavi mode or CIF "
+                              "export and other viewers for better "
+                              "visualization.")
+            plt.tight_layout()
 
-        if config.VERBOSITY >= config.INFO_LOW:
-            warnings.warn("show_unitcell: 3D projection might appear distorted"
-                          "(limited 3D capabilities of matplotlib!). Use CIF "
-                          "export and other viewers for better visualization.")
-        plt.tight_layout()
+        return fig
 
 
 def CubicElasticTensor(c11, c12, c44):

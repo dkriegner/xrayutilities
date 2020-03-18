@@ -1,3 +1,5 @@
+* Mayavi based visualization of unit cells: Crystal.show_unitcell
+  -> new optional dependency on Mayavi
 * fix new Pilatus TIFF files which seem to have \xff padding
 * implement Gaussian beam shape for XRR modelling
 * update documentation to recommend the use of pip for installation
