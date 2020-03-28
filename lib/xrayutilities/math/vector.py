@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module with vector operations for vectors of size 3,
@@ -157,8 +157,8 @@ def VecAngle(v1, v2, deg=False):
     v1, v2 :    list or array-like
         input vector(s), either one vector or an array of vectors with shape
         (n, 3)
-    deg:        bool
-        True: return result in degree, False: in radiants
+    deg:        bool, optional
+        True: return result in degree, False: in radiants (default: False)
 
     Returns
     -------
@@ -171,12 +171,12 @@ def VecAngle(v1, v2, deg=False):
 
     if isinstance(u1, numpy.ndarray) or isinstance(u2, numpy.ndarray):
         s = VecDot(v1, v2) / u1 / u2
-        s[s > 1.0] = 1.0
+        s[numpy.abs(s) > 1.0] = numpy.sign(s[numpy.abs(s) > 1.0]) * 1.0
         alpha = numpy.arccos(s)
         if deg:
             alpha = numpy.degrees(alpha)
     else:
-        alpha = math.acos(min(1., VecDot(v1, v2) / u1 / u2))
+        alpha = math.acos(max(min(1., VecDot(v1, v2) / u1 / u2), -1.))
         if deg:
             alpha = math.degrees(alpha)
 
