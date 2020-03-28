@@ -1,3 +1,5 @@
+* implementation of the March-Dollase model for preferred orientation in
+  PowderDiffraction
 * Mayavi based visualization of unit cells: Crystal.show_unitcell
   -> new optional dependency on Mayavi
 * fix new Pilatus TIFF files which seem to have \xff padding

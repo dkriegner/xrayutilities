@@ -356,11 +356,11 @@ The resulting figure shows reasonable agreement between the dynamic diffraction 
 Powder diffraction simulations
 ------------------------------
 
-Powder diffraction patterns can be calculated using :class:`~xrayutilities.simpack.powdermodel.PowderModel`. A specialized class for the definition of powdered materials named :class:`~xrayutilities.simpack.smaterials.Powder` exists. The class constructor takes the materials volume and several material parameters specific for the powder material. Among them are `crystallite_size_gauss` and `strain_gauss` which can be used to include the effect of finite crystallite size and microstrain.\
+Powder diffraction patterns can be calculated using :class:`~xrayutilities.simpack.powdermodel.PowderModel`. A specialized class for the definition of powdered materials named :class:`~xrayutilities.simpack.smaterials.Powder` exists. The class constructor takes the materials volume and several material parameters specific for the powder material. Among them are `crystallite_size_gauss` and `strain_gauss` which can be used to include the effect of finite crystallite size and microstrain. Texture modelled by the March-Dollase pole density offers the `preferred_orientation` direction parameter as well as a `preferred_orientation_factor` variable.
 
 The :class:`~xrayutilities.simpack.powdermodel.PowderModel` internally uses :class:`~xrayutilities.simpack.powder.PowderDiffraction` for its calculations which is based on the fundamental parameters approach as implemented and documented `here <http://dx.doi.org/10.6028/jres.120.014.c>`_ and `here <http://dx.doi.org/10.6028/jres.120.014>`_.
 
-Several setup specific parameters should be adjusted by a user-specific configuration file are by supplying the appropriate parameters using the `fpsettings` argument of :class:`~xrayutilities.simpack.powdermodel.PowderModel`.
+Several setup specific parameters should be adjusted by a user-specific configuration file or by supplying the appropriate parameters using the `fpsettings` argument of :class:`~xrayutilities.simpack.powdermodel.PowderModel`.
 
 If the correct settings are included in the config file the powder diffraction signal of a mixed sample of Co and Fe can be calculated with::
 

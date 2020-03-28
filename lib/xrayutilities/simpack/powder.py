@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
@@ -108,7 +108,7 @@ from scipy.special import sici  # for the sine and cosine integral
 # package internal imports
 from .. import config, materials, utilities
 from ..experiment import PowderExperiment
-from ..math import VecNorm
+from ..math import VecNorm, VecAngle
 from .smaterials import Powder
 
 # figure out which FFT package we have, and import it
@@ -1776,7 +1776,7 @@ class PowderDiffraction(PowderExperiment):
     Experimental class for powder diffraction. This class calculates the
     structure factors of powder diffraction lines and uses instances of
     FP_profile to perform the convolution with experimental resolution function
-    calculated by the fundamental parameters approach. This class used
+    calculated by the fundamental parameters approach. This class uses
     multiprocessing to speed up calculation. Set config.NTHREADS=1 to restrict
     this to one worker process.
     """
@@ -1835,10 +1835,12 @@ class PowderDiffraction(PowderExperiment):
                             "xrayutilities.materials.Crystal or "
                             "xrayutilities.simpack.Powder")
 
+        self.data = dict()
         self._tt_cutoff = kwargs.pop('tt_cutoff', 180)
         self.fpclass = kwargs.pop('fpclass', FP_profile)
         self.settings = self.load_settings_from_config(
             kwargs.pop('fpsettings', {}))
+        self.set_sample_parameters()  # initialize local settings
         self._enable_sim = kwargs.pop('enable_simulation', False)
 
         PowderExperiment.__init__(self, **kwargs)
@@ -1855,6 +1857,7 @@ class PowderDiffraction(PowderExperiment):
         # initialize FP_profile instances (add field to the data dictionary)
         for h in self.data:
             self.data[h]['conv'] = self._init_fpprofile(self.fpclass)
+        # set settings in all convolvers
         self.update_settings(self.settings)
         self.set_sample_parameters()
 
@@ -1999,10 +2002,12 @@ class PowderDiffraction(PowderExperiment):
         FP_profile instances of this object
         """
         samplesettings = {}
-        for prop, default in zip(('crystallite_size_lor',
-                                  'crystallite_size_gauss',
-                                  'strain_lor', 'strain_gauss'),
-                                 (1e10, 1e10, 0, 0)):
+        for prop, default in (('crystallite_size_lor', 1e10),
+                              ('crystallite_size_gauss', 1e10),
+                              ('strain_lor', 0),
+                              ('strain_gauss', 0),
+                              ('preferred_orientation', (0, 0, 0)),
+                              ('preferred_orientation_factor', 1)):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
         self.settings['emission'].update(samplesettings)
@@ -2126,10 +2131,14 @@ class PowderDiffraction(PowderExperiment):
             output.put((idx, results))  # put results on output queue
         self._running = False
 
-    def structure_factors(self, tt_cutoff):
+    def reflection_strength(self, tt_cutoff):
         """
         determine structure factors/reflection strength of all Bragg peaks up
-        to tt_cutoff
+        to tt_cutoff. This function also implements the March-Dollase model for
+        preferred orientation in the symmetric reflection mode. Note that
+        although this means the sample has anisotropic properties the various
+        lines can still be merged together since at the moment no anisotropic
+        crystal shape is supported.
 
         Parameters
         ----------
@@ -2144,6 +2153,8 @@ class PowderDiffraction(PowderExperiment):
             (q-position), and 'r' (reflection strength) of the Bragg peaks
         """
         mat = self.mat.material
+        pref_or = self.settings['emission']['preferred_orientation']
+        r = self.settings['emission']['preferred_orientation_factor']
         # calculate maximal Bragg indices
         hma = int(math.ceil(VecNorm(mat.a1) * self.k0 / pi *
                             sin(math.radians(tt_cutoff / 2.))))
@@ -2168,18 +2179,26 @@ class PowderDiffraction(PowderExperiment):
         qnorm = numpy.linalg.norm(q, axis=1)
         m = qnorm <= qmax
 
+        # March-Dollase model for symmetric reflection
+        # see http://www.crl.nitech.ac.jp/ar/2013/0711_acrc_ar2013_review.pdf
+        if numpy.all(pref_or == (0, 0, 0)) or r == 1:
+            f = 1
+        else:
+            alpha = VecAngle(q[m], mat.Q(pref_or))
+            f = ((r * ncos(alpha))**2 + nsin(alpha)**2/r)**(-3/2)
+
         data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
                                                 ('r', numpy.double),
                                                 ('hkl', numpy.ndarray)])
         data['q'] = qnorm[m]
-        data['r'] = nabs(mat.StructureFactorForQ(q[m], self.energy)) ** 2
+        data['r'] = nabs(mat.StructureFactorForQ(q[m], self.energy)) ** 2 * f
         data['hkl'] = list(hkl[m])
 
         return data
 
     def merge_lines(self, data):
         """
-        if calculation if isotropic lines at the same q-position can be merged
+        if calculation is isotropic lines at the same q-position can be merged
         to one line to reduce the calculational effort
 
         Parameters
@@ -2187,7 +2206,7 @@ class PowderDiffraction(PowderExperiment):
         data :  ndarray
             numpy field array with values of 'hkl' (Miller indices of the
             peaks), 'q' (q-position), and 'r' (reflection strength) as produced
-            by the structure_factors method
+            by the `reflection_strength` method
 
         Returns
         -------
@@ -2284,12 +2303,11 @@ class PowderDiffraction(PowderExperiment):
             * qpos :  reciprocal space position
         """
 
-        tmp_data = self.structure_factors(tt_cutoff)
+        tmp_data = self.reflection_strength(tt_cutoff)
         hkl, qpos, ang, rs = self.merge_lines(tmp_data)
         corrfact = self.correction_factor(ang)
         rs *= corrfact
         ids = [tuple(idx) for idx in hkl]
-        self.data = dict()
         for i, q, a, r in zip(ids, qpos, ang, rs):
             active = True if r/rs.max() > config.EPSILON else False
             self.data[i] = {'qpos': q, 'ang': a, 'r': r,
@@ -2305,7 +2323,7 @@ class PowderDiffraction(PowderExperiment):
             * ang:  bragg angles of the peaks (theta=2theta/2!)
             * qpos: reciprocal space position of intensities
         """
-        tmp_data = self.structure_factors(tt_cutoff)
+        tmp_data = self.reflection_strength(tt_cutoff)
         hkl, qpos, ang, rs = self.merge_lines(tmp_data)
         corrfact = self.correction_factor(ang)
         rs *= corrfact

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import collections.abc
 import copy
@@ -424,12 +424,21 @@ class Powder(SMaterial):
         extra peak width proportional to tan(theta)
     strain_gauss :              float, optional
         extra peak width proportional to tan(theta)
+    preferred_orientation :     tuple, optional
+        HKL of the preferred orientation
+    preferred_orientation_factor : float, optional
+        March-Dollase preferred orientation factor: > 1 for platy crystallits ,
+        < 1 for rod-like crystallites, and = 1 for random orientation of
+        crystallites.
     """
 
     _valid_init_kwargs = {'crystallite_size_lor': 'Lorentzian cryst. size',
                           'crystallite_size_gauss': 'Gaussian cryst. size',
                           'strain_lor': 'microstrain broadening',
-                          'strain_gauss': 'microstrain broadening'}
+                          'strain_gauss': 'microstrain broadening',
+                          'preferred_orientation': 'HKL of pref. orientation',
+                          'preferred_orientation_factor':
+                          'March-Dollase preferred orientation factor'}
 
     def __init__(self, material, volume, **kwargs):
         """
