@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to parse xrayutilities user-specific config file
@@ -114,6 +114,7 @@ subsec = 'global'
 POWDER[subsec] = dict(xuParser.items("powder.global"))
 for k in ('diffractometer_radius', 'equatorial_divergence_deg'):
     trytomake(POWDER[subsec], k, float)
+trytomake(POWDER[subsec], 'geometry_incidence_angle', literal_eval)
 
 subsec = 'emission'
 POWDER[subsec] = dict(xuParser.items("powder.emission"))

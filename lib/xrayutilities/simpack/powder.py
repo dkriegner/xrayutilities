@@ -103,6 +103,7 @@ from numpy import arcsin as nasin
 from numpy import asarray
 from numpy import cos as ncos
 from numpy import sin as nsin
+from numpy import sqrt as nsqrt
 from scipy.special import sici  # for the sine and cosine integral
 
 # package internal imports
@@ -1874,6 +1875,11 @@ class PowderDiffraction(PowderExperiment):
         if 'en' in kwargs:
             self._set_energy_pd(kwargs['en'])
 
+        if self.settings['global']['geometry'] != 'symmetric':
+            warnings.warn("PowderDiffraction: geometry '%s' not fully "
+                          "supported, proceed with caution!"
+                          % self.settings['global']['geometry'])
+
     def _init_multiprocessing(self):
         """
         initialize multiprocessing for powder pattern calculation
@@ -2155,6 +2161,8 @@ class PowderDiffraction(PowderExperiment):
         mat = self.mat.material
         pref_or = self.settings['emission']['preferred_orientation']
         r = self.settings['emission']['preferred_orientation_factor']
+        mode = self.settings['global']['geometry']
+        ai = self.settings['global']['geometry_incidence_angle']
         # calculate maximal Bragg indices
         hma = int(math.ceil(VecNorm(mat.a1) * self.k0 / pi *
                             sin(math.radians(tt_cutoff / 2.))))
@@ -2175,18 +2183,52 @@ class PowderDiffraction(PowderExperiment):
         hkl = numpy.mgrid[hma:hmi-1:-1,
                           kma:kmi-1:-1,
                           lma:lmi-1:-1].reshape(3, -1).T
+
         q = mat.Q(hkl)
         qnorm = numpy.linalg.norm(q, axis=1)
-        m = qnorm <= qmax
+        m = numpy.logical_and(qnorm > 0, qnorm <= qmax)
 
         # March-Dollase model for symmetric reflection
         # see http://www.crl.nitech.ac.jp/ar/2013/0711_acrc_ar2013_review.pdf
+        def fdsum(alpha, delta, r, N=8):
+            alpha[alpha == 0] += config.EPSILON  # alpha = 0 unstable
+            alpha[alpha == pi] -= config.EPSILON  # alpha = pi unstable
+            xi0 = -ncos(alpha-delta)/nsqrt(1+(r**3-1)*ncos(alpha-delta)**2)
+            xi1 = -ncos(alpha+delta)/nsqrt(1+(r**3-1)*ncos(alpha+delta)**2)
+
+            def h(xi):
+                return 1 / nsqrt((nsin(alpha)*nsin(delta))**2 -
+                                 (ncos(alpha)*ncos(delta) +
+                                  xi/nsqrt(1-(r**3-1)*xi**2))**2)
+
+            def w(j, N):
+                return pi/(2*N)*sin((j+0.5)*pi/N)
+
+            def xi(j, N):
+                return (xi1+xi0)/2 + (xi1-xi0)/2*cos((j+0.5)*pi/N)
+
+            s = numpy.sum([w(j, N)*h(xi(j, N)) for j in range(N)], axis=0)
+            return r**(3/2) / pi * (xi1-xi0) * s
+
         if numpy.all(pref_or == (0, 0, 0)) or r == 1:
             f = 1
         else:
             alpha = VecAngle(q[m], mat.Q(pref_or))
-            f = ((r * ncos(alpha))**2 + nsin(alpha)**2/r)**(-3/2)
+            if mode == 'symmetric':
+                f = ((r * ncos(alpha))**2 + nsin(alpha)**2/r)**(-3/2)
+            elif mode == 'capillary':
+                f = fdsum(alpha, pi/2, r)
+            elif mode == 'asymmetric':
+                if not isinstance(ai, numbers.Number):
+                    raise ValueError("'geometry_incidence_angle' must be a "
+                                     "number")
+                th = self.Q2Ang(qnorm[m], deg=False)
+                f = fdsum(alpha, nabs(th-math.radians(ai)), r)
+            else:
+                raise ValueError("xu.simpack.PowderDiffraction: invalid "
+                                 "geometry mode (%s)" % mode)
 
+        # assemble return value
         data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
                                                 ('r', numpy.double),
                                                 ('hkl', numpy.ndarray)])
@@ -2255,10 +2297,9 @@ class PowderDiffraction(PowderExperiment):
         # add remaining lines
         add_lines(currq, curref, currhkl)
 
-        qpos = numpy.array(qpos[1:], dtype=numpy.double)
+        qpos = numpy.array(qpos, dtype=numpy.double)
         ang = self.Q2Ang(qpos)
-        refstrength = numpy.array(refstrength[1:], dtype=numpy.double)
-        hkl = hkl[1:]
+        refstrength = numpy.array(refstrength, dtype=numpy.double)
         return hkl, qpos, ang, refstrength
 
     def correction_factor(self, ang):
