@@ -2092,9 +2092,11 @@ class PowderDiffraction(PowderExperiment):
             return
         npoints = dict()
         nset = dict()
+        ttmax = tt.max()
+        ttmin = tt.min()
         for h, d in self.data.items():
             ttpeak = 2 * d['ang']
-            if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
+            if ttpeak - ww/2 > ttmax or ttpeak + ww/2 < ttmin:
                 continue
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
@@ -2188,18 +2190,19 @@ class PowderDiffraction(PowderExperiment):
         qnorm = numpy.linalg.norm(q, axis=1)
         m = numpy.logical_and(qnorm > 0, qnorm <= qmax)
 
-        # March-Dollase model for symmetric reflection
+        # March-Dollase model for preferred orientation
         # see http://www.crl.nitech.ac.jp/ar/2013/0711_acrc_ar2013_review.pdf
         def fdsum(alpha, delta, r, N=8):
             alpha[alpha == 0] += config.EPSILON  # alpha = 0 unstable
             alpha[alpha == pi] -= config.EPSILON  # alpha = pi unstable
-            xi0 = -ncos(alpha-delta)/nsqrt(1+(r**3-1)*ncos(alpha-delta)**2)
-            xi1 = -ncos(alpha+delta)/nsqrt(1+(r**3-1)*ncos(alpha+delta)**2)
+            r3m1 = r**3 - 1
+            xi0 = -ncos(alpha-delta)/nsqrt(1+(r3m1)*ncos(alpha-delta)**2)
+            xi1 = -ncos(alpha+delta)/nsqrt(1+(r3m1)*ncos(alpha+delta)**2)
+            sad2 = (nsin(alpha) * nsin(delta))**2
+            cad = ncos(alpha) * ncos(delta)
 
             def h(xi):
-                return 1 / nsqrt((nsin(alpha)*nsin(delta))**2 -
-                                 (ncos(alpha)*ncos(delta) +
-                                  xi/nsqrt(1-(r**3-1)*xi**2))**2)
+                return 1 / nsqrt(sad2 - (cad + xi/nsqrt(1-(r3m1)*xi**2))**2)
 
             def w(j, N):
                 return pi/(2*N)*sin((j+0.5)*pi/N)
@@ -2369,8 +2372,9 @@ class PowderDiffraction(PowderExperiment):
         corrfact = self.correction_factor(ang)
         rs *= corrfact
         ids = [tuple(idx) for idx in hkl]
+        rsmax = rs.max()
         for h, q, a, r in zip(ids, qpos, ang, rs):
-            active = True if r/rs.max() > config.EPSILON else False
+            active = True if r/rsmax > config.EPSILON else False
             if h in self.data:
                 self.data[h]['qpos'] = q
                 self.data[h]['ang'] = a
@@ -2425,9 +2429,11 @@ class PowderDiffraction(PowderExperiment):
             tt = self.twotheta = twotheta
             self.window_width = window_width
             ww = self.window_width
+            ttmax = tt.max()
+            ttmin = tt.min()
 
             # check if twotheta range extends above tt_cutoff
-            if tt.max() > self._tt_cutoff:
+            if ttmax > self._tt_cutoff:
                 warnings.warn('twotheta range is larger then tt_cutoff. '
                               'Possibly Bragg peaks in the convolution range '
                               'are not considered!')
@@ -2438,7 +2444,7 @@ class PowderDiffraction(PowderExperiment):
                         continue
                     ttpeak = 2 * d['ang']
                     # check if peak is in data range to be calculated
-                    if ttpeak - ww/2 > tt.max() or ttpeak + ww/2 < tt.min():
+                    if ttpeak - ww/2 > ttmax or ttpeak + ww/2 < ttmin:
                         continue
                     idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                            tt < ttpeak + ww/2))
@@ -2455,8 +2461,8 @@ class PowderDiffraction(PowderExperiment):
                     for h in chunk:
                         ttpeak = 2 * self.data[h]['ang']
                         ttpeaks.append(ttpeak)
-                        if (ttpeak - ww/2 > tt.max() or
-                                ttpeak + ww/2 < tt.min()):
+                        if (ttpeak - ww/2 > ttmax or
+                                ttpeak + ww/2 < ttmin):
                             run.append(False)
                         else:
                             run.append(True)
