@@ -467,8 +467,6 @@ class CIFDataset(object):
                     opstr = "'" + entry + "'"
                 opstr = re.sub(r"^'", r"(", opstr)
                 opstr = re.sub(r"'$", r")", opstr)
-                ## add a comma to a fraction to avoid int division problems
-                #opstr = re.sub(r"/([1-9])", r"/\1.", opstr)
                 self.symops.append(opstr)
             elif atom_loop:  # atom label and position
                 loop_start = False

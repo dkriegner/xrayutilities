@@ -109,7 +109,7 @@ from scipy.special import sici  # for the sine and cosine integral
 # package internal imports
 from .. import config, materials, utilities
 from ..experiment import PowderExperiment
-from ..math import VecNorm, VecAngle
+from ..math import VecAngle, VecNorm
 from .smaterials import Powder
 
 # figure out which FFT package we have, and import it
