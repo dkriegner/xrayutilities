@@ -28,4 +28,4 @@ from .material import (Alloy, Amorphous, Crystal, CubicAlloy,
                        PseudomorphicMaterial, WZTensorFromCub)
 from .plot import show_reciprocal_space_plane
 from .predefined_materials import *
-from .spacegrouplattice import SGLattice
+from .spacegrouplattice import SGLattice, SymOp

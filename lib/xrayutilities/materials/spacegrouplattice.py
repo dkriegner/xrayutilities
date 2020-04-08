@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module handling crystal lattice structures. A SGLattice consists of a space
 group number and the position of atoms specified as Wyckoff positions along
@@ -24,6 +24,7 @@ cell shape parameters.
 """
 
 import copy
+import fractions
 import numbers
 from collections import OrderedDict
 from math import cos, radians, sin, sqrt
@@ -360,6 +361,121 @@ class WyckoffBase(list):
         raise ValueError("%s is not in list" % str(item))
 
 
+class SymOp(object):
+    """
+    Class descriping a symmetry operation in a crystal. The symmetry operation
+    is characterized by a 3x3 transformation matrix as well as a 3-vector
+    describing a translation. For magnetic symmetry operations also the time
+    reversal symmetry can be specified (not used in xrayutilities)
+    """
+
+    def __init__(self, D, t, m=1):
+        """
+        Initialize the symmetry operation
+
+        Parameters
+        ----------
+         D :    array-like
+            transformation matrix (3x3)
+         t :    array-like
+            translation vector (3)
+         m :    float, optional
+            +1 (default) or -1 to indicate time reversal in magnetic groups
+        """
+        self._W = numpy.zeros((4, 4))
+        self._W[:3, :3] = numpy.asarray(D)
+        self._W[:3, 3] = numpy.asarray(t)
+        self._W[3, 3] = 1
+        self._m = m
+
+    @classmethod
+    def from_xyz(cls, xyz):
+        """
+        create a SymOp from the xyz notation typically used in CIF files.
+
+        Parameters
+        ----------
+         xyz :   str
+            string describing the symmetry operation (e.g. '-y, -x, z')
+        """
+        D = numpy.zeros((3, 3))
+        t = numpy.array(eval(xyz, {'x': 0, 'y': 0, 'z': 0}))
+
+        for i, expr in enumerate(xyz.strip('()').split(',')):
+            if 'x' in expr:
+                D[i, 0] = -1 if '-x' in expr else 1
+            if 'y' in expr:
+                D[i, 1] = -1 if '-y' in expr else 1
+            if 'z' in expr:
+                D[i, 2] = -1 if '-z' in expr else 1
+        return SymOp(D, t)
+
+    def xyz(self, showtimerev=False):
+        """
+        return the symmetry operation in xyz notation
+        """
+        ret = ''
+        t = self.t
+        for i in range(3):
+            expr = ''
+            if abs(self._W[i, 0]) == 1:
+                expr += '+x' if self._W[i, 0] == 1 else '-x'
+            if abs(self._W[i, 1]) == 1:
+                expr += '+y' if self._W[i, 1] == 1 else '-y'
+            if abs(self._W[i, 2]) == 1:
+                expr += '+z' if self._W[i, 2] == 1 else '-z'
+            if t[i] != 0:
+                expr += '+' if t[i] > 0 else ''
+                expr += str(fractions.Fraction(t[i]).limit_denominator(100))
+            expr = expr.strip('+')
+            ret += expr + ', '
+        if showtimerev:
+            ret += '{:+d}'.format(self._m)
+        return ret.strip(', ')
+
+    @property
+    def D(self):
+        """transformation matrix of the symmetry operation"""
+        return self._W[:3, :3]
+
+    @property
+    def t(self):
+        """translation vector of the symmetry operation"""
+        return self._W[:3, 3]
+
+    def __eq__(self, other):
+        if not isinstance(other, SymOp):
+            return NotImplemented
+        return numpy.all(self._W == other._W)
+
+    @staticmethod
+    def foldback(v):
+        _digits = 6
+        return v - numpy.round(v, _digits) // 1
+
+    def apply(self, vec, foldback=True):
+        lv = numpy.asarray(list(vec) + [1, ])
+        result = (self._W @ lv)[:3]
+        if foldback:
+            return self.foldback(result)
+        return result
+
+    def apply_axial(self, vec):
+        return self._m * numpy.linalg.det(self.D) * self.D @ vec
+
+    def combine(self, other):
+        if not isinstance(other, SymOp):
+            return NotImplemented
+        W = self._W @ other._W
+        return SymOp(W[:3, :3], self.foldback(W[:3, 3]), self._m*other._m)
+
+    def __str__(self):
+        return '({})'.format(self.xyz(showtimerev=True))
+
+    def __repr__(self):
+        return self.__str__()
+
+
 class SGLattice(object):
     """
     lattice object created from the space group number and corresponding unit
@@ -455,6 +571,19 @@ class SGLattice(object):
         self._paramhelp = [cos(ra), cos(radians(beta)),
                            cos(radians(gamma)), sin(ra), 0]
         self._setlat()
+        self.symops = self._get_symops()
+
+    def _get_symops(self):
+        """
+        generate the set of symmetry operations from the general Wyckoff
+        position of the space group.
+        """
+        gplabel = sorted(wp[self.space_group], key=lambda s: int(s[:-1]))[-1]
+        gp = wp[self.space_group][gplabel]
+        symops = []
+        for p in gp[1]:
+            symops.append(SymOp.from_xyz(p))
+        return symops
 
     def base(self):
         """
@@ -462,7 +591,7 @@ class SGLattice(object):
         """
         if not self._wbase:
             return
-        sgwp = wp[str(self.space_group)]
+        sgwp = wp[self.space_group]
         for (atom, w, occ, b) in self._wbase:
             x, y, z = None, None, None
             parint, poslist = sgwp[w[0]]
@@ -501,9 +630,8 @@ class SGLattice(object):
 
             for p in poslist:
                 pos = eval(p, {'x': x, 'y': y, 'z': z})
-                pos = numpy.asarray(pos)
-                pos -= pos // 1
-                yield atom, numpy.asarray(pos), occ, b
+                pos = SymOp.foldback(pos)
+                yield atom, pos, occ, b
 
     def _setlat(self):
         a, b, c, alpha, beta, gamma = self._parameters.values()
