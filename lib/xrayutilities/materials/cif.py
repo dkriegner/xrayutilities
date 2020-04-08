@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import copy
 import io
@@ -467,8 +467,8 @@ class CIFDataset(object):
                     opstr = "'" + entry + "'"
                 opstr = re.sub(r"^'", r"(", opstr)
                 opstr = re.sub(r"'$", r")", opstr)
-                # add a comma to a fraction to avoid int division problems
-                opstr = re.sub(r"/([1-9])", r"/\1.", opstr)
+                ## add a comma to a fraction to avoid int division problems
+                #opstr = re.sub(r"/([1-9])", r"/\1.", opstr)
                 self.symops.append(opstr)
             elif atom_loop:  # atom label and position
                 loop_start = False
@@ -731,12 +731,8 @@ loop_
 _space_group_symop_operation_xyz
 """
 
-    gplabel = sorted(wyckpos.wp[mat.lattice.space_group],
-                     key=lambda s: int(s[:-1]))[-1]
-    gp = wyckpos.wp[mat.lattice.space_group][gplabel]
-
-    for pos in gp[1]:
-        symloop += "'" + pos.strip('()') + "'\n"
+    for symop in mat.lattice.symops:
+        symloop += "'" + symop.xyz() + "'\n"
 
     atomloop = """
 loop_
