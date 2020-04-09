@@ -399,16 +399,19 @@ class SymOp(object):
             string describing the symmetry operation (e.g. '-y, -x, z')
         """
         D = numpy.zeros((3, 3))
-        t = numpy.array(eval(xyz, {'x': 0, 'y': 0, 'z': 0}))
-
+        t = numpy.array(eval(xyz, {'x': 0, 'y': 0, 'z': 0})[:3])
+        m = 1
         for i, expr in enumerate(xyz.strip('()').split(',')):
+            if i == 3:  # time reversal property
+                m = int(expr)
+                continue
             if 'x' in expr:
                 D[i, 0] = -1 if '-x' in expr else 1
             if 'y' in expr:
                 D[i, 1] = -1 if '-y' in expr else 1
             if 'z' in expr:
                 D[i, 2] = -1 if '-z' in expr else 1
-        return SymOp(D, t)
+        return SymOp(D, t, m)
 
     def xyz(self, showtimerev=False):
         """
@@ -446,7 +449,7 @@ class SymOp(object):
     def __eq__(self, other):
         if not isinstance(other, SymOp):
             return NotImplemented
-        return numpy.all(self._W == other._W)
+        return self._m == other._m and numpy.all(self._W == other._W)
 
     @staticmethod
     def foldback(v):
