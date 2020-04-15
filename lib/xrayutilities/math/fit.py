@@ -441,7 +441,7 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
 
 
 def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
-                peaktype='Gaussian'):
+                peaktype='Gaussian', returnerror=False):
     """
     function to fit multiple Gaussian/Lorentzian peaks with linear background
     to a set of data
@@ -461,6 +461,9 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         not need to have the same number of entries as peakpos
     peaktype : {'Gaussian', 'Lorentzian'}
         type of peaks to be used
+    returnerror : bool
+        decides if the fit errors of pos, sigma, and amp are returned (default:
+        False)
 
     Returns
     -------
@@ -472,6 +475,13 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         amplitudes of the peaks derived by the fit
     background :    array-like
         background values at positions `x`
+    if returnpos == True:
+     sd_pos :   list
+        standard error of peak positions as returned by scipy.odr.Output
+     sd_sigma : list
+        standard error of the peak width
+     sd_amp :   list
+        standard error of the peak amplitude
     """
     warnings.warn("deprecated function -> use the lmfit Python packge instead",
                   DeprecationWarning)
@@ -650,7 +660,11 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     fwidth = numpy.abs(fit.beta[1:-2:3])
     famp = fit.beta[2::3]
     background = numpy.polyval((fit.beta[-2], fit.beta[-1]), x)
-
+    if returnerror:
+        sd_pos = fit.sd_beta[:-2:3]
+        sd_width = fit.sd_beta[1:-2:3]
+        sd_amp = fit.sd_beta[2::3]
+        return fpos, fwidth, famp, background, sd_pos, sd_width, sd_amp
     return fpos, fwidth, famp, background
 
 
