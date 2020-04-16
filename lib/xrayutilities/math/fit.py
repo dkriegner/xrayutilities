@@ -475,7 +475,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         amplitudes of the peaks derived by the fit
     background :    array-like
         background values at positions `x`
-    if returnpos == True:
+    if returnerror == True:
      sd_pos :   list
         standard error of peak positions as returned by scipy.odr.Output
      sd_sigma : list
