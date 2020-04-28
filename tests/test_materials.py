@@ -119,7 +119,7 @@ class TestMaterialsTransform(unittest.TestCase):
                    ((1, -3, 3), (1, -2, 3)),
                    ((-2, 1, 3), (3, 2, 1)),
                    ((1, 3, 2), (1, 3, -2)),
-                   ((1, 2, -3), (1, 3, 2))]
+                   ((1, -2, -3), (1, 3, 2))]
         for mname, hkl2s in zip(materials, hkl2lst):
             mat = getattr(xu.materials, mname)
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
