@@ -109,7 +109,7 @@ from scipy.special import sici  # for the sine and cosine integral
 # package internal imports
 from .. import config, materials, utilities
 from ..experiment import PowderExperiment
-from ..math import VecAngle, VecNorm
+from ..math import VecAngle
 from .smaterials import Powder
 
 # figure out which FFT package we have, and import it
@@ -2165,15 +2165,13 @@ class PowderDiffraction(PowderExperiment):
         r = self.settings['emission']['preferred_orientation_factor']
         mode = self.settings['global']['geometry']
         ai = self.settings['global']['geometry_incidence_angle']
+        ksinmax = self.k0 * sin(math.radians(tt_cutoff/2))
         # calculate maximal Bragg indices
-        hma = int(math.ceil(VecNorm(mat.a1) * self.k0 / pi *
-                            sin(math.radians(tt_cutoff / 2.))))
+        hma = int(math.ceil(mat.a / pi * ksinmax))
         hmi = -hma
-        kma = int(math.ceil(VecNorm(mat.a2) * self.k0 / pi *
-                            sin(math.radians(tt_cutoff / 2.))))
+        kma = int(math.ceil(mat.b / pi * ksinmax))
         kmi = -kma
-        lma = int(math.ceil(VecNorm(mat.a3) * self.k0 / pi *
-                            sin(math.radians(tt_cutoff / 2.))))
+        lma = int(math.ceil(mat.c / pi * ksinmax))
         lmi = -lma
 
         if config.VERBOSITY >= config.INFO_ALL:
@@ -2181,7 +2179,7 @@ class PowderDiffraction(PowderExperiment):
                   "%6.2f (%d,%d,%d)" % (tt_cutoff, hma, kma, lma))
 
         # calculate structure factors
-        qmax = 2 * self.k0 * sin(math.radians(tt_cutoff/2))
+        qmax = 2 * ksinmax
         hkl = numpy.mgrid[hma:hmi-1:-1,
                           kma:kmi-1:-1,
                           lma:lmi-1:-1].reshape(3, -1).T
