@@ -1,3 +1,7 @@
+* SGLattice improvements: add symmetry operations, equivalent_hkls,
+  reflection_conditions, and allowed_hkl functionality
+* fix SGLattice.isequivalent function to work for non-centrosymmetric
+  materials
 * implementation of the March-Dollase model for preferred orientation in
   PowderDiffraction
 * Mayavi based visualization of unit cells: Crystal.show_unitcell
