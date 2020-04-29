@@ -13,9 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import math
+import itertools
 import unittest
 
 import numpy
@@ -124,6 +125,30 @@ class TestMaterialsTransform(unittest.TestCase):
             mat = getattr(xu.materials, mname)
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
             self.assertFalse(mat.lattice.isequivalent(hkl1, hkl2s[1]))
+
+    def test_iscentrosymmetric(self):
+        # create materials for every space group
+        a, b, c = numpy.random.rand(3) * 2 + 4
+        al, be, gam = numpy.random.rand(3) * 60 + 60
+        pdict = {'a': a, 'b': b, 'c': c, 'alpha': al, 'beta': be, 'gamma': gam}
+
+        centrosym = list(itertools.chain([2], range(10, 16), range(47, 75),
+                                         range(83, 89), range(123, 143),
+                                         [147, 148], range(162, 168),
+                                         [175, 176], range(191, 195),
+                                         range(200, 207), range(221, 231)))
+        for sg in xu.materials.spacegrouplattice.wp.keys():
+            # determine parameters for this space group
+            sgnr = int(sg.split(':')[0])
+            csys, nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
+            params = xu.materials.spacegrouplattice.sgrp_params[csys][0]
+            p = [eval(par, pdict) for par in params]
+            # generate test lattice
+            lat = xu.materials.SGLattice(sg, *p)
+            if sgnr in centrosym:
+                self.assertTrue(lat.iscentrosymmetric())
+            else:
+                self.assertFalse(lat.iscentrosymmetric())
 
 
 if __name__ == '__main__':
