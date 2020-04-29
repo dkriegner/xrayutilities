@@ -25,6 +25,7 @@ recommended to change things there, instead the user-specific config file
 """
 
 import configparser
+import math
 import os.path
 from ast import literal_eval
 
@@ -93,6 +94,7 @@ DYNHIGH = xuParser.getfloat(sect, "dynhigh")
 
 # small number needed for error checks
 EPSILON = xuParser.getfloat(sect, "epsilon")
+DIGITS = int(abs(math.log10(EPSILON)))
 
 # name of the database with atomic scattering factors
 DBNAME = xuParser.get(sect, "dbname")
