@@ -1112,32 +1112,26 @@ class SGLattice(object):
         ostr += self.reflection_conditions()
         return ostr
 
-    @classmethod
-    def convert_to_P1(cls, sglat):
+    def convert_to_P1(self):
         """
-        create a P1 equivalent of the given SGLattice instance.
-
-        Parameters
-        ----------
-        sglat :   SGLattice
-            space group lattice instance to be converted to P1.
+        create a P1 equivalent of this SGLattice instance.
 
         Returns
         -------
         SGLattice
-            instance with the same properties as sglat, however in the P1
-            setting.
+            instance with the same properties as the present lattice, however,
+            in the P1 setting.
         """
-        a, b, c, alpha, beta, gamma = (sglat.a, sglat.b, sglat.c, sglat.alpha,
-                                       sglat.beta, sglat.gamma)
+        a, b, c, alpha, beta, gamma = (self.a, self.b, self.c, self.alpha,
+                                       self.beta, self.gamma)
         atoms = []
         pos = []
         occ = []
         biso = []
-        for at, p, o, bf in sglat.base():
+        for at, p, o, bf in self.base():
             atoms.append(at)
             pos.append(('1a', p))
             occ.append(o)
             biso.append(bf)
-        return cls(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
-                   occ=occ, b=biso)
+        return type(self)(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
+                          occ=occ, b=biso)

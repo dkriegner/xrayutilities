@@ -1,3 +1,4 @@
+* make SGLattice.convert_to_P1 a normal method
 * SGLattice improvements: add symmetry operations, equivalent_hkls,
   reflection_conditions, and allowed_hkl functionality
 * fix SGLattice.isequivalent function to work for non-centrosymmetric
