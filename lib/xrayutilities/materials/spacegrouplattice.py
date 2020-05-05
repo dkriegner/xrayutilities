@@ -32,7 +32,7 @@ from math import cos, radians, sin, sqrt
 
 import numpy
 
-from .. import config, math, utilities
+from .. import config, cxrayutilities, math, utilities
 from ..exception import InputError
 from . import elements
 from .atom import Atom
@@ -148,99 +148,8 @@ sgrp_params = {'cubic:1': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
                'triclinic': (('a', 'b', 'c', 'alpha', 'beta', 'gamma'),
                              ('a', 'b', 'c', 'alpha', 'beta', 'gamma'))}
 
+# regular expression for splitting multiple reflection conditions
 hklcond_group = re.compile(r'([-hkil0-9\(\)]+): ([-+hklnor1-8=\s,]+)(?:, |$)')
-split_hkil = re.compile(r'(\([-02hkl]+\)|[-]?[02hikl])')
-hklcond_split = re.compile(r'([-hkl2+,]+)=([-+1-8n]+),?\s?')
-
-checkcond = {'2n': lambda h: (h/2).is_integer(),
-             '2n+1': lambda h: ((h-1)/2).is_integer(),
-             '3n': lambda h: (h/3).is_integer(),
-             '3n+1': lambda h: ((h-1)/3).is_integer(),
-             '3n+2': lambda h: ((h-2)/3).is_integer(),
-             '4n': lambda h: (h/4).is_integer(),
-             '4n+2': lambda h: ((h-2)/4).is_integer(),
-             '6n': lambda h: (h/6).is_integer(),
-             '8n': lambda h: (h/8).is_integer(),
-             '8n+1': lambda h: ((h-1)/8).is_integer(),
-             '8n-1': lambda h: ((h+1)/8).is_integer(),
-             '8n+3': lambda h: ((h-3)/8).is_integer(),
-             '8n-3': lambda h: ((h+3)/8).is_integer(),
-             '8n+4': lambda h: ((h-4)/8).is_integer(),
-             '8n+5': lambda h: ((h-5)/8).is_integer(),
-             '8n+7': lambda h: ((h-7)/8).is_integer()}
-
-hklexpr = {'h': lambda hkl: hkl[0],
-           'k': lambda hkl: hkl[1],
-           'l': lambda hkl: hkl[2],
-           'h+k': lambda hkl: hkl[0]+hkl[1],
-           'h-k': lambda hkl: hkl[0]-hkl[1],
-           '-h+k': lambda hkl: -hkl[0]+hkl[1],
-           'h+l': lambda hkl: hkl[0]+hkl[2],
-           'k+l': lambda hkl: hkl[1]+hkl[2],
-           'h+k+l': lambda hkl: hkl[0]+hkl[1]+hkl[2],
-           '-h+k+l': lambda hkl: -hkl[0]+hkl[1]+hkl[2],
-           '2h+l': lambda hkl: 2*hkl[0]+hkl[2],
-           '2k+l': lambda hkl: 2*hkl[1]+hkl[2]}
-
-
-def hklpattern_applies(hkl, condhkl):
-    """
-    helper function to determine if Miller indices fit a certain pattern
-
-    Parameters
-    ----------
-    hkl: list or tuple
-     Miller indices of the reflection
-    cond: str
-     condition string similar to 'hkl', 'hh0', or '0k0'
-
-    Returns
-    -------
-    True if hkl fulfills the pattern, False otherwise
-    """
-    m = split_hkil.findall(condhkl)
-    if m[0] == '0' and hkl[0] != 0:
-        return False
-    if m[1] == '0' and hkl[1] != 0:
-        return False
-    if m[-1] == '0' and hkl[2] != 0:
-        return False
-    if m[1] == 'h' and hkl[1] != hkl[0]:
-        return False
-    if m[1] == '-h' and hkl[1] != -hkl[0]:
-        return False
-    return True
-
-
-def reflection_condition_met(hkl, cond):
-    """
-    helper function to determine allowed Miller indices
-
-    Parameters
-    ----------
-    hkl: list or tuple
-     Miller indices of the reflection
-    cond: str
-     condition string similar to 'h+k=2n, h+l,k+l=2n'
-
-    Returns
-    -------
-    True if condition is met, False otherwise
-    """
-    # at least one needs to be fulfilled
-    for subcond in cond.split(' or '):
-        fulfilled = True
-        # all need to be fulfilled
-        for lexpr, rexpr in hklcond_split.findall(subcond):
-            for l in lexpr.split(','):
-                if not checkcond[rexpr](hklexpr[l.strip()](hkl)):
-                    fulfilled = False
-                    break
-            if not fulfilled:
-                break
-        if fulfilled:
-            return True
-    return False
 
 
 def get_possible_sgrp_suf(sgrp_nr):
@@ -1062,52 +971,9 @@ class SGLattice(object):
                     self._hklcond_wp.append(hklcond_group.findall(
                         wp[self.space_group][lab][2]))
 
-        pattern_applied = False
-        condition_met = False
-        # test general reflection conditions
-        # if they are violated the peak is forbidden
-        for miller in hkls:
-            for hklpattern, cond in self._hklcond[::-1]:
-                if hklpattern_applies(miller, hklpattern):
-                    pattern_applied = True
-                    if reflection_condition_met(miller, cond):
-                        condition_met = True
-                    else:
-                        return build_return(False)
-
-        # if there are no special conditions for at least one Wyckoff position
-        # then directly return
-        if None in self._hklcond_wp:
-            if condition_met:
-                return build_return(True)
-            else:
-                return build_return(not pattern_applied)
-        # test specific conditions for the Wyckoff positions
-        pattern_appliedwp = False
-        condition_metwp = False
-        for e in self._hklcond_wp:
-            level = numpy.inf
-            for miller in hkls:
-                for i, (hklpattern, cond) in enumerate(e[::-1]):
-                    if hklpattern_applies(miller, hklpattern):
-                        pattern_appliedwp = True
-                        if reflection_condition_met(miller, cond):
-                            if i <= level:
-                                condition_metwp = True
-                                level = i
-                        else:
-                            if i < level:
-                                condition_metwp = False
-                                level = i
-                                break
-            if condition_metwp:
-                break
-        if pattern_appliedwp:
-            return build_return(condition_metwp)
-        elif (condition_met or not pattern_applied):
-            return build_return(True)
-        else:
-            return build_return(not pattern_applied)
+        # call C-code to (efficiently) test the conditions
+        ret = cxrayutilities.testhklcond(hkls, self._hklcond, self._hklcond_wp)
+        return build_return(ret)
 
     def get_all_allowed_hkl(self, qmax):
         """

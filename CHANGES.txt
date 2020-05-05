@@ -1,3 +1,4 @@
+* SGLattice.get_all_allowed_hkl function
 * make SGLattice.convert_to_P1 a normal method
 * SGLattice improvements: add symmetry operations, equivalent_hkls,
   reflection_conditions, and allowed_hkl functionality
