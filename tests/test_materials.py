@@ -15,8 +15,8 @@
 #
 # Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import math
 import itertools
+import math
 import unittest
 
 import numpy
