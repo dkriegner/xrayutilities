@@ -150,7 +150,7 @@ sgrp_params = {'cubic:1': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
 
 hklcond_group = re.compile(r'([-hkil0-9\(\)]+): ([-+hklnor1-8=\s,]+)(?:, |$)')
 split_hkil = re.compile(r'(\([-02hkl]+\)|[-]?[02hikl])')
-hklcond_split = re.compile(r'([-hkl2+,\s]+)=([-+1-8n]+),?\s?')
+hklcond_split = re.compile(r'([-hkl2+,]+)=([-+1-8n]+),?\s?')
 
 checkcond = {'2n': lambda h: (h/2).is_integer(),
              '2n+1': lambda h: ((h-1)/2).is_integer(),
@@ -235,6 +235,9 @@ def reflection_condition_met(hkl, cond):
             for l in lexpr.split(','):
                 if not checkcond[rexpr](hklexpr[l.strip()](hkl)):
                     fulfilled = False
+                    break
+            if not fulfilled:
+                break
         if fulfilled:
             return True
     return False
@@ -676,6 +679,7 @@ class SGLattice(object):
         self._symops = []
         self._hklcond = []
         self._hklcond_wp = []
+        self._iscentrosymmetric = None
 
     @property
     def symops(self):
@@ -976,14 +980,18 @@ class SGLattice(object):
                 if self._parameters[p] != key:
                     self.free_parameters[p] = self._parameters[p]
 
+    @property
     def iscentrosymmetric(self):
         """
         returns a boolean to determine if the lattice has centrosymmetry.
         """
-        for s in self.symops:
-            if numpy.all(-numpy.identity(3) == s.D):
-                return True
-        return False
+        if self._iscentrosymmetric is None:
+            self._iscentrosymmetric = False
+            for s in self.symops:
+                if numpy.all(-numpy.identity(3) == s.D):
+                    self._iscentrosymmetric = True
+                    break
+        return self._iscentrosymmetric
 
     def isequivalent(self, hkl1, hkl2):
         """
@@ -1006,10 +1014,10 @@ class SGLattice(object):
         """
         returns a list of equivalent hkl peaks depending on the crystal system
         """
-        eqhkl = [tuple(s @ hkl) for s in self._hklsym]
-        return set(eqhkl)
+        ehkl = numpy.unique(numpy.einsum('...ij,j', self._hklsym, hkl), axis=0)
+        return set(tuple(e) for e in ehkl)
 
-    def hkl_allowed(self, hkl):
+    def hkl_allowed(self, hkl, returnequivalents=False):
         """
         check if Bragg reflection with Miller indices hkl can exist according
         to the reflection conditions. If no reflection conditions are available
@@ -1019,15 +1027,29 @@ class SGLattice(object):
         ----------
         hkl : tuple or list
          Miller indices of the reflection to check
+        returnequivalents : bool, optional
+         If True all the equivalent Miller indices of hkl are returned in a
+         set as second return argument.
 
         Returns
         -------
-        bool:
+        allowed : bool
          True if reflection can have non-zero structure factor, false otherwise
+        equivalents : set, optional
+         set of equivalent Miller indices if returnequivalents is True
         """
+        # generate all equivalent hkl values which also need to be checked:
+        hkls = self.equivalent_hkls(hkl)
+
+        def build_return(allowed, requi=returnequivalents):
+            if requi:
+                return allowed, hkls
+            else:
+                return allowed
+
         # load reflection conditions if needed
         if self._gp[2] == 'n/a':
-            return True
+            return build_return(True)
         if self._hklcond == [] and self._gp[2] is not None:
             self._hklcond = hklcond_group.findall(self._gp[2])
         if self._hklcond_wp == []:
@@ -1039,8 +1061,6 @@ class SGLattice(object):
                 else:
                     self._hklcond_wp.append(hklcond_group.findall(
                         wp[self.space_group][lab][2]))
-        # generate all equivalent hkl values which also need to be checked:
-        hkls = self.equivalent_hkls(hkl)
 
         pattern_applied = False
         condition_met = False
@@ -1053,15 +1073,15 @@ class SGLattice(object):
                     if reflection_condition_met(miller, cond):
                         condition_met = True
                     else:
-                        return False
+                        return build_return(False)
 
         # if there are no special conditions for at least one Wyckoff position
         # then directly return
         if None in self._hklcond_wp:
             if condition_met:
-                return True
+                return build_return(True)
             else:
-                return not pattern_applied
+                return build_return(not pattern_applied)
         # test specific conditions for the Wyckoff positions
         pattern_appliedwp = False
         condition_metwp = False
@@ -1083,11 +1103,53 @@ class SGLattice(object):
             if condition_metwp:
                 break
         if pattern_appliedwp:
-            return condition_metwp
+            return build_return(condition_metwp)
         elif (condition_met or not pattern_applied):
-            return True
+            return build_return(True)
         else:
-            return not pattern_applied
+            return build_return(not pattern_applied)
+
+    def get_all_allowed_hkl(self, qmax):
+        """
+        return a set of allowed reflections up to a maximal specified momentum
+        transfer.
+
+        Parameters
+        ----------
+        qmax : float
+         maximal momentum transfer
+
+        Returns
+        -------
+        hklset : set
+         set of allowed hkl reflections
+        """
+        def recurse_hkl(h, k, l):
+            if (h, k, l) in hkltested:
+                return
+            elif math.VecNorm(numpy.matmul(self.qtransform.matrix, (h, k, l),
+                                           q)) >= qmax:
+                return
+            else:
+                allowed, eqhkl = self.hkl_allowed((h, k, l),
+                                                  returnequivalents=True)
+                hkltested.update(eqhkl)
+                if allowed:
+                    hklset.update(eqhkl)
+                    if not self.iscentrosymmetric:
+                        eqhkl = self.equivalent_hkls((-h, -k, -l))
+                        hklset.update(eqhkl)
+                        hkltested.update(eqhkl)
+                recurse_hkl(h+1, k, l)
+                recurse_hkl(h, k+1, l)
+                recurse_hkl(h, k, l+1)
+
+        hklset = set()
+        hkltested = set()
+        q = numpy.empty(3)
+        recurse_hkl(0, 0, 0)
+        hklset.remove((0, 0, 0))
+        return hklset
 
     def reflection_conditions(self):
         """
