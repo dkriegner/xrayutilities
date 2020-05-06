@@ -582,7 +582,7 @@ class CIFDataset(object):
                             wpcand.append((keys[j], allwyckp[keys[j]]))
                     for j, (k, wp) in enumerate(
                             sorted(wpcand, key=operator.itemgetter(1))):
-                        parint, poslist = wp
+                        parint, poslist, reflcond = wp
                         for positem in poslist:
                             foundwp, xyz = testwp(parint, positem,
                                                   (x, y, z), self.digits)

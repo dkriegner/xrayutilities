@@ -146,9 +146,9 @@ class TestMaterialsTransform(unittest.TestCase):
             # generate test lattice
             lat = xu.materials.SGLattice(sg, *p)
             if sgnr in centrosym:
-                self.assertTrue(lat.iscentrosymmetric())
+                self.assertTrue(lat.iscentrosymmetric)
             else:
-                self.assertFalse(lat.iscentrosymmetric())
+                self.assertFalse(lat.iscentrosymmetric)
 
 
 if __name__ == '__main__':
