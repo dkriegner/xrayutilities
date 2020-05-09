@@ -88,7 +88,6 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                             msg=errorinfo)
 
     def test_hklcond_predefined(self):
-        pass
         for m in self.materials:
             self._test_material(m)
 
