@@ -973,10 +973,10 @@ class SGLattice(object):
         ret = cxrayutilities.testhklcond(hkls, self._hklcond, self._hklcond_wp)
         return build_return(ret)
 
-    def get_all_allowed_hkl(self, qmax):
+    def get_allowed_hkl(self, qmax):
         """
-        return a set of allowed reflections up to a maximal specified momentum
-        transfer.
+        return a set of all allowed reflections up to a maximal specified
+        momentum transfer.
 
         Parameters
         ----------

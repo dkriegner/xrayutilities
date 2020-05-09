@@ -89,7 +89,7 @@ def show_reciprocal_space_plane(
             peaks
         """
         qmax = 2 * exp.k0 * math.sin(math.radians(ttmax/2.))
-        hkls = tuple(mat.lattice.get_all_allowed_hkl(qmax))
+        hkls = tuple(mat.lattice.get_allowed_hkl(qmax))
 
         q = mat.Q(hkls)
         data = numpy.zeros(len(hkls), dtype=[('qx', numpy.double),
