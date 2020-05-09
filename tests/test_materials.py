@@ -15,7 +15,6 @@
 #
 # Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import itertools
 import math
 import unittest
 
@@ -113,7 +112,6 @@ class TestMaterialsTransform(unittest.TestCase):
         self.assertAlmostEqual(e[0][2], 2.0)
 
     def test_isequivalent(self):
-
         hkl1 = (1, 2, 3)
         materials = ['C', 'C_HOPG', 'TiO2', 'GeTe', 'Ag2Se']
         hkl2lst = [((2, 1, -3), (2, 2, 3)),
@@ -125,30 +123,6 @@ class TestMaterialsTransform(unittest.TestCase):
             mat = getattr(xu.materials, mname)
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
             self.assertFalse(mat.lattice.isequivalent(hkl1, hkl2s[1]))
-
-    def test_iscentrosymmetric(self):
-        # create materials for every space group
-        a, b, c = numpy.random.rand(3) * 2 + 4
-        al, be, gam = numpy.random.rand(3) * 60 + 60
-        pdict = {'a': a, 'b': b, 'c': c, 'alpha': al, 'beta': be, 'gamma': gam}
-
-        centrosym = list(itertools.chain([2], range(10, 16), range(47, 75),
-                                         range(83, 89), range(123, 143),
-                                         [147, 148], range(162, 168),
-                                         [175, 176], range(191, 195),
-                                         range(200, 207), range(221, 231)))
-        for sg in xu.materials.spacegrouplattice.wp.keys():
-            # determine parameters for this space group
-            sgnr = int(sg.split(':')[0])
-            csys, nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
-            params = xu.materials.spacegrouplattice.sgrp_params[csys][0]
-            p = [eval(par, pdict) for par in params]
-            # generate test lattice
-            lat = xu.materials.SGLattice(sg, *p)
-            if sgnr in centrosym:
-                self.assertTrue(lat.iscentrosymmetric)
-            else:
-                self.assertFalse(lat.iscentrosymmetric)
 
 
 if __name__ == '__main__':

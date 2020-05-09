@@ -15,6 +15,7 @@
 #
 # Copyright (C) 2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import itertools
 import re
 import unittest
 
@@ -54,6 +55,26 @@ class TestMaterialsSymOp(unittest.TestCase):
         for lat, gp in zip(self.lats, self.gps):
             symopsxyz = map(lambda s: '({})'.format(s.xyz()), lat.symops)
             self.assertCountEqual(symopsxyz, gp)
+
+    def test_equivalent_hkl(self):
+        hkl = numpy.random.randint(-11, 12, 3)
+        for lat in self.lats:
+            ehkl = numpy.unique(numpy.einsum('...ij,j', lat._hklsym, hkl),
+                                axis=0)
+            ehkl = set(tuple(e) for e in ehkl)
+            self.assertEqual(lat.equivalent_hkls(hkl), ehkl)
+
+    def test_iscentrosymmetric(self):
+        centrosym = list(itertools.chain([2], range(10, 16), range(47, 75),
+                                         range(83, 89), range(123, 143),
+                                         [147, 148], range(162, 168),
+                                         [175, 176], range(191, 195),
+                                         range(200, 207), range(221, 231)))
+        for lat in self.lats:
+            if lat.space_group_nr in centrosym:
+                self.assertTrue(lat.iscentrosymmetric)
+            else:
+                self.assertFalse(lat.iscentrosymmetric)
 
     def test_Wyckoff_consistency(self):
         """
