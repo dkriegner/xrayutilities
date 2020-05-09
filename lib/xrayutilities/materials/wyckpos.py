@@ -15,6 +15,190 @@
 #
 # Copyright (C) 2018-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+__all__ = ["RangeDict", "eqhkl_default", "eqhkl_custom", "wp"]
+
+
+class RangeDict(dict):
+    def __getitem__(self, item):
+        if not isinstance(item, range):
+            for key in self:
+                if item in key:
+                    return self[key]
+            return super().__getitem__(item)
+        else:
+            return super().__getitem__(item)
+
+
+eqhkl_default = RangeDict({
+    range(1, 2): lambda h, k, l: ((h, k, l), ),
+    range(2, 3): lambda h, k, l: ((-h, -k, -l), (h, k, l)),
+    range(3, 6): lambda h, k, l: ((h, k, l), (-h, k, -l)),
+    range(6, 10): lambda h, k, l: ((h, -k, l), (h, k, l)),
+    range(10, 16):
+        lambda h, k, l: ((-h, -k, -l), (h, k, l), (-h, k, -l), (h, -k, l)),
+    range(16, 25):
+        lambda h, k, l: ((-h, -k, l), (h, k, l), (h, -k, -l), (-h, k, -l)),
+    range(25, 47):
+        lambda h, k, l: ((-h, -k, l), (h, -k, l), (h, k, l), (-h, k, l)),
+    range(47, 75):
+        lambda h, k, l: ((h, k, l), (-h, k, -l), (-h, -k, l), (-h, -k, -l),
+                         (h, -k, -l), (h, -k, l), (-h, k, l), (h, k, -l)),
+    range(75, 81):
+        lambda h, k, l: ((-h, -k, l), (k, -h, l), (h, k, l), (-k, h, l)),
+    range(81, 83):
+        lambda h, k, l: ((-h, -k, l), (-k, h, -l), (h, k, l), (k, -h, -l)),
+    range(83, 89):
+        lambda h, k, l: ((h, k, l), (k, -h, l), (-k, h, -l), (-h, -k, l),
+                         (-h, -k, -l), (-k, h, l), (k, -h, -l), (h, k, -l)),
+    range(89, 99):
+        lambda h, k, l: ((h, k, l), (-h, k, -l), (k, -h, l), (-k, -h, -l),
+                         (k, h, -l), (-h, -k, l), (h, -k, -l), (-k, h, l)),
+    range(99, 111):
+        lambda h, k, l: ((h, k, l), (k, -h, l), (k, h, l), (-h, -k, l),
+                         (h, -k, l), (-h, k, l), (-k, h, l), (-k, -h, l)),
+    range(115, 121):
+        lambda h, k, l: ((h, k, l), (-k, -h, -l), (-k, h, -l), (k, h, -l),
+                         (-h, -k, l), (h, -k, l), (-h, k, l), (k, -h, -l)),
+    (111, 112, 113, 114, 121, 122):
+        lambda h, k, l: ((h, k, l), (-h, k, -l), (-k, h, -l), (k, h, l),
+                         (-h, -k, l), (h, -k, -l), (k, -h, -l), (-k, -h, l)),
+    range(123, 143):
+        lambda h, k, l: ((h, k, l), (-h, k, -l), (k, -h, l), (-k, -h, -l),
+                         (k, h, -l), (-k, h, -l), (k, h, l), (-h, -k, l),
+                         (h, -k, -l), (-h, -k, -l), (h, -k, l), (-h, k, l),
+                         (-k, h, l), (k, -h, -l), (-k, -h, l), (h, k, -l)),
+    range(143, 147): lambda h, k, l: ((h, k, l), (k, -h-k, l), (-h-k, h, l)),
+    range(147, 149):
+        lambda h, k, l: ((h, k, l), (h+k, -h, -l), (k, -h-k, l),
+                         (-h, -k, -l), (-k, h+k, -l), (-h-k, h, l)),
+    (149, 151, 153):
+        lambda h, k, l: ((h, k, l), (k, -h-k, l), (-k, -h, -l),
+                         (-h, h+k, -l), (-h-k, h, l), (h+k, -k, -l)),
+    (150, 152, 154, 155):
+        lambda h, k, l: ((h, k, l), (k, -h-k, l), (-h-k, k, -l),
+                         (h, -h-k, -l), (k, h, -l), (-h-k, h, l)),
+    (157, 159):
+        lambda h, k, l: ((h, k, l), (k, -h-k, l), (k, h, l), (-h-k, k, l),
+                         (-h-k, h, l), (h, -h-k, l)),
+    (156, 158, 160, 161):
+        lambda h, k, l: ((h, k, l), (k, -h-k, l), (h+k, -k, l),
+                         (-h, h+k, l), (-h-k, h, l), (-k, -h, l)),
+    range(162, 164):
+        lambda h, k, l: ((h, k, l), (h+k, -h, -l), (k, -h-k, l),
+                         (-k, -h, -l), (k, h, l), (-h, h+k, -l), (-h, -k, -l),
+                         (-k, h+k, -l), (-h-k, k, l), (-h-k, h, l),
+                         (h+k, -k, -l), (h, -h-k, l)),
+    range(164, 168):
+        lambda h, k, l: ((h, k, l), (h+k, -h, -l), (k, -h-k, l),
+                         (-h-k, k, -l), (h, -h-k, -l), (h+k, -k, l),
+                         (k, h, -l), (-h, -k, -l), (-k, h+k, -l),
+                         (-h, h+k, l), (-h-k, h, l), (-k, -h, l)),
+    range(168, 174):
+        lambda h, k, l: ((h, k, l), (k, -h-k, l), (-k, h+k, l),
+                         (-h, -k, l), (-h-k, h, l), (h+k, -h, l)),
+    range(174, 175):
+        lambda h, k, l: ((h, k, l), (-h-k, h, -l), (k, -h-k, l),
+                         (k, -h-k, -l), (-h-k, h, l), (h, k, -l)),
+    range(175, 177):
+        lambda h, k, l: ((h, k, l), (h+k, -h, -l), (k, -h-k, l),
+                         (-h-k, h, -l), (h, k, -l), (-k, h+k, l),
+                         (-h, -k, l), (-h, -k, -l), (-k, h+k, -l),
+                         (k, -h-k, -l), (-h-k, h, l), (h+k, -h, l)),
+    range(177, 183):
+        lambda h, k, l: ((h, k, l), (k, -h-k, l), (-h-k, k, -l), (h, -h-k, -l),
+                         (-k, -h, -l), (k, h, -l), (-k, h+k, l), (-h, -k, l),
+                         (-h, h+k, -l), (-h-k, h, l), (h+k, -k, -l),
+                         (h+k, -h, l)),
+    range(183, 187):
+        lambda h, k, l: ((h, k, l), (k, -h-k, l), (h+k, -k, l), (k, h, l),
+                         (-k, h+k, l), (-h, -k, l), (-h, h+k, l), (-h-k, k, l),
+                         (-h-k, h, l), (-k, -h, l), (h, -h-k, l),
+                         (h+k, -h, l)),
+    range(187, 189):
+        lambda h, k, l: ((h, k, l), (-h-k, h, -l), (k, -h-k, l), (h+k, -k, l),
+                         (-k, -h, -l), (h+k, -k, -l), (-h, h+k, -l),
+                         (-h, h+k, l), (k, -h-k, -l), (-h-k, h, l),
+                         (-k, -h, l), (h, k, -l)),
+    range(189, 191):
+        lambda h, k, l: ((h, k, l), (-h-k, h, -l), (k, -h-k, l),
+                         (-h-k, k, -l), (h, -h-k, -l), (k, h, -l), (k, h, l),
+                         (-h-k, k, l), (k, -h-k, -l), (-h-k, h, l),
+                         (h, -h-k, l), (h, k, -l)),
+    range(191, 195):
+        lambda h, k, l: ((h, k, l), (h+k, -h, -l), (k, h, -l), (k, h, l),
+                         (-k, h+k, l), (-h, h+k, -l), (h+k, -k, -l),
+                         (h, -h-k, l), (-h-k, h, -l), (k, -h-k, l),
+                         (-k, -h, -l), (-h, -k, l), (-h, -k, -l), (-k, -h, l),
+                         (-h-k, k, -l), (h, -h-k, -l), (h+k, -k, l),
+                         (-h, h+k, l), (-k, h+k, -l), (-h-k, k, l), (h, k, -l),
+                         (h+k, -h, l), (k, -h-k, -l), (-h-k, h, l)),
+    range(195, 200):
+        lambda h, k, l: ((h, k, l), (-l, -h, k), (-h, k, -l), (k, -l, -h),
+                         (l, h, k), (-k, l, -h), (-k, -l, h), (-l, h, -k),
+                         (-h, -k, l), (h, -k, -l), (l, -h, -k), (k, l, h)),
+    range(200, 207):
+        lambda h, k, l: ((h, k, l), (k, -l, -h), (-l, -h, -k), (k, l, -h),
+                         (-l, h, k), (-l, h, -k), (l, h, -k), (l, -h, k),
+                         (k, -l, h), (-h, -k, l), (h, -k, -l), (-h, -k, -l),
+                         (h, -k, l), (-h, k, l), (l, -h, -k), (k, l, h),
+                         (l, h, k), (-k, -l, h), (-l, -h, k), (-k, l, -h),
+                         (h, k, -l), (-h, k, -l), (-k, l, h), (-k, -l, -h)),
+    range(207, 215):
+        lambda h, k, l: ((h, k, l), (k, -l, -h), (k, -h, l), (-l, -k, -h),
+                         (k, h, -l), (-l, h, -k), (-k, h, l), (-k, -h, -l),
+                         (-l, k, h), (-h, -k, l), (h, -k, -l), (h, l, -k),
+                         (-h, l, k), (-h, -l, -k), (l, -h, -k), (k, l, h),
+                         (l, h, k), (-k, -l, h), (-l, -h, k), (-k, l, -h),
+                         (h, -l, k), (-h, k, -l), (l, -k, h), (l, k, -h)),
+    range(215, 221):
+        lambda h, k, l: ((h, k, l), (h, -l, -k), (k, -l, -h), (-l, k, -h),
+                         (-l, h, -k), (k, h, l), (-h, -k, l), (h, -k, -l),
+                         (h, l, k), (-h, l, -k), (l, -h, -k), (-k, -h, l),
+                         (k, l, h), (-l, -k, h), (l, k, h), (l, h, k),
+                         (-k, -l, h), (-k, h, -l), (-l, -h, k), (k, -h, -l),
+                         (-k, l, -h), (l, -k, -h), (-h, k, -l), (-h, -l, k)),
+    range(221, 231):
+        lambda h, k, l: ((h, k, l), (h, -l, -k), (k, -l, -h), (-l, k, -h),
+                         (k, -h, l), (-l, -k, -h), (k, h, -l), (-l, -h, -k),
+                         (-l, h, k), (-l, h, -k), (k, l, -h), (k, h, l),
+                         (-k, h, l), (l, h, -k), (k, -l, h), (-k, -h, -l),
+                         (l, -h, k), (-l, k, h), (-h, -k, l), (h, -k, -l),
+                         (h, l, -k), (-h, l, k), (-h, -l, -k), (-h, -k, -l),
+                         (h, -k, l), (-h, k, l), (l, -h, -k), (-k, -h, l),
+                         (k, l, h), (-l, -k, h), (l, h, k), (-k, -l, h),
+                         (-k, h, -l), (l, k, h), (-h, l, -k), (h, l, k),
+                         (-l, -h, k), (k, -h, -l), (-k, l, -h), (l, -k, -h),
+                         (h, -l, k), (h, k, -l), (-h, k, -l), (-h, -l, k),
+                         (l, -k, h), (-k, l, h), (l, k, -h), (-k, -l, -h))
+})
+
+eqhkl_custom = RangeDict({
+    range(3, 6): lambda h, k, l: ((-h, -k, l), (h, k, l)),
+    range(6, 10): lambda h, k, l: ((h, k, l), (h, k, -l)),
+    range(10, 16):
+        lambda h, k, l: ((-h, -k, l), (-h, -k, -l), (h, k, l), (h, k, -l)),
+    (48, 50, 59, 68, 70): eqhkl_default[range(47, 75)],
+    (85, 86, 88): eqhkl_default[range(83, 89)],
+    (125, 126, 129, 130, 133, 134, 137, 138, 141, 142):
+        eqhkl_default[range(123, 143)],
+    range(146, 147): lambda h, k, l: ((h, k, l), (k, l, h), (l, h, k)),
+    range(148, 149):
+        lambda h, k, l: ((h, k, l), (-l, -h, -k), (l, h, k), (-k, -l, -h),
+                         (-h, -k, -l), (k, l, h)),
+    range(155, 156):
+        lambda h, k, l: ((h, k, l), (-l, -k, -h), (l, h, k), (-k, -h, -l),
+                         (-h, -l, -k), (k, l, h)),
+    range(160, 162):
+        lambda h, k, l: ((h, k, l), (l, k, h), (l, h, k), (k, h, l),
+                         (h, l, k), (k, l, h)),
+    range(166, 168):
+        lambda h, k, l: ((h, k, l), (-l, -k, -h), (l, h, k), (-k, -h, -l),
+                         (-l, -h, -k), (-k, -l, -h), (l, k, h), (k, h, l),
+                         (h, l, k), (-h, -k, -l), (-h, -l, -k), (k, l, h)),
+    (201, 203): eqhkl_default[range(200, 207)],
+    (222, 224, 227, 228): eqhkl_default[range(221, 231)]
+})
+
 wp = {'1': {'1a': (7, ('(x, y, z)', ), None)},
       '2': {'1a': (0, ('(0, 0, 0)', ), None),
             '1b': (0, ('(0, 0, 1/2)', ), None),

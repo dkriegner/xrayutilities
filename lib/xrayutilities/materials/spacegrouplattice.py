@@ -36,18 +36,7 @@ from .. import config, cxrayutilities, math, utilities
 from ..exception import InputError
 from . import elements
 from .atom import Atom
-from .wyckpos import wp
-
-
-class RangeDict(dict):
-    def __getitem__(self, item):
-        if type(item) != range:
-            for key in self:
-                if item in key:
-                    return self[key]
-        else:
-            return super().__getitem__(item)
-
+from .wyckpos import *
 
 # space group number to symmetry and number of parameters dictionary
 sgrp_sym = RangeDict({range(1, 3): ('triclinic', 6),
@@ -923,8 +912,17 @@ class SGLattice(object):
         """
         returns a list of equivalent hkl peaks depending on the crystal system
         """
-        ehkl = numpy.unique(numpy.einsum('...ij,j', self._hklsym, hkl), axis=0)
-        return set(tuple(e) for e in ehkl)
+        suf = self.space_group_suf
+        nr = self.space_group_nr
+        if suf == get_default_sgrp_suf(nr):
+            ehkl = set(eqhkl_default[nr](hkl[0], hkl[1], hkl[2]))
+        elif suf in get_possible_sgrp_suf(nr):
+            ehkl = set(eqhkl_custom[nr](hkl[0], hkl[1], hkl[2]))
+        else:  # fallback calculation with symmetry operations
+            ehkl = numpy.unique(numpy.einsum('...ij,j', self._hklsym, hkl),
+                                axis=0)
+            ehkl = set(tuple(e) for e in ehkl)
+        return ehkl
 
     def hkl_allowed(self, hkl, returnequivalents=False):
         """
@@ -993,8 +991,9 @@ class SGLattice(object):
         def recurse_hkl(h, k, l):
             if (h, k, l) in hkltested:
                 return
-            elif math.VecNorm(numpy.matmul(self.qtransform.matrix, (h, k, l),
-                                           q)) >= qmax:
+            m = self.qtransform.matrix
+            q = m[:, 0]*h + m[:, 1]*k + m[:, 2]*l  # efficient matmul
+            if sqrt(q[0]**2 + q[1]**2 + q[2]**2) >= qmax:
                 return
             else:
                 allowed, eqhkl = self.hkl_allowed((h, k, l),
