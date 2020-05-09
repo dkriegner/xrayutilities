@@ -1346,7 +1346,7 @@ class Experiment(object):
         sampleor :  {'det', 'sam', '[xyz][+-]'}, optional
             sample orientation specifies the orientation of the sample surface
             with respect to the coordinate system in which the goniometer
-            rotations are given. You can use the [xyz][+-] synthax to specify
+            rotations are given. You can use the [xyz][+-] syntax to specify
             the nominal surface orientation (when all goniometer angles are
             zero). In addition two special values 'det' and 'sam' are
             available, which will let the code determine the orientation from
@@ -1434,7 +1434,7 @@ class Experiment(object):
 
         The sampleor variable determines the sample surface orientation with
         respect to the coordinate system in which the goniometer rotations are
-        given. You can use the [xyz][+-] synthax to specify the nominal surface
+        given. You can use the [xyz][+-] syntax to specify the nominal surface
         orientation (when all goniometer angles are zero). In addition two
         special values 'det' and 'sam' are available, which will let the code
         determine the orientation from either the inner most detector or sample
