@@ -146,15 +146,16 @@ class Test_Materials_reflection_condition(unittest.TestCase):
             for h, k, l in zip(numpy.random.randint(hmi, hma, N),
                                numpy.random.randint(kmi, kma, N),
                                numpy.random.randint(lmi, lma, N)):
-                if numpy.linalg.norm(m.Q(h, k, l)) > qmax:
+                qnorm = numpy.linalg.norm(m.Q(h, k, l))
+                if qnorm > qmax or qnorm == 0:
                     continue
                 r = abs(m.StructureFactor(m.Q(h, k, l)))**2
-                # test that a peak with zero structure factor is indeed not
+                # test that a peak with non-zero structure factor is indeed
                 # allowed
                 # Note: the opposite test is not possible because of accidental
                 # extinctions
-                if numpy.isclose(r, 0):
-                    self.assertNotIn((h, k, l), hkls, msg=errorinfo)
+                if not numpy.isclose(r, 0):
+                    self.assertIn((h, k, l), hkls, msg=errorinfo)
 
 
 if __name__ == '__main__':
