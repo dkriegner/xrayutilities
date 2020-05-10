@@ -988,7 +988,7 @@ class SGLattice(object):
         hklset : set
          set of allowed hkl reflections
         """
-        def recurse_hkl(h, k, l):
+        def recurse_hkl(h, k, l, kstep):
             if (h, k, l) in hkltested:
                 return
             m = self.qtransform.matrix
@@ -999,20 +999,23 @@ class SGLattice(object):
                 allowed, eqhkl = self.hkl_allowed((h, k, l),
                                                   returnequivalents=True)
                 hkltested.update(eqhkl)
+                if not self.iscentrosymmetric:
+                    hkltested.update((-h, -k, -l) for (h, k, l) in eqhkl)
                 if allowed:
                     hklset.update(eqhkl)
                     if not self.iscentrosymmetric:
                         eqhkl = self.equivalent_hkls((-h, -k, -l))
                         hklset.update(eqhkl)
-                        hkltested.update(eqhkl)
-                recurse_hkl(h+1, k, l)
-                recurse_hkl(h, k+1, l)
-                recurse_hkl(h, k, l+1)
+                recurse_hkl(h+1, k, l, kstep)
+                recurse_hkl(h, k+kstep, l, kstep)
+                recurse_hkl(h, k, l+1, kstep)
+                recurse_hkl(h, k, l-1, kstep)
 
         hklset = set()
         hkltested = set()
         q = numpy.empty(3)
-        recurse_hkl(0, 0, 0)
+        recurse_hkl(0, 0, 0, +1)
+        recurse_hkl(1, -1, 0, -1)
         hklset.remove((0, 0, 0))
         return hklset
 
