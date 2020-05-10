@@ -2165,28 +2165,12 @@ class PowderDiffraction(PowderExperiment):
         r = self.settings['emission']['preferred_orientation_factor']
         mode = self.settings['global']['geometry']
         ai = self.settings['global']['geometry_incidence_angle']
-        ksinmax = self.k0 * sin(math.radians(tt_cutoff/2))
-        # calculate maximal Bragg indices
-        hma = int(math.ceil(mat.a / pi * ksinmax))
-        hmi = -hma
-        kma = int(math.ceil(mat.b / pi * ksinmax))
-        kmi = -kma
-        lma = int(math.ceil(mat.c / pi * ksinmax))
-        lmi = -lma
+        qmax = 2 * self.k0 * sin(math.radians(tt_cutoff/2))
 
-        if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.Powder.PowderIntensity: tt_cutoff; (hmax, kmax, lmax): "
-                  "%6.2f (%d,%d,%d)" % (tt_cutoff, hma, kma, lma))
-
-        # calculate structure factors
-        qmax = 2 * ksinmax
-        hkl = numpy.mgrid[hma:hmi-1:-1,
-                          kma:kmi-1:-1,
-                          lma:lmi-1:-1].reshape(3, -1).T
-
+        # get allowed Bragg peaks
+        hkl = tuple(mat.lattice.get_allowed_hkl(qmax))
         q = mat.Q(hkl)
         qnorm = numpy.linalg.norm(q, axis=1)
-        m = numpy.logical_and(qnorm > 0, qnorm <= qmax)
 
         # March-Dollase model for preferred orientation
         # see http://www.crl.nitech.ac.jp/ar/2013/0711_acrc_ar2013_review.pdf
@@ -2214,7 +2198,7 @@ class PowderDiffraction(PowderExperiment):
         if numpy.all(pref_or == (0, 0, 0)) or r == 1:
             f = 1
         else:
-            alpha = VecAngle(q[m], mat.Q(pref_or))
+            alpha = VecAngle(q, mat.Q(pref_or))
             if mode == 'symmetric':
                 f = ((r * ncos(alpha))**2 + nsin(alpha)**2/r)**(-3/2)
             elif mode == 'capillary':
@@ -2223,19 +2207,19 @@ class PowderDiffraction(PowderExperiment):
                 if not isinstance(ai, numbers.Number):
                     raise ValueError("'geometry_incidence_angle' must be a "
                                      "number")
-                th = self.Q2Ang(qnorm[m], deg=False)
+                th = self.Q2Ang(qnorm, deg=False)
                 f = fdsum(alpha, nabs(th-math.radians(ai)), r)
             else:
                 raise ValueError("xu.simpack.PowderDiffraction: invalid "
                                  "geometry mode (%s)" % mode)
 
         # assemble return value
-        data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
-                                                ('r', numpy.double),
-                                                ('hkl', numpy.ndarray)])
-        data['q'] = qnorm[m]
-        data['r'] = nabs(mat.StructureFactorForQ(q[m], self.energy)) ** 2 * f
-        data['hkl'] = list(hkl[m])
+        data = numpy.zeros(len(hkl), dtype=[('q', numpy.double),
+                                            ('r', numpy.double),
+                                            ('hkl', numpy.ndarray)])
+        data['q'] = qnorm
+        data['r'] = nabs(mat.StructureFactorForQ(q, self.energy)) ** 2 * f
+        data['hkl'] = hkl
 
         return data
 
