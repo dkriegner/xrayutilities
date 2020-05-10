@@ -204,7 +204,7 @@ setup(
     install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py', 'setuptools'],
     extras_require={
         'plot': ["matplotlib"],
-        'fit': ["lmfit"],
+        'fit': ["lmfit>=1.0.1"],
         'lzma': ["lzma"],
         },
     include_dirs=[numpy.get_include()],
