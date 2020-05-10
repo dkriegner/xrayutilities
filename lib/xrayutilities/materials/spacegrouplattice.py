@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module handling crystal lattice structures. A SGLattice consists of a space
 group number and the position of atoms specified as Wyckoff positions along
@@ -24,28 +24,19 @@ cell shape parameters.
 """
 
 import copy
+import fractions
 import numbers
+import re
 from collections import OrderedDict
 from math import cos, radians, sin, sqrt
 
 import numpy
 
-from .. import math, utilities
+from .. import config, cxrayutilities, math, utilities
 from ..exception import InputError
 from . import elements
 from .atom import Atom
-from .wyckpos import wp
-
-
-class RangeDict(dict):
-    def __getitem__(self, item):
-        if type(item) != range:
-            for key in self:
-                if item in key:
-                    return self[key]
-        else:
-            return super().__getitem__(item)
-
+from .wyckpos import *
 
 # space group number to symmetry and number of parameters dictionary
 sgrp_sym = RangeDict({range(1, 3): ('triclinic', 6),
@@ -145,6 +136,9 @@ sgrp_params = {'cubic:1': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
                               ('a', 'b', 'c', 90, 'beta', 90)),
                'triclinic': (('a', 'b', 'c', 'alpha', 'beta', 'gamma'),
                              ('a', 'b', 'c', 'alpha', 'beta', 'gamma'))}
+
+# regular expression for splitting multiple reflection conditions
+hklcond_group = re.compile(r'([-hkil0-9\(\)]+): ([-+hklnor1-8=\s,]+)(?:, |$)')
 
 
 def get_possible_sgrp_suf(sgrp_nr):
@@ -360,13 +354,131 @@ class WyckoffBase(list):
         raise ValueError("%s is not in list" % str(item))
 
 
+class SymOp(object):
+    """
+    Class descriping a symmetry operation in a crystal. The symmetry operation
+    is characterized by a 3x3 transformation matrix as well as a 3-vector
+    describing a translation. For magnetic symmetry operations also the time
+    reversal symmetry can be specified (not used in xrayutilities)
+    """
+
+    def __init__(self, D, t, m=1):
+        """
+        Initialize the symmetry operation
+
+        Parameters
+        ----------
+         D :    array-like
+            transformation matrix (3x3)
+         t :    array-like
+            translation vector (3)
+         m :    float, optional
+            +1 (default) or -1 to indicate time reversal in magnetic groups
+        """
+        self._W = numpy.zeros((4, 4))
+        self._W[:3, :3] = numpy.asarray(D)
+        self._W[:3, 3] = numpy.asarray(t)
+        self._W[3, 3] = 1
+        self._m = m
+
+    @classmethod
+    def from_xyz(cls, xyz):
+        """
+        create a SymOp from the xyz notation typically used in CIF files.
+
+        Parameters
+        ----------
+         xyz :   str
+            string describing the symmetry operation (e.g. '-y, -x, z')
+        """
+        D = numpy.zeros((3, 3))
+        t = numpy.array(eval(xyz, {'x': 0, 'y': 0, 'z': 0})[:3])
+        m = 1
+        for i, expr in enumerate(xyz.strip('()').split(',')):
+            if i == 3:  # time reversal property
+                m = int(expr)
+                continue
+            if 'x' in expr:
+                D[i, 0] = -1 if '-x' in expr else 1
+            if 'y' in expr:
+                D[i, 1] = -1 if '-y' in expr else 1
+            if 'z' in expr:
+                D[i, 2] = -1 if '-z' in expr else 1
+        return SymOp(D, t, m)
+
+    def xyz(self, showtimerev=False):
+        """
+        return the symmetry operation in xyz notation
+        """
+        ret = ''
+        t = self.t
+        for i in range(3):
+            expr = ''
+            if abs(self._W[i, 0]) == 1:
+                expr += '+x' if self._W[i, 0] == 1 else '-x'
+            if abs(self._W[i, 1]) == 1:
+                expr += '+y' if self._W[i, 1] == 1 else '-y'
+            if abs(self._W[i, 2]) == 1:
+                expr += '+z' if self._W[i, 2] == 1 else '-z'
+            if t[i] != 0:
+                expr += '+' if t[i] > 0 else ''
+                expr += str(fractions.Fraction(t[i]).limit_denominator(100))
+            expr = expr.strip('+')
+            ret += expr + ', '
+        if showtimerev:
+            ret += '{:+d}'.format(self._m)
+        return ret.strip(', ')
+
+    @property
+    def D(self):
+        """transformation matrix of the symmetry operation"""
+        return self._W[:3, :3]
+
+    @property
+    def t(self):
+        """translation vector of the symmetry operation"""
+        return self._W[:3, 3]
+
+    def __eq__(self, other):
+        if not isinstance(other, SymOp):
+            return NotImplemented
+        return self._m == other._m and numpy.all(self._W == other._W)
+
+    @staticmethod
+    def foldback(v):
+        return v - numpy.round(v, config.DIGITS) // 1
+
+    def apply_rotation(self, vec):
+        return self.D @ vec
+
+    def apply(self, vec, foldback=True):
+        lv = numpy.asarray(list(vec) + [1, ])
+        result = (self._W @ lv)[:3]
+        if foldback:
+            return self.foldback(result)
+        return result
+
+    def apply_axial(self, vec):
+        return self._m * numpy.linalg.det(self.D) * self.D @ vec
+
+    def combine(self, other):
+        if not isinstance(other, SymOp):
+            return NotImplemented
+        W = self._W @ other._W
+        return SymOp(W[:3, :3], self.foldback(W[:3, 3]), self._m*other._m)
+
+    def __str__(self):
+        return '({})'.format(self.xyz(showtimerev=True))
+
+    def __repr__(self):
+        return self.__str__()
+
+
 class SGLattice(object):
     """
     lattice object created from the space group number and corresponding unit
     cell parameters. atoms in the unit cell are specified by their Wyckoff
     position and their free parameters.
-
-    this replaces the deprecated Lattice class
     """
 
     def __init__(self, sgrp, *args, **kwargs):
@@ -455,6 +567,39 @@ class SGLattice(object):
         self._paramhelp = [cos(ra), cos(radians(beta)),
                            cos(radians(gamma)), sin(ra), 0]
         self._setlat()
+        # save general Wyckoff position
+        self._gplabel = sorted(wp[self.space_group],
+                               key=lambda s: int(s[:-1]))[-1]
+        self._gp = wp[self.space_group][self._gplabel]
+
+        # symmetry operations and reflection conditions placeholder
+        self._hklmat = []
+        self._symops = []
+        self._hklcond = []
+        self._hklcond_wp = []
+        self._iscentrosymmetric = None
+
+    @property
+    def symops(self):
+        """
+        return the set of symmetry operations from the general Wyckoff
+        position of the space group.
+        """
+        if self._symops == []:
+            for p in self._gp[1]:
+                self._symops.append(SymOp.from_xyz(p))
+        return self._symops
+
+    @property
+    def _hklsym(self):
+        if self._hklmat == []:
+            for s in self.symops:
+                self._hklmat.append(numpy.round(self.qtransform.imatrix @
+                                                self.transform.matrix @ s.D @
+                                                self.transform.imatrix @
+                                                self.qtransform.matrix,
+                                                config.DIGITS))
+        return self._hklmat
 
     def base(self):
         """
@@ -462,10 +607,10 @@ class SGLattice(object):
         """
         if not self._wbase:
             return
-        sgwp = wp[str(self.space_group)]
+        sgwp = wp[self.space_group]
         for (atom, w, occ, b) in self._wbase:
             x, y, z = None, None, None
-            parint, poslist = sgwp[w[0]]
+            parint, poslist, dummy = sgwp[w[0]]
             i = 0
             if parint & 1:
                 try:
@@ -501,9 +646,8 @@ class SGLattice(object):
 
             for p in poslist:
                 pos = eval(p, {'x': x, 'y': y, 'z': z})
-                pos = numpy.asarray(pos)
-                pos -= pos // 1
-                yield atom, numpy.asarray(pos), occ, b
+                pos = SymOp.foldback(pos)
+                yield atom, pos, occ, b
 
     def _setlat(self):
         a, b, c, alpha, beta, gamma = self._parameters.values()
@@ -734,122 +878,158 @@ class SGLattice(object):
                 if self._parameters[p] != key:
                     self.free_parameters[p] = self._parameters[p]
 
-    def isequivalent(self, hkl1, hkl2, equalq=False):
+    @property
+    def iscentrosymmetric(self):
         """
-        primitive way of determining if hkl1 and hkl2 are two
-        crystallographical equivalent pairs of Miller indices
+        returns a boolean to determine if the lattice has centrosymmetry.
+        """
+        if self._iscentrosymmetric is None:
+            self._iscentrosymmetric = False
+            for s in self.symops:
+                if numpy.all(-numpy.identity(3) == s.D):
+                    self._iscentrosymmetric = True
+                    break
+        return self._iscentrosymmetric
+
+    def isequivalent(self, hkl1, hkl2):
+        """
+        determining if hkl1 and hkl2 are two crystallographical equivalent
+        pairs of Miller indices. Note that this function considers the effect
+        of non-centrosymmetry!
 
         Parameters
         ----------
         hkl1, hkl2 :    list
             Miller indices to be checked for equivalence
-        equalq :        bool
-            If False the length of the two q-vactors will be compared. If True
-            it is assumed that the length of the q-vectors of hkl1 and hkl2 is
-            equal!
 
         Returns
         -------
         bool
         """
-        def leftShift(tup, n):
-            try:
-                n = n % len(tup)
-            except ZeroDivisionError:
-                return tuple()
-            return tup[n:] + tup[0:n]
+        return tuple(hkl2) in self.equivalent_hkls(hkl1)
 
-        def ispermutation(t1, t2):
-            """returns true if t2 is an even permutation of t1"""
-            if t1 == t2 or t1 == leftShift(t2, 1) or t1 == leftShift(t2, 2):
-                return True
+    def equivalent_hkls(self, hkl):
+        """
+        returns a list of equivalent hkl peaks depending on the crystal system
+        """
+        suf = self.space_group_suf
+        nr = self.space_group_nr
+        if suf == get_default_sgrp_suf(nr):
+            ehkl = set(eqhkl_default[nr](hkl[0], hkl[1], hkl[2]))
+        elif suf in get_possible_sgrp_suf(nr):
+            ehkl = set(eqhkl_custom[nr](hkl[0], hkl[1], hkl[2]))
+        else:  # fallback calculation with symmetry operations
+            ehkl = numpy.unique(numpy.einsum('...ij,j', self._hklsym, hkl),
+                                axis=0)
+            ehkl = set(tuple(e) for e in ehkl)
+        return ehkl
+
+    def hkl_allowed(self, hkl, returnequivalents=False):
+        """
+        check if Bragg reflection with Miller indices hkl can exist according
+        to the reflection conditions. If no reflection conditions are available
+        this function returns True for all hkl values!
+
+        Parameters
+        ----------
+        hkl : tuple or list
+         Miller indices of the reflection to check
+        returnequivalents : bool, optional
+         If True all the equivalent Miller indices of hkl are returned in a
+         set as second return argument.
+
+        Returns
+        -------
+        allowed : bool
+         True if reflection can have non-zero structure factor, false otherwise
+        equivalents : set, optional
+         set of equivalent Miller indices if returnequivalents is True
+        """
+        # generate all equivalent hkl values which also need to be checked:
+        hkls = self.equivalent_hkls(hkl)
+
+        def build_return(allowed, requi=returnequivalents):
+            if requi:
+                return allowed, hkls
             else:
-                return False
+                return allowed
 
-        def checkequal(hkl1, hkl2):
-            if self.crystal_system.startswith('cubic'):
-                if self.space_group_nr < 207:
-                    if ispermutation(tuple(numpy.abs(hkl1)),
-                                     tuple(numpy.abs(hkl2))):
-                        return True
-                    else:
-                        return False
+        # load reflection conditions if needed
+        if self._gp[2] == 'n/a':
+            return build_return(True)
+        if self._hklcond == [] and self._gp[2] is not None:
+            self._hklcond = hklcond_group.findall(self._gp[2])
+        if self._hklcond_wp == []:
+            for lab in set([e[1][0] for e in self._wbase]):
+                if lab == self._gplabel:  # if gen. pos. is occupied skip it
+                    self._hklcond_wp.append(None)
+                elif wp[self.space_group][lab][2] is None:
+                    self._hklcond_wp.append(None)
                 else:
-                    khl1 = (hkl1[1], hkl1[0], hkl1[2])
-                    if (ispermutation(tuple(numpy.abs(hkl1)),
-                                      tuple(numpy.abs(hkl2))) or
-                        ispermutation(tuple(numpy.abs(khl1)),
-                                      tuple(numpy.abs(hkl2)))):
-                        return True
-                    else:
-                        return False
-            elif self.crystal_system.startswith('hexagonal'):
-                hki1 = (hkl1[0], hkl1[1], -hkl1[0] - hkl1[1])
-                hki2 = (hkl2[0], hkl2[1], -hkl2[0] - hkl2[1])
-                if (abs(hkl1[2]) == abs(hkl2[2]) and
-                        sum(numpy.abs(hki1)) == sum(numpy.abs(hki2))):
-                    return True
-                else:
-                    return False
-            elif self.crystal_system.startswith('trigonal:R'):
-                khl1 = (hkl1[1], hkl1[0], hkl1[2])
-                if (ispermutation(hkl1, hkl2) or ispermutation(khl1, hkl2)):
-                    return True
-                else:
-                    return False
-            elif self.crystal_system.startswith('trigonal'):
-                hki1 = (hkl1[0], hkl1[1], -hkl1[0] - hkl1[1])
-                hki2 = (hkl2[0], hkl2[1], -hkl2[0] - hkl2[1])
-                khi2 = (hkl2[1], hkl2[0], -hkl2[0] - hkl2[1])
-                if ((hkl1[2] == hkl2[2] and ispermutation(hki1, hki2)) or
-                        (hkl1[2] == -hkl2[2] and ispermutation(hki1, khi2))):
-                    return True
-                else:
-                    return False
-            elif self.crystal_system.startswith('tetragonal'):
-                # this neglects that in some tetragonal materials hkl = khl
-                hk1 = hkl1[:2]
-                hk2 = hkl2[:2]
-                if (abs(hkl1[2]) == abs(hkl2[2]) and
-                        (hk1 == hk2 or hk1 == (-hk2[1], hk2[0]) or
-                         hk1 == (-hk2[0], -hk2[1]) or
-                         hk1 == (hk2[1], -hk2[0]))):
-                    return True
-                else:
-                    return False
-            elif self.crystal_system.startswith('orthorhombic'):
-                if numpy.all(numpy.abs(hkl1) == numpy.abs(hkl2)):
-                    return True
-                else:
-                    return False
-            elif self.crystal_system.startswith('monoclinic:c'):
-                hk1 = (hkl1[0], hkl1[1])
-                hk2 = (hkl2[0], hkl2[1])
-                if (abs(hkl1[2]) == abs(hkl2[2]) and
-                        (hk1 == hk2 or hk1 == (-hk2[0], -hk2[1]))):
-                    return True
-                else:
-                    return False
-            elif self.crystal_system.startswith('monoclinic'):
-                hl1 = (hkl1[0], hkl1[2])
-                hl2 = (hkl2[0], hkl2[2])
-                if (abs(hkl1[1]) == abs(hkl2[1]) and
-                        (hl1 == hl2 or hl1 == (-hl2[0], -hl2[1]))):
-                    return True
-                else:
-                    return False
-            elif self.crystal_system.startswith('triclinic'):
-                if (hkl1[0] == -hkl2[0] and hkl1[1] == -hkl2[1] and
-                        hkl1[2] == -hkl2[2]):
-                    return True
-                else:
-                    return False
+                    self._hklcond_wp.append(hklcond_group.findall(
+                        wp[self.space_group][lab][2]))
 
-        if not equalq:
-            if not numpy.isclose(math.VecNorm(self.GetQ(hkl1)),
-                                 math.VecNorm(self.GetQ(hkl2))):
-                return False
-        return checkequal(tuple(hkl1), tuple(hkl2))
+        # call C-code to (efficiently) test the conditions
+        ret = cxrayutilities.testhklcond(hkls, self._hklcond, self._hklcond_wp)
+        return build_return(ret)
+
+    def get_allowed_hkl(self, qmax):
+        """
+        return a set of all allowed reflections up to a maximal specified
+        momentum transfer.
+
+        Parameters
+        ----------
+        qmax : float
+         maximal momentum transfer
+
+        Returns
+        -------
+        hklset : set
+         set of allowed hkl reflections
+        """
+        def recurse_hkl(h, k, l, kstep):
+            if (h, k, l) in hkltested:
+                return
+            m = self.qtransform.matrix
+            q = m[:, 0]*h + m[:, 1]*k + m[:, 2]*l  # efficient matmul
+            if sqrt(q[0]**2 + q[1]**2 + q[2]**2) >= qmax:
+                return
+            else:
+                allowed, eqhkl = self.hkl_allowed((h, k, l),
+                                                  returnequivalents=True)
+                hkltested.update(eqhkl)
+                if not self.iscentrosymmetric:
+                    hkltested.update((-h, -k, -l) for (h, k, l) in eqhkl)
+                if allowed:
+                    hklset.update(eqhkl)
+                    if not self.iscentrosymmetric:
+                        eqhkl = self.equivalent_hkls((-h, -k, -l))
+                        hklset.update(eqhkl)
+                recurse_hkl(h+1, k, l, kstep)
+                recurse_hkl(h, k+kstep, l, kstep)
+                recurse_hkl(h, k, l+1, kstep)
+                recurse_hkl(h, k, l-1, kstep)
+
+        hklset = set()
+        hkltested = set()
+        q = numpy.empty(3)
+        recurse_hkl(0, 0, 0, +1)
+        recurse_hkl(1, -1, 0, -1)
+        hklset.remove((0, 0, 0))
+        return hklset
+
+    def reflection_conditions(self):
+        """
+        return string of reflection conditions, both general (from space group)
+        and of Wyckoff positions
+        """
+        ostr = "Reflection conditions:\n"
+        ostr += " general: %s\n" % str(self._gp[2])
+        for wplabel in set([e[1][0] for e in self._wbase]):
+            ostr += "%8s: %s \n" % (wplabel,
+                                    str(wp[self.space_group][wplabel][2]))
+        return ostr
 
     def __str__(self):
         ostr = "{sg} {cs} {n}: a = {a:.4f}, b = {b:.4f} c= {c:.4f}\n" +\
@@ -859,34 +1039,29 @@ class SGLattice(object):
         if self._wbase:
             ostr += "Lattice base:\n"
             ostr += str(self._wbase)
+        ostr += self.reflection_conditions()
         return ostr
 
-    @classmethod
-    def convert_to_P1(cls, sglat):
+    def convert_to_P1(self):
         """
-        create a P1 equivalent of the given SGLattice instance.
-
-        Parameters
-        ----------
-        sglat :   SGLattice
-            space group lattice instance to be converted to P1.
+        create a P1 equivalent of this SGLattice instance.
 
         Returns
         -------
         SGLattice
-            instance with the same properties as sglat, however in the P1
-            setting.
+            instance with the same properties as the present lattice, however,
+            in the P1 setting.
         """
-        a, b, c, alpha, beta, gamma = (sglat.a, sglat.b, sglat.c, sglat.alpha,
-                                       sglat.beta, sglat.gamma)
+        a, b, c, alpha, beta, gamma = (self.a, self.b, self.c, self.alpha,
+                                       self.beta, self.gamma)
         atoms = []
         pos = []
         occ = []
         biso = []
-        for at, p, o, bf in sglat.base():
+        for at, p, o, bf in self.base():
             atoms.append(at)
             pos.append(('1a', p))
             occ.append(o)
             biso.append(bf)
-        return cls(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
-                   occ=occ, b=biso)
+        return type(self)(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
+                          occ=occ, b=biso)

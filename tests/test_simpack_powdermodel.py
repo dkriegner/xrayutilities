@@ -20,7 +20,6 @@ import unittest
 from multiprocessing import freeze_support
 
 import numpy
-
 import xrayutilities as xu
 
 try:

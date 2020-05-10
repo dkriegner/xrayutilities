@@ -23,13 +23,12 @@ import sys
 import tempfile
 from distutils.command.build_py import build_py
 from distutils.command.install import INSTALL_SCHEMES
-from distutils.errors import DistutilsArgError, CompileError
+from distutils.errors import CompileError, DistutilsArgError
 from distutils.fancy_getopt import FancyGetopt
 
 import numpy
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
-
 
 cliopts = []
 cliopts.append(("without-openmp", None, "build without OpenMP support"))
@@ -205,7 +204,7 @@ setup(
     install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py', 'setuptools'],
     extras_require={
         'plot': ["matplotlib"],
-        'fit': ["lmfit"],
+        'fit': ["lmfit>=1.0.1"],
         'lzma': ["lzma"],
         },
     include_dirs=[numpy.get_include()],

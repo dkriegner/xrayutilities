@@ -1,3 +1,10 @@
+* remove deprecated fit_xrr function
+* SGLattice.get_allowed_hkl function
+* make SGLattice.convert_to_P1 a normal method
+* SGLattice improvements: add symmetry operations, equivalent_hkls,
+  reflection_conditions, and allowed_hkl functionality
+* fix SGLattice.isequivalent function to work for non-centrosymmetric
+  materials
 * implementation of the March-Dollase model for preferred orientation in
   PowderDiffraction
 * Mayavi based visualization of unit cells: Crystal.show_unitcell

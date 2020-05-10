@@ -45,8 +45,10 @@ def show_reciprocal_space_plane(
         maximal 2Theta angle to consider, by default 180deg
     maxqout:    float, optional
         maximal out of plane q for plotted Bragg peaks as fraction of exp.k0
-    scalef:     float, optional
-        scale factor for the marker size
+    scalef:     float, or callable, optional
+        scale factor or function for the marker size. If this is a function it
+        should take only one float argument and return another float which is
+        used as 's' parameter in matplotlib.pyplot.scatter
     ax:         matplotlib.Axes, optional
         matplotlib Axes to use for the plot, useful if multiple materials
         should be plotted in one plot
@@ -86,36 +88,23 @@ def show_reciprocal_space_plane(
             data array with columns for 'q', 'qvec', 'hkl', 'r' for the Bragg
             peaks
         """
-        # calculate maximal Bragg indices
-        hma = int(math.ceil(VecNorm(mat.a1) * exp.k0 / pi *
-                            math.sin(math.radians(ttmax / 2.))))
-        hmi = -hma
-        kma = int(math.ceil(VecNorm(mat.a2) * exp.k0 / pi *
-                            math.sin(math.radians(ttmax / 2.))))
-        kmi = -kma
-        lma = int(math.ceil(VecNorm(mat.a3) * exp.k0 / pi *
-                            math.sin(math.radians(ttmax / 2.))))
-        lmi = -lma
-
-        # calculate structure factors
         qmax = 2 * exp.k0 * math.sin(math.radians(ttmax/2.))
-        hkl = numpy.mgrid[hma:hmi-1:-1,
-                          kma:kmi-1:-1,
-                          lma:lmi-1:-1].reshape(3, -1).T
-        q = mat.Q(hkl)
-        qnorm = VecNorm(q)
-        m = qnorm < qmax
+        hkls = tuple(mat.lattice.get_allowed_hkl(qmax))
 
-        data = numpy.zeros(numpy.sum(m), dtype=[('q', numpy.double),
-                                                ('qvec', numpy.ndarray),
-                                                ('r', numpy.double),
-                                                ('hkl', numpy.ndarray)])
-        data['q'] = qnorm[m]
-        data['qvec'] = list(exp.Transform(q[m]))
+        q = mat.Q(hkls)
+        data = numpy.zeros(len(hkls), dtype=[('qx', numpy.double),
+                                             ('qy', numpy.double),
+                                             ('qz', numpy.double),
+                                             ('r', numpy.double),
+                                             ('hkl', numpy.ndarray)])
+        qvec = exp.Transform(q)
+        data['qx'] = qvec[:, 0]
+        data['qy'] = qvec[:, 1]
+        data['qz'] = qvec[:, 2]
         rref = abs(mat.StructureFactor((0, 0, 0), exp.energy)) ** 2
-        data['r'] = numpy.abs(mat.StructureFactorForQ(q[m], exp.energy)) ** 2
+        data['r'] = numpy.abs(mat.StructureFactorForQ(q, exp.energy)) ** 2
         data['r'] /= rref
-        data['hkl'] = list(hkl[m])
+        data['hkl'] = hkls
 
         return data
 
@@ -165,22 +154,20 @@ def show_reciprocal_space_plane(
         plt.hlines(0, -2*k0, 2*k0, color='0.5', lw=0.5)
         plt.vlines(0, -2*k0, 2*k0, color='0.5', lw=0.5)
 
-    # generate mask for plotting
-    m = numpy.zeros_like(d, dtype=numpy.bool)
-    for i, (q, r) in enumerate(zip(d['qvec'], d['r'])):
-        if (abs(q[0]) < maxqout*k0 and r > config.EPSILON):
-            m[i] = True
+    # mask for plotting
+    m = numpy.abs(d['qx']) < maxqout*k0
 
-    x = numpy.empty_like(d['r'][m])
-    y = numpy.empty_like(d['r'][m])
+    if projection == 'perpendicular':
+        x = d['qy'][m]
+    else:
+        x = numpy.sign(d['qy'][m])*numpy.sqrt(d['qx'][m]**2 + d['qy'][m]**2)
+    y = d['qz'][m]
     s = numpy.empty_like(d['r'][m])
-    for i, (qv, r) in enumerate(zip(d['qvec'][m], d['r'][m])):
-        if projection == 'perpendicular':
-            x[i] = qv[1]
-        else:
-            x[i] = numpy.sign(qv[1])*numpy.sqrt(qv[0]**2 + qv[1]**2)
-        y[i] = qv[2]
-        s[i] = r*scalef
+    if callable(scalef):
+        s[...] = [scalef(r) for r in d['r'][m]]
+    else:
+        s = d['r'][m]*scalef
+
     label = label if label else mat.name
     h = plt.scatter(x, y, s=s, zorder=2, label=label)
     if color:
@@ -229,8 +216,9 @@ def show_reciprocal_space_plane(
             if cont:
                 popts = numpy.get_printoptions()
                 numpy.set_printoptions(precision=4, suppress=True)
-                angles = exp.Q2Ang(d['qvec'][m][ind['ind'][0]], trans=False,
-                                   geometry='real')
+                q = (d['qx'][m][ind['ind'][0]], d['qy'][m][ind['ind'][0]],
+                     d['qz'][m][ind['ind'][0]])
+                angles = exp.Q2Ang(q, trans=False, geometry='real')
                 text = "{}\nhkl: {}\nangles: {}".format(
                     mat.name, str(d['hkl'][m][ind['ind'][0]]), str(angles))
                 numpy.set_printoptions(**popts)

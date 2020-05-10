@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -26,7 +26,17 @@ class Transform(object):
 
     def __init__(self, matrix):
         self.matrix = matrix
-        self.imatrix = None
+        self._imatrix = None
+
+    @property
+    def imatrix(self):
+        if self._imatrix is None:
+            try:
+                self._imatrix = numpy.linalg.inv(self.matrix)
+            except numpy.linalg.LinAlgError:
+                raise Exception("XU.math.Transform: matrix cannot be inverted"
+                                " - seems to be singular")
+        return self._imatrix
 
     def inverse(self, args, rank=1):
         """
@@ -41,13 +51,6 @@ class Transform(object):
         rank :      int
             rank of the supplied object. allowed values are 1, 2, and 4
         """
-        if self.imatrix is None:
-            try:
-                self.imatrix = numpy.linalg.inv(self.matrix)
-            except numpy.linalg.LinAlgError:
-                raise Exception("XU.math.Transform: matrix cannot be inverted"
-                                " - seems to be singular")
-
         it = Transform(self.imatrix)
         return it(args, rank)
 

@@ -46,7 +46,6 @@ InP.show_unitcell()
 
 # for some purposes it might be necessary to convert the SGLattice to space
 # group P1
-InP_p1 = xu.materials.Crystal(
-    "InP (P1)", xu.materials.SGLattice.convert_to_P1(InP.lattice))
+InP_p1 = xu.materials.Crystal("InP (P1)", InP.lattice.convert_to_P1())
 
 print(InP_p1)

@@ -21,7 +21,6 @@ import sys
 import tempfile
 import unittest
 
-
 scriptdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
                          'examples')
 scriptfiles = [

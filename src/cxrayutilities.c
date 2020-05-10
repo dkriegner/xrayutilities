@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2013-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
  * Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
  *
 */
@@ -56,6 +56,9 @@ extern PyObject* ang2q_detpos_area(PyObject *self, PyObject *args);
 
 /* functions from file_io.c */
 extern PyObject* cbfread(PyObject *self, PyObject *args);
+
+/* functions from hklcond.c */
+extern PyObject* testhklcond(PyObject *self, PyObject *args);
 
 static PyMethodDef XRU_Methods[] = {
     {"block_average1d", (PyCFunction)block_average1d, METH_VARARGS,
@@ -485,6 +488,18 @@ static PyMethodDef XRU_Methods[] = {
      " Returns\n"
      " -------\n"
      "  the parsed data values as float ndarray\n"
+    },
+    {"testhklcond", testhklcond, METH_VARARGS,
+     "test if a Bragg peak is allowed according to reflection conditions\n\n"
+     " Parameters\n"
+     " ----------\n"
+     "  hkl :           Miller indices of the peak to test (integer array)\n"
+     "  condgeneral :   General reflection conditions (list of tuples)\n"
+     "  condwp :        Reflection conditions for Wyckoff positions\n"
+     "                  (list of list of tuples)\n\n"
+     " Returns\n"
+     " -------\n"
+     " bool : True if peak is allowed, False otherwise\n"
     },
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };

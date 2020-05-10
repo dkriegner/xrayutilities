@@ -316,7 +316,7 @@ class PowderModel(object):
         weight[numpy.isinf(weight)] = 1
         self.minimizer = lmfit.Minimizer(residual, params,
                                          fcn_args=(twotheta, data, weight))
-        fitres = self.minimizer.minimize(maxfev=maxfev)
+        fitres = self.minimizer.minimize(max_nfev=maxfev)
         self.set_lmfit_parameters(fitres.params)
         return fitres
 

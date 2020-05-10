@@ -21,7 +21,6 @@ import unittest
 
 import h5py
 import numpy
-
 import xrayutilities as xu
 
 testfile = 'esrf.edf.gz'

@@ -13,15 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import math
 import unittest
 
 import numpy
-from numpy import arccos, cos, radians, sin, sqrt
-
 import xrayutilities as xu
+from numpy import arccos, cos, radians, sin, sqrt
 
 
 class TestMaterialsTransform(unittest.TestCase):
@@ -113,14 +112,13 @@ class TestMaterialsTransform(unittest.TestCase):
         self.assertAlmostEqual(e[0][2], 2.0)
 
     def test_isequivalent(self):
-
         hkl1 = (1, 2, 3)
         materials = ['C', 'C_HOPG', 'TiO2', 'GeTe', 'Ag2Se']
         hkl2lst = [((2, 1, -3), (2, 2, 3)),
                    ((1, -3, 3), (1, -2, 3)),
                    ((-2, 1, 3), (3, 2, 1)),
                    ((1, 3, 2), (1, 3, -2)),
-                   ((1, 2, -3), (1, 3, 2))]
+                   ((1, -2, -3), (1, 3, 2))]
         for mname, hkl2s in zip(materials, hkl2lst):
             mat = getattr(xu.materials, mname)
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))

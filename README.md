@@ -91,7 +91,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 - scipy (version >= 0.13.0)
 - numpy (version >= 1.9)
 - setuptools (to provide the pkg_resources module)
-- lmfit (optional)
+- lmfit (>= 1.0.1, optional)
 - matplotlib (optional)
 - mayavi (optional, only used optionally in Crystal.show_unitcell)
 
