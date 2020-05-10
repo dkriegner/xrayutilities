@@ -122,6 +122,40 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                 self._test_material(xu.materials.Crystal("SG%s" % sg, lat),
                                     test_allowed=True)
 
+    def test_get_allowed_hkl(self):
+        """
+        use some random hkls to test the get_allowed_hkl function. The internal
+        methods used by this function is also tested more thoroughly by other
+        unit tests.
+        """
+        qmax = 2 * self.ksinmax
+        N = 5
+        for m in self.materials:
+            if 'n/a' in m.lattice.reflection_conditions():
+                continue
+            hkls = m.lattice.get_allowed_hkl(qmax)
+            hma = int(math.ceil(m.a / math.pi * self.ksinmax))
+            hmi = -hma
+            kma = int(math.ceil(m.b / math.pi * self.ksinmax))
+            kmi = -kma
+            lma = int(math.ceil(m.c / math.pi * self.ksinmax))
+            lmi = -lma
+            errorinfo = str(m)
+            errorinfo += "HKL min/max: %d %d %d / %d %d %d" % (hmi, kmi, lmi,
+                                                               hma, kma, lma)
+            for h, k, l in zip(numpy.random.randint(hmi, hma, N),
+                               numpy.random.randint(kmi, kma, N),
+                               numpy.random.randint(lmi, lma, N)):
+                if numpy.linalg.norm(m.Q(h, k, l)) > qmax:
+                    continue
+                r = abs(m.StructureFactor(m.Q(h, k, l)))**2
+                # test that a peak with zero structure factor is indeed not
+                # allowed
+                # Note: the opposite test is not possible because of accidental
+                # extinctions
+                if numpy.isclose(r, 0):
+                    self.assertNotIn((h, k, l), hkls, msg=errorinfo)
+
 
 if __name__ == '__main__':
     unittest.main()
