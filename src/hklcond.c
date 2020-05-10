@@ -322,7 +322,9 @@ int reflection_condition_met(long *hkl, char *cond) {
                 checkfunc = &check8np7;
             }
             else {
-                PyErr_SetString(PyExc_RuntimeError, sprintf("Right hand side of reflection condition (%s) not implemented", rexpr));
+		char errorstring[100];
+		sprintf(errorstring, "Right hand side of reflection condition (%s) not implemented", rexpr);
+                PyErr_SetString(PyExc_RuntimeError, errorstring);
 		return -1;
             }
             /* split left expression at ',' */
