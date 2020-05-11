@@ -76,11 +76,3 @@ unsigned int gindex(double x, double min, double d)
 {
     return (unsigned int) rint((x - min) / d);
 }
-
-/*---------------------------------------------------------------------------*/
-#ifdef _WIN32
-double rint(double x)
-{
-    return x < 0.0 ? ceil(x - 0.5) : floor(x + 0.5);
-}
-#endif
