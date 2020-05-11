@@ -57,7 +57,7 @@ char *multi_tok(char *haystack, multi_tok_t *string, char *needle) {
 multi_tok_t mtinit() { return NULL; }
 
 int check2n(long h) {
-    if(abs(fmod(h, 2)) < 0.1) {
+    if(h % 2 == 0) {
         return 1;
     } else {
         return 0;
@@ -65,7 +65,7 @@ int check2n(long h) {
 }
 
 int check2np1(long h) {
-    if(abs(fmod(h-1, 2)) < 0.1) {
+    if((h-1) % 2 == 0) {
         return 1;
     } else {
         return 0;
@@ -73,7 +73,7 @@ int check2np1(long h) {
 }
 
 int check3n(long h) {
-    if(abs(fmod(h, 3)) < 0.1) {
+    if(h % 3 == 0) {
         return 1;
     } else {
         return 0;
@@ -81,7 +81,7 @@ int check3n(long h) {
 }
 
 int check3np1(long h) {
-    if(abs(fmod(h-1, 3)) < 0.1) {
+    if((h-1) % 3 == 0) {
         return 1;
     } else {
         return 0;
@@ -89,7 +89,7 @@ int check3np1(long h) {
 }
 
 int check3np2(long h) {
-    if(abs(fmod(h-2, 3)) < 0.1) {
+    if((h-2) % 3 == 0) {
         return 1;
     } else {
         return 0;
@@ -97,7 +97,7 @@ int check3np2(long h) {
 }
 
 int check4n(long h) {
-    if(abs(fmod(h, 4)) < 0.1) {
+    if(h % 4 == 0) {
         return 1;
     } else {
         return 0;
@@ -105,7 +105,7 @@ int check4n(long h) {
 }
 
 int check4np2(long h) {
-    if(abs(fmod(h-2, 4)) < 0.1) {
+    if((h-2) % 4 == 0) {
         return 1;
     } else {
         return 0;
@@ -113,7 +113,7 @@ int check4np2(long h) {
 }
 
 int check6n(long h) {
-    if(abs(fmod(h, 6)) < 0.1) {
+    if(h % 6 == 0) {
         return 1;
     } else {
         return 0;
@@ -121,7 +121,7 @@ int check6n(long h) {
 }
 
 int check8n(long h) {
-    if(abs(fmod(h, 8)) < 0.1) {
+    if(h % 8 == 0) {
         return 1;
     } else {
         return 0;
@@ -129,7 +129,7 @@ int check8n(long h) {
 }
 
 int check8np1(long h) {
-    if(abs(fmod(h-1, 8)) < 0.1) {
+    if((h-1) % 8 == 0) {
         return 1;
     } else {
         return 0;
@@ -137,7 +137,7 @@ int check8np1(long h) {
 }
 
 int check8nm1(long h) {
-    if(abs(fmod(h+1, 8)) < 0.1) {
+    if((h+1) % 8 == 0) {
         return 1;
     } else {
         return 0;
@@ -145,7 +145,7 @@ int check8nm1(long h) {
 }
 
 int check8np3(long h) {
-    if(abs(fmod(h-3, 8)) < 0.1) {
+    if((h-3) % 8 == 0) {
         return 1;
     } else {
         return 0;
@@ -153,7 +153,7 @@ int check8np3(long h) {
 }
 
 int check8nm3(long h) {
-    if(abs(fmod(h+3, 8)) < 0.1) {
+    if((h+3) % 8 == 0) {
         return 1;
     } else {
         return 0;
@@ -161,7 +161,7 @@ int check8nm3(long h) {
 }
 
 int check8np4(long h) {
-    if(abs(fmod(h-4, 8)) < 0.1) {
+    if((h-4) % 8 == 0) {
         return 1;
     } else {
         return 0;
@@ -169,7 +169,7 @@ int check8np4(long h) {
 }
 
 int check8np5(long h) {
-    if(abs(fmod(h-5, 8)) < 0.1) {
+    if((h-5) % 8 == 0) {
         return 1;
     } else {
         return 0;
@@ -177,14 +177,14 @@ int check8np5(long h) {
 }
 
 int check8np7(long h) {
-    if(abs(fmod(h-7, 8)) < 0.1) {
+    if((h-7) % 8 == 0) {
         return 1;
     } else {
         return 0;
     }
 }
 
-int hklpattern_applies(long *hkl, char *condhkl) {
+int hklpattern_applies(long *hkl, const char *condhkl) {
     /*
      * helper function to determine if Miller indices fit a certain pattern
      *
@@ -231,7 +231,7 @@ int hklpattern_applies(long *hkl, char *condhkl) {
     return 1;
 }
 
-int reflection_condition_met(long *hkl, char *cond) {
+int reflection_condition_met(long *hkl, const char *cond) {
     /*
      * helper function to determine allowed Miller indices
      *
@@ -253,7 +253,8 @@ int reflection_condition_met(long *hkl, char *cond) {
     char *tsubcond, *texpr, *lexpr, *rexpr, *l;
     multi_tok_t ssubcond=mtinit(), sexpr=mtinit();
     fp_check checkfunc;
-    char input[strlen(cond)]; /* string buffer to avoid changing the argument */
+    /* string buffer to avoid changing the argument */
+    char *input = malloc((strlen(cond)+1) * sizeof(char));
 
     strcpy(input, cond);
 
@@ -325,6 +326,7 @@ int reflection_condition_met(long *hkl, char *cond) {
 		char errorstring[100];
 		sprintf(errorstring, "Right hand side of reflection condition (%s) not implemented", rexpr);
                 PyErr_SetString(PyExc_RuntimeError, errorstring);
+		free(input);
 		return -1;
             }
             /* split left expression at ',' */
@@ -383,11 +385,12 @@ int reflection_condition_met(long *hkl, char *cond) {
             texpr = multi_tok(NULL, &sexpr, commaspace);
         }
         if(fulfilled == 1) {
+	    free(input);
             return 1;
         }
         tsubcond = multi_tok(NULL, &ssubcond, or);
     }
-
+    free(input);
     return 0;
 }
 
@@ -410,7 +413,7 @@ PyObject* testhklcond(PyObject *self, PyObject *args) {
     int pattern_applied = 0, condition_met = 0;
     int pattern_appliedwp = 0, condition_metwp = 0;
     long hkl[3];
-    char *hklpattern, *cond;
+    const char *hklpattern, *cond;
     PyObject *hkls, *pyhkl, *condgeneral, *condwp, *subcond, *e;
     PyObject *iterhkl;
     Py_ssize_t n, m, dummy;
