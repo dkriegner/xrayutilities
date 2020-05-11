@@ -123,7 +123,7 @@ class CoordinateTransform(Transform):
         t1 = numpy.abs(numpy.dot(e1, e2))
         t2 = numpy.abs(numpy.dot(e1, e3))
         t3 = numpy.abs(numpy.dot(e2, e3))
-        if t1 > config.EPSILON or t2 > config.EPSILON or t3 > config.EPSILON:
+        if not numpy.allclose((t1, t2, t3), 0):
             raise ValueError("given basis vectors need to be orthogonal!")
 
         if config.VERBOSITY >= config.INFO_ALL:
@@ -162,11 +162,11 @@ class AxisToZ(CoordinateTransform):
         """
         newz = vector._checkvec(newzaxis)
 
-        if vector.VecAngle([0, 0, 1], newz) < config.EPSILON:
+        if numpy.isclose(vector.VecAngle([0, 0, 1], newz), 0):
             newx = [1, 0, 0]
             newy = [0, 1, 0]
             newz = [0, 0, 1]
-        elif vector.VecAngle([0, 0, 1], -newz) < config.EPSILON:
+        elif numpy.isclose(vector.VecAngle([0, 0, 1], -newz), 0):
             newx = [-1, 0, 0]
             newy = [0, 1, 0]
             newz = [0, 0, -1]
@@ -199,11 +199,11 @@ class AxisToZ_keepXY(CoordinateTransform):
         """
         newz = vector._checkvec(newzaxis)
 
-        if vector.VecAngle([0, 0, 1], newz) < config.EPSILON:
+        if numpy.isclose(vector.VecAngle([0, 0, 1], newz), 0):
             newx = [1, 0, 0]
             newy = [0, 1, 0]
             newz = [0, 0, 1]
-        elif vector.VecAngle([0, 0, 1], -newz) < config.EPSILON:
+        elif numpy.isclose(vector.VecAngle([0, 0, 1], -newz), 0):
             newx = [-1, 0, 0]
             newy = [0, 1, 0]
             newz = [0, 0, -1]

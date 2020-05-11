@@ -2256,7 +2256,7 @@ class PowderDiffraction(PowderExperiment):
         curref = []
         currhkl = []
         for r in data:
-            if abs(r[0] - currq) > config.EPSILON:
+            if not numpy.isclose(abs(r[0] - currq), 0):
                 add_lines(currq, curref, currhkl)
                 currq = r[0]
                 curref = [r[1], ]

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 miscellaneous functions helpful in the analysis and experiment
@@ -68,7 +68,7 @@ def getangles(peak, sur, inp):
     # calculate inplane direction of peak
     pinp = numpy.cross(numpy.cross(sur, peak), sur)
     pinp = pinp / numpy.linalg.norm(pinp)
-    if(numpy.linalg.norm(numpy.cross(sur, peak)) <= config.EPSILON):
+    if numpy.isclose(numpy.linalg.norm(numpy.cross(sur, peak)), 0):
         pinp = inplane
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.analyis.getangles: peaks inplane direction: ", pinp)
@@ -76,13 +76,13 @@ def getangles(peak, sur, inp):
     # calculate angles
     r2d = 180. / numpy.pi
     chi = numpy.arccos(numpy.dot(sur, peak)) * r2d
-    if(numpy.dot(sur, peak) >= 1. - config.EPSILON):
+    if numpy.isclose(numpy.dot(sur, peak), 1):
         chi = 0.
         phi = 0.
-    elif(numpy.dot(sur, peak) <= -1. + config.EPSILON):
+    elif numpy.isclose(numpy.dot(sur, peak), -1.):
         chi = 180.
         phi = 0.
-    elif(numpy.dot(sur, numpy.cross(inplane, pinp)) <= config.EPSILON):
+    elif numpy.isclose(numpy.dot(sur, numpy.cross(inplane, pinp)), 0):
         if numpy.dot(pinp, inplane) >= 1.0:
             phi = 0.
         elif numpy.dot(pinp, inplane) <= -1.0:

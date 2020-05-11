@@ -1379,10 +1379,10 @@ class Experiment(object):
 
         # test the given direction to be not parallel and warn if not
         # perpendicular
-        if(norm(numpy.cross(self.idir, self.ndir)) < config.EPSILON):
+        if numpy.isclose(norm(numpy.cross(self.idir, self.ndir)), 0):
             raise InputError("given inplane direction is parallel to normal "
                              "direction, they must be linear independent!")
-        if(numpy.abs(numpy.dot(self.idir, self.ndir)) > config.EPSILON):
+        if not numpy.isclose(numpy.abs(numpy.dot(self.idir, self.ndir)), 0):
             self.idir = numpy.cross(
                 numpy.cross(self.ndir, self.idir),
                 self.ndir)
@@ -1456,7 +1456,7 @@ class Experiment(object):
             yi = self._A2QConversion.r_i
             idc = self._A2QConversion.detectorAxis[-1]
             xi = math.getVector(idc)
-            if norm(numpy.cross(xi, yi)) < config.EPSILON:
+            if numpy.isclose(norm(numpy.cross(xi, yi)), 0):
                 # this is the case when a detector rotation around the primary
                 # beam direction is installed
                 idc = self._A2QConversion.detectorAxis[-2]
@@ -1905,7 +1905,7 @@ class HXRD(Experiment):
         # spanned by qvec[1] and qvec[2] directions)
 
         chi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, z))
-        if numpy.any(numpy.abs(math.VecDot(q, z)) < config.EPSILON):
+        if numpy.any(numpy.isclose(numpy.abs(math.VecDot(q, z)), 0)):
             if config.VERBOSITY >= config.INFO_LOW:
                 print("XU.HXRD: some position is perpendicular to ndir-"
                       "reference direction (might be inplane or "

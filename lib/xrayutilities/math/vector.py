@@ -28,7 +28,6 @@ import re
 
 import numpy
 
-from .. import config
 from ..exception import InputError
 
 circleSyntax = re.compile("[xyz][+-]")
@@ -279,17 +278,17 @@ def getSyntax(vec):
     y = [0, 1, 0]
     z = [0, 0, 1]
 
-    if VecNorm(numpy.cross(numpy.cross(x, y), v)) <= config.EPSILON:
+    if numpy.isclose(VecNorm(numpy.cross(numpy.cross(x, y), v)), 0):
         if v[2] >= 0:
             string = 'z+'
         else:
             string = 'z-'
-    elif VecNorm(numpy.cross(numpy.cross(x, z), v)) <= config.EPSILON:
+    elif numpy.isclose(VecNorm(numpy.cross(numpy.cross(x, z), v)), 0):
         if v[1] >= 0:
             string = 'y+'
         else:
             string = 'y-'
-    elif VecNorm(numpy.cross(numpy.cross(y, z), v)) <= config.EPSILON:
+    elif numpy.isclose(VecNorm(numpy.cross(numpy.cross(y, z), v)), 0):
         if v[0] >= 0:
             string = 'x+'
         else:

@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -742,7 +742,7 @@ class Crystal(Material):
         else:
             return rl
         for i in range(1, len(lst)):
-            if (abs(lst[i - 1][0] - lst[i][0]) < config.EPSILON and
+            if (numpy.isclose(lst[i - 1][0] - lst[i][0], 0) and
                     lst[i - 1][1] == lst[i][1]):
                 mult += lst[i - 1][2]  # add occupancy
             else:
@@ -1274,8 +1274,7 @@ class Crystal(Material):
         self._distances = [0]
         self._dis_hist = [0]
         for dis in tmp_data:
-            if numpy.round(dis - self._distances[-1],
-                           int(abs(numpy.log10(config.EPSILON)))) == 0:
+            if numpy.round(dis - self._distances[-1], config.DIGITS) == 0:
                 self._dis_hist[-1] += 1
             else:
                 self._distances.append(dis)
@@ -1694,7 +1693,7 @@ class Alloy(Crystal):
         # test if inplane direction of hkl is the same as the one for the
         # experiment otherwise warn the user
         hklinplane = VecCross(VecCross(exp.ndir, hkl), exp.ndir)
-        if (VecNorm(VecCross(hklinplane, exp.idir)) > config.EPSILON):
+        if not numpy.isclose(VecNorm(VecCross(hklinplane, exp.idir)), 0):
             warnings.warn("Alloy: given hkl differs from the geometry of the "
                           "Experiment instance in the azimuthal direction")
 
