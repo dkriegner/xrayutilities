@@ -19,8 +19,8 @@ environment:
       MINICONDA: C:\Miniconda37
     - PYTHON_VERSION: 3.7
       MINICONDA: C:\Miniconda37-x64
-    - PYTHON_VERSION: 3.8
-      MINICONDA: C:\Miniconda38
+    #- PYTHON_VERSION: 3.8  # not working/available
+    #  MINICONDA: C:\Miniconda38
     - PYTHON_VERSION: 3.8
       MINICONDA: C:\Miniconda38-x64
 
