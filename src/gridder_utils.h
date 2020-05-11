@@ -29,10 +29,6 @@
 
 #include "xrayutilities.h"
 
-#ifdef _WIN32
-    double rint(double x);
-#endif
-
 /*!
 \brief find minimum
 

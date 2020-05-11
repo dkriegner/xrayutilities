@@ -74,17 +74,6 @@
 #endif
 
 
-/*
- * some stuff we need for the Windows build
- */
-#ifdef _WIN32
-    #ifndef __MINGW32__
-        #include <float.h>
-        #define isnan _isnan
-    #endif
-
-#endif
-
 /*****************************************************************************
  * general purpose macros
  ****************************************************************************/
