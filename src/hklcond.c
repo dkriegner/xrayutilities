@@ -26,7 +26,7 @@
 typedef char *multi_tok_t;
 typedef int (*fp_check)(long);
 
-char *multi_tok(char *haystack, multi_tok_t *string, char *needle) {
+char *multi_tok(char *haystack, multi_tok_t *string, const char *needle) {
     /* multi character tokenizer similar to strtok
      *
      * an internal reference to the search string is saved and the input string
@@ -247,10 +247,9 @@ int reflection_condition_met(long *hkl, const char *cond) {
      *  1 if condition is met, 0 otherwise
     */
     int fulfilled = 0;
-    const char equal[2] = "=", comma[2] = ",";
-    char or[5] = " or ";
-    char commaspace[3] = ", ";
+    const char equal[2] = "=", comma[2] = ",", or[5] = " or ", commaspace[3] = ", ";
     char *tsubcond, *texpr, *lexpr, *rexpr, *l;
+    char *next_texpr, *next_lexpr;
     multi_tok_t ssubcond=mtinit(), sexpr=mtinit();
     fp_check checkfunc;
     /* string buffer to avoid changing the argument */
@@ -271,8 +270,8 @@ int reflection_condition_met(long *hkl, const char *cond) {
         texpr = multi_tok(tsubcond, &sexpr, commaspace);
         while(texpr != NULL) {
             //printf("\t%s\n", texpr);
-            lexpr = strtok(texpr, equal);
-            rexpr = strtok(NULL, equal);
+            lexpr = strtok_r(texpr, equal, &next_texpr);
+            rexpr = strtok_r(NULL, equal, &next_texpr);
             //printf("\t\t%s %s\n", lexpr, rexpr);
             if(strcmp(rexpr, "2n") == 0) {
                 checkfunc = &check2n;
@@ -330,7 +329,7 @@ int reflection_condition_met(long *hkl, const char *cond) {
 		return -1;
             }
             /* split left expression at ',' */
-            l = strtok(lexpr, comma);
+            l = strtok_r(lexpr, comma, &next_lexpr);
             while(l != NULL) {
                 //printf("\t\t\t%s\n", l);
                 if(strcmp(l, "h") == 0) {
@@ -379,7 +378,7 @@ int reflection_condition_met(long *hkl, const char *cond) {
                 }
                 //printf("\t\t\t%d\n", fulfilled);
                 if(fulfilled == 0) { break; }
-                l = strtok(NULL, comma);
+                l = strtok_r(NULL, comma, &next_lexpr);
             }
             if(fulfilled == 0) { break; }
             texpr = multi_tok(NULL, &sexpr, commaspace);

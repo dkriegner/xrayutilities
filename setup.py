@@ -79,9 +79,8 @@ class build_ext_subclass(build_ext):
 
     def build_extensions(self):
         c = self.compiler.compiler_type
-        # set standard compiler options
-        copt = {'mingw32': ['-std=c99'],
-                'unix': ['-std=c99']}
+        # set extra compiler options
+        copt = {}
 
         if c in copt:
             for flag in copt[c]:
