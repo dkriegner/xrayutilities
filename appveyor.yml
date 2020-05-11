@@ -3,18 +3,12 @@ environment:
     # For Python versions available on Appveyor, see
     # https://www.appveyor.com/docs/windows-images-software/#python and
     # https://www.appveyor.com/docs/windows-images-software/#miniconda
-    - PYTHON: C:\Python35
-    - PYTHON: C:\Python35-x64
     - PYTHON: C:\Python36
     - PYTHON: C:\Python36-x64
     - PYTHON: C:\Python37
     - PYTHON: C:\Python37-x64
     - PYTHON: C:\Python38
     - PYTHON: C:\Python38-x64
-    - PYTHON_VERSION: 3.5
-      MINICONDA: C:\Miniconda35
-    - PYTHON_VERSION: 3.5
-      MINICONDA: C:\Miniconda35-x64
     - PYTHON_VERSION: 3.6
       MINICONDA: C:\Miniconda36
     - PYTHON_VERSION: 3.6
@@ -23,6 +17,10 @@ environment:
       MINICONDA: C:\Miniconda37
     - PYTHON_VERSION: 3.7
       MINICONDA: C:\Miniconda37-x64
+    - PYTHON_VERSION: 3.8
+      MINICONDA: C:\Miniconda38
+    - PYTHON_VERSION: 3.8
+      MINICONDA: C:\Miniconda38-x64
 
 install:
   - ps: |
