@@ -215,16 +215,6 @@ int hklpattern_applies(long *hkl, const char *condhkl) {
     else if(condhkl[n] == 'h' && hkl[1] != hkl[0]) {
         return 0;
     }
-    /*n = n + 1;
-    if(condhkl[n] == '(') {
-        do {
-            n = n + 1;
-        } while(condhkl[n] != ')');
-        n = n + 1;
-    }
-    else if(condhkl[n] == 'i') {
-        n = n + 1;
-    }*/
     if(condhkl[strlen(condhkl)-1] == '0' && hkl[2] != 0) {
         return 0;
     }
@@ -262,17 +252,14 @@ int reflection_condition_met(long *hkl, const char *cond) {
      * */
     tsubcond = multi_tok(input, &ssubcond, or);
     while(tsubcond != NULL) {
-        //printf("%s\n", tsubcond);
         fulfilled = 1;
         /* split various subconditions at ', '
          * all condititions need to be fulfilled
          * */
         texpr = multi_tok(tsubcond, &sexpr, commaspace);
         while(texpr != NULL) {
-            //printf("\t%s\n", texpr);
             lexpr = strtok_r(texpr, equal, &next_texpr);
             rexpr = strtok_r(NULL, equal, &next_texpr);
-            //printf("\t\t%s %s\n", lexpr, rexpr);
             if(strcmp(rexpr, "2n") == 0) {
                 checkfunc = &check2n;
             }
@@ -331,7 +318,6 @@ int reflection_condition_met(long *hkl, const char *cond) {
             /* split left expression at ',' */
             l = strtok_r(lexpr, comma, &next_lexpr);
             while(l != NULL) {
-                //printf("\t\t\t%s\n", l);
                 if(strcmp(l, "h") == 0) {
                     if(checkfunc(hkl[0]) == 0) { fulfilled = 0; }
                 }
@@ -376,7 +362,6 @@ int reflection_condition_met(long *hkl, const char *cond) {
                         fulfilled = 0;
                     }
                 }
-                //printf("\t\t\t%d\n", fulfilled);
                 if(fulfilled == 0) { break; }
                 l = strtok_r(NULL, comma, &next_lexpr);
             }
@@ -435,7 +420,6 @@ PyObject* testhklcond(PyObject *self, PyObject *args) {
             hkl[i] = PyLong_AsLong(PyTuple_GetItem(pyhkl, i));
         }
         Py_DECREF(pyhkl);
-        //printf("(%ld %ld %ld)\n", hkl[0], hkl[1], hkl[2]);
         /* iterate over condgeneral */
         for (i = 0; i < n; ++i) {
             subcond = PyList_GET_ITEM(condgeneral, i);
@@ -485,13 +469,11 @@ PyObject* testhklcond(PyObject *self, PyObject *args) {
             for (i = 0; i < 3; ++i) {
                 hkl[i] = PyLong_AsLong(PyTuple_GetItem(pyhkl, i));
             }
-            //printf("(%ld %ld %ld)\n", hkl[0], hkl[1], hkl[2]);
             Py_DECREF(pyhkl);
             for (i = 0; i < m; ++i) {
                 subcond = PyList_GET_ITEM(e, m-1-i);
                 hklpattern = PyUnicode_AsUTF8AndSize(PyTuple_GET_ITEM(subcond, 0), &dummy);
                 cond = PyUnicode_AsUTF8AndSize(PyTuple_GET_ITEM(subcond, 1), &dummy);
-                //printf("%s %s\n", hklpattern, cond);
                 if (hklpattern_applies(hkl, hklpattern) == 1) {
                     pattern_appliedwp = 1;
                     r = reflection_condition_met(hkl, cond);
