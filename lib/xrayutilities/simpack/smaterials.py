@@ -139,7 +139,7 @@ class SMaterial(object):
         s = '{cls}-{name} ('.format(name=self.material.name,
                                     cls=self.__class__.__name__)
         for k in self.__dict__:
-            if k not in ('material', 'name'):
+            if k not in ('name', '_material', '_structural_params'):
                 v = getattr(self, k)
                 if isinstance(v, numbers.Number):
                     s += '{key}: {value:.5g}, '.format(key=k, value=v)

@@ -2534,5 +2534,7 @@ class PowderDiffraction(PowderExperiment):
                 ostr += ("%15s   %8.4f   %8.3f   %10.2f  %10.2f\n"
                          % (h.__str__(), 2 * d['ang'],
                             d['qpos'], d['r'], d['r'] / rmax * 100.))
-        ostr += "Settings: " + str(self.settings)
+
+        if self._enable_sim:
+            ostr += "Settings: " + str(self.settings)
         return ostr
