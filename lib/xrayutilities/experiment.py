@@ -2456,7 +2456,7 @@ class PowderExperiment(Experiment):
         Experiment.__init__(self, [0, 1, 0], [0, 0, 1], **kwargs)
         self.Ang2Q = self._Ang2Q
 
-    def _Ang2Q(self, th, deg=True):
+    def _Ang2Q(self, th, wl=None, deg=True):
         """
         Converts theta angles to reciprocal space positions
         returns the absolute value of momentum transfer
@@ -2466,14 +2466,23 @@ class PowderExperiment(Experiment):
         else:
             lth = th
 
-        qpos = 2 * self.k0 * numpy.sin(lth)
+        if wl:
+            k0 = 2 * numpy.pi / wl
+        else:
+            k0 = self.k0
+
+        qpos = 2 * k0 * numpy.sin(lth)
         return qpos
 
-    def Q2Ang(self, qpos, deg=True):
+    def Q2Ang(self, qpos, wl=None, deg=True):
         """
         Converts reciprocal space values to theta angles
         """
-        th = numpy.arcsin(qpos / (2 * self.k0))
+        if wl:
+            k0 = 2 * numpy.pi / wl
+        else:
+            k0 = self.k0
+        th = numpy.arcsin(numpy.divide(qpos, (2 * k0)))
 
         if deg:
             th = numpy.degrees(th)

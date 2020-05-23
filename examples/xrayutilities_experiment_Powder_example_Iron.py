@@ -37,35 +37,21 @@ def main():
 
     print("Creating Fe powder ...")
     Fe_powder = xu.simpack.Powder(FeBCC, 1, crystallite_size_gauss=cryst_size)
-    pd = xu.simpack.PowderDiffraction(Fe_powder, enable_simulation=True)
+    pm = xu.simpack.PowderModel(Fe_powder)
     tt = numpy.arange(5, 120, 0.01)
-    inte = pd.Calculate(tt)
+    inte = pm.simulate(tt)
 
-    print(pd)
+    print(pm)
 
-    # to create a mixed powder sample one would use
+    # # to create a mixed powder sample one would use
     # Co_powder = xu.simpack.Powder(xu.materials.Co, 5)  # 5 times more Co
-    # pm = xu.simpack.PowderModel(Fe_powder + Co_powder, I0=100)
-    # inte = pm.simulate(tt)
-    # pm.close()  # after end-of-use for cleanup
+    # pmix = xu.simpack.PowderModel(Fe_powder + Co_powder, I0=100)
+    # inte = pmix.simulate(tt)
+    # pmix.close()  # after end-of-use for cleanup
 
-    plt.figure()
-    ax = plt.subplot(111)
-    plt.xlabel(r"$2\theta$ (deg)")
-    plt.ylabel(r"Intensity")
-    plt.plot(tt, inte, 'k-', label='Fe')
-    divider = make_axes_locatable(ax)
-
-    bax = divider.append_axes("top", size="10%", pad=0.05, sharex=ax)
-    for hkl in pd.data:
-        plt.bar(2*pd.data[hkl]['ang'], 1, width=0, linewidth=2,
-                color='r', align='center', orientation='vertical')
-        plt.text(2*pd.data[hkl]['ang'], 0.1, '%d%d%d' % hkl)
-    plt.setp(bax.get_xticklabels(), visible=False)
-    plt.setp(bax.get_yticklabels(), visible=False)
-
+    ax = pm.plot(tt)
     ax.set_xlim(5, 120)
-    pd.close()
+    pm.close()
 
 
 if __name__ == '__main__':

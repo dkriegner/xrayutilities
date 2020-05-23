@@ -320,6 +320,139 @@ class PowderModel(object):
         self.set_lmfit_parameters(fitres.params)
         return fitres
 
+    def plot(self, twotheta, showlines=True, label='simulation', color=None,
+             lcolors=[], ax=None, **kwargs):
+        """
+        plot the powder diffraction pattern and indicate line positions for all
+        components in the model.
+
+        Parameters
+        ----------
+        twotheta :  array-like
+            positions at which the powder pattern should be evaluated
+        showlines : bool, optional
+            flag to decide if peak positions of the components will be shown on
+            the top of the plot
+        label :     str
+            line label in the plot
+        color :     matplotlib color or None
+            the color used for the line plot of the simulation
+        lcolors :   list of matplotlib colors
+            colors for the line indicators for the various components
+        ax :        matplotlib.axes or None
+            axes object to be used for plotting, if its given no axes
+            decoration like labels are set.
+
+        Further keyword arguments are passed to the simulate method.
+
+        Returns
+        -------
+        matplotlib.axes object
+        """
+        plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
+        if not plot:
+            return
+
+        if ax is None:
+            fig, ax = plt.subplots()
+            plt.xlabel(r"$2\theta$ (°)")
+            plt.ylabel(r"Intensity")
+            ax.set_xlim(twotheta.min(), twotheta.max())
+            plt.tight_layout()
+        else:
+            fig = ax.figure
+
+        plt.plot(twotheta, self.simulate(twotheta, **kwargs), '-', label=label,
+                 color=color)
+
+        if showlines:
+            from mpl_toolkits.axes_grid1 import make_axes_locatable
+            divider = make_axes_locatable(ax)
+            taxlist = []
+            lineslist = []
+            annotlist = []
+            settings = self.pdiff[0].settings
+            wavelengths = settings['emission']['emiss_wavelengths']
+            intensities = settings['emission']['emiss_intensities']
+            for i, pd in enumerate(self.pdiff):
+                tax = divider.append_axes("top", size="6%", pad=0.05,
+                                          sharex=ax)
+                if lcolors:
+                    c = lcolors[i % len(lcolors)]
+                else:
+                    c = f'C{i}'
+                lw = 2
+                wllist = []
+                for wl, inte in zip(wavelengths, intensities):
+                    q = [pd.data[h]['qpos'] for h in pd.data]
+                    tt = pd.Q2Ang(q, wl=1e10*wl)*2
+                    lw *= inte
+                    lines = plt.vlines(tt, 0, 1, colors=c, linewidth=lw)
+                    wllist.append(lines)
+
+                plt.setp(tax.get_xticklabels(), visible=False)
+                plt.setp(tax.get_yticklabels(), visible=False)
+                plt.setp(tax.get_yticklines(), visible=False)
+                annot = tax.annotate(
+                    "", xy=(0, 0), xytext=(20, 0), textcoords="offset points",
+                    bbox=dict(boxstyle="round,pad=0.1", fc="w", alpha=0.8),
+                    arrowprops=dict(arrowstyle="->"), fontsize='x-small')
+                annot.set_visible(False)
+                # next line important to avoid zorder issues
+                tax.figure.texts.append(tax.texts.pop())
+                taxlist.append(tax)
+                lineslist.append(wllist)
+                annotlist.append(annot)
+
+            def update_annot(pd, annot, lines, ind):
+                h = list(pd.data)[ind]
+                x = 2*pd.data[h]['ang']
+                y = 0.5
+                annot.xy = (x, y)
+                text = "{}: {} {} {}".format(pd.mat.name, h[0], h[1], h[2])
+                annot.set_text(text)
+                annot.get_bbox_patch().set_edgecolor(lines.get_color()[0])
+                annot.set_zorder(10)
+
+            def hover(event):
+                for pd, tax, annot, wllist in zip(self.pdiff, taxlist,
+                                                  annotlist, lineslist):
+                    vis = annot.get_visible()
+                    if event.inaxes == tax:
+                        for lines in wllist:
+                            cont, ind = lines.contains(event)
+                            if cont:
+                                update_annot(pd, annot, lines, ind['ind'][0])
+                                annot.set_visible(True)
+                                fig.canvas.draw_idle()
+                                return
+                            else:
+                                if vis:
+                                    annot.set_visible(False)
+                                    fig.canvas.draw_idle()
+                                    return
+
+            def click(event):
+                for pd, tax, annot, wllist in zip(self.pdiff, taxlist,
+                                                  annotlist, lineslist):
+                    if event.inaxes == tax:
+                        for lines in wllist:
+                            cont, ind = lines.contains(event)
+                            if cont:
+                                h = list(pd.data)[ind['ind'][0]]
+                                text = (f'{pd.mat.name}: {h[0]} {h[1]} {h[2]};'
+                                        f'2Theta = ')
+                                for wl in wavelengths:
+                                    tt = 2 * pd.Q2Ang(pd.data[h]['qpos'],
+                                                      wl=1e10*wl)
+                                    text += f'{tt:.4f}°, '
+                                print(text[:-2])
+                                return
+
+            fig.canvas.mpl_connect("motion_notify_event", hover)
+            fig.canvas.mpl_connect("button_press_event", click)
+        return ax
+
     def close(self):
         for pd in self.pdiff:
             pd.close()
