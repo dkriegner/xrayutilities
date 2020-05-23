@@ -117,7 +117,7 @@ def main():
     # final calculation and plotting/printing of the results
     sim = pm.simulate(tt[mask])
 
-    xu.simpack.plot_powder(tt, det, sim, scale='sqrt', mask=mask)
+    xu.simpack.plot_powder(tt, det, pm, scale='sqrt', mask=mask)
     xu.simpack.Rietveld_error_metrics(det[mask], sim, std=sig[mask],
                                       Nvar=fitres2.nvarys, disp=True)
 

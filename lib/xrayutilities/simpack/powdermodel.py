@@ -321,7 +321,7 @@ class PowderModel(object):
         return fitres
 
     def plot(self, twotheta, showlines=True, label='simulation', color=None,
-             lcolors=[], ax=None, **kwargs):
+             formatspec='-', lcolors=[], ax=None, **kwargs):
         """
         plot the powder diffraction pattern and indicate line positions for all
         components in the model.
@@ -337,6 +337,8 @@ class PowderModel(object):
             line label in the plot
         color :     matplotlib color or None
             the color used for the line plot of the simulation
+        formatspec : str
+            format specifier of the simulation curve
         lcolors :   list of matplotlib colors
             colors for the line indicators for the various components
         ax :        matplotlib.axes or None
@@ -354,20 +356,24 @@ class PowderModel(object):
             return
 
         if ax is None:
-            fig, ax = plt.subplots()
-            plt.xlabel(r"$2\theta$ (°)")
-            plt.ylabel(r"Intensity")
-            ax.set_xlim(twotheta.min(), twotheta.max())
-            plt.tight_layout()
+            fig, iax = plt.subplots()
+            iax.set_xlabel(r"$2\theta$ (°)")
+            iax.set_ylabel(r"Intensity")
+            iax.set_xlim(twotheta.min(), twotheta.max())
         else:
             fig = ax.figure
+            iax = ax
 
-        plt.plot(twotheta, self.simulate(twotheta, **kwargs), '-', label=label,
-                 color=color)
+        plotkwargs = dict(label=label)
+        if color is not None:
+            plotkwargs['color'] = color
+        iax.plot(twotheta, self.simulate(twotheta, **kwargs), formatspec,
+                 **plotkwargs)
 
         if showlines:
+            from matplotlib.colors import is_color_like
             from mpl_toolkits.axes_grid1 import make_axes_locatable
-            divider = make_axes_locatable(ax)
+            divider = make_axes_locatable(iax)
             taxlist = []
             lineslist = []
             annotlist = []
@@ -376,9 +382,16 @@ class PowderModel(object):
             intensities = settings['emission']['emiss_intensities']
             for i, pd in enumerate(self.pdiff):
                 tax = divider.append_axes("top", size="6%", pad=0.05,
-                                          sharex=ax)
+                                          sharex=iax)
                 if lcolors:
                     c = lcolors[i % len(lcolors)]
+                elif len(self.pdiff) == 1:
+                    if is_color_like(color):
+                        c = color
+                    elif is_color_like(formatspec[-1]):
+                        c = formatspec[-1]
+                    else:
+                        c = 'C0'
                 else:
                     c = f'C{i}'
                 lw = 2
@@ -387,7 +400,7 @@ class PowderModel(object):
                     q = [pd.data[h]['qpos'] for h in pd.data]
                     tt = pd.Q2Ang(q, wl=1e10*wl)*2
                     lw *= inte
-                    lines = plt.vlines(tt, 0, 1, colors=c, linewidth=lw)
+                    lines = tax.vlines(tt, 0, 1, colors=c, linewidth=lw)
                     wllist.append(lines)
 
                 plt.setp(tax.get_xticklabels(), visible=False)
@@ -441,7 +454,7 @@ class PowderModel(object):
                             if cont:
                                 h = list(pd.data)[ind['ind'][0]]
                                 text = (f'{pd.mat.name}: {h[0]} {h[1]} {h[2]};'
-                                        f'2Theta = ')
+                                        f' 2Theta = ')
                                 for wl in wavelengths:
                                     tt = 2 * pd.Q2Ang(pd.data[h]['qpos'],
                                                       wl=1e10*wl)
@@ -451,7 +464,9 @@ class PowderModel(object):
 
             fig.canvas.mpl_connect("motion_notify_event", hover)
             fig.canvas.mpl_connect("button_press_event", click)
-        return ax
+        if ax is None:
+            fig.tight_layout()
+        return iax
 
     def close(self):
         for pd in self.pdiff:
@@ -513,7 +528,7 @@ def Rietveld_error_metrics(exp, sim, weight=None, std=None,
 
 def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
                 show_diff=True, show_legend=True, labelexp='experiment',
-                labelsim='simulate', formatexp='k-.', formatsim='r-'):
+                labelsim='simulation', formatexp='.-k', formatsim='-r'):
     """
     Convenience function to plot the comparison between experimental and
     simulated powder diffraction data
@@ -525,8 +540,9 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     exp :       array-like
         experimental data (same shape as twotheta). If None only the simulation
         and no difference will be plotted
-    sim :       array-like
-        simulated data
+    sim :       array-like or PowederModel
+        simulated data or PowderModel instance. If a PowderModel instance is
+        given the plot-method of PowderModel is used.
     mask :      array-like, optional
         mask to reduce the twotheta values to the be used as x-coordinates of
         sim
@@ -538,31 +554,43 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
         flag to specify if a difference curve should be shown
     show_legend: bool, optional
         flag to specify if a legend should be shown
+    labelexp :  str
+        plot label (legend entry) for the experimental data
+    labelsim :  str
+        plot label for the simulation data
+    formatexp : str
+        format specifier for the experimental data
+    formatsim : str
+        format specifier for the simulation curve
     """
     plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
     if not plot:
         return
 
-    plt.figure(fig, figsize=(10, 7))
-    plt.clf()
+    f = plt.figure(fig, figsize=(10, 7))
+    f.clf()
     ax = plt.subplot(111)
-    lines = []
     if exp is not None:
-        lines.append(ax.plot(twotheta, exp, formatexp, label=labelexp)[0])
+        ax.plot(twotheta, exp, formatexp, label=labelexp)
     if mask is None:
         mask = numpy.ones_like(twotheta, dtype=numpy.bool)
-    lines.append(ax.plot(twotheta[mask], sim, formatsim, label=labelsim)[0])
+    if isinstance(sim, PowderModel):
+        simdata = sim.simulate(twotheta[mask])
+        sim.plot(twotheta[mask], label=labelsim, formatspec=formatsim, ax=ax)
+    else:
+        simdata = sim
+        ax.plot(twotheta[mask], simdata, formatsim, label=labelsim)
 
-    if show_diff:
+    if show_diff and exp is not None:
         # plot error between simulation and experiment
-        if exp is not None:
-            lines.append(ax.plot(twotheta[mask], exp[mask]-sim, '.-',
-                                 color='0.5', label='difference')[0])
+        ax.plot(twotheta[mask], exp[mask]-simdata, '.-', color='0.5',
+                label='difference')
 
-    plt.xlabel('2Theta (deg)')
-    plt.ylabel('Intensity')
+    ax.set_xlabel('2Theta (deg)')
+    ax.set_ylabel('Intensity')
+    lines = ax.get_lines()
     plt.figlegend(lines, [l.get_label() for l in lines], loc='upper right',
                   frameon=True)
     ax.set_yscale(scale)
-    plt.tight_layout()
+    f.tight_layout()
     return lines
