@@ -106,9 +106,35 @@ def _errornorm_q2ang(angles, qvec, hxrd, U=numpy.identity(3)):
     return dq
 
 
-def exitAngleConst(angles, alphaf, hxrd):
+def incidenceAngleConst(angles, alphai, xrd):
     """
-    helper function for an pseudo-angle constraint for the Q2AngFit-routine.
+    helper function for an pseudo-angle constraint of the incidence angle. Can
+    be used together with the Q2AngFit-routine in the 'constraints' argument.
+    An example use case scenario to fix the incidence angle to 1 degree would
+    be:
+    constraints={'type': 'eq', 'fun': lambda a: incidenceAngleConst(a, 1, xrd)}
+
+    Parameters
+    ----------
+    angles :    iterable
+        fit parameters of Q2AngFit
+    alphai :    float
+        the incidence angle which should be fixed
+    xrd :       Experiment
+        the Experiment object to use for qconversion
+    """
+    qconv = xrd._A2QConversion
+    ndirlab = qconv.transformSample2Lab(xrd.Transform(xrd.ndir), *angles)
+    ai = 90 - math.VecAngle(-qconv.r_i, ndirlab, deg=True) - alphai
+    return ai
+
+
+def exitAngleConst(angles, alphaf, xrd):
+    """
+    helper function for an pseudo-angle constraint of the exit angle. Can be
+    used together with the Q2AngFit-routine in the 'constraints' argument. An
+    example use case scenario to fix the exit angle to 1 degree would be:
+    constraints={'type': 'eq', 'fun': lambda a: exitAngleConst(a, 1, xrd)}
 
     Parameters
     ----------
@@ -116,17 +142,17 @@ def exitAngleConst(angles, alphaf, hxrd):
         fit parameters of Q2AngFit
     alphaf :    float
         the exit angle which should be fixed
-    hxrd :      Experiment
+    xrd :       Experiment
         the Experiment object to use for qconversion
     """
-    qconv = hxrd._A2QConversion
+    qconv = xrd._A2QConversion
     # calc kf
     detangles = [a for a in angles[-len(qconv.detectorAxis):]]
     kf = qconv.getDetectorPos(*detangles)
     if numpy.linalg.norm(kf) == 0:
         af = 0
     else:
-        ndirlab = qconv.transformSample2Lab(hxrd.Transform(hxrd.ndir), *angles)
+        ndirlab = qconv.transformSample2Lab(xrd.Transform(xrd.ndir), *angles)
         af = 90 - math.VecAngle(kf, ndirlab, deg=True) - alphaf
     return af
 
@@ -165,8 +191,14 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     constraints :   tuple
         sequence of constraint dictionaries. This allows applying arbitrary
         (e.g. pseudo-angle) contraints by supplying according constraint
-        functions. (see scipy.optimize.minimize). The supplied function will be
-        called with the arguments (angles, qvec, Experiment, U).
+        functions. An entry of the constraints argument must be a dictionary
+        with at least the 'type' and 'fun' set. 'type' can be either 'eq' or
+        'ineq' for equality or inequality constraints. 'fun' must be a callable
+        function which for 'eq'-constraints returns 0 when the equality
+        condition is fulfilled (see constraints documentation in
+        scipy.optimize.minimize for details). The supplied function will be
+        called with the arguments gonimeter angle list as argument. Typically
+        this means you will have to use a lambda function.
 
     Returns
     -------

@@ -460,10 +460,10 @@ Often the restricted predefined geometries are not corresponding to the experime
 
 For this purpose the goniometer together with the geometric restrictions need to be defined and the q-vector in laboratory reference frame needs to be specified.
 This works for arbitrary goniometer, however, the user is expected to set up bounds to put restrictions to the number of free angles to obtain reproducible results.
-In general only three angles are needed to fit an arbitrary q-vector (2 sample + 1 detector angles or
-1 sample + 2 detector).
+In general only three angles are needed to fit an arbitrary q-vector (2 sample + 1 detector angles or 1 sample + 2 detector).
+More goniometer angles can be kept free if some pseudo-angle constraints are used instead.
 
-The example below shows the necessary code to perform such an angle calculation for a costum defined material with orthorhombic unit cell.
+The example below shows the necessary code to perform such an angle calculation for a custom defined material with orthorhombic unit cell.
 
 .. code-block:: python
 
@@ -491,15 +491,27 @@ The example below shows the necessary code to perform such an angle calculation 
     print('Lattice plane distance: %.4f' % SmFeO3.planeDistance(hkl))
 
     #### determine the goniometer angles with the correct geometry restrictions
-    # tell bounds of angles / (min,max) pair or fixed value for all motors
-    # maximum of three free motors! here incidence angle fixed to 5 degree
+    # tell bounds of angles / (min,max) pair or fixed value for all motors.
+    # maximum of three free motors! here the first goniometer angle is fixed.
     # om, phi, tt, delta
     bounds = (5, (-180, 180), (-1, 90), (-1, 90))
-    ang,qerror,errcode = xu.Q2AngFit(q_laboratory, hxrd, bounds)
+    ang, qerror, errcode = xu.Q2AngFit(q_laboratory, hxrd, bounds)
     print('err %d (%.3g) angles %s' % (errcode, qerror, str(np.round(ang, 5))))
     # check that qerror is small!!
     print('sanity check with back-transformation (hkl): ',
           np.round(hxrd.Ang2HKL(*ang,mat=SmFeO3),5))
+
+In the example above all angles can be kept free if a pseudo-angle constraint is used in addition.
+This is shown below for the incidence angle, which when fixed to 5 degree results in the same goniometer angles as shown above.
+Currently two helper functions for incidence and exit angles (:func:`~xrayutilities.q2ang_fit.incidenceAngleConst` and :func:`~xrayutilities.q2ang_fit.exitAngleConst`) are implemented, but user-defined functions can be supplied.
+
+.. code-block:: python
+
+    aiconstraint = xu.q2ang_fit.incidenceAngleConst
+    bounds = ((0, 90), (-180, 180), (-1, 90), (-1, 90))
+    ang, qerror, errcode = xu.Q2AngFit(
+        q_laboratory, hxrd, bounds,
+        constraints={'type':'eq', 'fun': lambda a: aiconstraint(a, 5, hxrd)})
 
 
 User-specific config file
