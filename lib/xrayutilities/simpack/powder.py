@@ -2241,7 +2241,7 @@ class PowderDiffraction(PowderExperiment):
             Miller indices, q-position, diffraction angle (Theta), and
             reflection strength of the material
         """
-        data = data[numpy.argsort(data['q'], kind='mergesort')]
+        data.sort(order=['q', 'hkl'])
         qpos = []
         refstrength = []
         hkl = []
@@ -2256,7 +2256,7 @@ class PowderDiffraction(PowderExperiment):
         curref = []
         currhkl = []
         for r in data:
-            if not numpy.isclose(abs(r[0] - currq), 0):
+            if not numpy.isclose(r[0] - currq, 0):
                 add_lines(currq, curref, currhkl)
                 currq = r[0]
                 curref = [r[1], ]
@@ -2264,6 +2264,7 @@ class PowderDiffraction(PowderExperiment):
             else:
                 if self.isotropic:
                     curref[-1] += r[1]
+                    currhkl[-1] = r[2]
                 else:
                     # merge lines which are equal according to the crystal
                     # and convolver symmetries
