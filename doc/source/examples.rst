@@ -403,8 +403,8 @@ Similar also the energy dependence of the structure factor can be determined
     F = InAs.StructureFactorForEnergy(InAs.Q(1, 1, 1), energy)
 
     plt.figure(); plt.clf()
-    plt.plot(energy, F.real, 'k-', label='Re(F)')
-    plt.plot(energy, F.imag, 'r-', label='Imag(F)')
+    plt.plot(energy, F.real, '-k', label='Re(F)')
+    plt.plot(energy, F.imag, '-r', label='Imag(F)')
     plt.xlabel("Energy (eV)"); plt.ylabel("F"); plt.legend()
 
 

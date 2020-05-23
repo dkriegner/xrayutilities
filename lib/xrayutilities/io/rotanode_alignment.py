@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 parser for the alignment log file of the rotating anode
@@ -225,10 +225,10 @@ class RA_Alignment(object):
         for an, axis in zip(axnames, ax):
             d = self.get(an)
             plt.sca(axis)
-            plt.plot(d[2], d[0], 'k.-')
+            plt.plot(d[2], d[0], '.-k')
             plt.ylabel(re.sub(pname + "_", "", an))
             axis.twinx()
-            plt.plot(d[2], d[1], 'r.-')
+            plt.plot(d[2], d[1], '.-r')
             plt.ylabel("Int (cps)", color='r')
             plt.grid()
 

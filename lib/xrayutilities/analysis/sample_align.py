@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
@@ -48,7 +48,7 @@ circleSyntax = re.compile("[xyz][+-]")
 
 
 def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
-              datap="kx", modelline="r--", modeltilt="b-", fignum=None,
+              datap="xk", modelline="--r", modeltilt="-b", fignum=None,
               mlabel="fit", mtiltlabel="fit w/tilt", dlabel="data",
               figtitle=True):
     """
@@ -206,7 +206,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
             plt.plot(angp, models._unilin(fittan.beta,
                                           degrees(tan(radians(angp)))),
                      modelline, label=mlabel, lw=linewidth)
-        plt.plot(angp, models._unilin(fitlin.beta, angp), 'k-', label='')
+        plt.plot(angp, models._unilin(fitlin.beta, angp), '-k', label='')
         if usetilt:
             plt.plot(angp, straight_tilt(fittilt.beta, angp),
                      modeltilt, label=mtiltlabel, lw=linewidth)
@@ -664,17 +664,17 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         for p in range(9):
             ax = plt.subplot(3, 3, p + 1)
             if plotlog:
-                plt.semilogy(nparams[:, p] * xscale[p], neps, 'k.')
+                plt.semilogy(nparams[:, p] * xscale[p], neps, '.k')
             else:
                 plt.scatter(nparams[:, p] * xscale[p], neps, c=nparams[:, -1],
                             s=10, marker='o', cmap=plt.cm.gnuplot,
                             edgecolor='none')
             plt.xlabel(labels[p])
             if plotlog:
-                plt.semilogy(parammin[p] * xscale[p], epsmin, 'ko', ms=8,
+                plt.semilogy(parammin[p] * xscale[p], epsmin, 'ok', ms=8,
                              mew=2.5, mec='k', mfc='w')
             else:
-                plt.plot(parammin[p] * xscale[p], epsmin, 'ko', ms=8, mew=2.5,
+                plt.plot(parammin[p] * xscale[p], epsmin, 'ok', ms=8, mew=2.5,
                          mec='k', mfc='w')
                 plt.ylim(epsmin * 0.7, epsmin * 2.)
             plt.locator_params(nbins=4, axis='x')
@@ -750,7 +750,7 @@ def _peak_position(img, nwindow, plot=False):
     if plot:
         plt.figure("_ccd")
         plt.imshow(utilities.maplog(img), origin='low')
-        plt.plot(cen2, cen1, "wo", mfc='none')
+        plt.plot(cen2, cen1, 'ow', mfc='none')
         plt.axis([cen2 - nw, cen2 + nw, cen1 - nw, cen1 + nw])
         plt.colorbar()
         fnr = len(glob.glob('xu_calib_ccd_img*.png'))
@@ -1495,17 +1495,17 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         for p in range(12):
             ax = plt.subplot(3, 4, p + 1)
             if plotlog:
-                plt.semilogy(nparams[:, p] * xscale[p], neps, 'k.')
+                plt.semilogy(nparams[:, p] * xscale[p], neps, '.k')
             else:
                 plt.scatter(nparams[:, p] * xscale[p], neps, c=nparams[:, -1],
                             s=10, marker='o', cmap=plt.cm.gnuplot,
                             edgecolor='none')
             plt.xlabel(labels[p])
             if plotlog:
-                plt.semilogy(parammin[p] * xscale[p], epsmin, 'ko',
+                plt.semilogy(parammin[p] * xscale[p], epsmin, 'ok',
                              ms=8, mew=2.5, mec='k', mfc='w')
             else:
-                plt.plot(parammin[p] * xscale[p], epsmin, 'ko',
+                plt.plot(parammin[p] * xscale[p], epsmin, 'ok',
                          ms=8, mew=2.5, mec='k', mfc='w')
                 plt.ylim(epsmin * 0.7, epsmin * 2.)
             plt.locator_params(nbins=4, axis='x')
@@ -2049,12 +2049,12 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
         ymax = max(max(angles), zeropos)
         # open new figure for the plot
         plt.figure()
-        plt.plot(channels, angles, 'kx', ms=8., mew=2.)
+        plt.plot(channels, angles, 'xk', ms=8., mew=2.)
         plt.plot([xmin - (xmax - xmin) * 0.1, xmax + (xmax - xmin) * 0.1],
                  numpy.polyval(p,
                                [xmin - (xmax - xmin) * 0.1,
                                 xmax + (xmax - xmin) * 0.1]),
-                 'g-',
+                 '-g',
                  linewidth=1.5)
         ax = plt.gca()
         plt.grid()
@@ -2150,9 +2150,9 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
 
     if plot:
         plt.figure()
-        plt.plot(a, om, 'kx', mew=2, ms=8)
+        plt.plot(a, om, 'xk', mew=2, ms=8)
         linx = numpy.linspace(a.min() - 45, a.min() + 360 - 45, num=1000)
-        plt.plot(linx, fitfunc(p1, linx), 'g-', linewidth=1.5)
+        plt.plot(linx, fitfunc(p1, linx), '-g', linewidth=1.5)
         plt.grid()
         plt.xlabel("azimuth")
         plt.ylabel("aligned sample angle")

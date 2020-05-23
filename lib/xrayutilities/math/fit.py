@@ -168,11 +168,11 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
             plt.figure(plot)
         else:
             plt.figure('XU:peak_fit')
-        plt.plot(xdata, ydata, 'ko', label='data', mew=2)
+        plt.plot(xdata, ydata, 'ok', label='data', mew=2)
         if debug:
             plt.plot(xdata, gfunc(iparams, xdata), '-', color='0.5',
                      label='estimate')
-        plt.plot(xdata, gfunc(fparam, xdata), 'r-',
+        plt.plot(xdata, gfunc(fparam, xdata), '-r',
                  label='%s-fit' % peaktype)
         plt.legend()
 
@@ -730,7 +730,7 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
         else:
             raise ValueError('wrong value for parameter peaktype was given')
         f += lf
-        plt.plot(lx, (lf + lb) * fact, 'k:')
+        plt.plot(lx, (lf + lb) * fact, ':k')
 
     # plot summed signal
-    plt.plot(lx, (f + lb) * fact, 'r-', lw=1.5)
+    plt.plot(lx, (f + lb) * fact, '-r', lw=1.5)

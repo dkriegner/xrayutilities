@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import xrayutilities as xu
 from matplotlib.pylab import *
@@ -65,8 +65,8 @@ figure('XU-simpack AlGaAs (Darwin)', figsize=(10, 5))
 clf()
 
 subplot(121)
-semilogy(qz, Iideal, 'm-', lw=2, label='ideal')
-semilogy(qz, Isim, 'r-', lw=2, label='SL5')
+semilogy(qz, Iideal, '-m', lw=2, label='ideal')
+semilogy(qz, Isim, '-r', lw=2, label='SL5')
 ylim(0.5*dm.background, dm.I0)
 xlim(qz.min(), qz.max())
 plt.locator_params(axis='x', nbins=5)
@@ -76,15 +76,15 @@ legend(fontsize='small')
 
 subplot(122)
 z, xAl = dm.prop_profile(mlideal, 'x')
-plot(z/10, xAl, 'm-')
+plot(z/10, xAl, '-m')
 z, xAl = dm.prop_profile(ml, 'x')
-plot(z/10, xAl, 'r-')
+plot(z/10, xAl, '-r')
 xlabel('depth z (nm)')
 ylabel('Al-content', color='m')
 ylim(-0.05, 1.05)
 twinx()
 z, ai = dm.prop_profile(ml, 'ai')
-plot(z/10, ai, 'b-')
+plot(z/10, ai, '-b')
 xlim(-1200, 3)
 ylim(5.64, 5.68)
 plt.locator_params(axis='x', nbins=5)

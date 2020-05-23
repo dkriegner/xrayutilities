@@ -196,10 +196,10 @@ class FitModel(object):
 
                 if weights is not None:
                     eline = self.ax.errorbar(
-                        x, data, yerr=1/weights, ecolor='0.3', fmt='ko',
+                        x, data, yerr=1/weights, ecolor='0.3', fmt='ok',
                         errorevery=int(x.size/80), label='data')[0]
                 else:
-                    eline, = self.ax.plot(x, data, 'ko', label='data')
+                    eline, = self.ax.plot(x, data, 'ok', label='data')
                 if verbose:
                     init, = self.ax.plot(
                         x, model, '-', color='0.5', label='initial')
@@ -230,7 +230,7 @@ class FitModel(object):
                     return
                 if self.fline is None:
                     self.fline, = self.ax.plot(
-                        x, newmodel, 'r-', lw=2, label='fit', zorder=self.zord)
+                        x, newmodel, '-r', lw=2, label='fit', zorder=self.zord)
                 else:
                     self.fline.set_data(x, newmodel)
                 canvas = self.fig.canvas  # see plt.draw function (avoid show!)
@@ -240,7 +240,7 @@ class FitModel(object):
             def addfullmodelline(self, x, y):
                 if not self.plot:
                     return
-                self.ax.plot(x, y, 'g-', lw=1, label='full model',
+                self.ax.plot(x, y, '-g', lw=1, label='full model',
                              zorder=self.zord-1)
 
         if self.mask:

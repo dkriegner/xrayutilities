@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import matplotlib.pyplot as plt
 import numpy
@@ -27,8 +27,8 @@ F = InAs.StructureFactorForEnergy(InAs.Q(1, 1, 1), energy)
 
 plt.figure()
 plt.clf()
-plt.plot(energy, F.real, 'k-', label='Re(F)')
-plt.plot(energy, F.imag, 'r-', label='Imag(F)')
+plt.plot(energy, F.real, '-k', label='Re(F)')
+plt.plot(energy, F.imag, '-r', label='Imag(F)')
 plt.xlabel("Energy (eV)")
 plt.ylabel("F")
 plt.legend()

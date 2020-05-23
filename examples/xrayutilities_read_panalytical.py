@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012, 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 import matplotlib as mpl
@@ -70,7 +70,7 @@ cb = plt.colorbar(cf)
 cb.set_label(r"$\log($Int$)$ (cps)")
 
 tr = SiGe.RelaxationTriangle([0, 0, 4], Si, hxrd)
-# plt.plot(tr[0], tr[1], 'ko')
+# plt.plot(tr[0], tr[1], 'ok')
 plt.tight_layout()
 
 # line cut with integration along 2theta to remove beam footprint broadening
