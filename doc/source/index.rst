@@ -173,7 +173,7 @@ To keep the coding effort as small as possible *xrayutilities* depends on a
 large number of third party libraries and Python modules.
 
 The needed runtime dependencies are:
- * **Python** the scripting language in which most of *xrayutilities* code is written in. (>= 3.3, for Python 2.7 use *xrayutilities* 1.5.X or older)
+ * **Python** the scripting language in which most of *xrayutilities* code is written in. (>= 3.6, for Python 2.7 use *xrayutilities* 1.5.X or older)
  * **setuptools** python package installer
  * **Numpy** a Python module providing numerical array objects (version >= 1.9)
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.13.0)

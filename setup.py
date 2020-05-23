@@ -176,11 +176,9 @@ setup(
     description="package for x-ray diffraction data evaluation",
     classifiers=[
         "Programming Language :: C",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Physics",
         "Intended Audience :: Science/Research",
         "Development Status :: 5 - Production/Stable",
@@ -198,7 +196,7 @@ setup(
         "xrayutilities": ["VERSION", "*.conf"],
         "xrayutilities.materials": [os.path.join("data", "*")]
         },
-    python_requires='~=3.3',
+    python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
     install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py', 'setuptools'],
     extras_require={

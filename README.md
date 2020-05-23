@@ -86,7 +86,7 @@ Requirements
 ------------
 The following requirements are needed for installing and using *xrayutilities*:
 
-- Python (>= 3.3, for Python 2.7 support use version up to 1.5.x)
+- Python (>= 3.6)
 - h5py
 - scipy (version >= 0.13.0)
 - numpy (version >= 1.9)
@@ -112,8 +112,9 @@ easiest way of the installation (Anaconda, Python(x,y), or WinPython).
 Python-2.7 and Python-3.X compatibility
 =======================================
 
-The current development is for Python-3.X only. xrayutilities up to version
-1.5.x can be used with Python-2.7 as well.
+The current development is for Python3 (version >=3.6) only. xrayutilities up
+to version 1.5.x can be used with Python-2.7 as well. Python 3.3 to 3.5 was
+supported up to 1.6.0.
 
 The Python package configuration
 ================================
