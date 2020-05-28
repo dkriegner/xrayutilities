@@ -1,3 +1,5 @@
+* bugfix of the numpy.set_printoptions use
+
 v1.5.4, 2020-01-07 final python2 compatible release
 
 fix issue #84: edge case problemes in XRDML parser

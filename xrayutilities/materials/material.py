@@ -281,7 +281,7 @@ class Material(utilities.ABC):
             d = numpy.get_printoptions()
             numpy.set_printoptions(precision=2, linewidth=78, suppress=False)
             ostr += str(self.cij) + '\n'
-            numpy.set_printoptions(d)
+            numpy.set_printoptions(**d)
 
         return ostr
 
