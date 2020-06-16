@@ -153,7 +153,7 @@ def testwp(parint, wp, cifpos, digits):
             pos = eval(wyckp[i], pardict)
             match[i] = check_numbers_match(pos, cifpos[i], digits)
     if numpy.all(match):
-        return True, opt.x
+        return True, list(opt.x)
     else:
         return False, None
 
@@ -590,7 +590,7 @@ class CIFDataset(object):
                                 if xyz is None:
                                     self.wp.append(k)
                                 else:
-                                    self.wp.append((k, list(xyz)))
+                                    self.wp.append((k, xyz))
                                 self.elements.append(el)
                                 self.occ.append(occ)
                                 self.biso.append(biso)
