@@ -271,7 +271,7 @@ class WyckoffBase(list):
         for i, (atom, p, occ, b) in enumerate(self):
             ostr += '%d: %s %s ' % (i, str(atom), p[0])
             if p[1] is not None:
-                ostr += ' '.join(['%.4f' % v for v in p[1]])
+                ostr += ' '.join(map(utilities.frac2str, p[1]))
             ostr += ' occ=%5.3f b=%5.3f\n' % (occ, b)
         return ostr
 

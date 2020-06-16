@@ -20,6 +20,9 @@ xrayutilities utilities contains a conglomeration of useful functions
 which do not fit into one of the other files
 """
 
+import fractions
+import math
+
 import numpy
 
 from . import config
@@ -127,3 +130,29 @@ def maplog(inte, dynlow="config", dynhigh="config"):
     mi = inte.max() * 10 ** (-1*dynlow)  # lower bound
 
     return numpy.log10(numpy.minimum(numpy.maximum(inte, mi), ma))
+
+
+def frac2str(f, denominator_limit=25, fmt='%7.4f'):
+    """
+    convert a float to a string attempting to represent it as a fraction
+
+    Parameters
+    ----------
+    f :    float
+        floating point number to be represented as string
+    denominator_limit : int
+        maximal integer used as denominator. If f can't be expressed
+        (within xu.config.EPSILON) by a fraction with a denominator
+        up to this number a floating point string will be returned
+    fmt :  str
+        format string used in case a floating point representation is needed
+
+    Returns
+    -------
+    str
+    """
+    frac = fractions.Fraction(f).limit_denominator(denominator_limit)
+    if math.isclose(float(frac), f, abs_tol=config.EPSILON):
+        return str(frac)
+    else:
+        return fmt % f

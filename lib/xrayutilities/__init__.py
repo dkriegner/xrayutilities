@@ -38,8 +38,8 @@ from .gridder3d import FuzzyGridder3D, Gridder3D
 from .normalize import (IntensityNormalizer, blockAverage1D, blockAverage2D,
                         blockAverageCCD, blockAveragePSD)
 from .q2ang_fit import Q2AngFit
-from .utilities import (clear_bit, en2lam, energy, lam2en, makeNaturalName,
-                        maplog, set_bit, wavelength)
+from .utilities import (clear_bit, en2lam, energy, frac2str, lam2en,
+                        makeNaturalName, maplog, set_bit, wavelength)
 
 # load package version
 with open(os.path.join(__path__[0], 'VERSION')) as version_file:
