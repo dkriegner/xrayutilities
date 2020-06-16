@@ -24,7 +24,6 @@ import re
 import shlex
 
 import numpy
-import scipy.optimize
 
 from .. import config
 from . import elements
@@ -61,101 +60,6 @@ re_cell_alpha = re.compile(r"^\s*_cell_angle_alpha", re.IGNORECASE)
 re_cell_beta = re.compile(r"^\s*_cell_angle_beta", re.IGNORECASE)
 re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma", re.IGNORECASE)
 re_comment = re.compile(r"^\s*#")
-
-
-def testwp(parint, wp, cifpos, digits):
-    """
-    test if a Wyckoff position can describe the given position from a CIF file
-
-    Parameters
-    ----------
-    parint :    int
-        telling which Parameters the given Wyckoff position has
-    wp :        str or tuple
-        expression of the Wyckoff position
-    cifpos :    list, or tuple or array-like
-        (x, y, z) position of the atom in the CIF file
-    digits :    int
-        number of digits for which for a comparison of floating point numbers
-        will be rounded to
-
-    Returns
-    -------
-    foundflag :     bool
-        flag to tell if the positions match
-    pars :          array-like or None
-        parameters associated with the position or None if no parameters are
-        needed
-    """
-    def check_numbers_match(p1, p2, digits):
-        p1 = p1 - numpy.round(p1, digits) // 1
-        p2 = p2 - numpy.round(p2, digits) // 1
-        if numpy.round(p1, digits) == numpy.round(p2, digits):
-            return True
-        else:
-            return False
-
-    def get_pardict(parint, x):
-        i = 0
-        pardict = {}
-        if parint & 1:
-            pardict['x'] = x[i]
-            i += 1
-        if parint & 2:
-            pardict['y'] = x[i]
-            i += 1
-        if parint & 4:
-            pardict['z'] = x[i]
-        return pardict
-
-    wyckp = wp.strip('()').split(',')
-    # test agreement in positions witout variables
-    match = numpy.asarray([False, False, False])
-    variables = []
-    for i in range(3):
-        v = re.findall(r'[xyz]', wyckp[i])
-        if v == []:
-            pos = eval(wyckp[i])
-            match[i] = check_numbers_match(pos, cifpos[i], digits)
-            if not match[i]:
-                return False, None
-        else:
-            variables += v
-
-    if numpy.all(match):
-        return True, None
-
-    # check if with proper choice of the variables a correspondence of the
-    # positions can be obtained
-    def fmin(x, parint, wyckp, cifpos):
-        evalexp = []
-        cifp = []
-        for i in range(3):
-            if not match[i]:
-                evalexp.append(wyckp[i])
-                cifp.append(cifpos[i])
-        pardict = get_pardict(parint, x)
-        wpos = [eval(e, pardict) for e in evalexp]
-        return numpy.linalg.norm(numpy.asarray(wpos)-numpy.asarray(cifp))
-
-    x0 = []
-    if 'x' in variables:
-        x0.append(cifpos[0])
-    if 'y' in variables:
-        x0.append(cifpos[1])
-    if 'z' in variables:
-        x0.append(cifpos[2])
-
-    opt = scipy.optimize.minimize(fmin, x0, args=(parint, wyckp, cifpos))
-    pardict = get_pardict(parint, opt.x)
-    for i in range(3):
-        if not match[i]:
-            pos = eval(wyckp[i], pardict)
-            match[i] = check_numbers_match(pos, cifpos[i], digits)
-    if numpy.all(match):
-        return True, list(opt.x)
-    else:
-        return False, None
 
 
 class CIFFile(object):
@@ -584,8 +488,8 @@ class CIFDataset(object):
                             sorted(wpcand, key=operator.itemgetter(1))):
                         parint, poslist, reflcond = wp
                         for positem in poslist:
-                            foundwp, xyz = testwp(parint, positem,
-                                                  (x, y, z), self.digits)
+                            foundwp, xyz = sgl.testwp(parint, positem,
+                                                      (x, y, z), self.digits)
                             if foundwp:
                                 if xyz is None:
                                     self.wp.append(k)

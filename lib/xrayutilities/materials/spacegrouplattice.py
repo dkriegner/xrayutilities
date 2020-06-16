@@ -31,6 +31,7 @@ from collections import OrderedDict
 from math import cos, radians, sin, sqrt
 
 import numpy
+import scipy.optimize
 
 from .. import config, cxrayutilities, math, utilities
 from ..exception import InputError
@@ -178,6 +179,118 @@ def get_default_sgrp_suf(sgrp_nr):
         return possibilities[0]
     else:
         return ''
+
+
+def _get_pardict(parint, x):
+    """
+    internal helper function to determine an parameter dictionary needed for
+    the evaluation of Wyckoff positions
+
+    Parameters
+    ----------
+    parint :    int
+        integer number specifying the parameters (binary code, see
+        implementation)
+    x :         tuple, list
+        parameter values in an apropriate length list or tuple
+
+    Returns
+    -------
+    dict
+    """
+    i = 0
+    pardict = {}
+    if parint & 1:
+        pardict['x'] = x[i]
+        i += 1
+    if parint & 2:
+        pardict['y'] = x[i]
+        i += 1
+    if parint & 4:
+        pardict['z'] = x[i]
+    return pardict
+
+
+def testwp(parint, wp, cifpos, digits=config.DIGITS):
+    """
+    test if a Wyckoff position can describe the given position from a CIF file
+
+    Parameters
+    ----------
+    parint :    int
+        telling which Parameters the given Wyckoff position has
+    wp :        str or tuple
+        expression of the Wyckoff position
+    cifpos :    list, or tuple or array-like
+        (x, y, z) position of the atom in the CIF file
+    digits :    int
+        number of digits for which for a comparison of floating point numbers
+        will be rounded to. By default xu.config.DIGITS is used.
+
+    Returns
+    -------
+    foundflag :     bool
+        flag to tell if the positions match
+    pars :          array-like or None
+        parameters associated with the position or None if no parameters are
+        needed
+    """
+    def check_positions_match(p1, p2, digits):
+        p1 = p1 - numpy.round(p1, digits) // 1
+        p2 = p2 - numpy.round(p2, digits) // 1
+        if numpy.round(p1, digits) == numpy.round(p2, digits):
+            return True
+        else:
+            return False
+
+    wyckp = wp.strip('()').split(',')
+    # test agreement in positions witout variables
+    match = [False, False, False]
+    variables = []
+    for i in range(3):
+        v = re.findall(r'[xyz]', wyckp[i])
+        if v == []:
+            pos = eval(wyckp[i])
+            match[i] = check_positions_match(pos, cifpos[i], digits)
+            if not match[i]:
+                return False, None
+        else:
+            variables += v
+
+    if all(match):
+        return True, None
+
+    # check if with proper choice of the variables a correspondence of the
+    # positions can be obtained
+    def fmin(x, parint, wyckp, cifpos):
+        evalexp = []
+        cifp = []
+        for i in range(3):
+            if not match[i]:
+                evalexp.append(wyckp[i])
+                cifp.append(cifpos[i])
+        pardict = _get_pardict(parint, x)
+        wpos = [eval(e, pardict) for e in evalexp]
+        return numpy.linalg.norm(numpy.subtract(wpos, cifp))
+
+    x0 = []
+    if 'x' in variables:
+        x0.append(cifpos[0])
+    if 'y' in variables:
+        x0.append(cifpos[1])
+    if 'z' in variables:
+        x0.append(cifpos[2])
+
+    opt = scipy.optimize.minimize(fmin, x0, args=(parint, wyckp, cifpos))
+    pardict = _get_pardict(parint, opt.x)
+    for i in range(3):
+        if not match[i]:
+            pos = eval(wyckp[i], pardict)
+            match[i] = check_positions_match(pos, cifpos[i], digits)
+    if numpy.all(match):
+        return True, list(opt.x)
+    else:
+        return False, None
 
 
 class WyckoffBase(list):
