@@ -89,10 +89,10 @@ def Cij2Cijkl(cij):
     for i in range(0, 3):
         for j in range(0, 3):
             for k in range(0, 3):
-                for l in range(0, 3):
+                for n in range(0, 3):
                     mi = index_map_ijkl2ij(i, j)
-                    mj = index_map_ijkl2ij(k, l)
-                    cijkl[i, j, k, l] = m[mi, mj]
+                    mj = index_map_ijkl2ij(k, n)
+                    cijkl[i, j, k, n] = m[mi, mj]
     return cijkl
 
 
@@ -1396,12 +1396,8 @@ class Crystal(Material):
                 for j in range(-1, 2):
                     for k in range(-1, 2):
                         atpos = (pos + [i, j, k])
-                        inunitcell = True
-                        for l in range(3):
-                            if (atpos[l] < -config.EPSILON or
-                                    atpos[l] > 1+config.EPSILON):
-                                inunitcell = False
-                        if inunitcell:
+                        if all(a > -config.EPSILON and a < 1+config.EPSILON
+                               for a in atpos):
                             vecpos = atpos[0]*self.a1 + atpos[1]*self.a2 +\
                                      atpos[2]*self.a3
                             plot_sphere(fig, vecpos, r, occ, complexity,

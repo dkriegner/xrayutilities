@@ -303,8 +303,8 @@ class KinematicalModel(LayerModel):
         thickness does NOT require this!)
         """
         if self._init_en != self.energy:  # recalc properties if energy changed
-            self.chi0 = numpy.asarray([l.material.chi0(en=self.energy)
-                                       for l in self.lstack])
+            self.chi0 = numpy.asarray([layer.material.chi0(en=self.energy)
+                                       for layer in self.lstack])
             self._init_en = self.energy
 
     def _prepare_kincalculation(self, qz, hkl):
@@ -591,15 +591,16 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             # calculate chih
             self.chih = {'S': [], 'P': []}
             self.chimh = {'S': [], 'P': []}
-            for l in self.lstack:
-                q = l.material.Q(self.hkl)
+            for lay in self.lstack:
+                q = lay.material.Q(self.hkl)
                 thetaB = numpy.arcsin(numpy.linalg.norm(q) / 2 / self.exp.k0)
-                ch = l.material.chih(q, en=self.energy, polarization='S')
+                ch = lay.material.chih(q, en=self.energy, polarization='S')
                 self.chih['S'].append(-ch[0] + 1j*ch[1])
                 self.chih['P'].append((-ch[0] + 1j*ch[1]) *
                                       numpy.abs(numpy.cos(2*thetaB)))
-                if not getattr(l, 'inversion_sym', False):
-                    ch = l.material.chih(-q, en=self.energy, polarization='S')
+                if not getattr(lay, 'inversion_sym', False):
+                    ch = lay.material.chih(-q, en=self.energy,
+                                           polarization='S')
                 self.chimh['S'].append(-ch[0] + 1j*ch[1])
                 self.chimh['P'].append((-ch[0] + 1j*ch[1]) *
                                        numpy.abs(numpy.cos(2*thetaB)))
@@ -909,8 +910,8 @@ class SpecularReflectivityModel(LayerModel):
         thickness and roughness do NOT require this!)
         """
         if self._init_en != self.energy:
-            self.cd = numpy.asarray([-l.material.chi0(en=self.energy)/2
-                                     for l in self.lstack])
+            self.cd = numpy.asarray([-layer.material.chi0(en=self.energy)/2
+                                     for layer in self.lstack])
             self._init_en = self.energy
 
     def simulate(self, alphai):
@@ -932,10 +933,10 @@ class SpecularReflectivityModel(LayerModel):
         ns, np = (len(self.lstack), len(alphai))
         lai = alphai - self.offset
         # get layer properties
-        t = numpy.asarray([l.thickness for l in self.lstack])
-        sig = numpy.asarray([l.roughness for l in self.lstack])
-        rho = numpy.asarray([l.density/l.material.density
-                             for l in self.lstack])
+        t = numpy.asarray([layer.thickness for layer in self.lstack])
+        sig = numpy.asarray([layer.roughness for layer in self.lstack])
+        rho = numpy.asarray([layer.density/layer.material.density
+                             for layer in self.lstack])
         cd = self.cd
 
         sai = numpy.sin(numpy.radians(lai))
@@ -1004,10 +1005,10 @@ class SpecularReflectivityModel(LayerModel):
         nl = len(self.lstack)
 
         # get layer properties
-        t = numpy.asarray([l.thickness for l in self.lstack])
-        sig = numpy.asarray([l.roughness for l in self.lstack])
-        rho = numpy.asarray([l.density/l.material.density
-                             for l in self.lstack])
+        t = numpy.asarray([layer.thickness for layer in self.lstack])
+        sig = numpy.asarray([layer.roughness for layer in self.lstack])
+        rho = numpy.asarray([layer.density/layer.material.density
+                             for layer in self.lstack])
         delta = numpy.real(self.cd)
 
         totT = numpy.sum(t[1:])
@@ -1098,8 +1099,8 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
     def _setOpticalConstants(self):
         if self._init_en_opt != self.energy:
             self.n_indices = numpy.asarray(
-                [l.material.idx_refraction(en=self.energy)
-                 for l in self.lstack])
+                [layer.material.idx_refraction(en=self.energy)
+                 for layer in self.lstack])
             # append n = 1 for vacuum
             self.n_indices = numpy.append(self.n_indices, 1)[::-1]
             self._init_en_opt = self.energy
@@ -1109,7 +1110,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         Calculation of Refraction and Translation Matrices per angle per layer.
         """
         # Set heights for each layer
-        heights = numpy.asarray([l.thickness for l in self.lstack[1:]])
+        heights = numpy.asarray([layer.thickness for layer in self.lstack[1:]])
         heights = numpy.cumsum(heights)[::-1]
         heights = numpy.insert(heights, 0, 0.)  # first interface is at z=0
 
@@ -1119,7 +1120,8 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
              for n in self.n_indices]).T)
 
         # set Roughness for each layer
-        roughness = numpy.asarray([l.roughness for l in self.lstack[1:]])[::-1]
+        roughness = numpy.asarray([layer.roughness
+                                   for layer in self.lstack[1:]])[::-1]
         roughness = numpy.insert(roughness, 0, 0.)  # first interface is at z=0
 
         # Roughness is approximated by a Gaussian Statistics model modification
@@ -1313,18 +1315,19 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         lai = alphai - self.offset
 
         # get layer properties
-        t = numpy.asarray([l.thickness for l in self.lstack])
-        sig = numpy.asarray([l.roughness for l in self.lstack])
-        rho = numpy.asarray([l.density/l.material.density
-                             for l in self.lstack])
+        t = numpy.asarray([layer.thickness for layer in self.lstack])
+        sig = numpy.asarray([layer.roughness for layer in self.lstack])
+        rho = numpy.asarray([layer.density/layer.material.density
+                             for layer in self.lstack])
         cd = self.cd
         qzvec = 4 * numpy.pi * numpy.sin(numpy.radians(lai)) /\
             utilities.en2lam(self.energy)
         qvec = numpy.array([[0., 0., qz] for qz in qzvec])
-        chihP = numpy.array([[l.material.chih(q, en=self.energy,
-                                              polarization=self.polarization)
-                              for q in qvec]
-                             for l in self.lstack])
+        chihP = numpy.array(
+            [[layer.material.chih(q, en=self.energy,
+                                  polarization=self.polarization)
+              for q in qvec]
+             for layer in self.lstack])
 
         if self.polarization in ['S', 'P']:
             cd = cd + chihP
@@ -1435,11 +1438,13 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         nl = len(self.lstack)
         self.init_cd()
 
-        t = numpy.asarray([float(l.thickness) for l in self.lstack[nl:0:-1]])
-        sig = [float(l.roughness) for l in self.lstack[nl::-1]]
-        rho = [l.density/l.material.density for l in self.lstack[nl::-1]]
+        t = numpy.asarray([float(layer.thickness)
+                           for layer in self.lstack[nl:0:-1]])
+        sig = [float(layer.roughness) for layer in self.lstack[nl::-1]]
+        rho = [layer.density/layer.material.density
+               for layer in self.lstack[nl::-1]]
         delta = self.cd * numpy.asarray(rho)
-        xiL = [float(l.lat_correl) for l in self.lstack[nl::-1]]
+        xiL = [float(layer.lat_correl) for layer in self.lstack[nl::-1]]
 
         return t, sig, rho, delta, xiL
 

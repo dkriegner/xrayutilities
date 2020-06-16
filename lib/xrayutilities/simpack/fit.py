@@ -72,12 +72,12 @@ class FitModel(object):
         for p in self.lmodel.fit_paramnames:
             funcstr += "{}, ".format(p)
         # add LayerStack parameters
-        for l in self.lmodel.lstack:
+        for layer in self.lmodel.lstack:
             for param in self.lmodel.lstack_params:
-                funcstr += '{}_{}, '.format(l.name, param)
+                funcstr += '{}_{}, '.format(layer.name, param)
             if self.lmodel.lstack_structural_params:
-                for param in l._structural_params:
-                    funcstr += '{}_{}, '.format(l.name, param)
+                for param in layer._structural_params:
+                    funcstr += '{}_{}, '.format(layer.name, param)
         funcstr += "lmodel=self.lmodel, **kwargs):\n"
         # define modelfunc content
         for p in self.lmodel.fit_paramnames:
@@ -296,20 +296,20 @@ class FitModel(object):
         self.set_param_hint('energy', min=1000, vary=False)
 
         # parameters of the layerstack
-        for l in self.lmodel.lstack:
+        for lay in self.lmodel.lstack:
             for param in self.lmodel.lstack_params:
-                varname = '{}_{}'.format(l.name, param)
-                self.set_param_hint(varname, value=getattr(l, param), min=0)
+                varname = '{}_{}'.format(lay.name, param)
+                self.set_param_hint(varname, value=getattr(lay, param), min=0)
                 if param == 'density':
-                    self.set_param_hint(varname, max=1.5*l.material.density)
+                    self.set_param_hint(varname, max=1.5*lay.material.density)
                 if param == 'thickness':
-                    self.set_param_hint(varname, max=2*l.thickness)
+                    self.set_param_hint(varname, max=2*lay.thickness)
                 if param == 'roughness':
                     self.set_param_hint(varname, max=50)
             if self.lmodel.lstack_structural_params:
-                for param in l._structural_params:
-                    varname = '{}_{}'.format(l.name, param)
-                    self.set_param_hint(varname, value=getattr(l, param),
+                for param in lay._structural_params:
+                    varname = '{}_{}'.format(lay.name, param)
+                    self.set_param_hint(varname, value=getattr(lay, param),
                                         vary=False)
                     if 'occupation' in param:
                         self.set_param_hint(varname, min=0, max=1)

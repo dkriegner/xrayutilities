@@ -14,12 +14,13 @@ Is everything running fine? perform the tests and run the examples
   # update copyright notice in doc/source/conf.py and README.md
   pycodestyle lib
   # allowed output is:
-  # lib/xrayutilities/materials/elements.py:36:1: E741 ambiguous variable name 'O'
-  # lib/xrayutilities/materials/elements.py:139:1: E741 ambiguous variable name 'I'
-  # lib/xrayutilities/math/fit.py:100:80: E501 line too long (100 > 79 characters)
-  # lib/xrayutilities/math/fit.py:199:80: E501 line too long (90 > 79 characters)
-  # lib/xrayutilities/math/fit.py:273:80: E501 line too long (90 > 79 characters)
-  # lib/xrayutilities/math/fit.py:314:80: E501 line too long (90 > 79 characters)
+lib/xrayutilities/materials/elements.py:36:1: E741 ambiguous variable name 'O'
+lib/xrayutilities/materials/elements.py:140:1: E741 ambiguous variable name 'I'
+lib/xrayutilities/materials/spacegrouplattice.py:991:31: E741 ambiguous variable name 'l'
+lib/xrayutilities/math/fit.py:93:80: E501 line too long (100 > 79 characters)
+lib/xrayutilities/math/fit.py:192:80: E501 line too long (90 > 79 characters)
+lib/xrayutilities/math/fit.py:266:80: E501 line too long (90 > 79 characters)
+lib/xrayutilities/math/fit.py:307:80: E501 line too long (90 > 79 characters)
   # run the unit tests
   tox
   # tox coverage does not contain the database creation during building of the

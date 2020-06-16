@@ -589,8 +589,8 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     ax.set_xlabel('2Theta (deg)')
     ax.set_ylabel('Intensity')
     lines = ax.get_lines()
-    plt.figlegend(lines, [l.get_label() for l in lines], loc='upper right',
-                  frameon=True)
+    plt.figlegend(lines, [line.get_label() for line in lines],
+                  loc='upper right', frameon=True)
     ax.set_yscale(scale)
     f.tight_layout()
     return lines
