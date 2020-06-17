@@ -56,10 +56,10 @@ class TestPseudomorphic(unittest.TestCase):
         mBpseudo = stack[-1].material
 
         # calc lattice for mBpseudo
-        def get_inplane111(l):
+        def get_inplane111(lay):
             """determine inplane lattice parameter for (111) surfaces"""
-            return (xu.math.VecNorm(l.GetPoint(1, 1, -2)) / math.sqrt(6) +
-                    xu.math.VecNorm(l.GetPoint(1, -1, 0)) / math.sqrt(2)) / 2
+            return (xu.math.VecNorm(lay.GetPoint(1, 1, -2)) / math.sqrt(6) +
+                    xu.math.VecNorm(lay.GetPoint(1, -1, 0)) / math.sqrt(2)) / 2
         asub = get_inplane111(self.mA.lattice)
         abulk = get_inplane111(self.mB.lattice)
 
