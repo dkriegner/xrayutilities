@@ -287,7 +287,7 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
         if not match[i]:
             pos = eval(wyckp[i], pardict)
             match[i] = check_positions_match(pos, cifpos[i], digits)
-    if numpy.all(match):
+    if all(match):
         return True, list(opt.x)
     else:
         return False, None

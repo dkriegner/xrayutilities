@@ -453,20 +453,13 @@ class CIFDataset(object):
                           'using built in general positions.')
             self.unique_positions = []
             for el, (x, y, z), occ, biso in self.atoms:
-                unique_pos = []
+                unique_pos = set()
                 for symop in symops:
                     pos = eval(symop, {'x': x, 'y': y, 'z': z})
                     pos = numpy.asarray(pos)
                     # check that position is within unit cell
                     pos = pos - numpy.round(pos, self.digits) // 1
-                    # check if position is unique
-                    unique = True
-                    for upos in unique_pos:
-                        if (numpy.round(upos, self.digits) ==
-                                numpy.round(pos, self.digits)).all():
-                            unique = False
-                    if unique:
-                        unique_pos.append(pos)
+                    unique_pos.add(tuple(pos))
                 self.unique_positions.append((el, unique_pos, occ, biso))
 
             # determine Wyckoff positions and free parameters of unit cell
@@ -545,20 +538,17 @@ class CIFDataset(object):
                     print('XU.material: space-group detection failed, '
                           'using P1')
 
-        atoms = []
-        pos = []
-        occ = []
-        biso = []
+        atomdict = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
         for element, positions, o, b in self.unique_positions:
             for p in positions:
-                atoms.append(element)
-                pos.append(('1a', p))
-                occ.append(o)
-                biso.append(b)
+                atomdict['atoms'].append(element)
+                atomdict['pos'].append(('1a', p))
+                atomdict['occ'].append(o)
+                atomdict['b'].append(b)
 
         return sgl.SGLattice(1, *itertools.chain(self.lattice_const,
                                                  self.lattice_angles),
-                             atoms=atoms, pos=pos, occ=occ, b=biso)
+                             **atomdict)
 
     def __str__(self):
         """
