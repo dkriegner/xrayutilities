@@ -707,10 +707,10 @@ class SGLattice(object):
     def _hklsym(self):
         if self._hklmat == []:
             for s in self.symops:
-                self._hklmat.append(numpy.round(self.qtransform.imatrix @
-                                                self.transform.matrix @ s.D @
-                                                self.transform.imatrix @
-                                                self.qtransform.matrix,
+                self._hklmat.append(numpy.round(self._qtransform.imatrix @
+                                                self._transform.matrix @ s.D @
+                                                self._transform.imatrix @
+                                                self._qtransform.matrix,
                                                 config.DIGITS))
         return self._hklmat
 
@@ -773,7 +773,7 @@ class SGLattice(object):
         self._ai[1, 1] = b * sa
         self._ai[1, 2] = b * ca
         self._ai[2, 2] = c
-        self.transform = math.Transform(self._ai.T)
+        self._transform = math.Transform(self._ai.T)
         self._setb()
 
     def _setb(self):
@@ -782,7 +782,7 @@ class SGLattice(object):
         math.VecCross(p*self._ai[1, :], self._ai[2, :], out=self._bi[0, :])
         math.VecCross(p*self._ai[2, :], self._ai[0, :], out=self._bi[1, :])
         math.VecCross(p*self._ai[0, :], self._ai[1, :], out=self._bi[2, :])
-        self.qtransform = math.Transform(self._bi.T)
+        self._qtransform = math.Transform(self._bi.T)
 
     def _set_params_from_sym(self):
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
@@ -911,7 +911,7 @@ class SGLattice(object):
         """
         if len(args) == 1:
             args = args[0]
-        return self.transform(args)
+        return self._transform(args)
 
     def GetQ(self, *args):
         """
@@ -920,7 +920,7 @@ class SGLattice(object):
         """
         if len(args) == 1:
             args = args[0]
-        return self.qtransform(args)
+        return self._qtransform(args)
 
     def GetHKL(self, *args):
         """
@@ -928,7 +928,7 @@ class SGLattice(object):
         """
         if len(args) == 1:
             args = args[0]
-        return self.qtransform.inverse(args)
+        return self._qtransform.inverse(args)
 
     def UnitCellVolume(self):
         """
@@ -1104,7 +1104,7 @@ class SGLattice(object):
         def recurse_hkl(h, k, l, kstep):
             if (h, k, l) in hkltested:
                 return
-            m = self.qtransform.matrix
+            m = self._qtransform.matrix
             q = m[:, 0]*h + m[:, 1]*k + m[:, 2]*l  # efficient matmul
             if sqrt(q[0]**2 + q[1]**2 + q[2]**2) >= qmax:
                 return
@@ -1178,3 +1178,225 @@ class SGLattice(object):
             biso.append(bf)
         return type(self)(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
                           occ=occ, b=biso)
+
+    def findsym(self):
+        """
+        method to return the highest symmetry description of the current
+        material. This method does not consider to change the unit cell
+        dimensions but only searches the highest symmetry spacegroup which with
+        the current unit cell setting can be described. It is therefore not an
+        implementation of FINDSYM [1].
+
+        Returns
+        -------
+        new SGLattice-instance
+            a new SGLattice instance is returned with the highest available
+            symmetry description. (see restrictions above)
+
+        [1] https://stokes.byu.edu/iso/findsym.php
+        """
+        def identify_wyckpos(sgrp, atoms):
+            """
+            try to determine suitable Wyckoff positionss
+
+            Parameters
+            ----------:
+            sgrp : str
+                space group identifier (including potential suffix)
+            atoms : list
+                list of atoms in the unit cell. should have equivalent entries
+                as SGLattice.base()
+
+            Returns
+            -------
+            success, atomdict
+                "success" is a boolean flag to indicate if equivalents for
+                every atom position could be found upon success "atomdict" is a
+                dictionary which can be used in a SGLattice definition to
+                specify the unit cell. If success==False atomdict is None.
+            """
+            # get all Wyckpos for this spacegroup
+            atomdict = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
+            success = True
+
+            elements = set(at[0] for at in atoms)
+            # check all atomic species seperately
+            for el in elements:
+                catoms = list(filter(lambda at: at[0] == el, atoms))
+                found = numpy.zeros(len(catoms), dtype=numpy.bool)
+                # see if atomic positions fit to Wyckoff positions
+                for k, wyckpos in wp[sgrp].items():
+                    num = int(k[:-1])
+                    if num > len(catoms)-sum(found):
+                        break
+                    parint, poslist, reflcond = wyckpos
+                    for f, (dummy, xyz, occ, biso) in zip(found, catoms):
+                        if f:
+                            continue
+                        for positem in poslist:
+                            foundwp, pospar = testwp(parint, positem, xyz)
+                            if foundwp:
+                                break
+                        if foundwp:
+                            # generate parameters of this Wyckoff position
+                            pardict = _get_pardict(parint, pospar)
+
+                            # check if all equivalent positions are also
+                            # occupied by the same atom
+                            nremoved = 0
+                            for p in poslist:
+                                pos = eval(p, {}, pardict)
+                                pos = SymOp.foldback(pos)
+                                for n, entry in enumerate(catoms):
+                                    if numpy.allclose(entry[1], pos):
+                                        # remove atom from search list
+                                        nremoved += 1
+                                        found[n] = True
+                            if nremoved != num:
+                                # not all equivalent positions occupied
+                                return False, None
+                            else:
+                                # add Wyckoff position to output
+                                if pospar is None:
+                                    atomdict['pos'].append(k)
+                                else:
+                                    atomdict['pos'].append((k, list(pospar)))
+                                atomdict['atoms'].append(el)
+                                atomdict['occ'].append(occ)
+                                atomdict['b'].append(biso)
+
+                    if num > len(catoms)-sum(found):
+                        break
+                if len(catoms) != sum(found):
+                    success = False
+                    atomdict = None
+                    break
+
+            return success, atomdict
+
+        # determine possible space groups for unit cell parameters
+        systems = []
+        possible_sg = []
+
+        # determine possible lattice systems
+        for sys in ('cubic', 'hexagonal', 'trigonal:R', 'trigonal:H',
+                    'tetragonal', 'orthorhombic', 'monoclinic:b',
+                    'monoclinic:c', 'triclinic'):
+            freepar, ucpar = sgrp_params[sys]
+            ucsys = []
+            for par in ucpar:
+                if isinstance(par, numbers.Number):
+                    ucsys.append(par)
+                else:
+                    ucsys.append(eval(par, {}, self._parameters))
+
+            if all(numpy.isclose(tuple(self._parameters.values()), ucsys)):
+                systems.append(sys)
+
+        # determine suitable space group numbers and names for these families
+        for sys in systems:
+            freepar, ucpar = sgrp_params[sys]
+            splitsys = sys.split(':')
+            suf = None
+            if len(splitsys) > 1:
+                suf = ':' + splitsys[1]
+            for sgrange, v in sgrp_sym.items():
+                if v[0] == splitsys[0]:
+                    for nr in reversed(sgrange):
+                        sufs = get_possible_sgrp_suf(nr)
+                        if suf is None:
+                            if isinstance(sufs, list):
+                                for s in sufs:
+                                    possible_sg.append((str(nr) + s, freepar))
+                            else:
+                                possible_sg.append((str(nr), freepar))
+                        else:
+                            if suf in sufs:
+                                possible_sg.append((str(nr) + suf, freepar))
+                            else:
+                                possible_sg.append((str(nr), freepar))
+
+        # test space groups starting with the highest symmetric one
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.materials.SGLattice.findsym: possible space groups: ",
+                  possible_sg)
+
+        for sgrp, ucpar in possible_sg:
+            success, atoms = identify_wyckpos(sgrp, list(self.base()))
+            if success:
+                break
+
+        return type(self)(sgrp, *[self._parameters[k] for k in ucpar], **atoms)
+
+    def transform(self, mat, origin):
+        """
+        Transform the unit cell with the matrix and origin shift given in the
+        parameters. This function returns a new instance of SGLattice which
+        contains the highest possible symmetry description of the transformed
+        unit cell. After the transformation (see [1]) the findsym method is
+        used to create the new SGLattice instance.
+
+        Parameters
+        ----------
+        transform : (3, 3) list, or ndarray, optional
+            transformation matrix of the unit cell. The matrix definition aims
+            to be consistent with what is used on the Bilbao Crystallographic
+            Server [1]. This only defines the linear part, while the origin
+            shift is given by origin.
+        origin :    (3, ) list, or ndarray
+            origin shift of the unit cell [1].
+
+        [1] https://www.cryst.ehu.es/cgi-bin/cryst/programs/nph-doc-trmat
+        """
+        # transform unit cell dimensions
+        ait = numpy.transpose(mat @ self._ai.T)
+        a, b, c = [math.VecNorm(ait[i, :]) for i in range(3)]
+        al, be, ga = [math.VecAngle(ait[(i+1) % 3, :],
+                                    ait[(i+2) % 3, :],
+                                    deg=True) for i in range(3)]
+        param = (a, b, c, al, be, ga)
+
+        # transform atomic positions and also search neighboring cells to find
+        # all equivalent positions
+        def recurse_cells(fracpos, outset):
+            """
+            recursive search in neighboring cells.
+
+            Note that if this function would operate on the Wyckoff position
+            level it could use the determinant of the transformation matrix
+            (unit cell volume change) to derive an additional abort criterion
+            """
+            pos = invmat @ fracpos + origin
+            pos = SymOp.foldback(pos)
+            pos = tuple(numpy.round(pos, config.DIGITS))
+            if pos in outset:
+                return
+            else:
+                outset.add(pos)
+                g = numpy.mgrid[-1:2, -1:2, -1:2].T.reshape(27, 3).tolist()
+                g.remove([0, 0, 0])
+                for off in g:
+                    recurse_cells(numpy.add(fracpos, off), outset)
+
+        allatoms = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
+        invmat = numpy.linalg.inv(mat)
+        elements = set(at[0] for at in self.base())
+        # check all atomic species seperately
+        for el in elements:
+            catoms = list(filter(lambda at: at[0] == el, self.base()))
+            elset = set()
+            for at in catoms:
+                eqpos = set()
+                recurse_cells(at[1], eqpos)
+                for pos in eqpos:
+                    if (pos, at[2], at[3]) not in elset:
+                        elset.add((pos, at[2], at[3]))
+                        allatoms['pos'].append(('1a', pos))
+                        allatoms['atoms'].append(el)
+                        allatoms['occ'].append(at[2])
+                        allatoms['b'].append(at[3])
+
+        p1 = type(self)(1, *param, **allatoms)
+        if config.VERBOSITY >= config.DEBUG:
+            print("XU.materials.SGLattice: transform via P1: ", p1)
+        return p1.findsym()

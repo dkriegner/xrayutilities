@@ -582,7 +582,7 @@ class Crystal(Material):
 
     @property
     def B(self):
-        return self.lattice.qtransform.matrix
+        return self.lattice._qtransform.matrix
 
     def __eq__(self, other):
         """
