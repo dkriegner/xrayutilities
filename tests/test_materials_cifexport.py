@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2018-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 import tempfile
@@ -38,7 +38,8 @@ class Test_CIF_export(unittest.TestCase):
                 filename = fid.name
             m.toCIF(filename)
             c = xu.materials.Crystal.fromCIF(filename)
-            self.assertEqual(m, c)
+            self.assertEqual(m, c, msg=f"Crystal {m.name} different after "
+                             "toCIF/fromCIF conversion")
             os.remove(filename)
 
 
