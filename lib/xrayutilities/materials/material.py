@@ -502,7 +502,7 @@ class Crystal(Material):
             self.thetaDebye = thetaDebye
 
     @classmethod
-    def fromCIF(cls, ciffilestr):
+    def fromCIF(cls, ciffilestr, **kwargs):
         """
         Create a Crystal from a CIF file. The default data-set from the cif
         file will be used to create the Crystal.
@@ -511,12 +511,14 @@ class Crystal(Material):
         ----------
         ciffilestr :    str, bytes
             filename of the CIF file or string representation of the CIF file
+        kwargs : dict
+            keyword arguments are passed to the init-method of CIFFile
 
         Returns
         -------
         Crystal
         """
-        cf = cif.CIFFile(ciffilestr)
+        cf = cif.CIFFile(ciffilestr, **kwargs)
         lat = cf.SGLattice()
         return cls(cf.data[cf._default_dataset].name, lat)
 

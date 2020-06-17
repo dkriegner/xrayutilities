@@ -73,7 +73,7 @@ class CIFFile(object):
     parse all of them into the the data dictionary. By default all methods
     access the first data set found in the file.
     """
-    def __init__(self, filestr, digits=3):
+    def __init__(self, filestr, digits=4):
         """
         initialization of the CIFFile class
 
@@ -459,7 +459,7 @@ class CIFDataset(object):
                     pos = numpy.asarray(pos)
                     # check that position is within unit cell
                     pos = pos - numpy.round(pos, self.digits) // 1
-                    unique_pos.add(tuple(pos))
+                    unique_pos.add(tuple(numpy.round(pos, self.digits)))
                 self.unique_positions.append((el, unique_pos, occ, biso))
 
             # determine Wyckoff positions and free parameters of unit cell
