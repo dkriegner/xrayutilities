@@ -26,7 +26,6 @@ import numpy
 from matplotlib import scale as mscale
 from matplotlib import ticker as mticker
 from matplotlib import transforms as mtransforms
-from pkg_resources import parse_version
 
 
 class SqrtAllowNegScale(mscale.ScaleBase):
@@ -47,10 +46,7 @@ class SqrtAllowNegScale(mscale.ScaleBase):
         ``set_yscale`` will be passed along to the scale's
         constructor.
         """
-        if parse_version(matplotlib.__version__) < parse_version('3.1.0'):
-            super().__init__(**kwargs)
-        else:
-            super().__init__(axis, **kwargs)
+        super().__init__(axis, **kwargs)
 
     def set_default_locators_and_formatters(self, axis):
         axis.set_major_locator(SqrtTickLocator())
@@ -102,10 +98,7 @@ class SqrtAllowNegScale(mscale.ScaleBase):
 
 class SqrtTickLocator(mticker.Locator):
     def __init__(self, nbins=7, symmetric=True):
-        if parse_version(matplotlib.__version__) < parse_version('3.1.0'):
-            self._base = mticker.Base(1.0)
-        else:
-            self._base = mticker._Edge_integer(1.0, 0)
+        self._base = mticker._Edge_integer(1.0, 0)
         self.set_params(nbins, symmetric)
 
     def set_params(self, nbins, symmetric):

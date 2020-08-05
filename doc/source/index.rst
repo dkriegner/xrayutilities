@@ -161,7 +161,7 @@ which will install *xrayutilities* to the default directory. It should be possib
 Detailed instructions
 ---------------------
 
-Installing *xrayutilities* is done using Python's distutils
+Installing *xrayutilities* is done using Python's setuptools
 
 The package can be installed on Linux, Mac OS X and Microsoft Windows, however, it is mostly tested on Linux/Unix platforms.
 Please inform one of the authors in case the installation fails!
@@ -174,14 +174,12 @@ large number of third party libraries and Python modules.
 
 The needed runtime dependencies are:
  * **Python** the scripting language in which most of *xrayutilities* code is written in. (>= 3.6, for Python 2.7 use *xrayutilities* 1.5.X or older)
- * **setuptools** python package installer
  * **Numpy** a Python module providing numerical array objects (version >= 1.9)
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.13.0)
  * **h5py** a powerful Python interface to HDF5.
- * **setuptools** needed to provide the *pkg_resources* module
 
 For several features optional dependencies are needed:
- * **Matplotlib** a Python module for high quality 1D and 2D plotting (optional)
+ * **Matplotlib** a Python module for high quality 1D and 2D plotting (optional, version >= 3.1.0)
  * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR/XRD data)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
  * **mayavi** only used optionally in Crystal.show_unitcell where it produces a superior visualization to otherwise used Matplotlib 3D plots

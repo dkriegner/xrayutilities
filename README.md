@@ -37,7 +37,7 @@ Contents
 * *examples*:           directory with example scripts and configurations
 * *lib/xrayutilities*:  directory with the sources for the Python package
 * *tests*:              directory with the unittest scripts
-* *setup.py*:           distutils install script used for the package installation
+* *setup.py*:           setuptools install script used for the package installation
 * *xrayutilities.pdf*:  pdf-file with documentation of the package
 
 
@@ -90,9 +90,9 @@ The following requirements are needed for installing and using *xrayutilities*:
 - h5py
 - scipy (version >= 0.13.0)
 - numpy (version >= 1.9)
-- setuptools (to provide the pkg_resources module)
+- setuptools (for installation only)
 - lmfit (>= 1.0.1, optional)
-- matplotlib (optional)
+- matplotlib (optional, version >= 3.1.0)
 - mayavi (optional, only used optionally in Crystal.show_unitcell)
 
 When building from source you also might need:
@@ -173,9 +173,9 @@ need to reinstall the Python package. Thats easiest achieved by
 In case you are not certain about the installation location it can be determined by
 
     python -c "import xrayutilities as xu; print xu.__file__"
-      /usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.pyc
+      /usr/local/lib64/python3.6/site-packages/xrayutilities/__init__.pyc
 
-if the output is e.g.: */usr/local/lib64/python2.7/site-packages/xrayutilities/__init__.py*
+if the output is e.g.: */usr/local/lib64/python3.6/site-packages/xrayutilities/__init__.py*
 you previously installed xrayutilities in */usr/local*, which should be used
 again as install path. Use ::
 

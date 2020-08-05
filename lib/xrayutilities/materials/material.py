@@ -33,7 +33,6 @@ from math import ceil, copysign
 
 import numpy
 import scipy.optimize
-from pkg_resources import parse_version as parsever
 
 from .. import config, math, utilities
 from ..exception import InputError
@@ -1423,8 +1422,6 @@ class Crystal(Material):
                   linewidth)
 
         if mode == 'matplotib':
-            if parsever(plt.matplotlib.__version__) < parsever('3.1.0'):
-                ax.set_aspect("equal")
             if config.VERBOSITY >= config.INFO_LOW:
                 warnings.warn("show_unitcell: 3D projection might appear "
                               "distorted (limited 3D capabilities of "

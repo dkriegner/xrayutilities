@@ -198,9 +198,9 @@ setup(
         },
     python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
-    install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py', 'setuptools'],
+    install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py'],
     extras_require={
-        'plot': ["matplotlib"],
+        'plot': ["matplotlib>=3.1.0"],
         'fit': ["lmfit>=1.0.1"],
         'lzma': ["lzma"],
         },
