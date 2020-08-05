@@ -69,7 +69,9 @@ def _makebounds(boundsin):
             else:
                 raise InputError('bound values must have two or one elements')
         elif isinstance(b, numbers.Number):
-            boundsout.append((b, b))  # variable fixed
+            # boundsout.append((b, b))  # variable fixed
+            # due to a bug in scipy >= 1.5.0 we need to allow a small variation
+            boundsout.append((b-config.EPSILON, b+config.EPSILON))
         elif b is None:
             boundsout.append((None, None))  # no bound
         else:
