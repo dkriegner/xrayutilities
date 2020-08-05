@@ -74,7 +74,7 @@ class CBFFile(object):
         this function is called by the initialization
         """
         with xu_open(self.full_filename, 'rb') as fid:
-            tmp = numpy.fromfile(file=fid, dtype="u1").tostring()
+            tmp = numpy.fromfile(file=fid, dtype="u1").tobytes()
             tmp2 = tmp.decode('ascii', 'ignore')
             # read header information
             pos = tmp2.index(self.nxkey + ':') + len(self.nxkey + ':')
