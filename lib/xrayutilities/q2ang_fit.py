@@ -59,25 +59,32 @@ def _makebounds(boundsin):
         bounds to be handed over to the scipy.minimize routine. The function
         will expand fixed values to two equal bounds
     """
-    boundsout = []
+    lb = []
+    ub = []
     for b in boundsin:
         if isinstance(b, (tuple, list, numpy.ndarray)):
             if len(b) == 2:
-                boundsout.append((b[0], b[1]))
+                lb.append(b[0])
+                ub.append(b[1])
             elif len(b) == 1:
-                boundsout.append((b[0], b[0]))
+                # due to a bug in scipy >= 1.5.0 we need to allow a small
+                # variation
+                lb.append(b[0]-1000*config.EPSILON)
+                ub.append(b[0]+1000*config.EPSILON)
             else:
                 raise InputError('bound values must have two or one elements')
         elif isinstance(b, numbers.Number):
             # boundsout.append((b, b))  # variable fixed
             # due to a bug in scipy >= 1.5.0 we need to allow a small variation
-            boundsout.append((b-config.EPSILON, b+config.EPSILON))
+            lb.append(b-1000*config.EPSILON)
+            ub.append(b+1000*config.EPSILON)
         elif b is None:
-            boundsout.append((None, None))  # no bound
+            lb.append(-np.inf)
+            ub.append(np.inf)
         else:
             raise InputError('bound value is of invalid type (%s)' % type(b))
 
-    return tuple(boundsout)
+    return scipy.optimize.Bounds(lb, ub)
 
 
 def _errornorm_q2ang(angles, qvec, hxrd, U=numpy.identity(3)):
@@ -236,10 +243,11 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     elif len(bounds) != nangles:
         raise ValueError("XU.Q2AngFit: number of specified bounds invalid")
 
+    sbounds = _makebounds(bounds)
     # perform optimization
     res = scipy.optimize.minimize(_errornorm_q2ang, start,
                                   args=(lqvec, expclass, ormat),
-                                  method='SLSQP', bounds=_makebounds(bounds),
+                                  method='SLSQP', bounds=sbounds,
                                   constraints=constraints,
                                   options={'maxiter': 1000,
                                            'eps': config.EPSILON,
@@ -253,7 +261,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         res = scipy.optimize.minimize(_errornorm_q2ang, res.x,
                                       args=(lqvec, expclass, ormat),
                                       method='SLSQP',
-                                      bounds=_makebounds(bounds),
+                                      bounds=sbounds,
                                       constraints=constraints,
                                       options={'maxiter': 1000,
                                                'eps': config.EPSILON,
