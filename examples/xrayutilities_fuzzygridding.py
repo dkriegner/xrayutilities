@@ -20,6 +20,9 @@ import matplotlib.pyplot as plt
 import xrayutilities as xu
 from matplotlib.colors import LogNorm
 
+# mpl >= 3.3.0
+# mpl.rcParams["pcolor.shading"] = 'auto'
+
 # global setting for the experiment
 sample = "rsm"  # sample name used also as file name for the data file
 
