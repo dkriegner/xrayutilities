@@ -23,14 +23,15 @@ import xrayutilities as xu
 
 
 class Test_analysis_linecuts(unittest.TestCase):
-    qyp, qzp = numpy.sort(numpy.random.rand(2) * 4 + 2)
+    exp = xu.HXRD([1, 0, 0], [0, 0, 1])
+    qmax = (2 * exp.k0) / math.sqrt(2) - 0.1
+    qyp, qzp = numpy.sort(numpy.random.rand(2) * (qmax-2) + 2)
     width1 = 0.015
     width2 = 0.002
     qy = numpy.linspace(qyp-0.1, qyp+0.1, 601)
     qz = numpy.linspace(qzp-0.1, qzp+0.1, 617)
     Ncut = 450
     QY, QZ = numpy.meshgrid(qy, qz)
-    exp = xu.HXRD([1, 0, 0], [0, 0, 1])
     omp, dummy, dummy, ttp = exp.Q2Ang(0, qyp, qzp, trans=False)
 
     def test_radial_cut(self):
