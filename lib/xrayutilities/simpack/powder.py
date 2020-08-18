@@ -2270,8 +2270,7 @@ class PowderDiffraction(PowderExperiment):
                     # and convolver symmetries
                     added = False
                     for i, m in enumerate(currhkl):
-                        if self.mat.material.lattice.isequivalent(
-                                m, r[2], equalq=True):
+                        if self.mat.material.lattice.isequivalent(m, r[2]):
                             if self.fpclass.isequivalent(
                                     m, r[2],
                                     self.mat.material.lattice.crystal_system):
