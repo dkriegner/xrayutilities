@@ -94,7 +94,7 @@ class CIFFile(object):
                 raise IOError("cannot open CIF file %s" % self.filename)
         else:
             if filestr.count('\n') == 0:
-                print('XU.material.CIFFile: "filestr" contains only one line '
+                print('XU.materials.CIFFile: "filestr" contains only one line '
                       'but a file with that name does not exist! Continuing '
                       'with the assumption this one line string is the '
                       'content of a CIF file!')
@@ -105,7 +105,7 @@ class CIFFile(object):
                 self.fid = io.BytesIO(bytes(filestr.encode('ascii')))
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.material: parsing CIF file %s' % self.filename)
+            print('XU.materials: parsing CIF file %s' % self.filename)
         self._default_dataset = None
         self.data = {}
         self.Parse()
@@ -195,7 +195,7 @@ class CIFDataset(object):
         self.has_atoms = False
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.material: parsing cif dataset %s' % self.name)
+            print('XU.materials: parsing cif dataset %s' % self.name)
         self.Parse(fid)
         self.SymStruct()
 
@@ -230,6 +230,11 @@ class CIFDataset(object):
                 f = re.search('[0-9]', el)
                 if not f and el == '?':
                     element = elements.Dummy
+                elif f is None:
+                    raise ValueError("XU.materials: element ('%s') could not"
+                                     " be identified as chemical element. Only"
+                                     " abbreviations of element names are "
+                                     "supported." % (cifstring))
                 else:
                     elname = el[:f.start()]
                     if hasattr(elements, elname):
@@ -237,12 +242,12 @@ class CIFDataset(object):
                         # the neutral atom, but the effect this has should be
                         # minimal, currently simply the neutral atom is used
                         if config.VERBOSITY >= config.INFO_LOW:
-                            print('XU.material: element %s used instead of %s'
+                            print('XU.materials: element %s used instead of %s'
                                   % (elname, cifstring))
                         element = getattr(elements, elname)
                     else:
-                        raise ValueError('XU.material: element (%s) could not'
-                                         ' be found' % (cifstring))
+                        raise ValueError("XU.materials: element ('%s') could "
+                                         "not be found" % (cifstring))
             return element
 
         def floatconv(string):
@@ -285,7 +290,7 @@ class CIFDataset(object):
 
             if re_loop.match(line):  # start of loop
                 if config.VERBOSITY >= config.DEBUG:
-                    print('XU.material: loop start found')
+                    print('XU.materials: loop start found')
                 loop_start = True
                 loop_labels = []
                 symop_loop = False
@@ -328,13 +333,13 @@ class CIFDataset(object):
                     loop_labels.append(line.strip())
                     if re_symop.match(line):  # start of symmetry op. loop
                         if config.VERBOSITY >= config.DEBUG:
-                            print('XU.material: symop-loop identified')
+                            print('XU.materials: symop-loop identified')
                         symop_loop = True
                         symop_idx = len(loop_labels) - 1
                     elif re_atom.match(line) or re_atomtyp.match(line):
                         # start of atom position loop
                         if config.VERBOSITY >= config.DEBUG:
-                            print('XU.material: atom position-loop identified')
+                            print('XU.materials: atom position-loop found')
                         atom_loop = True
                         if re_atomtyp.match(line):
                             alab_idx = len(loop_labels) - 1
@@ -344,7 +349,7 @@ class CIFDataset(object):
                     elif re_atomx.match(line):
                         ax_idx = len(loop_labels) - 1
                         if config.VERBOSITY >= config.DEBUG:
-                            print('XU.material: atom position x: col%d'
+                            print('XU.materials: atom position x: col%d'
                                   % ax_idx)
                     elif re_atomy.match(line):
                         ay_idx = len(loop_labels) - 1
@@ -394,7 +399,7 @@ class CIFDataset(object):
                     self.atoms.append((atom, apos, occ, biso))
                 except IndexError:
                     if config.VERBOSITY >= config.INFO_LOW:
-                        print('XU.material: could not parse atom line: "%s"'
+                        print('XU.materials: could not parse atom line: "%s"'
                               % line.strip())
         if self.atoms:
             self.has_atoms = True
@@ -441,7 +446,7 @@ class CIFDataset(object):
                 self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
                 allwyckp = wyckpos.wp[self.sgrp]
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.material: attempting space group %s' % self.sgrp)
+                    print('XU.materials: trying space group %s' % self.sgrp)
 
             # determine all unique positions for definition of a P1 space group
             symops = self.symops
@@ -449,8 +454,8 @@ class CIFDataset(object):
                 label = sorted(allwyckp, key=lambda s: int(s[:-1]))
                 symops = allwyckp[label[-1]][1]
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.material: no symmetry operations in CIF-Dataset '
-                          'using built in general positions.')
+                    print('XU.materials: no symmetry operations in CIF-Dataset'
+                          '; using built in general positions.')
             self.unique_positions = []
             for el, (x, y, z), occ, biso in self.atoms:
                 unique_pos = set()
@@ -495,10 +500,10 @@ class CIFDataset(object):
                         if foundwp:
                             break
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.material: %d of %d Wyckoff positions identified'
+                    print('XU.materials: %d of %d Wyckoff positions identified'
                           % (len(self.wp), len(self.atoms)))
                     if len(self.wp) < len(self.atoms):
-                        print('XU.material: space group %s seems not to fit'
+                        print('XU.materials: space group %s seems not to fit'
                               % self.sgrp)
 
                 # free unit cell parameters
@@ -515,7 +520,7 @@ class CIFDataset(object):
 
                 if len(self.wp) == len(self.atoms):
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print('XU.material: identified space group as %s'
+                        print('XU.materials: identified space group as %s'
                               % self.sgrp)
                     break
 
@@ -531,11 +536,11 @@ class CIFDataset(object):
                                          occ=self.occ, b=self.biso)
                 else:
                     if config.VERBOSITY >= config.INFO_LOW:
-                        print('XU.material: Wyckoff positions missing, '
+                        print('XU.materials: Wyckoff positions missing, '
                               'using P1')
             else:
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print('XU.material: space-group detection failed, '
+                    print('XU.materials: space-group detection failed, '
                           'using P1')
 
         atomdict = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
