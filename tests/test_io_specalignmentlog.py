@@ -42,7 +42,7 @@ class TestIO_SPEC_RA_Log(unittest.TestCase):
 
     def test_iterations(self):
         self.assertEqual(self.niterations,
-                         numpy.sum(numpy.sum(self.logfile.iterations)))
+                         sum([sum(i) for i in self.logfile.iterations]))
 
 
 if __name__ == '__main__':
