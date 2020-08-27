@@ -1,3 +1,4 @@
+* effectiveDensity slicing for XRR simulations, thanks to MM
 * new possibility to transform unit cells and find symmetries
 * bugfix of numpy.set_printoptions use
 * require Python 3.6 due to use of f-strings

@@ -28,6 +28,7 @@ from scipy.special import erf, j0
 from .. import config, utilities
 from ..exception import InputError
 from ..experiment import Experiment
+from ..materials import Amorphous
 from ..math import NormGauss1d, NormLorentz1d, heaviside, solve_quartic
 from .smaterials import Layer, LayerStack
 
@@ -1012,7 +1013,7 @@ class SpecularReflectivityModel(LayerModel):
         delta = numpy.real(self.cd)
 
         totT = numpy.sum(t[1:])
-        zmin = -totT - 10 * sig[0]
+        zmin = -1.1 * totT - 10 * sig[0]
         zmax = 5 * sig[-1]
 
         z = numpy.linspace(zmin, zmax, nz)
@@ -1026,27 +1027,29 @@ class SpecularReflectivityModel(LayerModel):
             zz[i-1] = zz[i] - t[i]
             dr[i-1] = delta[i-1] * rho[i-1] * pre_factor
 
-        # calculate profile from contribution of all interfaces
+        # calculate profile from contribution of all layers
         prof = numpy.zeros(nz)
         w = numpy.zeros((nl, nz))
         for i in range(nl):
-            s = (1 + erf((z - zz[i]) / sig[i] / numpy.sqrt(2))) / 2
-            mask = s < (1 - 1e-10)
-            w[i, mask] = s[mask] / (1 - s[mask])
-            mask = numpy.logical_not(mask)
-            w[i, mask] = 1e10
+            # top interface
+            if pymath.isclose(sig[i], 0):
+                sup = numpy.heaviside(zz[i] - z, 0.5)
+            else:
+                sup = (1 + erf((zz[i] - z) / sig[i] / numpy.sqrt(2))) / 2
+            # bottom interface
+            if i == 0:
+                zdownint = zz[0] - t[0]
+                sigint = 0
+            else:
+                zdownint = zz[i-1]
+                sigint = sig[i-1]
+            if pymath.isclose(sigint, 0):
+                sdown = numpy.heaviside(zdownint - z, 0.5)
+            else:
+                sdown = (1 + erf((zdownint - z) / sigint / numpy.sqrt(2))) / 2
+            w[i, :] = sup - sdown
 
-        c = numpy.ones((nl, nz))
-        for i in range(1, nl):
-            c[i, :] = w[i-1, :] * c[i-1, :]
-        c0 = w[-1, :] * c[-1, :]
-        norm = numpy.sum(c, axis=0) + c0
-
-        for i in range(nl):
-            c[i] /= norm
-
-        for j in range(nz):
-            prof[j] = numpy.sum(dr * c[:, j])
+        prof[...] = numpy.sum(dr[:, numpy.newaxis] * w[:, ...], axis=0)
 
         if plot:
             plt.figure('XU:density_profile', figsize=(5, 3))
@@ -1230,7 +1233,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
 
         Parameters
         ----------
-        energies: np.ndarray or list
+        energies: numpy.ndarray or list
             photon energies (in eV).
         angle : float
             fixed incidence angle
@@ -1947,3 +1950,98 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         self._smap_alphai = numpy.degrees(ALPHAI*isurf)
         self._smap_alphaf = numpy.degrees(ALPHAF*isurf)
         return result * S * K**4 / (16*numpy.pi**2)
+
+
+def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
+    """
+    Function to slice a LayerStack into many amorphous sublayers for effective
+    density modelling of X-ray reflectivity of thin and rough multilayers. The
+    resulting LayerStack will consist of perfectly smooth layers with average
+    density/composition resulting from an error-function like transition
+    between the rough layers of the initial stack. At the surface an vacuum
+    layer is automatically added to the initial stack.
+
+    Parameters
+    ----------
+    layerstack :  initial LayerStack, can contain only Amorhous layers!
+    step :        thickness (in Angstrom) of the slices in the returned
+                  LayerStack
+    roughness :   roughness of the created sublayers (in Angstrom)
+    cutoff :      layers with relative weights below this value will be ignored
+
+    Returns
+    -------
+    LayerStack
+    """
+    thickness = numpy.asarray([lay.thickness for lay in layerstack])
+    sigmas = numpy.asarray([lay.roughness for lay in layerstack])
+    if thickness[0] == pymath.inf:
+        thickness_all_layers = numpy.sum(thickness[1:])
+    else:
+        thickness_all_layers = numpy.sum(thickness)
+    margin = numpy.sum(numpy.asarray([lay.roughness for lay in layerstack]))
+
+    pos_inter = numpy.zeros(len(layerstack))
+    for i in range(len(layerstack)-1, 0, -1):
+        pos_inter[i-1] = pos_inter[i] - thickness[i]
+
+    # calculate the weight for every sublayer + vacuum above
+    z = numpy.arange(-(thickness_all_layers + margin), margin, step)
+    W = {}
+    zeta = {}
+    for i in range(len(layerstack)+1):
+        W[i] = numpy.zeros_like(z)
+        if i < (len(layerstack) - 1):
+            zeta[i] = (sigmas[i+1] * pos_inter[i] + sigmas[i] *
+                       pos_inter[i+1]) / (sigmas[i] + sigmas[i+1])
+
+    # first and last Weight-functions will be treated seperately
+    W[0][:] = 1 / 2 * (1 - erf(
+        (z - pos_inter[0]) / (pymath.sqrt(2) * sigmas[0])))
+    W[len(layerstack)][:] = 1 / 2 * (1 + erf(
+        (z - pos_inter[len(layerstack) - 1]) / (pymath.sqrt(2) *
+                                                sigmas[len(layerstack) - 1])))
+
+    # Weight-functions in between
+    for idxl in range(1, len(layerstack)):
+        maskz = (z <= zeta[idxl - 1])
+        W[idxl][maskz] = 1 / 2 * \
+            (1 + erf((z[maskz] - pos_inter[idxl - 1]) /
+                     (pymath.sqrt(2) * sigmas[idxl - 1])))
+        imaskz = numpy.logical_not(maskz)
+        W[idxl][imaskz] = 1 / 2 * \
+            (1 - erf((z[imaskz] - pos_inter[idxl]) /
+                     (pymath.sqrt(2) * sigmas[idxl])))
+
+    # normalize weight functions
+    wsum = numpy.add.reduce([w for w in W.values()])
+    for k in W:
+        W[k] /= wsum
+
+    # generate new sliced layerstack
+    sls = LayerStack(f'sliced LayerStack (step={step:.2f}Ang)')
+    if thickness[0] == pymath.inf:
+        sls.append(Layer(layerstack[0].material, pymath.inf,
+                         roughness=roughness))
+
+    for idxp, p in enumerate(z):
+        # create compound material for all contributing layers
+        atoms = []
+        elements = []
+        density = 0
+        for idxl, l in enumerate(layerstack):
+            if W[idxl][idxp] > cutoff:
+                for at, occ in l.material.base:
+                    if at in elements:
+                        i = elements.index(at)
+                        atoms[i] = (at, atoms[i][1] + occ * W[idxl][idxp])
+                    else:
+                        atoms.append((at, occ * W[idxl][idxp]))
+                        elements.append(at)
+                density += W[idxl][idxp] * l.density
+
+        if density != 0:
+            mat = Amorphous('slice %d' % idxp, density, atoms=atoms)
+            sls.append(Layer(mat, step, roughness=roughness))
+
+    return sls
