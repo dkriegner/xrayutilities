@@ -302,7 +302,7 @@ class Amorphous(Material):
             name is a simply chemical formula then this can be None.  To
             specify more complicated materials use [('Ir', 0.2), ('Mn', 0.8),
             ...].  Instead of the elements as string you can also use an Atom
-            object.  If the contents to not add up to 1 they will be corrected
+            object.  If the contents to not add up to 1 they will be normalized
             without notice.
         cij :       array-like, optional
             elasticity matrix
