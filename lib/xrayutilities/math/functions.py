@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module with several common function needed in xray data analysis
@@ -168,7 +168,7 @@ def Gauss1d_der_x(x, *p):
 
     lp = numpy.copy(p)
     lp[3] = 0
-    return 2 * (p[0] - x) * Gauss1d(x, *lp)
+    return (p[0] - x) / p[1]**2 * Gauss1d(x, *lp)
 
 
 def Gauss1d_der_p(x, *p):
@@ -180,8 +180,8 @@ def Gauss1d_der_p(x, *p):
     """
     lp = numpy.copy(p)
     lp[3] = 0
-    r = numpy.vstack((-2 * (p[0] - x) * Gauss1d(x, *lp),
-                      (p[0] - x) ** 2 / (2 * p[1] ** 3) * Gauss1d(x, *lp),
+    r = numpy.vstack((- (p[0] - x) / p[1]**2 * Gauss1d(x, *lp),
+                      (p[0] - x) ** 2 / (p[1] ** 3) * Gauss1d(x, *lp),
                       Gauss1d(x, *lp) / p[2],
                       numpy.ones(x.shape, dtype=numpy.float)))
 
@@ -306,9 +306,7 @@ def Lorentz1d_der_x(x, *p):
 
     for parameter description see Lorentz1d
     """
-
-    return 4 * (p[0] - x) * p[2] / p[1] / \
-        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2
+    return 8 * (p[0]-x) / p[1]**2 * p[2] / (1 + (2 * (x-p[0]) / p[1]) ** 2)**2
 
 
 def Lorentz1d_der_p(x, *p):
@@ -319,9 +317,9 @@ def Lorentz1d_der_p(x, *p):
     for parameter description see Lorentz1d
     """
     r = numpy.vstack((
-        4 * (x - p[0]) * p[2] / p[1] / (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
-        4 * (p[0] - x) * p[2] / p[1] ** 2 /
-        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
+        8 * (x-p[0]) * p[2] / p[1]**2 / (1 + (2 * (x-p[0]) / p[1]) ** 2) ** 2,
+        8 * p[2] * p[1] * (x-p[0])**2 /
+        (4*p[0]**2 - 8*p[0]*x + p[1]**2 + 4*x**2) ** 2,
         1 / (1 + (2 * (x - p[0]) / p[1]) ** 2),
         numpy.ones(x.shape, dtype=numpy.float)))
     return r
@@ -424,14 +422,12 @@ def PseudoVoigt1d_der_x(x, *p):
     else:
         pv = p[4]
 
-    lp = numpy.copy(p)
-    lp[3] = 0
-    lp[1] = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
+    sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
 
-    gdx = 2 * (p[0] - x) * Gauss1d(x, *lp)
-    ldx = 4 * (p[0] - x) * p[2] / p[1] / \
-        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2
-    return pv * ldx + (1 - pv) * gdx
+    rl = Lorentz1d_der_x(x, p[0], p[1], p[2], 0)
+    rg = Gauss1d_der_x(x, p[0], sigma, p[2], 0)
+
+    return pv * rl + (1 - pv) * rg
 
 
 def PseudoVoigt1d_der_p(x, *p):
@@ -449,27 +445,16 @@ def PseudoVoigt1d_der_p(x, *p):
     else:
         pv = p[4]
 
-    lpg = numpy.copy(p)  # local parameters for gaussian
-    lpg[3] = 0
-    lpl = numpy.copy(lpg)  # local parameters for lorentzian
-    lpg[1] = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
+    sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
 
-    rl = numpy.vstack((
-        4 * (x - p[0]) * p[2] / p[1] / (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
-        4 * (p[0] - x) * p[2] / p[1] ** 2 /
-        (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
-        1 / (1 + (2 * (x - p[0]) / p[1]) ** 2)))
-
-    rg = numpy.vstack((-2 * (lpg[0] - x) * Gauss1d(x, *lpg),
-                       (lpg[0] - x) ** 2 /
-                       (2 * lpg[1] ** 3) * Gauss1d(x, *lpg),
-                       Gauss1d(x, *lpg) / lpg[2]))
-
+    lpl = [p[0], p[1], p[2], 0]
+    lpg = [p[0], sigma, p[2], 0]
+    rl = Lorentz1d_der_p(x, *lpl)
+    rg = Gauss1d_der_p(x, *lpg)
+    rg[1] /= (2 * numpy.sqrt(2 * numpy.log(2)))
     r = pv * rl + (1 - pv) * rg
-    r = numpy.vstack((r,
-                      numpy.ones(x.shape),
-                      Lorentz1d(x, *lpl) - Gauss1d(x, *lpg)))
-    return r
+
+    return numpy.vstack((r, Lorentz1d(x, *lpl) - Gauss1d(x, *lpg)))
 
 
 def PseudoVoigt1dasym(x, *p):

@@ -1,3 +1,4 @@
+* bugfix in derivative functions (xu.math.functions)
 * effectiveDensity slicing for XRR simulations, thanks to MM
 * new possibility to transform unit cells and find symmetries
 * bugfix of numpy.set_printoptions use

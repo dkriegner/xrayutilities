@@ -13,8 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2014-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import copy
 import unittest
 
 import numpy
@@ -100,6 +101,35 @@ class TestMathFunctions(unittest.TestCase):
         digits = int(numpy.abs(numpy.log10(err))) - 3
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
+
+    def test_derivatives(self):
+        eps = 1e-9
+        # generate test input parameters (valid for Gauss, Lorentz, and Voigt)
+        p = list(numpy.copy(self.p))
+        p[1] = self.sigma
+        p[3] = numpy.random.rand()
+        p.append(numpy.random.rand())
+        params = [self.x, ] + p
+
+        functions = [(xu.math.Gauss1d, xu.math.Gauss1d_der_x,
+                      xu.math.Gauss1d_der_p),
+                     (xu.math.Lorentz1d, xu.math.Lorentz1d_der_x,
+                      xu.math.Lorentz1d_der_p),
+                     (xu.math.PseudoVoigt1d, xu.math.PseudoVoigt1d_der_x,
+                      xu.math.PseudoVoigt1d_der_p)]
+
+        # test all derivates by benchmarking against a simple finite difference
+        # calculation
+        for f, fdx, fdp in functions:
+            deriv = numpy.vstack((fdx(*params), fdp(*params)))
+            for argidx in range(len(deriv)):
+                peps = copy.copy(params)
+                peps[argidx] = peps[argidx] + eps
+                findiff = (f(*peps) - f(*params)) / eps
+                self.assertTrue(numpy.allclose(deriv[argidx], findiff,
+                                               atol=1e3*eps),
+                                f'{str(f)}, {argidx}, derivatives not close '
+                                'to numerical approximation')
 
 
 if __name__ == '__main__':

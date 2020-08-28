@@ -23,6 +23,7 @@ from .functions import (Debye1, Gauss1d, Gauss1d_der_p, Gauss1d_der_x,
                         Gauss1dArea, Gauss2d, Gauss2dArea, Gauss3d, Lorentz1d,
                         Lorentz1d_der_p, Lorentz1d_der_x, Lorentz1dArea,
                         Lorentz2d, NormGauss1d, NormLorentz1d, PseudoVoigt1d,
+                        PseudoVoigt1d_der_p, PseudoVoigt1d_der_x,
                         PseudoVoigt1dArea, PseudoVoigt1dasym,
                         PseudoVoigt1dasym2, PseudoVoigt2d, TwoGauss2d,
                         heaviside, kill_spike, multPeak1d, multPeak2d, smooth)
