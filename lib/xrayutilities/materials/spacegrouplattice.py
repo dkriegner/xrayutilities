@@ -1197,7 +1197,7 @@ class SGLattice(object):
         """
         def identify_wyckpos(sgrp, atoms):
             """
-            try to determine suitable Wyckoff positionss
+            try to determine suitable Wyckoff positions
 
             Parameters
             ----------:
@@ -1338,7 +1338,7 @@ class SGLattice(object):
 
         Parameters
         ----------
-        transform : (3, 3) list, or ndarray, optional
+        mat : (3, 3) list, or ndarray, optional
             transformation matrix of the unit cell. The matrix definition aims
             to be consistent with what is used on the Bilbao Crystallographic
             Server [1]. This only defines the linear part, while the origin
