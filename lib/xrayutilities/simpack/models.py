@@ -599,7 +599,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
                 self.chih['S'].append(-ch[0] + 1j*ch[1])
                 self.chih['P'].append((-ch[0] + 1j*ch[1]) *
                                       numpy.abs(numpy.cos(2*thetaB)))
-                if not getattr(lay, 'inversion_sym', False):
+                if not lay.material.lattice.iscentrosymmetric:
                     ch = lay.material.chih(-q, en=self.energy,
                                            polarization='S')
                 self.chimh['S'].append(-ch[0] + 1j*ch[1])
