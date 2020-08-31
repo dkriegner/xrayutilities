@@ -20,7 +20,7 @@ import unittest
 import numpy
 import xrayutilities as xu
 
-digits = 3
+digits = 9
 
 
 class TestPeakFit(unittest.TestCase):
