@@ -293,6 +293,31 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
         return False, None
 
 
+def get_wyckpos(sgrp, atompos):
+    """
+    test all Wyckoff positions on every atomic position
+
+    Parameters
+    ----------
+    sgrp : str
+        space group name
+    atompos : list
+        list of atomic positions to identify. All atomic positions are expected
+        to belong to one and the same Wyckoff position!
+
+    Returns
+    -------
+    position argument for WyckoffBase.append
+    """
+    for k, wyckpos in wp[sgrp].items():
+        parint, poslist, reflcond = wyckpos
+        item = poslist[0]
+        for pos in atompos:
+            foundwp, par = testwp(parint, item, pos)
+            if foundwp:
+                return k if par is None else (k, list(par))
+
+
 class WyckoffBase(list):
 
     """
@@ -617,9 +642,11 @@ class SGLattice(object):
             element name. If you specify atoms you have to also give the same
             number of Wyckoff positions
         pos :       list, optional
-            list of the atoms Wyckoff positions along with its parameters. If a
-            position has no free parameter the parameters can be omitted.
-            Example: [('2i', (0.1, 0.2, 0.3)), '1a']
+            list of the atomic positions within the unit cell. This can be
+            given as Wyckoff position along with its parameters or any position
+            of an atom which will be used to identify the Wyckoff position. If
+            a position has no free parameter the parameters can be omitted.
+            Example: [('2i', (0.1, 0.2, 0.3)), '1a', (0, 0.5, 0)]
         occ :       list, optional
             site occupation for the atoms. This is optional and defaults to 1
             if not given.
@@ -661,17 +688,6 @@ class SGLattice(object):
             else:
                 self._parameters[p] = key
 
-        # set atom positions in the lattice base
-        self._wbase = WyckoffBase()
-        atoms = kwargs.get('atoms', None)
-        wps = kwargs.get('pos', None)
-        if atoms:
-            occs = kwargs.get('occ', [1.0, ] * len(atoms))
-            bs = kwargs.get('b', [0.0, ] * len(atoms))
-            for at, wpos, o, b in zip(atoms, wps, occs, bs):
-                self._wbase.append(at, wpos, o, b)
-        self.nsites = len(self._wbase)
-
         # define lattice vectors
         self._ai = numpy.zeros((3, 3))
         self._bi = numpy.empty((3, 3))
@@ -684,6 +700,35 @@ class SGLattice(object):
         self._gplabel = sorted(wp[self.space_group],
                                key=lambda s: int(s[:-1]))[-1]
         self._gp = wp[self.space_group][self._gplabel]
+
+        # set atom positions in the lattice base
+        self._wbase = WyckoffBase()
+        atoms = kwargs.get('atoms', None)
+        wps = kwargs.get('pos', None)
+        if atoms:
+            occs = kwargs.get('occ', [1.0, ] * len(atoms))
+            bs = kwargs.get('b', [0.0, ] * len(atoms))
+            for at, wpos, o, b in zip(atoms, wps, occs, bs):
+                if (not isinstance(wpos, (tuple, list, numpy.ndarray)) or
+                        len(wpos) < 3):
+                    self._wbase.append(at, wpos, o, b)
+                else:
+                    # atomic position given -> identify Wyckoff position
+                    # find all equivalent positions
+                    gplist = set()
+                    for p in self._gp[1]:
+                        pos = eval(p,
+                                   {'x': wpos[0], 'y': wpos[1], 'z': wpos[2]})
+                        pos = SymOp.foldback(pos)
+                        gplist.add(tuple(pos))
+
+                    wyckpos = get_wyckpos(self.space_group, gplist)
+                    if config.VERBOSITY >= config.INFO_LOW:
+                        print(f"XU.materials.SGLattice: position {wpos} "
+                              f"identified as {wyckpos}")
+
+                    self._wbase.append(at, wyckpos, o, b)
+        self.nsites = len(self._wbase)
 
         # symmetry operations and reflection conditions placeholder
         self._hklmat = []
@@ -1233,10 +1278,7 @@ class SGLattice(object):
                     for f, (dummy, xyz, occ, biso) in zip(found, catoms):
                         if f:
                             continue
-                        for positem in poslist:
-                            foundwp, pospar = testwp(parint, positem, xyz)
-                            if foundwp:
-                                break
+                        foundwp, pospar = testwp(parint, poslist[0], xyz)
                         if foundwp:
                             # generate parameters of this Wyckoff position
                             pardict = _get_pardict(parint, pospar)
