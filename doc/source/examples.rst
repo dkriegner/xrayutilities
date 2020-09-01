@@ -6,13 +6,13 @@
 Examples
 ========
 
-In the following a few code-snippets are shown which should help you getting started with *xrayutilities*. Not all of the codes shown in the following will be run-able as stand-alone script. For fully running scripts look in the ``examples`` directory in the download found `here <https://sourceforge.net/projects/xrayutilities>`_.
+In the following a few code-snippets are shown which should help you getting started with *xrayutilities*. Not all of the codes shown in the following will be run-able as stand-alone script. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory in the download found `here <https://sourceforge.net/projects/xrayutilities>`_.
 
 
 Reading data from data files
 ----------------------------
 
-The ``io`` submodule provides classes for reading x-ray diffraction data in
+The :mod:`~xrayutilities.io` submodule provides classes for reading x-ray diffraction data in
 various formats. In the following few examples are given.
 
 Reading SPEC files
@@ -96,7 +96,7 @@ EDF files are mostly used to store CCD frames at ESRF recorded from various diff
         e.Save2HDF5(h5file, group="/frelon_%04d" % i)
 
 .. seealso::
-   the fully working example provided in the ``examples`` directory perfectly suited for reading data from beamline ID01
+   the fully working example provided in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory perfectly suited for reading data from beamline ID01
 
 Reading XRDML files
 ^^^^^^^^^^^^^^^^^^^
@@ -116,7 +116,7 @@ All supported file formats can also be parsed transparently when they are saved 
 
 
 .. seealso::
-   the fully working example provided in the ``examples`` directory
+   the fully working example provided in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory
 
 Other formats
 ^^^^^^^^^^^^^
@@ -131,10 +131,10 @@ Other formats which can be read include
  * support is also provided for reading of ``cif`` files from structure
    databases to extract unit cell parameters as well es read data from those files (pdCIF, ESG files)
 
-See the ``examples`` directory for more information and working example scripts.
+See the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory for more information and working example scripts.
 
-Angle calculation using ``experiment`` and ``material`` classes
----------------------------------------------------------------
+Angle calculation using :class:`~xrayutilities.experiment.Experiment` and :mod:`~xrayutilities.materials` classes
+-----------------------------------------------------------------------------------------------------------------
 
 Methods for high angle x-ray diffraction experiments. Mostly for experiments performed in coplanar scattering geometry. An example will be given for the calculation of the position of Bragg reflections.
 
@@ -153,14 +153,14 @@ Methods for high angle x-ray diffraction experiments. Mostly for experiments per
     print("Si (224)")
     print("om,tt: %8.3f %8.3f" % (om, tt))
 
-Note that on line 5 the ``HXRD`` class is initialized without specifying the energy used in the experiment. It will use the default energy stored in the configuration file, which defaults to CuK-alpha1.
+Note that on line 5 the :class:`~xrayutilities.experiment.HXRD` class is initialized without specifying the energy used in the experiment. It will use the default energy stored in the configuration file, which defaults to CuK-alpha1.
 
 One could also call::
 
     hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), en=10000) # energy in eV
 
 to specify the energy explicitly.
-The ``HXRD`` class by default describes a four-circle goniometer as described in more detail `here <http://www.certif.com/spec_manual/fourc_4_1.html>`_.
+The :class:`~xrayutilities.experiment.HXRD` class by default describes a four-circle goniometer as described in more detail `here <http://www.certif.com/spec_manual/fourc_4_1.html>`_.
 
 Similar functions exist for other experimental geometries. For grazing incidence diffraction one might use
 
@@ -216,8 +216,8 @@ More information about powdered materials can be obtained from the :class:`~xray
 If you are interested in simulations of powder diffraction patterns look at section :ref:`pdiff-simulations`
 
 
-Using the ``Gridder`` classes
------------------------------
+Using the :class:`~xrayutilities.gridder.Gridder` classes
+---------------------------------------------------------
 
 *xrayutilities* provides Gridder classes for 1D, 2D, and 3D data sets. These Gridders map irregular spaced data onto a regular grid.
 This is often needed after transforming data measured at equally spaced angular positions to reciprocal space were their spacing is irregular.
@@ -258,7 +258,7 @@ A more complicated example showing also sequential gridding is shown below. You 
 Gridder2D for visualization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Based on the example of parsed data from XRDML files shown above (`Reading XRDML files`_) we show here how to use the ``Gridder2D`` class together with matplotlibs contourf.
+Based on the example of parsed data from XRDML files shown above (`Reading XRDML files`_) we show here how to use the :class:`~xrayutilities.gridder2d.Gridder2D` class together with matplotlibs contourf.
 
 .. code-block:: python
 
@@ -286,7 +286,7 @@ The shown script results in the plot of the reciprocal space map shown below.
 Line cuts from reciprocal space maps
 ------------------------------------
 
-Using the ``analysis`` subpackage one can produce line cuts. Starting from the reciprocal space data produced by the reciprocal space conversion as in the last example code we extract radial scan along the crystal truncation rod. For the extraction of line scans the respective functions offer to integrate the data along certain directions. In the present case integration along '2Theta' gives the best result since a broadening in that direction was caused by the beam footprint in the particular experiment. For different line cut functions various integration directions are possible. They are visualized in the figure below.
+Using the :mod:`~xrayutilities.analysis` subpackage one can produce line cuts. Starting from the reciprocal space data produced by the reciprocal space conversion as in the last example code we extract radial scan along the crystal truncation rod. For the extraction of line scans the respective functions offer to integrate the data along certain directions. In the present case integration along '2Theta' gives the best result since a broadening in that direction was caused by the beam footprint in the particular experiment. For different line cut functions various integration directions are possible. They are visualized in the figure below.
 
 .. figure:: pics/line_cut_intdir.png
    :alt: possible integration directions for line cuts, here shown overlaid to experimental reciprocal space map data which are broadened due to the beam footprint
@@ -314,17 +314,17 @@ Using the ``analysis`` subpackage one can produce line cuts. Starting from the r
    :width: 400 px
 
 .. seealso::
-   the fully working example provided in the ``examples`` directory and the other line cut functions in :class:`~xrayutilities.analysis.line_cuts`
+   the fully working example provided in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory and the other line cut functions in :class:`~xrayutilities.analysis.line_cuts`
 
-Using the ``material`` class
-----------------------------
+Using the :mod:`~.materials` subpackage
+-----------------------------------------------------
 
 *xrayutilities* provides a set of Python classes to describe crystal lattices and
 materials.
 
 Examples show how to define a new material by defining its lattice and deriving a new material, furthermore materials can be used to calculate the structure factor of a Bragg reflection for an specific energy or the energy dependency of its structure factor for anomalous scattering. Data for this are taken from a database which is included in the download.
 
-First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we show the definition of zincblende InP as well as for its hexagonal wurtzite polytype together with a quick visualization of the unit cells. A more accurate visualization of the unit cell can be performed when using :func:`~xrayutilities.materials.Crystal.show_unitcell` with the Mayavi mode or by using the CIF-exporter and an external tool.
+First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.spacegrouplattice.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we show the definition of zincblende InP as well as for its hexagonal wurtzite polytype together with a quick visualization of the unit cells. A more accurate visualization of the unit cell can be performed when using :meth:`~xrayutilities.materials.material.Crystal.show_unitcell` with the Mayavi mode or by using the CIF-exporter and an external tool.
 
 .. code-block:: python
 
@@ -372,7 +372,15 @@ InP (in both variants) is already included in the xu.materials module and can be
     InPWZ = xu.materials.InPWZ
 
 Similar definitions exist for many other materials.
+Alternatively to giving the Wyckoff labels and parameters one can also specify the position of one atom for every unique site within the unit cell. *xrayutilities* will then search the corresponding Wyckoff position of this atom and populate therefore populate all equivalent sites as well. For the example of InP in zincblende form the material definition could also look as shown below. Note that instead of the elements also the elemental symbol as string can be used:
 
+.. code-block:: python
+
+    InP = xu.materials.Crystal(
+        "InP", xu.materials.SGLattice(216, 5.8687, atoms=["In", "P"],
+                                      pos=[(0,0,0), (1/4, 1/4, 1/4)]))
+
+.. note: The definition via the Wyckoff label is faster since identifying the Wyckoff position is a computationally rather demanding task.
 
 Using the material properties the calculation of the reflection strength of a Bragg reflection can be done as follows
 
@@ -426,11 +434,42 @@ It is also possible to calculate the components of the structure factor of atoms
     print("f1: %8.4g" % Fe.f1(en))
     print("f2: %8.4g" % Fe.f2(en))
 
+Transformation of :class:`~xrayutilities.materials.spacegrouplattice.SGLattice`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:class:`~xrayutilities.materials.spacegrouplattice.SGLattice`-objects can be transformed to use a different unit cell setting. This can be used to for example change the origin choice after the material definition or to convert into a totally different setting, e.g. for simulation purposes.
+
+The code below shows the example of the Diamond structure converted between the two different origin choices
+
+.. code-block:: python
+
+    import numpy
+    import xrayutilities as xu
+    C1 = xu.materials.SGLattice("227:1", 3.5668, atoms=["C"],
+                                pos=[(0,0,0)])
+    C2 = xu.materials.SGLattice("227:2", 3.5668, atoms=["C"],
+                                pos=[(1/8, 1/8, 1/8)])
+    C1 == C2  # False
+    C3 = C2.transform(numpy.identity(3), (1/8, 1/8, 1/8))
+    C3 == C1  # True
+
+For dynamical diffraction simulations of cubic crystals with (111) surface it might be required to convert the unit cell in a way that a principle axis is pointing along the surface normal. Using an apropriate conversion matrix this is shown for the example of InP
+
+.. code-block:: python
+
+    import xrayutilities as xu
+    InP111_lattice = xu.materials.InP.lattice.transform(((-1/2, 0, 1),
+                                                         (1/2, -1/2, 1),
+                                                         (0, 1/2, 1)),
+                                                        (0, 0, 0))
+
+While the built in InP uses the cubic setting with space group F-43m(#216) the converted lattice has rhombohedral space group (in this case R3m(#160)) and converted atomic positions.
+
 
 Visualization of the Bragg peaks in a reciprocal space plane
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you want to explore which peaks are available and reachable in coplanar diffraction geometry and what their relationship between different materials is ``xrayutilities`` provides a function which generates a slightly interactive plot which helps you with this task.
+If you want to explore which peaks are available and reachable in coplanar diffraction geometry and what their relationship between different materials is *xrayutilities* provides a function which generates a slightly interactive plot which helps you with this task.
 
 .. code-block:: python
 
@@ -447,7 +486,7 @@ If you want to explore which peaks are available and reachable in coplanar diffr
     hxrd = xu.HXRD(mat.Q(1, 0, 0), mat.Q(0, 0, 1))
     ax, h2 = xu.materials.show_reciprocal_space_plane(mat, hxrd, ax=ax)
 
-The generated plot shows all the existing Bragg spots, their `(hkl)` label is shown when the mouse is over a certain spot and the diffraction angles calculated by the given :class:`~xrayutilities.HXRD` object is printed when you click on a certain spot. Not that the primary beam is assumed to come from the left, meaning that high incidence geometry occurs for all peaks with positive inplane momentum transfer.
+The generated plot shows all the existing Bragg spots, their `(hkl)` label is shown when the mouse is over a certain spot and the diffraction angles calculated by the given :class:`~xrayutilities.experiment.HXRD` object is printed when you click on a certain spot. Not that the primary beam is assumed to come from the left, meaning that high incidence geometry occurs for all peaks with positive inplane momentum transfer.
 
 .. figure:: pics/reciprocal_space_plane.png
    :alt: cut of reciprocal space for cubic Si(111) and a hexagonal material with c-axis along [111] of the substrate
