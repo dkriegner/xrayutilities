@@ -24,7 +24,7 @@ import xrayutilities as xu
 # the script below currently only works for Amorphous materials.
 # file an issue on github if you need/want this for Crystal objects
 
-# create a fictous LayerStack with thin, rough Layers to illustrate the
+# create a fictitious LayerStack with thin, rough Layers to illustrate the
 # difference between the slicing approach and the usual layered approach
 Si = xu.materials.Amorphous('Si', 2285)
 SiO2 = xu.materials.Amorphous('SiO2', 1000)
