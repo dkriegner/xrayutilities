@@ -1028,7 +1028,6 @@ class SpecularReflectivityModel(LayerModel):
             dr[i-1] = delta[i-1] * rho[i-1] * pre_factor
 
         # calculate profile from contribution of all layers
-        prof = numpy.zeros(nz)
         w = numpy.zeros((nl, nz))
         for i in range(nl):
             # top interface
@@ -1049,7 +1048,7 @@ class SpecularReflectivityModel(LayerModel):
                 sdown = (1 + erf((zdownint - z) / sigint / numpy.sqrt(2))) / 2
             w[i, :] = sup - sdown
 
-        prof[...] = numpy.sum(dr[:, numpy.newaxis] * w[:, ...], axis=0)
+        prof = numpy.sum(dr[:, numpy.newaxis] * w[:, ...], axis=0)
 
         if plot:
             plt.figure('XU:density_profile', figsize=(5, 3))
@@ -1979,7 +1978,9 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
         thickness_all_layers = numpy.sum(thickness[1:])
     else:
         thickness_all_layers = numpy.sum(thickness)
-    margin = numpy.sum(numpy.asarray([lay.roughness for lay in layerstack]))
+    margin = max(numpy.sum([lay.roughness for lay in layerstack]),
+                 5 * layerstack[0].roughness,
+                 5 * layerstack[-1].roughness)
 
     pos_inter = numpy.zeros(len(layerstack))
     for i in range(len(layerstack)-1, 0, -1):
