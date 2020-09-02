@@ -28,7 +28,7 @@ import fractions
 import numbers
 import re
 from collections import OrderedDict
-from math import cos, radians, sin, sqrt
+from math import cos, isclose, radians, sin, sqrt
 
 import numpy
 import scipy.optimize
@@ -430,7 +430,7 @@ class WyckoffBase(list):
         """
         for atom, p, occ, b in self:
             if (atom == item[0] and self.pos_eq(p, item[1]) and
-                    numpy.isclose(b, item[3], atol=1e-4)):
+                    isclose(b, item[3], abs_tol=1e-4)):
                 return True
         return False
 
@@ -446,7 +446,7 @@ class WyckoffBase(list):
             should be compared
         """
         if (e1[0] == e2[0] and WyckoffBase.pos_eq(e1[1], e2[1]) and
-                numpy.all(numpy.isclose(e1[2:], e2[2:], atol=1e-4))):
+                numpy.allclose(e1[2:], e2[2:], atol=1e-4)):
             return True
         return False
 
@@ -466,7 +466,7 @@ class WyckoffBase(list):
             return True
         else:
             for f1, f2 in zip(pos1[1], pos2[1]):
-                if not numpy.isclose(f1 % 1, f2 % 1, atol=1e-5):
+                if not isclose(f1 % 1, f2 % 1, abs_tol=1e-5):
                     return False
         return True
 
@@ -487,7 +487,7 @@ class WyckoffBase(list):
         """
         for i, (atom, p, occ, b) in enumerate(self):
             if (atom == item[0] and self.pos_eq(p, item[1]) and
-                    numpy.isclose(b, item[3], atol=1e-4)):
+                    isclose(b, item[3], abs_tol=1e-4)):
                 return i
         raise ValueError("%s is not in list" % str(item))
 
@@ -923,13 +923,13 @@ class SGLattice(object):
         """
         compare another SGLattice instance to decide if both are equal.
         To be equal they have to use the same space group, have equal lattice
-        paramters and contain equal atoms in their base.
+        parameters and contain equal atoms in their base.
         """
         if self.space_group != other.space_group:
             return False
         # compare lattice parameters
         for prop in self.free_parameters:
-            if getattr(self, prop) != getattr(other, prop):
+            if not isclose(getattr(self, prop), getattr(other, prop)):
                 return False
         # compare atoms in base
         for e in self._wbase:
@@ -1332,7 +1332,7 @@ class SGLattice(object):
                 else:
                     ucsys.append(eval(par, {}, self._parameters))
 
-            if all(numpy.isclose(tuple(self._parameters.values()), ucsys)):
+            if numpy.allclose(tuple(self._parameters.values()), ucsys):
                 systems.append(sys)
 
         # determine suitable space group numbers and names for these families
