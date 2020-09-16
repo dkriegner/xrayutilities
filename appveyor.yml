@@ -1,20 +1,28 @@
 image:
   - Visual Studio 2019
-  - Ubuntu
-
-stack: python 3
+#  - Ubuntu
 
 environment:
+  PYTHON: C:\Python38-x64
+  #TOX_TESTENV_PASSENV: DISTUTILS_USE_SDK MSSdk INCLUDE LIB
   matrix:
-    - TOXENV: py36
-    #- TOXENV: py37
-    #- TOXENV: py38
+    - PYVER: 3.6
+      TOXENV: py36
+    - TOXENV: py37
+    - TOXENV: py38
+
+stack: python %PYVER%
 
 install:
   - ps: |
       $env:package_version=(Get-Content -Path lib/xrayutilities/VERSION)
       Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
-      python -m pip install tox tox-wheel
+      if ($isWindows) {
+        $env:Path="$env:PYTHON;$env:PYTHON\Scripts;$env:Path"
+        [Environment]::SetEnvironmentVariable("Path", "$env:PYTHON;$env:PYTHON\Scripts;senv:Path", [EnvironmentVariableTarget]::User)
+      }
+      python -m pip install --upgrade --ignore-installed pip
+      python -m pip install numpy tox tox-wheel
 
 build: off
 
