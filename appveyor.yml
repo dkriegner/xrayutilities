@@ -3,13 +3,17 @@ image:
 #  - Ubuntu
 
 environment:
-  PYTHON: C:\Python38-x64
-  #TOX_TESTENV_PASSENV: DISTUTILS_USE_SDK MSSdk INCLUDE LIB
+  TOX_TESTENV_PASSENV: "*"
   matrix:
-    - PYVER: 3.6
+    - PYTHON: C:\Python36-x64
+      PYVER: 3.6
       TOXENV: py36
-    - TOXENV: py37
-    - TOXENV: py38
+    - PYTHON: C:\Python37-x64
+      PYVER: 3.7
+      TOXENV: py37
+    - PYTHON: C:\Python38-x64
+      PYVER: 3.8
+      TOXENV: py38
 
 stack: python %PYVER%
 
