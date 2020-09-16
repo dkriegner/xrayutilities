@@ -1,58 +1,18 @@
 image:
   - Visual Studio 2019
+  - Ubuntu
+
 environment:
   matrix:
-    # For Python versions available on Appveyor, see
-    # https://www.appveyor.com/docs/windows-images-software/#python and
-    # https://www.appveyor.com/docs/windows-images-software/#miniconda
-    - PYTHON: C:\Python36
-    - PYTHON: C:\Python36-x64
-    - PYTHON: C:\Python37
-    - PYTHON: C:\Python37-x64
-    - PYTHON: C:\Python38
-    - PYTHON: C:\Python38-x64
-    - PYTHON_VERSION: 3.6
-      MINICONDA: C:\Miniconda36
-    - PYTHON_VERSION: 3.6
-      MINICONDA: C:\Miniconda36-x64
-    - PYTHON_VERSION: 3.7
-      MINICONDA: C:\Miniconda37
-    - PYTHON_VERSION: 3.7
-      MINICONDA: C:\Miniconda37-x64
-    #- PYTHON_VERSION: 3.8  # not working/available
-    #  MINICONDA: C:\Miniconda38
-    - PYTHON_VERSION: 3.8
-      MINICONDA: C:\Miniconda38-x64
+    - TOXENV: py36
+    #- TOXENV: py37
+    #- TOXENV: py38
 
 install:
   - ps: |
       $env:package_version=(Get-Content -Path lib/xrayutilities/VERSION)
       Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
-      # install dependencies
-      if($env:MINICONDA -eq $null)
-      {
-        $env:Path="$env:PYTHON;$env:PYTHON\Scripts;$env:Path"
-        [Environment]::SetEnvironmentVariable("Path", "$env:PYTHON;$env:PYTHON\Scripts;senv:Path", [EnvironmentVariableTarget]::User)
-        python -m pip install --upgrade --ignore-installed pip
-        python -m pip install --upgrade numpy scipy h5py wheel
-      }
-      else
-      {
-        $env:Path="$env:MINICONDA;$env:MINICONDA\Scripts;$env:MINICONDA\Library\bin;$env:Path"
-        [Environment]::SetEnvironmentVariable("Path", "$env:MINICONDA;$env:MINICONDA\Scripts;$env:Path", [EnvironmentVariableTarget]::User)
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        conda info -a
-        conda install -q numpy scipy h5py wheel
-        python -m pip install --upgrade --ignore-installed pip
-      }
       python -m pip install tox
-
-build_script:
-  - cmd: IF DEFINED MINICONDA ( echo "Build step skipped" ) ELSE ( python setup.py bdist_wheel )
-
-test_script:
-  - cmd: IF DEFINED MINICONDA ( tox ) ELSE ( echo "Tests skipped" )
 
 artifacts:
   - path: dist\*

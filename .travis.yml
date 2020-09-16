@@ -25,7 +25,7 @@ before_install: |
   fi
 install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then travis_retry pip install numpy; fi
-  - travis_retry pip install tox
+  - travis_retry pip install tox tox-travis
   - if [ ! "$(ls -A tests/data)" ]; then curl -L https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -o xu_testdata.tar.gz && tar xzf xu_testdata.tar.gz -C tests; fi
 cache:
   pip: true
