@@ -2,6 +2,8 @@ image:
   - Visual Studio 2019
   - Ubuntu
 
+stack: python 3
+
 environment:
   matrix:
     - TOXENV: py36
@@ -12,7 +14,12 @@ install:
   - ps: |
       $env:package_version=(Get-Content -Path lib/xrayutilities/VERSION)
       Update-AppveyorBuild -Version "$env:package_version-$env:APPVEYOR_BUILD_NUMBER"
-      python -m pip install tox
+      python -m pip install tox tox-wheel
+
+build: off
+
+test_script:
+  - tox
 
 artifacts:
   - path: dist\*
