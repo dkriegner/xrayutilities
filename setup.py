@@ -100,7 +100,7 @@ class build_ext_subclass(build_ext):
                         e.extra_compile_args.append(flag)
                         if lib is not None:
                             e.extra_link_args.append(lib)
-                        e.define_macros .append(('__OPENMP__', None))
+                        e.define_macros.append(('__OPENMP__', None))
 
         super().build_extensions()
 
