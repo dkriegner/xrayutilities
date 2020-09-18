@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 import unittest
@@ -83,8 +83,8 @@ ccdfile = os.path.join(datadir, name, name + "_%05d_eiger",
 fullfilename = ccdfile % (2, 2, 104)
 
 
-@unittest.skipIf('TRAVIS' in os.environ or not os.path.isfile(fullfilename),
-                 "this test is not running on Travis-CI or additional test "
+@unittest.skipIf('CI' in os.environ or not os.path.isfile(fullfilename),
+                 "this test is not running on CI or additional test "
                  "data are needed (http://xrayutilities.sf.io)")
 class TestArea_calib(unittest.TestCase):
     en = 10000.0  # x-ray energy in eV

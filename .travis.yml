@@ -3,10 +3,10 @@ jobs:
   include:
     - os: linux
       python: 3.6
-      env: TOX_TESTENV_PASSENV=TRAVIS
+      env: TOX_TESTENV_PASSENV=CI
     - os: linux
       python: 3.7
-      env: TOX_TESTENV_PASSENV=TRAVIS
+      env: TOX_TESTENV_PASSENV=CI
     - os: linux
       python: 3.8
     - os: osx
@@ -15,12 +15,12 @@ jobs:
         - PYENV_VERSION=3.8.5
         - PYENV_VERSION_STRING='Python 3.8.5'
         - TOXENV=py38
-        - TOX_TESTENV_PASSENV=TRAVIS
+        - TOX_TESTENV_PASSENV=CI
     - os: windows
       language: shell
       env:
         - TOXENV=py38
-        - TOX_TESTENV_PASSENV=TRAVIS
+        - TOX_TESTENV_PASSENV=CI
         - PYTHON=3.8.5
         - PATH=/c/Python38:/c/Python38/Scripts:$PATH
   allow_failures:
@@ -36,6 +36,7 @@ before_install: |
     python -m pip install --upgrade pip
   fi
 install:
+  - env
   - python3 --version || python --version
   - travis_retry pip3 install tox tox-travis tox-wheel
   - |
