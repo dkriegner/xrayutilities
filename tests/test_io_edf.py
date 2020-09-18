@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015,2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
 import tempfile
@@ -53,18 +53,20 @@ class TestIO_EDF(unittest.TestCase):
                                places=10)
 
     def test_savehdf5(self):
-        with tempfile.NamedTemporaryFile(mode='w') as fid:
-            self.edffile.Save2HDF5(fid.name)
-            with h5py.File(fid.name, 'r') as h5f:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fname = os.path.join(tmpdir, 'tmp.h5')
+            self.edffile.Save2HDF5(fname)
+            with h5py.File(fname, 'r') as h5f:
                 h5d = h5f[list(h5f.keys())[0]]
                 h5d = numpy.asarray(h5d)
                 self.assertTrue(numpy.all(h5d == self.data))
 
     def test_EDFDirectory(self):
-        with tempfile.NamedTemporaryFile(mode='w') as fid:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fname = os.path.join(tmpdir, 'tmp.h5')
             ed = xu.io.EDFDirectory(datadir, 'edf.gz')
-            ed.Save2HDF5(fid.name)
-            with h5py.File(fid.name, 'r') as h5f:
+            ed.Save2HDF5(fname)
+            with h5py.File(fname, 'r') as h5f:
                 h5g = h5f[os.path.split(datadir)[-1]]
                 h5d = h5g[list(h5g.keys())[0]]
                 h5d = numpy.asarray(h5d)

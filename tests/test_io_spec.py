@@ -73,9 +73,10 @@ class TestIO_SPEC(unittest.TestCase):
         self.assertTrue(numpy.all(self.sdata[self.countername] == self.inte))
 
     def test_hdf5file(self):
-        with tempfile.NamedTemporaryFile(mode='w') as fid:
-            self.specfile.Save2HDF5(fid.name)
-            h5d = xu.io.geth5_scan(fid.name, self.scannr)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fname = os.path.join(tmpdir, 'tmp.h5')
+            self.specfile.Save2HDF5(fname)
+            h5d = xu.io.geth5_scan(fname, self.scannr)
             self.assertTrue(numpy.all(self.inte == h5d[self.countername]))
 
 

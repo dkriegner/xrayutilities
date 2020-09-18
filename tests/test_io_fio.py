@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015,2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
 import tempfile
@@ -55,10 +55,11 @@ class TestIO_FIO(unittest.TestCase):
         cls.sdata = cls.fiofile.data
         cls.motor = cls.sdata[cls.motorname]
         cls.inte = cls.sdata[cls.countername]
-        with tempfile.NamedTemporaryFile(mode='w') as fid:
-            cls.fiofile.Save2HDF5(fid.name, scanname)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fname = os.path.join(tmpdir, 'tmp.h5')
+            cls.fiofile.Save2HDF5(fname, scanname)
             [cls.h5tt, dummy, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
-                fid.name, [19], cls.motorname, 'ZS', cls.countername)
+                fname, [19], cls.motorname, 'ZS', cls.countername)
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.sdata[self.motorname].shape)
