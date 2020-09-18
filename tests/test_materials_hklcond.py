@@ -16,6 +16,7 @@
 # Copyright (C) 2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import math
+import os
 import unittest
 
 import numpy
