@@ -23,8 +23,6 @@ jobs:
         - TOX_TESTENV_PASSENV="*"
         - PYTHON=3.8.5
         - PATH=/c/Python38:/c/Python38/Scripts:$PATH
-  allow_failures:
-    - os: windows
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     if [[ -n "$PYENV_VERSION" ]]; then
@@ -50,4 +48,4 @@ cache:
    - tests/data
    - $HOME/.pyenv_cache
 script:
-  - travis_wait 30 tox
+  - travis_wait 45 tox
