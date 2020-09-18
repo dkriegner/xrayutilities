@@ -23,15 +23,15 @@ jobs:
         - TOX_TESTENV_PASSENV=TRAVIS
         - PYTHON=3.8.5
         - PATH=/c/Python38:/c/Python38/Scripts:$PATH
-    allow_failures:
-      os: windows
+  allow_failures:
+    os: windows
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     if [[ -n "$PYENV_VERSION" ]]; then
         wget https://github.com/praekeltfoundation/travis-pyenv/releases/download/0.4.0/setup-pyenv.sh
         source setup-pyenv.sh
     fi
-  else if [ "$TRAVIS_OS_NAME" == "windows" ]; then
+  elif [ "$TRAVIS_OS_NAME" == "windows" ]; then
     choco install python --version $PYTHON
     python -m pip install --upgrade pip
   fi
