@@ -24,6 +24,7 @@ import xrayutilities as xu
 xu.config.VERBOSITY = 0
 
 
+@unittest.skipIf('CI' in os.environ, "slow test not running on CI")
 class Test_Materials_reflection_condition(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -45,7 +46,8 @@ class Test_Materials_reflection_condition(unittest.TestCase):
         test_allowed: bool
          boolean to determine wether allowed peaks must have non-zero structure
          factor. This test is only performed if reflection conditions are
-         available! default: False
+         available, and two atoms have a minimal distance of 0.01Ang!
+         default: False
         """
         # calculate maximal Bragg indices
         hma = int(math.ceil(m.a / math.pi * self.ksinmax))
@@ -76,6 +78,13 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                              s[mviolate]):
                 errorinfo += "%s\t%s\n" % (h, sf)
         self.assertTrue(numpy.allclose(s, 0), msg=errorinfo)
+        # check if atoms are too near (avoid chance of accidental extinction)
+        if test_allowed:
+            for at, pos, occ, b in m.lattice.base():
+                env = m.environment(*pos, maxdist=0.01)
+                if len(env) > 1 or env[0][-1] != 1:
+                    test_allowed = False
+                    break
         if test_allowed and 'n/a' not in m.lattice.reflection_conditions():
             # all allowed peaks must have non-zero structure factor
             s = numpy.abs(
