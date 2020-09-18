@@ -20,7 +20,7 @@ jobs:
       language: shell
       env:
         - TOXENV=py38
-        - TOX_TESTENV_PASSENV=CI
+        - TOX_TESTENV_PASSENV="*"
         - PYTHON=3.8.5
         - PATH=/c/Python38:/c/Python38/Scripts:$PATH
   allow_failures:
