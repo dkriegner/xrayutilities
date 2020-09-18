@@ -1,17 +1,26 @@
-image:
-  - Ubuntu2004
-  - Visual Studio 2019
-
 environment:
   TOX_TESTENV_PASSENV: "*"
+  PYTHON: C:\Python38-x64
   matrix:
-#    - PYTHON: C:\Python36-x64
-#      PYVER: 3.6
-#      TOXENV: py36
-#    - PYTHON: C:\Python37-x64
-#      PYVER: 3.7
-#      TOXENV: py37
-    - PYTHON: C:\Python38-x64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      TOXENV: py36
+      TOX_APPVEYOR_X64: 0
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      TOXENV: py36
+      TOX_APPVEYOR_X64: 1
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      TOXENV: py37
+      TOX_APPVEYOR_X64: 0
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      TOXENV: py37
+      TOX_APPVEYOR_X64: 1
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      TOXENV: py38
+      TOX_APPVEYOR_X64: 0
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      TOXENV: py38
+      TOX_APPVEYOR_X64: 1
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu2004
       PYVER: 3.8
       TOXENV: py38
 
@@ -31,7 +40,7 @@ install:
         sudo apt -y install python3-pip
       }
       python -m pip install --upgrade --ignore-installed pip
-      python -m pip install numpy tox tox-wheel
+      python -m pip install numpy tox tox-wheel tox-appveyor
 
 build: off
 
