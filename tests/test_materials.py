@@ -92,10 +92,11 @@ class TestMaterialsTransform(unittest.TestCase):
         self.test_Bmatrix()
 
     def test_environment(self):
-        maxdist = numpy.max((self.a, self.b, self.c)) + 0.01
+        maxdist = max(self.a, self.b, self.c) + 0.01
         e = self.p1mat.environment((0, 0, 0), maxdist=maxdist)
 
-        self.assertTrue(len(e) >= 4)
+        self.assertTrue(len(e) >= 4,
+                        f"Length of environment must be >= 4, is {len(e)}")
         for dis in (0.0, self.a, self.b, self.c):
             found = False
             for d, at, mult in e:

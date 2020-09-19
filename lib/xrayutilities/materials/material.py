@@ -735,7 +735,7 @@ class Crystal(Material):
         ucidx = numpy.mgrid[-Na:Na+1, -Nb:Nb+1, -Nc:Nc+1].reshape(3, -1)
         for a, p, o, b in base:
             ucpos = self.lattice._ai @ p
-            pos = ucpos + numpy.einsum('ji, ...i', self.lattice._ai, ucidx.T)
+            pos = ucpos + numpy.einsum('ji, ...i', self.lattice._ai.T, ucidx.T)
             distance = math.VecNorm(pos - refpos)
             lst += [(d, a, o) for d in distance]
 
