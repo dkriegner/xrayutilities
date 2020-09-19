@@ -12,7 +12,6 @@ jobs:
 - template: run-tox-env.yml@tox
   parameters:
     tox_version: ''
-    before: pip install tox-wheels
     jobs:
       fix_lint: null
       docs: null
