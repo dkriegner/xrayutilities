@@ -13,8 +13,6 @@ jobs:
   parameters:
     tox_version: 'tox tox-wheel'
     jobs:
-      fix_lint: null
-      docs: null
       py38:
         image: [linux, windows, macOs]
       py37:
