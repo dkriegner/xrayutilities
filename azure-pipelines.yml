@@ -11,7 +11,7 @@ resources:
 jobs:
 - template: run-tox-env.yml@tox
   parameters:
-    tox_version: ''
+    tox_version: '3.20.0'
     jobs:
       fix_lint: null
       docs: null
