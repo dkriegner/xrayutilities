@@ -1,3 +1,5 @@
+* performance optimizations in Crystal.environment
+* Continous integration tests running on MacOS, Windows and Linux
 * new flavor of material/Crystal definition from fractional atomic coordinates
 * bugfix in derivative functions (xu.math.functions)
 * effectiveDensity slicing for XRR simulations, thanks to MM

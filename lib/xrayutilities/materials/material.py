@@ -29,7 +29,7 @@ import numbers
 import operator
 import re
 import warnings
-from math import ceil, copysign
+from math import ceil, copysign, isclose
 
 import numpy
 import scipy.optimize
@@ -680,8 +680,9 @@ class Crystal(Material):
 
     def environment(self, *pos, **kwargs):
         """
-        Returns a list of neighboring atoms for a given position within the the
-        unit cell.
+        Returns a list of neighboring atoms for a given position within the
+        unit cell. If the material does not contain any atoms a dummy atom will
+        be placed on the unit cell corners.
 
         Parameters
         ----------
@@ -711,45 +712,49 @@ class Crystal(Material):
             pos[0] + self.a2 * pos[1] + self.a3 * pos[2]
 
         lst = []
-        Na = 2 * int(ceil(maxdist / math.VecNorm(self.a1)))
-        Nb = 2 * int(ceil(maxdist / math.VecNorm(self.a2)))
-        Nc = 2 * int(ceil(maxdist / math.VecNorm(self.a3)))
-        if self.lattice.nsites > 0:
-            for a, p, o, b in self.lattice.base():
-                ucpos = (self.a1 * p[0] + self.a2 * p[1] + self.a3 * p[2])
-                for i in range(-Na, Na + 1):
-                    for j in range(-Nb, Nb + 1):
-                        for k in range(-Nc, Nc + 1):
-                            atpos = ucpos + (self.a1 * i + self.a2 * j +
-                                             self.a3 * k)
-                            distance = math.VecNorm(atpos - refpos)
-                            if distance <= maxdist:
-                                lst.append((distance, a, o))
-        else:
-            for i in range(-Na, Na + 1):
-                for j in range(-Nb, Nb + 1):
-                    for k in range(-Nc, Nc + 1):
-                        atpos = (self.a1 * i + self.a2 * j + self.a3 * k)
-                        distance = math.VecNorm(atpos - refpos)
-                        if distance <= maxdist:
-                            lst.append((distance, '__dummy__', 1.))
 
-        # sort
-        lst.sort(key=operator.itemgetter(1))
-        lst.sort(key=operator.itemgetter(0))
-        rl = []
-        if len(lst) >= 1:
-            mult = lst[0][2]
+        # determine lattice base
+        if self.lattice.nsites > 0:
+            base = list(self.lattice.base())
         else:
+            base = [(elements.Dummy, (0, 0, 0), 1, 0)]
+
+        # find maximally needed super cell
+        na = int(ceil(maxdist / math.VecNorm(self.a1)))
+        nb = int(ceil(maxdist / math.VecNorm(self.a2)))
+        nc = int(ceil(maxdist / math.VecNorm(self.a3)))
+        nab = int(ceil(maxdist / math.VecNorm(self.a1 + self.a2)))
+        nac = int(ceil(maxdist / math.VecNorm(self.a1 + self.a3)))
+        nbc = int(ceil(maxdist / math.VecNorm(self.a2 + self.a3)))
+        nabc = int(ceil(maxdist / math.VecNorm(self.a1 + self.a2 + self.a3)))
+        Na = max(na, nab, nac, nabc)
+        Nb = max(nb, nab, nbc, nabc)
+        Nc = max(nc, nac, nbc, nabc)
+
+        # determine distance of all atoms w.r.t. the refpos
+        ucidx = numpy.mgrid[-Na:Na+1, -Nb:Nb+1, -Nc:Nc+1].reshape(3, -1)
+        for a, p, o, b in base:
+            ucpos = self.lattice._ai @ p
+            pos = ucpos + numpy.einsum('ji, ...i', self.lattice._ai, ucidx.T)
+            distance = math.VecNorm(pos - refpos)
+            lst += [(d, a, o) for d in distance]
+
+        # sort and merge return list
+        lst.sort(key=operator.itemgetter(0, 1))
+        rl = []
+        if len(lst) < 1:
             return rl
+
+        mult = lst[0][2]
         for i in range(1, len(lst)):
-            if (numpy.isclose(lst[i - 1][0] - lst[i][0], 0) and
+            if (isclose(lst[i - 1][0] - lst[i][0], 0, abs_tol=1e-8) and
                     lst[i - 1][1] == lst[i][1]):
                 mult += lst[i - 1][2]  # add occupancy
             else:
                 rl.append((lst[i - 1][0], lst[i - 1][1], mult))
                 mult = lst[i][2]
-        rl.append((lst[-1][0], lst[-1][1], mult))
+            if lst[i][0] > maxdist:
+                break
 
         return rl
 
