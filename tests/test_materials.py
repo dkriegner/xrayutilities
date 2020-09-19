@@ -102,7 +102,7 @@ class TestMaterialsTransform(unittest.TestCase):
             for d, at, mult in e:
                 if numpy.isclose(d, dis):
                     found = True
-            self.assertTrue(found)
+            self.assertTrue(found, f"expected atomic distance not found")
 
     def test_environment_Si(self):
         a = xu.materials.Si.a
