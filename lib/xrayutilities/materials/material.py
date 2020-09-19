@@ -708,9 +708,7 @@ class Crystal(Material):
                 raise InputError("need 3 coordinates of the "
                                  "reference position")
 
-        refpos = self.a1 * \
-            pos[0] + self.a2 * pos[1] + self.a3 * pos[2]
-
+        refpos = self.lattice._ai.T @ pos
         lst = []
 
         # determine lattice base
@@ -734,7 +732,7 @@ class Crystal(Material):
         # determine distance of all atoms w.r.t. the refpos
         ucidx = numpy.mgrid[-Na:Na+1, -Nb:Nb+1, -Nc:Nc+1].reshape(3, -1)
         for a, p, o, b in base:
-            ucpos = self.lattice._ai @ p
+            ucpos = self.lattice._ai.T @ p
             pos = ucpos + numpy.einsum('ji, ...i', self.lattice._ai.T, ucidx.T)
             distance = math.VecNorm(pos - refpos)
             lst += [(d, a, o) for d in distance]
@@ -742,7 +740,7 @@ class Crystal(Material):
         # sort and merge return list
         lst.sort(key=operator.itemgetter(0, 1))
         rl = []
-        if len(lst) < 1:
+        if len(lst) < 1 or lst[0][0] > maxdist:
             return rl
 
         mult = lst[0][2]
