@@ -30,11 +30,11 @@ from .darwin_theory import (DarwinModel, DarwinModelAlGaAs001,
                             DarwinModelSiGe001, GradedBuffer)
 from .fit import FitModel
 from .helpers import coplanar_alphai, get_qz
-from .models import (effectiveDensitySlicing, DiffuseReflectivityModel,
-                     DynamicalModel, DynamicalReflectivityModel,
-                     KinematicalModel, KinematicalMultiBeamModel, LayerModel,
-                     Model, SimpleDynamicalCoplanarModel,
-                     SpecularReflectivityModel)
+from .models import (DiffuseReflectivityModel, DynamicalModel,
+                     DynamicalReflectivityModel, KinematicalModel,
+                     KinematicalMultiBeamModel, LayerModel, Model,
+                     SimpleDynamicalCoplanarModel, SpecularReflectivityModel,
+                     effectiveDensitySlicing)
 from .mosaicity import mosaic_analytic
 from .powder import FP_profile, PowderDiffraction
 from .powdermodel import PowderModel, Rietveld_error_metrics, plot_powder
