@@ -6,7 +6,7 @@ resources:
     type: github
     endpoint: github
     name: tox-dev/azure-pipelines-template
-    ref: refs/master
+    ref: master
 
 jobs:
 - template: run-tox-env.yml@tox
