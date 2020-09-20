@@ -123,13 +123,19 @@ class TestMathFunctions(unittest.TestCase):
         for f, fdx, fdp in functions:
             deriv = numpy.vstack((fdx(*params), fdp(*params)))
             for argidx in range(len(deriv)):
-                peps = copy.copy(params)
-                peps[argidx] = peps[argidx] + eps
-                findiff = (f(*peps) - f(*params)) / eps
+                pmeps = copy.copy(params)
+                ppeps = copy.copy(params)
+                pmeps[argidx] = pmeps[argidx] - eps / 2
+                ppeps[argidx] = ppeps[argidx] + eps / 2
+                findiff = (f(*ppeps) - f(*pmeps)) / eps
+                diff = numpy.abs(deriv[argidx] - findiff)
+                errinfo = f'maximum difference, idx/npoints: ' \
+                    f'{numpy.max(diff)}, {numpy.argmax(diff)}/{len(diff)}\n' \
+                    f'parameters: {str(p)}'
                 self.assertTrue(numpy.allclose(deriv[argidx], findiff,
                                                atol=1e3*eps),
                                 f'{str(f)}, {argidx}, derivatives not close '
-                                'to numerical approximation')
+                                f'to numerical approximation ({errinfo})')
 
 
 if __name__ == '__main__':
