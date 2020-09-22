@@ -14,12 +14,14 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to handle the access to the optical parameters database
 """
 
+import lzma
+import os.path
 import re
 
 import h5py
@@ -790,3 +792,62 @@ def add_radius_from_WIKI(db, dfile, verbose=False):
                 print("set element %s" % ename)
             db.SetMaterial(ename)
             db.SetRadius(radius)
+
+
+def createAndFillDatabase(fname, dpath=None, verbose=False):
+    """
+    function to create the database and fill it with values from the various
+    source files.
+
+    Parameters
+    ----------
+    fname : str
+        Filename of the database to be created (including the path)
+    dpath : str, optional
+        directory where all the source data files are stored
+    verbose : bool, optional
+        flag to determine the verbosity of the script (default: False)
+    """
+    if dpath is None:
+        dpath = os.path.join(os.path.dirname(__file__), 'data')
+
+    dbf = DataBase(fname)
+    dbf.Create('elementdata',
+               'Database with elemental data from XOP and Kissel databases')
+
+    init_material_db(dbf)
+
+    # add a dummy element, this is useful not only for testing and should be
+    # kept in future! It can be used for structure factor calculation tests,
+    # and shows how the a database entry can be generated manually
+    dbf.SetMaterial('Dummy')
+    dbf.SetF0([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # atomic structure factors
+    dbf.SetF1F2((0, 1e5), (0, 0), (0, 0))  # zero dispersion correction
+    dbf.SetWeight(scipy.constants.atomic_mass)
+    dbf.SetRadius(1)
+
+    add_mass_from_NIST(dbf, os.path.join(dpath, 'nist_atom.dat'), verbose)
+    add_color_from_JMOL(dbf, os.path.join(dpath, 'colors.dat'), verbose)
+    add_radius_from_WIKI(dbf, os.path.join(dpath, 'atomic_radius.dat'),
+                         verbose)
+
+    # add F0(Q) for every element
+    # with lzma.open(os.path.join('data', 'f0_xop.dat.xz'), 'r') as xop:
+    #    add_f0_from_xop(dbf, xop, verbose)
+    with lzma.open(os.path.join(dpath, 'f0_InterTables.dat.xz'), 'r') as itf:
+        add_f0_from_intertab(dbf, itf, verbose)
+
+    # add F1 and F2 from database
+    with lzma.open(os.path.join(dpath, 'f1f2_asf_Kissel.dat.xz'), 'r') as kf:
+        add_f1f2_from_kissel(dbf, kf, verbose)
+    # with lzma.open(os.path.join(dpath, 'f1f2_Henke.dat'), 'r') as hf:
+    #    add_f1f2_from_henkedb(dbf, hf, verbose)
+
+    # Also its possible to add custom data from different databases; e.g.
+    # created by Hepaestus (http://bruceravel.github.io/demeter/). This is also
+    # possible for specific elements only, therefore extract the data from
+    # Hephaestus or any other source producing ASCII files with three columns
+    # (energy (eV), f1, f2). To import such data use:
+    # add_f1f2_from_ascii_file(dbf, os.path.join(dpath, 'Ga.f1f2'), 'Ga',
+    #                          verbose)
+    dbf.Close()

@@ -13,82 +13,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
-script to create the HDF5 database from the raw data of XOP
-his file is only needed for administration and also used during the unit tests
+script to create the HDF5 database from the raw data of XOP.
+this file is only needed for administration and also used during the build
 
-Optionally it accepts two command line arguments. The first one is the filename
-of the database. If the filename has no path or a relative path the data-folder
-given as second argument will be used as root of the output file.
+It accepts two command line arguments. The first one is the filename
+of the database (required).
 
 The second optional argument is the directory of the source data file used to
 generate the database. If no path is given the 'data' sub-folder of the scripts
-directory is used. The script therefore works if called from the extracted
-tarball directory but not after installation. After installation the respective
-data path must be specified. The script can be run with 0, one or two command
-line arguments as described above.
-
-See tests/test_materials_database for an example.
+directory is used.
 """
 
-import lzma
-import os.path
 import sys
 
-from scipy.constants import atomic_mass
-
 # local import
-from database import (DataBase, add_color_from_JMOL, add_f0_from_intertab,
-                      add_f1f2_from_kissel, add_mass_from_NIST,
-                      add_radius_from_WIKI, init_material_db)
+from database import createAndFillDatabase
 
-verbose = False
 
-if len(sys.argv) > 1:
-    fname = sys.argv[1]
-if len(sys.argv) > 2:
-    dataroot = sys.argv[2]
-else:
-    dataroot = os.path.join(os.path.dirname(__file__), 'data')
-
-dbf = DataBase(fname)
-dbf.Create('elementdata',
-           'Database with elemental data from XOP and Kissel databases')
-
-init_material_db(dbf)
-
-# add a dummy element, this is useful not only for testing and should be
-# kept in future! It can be used for structure factor calculation tests, and
-# shows how the a database entry can be generated manually
-dbf.SetMaterial('Dummy')
-dbf.SetF0([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # atomic structure factors
-dbf.SetF1F2((0, 1e5), (0, 0), (0, 0))  # zero dispersion correction
-dbf.SetWeight(atomic_mass)
-dbf.SetRadius(1)
-
-add_mass_from_NIST(dbf, os.path.join(dataroot, 'nist_atom.dat'), verbose)
-add_color_from_JMOL(dbf, os.path.join(dataroot, 'colors.dat'), verbose)
-add_radius_from_WIKI(dbf, os.path.join(dataroot, 'atomic_radius.dat'), verbose)
-
-# add F0(Q) for every element
-# with lzma.open(os.path.join('data', 'f0_xop.dat.xz'), 'r') as xop:
-#    add_f0_from_xop(dbf, xop, verbose)
-with lzma.open(os.path.join(dataroot, 'f0_InterTables.dat.xz'), 'r') as itf:
-    add_f0_from_intertab(dbf, itf, verbose)
-
-# add F1 and F2 from database
-with lzma.open(os.path.join(dataroot, 'f1f2_asf_Kissel.dat.xz'), 'r') as kf:
-    add_f1f2_from_kissel(dbf, kf, verbose)
-# with lzma.open(os.path.join(dataroot, 'f1f2_Henke.dat'), 'r') as hf:
-#    add_f1f2_from_henkedb(dbf, hf, verbose)
-
-# Also its possible to add custom data from different databases; e.g.
-# created by Hepaestus (http://bruceravel.github.io/demeter/). This is also
-# possible for specific elements only, therefore extract the data from
-# Hephaestus or any other source producing ASCII files with three columns
-# (energy (eV), f1, f2). To import such data use:
-# add_f1f2_from_ascii_file(dbf, os.path.join(dataroot, 'Ga.f1f2'), 'Ga',
-#                          verbose)
-
-dbf.Close()
+if __name__ == "__main__":
+    createAndFillDatabase(*sys.argv[1:], verbose=False)
