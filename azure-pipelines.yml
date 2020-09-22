@@ -1,0 +1,19 @@
+name: $(BuildDefinitionName)_$(Date:yyyyMMdd)$(Rev:.rr)
+
+resources:
+  repositories:
+  - repository: tox
+    type: github
+    endpoint: github
+    name: tox-dev/azure-pipelines-template
+    ref: master
+
+jobs:
+- template: run-tox-env.yml@tox
+  parameters:
+    tox_version: 'tox tox-wheel'
+    jobs:
+      py38:
+        image: [linux, windows, macOs]
+      py37:
+        image: [linux, windows, macOs]
