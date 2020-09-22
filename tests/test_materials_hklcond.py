@@ -47,7 +47,9 @@ class Test_Materials_reflection_condition(unittest.TestCase):
         test_allowed: bool
          boolean to determine wether allowed peaks must have non-zero structure
          factor. This test is only performed if reflection conditions are
-         available, and two atoms have a minimal distance of 0.01Ang!
+         available, and two atoms have a minimal distance of 0.01Ang! still
+         there is a chance that by chance atoms occupy positions of a
+         different space group which renders this test option dangerous.
          default: False
         """
         # calculate maximal Bragg indices
@@ -79,7 +81,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                              s[mviolate]):
                 errorinfo += "%s\t%s\n" % (h, sf)
         self.assertTrue(numpy.allclose(s, 0), msg=errorinfo)
-        # check if atoms are too near (avoid chance of accidental extinction)
+        # check if atoms are too near (reduce chance of accidental extinction)
         if test_allowed:
             for at, pos, occ, b in m.lattice.base():
                 env = m.environment(*pos, maxdist=0.01)
@@ -129,8 +131,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                           [(wplabel, wppar), ]}
                 # generate test lattice
                 lat = xu.materials.SGLattice(sg, *p, **kwdict)
-                self._test_material(xu.materials.Crystal("SG%s" % sg, lat),
-                                    test_allowed=True)
+                self._test_material(xu.materials.Crystal("SG%s" % sg, lat))
 
     def test_get_allowed_hkl(self):
         """
