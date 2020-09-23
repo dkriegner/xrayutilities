@@ -29,9 +29,12 @@ jobs:
         after:
           - publish: $(System.DefaultWorkingDirectory)/dist/
             artifact: Python Wheel package
-        image: [linux]
+        image: [linux, windows, macOs]
       py37:
         image: [linux, windows, macOs]
+        after:
+          - publish: $(System.DefaultWorkingDirectory)/dist/
+            artifact: Python Wheel package
     coverage:
       with_toxenv: 'coverage'
       for_envs: [py37, py38]
