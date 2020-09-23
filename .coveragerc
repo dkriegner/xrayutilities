@@ -1,4 +1,0 @@
-[run]
-concurrency=multiprocessing
-parallel=True
-source=xrayutilities
