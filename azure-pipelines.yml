@@ -13,7 +13,7 @@ jobs:
   parameters:
     tox_version: 'tox tox-wheel'
     jobs:
-      py38-testdata:
+      py38_testdata:
         image: [linux]
         after:
           - task: Cache@2
