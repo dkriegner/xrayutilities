@@ -25,6 +25,10 @@ jobs:
               curl -s -L https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -o xu_testdata.tar.gz
               tar xzf xu_testdata.tar.gz -C tests
             condition: ne(variables.TESTDATA_RESTORED, 'true')
+            displayName: Download test data
+        after:
+          - publish: $(System.DefaultWorkingDirectory)/dist/
+            artifact: Python Wheel package
         image: [linux]
       py37:
         image: [linux, windows, macOs]
