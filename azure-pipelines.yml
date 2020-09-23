@@ -27,4 +27,4 @@ jobs:
         image: [linux, windows, macOs]
     coverage:
       with_toxenv: 'coverage'
-      for_envs: [py37, py38, py38-testdata]
+      for_envs: [py37, py38, py38_testdata]
