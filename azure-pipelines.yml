@@ -35,6 +35,11 @@ jobs:
         after:
           - publish: $(System.DefaultWorkingDirectory)/dist/
             artifact: Python $(Agent.JobName) wheel package
+      py36:
+        image: [linux, windows, macOs]
+        after:
+          - publish: $(System.DefaultWorkingDirectory)/dist/
+            artifact: Python $(Agent.JobName) wheel package
     coverage:
       with_toxenv: 'coverage'
-      for_envs: [py37, py38]
+      for_envs: [py36, py37, py38]
