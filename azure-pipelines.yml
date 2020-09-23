@@ -14,7 +14,7 @@ jobs:
     tox_version: 'tox tox-wheel'
     jobs:
       py38-testdata:
-        image: linux
+        image: [linux]
         after:
           - task: Cache@2
             inputs:
