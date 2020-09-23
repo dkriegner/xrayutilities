@@ -1,0 +1,10 @@
+[paths]
+source =
+   lib
+   */site-packages
+
+[run]
+branch = true
+parallel = true
+source =
+    xrayutilities
