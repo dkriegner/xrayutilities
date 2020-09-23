@@ -28,13 +28,13 @@ jobs:
             displayName: Download test data
         after:
           - publish: $(System.DefaultWorkingDirectory)/dist/
-            artifact: Python $(Build.DefinitionName) wheel package
+            artifact: Python $(Agent.JobName) wheel package
         image: [linux, windows, macOs]
       py37:
         image: [linux, windows, macOs]
         after:
           - publish: $(System.DefaultWorkingDirectory)/dist/
-            artifact: Python Wheel package
+            artifact: Python $(Agent.JobName) wheel package
     coverage:
       with_toxenv: 'coverage'
       for_envs: [py37, py38]
