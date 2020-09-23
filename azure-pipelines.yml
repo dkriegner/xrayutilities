@@ -15,7 +15,7 @@ jobs:
     jobs:
       py38:
         before:
-          -script: |
+          - script: |
             if [ ! "$(ls -A tests/data)" ]; then
               curl -s -L https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -o xu_testdata.tar.gz
               tar xzf xu_testdata.tar.gz -C tests
