@@ -1,0 +1,53 @@
+name: $(BuildDefinitionName)_$(Date:yyyyMMdd)$(Rev:.rr)
+
+resources:
+  repositories:
+  - repository: tox
+    type: github
+    endpoint: github
+    name: tox-dev/azure-pipelines-template
+    ref: master
+
+jobs:
+- template: run-tox-env.yml@tox
+  parameters:
+    tox_version: 'tox tox-wheel'
+    jobs:
+      py38:
+        before:
+          - task: Cache@2
+            inputs:
+              key: testdata20190812
+              path: $(System.DefaultWorkingDirectory)/tests/data
+              cacheHitVar: TESTDATA_RESTORED
+            displayName: Cache test data
+          - script: |
+              curl -s -L https://sourceforge.net/projects/xrayutilities/files/xrayutilities-testdata-20190812.tar.gz -o xu_testdata.tar.gz
+              tar xzf xu_testdata.tar.gz -C tests
+            condition: ne(variables.TESTDATA_RESTORED, 'true')
+            displayName: Download test data
+        after:
+          - publish: $(System.DefaultWorkingDirectory)/dist/
+            artifact: Python $(Agent.JobName) wheel package
+        image: [linux, windows, macOs]
+      py37:
+        image: [linux, windows, macOs]
+        after:
+          - publish: $(System.DefaultWorkingDirectory)/dist/
+            artifact: Python $(Agent.JobName) wheel package
+      py36:
+        image: [linux, windows, macOs]
+        after:
+          - publish: $(System.DefaultWorkingDirectory)/dist/
+            artifact: Python $(Agent.JobName) wheel package
+    coverage:
+      with_toxenv: 'coverage'
+      for_envs: [py36, py37, py38]
+
+schedules:
+- cron: "0 12 * * 0"
+  displayName: Weekly build
+  branches:
+    include:
+    - master
+  always: true

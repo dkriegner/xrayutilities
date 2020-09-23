@@ -1,4 +1,10 @@
+[paths]
+source =
+   lib
+   */site-packages
+
 [run]
-concurrency=multiprocessing
-parallel=True
-source=xrayutilities
+branch = true
+parallel = true
+source =
+    xrayutilities
