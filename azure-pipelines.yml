@@ -43,3 +43,11 @@ jobs:
     coverage:
       with_toxenv: 'coverage'
       for_envs: [py36, py37, py38]
+
+schedules:
+- cron: "0 12 * * 0"
+  displayName: Weekly build
+  branches:
+    include:
+    - master
+  always: true
