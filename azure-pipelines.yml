@@ -28,7 +28,7 @@ jobs:
             displayName: Download test data
         after:
           - publish: $(System.DefaultWorkingDirectory)/dist/
-            artifact: Python Wheel package
+            artifact: Python $(job.value.name) wheel package
         image: [linux, windows, macOs]
       py37:
         image: [linux, windows, macOs]
