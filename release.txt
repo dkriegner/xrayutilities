@@ -23,8 +23,6 @@ lib/xrayutilities/math/fit.py:266:80: E501 line too long (90 > 79 characters)
 lib/xrayutilities/math/fit.py:307:80: E501 line too long (90 > 79 characters)
   # run the unit tests
   tox
-  # tox coverage does not contain the database creation during building of the
-  # package.
 
 UPDATE DOCUMENTATION
 ====================
@@ -39,7 +37,7 @@ In the root directory of the package execute the following to rebuild the
 documentation pdf. You will need sphinx, numpydoc and rst2pdf.
 
   python setup.py build build_doc -b pdf
-  cd build/sphinx/pdf; pdftk xrayutilities.pdf output ../../../xrayutilities.pdf ; cd ../../..
+  cp build/sphinx/pdf/xrayutilities.pdf .
 
 Or generate a texinfo file using
 
@@ -49,39 +47,6 @@ Or generate a texinfo file using
 PACKAGING
 =========
 
-create a tarball for redistribution of xrayutilities without the use of git
-
-  python setup.py sdist
-
-creates a tarball in the directory dist, which contains everything needed for
-the installation of xrayutilities
-
-This tarball should be uploaded to sourceforge and PyPI.
-
-To build a wheel for Microsoft Windows run
-
-  python setup.py bdist_wheel
-
-on a Windows machine.
-If not done previously you need to build the extension modules using
-
-  python setup.py build -c <compiler_name>
-
-The compiler name can be omitted if the default is working.
-
-For up to date Python installations you should use Visual Studio 2015.
-To perform the installation or build a installer package perform the
-following steps:
- * open an administrator shell (or winpython command prompt)
- * (optional) execute: 'set DISTUTILS_USE_SDK=1'
- * (optional) execute: 'setenv /x64 /release' (use /x86 for a 32-bit build)
- * compile with: 'python setup.py build'. one might need to use
-   '--without-openmp' option for building.
- * build binaries with 'python setup.py bdist_wheel'
- * install package locally 'python setup.py install'
- * use 'python setup.py test' to test your installation, or refer to the tox
-   doumentation for testing in an isolated environment
-
 GIT tagging
 -----------
 
@@ -89,6 +54,42 @@ tag the version in the GIT repository and publish the version tag to Github
 
   git tag -a vX -m "version X"
   git push origin vX
+
+Tarball and wheel generation
+----------------------------
+
+create a tarball for redistribution of xrayutilities without the use of git
+
+  python setup.py sdist
+
+creates a tarball in the directory dist, which contains everything needed for
+the installation of xrayutilities
+
+Wheels for multiple platforms and Python versions are generated in the Azure
+pipeline (https://dev.azure.com/dominikkriegner/xrayutilities/_build) and
+should be also deployed to PyPI. The whl-files can be downloaded after the
+successful run of the pipeline by the following BASH commands:
+
+/bin/bash
+az devops login
+az devops configure -d organization=https://dev.azure.com/dominikkriegner/
+az devops configure -d project=xrayutilities
+
+# determine latest runId (make sure its a successful one!)
+az pipelines runs list --output table --top 3
+runid=$(az pipelines runs list --output tsv --top 1 | cut -f 11)
+
+# get list of artifacts and download them
+mapfile -t artifactlist < <(az pipelines runs artifact list --run-id $runid --output tsv | cut -f 2)
+for artifact in "${artifactlist[@]}"
+do
+    if [[ $artifact == Python* ]]; then
+        echo $artifact
+        az pipelines runs artifact download --run-id $runid --path dist/ --artifact-name "$artifact"
+    fi
+done
+
+For deployment of all these files to PyPI see further down.
 
 UPDATE WEBPAGE
 ==============
@@ -115,15 +116,10 @@ however, upon such a move the download statistics are lost.
 UPDATE PyPI PACKAGE
 ===================
 
-Upload new version to the Python package index by
+Upload new version to the Python package index after inspecting the dist
+folder by
 
-  twine upload dist/xrayutilities-VERSION.tar.gz
-
-On a windows machine run
-
-  twine upload --config-file PATH_TO_pypirc dist/*
-
-or download the artifacts from AppVeyor and publish them to PyPI using twine
+  twine upload dist/*
 
 Github release and mailing list anouncement
 ===========================================

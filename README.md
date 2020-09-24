@@ -1,10 +1,7 @@
 xrayutilities
 =============
 
-[![Build
-Status Travis CI](https://travis-ci.com/dkriegner/xrayutilities.svg?branch=master)](https://travis-ci.com/dkriegner/xrayutilities)
-[![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/t8cb5jj0atklxay3/branch/master?svg=true)](https://ci.appveyor.com/project/dkriegner/xrayutilities)
-[![Build Status Azure](https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/dkriegner.xrayutilities?repoName=dkriegner%2Fxrayutilities&branchName=master)](https://dev.azure.com/dominikkriegner/xrayutilities/_build/latest?definitionId=1&repoName=dkriegner%2Fxrayutilities&branchName=master)
+[![Build Status](https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/dkriegner.xrayutilities?repoName=dkriegner%2Fxrayutilities&branchName=master)](https://dev.azure.com/dominikkriegner/xrayutilities/_build/latest?definitionId=1&repoName=dkriegner%2Fxrayutilities&branchName=master)
 
 
 xrayutilities is a collection of scripts used to analyze and simulate x-ray
