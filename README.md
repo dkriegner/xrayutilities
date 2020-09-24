@@ -4,6 +4,7 @@ xrayutilities
 [![Build
 Status Travis CI](https://travis-ci.com/dkriegner/xrayutilities.svg?branch=master)](https://travis-ci.com/dkriegner/xrayutilities)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/t8cb5jj0atklxay3/branch/master?svg=true)](https://ci.appveyor.com/project/dkriegner/xrayutilities)
+[![Build Status Azure](https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/dkriegner.xrayutilities?repoName=dkriegner%2Fxrayutilities&branchName=master)](https://dev.azure.com/dominikkriegner/xrayutilities/_build/latest?definitionId=1&repoName=dkriegner%2Fxrayutilities&branchName=master)
 
 
 xrayutilities is a collection of scripts used to analyze and simulate x-ray
@@ -90,7 +91,6 @@ The following requirements are needed for installing and using *xrayutilities*:
 - h5py
 - scipy (version >= 0.13.0)
 - numpy (version >= 1.9)
-- setuptools (for installation only)
 - lmfit (>= 1.0.1, optional)
 - matplotlib (optional, version >= 3.1.0)
 - mayavi (optional, only used optionally in Crystal.show_unitcell)
@@ -99,8 +99,8 @@ When building from source you also might need:
 
 - C-compiler (preferential with OpenMP support)
 - Python dev headers
-- unittest2 (optional - only if you want to run the tests)
-- matplotlib (optional - only if running the tests/example scripts)
+- setuptools
+- tox (optional - only if you want to run the test environment)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)
 - rst2pdf (optional - only when you want to build the documentation)

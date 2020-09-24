@@ -184,10 +184,11 @@ For several features optional dependencies are needed:
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
  * **mayavi** only used optionally in Crystal.show_unitcell where it produces a superior visualization to otherwise used Matplotlib 3D plots
 
-Additionally, the following Python modules are needed when building *xrayutilities* from source:
+Additionally, the following Python modules are needed when building *xrayutilities* from source or wanting to test your installation:
  * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.
- * **Python dev header**
- * **unittest2** needed for running the unit tests (optional)
+ * **Python development headers**
+ * **setuptools** build system
+ * **tox** needed for running the pre-configured unittest environment, which in principal can also be achieved only by the unittest package (optional)
 
 For building the documention (which you do not need to do) the requirements are:
  * **sphinx** the Python documentation generator
@@ -268,7 +269,7 @@ Examples and API-documentation
    xrayutilities.io
    xrayutilities.materials
    xrayutilities.math
-   xrayutilities.simpack   
+   xrayutilities.simpack
    modules
 
 
