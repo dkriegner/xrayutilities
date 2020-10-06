@@ -41,7 +41,7 @@ def mosaic_analytic(qx, qz, RL, RV, Delta, hx, hz, shape):
         lateral component of the diffraction vector
     hz :    float
         vertical component of the diffraction vector
-    shape:  float
+    shape :  float
         shape factor (1..Gaussian)
 
     Returns
