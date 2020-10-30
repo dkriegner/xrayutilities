@@ -59,7 +59,7 @@ s.Save2HDF5(h5file)
 # InP (333) reciprocal space map
 omalign = 43.0529  # experimental aligned values
 ttalign = 86.0733
-[omnominal, dummy, dummy, ttnominal] = hxrd.Q2Ang(
+[omnominal, _, _, ttnominal] = hxrd.Q2Ang(
     InP.Q(3, 3, 3))  # nominal values of the substrate peak
 
 # read the data from the HDF5 file

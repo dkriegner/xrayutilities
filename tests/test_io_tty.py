@@ -42,7 +42,7 @@ class TestIO_TTY(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        (cls.motor, dummy), cls.data = xu.io.gettty08_scan(
+        (cls.motor, _), cls.data = xu.io.gettty08_scan(
             testfiletmp, (29, 30), cls.motorname, 'chi', path=datadir)
         cls.inte = cls.data[cls.countername]
 

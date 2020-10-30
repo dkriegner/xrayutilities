@@ -37,7 +37,7 @@ hxrd = xu.HXRD(Si.Q(1, 1, 0), Si.Q(0, 0, 1))
 omalign = 34.3051  # experimental aligned values
 ttalign = 69.1446
 # nominal values of the substrate peak
-[omnominal, dummy, dummy, ttnominal] = hxrd.Q2Ang(Si.Q(0, 0, 4))
+[omnominal, _, _, ttnominal] = hxrd.Q2Ang(Si.Q(0, 0, 4))
 
 # read the data from the xrdml files
 om, tt, psd = xu.io.getxrdml_map(sample + '_%d.xrdml.bz2', 1,

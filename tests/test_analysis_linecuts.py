@@ -32,7 +32,7 @@ class Test_analysis_linecuts(unittest.TestCase):
     qz = numpy.linspace(qzp-0.1, qzp+0.1, 617)
     Ncut = 450
     QY, QZ = numpy.meshgrid(qy, qz)
-    omp, dummy, dummy, ttp = exp.Q2Ang(0, qyp, qzp, trans=False)
+    omp, _, _, ttp = exp.Q2Ang(0, qyp, qzp, trans=False)
 
     def test_radial_cut(self):
         omegaang = math.radians(self.omp-self.ttp/2.)

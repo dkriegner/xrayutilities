@@ -42,14 +42,14 @@ L = 1
 hxrd = xu.HXRD(mat.Q(1, 1, -2), mat.Q(1, 1, 1))
 
 # calculate angles
-[om, dummy1, dummy2, tt] = hxrd.Q2Ang(mat.Q(H, K, L))
+[om, chi, phi, tt] = hxrd.Q2Ang(mat.Q(H, K, L))
 
 # perform conversion to reciprocal space
 print(hxrd.Transform(mat.Q(H, K, L)))
 print(hxrd.Ang2Q(om, tt))
 
-# perform conversion ro HKL coordinates
-if dummy1 != 0 or dummy2 != 0:
+# perform conversion to HKL coordinates
+if chi != 0 or phi != 0:
     print("Geometry not enough for full description -> HKL will be wrong")
 print(hxrd.Ang2HKL(om, tt, mat=mat))
 

@@ -58,7 +58,7 @@ class TestIO_FIO(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             fname = os.path.join(tmpdir, 'tmp.h5')
             cls.fiofile.Save2HDF5(fname, scanname)
-            [cls.h5tt, dummy, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
+            [cls.h5tt, _, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
                 fname, [19], cls.motorname, 'ZS', cls.countername)
 
     def test_datashape(self):

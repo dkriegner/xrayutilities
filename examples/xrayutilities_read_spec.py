@@ -83,8 +83,8 @@ s.Save2HDF5(h5file)
 # InP (333) reciprocal space map
 omalign = 43.0529  # experimental aligned values
 ttalign = 86.0733
-[omnominal, dummy, dummy, ttnominal] = hxrd.Q2Ang(
-    InP.Q(3, 3, 3))  # nominal values of the substrate peak
+# nominal values of the substrate peak
+[omnominal, _, _, ttnominal] = hxrd.Q2Ang(InP.Q(3, 3, 3))
 
 # read the data from the HDF5 file (scan number:36, names of motors in
 # spec file: omega= sample rocking, gamma = twotheta)
@@ -123,7 +123,7 @@ cb.set_label(r"$\log($Int$)$ (cps)")
 omalign = 59.550  # experimental aligned values
 ttalign = 80.099
 # nominal values of the substrate peak
-[omnominal, dummy, dummy, ttnominal] = hxrd.Q2Ang(InP.Q(2, 2, 4))
+[omnominal, _, _, ttnominal] = hxrd.Q2Ang(InP.Q(2, 2, 4))
 
 # read the data from the HDF5 file (scan number:36, names of motors in
 # spec file: omega= sample rocking, gamma = twotheta)

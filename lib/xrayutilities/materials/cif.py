@@ -647,7 +647,7 @@ _atom_site_B_iso_or_equiv
     allatoms = list(mat.lattice.base())
     names = []
     for at, pos, occ, b in mat.lattice._wbase:
-        wm, wl, dummy = re.split('([a-z])', pos[0])
+        wm, wl, _ = re.split('([a-z])', pos[0])
         nsite = int(wm)
         x, y, z = allatoms[nidx][1]
         names.append(unique_label(at.name, names))

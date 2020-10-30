@@ -42,7 +42,7 @@ hxrd = xu.HXRD(Si.Q(1, 1, 0), Si.Q(0, 0, 1))
 omalign = 34.3046  # experimental aligned values
 ttalign = 69.1283
 # nominal values of the substrate peak
-[omnominal, dummy, dummy, ttnominal] = hxrd.Q2Ang(Si.Q(0, 0, 4))
+[omnominal, _, _, ttnominal] = hxrd.Q2Ang(Si.Q(0, 0, 4))
 
 # read the data from the xrdml files
 om, tt, psd = xu.io.getxrdml_map(sample + '_%d.xrdml.bz2', [1, 2, 3, 4, 5],
@@ -75,7 +75,7 @@ plt.tight_layout()
 
 # line cut with integration along 2theta to remove beam footprint broadening
 qycpos, qzcpos = [0, 4.5]
-omp, dummy, dummy, ttp = hxrd.Q2Ang(0, qycpos, qzcpos, trans=False)
+omp, _, _, ttp = hxrd.Q2Ang(0, qycpos, qzcpos, trans=False)
 qzc, qzint, cmask = xu.analysis.get_radial_scan(
     [qy, qz], psd, (qycpos, qzcpos), 1001, 0.155, intdir='2theta')
 
