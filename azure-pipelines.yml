@@ -13,7 +13,7 @@ jobs:
   parameters:
     tox_version: 'tox tox-wheel'
     jobs:
-      py38:
+      py39:
         before:
           - task: Cache@2
             inputs:
@@ -30,6 +30,11 @@ jobs:
           - publish: $(System.DefaultWorkingDirectory)/dist/
             artifact: Python $(Agent.JobName) wheel package
         image: [linux, windows, macOs]
+      py38:
+        image: [linux, windows, macOs]
+        after:
+          - publish: $(System.DefaultWorkingDirectory)/dist/
+            artifact: Python $(Agent.JobName) wheel package
       py37:
         image: [linux, windows, macOs]
         after:
@@ -42,7 +47,7 @@ jobs:
             artifact: Python $(Agent.JobName) wheel package
     coverage:
       with_toxenv: 'coverage'
-      for_envs: [py36, py37, py38]
+      for_envs: [py36, py37, py38, py39]
 
 schedules:
 - cron: "0 12 * * 0"
