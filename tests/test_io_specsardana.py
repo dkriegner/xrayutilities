@@ -17,10 +17,8 @@
 
 import math
 import os.path
-import tempfile
 import unittest
 
-import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test

@@ -121,7 +121,7 @@ class Test_PowderModel(unittest.TestCase):
                               std=self.sig[self.mask], maxfev=50)
 
         # second fit run to optimize absorption
-        p = self.pm.create_fitparameters()
+        p = fitres1.params
         for pn, limit in (
                 ('primary_beam_intensity', (None, None)),
                 ('displacement_specimen_displacement', (-1e-4, 1e-4)),

@@ -67,7 +67,7 @@ class TestPseudomorphic(unittest.TestCase):
         epar = (apar - abulk) / abulk
         eperp = -epar * (2*self.mB.c11 + 4*self.mB.c12 - 4*self.mB.c44) /\
                         (self.mB.c11 + 2*self.mB.c12 + 4*self.mB.c44)
-        eps = (eperp - epar + 3 * numpy.identity(3) * epar) / 3.
+        # eps = (eperp - epar + 3 * numpy.identity(3) * epar) / 3.
 
         # check that angles lattice spacings are correct
         pi = numpy.pi

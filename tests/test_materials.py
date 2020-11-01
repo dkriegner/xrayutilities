@@ -54,7 +54,7 @@ class TestMaterialsTransform(unittest.TestCase):
         vh = sqrt(1 - ca**2-cb**2-cg**2 + 2*ca*cb*cg)
         pi2 = numpy.pi * 2
         ra, rb, rc = pi2*sa/(self.a*vh), pi2*sb/(self.b*vh), pi2*sg/(self.c*vh)
-        cralpha = (cb*cg - ca)/(sb*sg)
+        # cralpha = (cb*cg - ca)/(sb*sg)
         crbeta = (ca*cg - cb)/(sa*sg)
         crgamma = (ca*cb - cg)/(sa*sb)
 
@@ -63,7 +63,7 @@ class TestMaterialsTransform(unittest.TestCase):
         b[0, 1] = rb * crgamma
         b[1, 1] = rb * sin(arccos(crgamma))
         b[0, 2] = rc * crbeta
-        b[1, 2] = -rc * sin(arccos(crbeta))*cos(radians(self.alpha))
+        b[1, 2] = -rc * sin(arccos(crbeta)) * ca
         b[2, 2] = pi2 / self.c
 
         for j in range(9):
@@ -102,7 +102,7 @@ class TestMaterialsTransform(unittest.TestCase):
             for d, at, mult in e:
                 if numpy.isclose(d, dis):
                     found = True
-            self.assertTrue(found, f"expected atomic distance not found")
+            self.assertTrue(found, "expected atomic distance not found")
 
     def test_environment_Si(self):
         a = xu.materials.Si.a

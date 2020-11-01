@@ -18,7 +18,6 @@
 import os.path
 import unittest
 
-import numpy
 import xrayutilities as xu
 
 testfile = 'pilatus100K.tif'

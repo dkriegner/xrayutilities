@@ -25,12 +25,10 @@ hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), wl=wl, qconv=qconv)
 # manually selected images
 
 s = xu.io.SPECFile(specfile, path=datadir)
+imagenrs = []
 for num in [61, 62, 63, 20, 21, 26, 27, 28]:
     s[num].ReadData()
-    try:
-        imagenrs = numpy.append(imagenrs, s[num].data['ccd_n'])
-    except:
-        imagenrs = s[num].data['ccd_n']
+    imagenrs = numpy.append(imagenrs, s[num].data['ccd_n'])
 
 # avoid images which do not have to full beam on the detector as well as
 # other which show signal due to cosmic radiation
