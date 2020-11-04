@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Module provides functions to convert a q-vector from reciprocal space to
@@ -55,13 +55,16 @@ def _makebounds(boundsin):
 
     Returns
     -------
-    tuple
+    scipy.optimize.Bounds object
         bounds to be handed over to the scipy.minimize routine. The function
         will expand fixed values to two equal bounds
+    constraints, list
+        list of equivility constraints for fixed values
     """
     lb = []
     ub = []
-    for b in boundsin:
+    constraints = []
+    for j, b in enumerate(boundsin):
         if isinstance(b, (tuple, list, numpy.ndarray)):
             if len(b) == 2:
                 lb.append(b[0])
@@ -69,22 +72,33 @@ def _makebounds(boundsin):
             elif len(b) == 1:
                 # due to a bug in scipy >= 1.5.0 we need to allow a small
                 # variation
-                lb.append(b[0]-1000*config.EPSILON)
-                ub.append(b[0]+1000*config.EPSILON)
+                lb.append(b[0] - config.EPSILON)
+                ub.append(b[0] + config.EPSILON)
+                # to really fix the parameter we create an equivalent
+                # constraint; see scipy/scipy#12433
+                constraints.append(dict(type='eq',
+                                        fun=lambda x, j=j, v=b[0]: x[j] - v,
+                                        # lambda j=j to bind variable by value
+                                       ))
             else:
                 raise InputError('bound values must have two or one elements')
         elif isinstance(b, numbers.Number):
-            # boundsout.append((b, b))  # variable fixed
             # due to a bug in scipy >= 1.5.0 we need to allow a small variation
-            lb.append(b-1000*config.EPSILON)
-            ub.append(b+1000*config.EPSILON)
+            lb.append(b - config.EPSILON)
+            ub.append(b + config.EPSILON)
+            # to really fix the parameter we create an equivalent
+            # constraint; see scipy/scipy#12433
+            constraints.append(dict(type='eq',
+                                    fun=lambda x, j=j, v=b: x[j] - v,
+                                    # lambda j=j to bind variable by value
+                                   ))
         elif b is None:
             lb.append(-np.inf)
             ub.append(np.inf)
         else:
             raise InputError('bound value is of invalid type (%s)' % type(b))
 
-    return scipy.optimize.Bounds(lb, ub)
+    return scipy.optimize.Bounds(lb, ub), constraints
 
 
 def _errornorm_q2ang(angles, qvec, hxrd, U=numpy.identity(3)):
@@ -167,7 +181,7 @@ def exitAngleConst(angles, alphaf, xrd):
 
 
 def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
-             startvalues=None, constraints=()):
+             startvalues=None, constraints=[]):
     """
     Functions to convert a q-vector from reciprocal space to angular space.
     This implementation uses scipy optimize routines to perform a fit for a
@@ -185,7 +199,6 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     expclass :  Experiment
         experimental class used to define the goniometer for which the angles
         should be calculated.
-
     bounds :    tuple or list
         bounds of the goniometer angles. The number of bounds must correspond
         to the number of goniometer angles in the expclass.  Angles can also be
@@ -197,7 +210,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         start values for the fit, which can significantly speed up the
         conversion. The number of values must correspond to the number of
         angles in the goniometer of the expclass
-    constraints :   tuple
+    constraints :   list
         sequence of constraint dictionaries. This allows applying arbitrary
         (e.g. pseudo-angle) contraints by supplying according constraint
         functions. An entry of the constraints argument must be a dictionary
@@ -243,12 +256,13 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     elif len(bounds) != nangles:
         raise ValueError("XU.Q2AngFit: number of specified bounds invalid")
 
-    sbounds = _makebounds(bounds)
+    sbounds, boundconstraints = _makebounds(bounds)
+    sconstraints = list(constraints) + boundconstraints
     # perform optimization
     res = scipy.optimize.minimize(_errornorm_q2ang, start,
                                   args=(lqvec, expclass, ormat),
                                   method='SLSQP', bounds=sbounds,
-                                  constraints=constraints,
+                                  constraints=sconstraints,
                                   options={'maxiter': 1000,
                                            'eps': config.EPSILON,
                                            'ftol': config.EPSILON})
@@ -262,7 +276,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
                                       args=(lqvec, expclass, ormat),
                                       method='SLSQP',
                                       bounds=sbounds,
-                                      constraints=constraints,
+                                      constraints=sconstraints,
                                       options={'maxiter': 1000,
                                                'eps': config.EPSILON,
                                                'ftol': config.EPSILON})
