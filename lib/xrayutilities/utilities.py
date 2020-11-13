@@ -123,11 +123,12 @@ def maplog(inte, dynlow="config", dynhigh="config"):
     if dynhigh == "config":
         dynhigh = config.DYNHIGH
 
-    if inte.max() <= 0.0:
+    mask = numpy.logical_not(numpy.isnan(inte))
+    if inte[mask].max() <= 0.0:
         raise ValueError("XU.maplog: only negativ or zero values given. "
                          "Log is not defined!")
-    ma = inte.max() * 10 ** (-1*dynhigh)  # upper bound
-    mi = inte.max() * 10 ** (-1*dynlow)  # lower bound
+    ma = inte[mask].max() * 10 ** (-1*dynhigh)  # upper bound
+    mi = inte[mask].max() * 10 ** (-1*dynlow)  # lower bound
 
     return numpy.log10(numpy.minimum(numpy.maximum(inte, mi), ma))
 
