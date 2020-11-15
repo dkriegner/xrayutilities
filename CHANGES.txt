@@ -1,3 +1,4 @@
+* allow string decoding to fail in tif headers
 * ignore nan values in maplog
 * add Azure pipeline for continuous testing and automatic builds
 * performance optimizations in Crystal.environment

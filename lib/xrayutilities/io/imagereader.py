@@ -332,7 +332,8 @@ class TIFFRead(ImageReader):
             fh.seek(fdoffset)
             if ftype == 2:
                 fdata = fh.read(flength * dlen[dtypes[ftype]])
-                fdata = fdata.split(b'\x00')[0].decode("ascii")
+                fdata = fdata.split(b'\x00')[0].decode("ascii",
+                                                       errors="replace")
             else:
                 rlen = flength * dlen[dtypes[ftype]]
                 fdata = numpy.frombuffer(fh.read(rlen), dtype=nptyp[ftype])
