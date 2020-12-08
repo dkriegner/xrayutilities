@@ -79,7 +79,7 @@ def _makebounds(boundsin):
                 constraints.append(dict(type='eq',
                                         fun=lambda x, j=j, v=b[0]: x[j] - v,
                                         # lambda j=j to bind variable by value
-                                       ))
+                                        ))
             else:
                 raise InputError('bound values must have two or one elements')
         elif isinstance(b, numbers.Number):
@@ -91,7 +91,7 @@ def _makebounds(boundsin):
             constraints.append(dict(type='eq',
                                     fun=lambda x, j=j, v=b: x[j] - v,
                                     # lambda j=j to bind variable by value
-                                   ))
+                                    ))
         elif b is None:
             lb.append(-np.inf)
             ub.append(np.inf)
