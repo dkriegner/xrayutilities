@@ -1,3 +1,5 @@
+v1.7.0, 2020-12-08
+
 * allow string decoding to fail in tif headers
 * ignore nan values in maplog
 * add Azure pipeline for continuous testing and automatic builds
