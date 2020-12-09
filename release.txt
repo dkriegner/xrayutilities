@@ -104,8 +104,7 @@ to have the correct style the style file needs to patched
 
 to upload new web-documentation connect to the sourceforge server via:
 
-  sftp://USERNAME@web.sourceforge.net
-  /home/project-web/xrayutilities/htdocs
+  sftp://USERNAME@web.sourceforge.net/home/project-web/xrayutilities/htdocs
 
 files on sourceforge can be moved/archived using
 
