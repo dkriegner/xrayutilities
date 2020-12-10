@@ -1,3 +1,4 @@
+# trigger build only after successful test on master
 resources:
   pipelines:
   - pipeline: tox-testing
@@ -7,6 +8,11 @@ resources:
         include:
         - master
         - refs/tags/v*
+
+trigger:
+  branches:
+    exclude:
+    - '*'
 
 pr:
   branches:
