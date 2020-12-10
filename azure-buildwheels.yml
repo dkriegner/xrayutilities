@@ -1,7 +1,12 @@
-trigger:
-  branches:
-    include:
-      - refs/tags/*
+resources:
+  pipelines:
+  - pipeline: tox-testing
+    source: tox-testing
+    trigger:
+      branches:
+        include:
+        - master
+        - refs/tags/v*
 
 pr:
   branches:
