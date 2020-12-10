@@ -3,6 +3,9 @@ trigger:
     include:
       - refs/tags/*
 
+variables:
+  CIBW_BUILD: cp36-* cp37-* cp38-* cp39-*
+
 jobs:
 - job: linux
   pool: {vmImage: 'Ubuntu-16.04'}
