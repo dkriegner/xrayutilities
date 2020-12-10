@@ -26,32 +26,20 @@ jobs:
               tar xzf xu_testdata.tar.gz -C tests
             condition: ne(variables.TESTDATA_RESTORED, 'true')
             displayName: Download test data
-        after:
-          - publish: $(System.DefaultWorkingDirectory)/dist/
-            artifact: Python $(Agent.JobName) wheel package
         image: [linux, windows, macOs]
       py38:
         image: [linux, windows, macOs]
-        after:
-          - publish: $(System.DefaultWorkingDirectory)/dist/
-            artifact: Python $(Agent.JobName) wheel package
       py37:
         image: [linux, windows, macOs]
-        after:
-          - publish: $(System.DefaultWorkingDirectory)/dist/
-            artifact: Python $(Agent.JobName) wheel package
       py36:
         image: [linux, windows, macOs]
-        after:
-          - publish: $(System.DefaultWorkingDirectory)/dist/
-            artifact: Python $(Agent.JobName) wheel package
     coverage:
       with_toxenv: 'coverage'
       for_envs: [py36, py37, py38, py39]
 
 schedules:
-- cron: "0 12 * * 0"
-  displayName: Weekly build
+- cron: "0 4 1 * *"
+  displayName: Monthly build
   branches:
     include:
     - master
