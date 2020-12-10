@@ -12,6 +12,7 @@ jobs:
         set -o errexit
         python3 -m pip install --upgrade pip
         pip3 install cibuildwheel==1.7.1
+        pip3 install numpy scipy h5py
       displayName: Install dependencies
     - bash: cibuildwheel --output-dir wheelhouse .
       displayName: Build wheels
@@ -26,6 +27,7 @@ jobs:
         set -o errexit
         python3 -m pip install --upgrade pip
         python3 -m pip install cibuildwheel==1.7.1
+        pip3 install numpy scipy h5py
       displayName: Install dependencies
     - bash: cibuildwheel --output-dir wheelhouse .
       displayName: Build wheels
@@ -42,6 +44,7 @@ jobs:
         set -o errexit
         python -m pip install --upgrade pip
         pip install cibuildwheel==1.7.1
+        pip3 install numpy scipy h5py
       displayName: Install dependencies
     - bash: cibuildwheel --output-dir wheelhouse .
       displayName: Build wheels
