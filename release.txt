@@ -44,53 +44,6 @@ Or generate a texinfo file using
     python setup.py build_doc -b texinfo
     cd build/sphinx/texinfo; make
 
-PACKAGING
-=========
-
-GIT tagging
------------
-
-tag the version in the GIT repository and publish the version tag to Github
-
-  git tag -a vX -m "version X"
-  git push origin vX
-
-Tarball and wheel generation
-----------------------------
-
-create a tarball for redistribution of xrayutilities without the use of git
-
-  python setup.py sdist
-
-creates a tarball in the directory dist, which contains everything needed for
-the installation of xrayutilities
-
-Wheels for multiple platforms and Python versions are generated in the Azure
-pipeline (https://dev.azure.com/dominikkriegner/xrayutilities/_build) and
-should be also deployed to PyPI. The whl-files can be downloaded after the
-successful run of the pipeline by the following BASH commands:
-
-/bin/bash
-az devops login
-az devops configure -d organization=https://dev.azure.com/dominikkriegner/
-az devops configure -d project=xrayutilities
-
-# determine latest runId (make sure its a successful one!)
-az pipelines runs list --output table --top 3
-runid=$(az pipelines runs list --output tsv --top 1 | cut -f 11)
-
-# get list of artifacts and download them
-mapfile -t artifactlist < <(az pipelines runs artifact list --run-id $runid --output tsv | cut -f 2)
-for artifact in "${artifactlist[@]}"
-do
-    if [[ $artifact == Python* ]]; then
-        echo $artifact
-        az pipelines runs artifact download --run-id $runid --path dist/ --artifact-name "$artifact"
-    fi
-done
-
-For deployment of all these files to PyPI see further down.
-
 UPDATE WEBPAGE
 ==============
 
@@ -112,8 +65,50 @@ sftp://USERNAME@frs.sourceforge.net/home/frs/project/x/xr/xrayutilities
 
 however, upon such a move the download statistics are lost.
 
+PACKAGING
+=========
+
+GIT tagging
+-----------
+
+tag the version in the GIT repository and publish the version tag to Github
+
+  git tag -a vX -m "version X"
+  git push origin vX
+
+Tarball and wheel generation
+----------------------------
+
+create a tarball for redistribution of xrayutilities without the use of git
+
+  python setup.py sdist
+
+creates a tarball in the directory dist, which contains everything needed for
+the installation of xrayutilities
+
+Wheels for multiple platforms are generated in the Azure cibuildwheel pipeline
+(https://dev.azure.com/dominikkriegner/xrayutilities/_build). These files
+should be downloaded and deployed to PyPI. The whl-files can be downloaded
+after the successful run of the pipeline by the following commands:
+
+"""
+az devops login
+az devops configure -d organization=https://dev.azure.com/dominikkriegner/
+az devops configure -d project=xrayutilities
+
+# determine latest runId (make sure its a successful cibuildwheel one!)
+az pipelines runs list --pipeline-ids 2 --output table --top 3
+runid=$(az pipelines runs list  --pipeline-ids 2 --output tsv --top 1 | cut -f 11)
+
+# get artifact download URL
+url=$(az pipelines runs artifact list --run-id $runid --output json |  python -c "import sys, json; print(json.load(sys.stdin)[0]['resource']['downloadUrl'])")
+
+wget -O drop.zip "$url"
+unzip -j -d dist drop.zip
+"""
+
 UPDATE PyPI PACKAGE
-===================
+-------------------
 
 Upload new version to the Python package index after inspecting the dist
 folder by
