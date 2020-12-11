@@ -33,7 +33,6 @@ import sphinx_rtd_theme
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
@@ -367,12 +366,18 @@ pdf_extensions = []
 # pdf_fit_background_mode = 'scale'
 
 
-# my additions for pre-processing the docstring
 def process_docstring(app, what, name, obj, options, lines):
+    """my additions for pre-processing the docstring"""
     # insert note block
     for i in range(len(lines)):
         lines[i] = re.sub(r'^\s*Note:', r'.. note::', lines[i])
 
+def skip(app, what, name, obj, would_skip, options):
+    """always document __init__ and __call__ functions"""
+    if name in ["__init__", "__call__"]:
+        return False
+    return would_skip
 
 def setup(app):
     app.connect('autodoc-process-docstring', process_docstring)
+    app.connect("autodoc-skip-member", skip)

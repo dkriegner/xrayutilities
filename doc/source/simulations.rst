@@ -6,7 +6,7 @@
 Simulation examples
 ===================
 
-In the following a few code-snippets are shown which should help you getting started with reflectivity and diffraction simulations using *xrayutilities*. All simulations in *xrayutilities* are for layers systems and currently there are no plans to extend this to other geometries. Note that not all of the codes shown in the following will be run-able as stand-alone scripts. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory in the download found `here <https://sourceforge.net/projects/xrayutilities>`_.
+In the following a few code-snippets are shown which should help you getting started with reflectivity and diffraction simulations using *xrayutilities*. All simulations in *xrayutilities* are for layers systems and currently there are no plans to extend this to other geometries. Note that not all of the codes shown in the following will be run-able as stand-alone scripts. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory in the `download <https://sourceforge.net/projects/xrayutilities>`_.
 
 Building Layer stacks for simulations
 -------------------------------------
@@ -358,7 +358,7 @@ Powder diffraction simulations
 
 Powder diffraction patterns can be calculated using :class:`~xrayutilities.simpack.powdermodel.PowderModel`. A specialized class for the definition of powdered materials named :class:`~xrayutilities.simpack.smaterials.Powder` exists. The class constructor takes the materials volume and several material parameters specific for the powder material. Among them are `crystallite_size_gauss` and `strain_gauss` which can be used to include the effect of finite crystallite size and microstrain. Texture modelled by the March-Dollase pole density offers the `preferred_orientation` direction parameter as well as a `preferred_orientation_factor` variable.
 
-The :class:`~xrayutilities.simpack.powdermodel.PowderModel` internally uses :class:`~xrayutilities.simpack.powder.PowderDiffraction` for its calculations which is based on the fundamental parameters approach as implemented and documented `here <http://dx.doi.org/10.6028/jres.120.014.c>`_ and `here <http://dx.doi.org/10.6028/jres.120.014>`_.
+The :class:`~xrayutilities.simpack.powdermodel.PowderModel` internally uses :class:`~xrayutilities.simpack.powder.PowderDiffraction` for its calculations which is based on the fundamental parameters approach. The fundamental parameters approach code used here can was originally implemented and documented here: `http://dx.doi.org/10.6028/jres.    120.014.c <http://dx.doi.org/10.6028/jres.120.014.c>`_ and `http://dx.doi.org/10.6028/jres.120.014 <http://dx.doi.org/10.6028/jres.120.014>`_.
 
 Several setup specific parameters should be adjusted by a user-specific configuration file or by supplying the appropriate parameters using the `fpsettings` argument of :class:`~xrayutilities.simpack.powdermodel.PowderModel`.
 

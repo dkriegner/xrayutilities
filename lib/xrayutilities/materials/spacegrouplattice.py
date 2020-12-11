@@ -506,12 +506,13 @@ class SymOp(object):
 
         Parameters
         ----------
-         D :    array-like
+        D : array-like
             transformation matrix (3x3)
-         t :    array-like
+        t : array-like
             translation vector (3)
-         m :    float, optional
-            +1 (default) or -1 to indicate time reversal in magnetic groups
+        m : int, optional
+            indicates time reversal in magnetic groups. +1 (default, no time
+            reveral) or -1
         """
         self._W = numpy.zeros((4, 4))
         self._W[:3, :3] = numpy.asarray(D)

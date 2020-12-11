@@ -40,8 +40,8 @@ class PowderModel(object):
         keyword arguments.
 
         Note:
-        After the end-of-use it is advisable to call the `close()` method to
-        cleanup the multiprocessing calculation!
+            After the end-of-use it is advisable to call the `close()` method
+            to cleanup the multiprocessing calculation!
 
         Parameters
         ----------
@@ -57,6 +57,7 @@ class PowderModel(object):
             loaded from the config file.
         I0 :        float, optional
             scaling factor for the simulation result
+
 
         In particular interesting in fpsettings might be:
         {'displacement': {'specimen_displacement': z-displacement of the sample
