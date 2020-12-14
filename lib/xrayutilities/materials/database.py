@@ -159,7 +159,7 @@ class DataBase(object):
         Parameters
         ----------
         radius:     float
-            atomic radius in Angstrom
+            atomic radius in angstrom
         """
         if not isinstance(radius, (float, int)):
             raise TypeError("radius parameter must be a number!")

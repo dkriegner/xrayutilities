@@ -78,12 +78,12 @@ def clear_bit(f, offset):
 
 def lam2en(inp):
     """
-    converts the input wavelength in Angstrom to an energy in eV
+    converts the input wavelength in angstrom to an energy in eV
 
     Parameters
     ----------
     inp :   float or str
-        wavelength in Angstrom
+        wavelength in angstrom
 
     Returns
     -------
@@ -103,7 +103,7 @@ def lam2en(inp):
 
 def en2lam(inp):
     """
-    converts the input energy in eV to a wavelength in Angstrom
+    converts the input energy in eV to a wavelength in angstrom
 
     Parameters
     ----------
@@ -113,7 +113,7 @@ def en2lam(inp):
     Returns
     -------
     float
-        wavlength in Angstrom
+        wavlength in angstrom
 
     Examples
     --------
@@ -163,14 +163,14 @@ def wavelength(wl):
     Parameters
     ----------
     wl :    float, array-like or str
-        wavelength; If scalar or array the wavelength in Angstrom will be
+        wavelength; If scalar or array the wavelength in angstrom will be
         returned unchanged, string with emission name is converted to
         wavelength
 
     Returns
     -------
     float or array-like
-        wavelength in Angstrom
+        wavelength in angstrom
     """
 
     if isinstance(wl, numbers.Number):

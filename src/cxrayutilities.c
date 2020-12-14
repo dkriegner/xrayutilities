@@ -276,7 +276,7 @@ static PyMethodDef XRU_Methods[] = {
      "                   of investigated crystal (9)\n"
      " sampledis ....... sample displacement vector in same unit as the\n"
      "                   detector distance\n"
-     " lambda .......... wavelength of the used x-rays in Angstroem\n"
+     " lambda .......... wavelength of the used x-rays in angstrom\n"
      " nthreads ........ number of threads to use in parallel section of the\n"
      "                   code\n"
      " flags ........... integer flags to select sub-function\n"

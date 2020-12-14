@@ -491,7 +491,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         matplotlib figure used for plotting the error default: None (creates
         own figure)
     wl :        float or str
-        wavelength of the experiment in Angstrom (default: config.WAVELENGTH)
+        wavelength of the experiment in angstrom (default: config.WAVELENGTH)
         value does not really matter here but does affect the scaling of the
         error
     plotlog :   bool
@@ -874,7 +874,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
         flag to tell if to return fit object with final parameters and detector
         directions
     wl :        float or str
-        wavelength of the experiment in Angstrom (default: 1)
+        wavelength of the experiment in angstrom (default: 1)
         value does not really matter here but does affect the scaling of the
         error
     debug :     bool
@@ -939,7 +939,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             delta must be an numpy array or list of len(*dAngles) used angles
             are than *args - delta
         wl :            float or str, optional
-            x-ray wavelength in angstroem (default: 1 (since it does not matter
+            x-ray wavelength in angstrom (default: 1 (since it does not matter
             here))
         deg :           bool, optional
             flag to tell if angles are passed as degree (default: True)
@@ -1109,7 +1109,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             detector circles e.g. ['z+', 'y-'] would mean a detector arm with a
             two rotations
         wl :            float or str
-            wavelength of the experiment in Angstroem
+            wavelength of the experiment in angstrom
 
         Returns
         -------
@@ -1655,7 +1655,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         UB :        array-like, optional
             orientation matrix of the sample
         wl :        float or str, optional
-            x-ray wavelength in angstroem
+            x-ray wavelength in angstrom
         deg :       bool, optional
             flag to tell if angles are passed as degree (default: True)
 

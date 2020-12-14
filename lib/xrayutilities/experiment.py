@@ -101,7 +101,7 @@ class QConversion(object):
         kwargs :        dict, optional
             optional keyword arguments
         wl :            float or str, optional
-            wavelength of the x-rays in Angstroem
+            wavelength of the x-rays in angstrom
         en :            float or str, optional
             energy of the x-rays in electronvolt
         UB :            array-like, optional
@@ -475,7 +475,7 @@ class QConversion(object):
             matrix for conversion from (hkl) coordinates to Q of sample used to
             determine not Q but (hkl) (default: self.UB)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         en :        float, optional
             x-ray energy in eV (default is converted self._wl). both wavelength
             and energy can also be an array which enables the QConversion for
@@ -555,7 +555,7 @@ class QConversion(object):
             matrix for conversion from (hkl) coordinates to Q of sample used to
             determine not Q but (hkl) (default: self.UB)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         en :        float, optional
             x-ray energy in eV (default is converted self._wl). both wavelength
             and energy can also be an array which enables the QConversion for
@@ -759,7 +759,7 @@ class QConversion(object):
             region of interest for the detector pixels; e.g.  [100, 900]
             (default: self._linear_roi)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         en :        float, optional
             x-ray energy in eV (default is converted self._wl). both wavelength
             and energy can also be an array which enables the QConversion for
@@ -1009,7 +1009,7 @@ class QConversion(object):
             region of interest for the detector pixels; e.g.
             [100, 900, 200, 800] (default: self._area_roi)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         en :        float, optional
             x-ray energy in eV (default is converted self._wl). both wavelength
             and energy can also be an array which enables the QConversion for
@@ -1353,7 +1353,7 @@ class Experiment(object):
             either the inner most detector or sample rotation. Default is
             'det'.
         wl :        float or str
-            wavelength of the x-rays in Angstroem (default: 1.5406A)
+            wavelength of the x-rays in angstrom (default: 1.5406A)
         en :        float or str
             energy of the x-rays in eV (default: 8048eV == 1.5406A ).
             the en keyword overrules the wl keyword
@@ -1422,7 +1422,7 @@ class Experiment(object):
                                                                self.ndir[1],
                                                                self.ndir[2])
         ostr += "energy: %f (eV)\n" % self._en
-        ostr += "wavelength: %f (Anstrom)\n" % (self._wl)
+        ostr += "wavelength: %f (angstrom)\n" % (self._wl)
         ostr += self._A2QConversion.__str__()
 
         return ostr
@@ -1563,7 +1563,7 @@ class Experiment(object):
             delta must be an numpy array or list of length 2. used angles are
             than ``(om, tt) - delta``
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         en :        float or str, optional
             x-ray energy in eV (default: converted self._wl)
         deg :       bool, optional
@@ -1753,7 +1753,7 @@ class HXRD(Experiment):
             matrix for conversion from (hkl) coordinates to Q of sample used to
             determine not Q but (hkl) (default: identity matrix)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         deg :       bool, optional
             flag to tell if angles are passed as degree (default: True)
 
@@ -2105,7 +2105,7 @@ class NonCOP(Experiment):
             matrix for conversion from (hkl) coordinates to Q of sample used to
             determine not Q but (hkl) (default: identity matrix)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         deg :       bool, optional
             flag to tell if angles are passed as degree (default: True)
 
@@ -2349,7 +2349,7 @@ class GID(Experiment):
             matrix for conversion from (hkl) coordinates to Q of sample used to
             determine not Q but (hkl) (default: identity matrix)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         deg :       bool, optional
             flag to tell if angles are passed as degree (default: True)
 
@@ -2422,7 +2422,7 @@ class GISAXS(Experiment):
             matrix for conversion from (hkl) coordinates to Q of sample used to
             determine not Q but (hkl) (default: identity matrix)
         wl :        float or str, optional
-            x-ray wavelength in angstroem (default: self._wl)
+            x-ray wavelength in angstrom (default: self._wl)
         deg :       bool, optional
             flag to tell if angles are passed as degree (default: True)
 

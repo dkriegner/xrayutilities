@@ -576,7 +576,7 @@ An example of such a user config file is shown below:
     #   levels can be changed in the config file as well
     verbosity = 1
 
-    # default wavelength in Angstrom,
+    # default wavelength in angstrom,
     wavelength = MoKa1 # Molybdenum K alpha1 radiation (17479.374eV)
 
     # default energy in eV
@@ -665,7 +665,7 @@ The additional parameters are:
 
 * sample tilt angle in degree
 * sample tilt azimuth in degree
-* and the x-ray wavelength in Angstrom
+* and the x-ray wavelength in angstrom
 
 .. literalinclude:: example_xu_ccd_parameter_hkl.py
     :linenos:

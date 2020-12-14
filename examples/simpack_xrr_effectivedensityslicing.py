@@ -40,7 +40,7 @@ ls = s + l1 + l2
 m = xu.simpack.SpecularReflectivityModel(ls)
 pos, eldens = m.densityprofile(500)
 
-# slice the layerstack into an Amorphous sublayer at every 0.1 Angstrom.
+# slice the layerstack into an Amorphous sublayer at every 0.1 angstrom.
 # at the top a vacuum layer is added
 sls = xu.simpack.effectiveDensitySlicing(ls, 0.1)
 ms = xu.simpack.SpecularReflectivityModel(sls)

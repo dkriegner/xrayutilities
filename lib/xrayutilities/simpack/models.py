@@ -1407,7 +1407,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             Hurst factor defining the fractal dimension of the roughness (0..1,
             very slow for H != 1 or H != 0.5), default: 1
         vert_correl : float, optional
-            vertical correlation length in (Angstrom), 0 means full replication
+            vertical correlation length in angstrom, 0 means full replication
         vert_nu :   float, optional
             exponent in the vertical correlation function
         method :    int, optional
@@ -1533,7 +1533,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         Parameters
         ----------
         lam :       float
-            x-ray wavelength in Angstrom
+            x-ray wavelength in angstrom
         delta :     list or array-like
             vector with the 1-n values (N+1 components, 1st component..layer at
             the free surface, last component..substrate)
@@ -1963,9 +1963,9 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
     Parameters
     ----------
     layerstack :  initial LayerStack, can contain only Amorhous layers!
-    step :        thickness (in Angstrom) of the slices in the returned
+    step :        thickness (in angstrom) of the slices in the returned
                   LayerStack
-    roughness :   roughness of the created sublayers (in Angstrom)
+    roughness :   roughness of the created sublayers (in angstrom)
     cutoff :      layers with relative weights below this value will be ignored
 
     Returns

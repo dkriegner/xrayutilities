@@ -1,3 +1,5 @@
+* new azure pipeline for wheel generation (issue #111)
+
 v1.7.0, 2020-12-08
 
 * allow string decoding to fail in tif headers

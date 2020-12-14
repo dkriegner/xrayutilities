@@ -81,7 +81,7 @@ careful definition of all the parameters
 # in the axial convolver the parameters slit_length_source can not be equal to
 # slit_length_target!
 
-# in this file SI units (m) are used for wavelengths, while by default Angstrom
+# in this file SI units (m) are used for wavelengths, while by default angstrom
 # are used in the remaining of the package
 
 import atexit
@@ -1193,10 +1193,10 @@ class FP_profile:
         spect = numpy.array((
             xx.emiss_wavelengths, xx.emiss_intensities,
             xx.emiss_lor_widths, xx.emiss_gauss_widths))
-        # convert to Angstroms, like Topas
+        # convert to angstroms, like Topas
         spect[0] *= 1e10 * self.length_scale_m
-        spect[2] *= 1e13 * self.length_scale_m  # milli-Angstroms
-        spect[3] *= 1e13 * self.length_scale_m  # milli-Angstroms
+        spect[2] *= 1e13 * self.length_scale_m  # milli-angstroms
+        spect[3] *= 1e13 * self.length_scale_m  # milli-angstroms
         nm = 1e9 * self.length_scale_m
         items = ["emission and broadening:"]
         items.append("spectrum=\n" + str(spect.transpose()))

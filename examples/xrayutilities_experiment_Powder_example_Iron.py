@@ -27,7 +27,7 @@ def main():
     """dummy main function to enable multiprocessing on windows"""
     cryst_size = 40e-9  # meter
 
-    # create Fe BCC (space group nr. 229 Im3m) with a=2.87Angstrom although
+    # create Fe BCC (space group nr. 229 Im3m) with a = 2.87 angstrom although
     # this is already predefined as xu.materials.Fe we will repeat here for
     # educational purposes
     FeBCC = xu.materials.Crystal(

@@ -39,7 +39,7 @@ InP4H = xu.materials.Crystal(
 
 for energy in [8041]:  # eV
 
-    lam = xu.en2lam(energy)  # e in eV -> lam in Angstroem
+    lam = xu.en2lam(energy)  # e in eV -> lam in angstrom
     print('         %d eV = %8.4f A' % (energy, lam))
     print('------------------------------------------------------------------'
           '-----------------')

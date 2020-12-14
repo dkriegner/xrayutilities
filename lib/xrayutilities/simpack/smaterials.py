@@ -245,7 +245,7 @@ class Layer(SMaterial):
         an xrayutilties material describing optical and crystal properties of
         the thin film
     thickness : float
-        film thickness in Angstrom
+        film thickness in angstrom
     """
 
     _valid_init_kwargs = {'roughness': 'root mean square roughness',
@@ -263,11 +263,11 @@ class Layer(SMaterial):
             an xrayutilties material describing optical and crystal properties
             of the thin film
         thickness : float
-            film thickness in Angstrom
+            film thickness in angstrom
         kwargs :    dict
             optional keyword arguments with further layer properties.
         roughness : float, optional
-            root mean square roughness of the top interface in Angstrom
+            root mean square roughness of the top interface in angstrom
         density :    float, optional
             density of the material in kg/m^3; If not specified the density of
             the material will be used.

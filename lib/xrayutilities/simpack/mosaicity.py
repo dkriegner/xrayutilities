@@ -32,9 +32,9 @@ def mosaic_analytic(qx, qz, RL, RV, Delta, hx, hz, shape):
     qz :    array-like
         vector of the qz values (offset from the Bragg peak)
     RL :    float
-        lateral block radius in Angstrom
+        lateral block radius in angstrom
     RV :    float
-        vertical block radius in Angstrom
+        vertical block radius in angstrom
     Delta : float
         root mean square misorientation of the grains in degree
     hx :    float

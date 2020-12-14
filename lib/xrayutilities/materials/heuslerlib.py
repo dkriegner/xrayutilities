@@ -49,7 +49,7 @@ def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
     X, Y, Z :   str or Element
         elements
     a :         float
-        cubic lattice parameter in Angstroem
+        cubic lattice parameter in angstrom
     biso :      list of floats, optional
         Debye Waller factors for X, Y, Z elements
     occ :       list of floats, optional
@@ -77,7 +77,7 @@ def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
     X, Y, Z :   str or Element
         elements
     a :         float
-        cubic lattice parameter in Angstroem
+        cubic lattice parameter in angstrom
     b2dis :     float
         amount of B2-type disorder (0: fully ordered, 1: fully disordered)
     biso :      list of floats, optional
@@ -112,7 +112,7 @@ def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
     X, Y, Z :   str or Element
         elements
     a :         float
-        cubic lattice parameter in Angstroem
+        cubic lattice parameter in angstrom
     a2dis :     float
         amount of A2-type disorder (0: fully ordered, 1: fully disordered)
     biso :      list of floats, optional
@@ -152,7 +152,7 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
     X, Y, Z :   str or Element
         elements
     a :         float
-        cubic lattice parameter in Angstroem
+        cubic lattice parameter in angstrom
     do3disxy :  float
         amount of DO_3-type disorder between X and Y atoms (0: fully ordered,
         1: fully disordered)
@@ -196,7 +196,7 @@ def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
     X, Y, Z :   str or Element
         elements
     a :         float
-        cubic lattice parameter in Angstroem
+        cubic lattice parameter in angstrom
 
     Returns
     -------
@@ -222,7 +222,7 @@ def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
     X, Y, Z :   str or Element
         elements
     a, c :      float
-        tetragonal lattice parameters in Angstroem
+        tetragonal lattice parameters in angstrom
 
     Returns
     -------
@@ -247,7 +247,7 @@ def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
     X, Y, Z :   str or Element
         elements
     a, c :      float
-        tetragonal lattice parameters in Angstroem
+        tetragonal lattice parameters in angstrom
 
     Returns
     -------
@@ -273,7 +273,7 @@ def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
     X, Y, Z :   str or Element
         elements
     a, c :      float
-        hexagonal lattice parameters in Angstroem
+        hexagonal lattice parameters in angstrom
 
     Returns
     -------

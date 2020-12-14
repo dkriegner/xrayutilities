@@ -1202,7 +1202,7 @@ PyObject* py_ang2q_conversion_linear(PyObject *self, PyObject *args)
     *                     of investigated crystal (3, 3)
     *   sampledis ....... sample displacement vector, same units as the
     *                     detector distance
-    *   lambda .......... wavelength of the used x-rays in Angstroem (Npoints,)
+    *   lambda .......... wavelength of the used x-rays in angstrom (Npoints,)
     *   nthreads ........ number of threads to use in parallel section of
     *                     the code
     *   flags ........... integer with flags: (1: has_translations;
@@ -1400,7 +1400,7 @@ int ang2q_conversion_linear(
     *   tilt ............ tilt of the detector direction from dir
     *   UB .............. orientation matrix and reciprocal space conversion
     *                     of investigated crystal (3, 3)
-    *   lambda .......... wavelength of the used x-rays in Angstroem (Npoints,)
+    *   lambda .......... wavelength of the used x-rays in angstrom (Npoints,)
     *   Npoints ......... number of points to calculate
     *   Ns .............. number of sample axes
     *   Nd .............. number of detector axes
@@ -1517,7 +1517,7 @@ int ang2q_conversion_linear_sd(
     *                     of investigated crystal (3, 3)
     *   sampledis ....... sample displacement vector, same units as the
     *                     detector distance
-    *   lambda .......... wavelength of the used x-rays in Angstroem (Npoints,)
+    *   lambda .......... wavelength of the used x-rays in angstrom (Npoints,)
     *   Npoints ......... number of points to calculate
     *   Ns .............. number of sample axes
     *   Nd .............. number of detector axes
@@ -1634,7 +1634,7 @@ int ang2q_conversion_linear_trans(
     *   tilt ............ tilt of the detector direction from dir
     *   UB .............. orientation matrix and reciprocal space conversion
     *                     of investigated crystal (3, 3)
-    *   lambda .......... wavelength of the used x-rays in Angstroem (Npoints,)
+    *   lambda .......... wavelength of the used x-rays in angstrom (Npoints,)
     *   Npoints ......... number of points to calculate
     *   Ns .............. number of sample axes
     *   Nd .............. number of detector axes
@@ -1747,7 +1747,7 @@ int ang2q_conversion_linear_sdtrans(
     *                     of investigated crystal (3, 3)
     *   sampledis ....... sample displacement vector, same units as the
     *                     detector distance
-    *   lambda .......... wavelength of the used x-rays in Angstroem (Npoints,)
+    *   lambda .......... wavelength of the used x-rays in angstrom (Npoints,)
     *   Npoints ......... number of points to calculate
     *   Ns .............. number of sample axes
     *   Nd .............. number of detector axes
