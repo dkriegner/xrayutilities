@@ -1335,23 +1335,31 @@ class Experiment(object):
             inplane reference direction (ipdir points into the primary beam
             direction at zero angles)
         ndir :      list or tuple or array-like
-            surface normal of your sample (ndir points in a direction
-            perpendicular to the primary beam and the innermost detector
-            rotation axis)
+            surface normal of your sample. ndir points in a direction
+            perpendicular to the primary beam, how it is orientated in real
+            space is determined by the parameter sampleor (see below).
 
         keyargs :   dict, optional
             optional keyword arguments
         qconv :     QConversion, optional
             QConversion object to use for the Ang2Q conversion
         sampleor :  {'det', 'sam', '[xyz][+-]'}, optional
-            sample orientation specifies the orientation of the sample surface
-            with respect to the coordinate system in which the goniometer
-            rotations are given. You can use the [xyz][+-] syntax to specify
-            the nominal surface orientation (when all goniometer angles are
-            zero). In addition two special values 'det' and 'sam' are
-            available, which will let the code determine the orientation from
-            either the inner most detector or sample rotation. Default is
-            'det'.
+            determines the sample surface orientation with respect to the
+            coordinate system in which the goniometer rotations are given. You
+            can use the [xyz][+-] syntax to specify the nominal surface
+            orientation (when all goniometer angles are zero). In addition two
+            special values 'det' and 'sam' are available, which will let the
+            code determine the orientation from either the inner most detector
+            or sample rotation. 'det' means the surface is in the plane spanned
+            by the inner most detector rotation (rotation around primary beam
+            is ignored) and perpendicular to the primary beam. 'sam' means the
+            surface orientation is along the innermost sample circles rotation
+            direction (in this case this should be the azimuth motor to yield
+            the expected results).  Default is 'det'.
+            Restrictions: the given direction can not be along the primary
+            beam.  If one needs that case, let the maintainer know. Currently
+            this case is caught and a different axis is automatically used as
+            z-axis.
         wl :        float or str
             wavelength of the x-rays in angstrom (default: 1.5406A)
         en :        float or str
