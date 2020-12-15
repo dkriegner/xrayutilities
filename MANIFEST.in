@@ -22,3 +22,4 @@ global-exclude .gitignore
 exclude .coveragerc
 exclude tox.ini
 exclude release.txt
+exclude .azure
