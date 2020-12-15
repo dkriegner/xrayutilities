@@ -14,6 +14,7 @@ jobs:
     tox_version: 'tox tox-wheel'
     jobs:
       py39:
+        timeoutInMinutes: 90
         before:
           - task: Cache@2
             inputs:
