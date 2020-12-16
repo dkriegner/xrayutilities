@@ -194,6 +194,8 @@ For building the documention (which you do not need to do) the requirements are:
  * **sphinx** the Python documentation generator
  * **numpydoc** sphinx-extension needed to parse the API-documention
  * **rst2pdf** pdf-generation using sphinx
+ * **sphinx_rtd_theme** sphinx theme used
+ * **svglib** library needed by rst2pdf to include svg images into the pdf documentation
 
 After installing all required packages you can continue with installing and
 building the C library.
