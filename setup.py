@@ -141,7 +141,7 @@ extmodul = Extension('xrayutilities.cxrayutilities',
                      sources=glob.glob(os.path.join('src', '*.c')))
 
 with open('lib/xrayutilities/VERSION') as version_file:
-    version = version_file.read().strip()
+    version = version_file.read().strip().replace('\n', '.')
 
 try:
     import sphinx

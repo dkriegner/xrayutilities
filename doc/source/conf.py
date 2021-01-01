@@ -61,7 +61,7 @@ copyright = '2020, Dominik Kriegner, Eugen Wintersberger'
 #
 moduleroot = os.path.join('..', '..', 'lib', 'xrayutilities')
 with open(os.path.join(moduleroot, 'VERSION')) as version_file:
-    fullversion = version_file.read().strip()
+    fullversion = version_file.read().strip().replace('\n', '.')
     # The short X.Y version.
     version = re.match(r'^(\d+\.)?(\d+)?', fullversion).group()
     # The full version, including alpha/beta/rc tags.

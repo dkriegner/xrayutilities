@@ -43,4 +43,4 @@ from .utilities import (clear_bit, en2lam, energy, frac2str, lam2en,
 
 # load package version
 with open(os.path.join(__path__[0], 'VERSION')) as version_file:
-    __version__ = version_file.read().strip()
+    __version__ = version_file.read().strip().replace('\n', '.')
