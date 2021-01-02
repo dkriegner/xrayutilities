@@ -13,7 +13,7 @@ simulation of crystal truncation rods as well as fundamental parameters powder
 diffraction is included.
 
 
-Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
@@ -36,7 +36,6 @@ Contents
 * *lib/xrayutilities*:  directory with the sources for the Python package
 * *tests*:              directory with the unittest scripts
 * *setup.py*:           setuptools install script used for the package installation
-* *xrayutilities.pdf*:  pdf-file with documentation of the package
 
 
 Installation (pip)
@@ -186,8 +185,8 @@ to install the updated package.
 Documentation
 =============
 
-Documentation for xrayutilities is found in the *xrayutilities.pdf* file or on the
-webpage http://xrayutilities.sourceforge.io
+Documentation for xrayutilities is found on the webpage
+https://xrayutilities.sourceforge.io
 
 The API-documentation can also be browsed by
 
