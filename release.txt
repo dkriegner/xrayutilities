@@ -3,8 +3,6 @@ This document describes the process of making a new release of xrayutilities.
 It is therefore not relevant for users, but only for developers and (maybe to
 some extent also for) packagers.
 
-Note: This procedure is intended for use on a Unix operating system.
-
 CHECK EVERYTHING
 ================
 
@@ -41,33 +39,8 @@ Tarball and wheel generation
 
 A tarball and wheels for multiple platforms are generated in the Azure
 cibuildwheel pipeline
-(https://dev.azure.com/dominikkriegner/xrayutilities/_build). These files
-should be downloaded and deployed to PyPI. The whl-files can be downloaded
-after the successful run of the pipeline by the following commands:
-
-"""
-az devops login
-az devops configure -d organization=https://dev.azure.com/dominikkriegner/
-az devops configure -d project=xrayutilities
-
-# determine latest runId (make sure its a successful cibuildwheel one!)
-az pipelines runs list --pipeline-ids 2 --output table --top 3
-runid=$(az pipelines runs list  --pipeline-ids 2 --output tsv --top 1 | cut -f 11)
-
-# get artifact download URL
-url=$(az pipelines runs artifact list --run-id $runid --output json |  python -c "import sys, json; print(json.load(sys.stdin)[0]['resource']['downloadUrl'])")
-
-wget -O drop.zip "$url"
-unzip -j -d dist drop.zip
-"""
-
-UPDATE PyPI PACKAGE
--------------------
-
-Upload new version to the Python package index after inspecting the dist
-folder by
-
-  twine upload dist/*
+(https://dev.azure.com/dominikkriegner/xrayutilities/_build). The deployment
+is done via a release pipeline on Azure.
 
 
 UPDATE DOCUMENTATION & WEBPAGE

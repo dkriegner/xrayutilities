@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import glob
 import os.path
@@ -199,7 +199,7 @@ setup(
         },
     python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
-    install_requires=['numpy>=1.9.2', 'scipy>=0.11.0', 'h5py'],
+    install_requires=['numpy>=1.9.2', 'scipy>=0.13.0', 'h5py'],
     extras_require={
         'plot': ["matplotlib>=3.1.0"],
         'fit': ["lmfit>=1.0.1"],
@@ -207,7 +207,7 @@ setup(
     include_dirs=[numpy.get_include()],
     ext_modules=[extmodul],
     cmdclass=cmdclass,
-    url="http://xrayutilities.sourceforge.net",
+    url="https://xrayutilities.sourceforge.io",
     license="GPLv2",
     script_args=args
     )

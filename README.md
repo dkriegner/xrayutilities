@@ -163,7 +163,7 @@ its source folder and obtain the new sources by ::
     git pull
 
 or download the new tarball from sourceforge
-(http://sf.net/projects/xrayutilities) if any code changed during the update you
+(https://sf.net/projects/xrayutilities) if any code changed during the update you
 need to reinstall the Python package. Thats easiest achieved by
 
     pip install .

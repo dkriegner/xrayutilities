@@ -1,3 +1,6 @@
+v1.7.1, 2021-01-02
+
+* harmonize dependency versions between README and setup.py
 * remove PDF documentation and other generatable content from the GIT
   repository
 * new azure pipeline for documentation generation
