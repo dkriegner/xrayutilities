@@ -1,5 +1,5 @@
---- build/sphinx/html/index.html.orig	2019-10-09 09:52:01.373904470 +0200
-+++ build/sphinx/html/index.html	2019-10-09 09:52:53.711409533 +0200
+--- build/sphinx/html/index.html.orig	2021-01-02 10:10:28.475662993 +0100
++++ build/sphinx/html/index.html	2021-01-02 10:44:25.329092662 +0100
 @@ -57,7 +57,7 @@
  
            
@@ -9,7 +9,7 @@
            
            </a>
  
-@@ -165,6 +165,13 @@
+@@ -167,8 +167,16 @@
              
    <div class="section" id="welcome-to-xrayutilities-s-documentation">
  <h1>Welcome to xrayutilities’s documentation!<a class="headerlink" href="#welcome-to-xrayutilities-s-documentation" title="Permalink to this headline">¶</a></h1>
@@ -21,9 +21,13 @@
 +<a class="reference external image-reference" href="https://dev.azure.com/dominikkriegner/xrayutilities/_build?definitionId=1"><img alt="Test status" style="max-height: 25px" src="https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/tox-testing?repoName=dkriegner%2Fxrayutilities&branchName=master" /></a>
 +
  <p>If you look for downloading the package go to <a class="reference external" href="https://sourceforge.net/projects/xrayutilities">Sourceforge</a> or <a class="reference external" href="https://github.com/dkriegner/xrayutilities">GitHub</a> (source distribution) or the <a class="reference external" href="https://pypi.python.org/pypi/xrayutilities">Python package index</a> (MS Windows binary).</p>
- <p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
+-<p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
++<p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a>.
++This documentation can also be downloaded in <a href="xrayutilities.pdf">PDF format</a>.</p>
  </div>
-@@ -724,4 +732,4 @@
+ <div class="section" id="installation">
+ <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+@@ -735,4 +743,4 @@
     
  
  </body>

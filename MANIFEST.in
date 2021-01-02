@@ -3,7 +3,6 @@ include CHANGES.txt
 
 # documentation files
 include README.md
-include xrayutilities.pdf
 recursive-include doc/source *
 
 # examples

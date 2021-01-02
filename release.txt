@@ -24,46 +24,6 @@ lib/xrayutilities/math/fit.py:307:80: E501 line too long (90 > 79 characters)
   # run the unit tests
   tox
 
-UPDATE DOCUMENTATION
-====================
-
-to build the documentation from scratch first one needs to rebuild the API
-documentation sources (which is done from the installed module, so make sure
-you have the latest version installed!)
-
-  sphinx-apidoc -f -o doc/source lib/xrayutilities
-
-In the root directory of the package execute the following to rebuild the
-documentation pdf. You will need sphinx, numpydoc and rst2pdf.
-
-  python setup.py build build_doc -b pdf
-  cp build/sphinx/pdf/xrayutilities.pdf .
-
-Or generate a texinfo file using
-
-    python setup.py build_doc -b texinfo
-    cd build/sphinx/texinfo; make
-
-UPDATE WEBPAGE
-==============
-
-rebuild the html documents and upload them to the sourceforge webserver
-to have the correct style the style file needs to patched
-
-  python setup.py build_doc -b html
-  patch -p0 < doc/webpage.patch
-  # in case its needed, update the patch with
-  # diff -Naur build/sphinx/html/index.html.orig build/sphinx/html/index.html > doc/webpage.patch
-
-to upload new web-documentation connect to the sourceforge server via:
-
-  sftp://USERNAME@web.sourceforge.net/home/project-web/xrayutilities/htdocs
-
-files on sourceforge can be moved/archived using
-
-sftp://USERNAME@frs.sourceforge.net/home/frs/project/x/xr/xrayutilities
-
-however, upon such a move the download statistics are lost.
 
 PACKAGING
 =========
@@ -79,14 +39,8 @@ tag the version in the GIT repository and publish the version tag to Github
 Tarball and wheel generation
 ----------------------------
 
-create a tarball for redistribution of xrayutilities without the use of git
-
-  python setup.py sdist
-
-creates a tarball in the directory dist, which contains everything needed for
-the installation of xrayutilities
-
-Wheels for multiple platforms are generated in the Azure cibuildwheel pipeline
+A tarball and wheels for multiple platforms are generated in the Azure
+cibuildwheel pipeline
 (https://dev.azure.com/dominikkriegner/xrayutilities/_build). These files
 should be downloaded and deployed to PyPI. The whl-files can be downloaded
 after the successful run of the pipeline by the following commands:
@@ -114,6 +68,19 @@ Upload new version to the Python package index after inspecting the dist
 folder by
 
   twine upload dist/*
+
+
+UPDATE DOCUMENTATION & WEBPAGE
+==============================
+
+to build the documentation from scratch first one needs to rebuild the API
+documentation sources (which is done from the installed module, so make sure
+you have the latest version installed!). The relevant commands and
+dependencies are found in .azure/azure-builddocs.yml which can be either
+triggered manually are should be run automatically if a new version tag is
+uploaded. The new documentation (pdf and html) are uploaded to be available at
+https://xrayutilities.sourceforge.io
+
 
 Github release and mailing list anouncement
 ===========================================
