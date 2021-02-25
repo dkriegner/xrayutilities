@@ -973,7 +973,7 @@ class SpecularReflectivityModel(LayerModel):
         R = shape * abs(ER / ET)**2
         return self.scale_simulation(self.convolute_resolution(lai, R))
 
-    def densityprofile(self, nz, plot=False):
+    def densityprofile(self, nz, plot=False, individual_layers=False):
         """
         calculates the electron density of the layerstack from the thickness
         and roughness of the individual layers
@@ -984,6 +984,9 @@ class SpecularReflectivityModel(LayerModel):
             number of values on which the profile should be calculated
         plot :  bool, optional
             flag to tell if a plot of the profile should be created
+        individual_layers : bool, optional
+            return the density contributions of all layers as additional return
+            value.
 
         Returns
         -------
@@ -991,6 +994,9 @@ class SpecularReflectivityModel(LayerModel):
             z-coordinates, z = 0 corresponds to the surface
         eprof : array-like
             electron profile
+        layereprof : 2D array, optional
+            electron profile of every sublayer with shape (nlayer, nz). This
+            is only returned when individual_layers=True
         """
         if plot:
             try:
@@ -1048,15 +1054,20 @@ class SpecularReflectivityModel(LayerModel):
                 sdown = (1 + erf((zdownint - z) / sigint / numpy.sqrt(2))) / 2
             w[i, :] = sup - sdown
 
-        prof = numpy.sum(dr[:, numpy.newaxis] * w[:, ...], axis=0)
+        layer_prof = dr[:, numpy.newaxis] * w[:, ...]
+        prof = numpy.sum(layer_prof, axis=0)
 
         if plot:
             plt.figure('XU:density_profile', figsize=(5, 3))
+            for i, layer in enumerate(self.lstack):
+                plt.plot(z, layer_prof[i, :], ':r', lw=1, label=layer.name)
             plt.plot(z, prof, '-k', lw=2, label='electron density')
             plt.xlabel(r'z ($\mathrm{\AA}$)')
             plt.ylabel(r'electron density (e$^-$ cm$^{-3}$)')
             plt.tight_layout()
 
+        if individual_layers:
+            return z, prof, layer_prof
         return z, prof
 
 
