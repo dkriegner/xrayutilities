@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2020-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2020 Mike Moron <mike.moron@tu-dortmund.de>
 
 import numpy as np
@@ -38,7 +38,8 @@ ls = s + l1 + l2
 
 # conventional X-ray reflectivity modelling
 m = xu.simpack.SpecularReflectivityModel(ls)
-pos, eldens = m.densityprofile(500)
+pos, eldens, layer_eldens = m.densityprofile(500, individual_layers=True)
+
 
 # slice the layerstack into an Amorphous sublayer at every 0.1 angstrom.
 # at the top a vacuum layer is added
@@ -60,6 +61,8 @@ ax.legend()
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(pos, eldens, '.-', label='conventional')
+for i in range(len(layer_eldens)):
+    ax.plot(pos, layer_eldens[i], ':')
 ax.plot(spos, seldens, '.-', label='sliced')  # arbitrary shift for vis.
 ax.legend()
 ax.set_xlabel(r'z-position')
