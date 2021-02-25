@@ -29,7 +29,7 @@ from .darwin_theory import (DarwinModel, DarwinModelAlGaAs001,
                             DarwinModelAlloy, DarwinModelGaInAs001,
                             DarwinModelSiGe001, GradedBuffer)
 from .fit import FitModel
-from .helpers import coplanar_alphai, get_qz
+from .helpers import coplanar_alphaf, coplanar_alphai, get_qz
 from .models import (DiffuseReflectivityModel, DynamicalModel,
                      DynamicalReflectivityModel, KinematicalModel,
                      KinematicalMultiBeamModel, LayerModel, Model,
