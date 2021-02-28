@@ -399,7 +399,7 @@ class KinematicalModel(LayerModel):
             if l.thickness == numpy.inf:
                 E += fhkl[i] * numpy.exp(-1j * z[i] * q) / (1j * q)
             else:
-                E += - fhkl[i] * numpy.exp(-1j * q * z[i]) * \
+                E += fhkl[i] * numpy.exp(-1j * q * z[i]) * \
                     (1 - numpy.exp(1j * q * l.thickness)) / (1j * q)
 
         wf = numpy.sqrt(heaviside(ai) * heaviside(af) * rel**2 /
