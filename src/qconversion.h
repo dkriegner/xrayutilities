@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2013-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 #pragma once
 
@@ -64,7 +64,7 @@ INLINE void matmulc(double *RESTRICT m, double c);
 INLINE void matvec(double *RESTRICT m, double *RESTRICT v,
                    double *RESTRICT r);
 
-INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2,
+INLINE void tensorprod(double *v1, double *v2,
                        double *RESTRICT m);
 
 INLINE void summat(double *RESTRICT m1, double *RESTRICT m2);

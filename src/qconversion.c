@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
 /* ######################################
@@ -132,7 +132,7 @@ INLINE void matmul(double *RESTRICT m1, double *RESTRICT m2) {
     }
 }
 
-INLINE void tensorprod(double *RESTRICT v1, double *RESTRICT v2,
+INLINE void tensorprod(double *v1, double *v2,
                        double *RESTRICT m) {
     unsigned int i, j;
     for (i = 0; i < 3; i = i + 1) {
