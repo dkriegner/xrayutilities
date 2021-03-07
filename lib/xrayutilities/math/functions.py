@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module with several common function needed in xray data analysis
@@ -86,7 +86,7 @@ def kill_spike(data, threshold=2., offset=None):
     dataout = data.copy()
 
     mean = (data[:-2] + data[2:]) / 2.
-    mask = numpy.zeros_like(data[1:-1], dtype=numpy.bool)
+    mask = numpy.zeros_like(data[1:-1], dtype=bool)
     if threshold:
         mask = numpy.logical_or(
             mask, numpy.logical_or(data[1:-1] * threshold < mean,
@@ -183,7 +183,7 @@ def Gauss1d_der_p(x, *p):
     r = numpy.vstack((- (p[0] - x) / p[1]**2 * Gauss1d(x, *lp),
                       (p[0] - x) ** 2 / (p[1] ** 3) * Gauss1d(x, *lp),
                       Gauss1d(x, *lp) / p[2],
-                      numpy.ones(x.shape, dtype=numpy.float)))
+                      numpy.ones(x.shape, dtype=float)))
 
     return r
 
@@ -321,7 +321,7 @@ def Lorentz1d_der_p(x, *p):
         8 * p[2] * p[1] * (x-p[0])**2 /
         (4*p[0]**2 - 8*p[0]*x + p[1]**2 + 4*x**2) ** 2,
         1 / (1 + (2 * (x - p[0]) / p[1]) ** 2),
-        numpy.ones(x.shape, dtype=numpy.float)))
+        numpy.ones(x.shape, dtype=float)))
     return r
 
 

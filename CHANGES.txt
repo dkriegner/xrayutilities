@@ -1,3 +1,4 @@
+* fix numpy-1.20 deprecation warnings
 * bugfix in kinematical diffraction model.
 * add visualization of individual layer densities (issue #107)
 * new coplanar_alphaf helper function

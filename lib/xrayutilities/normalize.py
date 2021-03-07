@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2011 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to provide functions that perform block averaging
@@ -236,7 +236,7 @@ class IntensityNormalizer(object):
         Examples
         --------
         >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
-        >>>     absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(numpy.float))
+        >>>     absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(float))
         """
         valid_kwargs = {'mon': 'monitor field name',
                         'time': 'count time field/value',
@@ -386,7 +386,7 @@ class IntensityNormalizer(object):
         sets the flatfield of the detector
         """
         if isinstance(flatf, (list, tuple, numpy.ndarray)):
-            self._flatfield = numpy.array(flatf, dtype=numpy.float)
+            self._flatfield = numpy.array(flatf, dtype=float)
             self._flatfieldav = numpy.mean(self._flatfield[
                                            self._flatfield.nonzero()])
             self._flatfield[self.flatfield < 1.e-5] = 1.0
@@ -412,7 +412,7 @@ class IntensityNormalizer(object):
         sets the darkfield of the detector
         """
         if isinstance(darkf, (list, tuple, numpy.ndarray)):
-            self._darkfield = numpy.array(darkf, dtype=numpy.float)
+            self._darkfield = numpy.array(darkf, dtype=float)
             self._darkfieldav = numpy.mean(self._darkfield)
         elif isinstance(darkf, type(None)):
             self._darkfield = None
@@ -451,7 +451,7 @@ class IntensityNormalizer(object):
         else:
             rawdata = data[self._det]
 
-        corrint = numpy.zeros(rawdata.shape, dtype=numpy.float)
+        corrint = numpy.zeros(rawdata.shape, dtype=float)
 
         # set needed variables
         # monitor intensity
@@ -528,7 +528,7 @@ class IntensityNormalizer(object):
                 corrint = (corrint / self._flatfield[numpy.newaxis, :] *
                            self._flatfieldav)
 
-        elif len(rawdata.shape) == 2 and isinstance(c, numpy.float):
+        elif len(rawdata.shape) == 2 and isinstance(c, float):
             # single 2D detector frame
             corrint = rawdata * c
 

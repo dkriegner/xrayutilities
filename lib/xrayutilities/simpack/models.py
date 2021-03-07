@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
 import copy
@@ -328,8 +328,8 @@ class KinematicalModel(LayerModel):
         domega = numpy.arctan2(qinp, qz)
         alphai, alphaf = (theta + domega, theta - domega)
         # calculate structure factors
-        f = numpy.empty((len(self.lstack), len(qz)), dtype=numpy.complex)
-        fhkl = numpy.empty(len(self.lstack), dtype=numpy.complex)
+        f = numpy.empty((len(self.lstack), len(qz)), dtype=complex)
+        fhkl = numpy.empty(len(self.lstack), dtype=complex)
         for i, l in enumerate(self.lstack):
             m = l.material
             fhkl[i] = m.StructureFactor(m.Q(*hkl), en=self.energy) /\
@@ -337,12 +337,12 @@ class KinematicalModel(LayerModel):
             f[i, :] = m.StructureFactorForQ(qv, en0=self.energy) /\
                 m.lattice.UnitCellVolume()
 
-        E = numpy.zeros(len(qz), dtype=numpy.complex)
+        E = numpy.zeros(len(qz), dtype=complex)
         return rel, alphai, alphaf, f, fhkl, E, t
 
     def _get_qz(self, qz, alphai, alphaf, chi0, absorption, refraction):
         k = self.exp.k0
-        q = qz.astype(numpy.complex)
+        q = qz.astype(complex)
         if absorption and not refraction:
             q += 1j * k * numpy.imag(chi0) / \
                 numpy.sin((alphai + alphaf) / 2)
@@ -670,7 +670,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         eta = numpy.radians(alphai) - thetaB - asym
 
         for pol in self.get_polarizations():
-            x = numpy.zeros(len(alphai), dtype=numpy.complex)
+            x = numpy.zeros(len(alphai), dtype=complex)
             for i, l in enumerate(self.lstack):
                 beta = (2 * eta * numpy.sin(2 * thetaB) +
                         self.chi0[i] * (1 - gammah / gamma0) -
@@ -780,7 +780,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
             if config.VERBOSITY >= config.INFO_ALL:
                 print('XU.DynamicalModel: calc. %s-polarization...' % (pol))
 
-            M = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
+            M = numpy.zeros((nal, 4, 4), dtype=complex)
             for j in range(4):
                 M[:, j, j] = numpy.ones(nal)
 
@@ -795,12 +795,12 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 X = solve_quartic(A4, A3, A2, A1, A0)
                 X = numpy.asarray(X).T
 
-                kz = numpy.zeros((nal, 4), dtype=numpy.complex)
+                kz = numpy.zeros((nal, 4), dtype=complex)
                 kz[:, :2] = X[numpy.imag(X) <= 0].reshape(nal, 2)
                 kz[:, 2:] = X[numpy.imag(X) > 0].reshape(nal, 2)
 
-                P = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
-                phi = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
+                P = numpy.zeros((nal, 4, 4), dtype=complex)
+                phi = numpy.zeros((nal, 4, 4), dtype=complex)
                 c = ((Kix**2)[:, numpy.newaxis] + kz**2 - kc[jL]**2) / k**2 /\
                     self.chimh['S'][jL] / CC[:, numpy.newaxis]
                 if jL > 0:
@@ -828,7 +828,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                                      numpy.einsum('...ij,...jk', M, R), phi)
                 Ps = numpy.copy(P)
 
-            B = numpy.zeros((nal, 4, 4), dtype=numpy.complex)
+            B = numpy.zeros((nal, 4, 4), dtype=complex)
             B[..., :2] = M[..., :2]
             B[:, 0, 2] = -numpy.ones(nal)
             B[:, 1, 3] = -numpy.ones(nal)
@@ -952,8 +952,8 @@ class SpecularReflectivityModel(LayerModel):
         else:
             shape = numpy.ones(np)
 
-        ETs = numpy.ones(np, dtype=numpy.complex)
-        ERs = numpy.zeros(np, dtype=numpy.complex)
+        ETs = numpy.ones(np, dtype=complex)
+        ERs = numpy.zeros(np, dtype=complex)
         ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[0] * rho[0])
 
         for i in range(ns):
@@ -1355,8 +1355,8 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         else:
             shape = numpy.ones(np)
 
-        ETs = numpy.ones(np, dtype=numpy.complex)
-        ERs = numpy.zeros(np, dtype=numpy.complex)
+        ETs = numpy.ones(np, dtype=complex)
+        ERs = numpy.zeros(np, dtype=complex)
         ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[0] * rho[0])
 
         for i in range(ns):
@@ -1627,14 +1627,14 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 k-vector, z-component of k-vector in the material.
             """
             k0 = -K * numpy.sin(alphai)
-            kz = numpy.zeros((N+1, NqL, Nqz), dtype=numpy.complex)
-            T = numpy.zeros((N+1, NqL, Nqz), dtype=numpy.complex)
-            R = numpy.zeros((N+1, NqL, Nqz), dtype=numpy.complex)
+            kz = numpy.zeros((N+1, NqL, Nqz), dtype=complex)
+            T = numpy.zeros((N+1, NqL, Nqz), dtype=complex)
+            R = numpy.zeros((N+1, NqL, Nqz), dtype=complex)
             for jn in range(N+1):
                 kz[jn, ...] = -K * numpy.sqrt(numpy.sin(alphai)**2 -
                                               2 * delta[jn])
 
-            T[N, ...] = numpy.ones((NqL, Nqz), dtype=numpy.complex)
+            T[N, ...] = numpy.ones((NqL, Nqz), dtype=complex)
             kzs = kz[N, ...]  # kz in substrate
             for jn in range(N-1, -1, -1):
                 kzn = kz[jn, ...]
@@ -1693,9 +1693,9 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             psi :   array-like
                 correlation function
             """
-            psi = numpy.zeros((NqL, Nqz), dtype=numpy.complex)
+            psi = numpy.zeros((NqL, Nqz), dtype=complex)
             if H == 0.5 or H == 1:
-                dpsi = numpy.zeros_like(psi, dtype=numpy.complex)
+                dpsi = numpy.zeros_like(psi, dtype=complex)
                 m = isurf > 0
                 n = 1
                 s = numpy.copy(b)
@@ -1846,7 +1846,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             T2 = 2 * k02 / (k02 + kz2)
             R01 = (k01 - kz1) / (k01 + kz1)
             R02 = (k02 - kz2) / (k02+kz2)
-            R1 = numpy.zeros((NqL, Nqz), dtype=numpy.complex)
+            R1 = numpy.zeros((NqL, Nqz), dtype=complex)
             R2 = numpy.copy(R1)
             nproc = 1
         else:  # method == 2
@@ -1869,7 +1869,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             z[jn] = z[jn-1] - thick[jn-1]
 
         # calculation of the deltas
-        delt = numpy.zeros(N+1, dtype=numpy.complex)
+        delt = numpy.zeros(N+1, dtype=complex)
         for jn in range(N+1):
             if jn == 0:
                 delt[jn] = delta[jn]

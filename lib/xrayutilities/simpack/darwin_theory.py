@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 import abc
 import collections.abc
 import copy
@@ -208,9 +208,9 @@ class DarwinModel(LayerModel):
         Ih = {'S': numpy.zeros(len(self.qz)), 'P': numpy.zeros(len(self.qz))}
         geomfact = heaviside(self.alphai) * heaviside(self.alphaf)
         for pol in self.get_polarizations():
-            r, rbar, t = (numpy.zeros(self.npoints, dtype=numpy.complex),
-                          numpy.zeros(self.npoints, dtype=numpy.complex),
-                          numpy.ones(self.npoints, dtype=numpy.complex))
+            r, rbar, t = (numpy.zeros(self.npoints, dtype=complex),
+                          numpy.zeros(self.npoints, dtype=complex),
+                          numpy.ones(self.npoints, dtype=complex))
             for nrep, subml in ml:
                 r, rbar, t = self._recur_sim(nrep, subml, r, rbar, t, pol)
             self.r, self.rbar, self.t = r, rbar, t

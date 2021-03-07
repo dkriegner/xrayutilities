@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2014 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -79,7 +79,7 @@ class tty08File(object):
     def ReadMCA(self):
         self.mca = numpy.empty((len(self.mca_files),
                                 numpy.loadtxt(self.mca_files[0]).shape[0]),
-                               dtype=numpy.float)
+                               dtype=float)
         for i in range(len(self.mca_files)):
             mcadata = numpy.loadtxt(self.mca_files[i])
 

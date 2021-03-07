@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numbers
 from math import sqrt
@@ -574,7 +574,7 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     if exp is not None:
         ax.plot(twotheta, exp, formatexp, label=labelexp)
     if mask is None:
-        mask = numpy.ones_like(twotheta, dtype=numpy.bool)
+        mask = numpy.ones_like(twotheta, dtype=bool)
     if isinstance(sim, PowderModel):
         simdata = sim.simulate(twotheta[mask])
         sim.plot(twotheta[mask], label=labelsim, formatspec=formatsim, ax=ax)

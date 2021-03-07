@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
@@ -138,7 +138,7 @@ ft_factors = [
 ]
 
 ft_factors.sort()
-ft_factors = numpy.array(ft_factors, numpy.int)
+ft_factors = numpy.array(ft_factors, int)
 
 # used for debugging moments from FP_profile.axial_helper().
 moment_list = []
@@ -351,28 +351,28 @@ class FP_profile:
         b = self.add_buffer  # shortcut
 
         # a real-format scratch buffer
-        self._rb1 = b(numpy.zeros(nn, numpy.float))
+        self._rb1 = b(numpy.zeros(nn, float))
         # a real-format scratch buffer
-        self._rb2 = b(numpy.zeros(nn, numpy.float))
+        self._rb2 = b(numpy.zeros(nn, float))
         # a real-format scratch buffer
-        self._rb3 = b(numpy.zeros(nn, numpy.float))
+        self._rb3 = b(numpy.zeros(nn, float))
         # a complex-format scratch buffer
-        self._cb1 = b(numpy.zeros(nn, numpy.complex))
+        self._cb1 = b(numpy.zeros(nn, complex))
         # a scratch buffer used by the axial helper
         self._f0buf = b(numpy.zeros(self.oversampling *
-                                    twotheta_output_points, numpy.float))
+                                    twotheta_output_points, float))
         # a scratch buffer used for axial divergence
         self._epsb2 = b(numpy.zeros(self.oversampling *
-                                    twotheta_output_points, numpy.float))
+                                    twotheta_output_points, float))
         # the I2+ buffer
         self._I2p = b(numpy.zeros(self.oversampling *
-                                  twotheta_output_points, numpy.float))
+                                  twotheta_output_points, float))
         # the I2- buffer
         self._I2m = b(numpy.zeros(self.oversampling *
-                                  twotheta_output_points, numpy.float))
+                                  twotheta_output_points, float))
         # another buffer used for axial divergence
         self._axial = b(numpy.zeros(self.oversampling *
-                                    twotheta_output_points, numpy.float))
+                                    twotheta_output_points, float))
         # the largest frequency in Fourier space
         omega_max = self.n_omega_points * 2 * pi / window_fullwidth
         # build the x grid and the complex array that is the convolver
@@ -461,7 +461,7 @@ class FP_profile:
         """
         self.param_dicts["conv_" + convolver].update(kwargs)
 
-    def get_conv(self, name, key, format=numpy.float):
+    def get_conv(self, name, key, format=float):
         """
         get a cached, pre-computed convolver associated with the given
         parameters, or a newly zeroed convolver if the cache doesn't contain
@@ -1044,7 +1044,7 @@ class FP_profile:
         if "equatorial_divergence_deg" in kwargs:
             del kwargs["equatorial_divergence_deg"]  # not used
 
-        flag, axfn = self.get_conv(me, kwargs, numpy.complex)
+        flag, axfn = self.get_conv(me, kwargs, complex)
         if flag:
             return axfn  # already up to date if first return is True
 
@@ -1086,7 +1086,7 @@ class FP_profile:
         # we also need the diffractometer radius from the global space
         kwargs["diffractometer_radius"] = self.param_dicts[
             "conv_global"]["diffractometer_radius"]
-        flag, tailfn = self.get_conv(me, kwargs, numpy.complex)
+        flag, tailfn = self.get_conv(me, kwargs, complex)
         if flag:
             return tailfn  # already up to date
 
@@ -1146,7 +1146,7 @@ class FP_profile:
         """
         if width is None:
             return  # no convolver
-        flag, conv = self.get_conv(name, width, numpy.float)
+        flag, conv = self.get_conv(name, width, float)
         if flag:
             return conv  # already up to date
         rb1 = self._rb1
@@ -1241,7 +1241,7 @@ class FP_profile:
             if hasattr(v, 'tolist'):
                 key[k] = v.tolist()
 
-        flag, emiss = self.get_conv(me, key, numpy.complex)
+        flag, emiss = self.get_conv(me, key, complex)
         if flag:
             return emiss  # already up to date
 
@@ -1303,7 +1303,7 @@ class FP_profile:
             return None
         twotheta0 = self.param_dicts["conv_global"]["twotheta0"]
         key = (twotheta0, equatorial_divergence_deg)
-        flag, conv = self.get_conv(me, key, numpy.complex)
+        flag, conv = self.get_conv(me, key, complex)
         if flag:
             return conv  # already up to date
 
@@ -1344,7 +1344,7 @@ class FP_profile:
         kwargs["diffractometer_radius"] = self.param_dicts[
             "conv_global"]["diffractometer_radius"]
 
-        flag, conv = self.get_conv(me, kwargs, numpy.complex)
+        flag, conv = self.get_conv(me, kwargs, complex)
         if flag:
             return conv  # already up to date
         xx = type("data", (), kwargs)  # make it dot-notation accessible
@@ -1397,7 +1397,7 @@ class FP_profile:
         flag, conv = self.get_conv(me,
                                    (twotheta0, diffractometer_radius,
                                     specimen_displacement, zero_error_deg),
-                                   numpy.complex)
+                                   complex)
         if flag:
             return conv  # already up to date
 
@@ -1456,7 +1456,7 @@ class FP_profile:
             return None
         kwargs.update(self.param_dicts["conv_global"])
 
-        flag, conv = self.get_conv(me, kwargs, numpy.float)
+        flag, conv = self.get_conv(me, kwargs, float)
         if flag:
             return conv  # already up to date
 
@@ -1507,7 +1507,7 @@ class FP_profile:
         if not self.gaussian_smoother_bins_sigma:
             return  # no smoothing
         flag, buf = self.get_conv(me, self.gaussian_smoother_bins_sigma,
-                                  format=numpy.float)
+                                  format=float)
         if flag:
             return buf  # already computed
         buf[:] = self.omega_vals

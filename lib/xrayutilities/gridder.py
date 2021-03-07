@@ -16,7 +16,7 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
 
@@ -165,7 +165,7 @@ class Gridder(utilities.ABC):
         """
         prepare array for passing to c-code
         """
-        if isinstance(a, (list, tuple, numpy.float, numpy.int)):
+        if isinstance(a, (list, tuple, float, int)):
             a = numpy.asarray(a)
         return a.reshape(a.size)
 

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module handling crystal lattice structures. A SGLattice consists of a space
 group number and the position of atoms specified as Wyckoff positions along
@@ -1269,7 +1269,7 @@ class SGLattice(object):
             # check all atomic species seperately
             for el in elements:
                 catoms = list(filter(lambda at: at[0] == el, atoms))
-                found = numpy.zeros(len(catoms), dtype=numpy.bool)
+                found = numpy.zeros(len(catoms), dtype=bool)
                 # see if atomic positions fit to Wyckoff positions
                 for k, wyckpos in wp[sgrp].items():
                     num = int(k[:-1])

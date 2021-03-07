@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
@@ -152,7 +152,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         rad = radians(x)
         p2 = math.radians(p[2])
         r = numpy.concatenate([degrees(sin(rad)) / cos(rad - p2),
-                               numpy.ones(x.shape, dtype=numpy.float),
+                               numpy.ones(x.shape, dtype=float),
                                - math.degrees(p[0]) * sin(rad) /
                                cos(rad - p2) ** 2 * sin(rad - p2)])
         r.shape = (3,) + x.shape

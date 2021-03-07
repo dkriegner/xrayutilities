@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a set of  routines to convert Seifert ASCII files to HDF5
@@ -268,7 +268,7 @@ class SeifertScan(object):
                 self.data.append(tmplist)
 
         # in the end we convert the data list to a numeric array
-        self.data = numpy.array(self.data, dtype=numpy.float)
+        self.data = numpy.array(self.data, dtype=float)
         for key in self.axispos:
             self.axispos[key] = numpy.array(self.axispos[key])
 

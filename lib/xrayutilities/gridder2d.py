@@ -16,7 +16,7 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -251,7 +251,7 @@ class Gridder2DList(Gridder2D):
         for i in range(self.nx):
             for j in range(self.ny):
                 self._gdata[i, j] = []
-        self._gnorm = numpy.zeros((self.nx, self.ny), dtype=numpy.int)
+        self._gnorm = numpy.zeros((self.nx, self.ny), dtype=int)
 
     def Clear(self):
         self._allocate_memory()
@@ -285,7 +285,7 @@ class Gridder2DList(Gridder2D):
 
         # perform gridding this should be moved to native code if possible
         def gindex(x, min, delt):
-            return numpy.round((x - min) / delt).astype(numpy.int)
+            return numpy.round((x - min) / delt).astype(int)
 
         xdelta = delta(self.xmin, self.xmax, self.nx)
         ydelta = delta(self.ymin, self.ymax, self.ny)
