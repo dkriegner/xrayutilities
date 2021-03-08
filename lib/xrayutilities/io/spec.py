@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a class for observing a SPEC data file
@@ -511,7 +511,7 @@ class SPECScan(object):
 
             # write the initial motor positions as attributes
             for k in self.init_motor_pos:
-                g.attrs[k] = numpy.float(self.init_motor_pos[k])
+                g.attrs[k] = float(self.init_motor_pos[k])
 
             # if scan contains MCA data write also MCA parameters
             g.attrs['has_mca'] = self.has_mca
