@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2012-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Example script to show how to use xrayutilities to read and plot
@@ -55,7 +55,7 @@ roi = [100, 1340]  # region of interest of the detector
 # correction
 normalizer_detcorr = xu.IntensityNormalizer(
     "MCA", mon="Monitor", time="Seconds",
-    absfun=lambda d: d["detcorr"] / d["psd2"].astype(numpy.float))
+    absfun=lambda d: d["detcorr"] / d["psd2"].astype(float))
 
 # substrate material used for Bragg peak calculation to correct for
 # experimental offsets

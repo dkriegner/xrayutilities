@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2013 Raphael Grifone <raphael.grifone@esrf.fr>
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2013-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 The function below is a modification of the hotpixelkill function included in
@@ -51,7 +51,7 @@ for f in glob.glob(r"G:\data\dark*.edf"):
     e = xu.io.EDFFile(f)
     ccdraw = e.data
     if len(ccdavg) == 0:
-        ccdavg = ccdraw.astype(numpy.float)
+        ccdavg = ccdraw.astype(float)
     else:
         ccdavg += ccdraw
     n += 1
