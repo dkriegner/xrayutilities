@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 import unittest
@@ -140,5 +140,5 @@ class Test_PowderModel(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    freeze_support()
+    freeze_support()  # required for MS Windows
     unittest.main()

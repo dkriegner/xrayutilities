@@ -1,3 +1,4 @@
+* improve documentation of PowerModel multiprocessing code (issue #121)
 * fix numpy-1.20 deprecation warnings
 * bugfix in kinematical diffraction model.
 * add visualization of individual layer densities (issue #107)

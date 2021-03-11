@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import multiprocessing
 import os
@@ -25,7 +25,14 @@ from matplotlib.pylab import *
 
 
 def main():
-    """dummy main function to enable multiprocessing on windows"""
+    """
+    dummy main function to enable multiprocessing on Windows and macOS.
+    This is required to avoid starting of the multiprocessing code upon import
+    of the script and is connected with the used multiprocessing start method.
+
+    See also:
+    https://docs.python.org/3/library/multiprocessing.html#the-spawn-and-forkserver-start-methods
+    """
     mpl.rcParams['font.size'] = 16.0
     mpl.rcParams['lines.linewidth'] = 2.0
 

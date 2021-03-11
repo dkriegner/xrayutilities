@@ -377,7 +377,7 @@ If the correct settings are included in the config file the powder diffraction s
     # pm.close()  # after end-of-use
 
 
-Note that in MS windows you need to encapsulate this code into a dummy function to allow for the multiprocessing module to work correctly. The code then must look like::
+Note that in MS windows and macOS you need to encapsulate this code into a dummy function to allow for the multiprocessing module to work correctly. See the `Python documentation <https://docs.python.org/3/library/multiprocessing.html#the-spawn-and-forkserver-start-methods>`_ for details. The code then must look like::
 
     import numpy
     import xrayutilities as xu
@@ -394,5 +394,5 @@ Note that in MS windows you need to encapsulate this code into a dummy function 
         pm.close()
 
     if __name__ == '__main__':
-        freeze_support()
+        freeze_support()  # only required on MS Windows
         main()
