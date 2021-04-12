@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import copy
 import io
@@ -218,8 +218,13 @@ class CIFDataset(object):
         def get_element(cifstring):
             el = re.sub(r"['\"]", r"", cifstring)
             if '+' in el or '-' in el:
+                # add oxidation number if not present
+                for sign in ('+', '-'):
+                    if sign in el:
+                        if not el[el.index(sign)-1].isdigit():
+                            el = el[:el.index(sign)] + '1' + el[el.index(sign):]
+                # replace special characters
                 for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
-                    # move special character to last position
                     el = el.replace(o, r)
             else:
                 el = re.sub(r"([0-9])", r"", el)
