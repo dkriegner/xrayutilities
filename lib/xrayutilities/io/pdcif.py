@@ -109,6 +109,7 @@ class pdCIF(object):
         loopheader = []
         numOfEntries = -1
         multiline = None
+        label = None
 
         while True:
             line = fh.readline().decode('ascii')
