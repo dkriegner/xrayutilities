@@ -222,7 +222,8 @@ class CIFDataset(object):
                 for sign in ('+', '-'):
                     if sign in el:
                         if not el[el.index(sign)-1].isdigit():
-                            el = el[:el.index(sign)] + '1' + el[el.index(sign):]
+                            signidx = el.index(sign)
+                            el = el[:signidx] + '1' + el[signidx:]
                 # replace special characters
                 for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
                     el = el.replace(o, r)
