@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities is a Python package for assisting with x-ray diffraction

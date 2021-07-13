@@ -16,7 +16,7 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 

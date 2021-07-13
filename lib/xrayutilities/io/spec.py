@@ -15,6 +15,7 @@
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2019 Daniel Schick <schick.daniel@gmail.com>
 
 """
 a class for observing a SPEC data file

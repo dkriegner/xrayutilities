@@ -1,3 +1,4 @@
+* update copyright notices from git commit history
 * fix code error found by linting (flake8)
 * CIF atom type normalization of oxidation state (issue #122)
 * improve documentation of PowerModel multiprocessing code (issue #121)

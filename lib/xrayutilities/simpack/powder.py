@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
+# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
 

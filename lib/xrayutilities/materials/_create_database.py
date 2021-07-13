@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
+# Copyright (C) 2009-2012 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 script to create the HDF5 database from the raw data of XOP.

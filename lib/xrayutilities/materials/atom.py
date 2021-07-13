@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2009-2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module containing the Atom class which handles the database access for atomic

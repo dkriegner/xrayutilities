@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .atom import Atom
 
