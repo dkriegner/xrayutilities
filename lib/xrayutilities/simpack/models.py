@@ -772,6 +772,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         ah[mask] = numpy.arcsin(pp[mask])
 
         nal = len(ai)
+        Ps = None  # make linter happy
         for pol in self.get_polarizations():
             if pol == 'S':
                 CC = numpy.ones(nal)
@@ -814,7 +815,6 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 P[:, 2, :] = kz
                 P[:, 3, :] = c * (kz + hz[jL])
 
-                Ps = numpy.copy(P)
                 if i == 0:
                     R = numpy.copy(P)
                 else:
@@ -828,6 +828,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 except AttributeError:
                     M = numpy.einsum('...ij,...jk',
                                      numpy.einsum('...ij,...jk', M, R), phi)
+                Ps = numpy.copy(P)
 
             B = numpy.zeros((nal, 4, 4), dtype=complex)
             B[..., :2] = M[..., :2]
