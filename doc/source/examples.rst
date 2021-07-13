@@ -6,7 +6,7 @@
 Examples
 ========
 
-In the following a few code-snippets are shown which should help you getting started with *xrayutilities*. Not all of the codes shown in the following will be run-able as stand-alone script. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ or in the `download <https://sourceforge.net/projects/xrayutilities>`_.
+In the following a few code-snippets are shown which should help you getting started with *xrayutilities*. Not all of the codes shown in the following will be run-able as stand-alone script. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ or in the `download <https://sourceforge.net/projects/xrayutilities>`_.
 
 
 Reading data from data files
@@ -96,7 +96,7 @@ EDF files are mostly used to store CCD frames at ESRF recorded from various diff
         e.Save2HDF5(h5file, group="/frelon_%04d" % i)
 
 .. seealso::
-   the fully working example provided in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory perfectly suited for reading data from beamline ID01
+   the fully working example provided in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory perfectly suited for reading data from beamline ID01
 
 Reading XRDML files
 ^^^^^^^^^^^^^^^^^^^
@@ -116,7 +116,7 @@ All supported file formats can also be parsed transparently when they are saved 
 
 
 .. seealso::
-   the fully working example provided in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory
+   the fully working example provided in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory
 
 Other formats
 ^^^^^^^^^^^^^
@@ -131,7 +131,7 @@ Other formats which can be read include
  * support is also provided for reading of ``cif`` files from structure
    databases to extract unit cell parameters as well es read data from those files (pdCIF, ESG files)
 
-See the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory for more information and working example scripts.
+See the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory for more information and working example scripts.
 
 Angle calculation using :class:`~xrayutilities.experiment.Experiment` and :mod:`~xrayutilities.materials` classes
 -----------------------------------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 Simulation examples
 ===================
 
-In the following a few code-snippets are shown which should help you getting started with reflectivity and diffraction simulations using *xrayutilities*. All simulations in *xrayutilities* are for layers systems and currently there are no plans to extend this to other geometries. Note that not all of the codes shown in the following will be run-able as stand-alone scripts. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory in the `download <https://sourceforge.net/projects/xrayutilities>`_.
+In the following a few code-snippets are shown which should help you getting started with reflectivity and diffraction simulations using *xrayutilities*. All simulations in *xrayutilities* are for layers systems and currently there are no plans to extend this to other geometries. Note that not all of the codes shown in the following will be run-able as stand-alone scripts. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory in the `download <https://sourceforge.net/projects/xrayutilities>`_.
 
 Building Layer stacks for simulations
 -------------------------------------
@@ -296,7 +296,7 @@ For the SiGe/Si bilayer system bigger differences between the kinematic and dyna
 Fitting of diffraction data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All diffraction models can be embedded into the :class:`~xrayutilities.simpack.fit.FitModel` class, which is suitable to refine the model parameters. Below (and in the `examples <https://github.com/dkriegner/xrayutilities/tree/master/examples>`_ directory) a runnable script is shown which shows the fitting for a pseudomorphic InMnAs epilayer on InAs(001). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. As one can see below the :func:`~xrayutilities.simpack.FitModel.set_param_hint` function can be used to set up the respective fit parameters including their boundaries and possible correlation with other parameters of the model. It should be equally possible to fit more complex layer structures, however, I expect that one needs to adjust manually the starting parameters to yield something very reasonable. Since this capabilities are rather new please report back any success/problems you have with this via the mailing list.
+All diffraction models can be embedded into the :class:`~xrayutilities.simpack.fit.FitModel` class, which is suitable to refine the model parameters. Below (and in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory) a runnable script is shown which shows the fitting for a pseudomorphic InMnAs epilayer on InAs(001). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. As one can see below the :func:`~xrayutilities.simpack.FitModel.set_param_hint` function can be used to set up the respective fit parameters including their boundaries and possible correlation with other parameters of the model. It should be equally possible to fit more complex layer structures, however, I expect that one needs to adjust manually the starting parameters to yield something very reasonable. Since this capabilities are rather new please report back any success/problems you have with this via the mailing list.
 
 .. code-block:: python
     :linenos:
