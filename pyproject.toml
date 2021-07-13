@@ -1,3 +1,9 @@
+[build-system]
+requires = ["setuptools", "wheel", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[tool.tox]
+legacy_tox_ini = """
 [tox]
 envlist = py{36,37,38,39},coverage
 distshare = {toxinidir}/dist
@@ -24,3 +30,4 @@ commands =
     coverage xml -i -o .tox/coverage.xml
     coverage report -i
     mv .coverage .tox/
+"""
