@@ -59,7 +59,7 @@ def _makebounds(boundsin):
         bounds to be handed over to the scipy.minimize routine. The function
         will expand fixed values to two equal bounds
     constraints, list
-        list of equivility constraints for fixed values
+        list of equality constraints for fixed values
     """
     lb = []
     ub = []
@@ -70,12 +70,10 @@ def _makebounds(boundsin):
                 lb.append(b[0])
                 ub.append(b[1])
             elif len(b) == 1:
-                # due to a bug in scipy >= 1.5.0 we need to allow a small
-                # variation
-                lb.append(b[0] - config.EPSILON)
-                ub.append(b[0] + config.EPSILON)
-                # to really fix the parameter we create an equivalent
-                # constraint; see scipy/scipy#12433
+                # upper = lower bound needs an equality constraint.
+                lb.append(-numpy.inf)
+                ub.append(numpy.inf)
+                # see scipy/scipy#12433
                 constraints.append(dict(type='eq',
                                         fun=lambda x, j=j, v=b[0]: x[j] - v,
                                         # lambda j=j to bind variable by value
@@ -83,18 +81,17 @@ def _makebounds(boundsin):
             else:
                 raise InputError('bound values must have two or one elements')
         elif isinstance(b, numbers.Number):
-            # due to a bug in scipy >= 1.5.0 we need to allow a small variation
-            lb.append(b - config.EPSILON)
-            ub.append(b + config.EPSILON)
-            # to really fix the parameter we create an equivalent
-            # constraint; see scipy/scipy#12433
+            # upper = lower bound needs an equality constraint.
+            lb.append(-numpy.inf)
+            ub.append(numpy.inf)
+            # see scipy/scipy#12433
             constraints.append(dict(type='eq',
                                     fun=lambda x, j=j, v=b: x[j] - v,
                                     # lambda j=j to bind variable by value
                                     ))
         elif b is None:
-            lb.append(-np.inf)
-            ub.append(np.inf)
+            lb.append(-numpy.inf)
+            ub.append(numpy.inf)
         else:
             raise InputError('bound value is of invalid type (%s)' % type(b))
 
