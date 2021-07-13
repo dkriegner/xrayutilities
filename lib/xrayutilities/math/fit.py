@@ -650,7 +650,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         if fit.stopreason[0] not in ['Sum of squares convergence']:
             print("XU.math.multPeakFit: fit NOT converged (%s)"
                   % fit.stopreason[0])
-            return Nono, None, None, None
+            return None, None, None, None
     except IndexError:
         print("XU.math.multPeakFit: fit most probably NOT converged (%s)"
               % str(fit.stopreason))

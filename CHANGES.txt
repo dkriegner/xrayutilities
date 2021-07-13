@@ -1,3 +1,4 @@
+* fix code error found by linting (flake8)
 * CIF atom type normalization of oxidation state (issue #122)
 * improve documentation of PowerModel multiprocessing code (issue #121)
 * fix numpy-1.20 deprecation warnings
