@@ -185,7 +185,7 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: GNU General Public License v2 or later "
         "(GPLv2+)"
-        ],
+    ],
     long_description=long_description,
     long_description_content_type="text/markdown",
     author_email="eugen.wintersberger@desy.de, dominik.kriegner@gmail.com",
@@ -196,18 +196,18 @@ setup(
     package_data={
         "xrayutilities": ["VERSION", "*.conf"],
         "xrayutilities.materials": [os.path.join("data", "*")]
-        },
+    },
     python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
     install_requires=['numpy>=1.9.2', 'scipy>=0.13.0', 'h5py'],
     extras_require={
         'plot': ["matplotlib>=3.1.0"],
         'fit': ["lmfit>=1.0.1"],
-        },
+    },
     include_dirs=[numpy.get_include()],
     ext_modules=[extmodul],
     cmdclass=cmdclass,
     url="https://xrayutilities.sourceforge.io",
     license="GPLv2",
     script_args=args
-    )
+)

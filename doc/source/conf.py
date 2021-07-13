@@ -372,11 +372,13 @@ def process_docstring(app, what, name, obj, options, lines):
     for i in range(len(lines)):
         lines[i] = re.sub(r'^\s*Note:', r'.. note::', lines[i])
 
+
 def skip(app, what, name, obj, would_skip, options):
     """always document __init__ and __call__ functions"""
     if name in ["__init__", "__call__"]:
         return False
     return would_skip
+
 
 def setup(app):
     app.connect('autodoc-process-docstring', process_docstring)
