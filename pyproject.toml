@@ -2,6 +2,19 @@
 requires = ["setuptools", "wheel", "numpy"]
 build-backend = "setuptools.build_meta"
 
+[tool.coverage.paths]
+source = [
+    "lib",
+    "*/site-packages"
+]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = [
+    "xrayutilities"
+]
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
@@ -20,6 +33,7 @@ deps =
     scipy
     pytest
     pytest-cov
+    coverage[toml]
 commands =
     pytest --cov --junitxml=.tox/junit.{envname}.xml --cov-report=xml:.tox/coverage.xml
     mv .coverage .tox/.coverage.{envname}
