@@ -2,7 +2,7 @@ xrayutilities
 =============
 
 
-[![Build Status](https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/dkriegner.xrayutilities?repoName=dkriegner%2Fxrayutilities&branchName=main)](https://dev.azure.com/dominikkriegner/xrayutilities/_build/latest?definitionId=1&repoName=dkriegner%2Fxrayutilities&branchName=main)
+[![Build Status](https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/dkriegner.xrayutilities?repoName=dkriegner%2Fxrayutilities&branchName=main)](https://dev.azure.com/dominikkriegner/xrayutilities/_build/)
 
 xrayutilities is a collection of scripts used to analyze and simulate x-ray
 diffraction data.  It consists of a Python package and several routines coded
