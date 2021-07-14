@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2019-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import math
 import os.path
