@@ -1,15 +1,15 @@
---- build/sphinx/html/index.html.orig	2021-07-14 08:53:37.054642000 +0200
-+++ build/sphinx/html/index.html	2021-07-14 09:00:38.157477687 +0200
-@@ -62,7 +62,7 @@
+--- build/sphinx/html/index.html.orig	2021-01-02 10:10:28.475662993 +0100
++++ build/sphinx/html/index.html	2021-01-02 10:44:25.329092662 +0100
+@@ -57,7 +57,7 @@
  
            
              
--            <img src="_static/pics/xray-logo.png" class="logo" alt="Logo"/>
-+            <img src="_static/xray-logo.png" class="logo" alt="Logo"/>
+-            <img src="_static/xray-logo.png" class="logo" alt="Logo"/>
++            <img src="_static/xray-logo.png" class="logo" alt="Logo" style="width: 100%; max-width:265px;"/>
            
            </a>
  
-@@ -174,8 +174,16 @@
+@@ -167,8 +167,16 @@
              
    <div class="section" id="welcome-to-xrayutilities-s-documentation">
  <h1>Welcome to xrayutilities’s documentation!<a class="headerlink" href="#welcome-to-xrayutilities-s-documentation" title="Permalink to this headline">¶</a></h1>
@@ -22,12 +22,12 @@
 +
  <p>If you look for downloading the package go to <a class="reference external" href="https://sourceforge.net/projects/xrayutilities">Sourceforge</a> or <a class="reference external" href="https://github.com/dkriegner/xrayutilities">GitHub</a> (source distribution) or the <a class="reference external" href="https://pypi.python.org/pypi/xrayutilities">Python package index</a> (MS Windows binary).</p>
 -<p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
-+<p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a>
++<p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a>.
 +This documentation can also be downloaded in <a href="xrayutilities.pdf">PDF format</a>.</p>
  </div>
  <div class="section" id="installation">
  <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-@@ -644,4 +652,4 @@
+@@ -735,4 +743,4 @@
     
  
  </body>
