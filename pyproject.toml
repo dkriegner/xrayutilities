@@ -35,7 +35,7 @@ deps =
     pytest-cov
     coverage[toml]
 commands =
-    pytest --cov --junitxml=.tox/junit.{envname}.xml --cov-report=xml:.tox/coverage.xml
+    pytest --cov --cov-config pyproject.toml --junitxml=.tox/junit.{envname}.xml --cov-report=xml:.tox/coverage.xml
     mv .coverage .tox/.coverage.{envname}
 
 [testenv:coverage]
