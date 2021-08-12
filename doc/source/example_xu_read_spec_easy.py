@@ -27,7 +27,7 @@ normalizer_detcorr = xu.IntensityNormalizer(
     "MCA",
     mon="Monitor",
     time="Seconds",
-    absfun=lambda d: d["detcorr"] / d["psd2"].astype(numpy.float))
+    absfun=lambda d: d["detcorr"] / d["psd2"].astype(float))
 
 # substrate material used for Bragg peak calculation to correct for
 # experimental offsets
