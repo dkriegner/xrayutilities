@@ -749,7 +749,7 @@ def _peak_position(img, nwindow, plot=False):
                                                        'position')
     if plot:
         plt.figure("_ccd")
-        plt.imshow(utilities.maplog(img), origin='low')
+        plt.imshow(utilities.maplog(img), origin='lower')
         plt.plot(cen2, cen1, 'ow', mfc='none')
         plt.axis([cen2 - nw, cen2 + nw, cen1 - nw, cen1 + nw])
         plt.colorbar()
