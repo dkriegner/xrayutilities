@@ -164,6 +164,7 @@ V = Crystal("V", SGLattice(229, 3.024, atoms=[e.V, ], pos=['2a', ]))
 Ta = Crystal("Ta", SGLattice(229, 3.306, atoms=[e.Ta, ], pos=['2a', ]))
 Nb = Crystal("Nb", SGLattice(229, 3.3004, atoms=[e.Nb, ], pos=['2a', ]))
 Pt = Crystal("Pt", SGLattice(225, 3.9242, atoms=[e.Pt, ], pos=['4a', ]))
+W = Crystal("W", SGLattice(229, 3.1652, atoms=[e.W, ], pos=['2a', ]))
 Ag2Se = Crystal("Ag2Se", SGLattice(19, 4.333, 7.062, 7.764,
                                    atoms=[e.Ag, e.Ag, e.Se],
                                    pos=[('4a', (0.107, 0.369, 0.456)),
