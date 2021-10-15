@@ -70,25 +70,34 @@ def _makebounds(boundsin):
                 lb.append(b[0])
                 ub.append(b[1])
             elif len(b) == 1:
-                # upper = lower bound needs an equality constraint.
+                # upper = lower bound needs equality constraint in scipy<1.8.0
+                if tuple(map(int, scipy.__version__.split('.')[:2])) > (1, 8):
+                    lb.append(b[0])
+                    ub.append(b[0])
+                else:
+                    lb.append(-numpy.inf)
+                    ub.append(numpy.inf)
+                    # see scipy/scipy#12433
+                    constraints.append(
+                        dict(type='eq',
+                             fun=lambda x, j=j, v=b[0]: x[j] - v,
+                             # lambda j=j to bind var. by value
+                             ))
+            else:
+                raise InputError('bound values must have two or one elements')
+        elif isinstance(b, numbers.Number):
+            # upper = lower bound needs equality constraint in scipy<1.8.0
+            if tuple(map(int, scipy.__version__.split('.')[:2])) > (1, 8):
+                lb.append(b)
+                ub.append(b)
+            else:
                 lb.append(-numpy.inf)
                 ub.append(numpy.inf)
                 # see scipy/scipy#12433
                 constraints.append(dict(type='eq',
-                                        fun=lambda x, j=j, v=b[0]: x[j] - v,
-                                        # lambda j=j to bind variable by value
+                                        fun=lambda x, j=j, v=b: x[j] - v,
+                                        # lambda j=j to bind var. by value
                                         ))
-            else:
-                raise InputError('bound values must have two or one elements')
-        elif isinstance(b, numbers.Number):
-            # upper = lower bound needs an equality constraint.
-            lb.append(-numpy.inf)
-            ub.append(numpy.inf)
-            # see scipy/scipy#12433
-            constraints.append(dict(type='eq',
-                                    fun=lambda x, j=j, v=b: x[j] - v,
-                                    # lambda j=j to bind variable by value
-                                    ))
         elif b is None:
             lb.append(-numpy.inf)
             ub.append(numpy.inf)
