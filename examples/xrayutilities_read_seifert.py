@@ -13,9 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
-
-import os
+# Copyright (C) 2013, 2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import matplotlib.pyplot as plt
 import xrayutilities as xu
