@@ -55,8 +55,10 @@ SPEC_datetime = re.compile(r"^#D")
 SPEC_exptime = re.compile(r"^#T")
 SPEC_nofcols = re.compile(r"^#N")
 SPEC_colnames = re.compile(r"^#L")
-SPEC_MCAFormat = re.compile(r"^#@MCA")
+SPEC_MCAFormat = re.compile(r"^#@MCA ")
 SPEC_MCAChannels = re.compile(r"^#@CHANN")
+SPEC_MCAChannelNames = re.compile(r"^#@DET_\d+")
+SPEC_MCAline = re.compile(r"^@A")
 SPEC_headerline = re.compile(r"^#")
 SPEC_scanbroken = re.compile(r"#C[a-zA-Z0-9: .]*Scan aborted")
 SPEC_scanresumed = re.compile(r"#C[a-zA-Z0-9: .]*Scan resumed")
@@ -160,6 +162,7 @@ class SPECScan(object):
         self.has_mca = False
         self.mca_column_format = 0  # number of columns used to save MCA data
         self.mca_channels = 0  # number of channels stored from the MCA
+        self.mca_channel_names = ['MCA']  #  name of MCAs
         self.mca_nof_lines = 0  # number of lines used to store MCA data
         self.mca_start_channel = 0  # first channel of the MCA that is stored
         self.mca_stop_channel = 0  # last channel of the MCA that is stored
@@ -182,7 +185,7 @@ class SPECScan(object):
                     cnt += 1
 
     def SetMCAParams(self, mca_column_format, mca_channels,
-                     mca_start, mca_stop):
+                     mca_start, mca_stop, mca_channel_names):
         """
         Set the parameters used to save the MCA data to the file. This method
         calculates the number of lines used to store the MCA data from the
@@ -204,6 +207,9 @@ class SPECScan(object):
         self.mca_channels = mca_channels
         self.mca_start_channel = mca_start
         self.mca_stop_channel = mca_stop
+        if mca_channel_names != []:
+            self.mca_channel_names = mca_channel_names
+        self.mca_nb = len(self.mca_channel_names)
 
         # calculate the number of lines per data point for the mca
         self.mca_nof_lines = int(mca_channels / mca_column_format)
@@ -212,6 +218,8 @@ class SPECScan(object):
             self.mca_nof_lines = self.mca_nof_lines + 1
 
         if config.VERBOSITY >= config.DEBUG:
+            print("XU.io.SPECScan.SetMCAParams: channel names: %s"
+                  % self.mca_channel_names)
             print("XU.io.SPECScan.SetMCAParams: number of channels: %d"
                   % self.mca_channels)
             print("XU.io.SPECScan.SetMCAParams: number of columns: %d"
@@ -269,9 +277,10 @@ class SPECScan(object):
 
             # create dictionary to hold the data
             if self.has_mca:
-                type_desc = {"names": self.colnames + ["MCA"],
-                             "formats": len(self.colnames) * [numpy.float32] +
-                             [(numpy.uint32, self.mca_channels)]}
+                type_desc = {"names": self.colnames + self.mca_channel_names,
+                             "formats": len(self.colnames) * [numpy.float64] +
+                             len(self.mca_channel_names)
+                             * [(numpy.float64, self.mca_channels)]}
             else:
                 type_desc = {"names": self.colnames,
                              "formats": len(self.colnames) * [numpy.float32]}
@@ -281,8 +290,10 @@ class SPECScan(object):
                       % (repr(type_desc)))
 
             record_list = []  # from this list the record array while be built
-
+            scalars_list = []
+            mca_tmp_list = []
             mca_counter = 0
+            mca_list_counter = 0
             scan_aborted_flag = False
 
             for line in self.fid:
@@ -327,35 +338,42 @@ class SPECScan(object):
                     else:
                         break
 
-                if mca_counter == 0:
-                    # the line is a scalar data line
-                    line_list = SPEC_num_value.findall(line)
-                    if config.VERBOSITY >= config.DEBUG:
-                        print("XU.io.SPECScan.ReadData: %s" % line)
-                        print("XU.io.SPECScan.ReadData: read scalar values %s"
-                              % repr(line_list))
-                    # convert strings to numbers
-                    line_list = map(float, line_list)
+                line_list = SPEC_num_value.findall(line)
+                line_list = map(numpy.float64, line_list)
 
-                    # increment the MCA counter if MCA data is stored
-                    if self.has_mca:
-                        mca_counter = mca_counter + 1
-                        # create a temporary list for the mca data
+                if self.has_mca:
+                    if SPEC_MCAline.match(line) \
+                      and ((mca_list_counter == 0) and (mca_counter == 0)):
+                        mca_list_counter += 1
+                        mca_counter += 1
+                        mca_tmp = []
                         mca_tmp_list = []
+                    if (mca_list_counter > 0):
+                        mca_counter += 1
+                        mca_tmp += line_list
+                        if mca_counter > self.mca_nof_lines:
+                            mca_counter = 1
+                            mca_tmp_list.append(mca_tmp.copy())
+                            mca_tmp = []
+                            mca_list_counter += 1
+                            if mca_list_counter > self.mca_nb:
+                                mca_list_counter = 0
                     else:
-                        record_list.append(tuple(line_list))
-                else:
-                    # reading MCA spectrum
-                    mca_tmp_list += map(int, SPEC_int_value.findall(line))
+                        scalars_list = line_list
 
-                    # increment MCA counter
-                    mca_counter = mca_counter + 1
-                    # if mca_counter exceeds the number of lines used to store
-                    # MCA data: append everything to the record list
-                    if mca_counter > self.mca_nof_lines:
-                        record_list.append(tuple(list(line_list) +
-                                                 [mca_tmp_list]))
+                    # check if the data should be written to the records
+                    if (scalars_list != []) \
+                            and (mca_tmp_list != []) \
+                            and (mca_list_counter == 0):
+                        record_list.append(tuple(list(scalars_list)
+                                                 + mca_tmp_list))
+                        scalars_list = []
+                        mca_tmp_list = []
                         mca_counter = 0
+
+                else:
+                    record_list.append(tuple(line_list))
+                    continue
 
             # convert the data to numpy arrays
             ncol = len(record_list[0])
@@ -363,6 +381,7 @@ class SPECScan(object):
                 print("XU.io.SPECScan.ReadData: %s: %d %d %d"
                       % (self.name, len(record_list), ncol,
                          len(type_desc["names"])))
+
             if ncol == len(type_desc["names"]):
                 try:
                     self.data = numpy.rec.fromrecords(record_list,
@@ -715,6 +734,7 @@ class SPECFile(object):
             # list with the motors from whome the initial
             # position is stored.
             init_motor_values = []
+            mca_channel_names = []
 
             if config.VERBOSITY >= config.DEBUG:
                 print('XU.io.SPECFile: start parsing')
@@ -832,6 +852,9 @@ class SPECFile(object):
                                          line)[0])
                     scan_has_mca = True
 
+                elif SPEC_MCAChannelNames.match(line) and scan_started:
+                    mca_channel_names.append(line.split(" ")[1])
+
                 elif SPEC_MCAChannels.match(line) and scan_started:
                     line_list = SPEC_num_value.findall(line)
                     mca_channels = int(line_list[0])
@@ -857,6 +880,7 @@ class SPECFile(object):
                     scan_has_mca = False
                     # reset initial motor positions flag
                     init_motor_values = []
+                    mca_channel_names = []
 
                 elif SPEC_dataline.match(line) and scan_started:
                     # this is now the real end of the header block. at this
@@ -877,7 +901,7 @@ class SPECFile(object):
                                  scan_status)
                     if scan_has_mca:
                         s.SetMCAParams(mca_col_number, mca_channels, mca_start,
-                                       mca_stop)
+                                       mca_stop, mca_channel_names)
 
                     self.scan_list.append(s)
 
@@ -886,6 +910,7 @@ class SPECFile(object):
                     scan_has_mca = False
                     # reset initial motor positions flag
                     init_motor_values = []
+                    mca_channel_names = []
 
                 elif SPEC_scan.match(line) and scan_started:
                     # this should only be the case when there are two
@@ -904,6 +929,7 @@ class SPECFile(object):
                     scan_has_mca = False
                     # reset initial motor positions flag
                     init_motor_values = []
+                    mca_channel_names = []
 
                     # start parsing of new scan
                     if config.VERBOSITY >= config.DEBUG:
