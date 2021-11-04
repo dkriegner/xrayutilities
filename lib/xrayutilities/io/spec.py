@@ -162,7 +162,7 @@ class SPECScan(object):
         self.has_mca = False
         self.mca_column_format = 0  # number of columns used to save MCA data
         self.mca_channels = 0  # number of channels stored from the MCA
-        self.mca_channel_names = ['MCA']  #  name of MCAs
+        self.mca_channel_names = ['MCA']  # name of MCAs
         self.mca_nof_lines = 0  # number of lines used to store MCA data
         self.mca_start_channel = 0  # first channel of the MCA that is stored
         self.mca_stop_channel = 0  # last channel of the MCA that is stored
@@ -882,7 +882,8 @@ class SPECFile(object):
                     init_motor_values = []
                     mca_channel_names = []
 
-                elif SPEC_dataline.match(line) and scan_started:
+                elif (SPEC_dataline.match(line) or SPEC_MCAline.match(line)) \
+                        and scan_started:
                     # this is now the real end of the header block. at this
                     # point we know that there is enough information about the
                     # scan
