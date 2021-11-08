@@ -160,6 +160,7 @@ class SPECScan(object):
         # some additional attributes for the MCA data
         # False if scan contains no MCA data, True otherwise
         self.has_mca = False
+        self.has_sardana_mca = False
         self.mca_column_format = 0  # number of columns used to save MCA data
         self.mca_channels = 0  # number of channels stored from the MCA
         self.mca_channel_names = ['MCA']  # name of MCAs
@@ -185,7 +186,7 @@ class SPECScan(object):
                     cnt += 1
 
     def SetMCAParams(self, mca_column_format, mca_channels,
-                     mca_start, mca_stop, mca_channel_names):
+                     mca_start, mca_stop, mca_channel_names, has_sardana_mca):
         """
         Set the parameters used to save the MCA data to the file. This method
         calculates the number of lines used to store the MCA data from the
@@ -201,8 +202,13 @@ class SPECScan(object):
             first channel that is stored
         mca_stop :          int
             last channel that is stored
+        mca_channel_names :          list(str)
+            names of mca channels
+        has_sardana_mca :          bool
+            True for Sardana MCA, False for SPEC MCA
         """
         self.has_mca = True
+        self.has_sardana_mca = has_sardana_mca
         self.mca_column_format = mca_column_format
         self.mca_channels = mca_channels
         self.mca_start_channel = mca_start
@@ -210,7 +216,6 @@ class SPECScan(object):
         if mca_channel_names != []:
             self.mca_channel_names = mca_channel_names
         self.mca_nb = len(self.mca_channel_names)
-
         # calculate the number of lines per data point for the mca
         self.mca_nof_lines = int(mca_channels / mca_column_format)
         if mca_channels % mca_column_format != 0:
@@ -276,11 +281,16 @@ class SPECScan(object):
             self.fid.seek(self.doffset, 0)
 
             # create dictionary to hold the data
-            if self.has_mca:
+            if self.has_mca and self.has_sardana_mca:
                 type_desc = {"names": self.colnames + self.mca_channel_names,
                              "formats": len(self.colnames) * [numpy.float64] +
                              len(self.mca_channel_names)
                              * [(numpy.float64, self.mca_channels)]}
+            elif self.has_mca and not self.has_sardana_mca:
+                type_desc = {"names": self.colnames + self.mca_channel_names,
+                             "formats": len(self.colnames) * [numpy.float64] +
+                             len(self.mca_channel_names)
+                             * [(numpy.uint32, self.mca_channels)]}
             else:
                 type_desc = {"names": self.colnames,
                              "formats": len(self.colnames) * [numpy.float32]}
@@ -731,6 +741,7 @@ class SPECFile(object):
             self.fid.seek(self.last_offset, 0)
             scan_started = False
             scan_has_mca = False
+            scan_has_sardana_mca = False
             # list with the motors from whome the initial
             # position is stored.
             init_motor_values = []
@@ -854,6 +865,7 @@ class SPECFile(object):
 
                 elif SPEC_MCAChannelNames.match(line) and scan_started:
                     mca_channel_names.append(line.split(" ")[1])
+                    scan_has_sardana_mca = True
 
                 elif SPEC_MCAChannels.match(line) and scan_started:
                     line_list = SPEC_num_value.findall(line)
@@ -878,6 +890,7 @@ class SPECFile(object):
                     # reset control flags
                     scan_started = False
                     scan_has_mca = False
+                    scan_has_sardana_mca = False
                     # reset initial motor positions flag
                     init_motor_values = []
                     mca_channel_names = []
@@ -902,13 +915,15 @@ class SPECFile(object):
                                  scan_status)
                     if scan_has_mca:
                         s.SetMCAParams(mca_col_number, mca_channels, mca_start,
-                                       mca_stop, mca_channel_names)
+                                       mca_stop, mca_channel_names,
+                                       scan_has_sardana_mca)
 
                     self.scan_list.append(s)
 
                     # reset control flags
                     scan_started = False
                     scan_has_mca = False
+                    scan_has_sardana_mca = False
                     # reset initial motor positions flag
                     init_motor_values = []
                     mca_channel_names = []
@@ -928,6 +943,7 @@ class SPECFile(object):
                     # reset control flags
                     scan_started = False
                     scan_has_mca = False
+                    scan_has_sardana_mca = False
                     # reset initial motor positions flag
                     init_motor_values = []
                     mca_channel_names = []
@@ -941,6 +957,7 @@ class SPECFile(object):
                     scancmd = "".join(" " + x + " " for x in line_list[2:])
                     scan_started = True
                     scan_has_mca = False
+                    scan_has_sardana_mca = False
                     scan_header_offset = self.last_offset
                     scan_status = "OK"
                     self.init_motor_names_sh = []
