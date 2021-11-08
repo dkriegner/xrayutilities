@@ -113,6 +113,7 @@ class SPECScan(object):
         self.command = command  # command used to record the data
         self.date = date  # date the command has been sent
         self.time = time  # time the command has been sent
+        self.itime = itime  # integration time of the scan
         self.colnames = colnames  # list with column names
         self.hoffset = hoffset  # file offset where the header data starts
         self.doffset = doffset  # file offset where the data section starts
