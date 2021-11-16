@@ -1,3 +1,5 @@
+* remove dependency on soon deprecated distutils
+* fix regression bug with matplotlib 3.5
 * update copyright notices from git commit history
 * fix code error found by linting (flake8)
 * CIF atom type normalization of oxidation state (issue #122)

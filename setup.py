@@ -21,39 +21,11 @@ import os.path
 import subprocess
 import sys
 import tempfile
-from distutils.command.build_py import build_py
-from distutils.command.install import INSTALL_SCHEMES
-from distutils.errors import CompileError, DistutilsArgError
-from distutils.fancy_getopt import FancyGetopt
 
 import numpy
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
-
-cliopts = []
-cliopts.append(("without-openmp", None, "build without OpenMP support"))
-
-options = FancyGetopt(option_table=cliopts)
-
-# Modify the data install dir to match the source install dir
-for scheme in INSTALL_SCHEMES.values():
-    scheme['data'] = scheme['purelib']
-
-# first read all the arguments passed to the script
-# we need to do this otherwise the --help commands would not work
-args = sys.argv[1:]
-try:
-    # search the arguments for options we would like to use
-    # get new args with the custom options stripped away
-    args, opts = options.getopt(args)
-except DistutilsArgError:
-    pass
-
-# get options from command line
-without_openmp = False
-for opts, values in options.get_option_order():
-    if opts == "without-openmp":
-        without_openmp = True
+from setuptools.command.build_py import build_py
 
 
 def has_flag(compiler, flagname, output_dir=None):
@@ -68,7 +40,7 @@ def has_flag(compiler, flagname, output_dir=None):
             obj = compiler.compile([f.name], output_dir=output_dir,
                                    extra_postargs=[flagname])
             os.remove(*obj)
-        except CompileError:
+        except setuptools.distutils.errors.CompileError:
             return False
         finally:
             os.remove(f.name)
@@ -76,6 +48,16 @@ def has_flag(compiler, flagname, output_dir=None):
 
 
 class build_ext_subclass(build_ext):
+    description = "Builds the Python C-extension of xrayutilities"
+    user_options = (build_ext.user_options +
+        [('without-openmp', None, 'build without OpenMP support')])
+    def initialize_options(self):
+        super().initialize_options()
+        self.without_openmp = 0
+
+    def finalize_options(self):
+        super().finalize_options()
+        self.without_openmp = int(self.without_openmp)
 
     def build_extensions(self):
         c = self.compiler.compiler_type
@@ -89,7 +71,7 @@ class build_ext_subclass(build_ext):
                         e.extra_compile_args.append(flag)
 
         # set openMP compiler options
-        if not without_openmp:
+        if not self.without_openmp:
             openmpflags = {'msvc': ('/openmp', None),
                            'mingw32': ('-fopenmp', '-fopenmp'),
                            'unix': ('-fopenmp', '-lgomp')}
@@ -197,6 +179,7 @@ setup(
         "xrayutilities": ["VERSION", "*.conf"],
         "xrayutilities.materials": [os.path.join("data", "*")]
     },
+    include_package_data=True,
     python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
     install_requires=['numpy>=1.9.2', 'scipy>=0.13.0', 'h5py'],
@@ -209,5 +192,4 @@ setup(
     cmdclass=cmdclass,
     url="https://xrayutilities.sourceforge.io",
     license="GPLv2",
-    script_args=args
 )
