@@ -71,13 +71,9 @@ installation path.
 
 By default the installation procedure tries to enable OpenMP support
 (recommended). It is disabled silently if OpenMP is not available. It can also
-be disable by using the *--without-openmp* option for the installation:
+be disabled by using the *--without-openmp* option for the installation:
 
-    pip install --global-option="--without-openmp" xrayutilities
-
-or
-
-    python setup.py --without-openmp install
+    python setup.py build_ext --without-openmp install
 
 Requirements
 ------------
