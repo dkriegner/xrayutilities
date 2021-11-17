@@ -23,6 +23,7 @@ import sys
 import tempfile
 
 import numpy
+import setuptools
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.build_py import build_py
