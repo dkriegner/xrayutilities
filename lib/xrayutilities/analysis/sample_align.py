@@ -708,7 +708,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
               "OUTER DETECTOR ANGLE!" % (outerangle_offset))
 
     return (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth,
-            tilt, detrot, outerangle_offset), eps
+            tilt, detrot, outerangle_offset), epsmin
 
 
 def _peak_position(img, nwindow, plot=False):
@@ -1541,7 +1541,8 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
               "OUTER DETECTOR ANGLE!" % (outerangle_offset))
 
     return (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth,
-            tilt, detrot, outerangle_offset, stilt, stazimuth, wavelength), eps
+            tilt, detrot, outerangle_offset, stilt, stazimuth,
+            wavelength), epsmin
 
 
 def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
