@@ -1,3 +1,5 @@
+* make builddocs pipeline more robust
+
 v1.7.2, 2021-11-22
 
 * fix returned fitting error in area_detector_calib* (issue #126)

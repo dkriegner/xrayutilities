@@ -1,14 +1,14 @@
---- build/sphinx/html/index.html.orig	2021-11-23 09:46:40.000000000 +0100
-+++ build/sphinx/html/index.html	2021-11-23 09:49:54.103907762 +0100
-@@ -83,6 +83,7 @@
+--- build/sphinx/html/index.html.orig	2021-11-23 11:01:20.000000000 +0100
++++ build/sphinx/html/index.html	2021-11-23 11:06:32.949289041 +0100
+@@ -82,6 +82,7 @@
  <a class="reference external image-reference" href="https://dev.azure.com/dominikkriegner/xrayutilities/_build"><img alt="Unit test status" src="https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/tox-testing?repoName=dkriegner%2Fxrayutilities&amp;branchName=main" /></a>
  <p>If you look for downloading the package go to <a class="reference external" href="https://sourceforge.net/projects/xrayutilities">Sourceforge</a> or <a class="reference external" href="https://github.com/dkriegner/xrayutilities">GitHub</a> (source distribution) or the <a class="reference external" href="https://pypi.python.org/pypi/xrayutilities">Python package index</a> (MS Windows binary).</p>
  <p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
 +<p>This documentation can also be downloaded in <a href="xrayutilities.pdf">PDF format</a>.</p>
- </section>
- <section id="installation">
+ </div>
+ <div class="section" id="installation">
  <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-@@ -625,4 +626,4 @@
+@@ -624,4 +625,4 @@
    </script> 
  
  </body>
