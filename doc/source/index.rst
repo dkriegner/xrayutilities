@@ -6,6 +6,27 @@
 Welcome to xrayutilities's documentation!
 =========================================
 
+.. only:: html
+
+  .. image:: https://img.shields.io/pypi/v/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: Latest Version
+  .. image:: https://img.shields.io/badge/development-GIT-green.svg
+     :target: https://github.com/dkriegner/xrayutilities
+     :alt: Git-repository on github
+  .. image:: https://img.shields.io/pypi/pyversions/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: Supported Python versions
+  .. image:: https://img.shields.io/pypi/status/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: Development Status
+  .. image:: https://img.shields.io/pypi/l/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: License
+  .. image:: https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/tox-testing?repoName=dkriegner%2Fxrayutilities&branchName=main
+     :target: https://dev.azure.com/dominikkriegner/xrayutilities/_build
+     :alt: Unit test status
+
 If you look for downloading the package go to `Sourceforge <https://sourceforge.net/projects/xrayutilities>`_ or `GitHub <https://github.com/dkriegner/xrayutilities>`_ (source distribution) or the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ (MS Windows binary).
 
 Read more about *xrayutilities* below or in `Journal of Applied Crystallography 2013, Volume 46, 1162-1170 <http://dx.doi.org/10.1107/S0021889813017214>`_
