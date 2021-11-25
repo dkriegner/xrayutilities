@@ -1,3 +1,4 @@
+* enable building Python 3.10 wheels
 * fix missing files in source package on PyPI
 * make builddocs pipeline more robust
 
