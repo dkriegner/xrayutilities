@@ -248,8 +248,8 @@ class CIFDataset(object):
                         # the neutral atom, but the effect this has should be
                         # minimal, currently simply the neutral atom is used
                         if config.VERBOSITY >= config.INFO_LOW:
-                            print('XU.materials: element %s used instead of %s'
-                                  % (elname, cifstring))
+                            print(f'XU.materials: Warning: element {elname} '
+                                  f'used instead of {cifstring}')
                         element = getattr(elements, elname)
                     else:
                         raise ValueError("XU.materials: element ('%s') could "
