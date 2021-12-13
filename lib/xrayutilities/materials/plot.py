@@ -219,8 +219,9 @@ def show_reciprocal_space_plane(
                 q = (d['qx'][m][ind['ind'][0]], d['qy'][m][ind['ind'][0]],
                      d['qz'][m][ind['ind'][0]])
                 angles = exp.Q2Ang(q, trans=False, geometry='real')
-                text = "{}\nhkl: {}\nangles: {}".format(
-                    mat.name, str(d['hkl'][m][ind['ind'][0]]), str(angles))
+                text = f"""{mat.name}
+hkl: {d['hkl'][m][ind['ind'][0]]}
+exp.Q2Ang angles (om, tilt, azimuth, 2th): {angles}"""
                 numpy.set_printoptions(**popts)
                 print(text)
 
