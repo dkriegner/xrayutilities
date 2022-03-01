@@ -50,8 +50,10 @@ def has_flag(compiler, flagname, output_dir=None):
 
 class build_ext_subclass(build_ext):
     description = "Builds the Python C-extension of xrayutilities"
-    user_options = (build_ext.user_options +
+    user_options = (
+        build_ext.user_options +
         [('without-openmp', None, 'build without OpenMP support')])
+
     def initialize_options(self):
         super().initialize_options()
         self.without_openmp = 0
