@@ -118,10 +118,10 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
 .. code-block:: python
     :linenos:
 
-    from matplotlib.pylab import *
-    import xrayutilities as xu
     import lmfit
     import numpy
+
+    import xrayutilities as xu
 
     # load experimental data
     ai, edata, eps = numpy.loadtxt('data/xrr_data.txt'), unpack=True)
@@ -129,7 +129,7 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
 
     # define layers
     # SiO2 / Ru(5) / CoFe(3) / IrMn(3) / AlOx(10)
-    lSiO2 = xu.simpack.Layer(xu.materials.SiO2, inf, roughness=2.5)
+    lSiO2 = xu.simpack.Layer(xu.materials.SiO2, numpy.inf, roughness=2.5)
     lRu = xu.simpack.Layer(xu.materials.Ru, 47, roughness=2.8)
     rho_cf = 0.5*8900 + 0.5*7874
     mat_cf = xu.materials.Amorphous('CoFe', rho_cf)
@@ -156,6 +156,13 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
     # perform the fit
     res = fitm.fit(edata, p, ai, weights=1/eps)
     lmfit.report_fit(res, min_correl=0.5)
+    # export the fit result for the full data range (Note that only data between
+    # xmin and xmax were actually optimized)
+    numpy.savetxt(
+        "xrrfit.dat",
+        numpy.vstack((ai, res.eval(res.params, x=ai))).T,
+        header="incidence angle (deg), fitted intensity (arb. u.)",
+    )
 
 
 This script can interactively show the fitting progress and after the fitting shows the final plot including the x-ray reflectivity trace of the initial and final parameters.
