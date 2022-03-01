@@ -15,8 +15,9 @@
 #
 # Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 from matplotlib.pylab import *
+
+import xrayutilities as xu
 
 mpl.rcParams['font.size'] = 16.0
 

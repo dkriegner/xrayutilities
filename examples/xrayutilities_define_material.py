@@ -16,6 +16,7 @@
 # Copyright (C) 2012-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
+
 import xrayutilities as xu
 
 # definition of materials is done from its space group and its free parameters.

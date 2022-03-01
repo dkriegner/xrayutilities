@@ -21,8 +21,9 @@ from itertools import permutations
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
-import xrayutilities as xu
 from mpl_toolkits.basemap import *
+
+import xrayutilities as xu
 
 datadir = "data"
 

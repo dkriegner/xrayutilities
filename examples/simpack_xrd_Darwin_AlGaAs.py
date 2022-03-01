@@ -15,9 +15,10 @@
 #
 # Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 from matplotlib.pylab import *
 from scipy.special import erf
+
+import xrayutilities as xu
 
 mpl.rcParams['font.size'] = 16.0
 en = 'CuKa1'

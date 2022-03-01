@@ -13,14 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 
 import lmfit
-import numpy
-import xrayutilities as xu
 import matplotlib.pylab as pylab
+import numpy
+
+import xrayutilities as xu
 
 # load experimental data
 ai, edata, eps = numpy.loadtxt(os.path.join('data', 'xrr_data.txt'),

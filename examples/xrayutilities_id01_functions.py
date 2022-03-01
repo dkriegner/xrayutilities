@@ -20,8 +20,9 @@
 import collections.abc
 import re
 
-import xrayutilities as xu
 from matplotlib.pylab import *
+
+import xrayutilities as xu
 
 # define root of the local data directory (needed because we assume the data
 # path of detector frames from the specfile are not correct anymore)

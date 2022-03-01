@@ -18,6 +18,7 @@
 import os
 
 import numpy
+
 import xrayutilities as xu
 
 # import matplotlib.pyplot as plt

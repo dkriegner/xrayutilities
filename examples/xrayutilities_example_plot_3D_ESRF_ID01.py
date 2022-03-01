@@ -22,9 +22,9 @@ import os
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
-import xrayutilities as xu
-
 import xrayutilities_id01_functions as id01
+
+import xrayutilities as xu
 
 sample = 'SAMPLENAME'  # here used for the specfilename
 try:

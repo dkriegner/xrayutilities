@@ -17,8 +17,9 @@
 
 import time
 
-import xrayutilities as xu
 from matplotlib.pylab import *
+
+import xrayutilities as xu
 
 mpl.rcParams['font.size'] = 16.0
 

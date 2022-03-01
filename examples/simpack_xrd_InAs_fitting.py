@@ -15,8 +15,9 @@
 #
 # Copyright (C) 2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import xrayutilities as xu
 from matplotlib.pylab import *
+
+import xrayutilities as xu
 
 # global parameters
 wavelength = xu.wavelength('CuKa1')

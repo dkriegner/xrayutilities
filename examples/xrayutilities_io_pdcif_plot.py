@@ -19,6 +19,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy
+
 import xrayutilities as xu
 
 # load powder diffraction cif data file

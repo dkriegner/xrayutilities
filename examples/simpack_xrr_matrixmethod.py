@@ -23,8 +23,9 @@
 import os
 
 import numpy as np
-import xrayutilities as xu
 from matplotlib.pylab import *
+
+import xrayutilities as xu
 
 # Thin-film of (20 nm) CaTiO$_3$/SrTiO$_3$
 CTO = xu.materials.CaTiO3
