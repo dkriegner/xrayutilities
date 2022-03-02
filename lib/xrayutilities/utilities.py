@@ -47,6 +47,7 @@ def import_matplotlib_pyplot(funcname='XU'):
     """
     try:
         from matplotlib import pyplot as plt
+
         from .mpl_helper import SqrtAllowNegScale
         return True, plt
     except ImportError:
