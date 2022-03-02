@@ -114,7 +114,8 @@ from .smaterials import Powder
 
 # figure out which FFT package we have, and import it
 try:
-    from pyfftw.interfaces import numpy_fft, cache
+    from pyfftw.interfaces import cache, numpy_fft
+
     # recorded variant of real fft that we will use
     best_rfft = numpy_fft.rfft
     # recorded variant of inverse real fft that we will use

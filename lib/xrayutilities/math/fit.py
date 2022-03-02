@@ -25,7 +25,7 @@ import warnings
 
 import numpy
 import scipy.optimize as optimize
-from scipy.odr import odrpack as odr
+from scipy import odr
 
 from .. import config, utilities
 from ..exception import InputError

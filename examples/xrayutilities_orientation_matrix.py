@@ -34,6 +34,7 @@ how steps 1 and 3 are performed (this depends on the source of data you have)
 """
 
 import numpy
+
 import xrayutilities as xu
 
 # lets assume in step 1) we found the reciprocal space positions of a GaAs

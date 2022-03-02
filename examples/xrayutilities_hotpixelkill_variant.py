@@ -30,6 +30,7 @@ from a hot pixel and such pixels should be removed to avoid spikes in the data.
 import glob
 
 import numpy
+
 import xrayutilities as xu
 
 

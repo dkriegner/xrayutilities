@@ -16,8 +16,8 @@
 # Copyright (C) 2020-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2020 Mike Moron <mike.moron@tu-dortmund.de>
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 import xrayutilities as xu
 

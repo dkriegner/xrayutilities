@@ -50,8 +50,10 @@ def has_flag(compiler, flagname, output_dir=None):
 
 class build_ext_subclass(build_ext):
     description = "Builds the Python C-extension of xrayutilities"
-    user_options = (build_ext.user_options +
+    user_options = (
+        build_ext.user_options +
         [('without-openmp', None, 'build without OpenMP support')])
+
     def initialize_options(self):
         super().initialize_options()
         self.without_openmp = 0
@@ -184,10 +186,11 @@ setup(
     include_package_data=True,
     python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
-    install_requires=['numpy>=1.9.2', 'scipy>=0.13.0', 'h5py'],
+    install_requires=['numpy>=1.9.2', 'scipy>=0.18.0', 'h5py'],
     extras_require={
         'plot': ["matplotlib>=3.1.0"],
         'fit': ["lmfit>=1.0.1"],
+        '3D': ["mayavi"],
     },
     include_dirs=[numpy.get_include()],
     ext_modules=[extmodul],

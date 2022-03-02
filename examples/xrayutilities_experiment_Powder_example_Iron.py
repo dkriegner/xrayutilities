@@ -19,8 +19,9 @@ from multiprocessing import freeze_support
 
 import matplotlib.pyplot as plt
 import numpy
-import xrayutilities as xu
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+import xrayutilities as xu
 
 
 def main():

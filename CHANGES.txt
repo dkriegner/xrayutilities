@@ -1,3 +1,12 @@
+v1.7.3, 2021-11-26
+
+* enable building Python 3.10 wheels
+* fix missing files in source package on PyPI
+* make builddocs pipeline more robust
+
+v1.7.2, 2021-11-22
+
+* fix returned fitting error in area_detector_calib* (issue #126)
 * remove dependency on soon deprecated distutils
 * fix regression bug with matplotlib 3.5
 * update copyright notices from git commit history

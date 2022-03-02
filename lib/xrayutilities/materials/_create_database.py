@@ -32,6 +32,5 @@ import sys
 # local import
 from database import createAndFillDatabase
 
-
 if __name__ == "__main__":
     createAndFillDatabase(*sys.argv[1:], verbose=False)

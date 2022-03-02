@@ -18,6 +18,7 @@
 import os
 
 import numpy
+
 import xrayutilities as xu
 
 bite = xu.materials.Crystal.fromCIF(os.path.join("data", "bi2te3.cif"))

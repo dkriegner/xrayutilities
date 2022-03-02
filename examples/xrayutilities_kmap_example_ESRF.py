@@ -18,10 +18,10 @@
 
 import os
 
-import xrayutilities as xu
+import xrayutilities_id01_functions as id01
 from matplotlib.pylab import *
 
-import xrayutilities_id01_functions as id01
+import xrayutilities as xu
 
 # 3S+2D goniometer (ID01 goniometer, sample mu, eta, phi detector
 # nu, del, mpxy, mpxz

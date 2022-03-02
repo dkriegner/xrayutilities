@@ -25,9 +25,9 @@ from the second half of 2017
 import os
 import re
 
-import xrayutilities as xu
-
 import xrayutilities_id01_functions as id01
+
+import xrayutilities as xu
 
 s = xu.io.SPECFile(specfile)  # insert specfile name here
 specscan = s.scan3

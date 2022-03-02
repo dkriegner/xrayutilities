@@ -23,6 +23,7 @@ and detector tilt can be determined for a linear detector.
 import os
 
 import matplotlib.pyplot as plt
+
 import xrayutilities as xu
 
 en = xu.utilities.energies["CuKa1"]  # eV
