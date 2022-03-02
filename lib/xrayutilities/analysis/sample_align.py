@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
@@ -27,11 +27,9 @@ import re
 import time
 
 import numpy
-import scipy.optimize as optimize
 from numpy import cos, degrees, radians, sin, tan
-from scipy.ndimage.measurements import center_of_mass
-from scipy.odr import models
-from scipy.odr import odrpack as odr
+from scipy import odr, optimize
+from scipy.ndimage import center_of_mass
 
 from .. import config, cxrayutilities
 from .. import math as xumath
@@ -159,7 +157,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         return r
 
     # fit linear
-    model = models.unilinear
+    model = odr.unilinear
     data = odr.RealData(angles, channels, sy=stdevu)
     my_odr = odr.ODR(data, model)
     # fit type 2 for least squares
@@ -167,7 +165,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
     fitlin = my_odr.run()
 
     # fit linear with tangens angle
-    model = models.unilinear
+    model = odr.unilinear
     data = odr.RealData(degrees(tan(radians(angles))),
                         channels, sy=stdevu)
     my_odr = odr.ODR(data, model)
@@ -203,10 +201,10 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         angp = numpy.linspace(angles.min() - angr * 0.1,
                               angles.max() + angr * .1, 1000)
         if modelline:
-            plt.plot(angp, models._unilin(fittan.beta,
-                                          degrees(tan(radians(angp)))),
+            plt.plot(angp, odr.unilinear(fittan.beta,
+                                         degrees(tan(radians(angp)))),
                      modelline, label=mlabel, lw=linewidth)
-        plt.plot(angp, models._unilin(fitlin.beta, angp), '-k', label='')
+        plt.plot(angp, odr.unilinear(fitlin.beta, angp), '-k', label='')
         if usetilt:
             plt.plot(angp, straight_tilt(fittilt.beta, angp),
                      modeltilt, label=mtiltlabel, lw=linewidth)
@@ -227,21 +225,21 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         # lower plot to show deviations from linear model
         plt.subplot(212, sharex=ax1)
         if modelline:
-            plt.plot(angp, models._unilin(fittan.beta,
-                                          degrees(tan(radians(angp)))) -
-                     models._unilin(fitlin.beta, angp),
+            plt.plot(angp, odr.unilinear(fittan.beta,
+                                         degrees(tan(radians(angp)))) -
+                     odr.unilinear(fitlin.beta, angp),
                      modelline, label=mlabel, lw=linewidth)
         if usetilt:
             plt.plot(angp, straight_tilt(fittilt.beta, angp) -
-                     models._unilin(fitlin.beta, angp),
+                     odr.unilinear(fitlin.beta, angp),
                      modeltilt, label=mtiltlabel, lw=linewidth)
         if stdev is None:
-            plt.plot(angles, channels - models._unilin(fitlin.beta, angles),
+            plt.plot(angles, channels - odr.unilinear(fitlin.beta, angles),
                      datap, ms=markersize, mew=markeredgewidth, mec=datap[0],
                      mfc='none', label=dlabel)
         else:
             plt.errorbar(angles,
-                         channels - models._unilin(fitlin.beta, angles),
+                         channels - odr.unilinear(fitlin.beta, angles),
                          fmt=datap, yerr=stdevu, ms=markersize,
                          mew=markeredgewidth, mec=datap[0], mfc='none',
                          label=dlabel, ecolor='0.5')
