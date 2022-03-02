@@ -201,10 +201,10 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         angp = numpy.linspace(angles.min() - angr * 0.1,
                               angles.max() + angr * .1, 1000)
         if modelline:
-            plt.plot(angp, odr.unilinear(fittan.beta,
-                                         degrees(tan(radians(angp)))),
+            plt.plot(angp, odr.unilinear.fcn(fittan.beta,
+                                             degrees(tan(radians(angp)))),
                      modelline, label=mlabel, lw=linewidth)
-        plt.plot(angp, odr.unilinear(fitlin.beta, angp), '-k', label='')
+        plt.plot(angp, odr.unilinear.fcn(fitlin.beta, angp), '-k', label='')
         if usetilt:
             plt.plot(angp, straight_tilt(fittilt.beta, angp),
                      modeltilt, label=mtiltlabel, lw=linewidth)
@@ -225,21 +225,21 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         # lower plot to show deviations from linear model
         plt.subplot(212, sharex=ax1)
         if modelline:
-            plt.plot(angp, odr.unilinear(fittan.beta,
-                                         degrees(tan(radians(angp)))) -
-                     odr.unilinear(fitlin.beta, angp),
+            plt.plot(angp, odr.unilinear.fcn(fittan.beta,
+                                             degrees(tan(radians(angp)))) -
+                     odr.unilinear.fcn(fitlin.beta, angp),
                      modelline, label=mlabel, lw=linewidth)
         if usetilt:
             plt.plot(angp, straight_tilt(fittilt.beta, angp) -
-                     odr.unilinear(fitlin.beta, angp),
+                     odr.unilinear.fcn(fitlin.beta, angp),
                      modeltilt, label=mtiltlabel, lw=linewidth)
         if stdev is None:
-            plt.plot(angles, channels - odr.unilinear(fitlin.beta, angles),
+            plt.plot(angles, channels - odr.unilinear.fcn(fitlin.beta, angles),
                      datap, ms=markersize, mew=markeredgewidth, mec=datap[0],
                      mfc='none', label=dlabel)
         else:
             plt.errorbar(angles,
-                         channels - odr.unilinear(fitlin.beta, angles),
+                         channels - odr.unilinear.fcn(fitlin.beta, angles),
                          fmt=datap, yerr=stdevu, ms=markersize,
                          mew=markeredgewidth, mec=datap[0], mfc='none',
                          label=dlabel, ecolor='0.5')
