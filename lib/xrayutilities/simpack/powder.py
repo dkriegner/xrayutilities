@@ -293,7 +293,7 @@ class FP_profile:
         to identify themselves
 
         Returns
-        ----------
+        -------
         str
             name of calling function
         """

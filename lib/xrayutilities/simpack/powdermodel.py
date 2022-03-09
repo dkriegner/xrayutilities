@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2017-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numbers
 from math import sqrt
@@ -58,16 +58,19 @@ class PowderModel(object):
         I0 :        float, optional
             scaling factor for the simulation result
 
+        Notes
+        -----
+        In particular interesting keys in the fpsettings dictionary might be:
+         'displacement':
+          {'specimen_displacement': sample's z-displacement from the rotation center
+           'zero_error_deg': zero error of the 2theta angle}
 
-        In particular interesting in fpsettings might be:
-        {'displacement': {'specimen_displacement': z-displacement of the sample
-                                                   from the rotation center
-                          'zero_error_deg': zero error of the 2theta angle}
-         'absorption': {'sample_thickness': sample thickness (m),
-                        'absorption_coefficient': sample's absorption (m^-1)}
-         'axial': {'length_sample': the length of the sample in the axial
-                                    direction (m)}
-        }
+         'absorption':
+          {'sample_thickness': sample thickness (m),
+           'absorption_coefficient': sample's absorption (m^-1)}
+
+         'axial':
+          {'length_sample': sample length in the axial direction (m)}
         """
         if len(args) == 1 and isinstance(args[0], PowderList):
             self.materials = args[0]

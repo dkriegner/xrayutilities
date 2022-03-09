@@ -14,11 +14,11 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities is a Python package for assisting with x-ray diffraction
-experiments. Its the python package included in *xrayutilities*.
+experiments. Its the Python package included in *xrayutilities*.
 
 It helps with planning experiments as well as analyzing the data.
 

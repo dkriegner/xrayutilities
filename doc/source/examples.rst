@@ -550,7 +550,7 @@ Currently two helper functions for incidence and exit angles (:func:`~xrayutilit
     bounds = ((0, 90), (-180, 180), (-1, 90), (-1, 90))
     ang, qerror, errcode = xu.Q2AngFit(
         q_laboratory, hxrd, bounds,
-        constraints={'type':'eq', 'fun': lambda a: aiconstraint(a, 5, hxrd)})
+        constraints=[{'type':'eq', 'fun': lambda a: aiconstraint(a, 5, hxrd)}, ])
 
 
 User-specific config file

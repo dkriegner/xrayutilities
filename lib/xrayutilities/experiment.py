@@ -180,51 +180,7 @@ class QConversion(object):
                     raise InputError("QConversion: incorrect sample circle "
                                      "syntax (%s)" % circ)
                 if circ[0] == 'k':  # determine kappa rotation axis
-                    # determine reference direction
-                    if config.KAPPA_PLANE[0] == 'x':
-                        self._kappa_dir = numpy.array((1., 0, 0))
-                        # turn reference direction
-                        if config.KAPPA_PLANE[1] == 'y':
-                            self._kappa_dir = math.ZRotation(
-                                config.KAPPA_ANGLE)(self._kappa_dir)
-                        elif config.KAPPA_PLANE[1] == 'z':
-                            self._kappa_dir = math.YRotation(
-                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
-                        else:
-                            raise TypeError("Qconverision init: invalid "
-                                            "kappa_plane in config!")
-                    elif config.KAPPA_PLANE[0] == 'y':
-                        self._kappa_dir = numpy.array((0, 1., 0))
-                        # turn reference direction
-                        if config.KAPPA_PLANE[1] == 'z':
-                            self._kappa_dir = math.XRotation(
-                                config.KAPPA_ANGLE)(self._kappa_dir)
-                        elif config.KAPPA_PLANE[1] == 'x':
-                            self._kappa_dir = math.ZRotation(
-                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
-                        else:
-                            raise TypeError("Qconverision init: invalid "
-                                            "kappa_plane in config!")
-                    elif config.KAPPA_PLANE[0] == 'z':
-                        self._kappa_dir = numpy.array((0, 0, 1.))
-                        # turn reference direction
-                        if config.KAPPA_PLANE[1] == 'x':
-                            self._kappa_dir = math.YRotation(
-                                config.KAPPA_ANGLE)(self._kappa_dir)
-                        elif config.KAPPA_PLANE[1] == 'y':
-                            self._kappa_dir = math.XRotation(
-                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
-                        else:
-                            raise TypeError("Qconverision init: invalid "
-                                            "kappa_plane in config!")
-                    else:
-                        raise TypeError("Qconverision init: invalid "
-                                        "kappa_plane in config!")
-
-                    # rotation sense
-                    if circ[1] == '-':
-                        self._kappa_dir *= -1
-
+                    self._kappa_dir = math.getVector(circ)
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)"
                               % tuple(self._kappa_dir))

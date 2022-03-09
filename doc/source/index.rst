@@ -287,14 +287,7 @@ Examples and API-documentation
 
    examples
    simulations
-   xrayutilities
-   xrayutilities.analysis
-   xrayutilities.io
-   xrayutilities.materials
-   xrayutilities.math
-   xrayutilities.simpack
    modules
-
 
 Indices and tables
 ==================

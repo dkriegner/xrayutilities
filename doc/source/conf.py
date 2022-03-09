@@ -288,7 +288,7 @@ pdf_documents = [
 ]
 
 # A comma-separated list of custom stylesheets. Example:
-# pdf_stylesheets = ['sphinx','kerning','a4']
+pdf_stylesheets = ['sphinx', 'onecolumn', 'twocolumn']
 
 # A list of folders to search for stylesheets. Example:
 # pdf_style_path = ['.', '_styles']
