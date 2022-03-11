@@ -1,3 +1,6 @@
+* improvements for kappa goniometers
+* remove use of deprecated scipy namespace
+
 v1.7.3, 2021-11-26
 
 * enable building Python 3.10 wheels
