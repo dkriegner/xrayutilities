@@ -210,11 +210,11 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
                      modeltilt, label=mtiltlabel, lw=linewidth)
         if stdev is None:
             plt.plot(angles, channels, datap, ms=markersize,
-                     mew=markeredgewidth, mec=datap[0],
+                     mew=markeredgewidth, mec=datap[-1],
                      mfc='none', label=dlabel)
         else:
             plt.errorbar(angles, channels, fmt=datap, yerr=stdevu,
-                         ms=markersize, mew=markeredgewidth, mec=datap[0],
+                         ms=markersize, mew=markeredgewidth, mec=datap[-1],
                          mfc='none', label=dlabel, ecolor='0.5')
         plt.grid(True)
         leg = plt.legend(numpoints=1)
@@ -235,18 +235,19 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
                      modeltilt, label=mtiltlabel, lw=linewidth)
         if stdev is None:
             plt.plot(angles, channels - odr.unilinear.fcn(fitlin.beta, angles),
-                     datap, ms=markersize, mew=markeredgewidth, mec=datap[0],
+                     datap, ms=markersize, mew=markeredgewidth, mec=datap[-1],
                      mfc='none', label=dlabel)
         else:
             plt.errorbar(angles,
                          channels - odr.unilinear.fcn(fitlin.beta, angles),
                          fmt=datap, yerr=stdevu, ms=markersize,
-                         mew=markeredgewidth, mec=datap[0], mfc='none',
+                         mew=markeredgewidth, mec=datap[-1], mfc='none',
                          label=dlabel, ecolor='0.5')
         plt.xlabel("detector angle (deg)")
         plt.ylabel("ch. num. - linear trend")
         plt.grid(True)
         plt.hlines(0, angp.min(), angp.max())
+        plt.tight_layout()
 
         if figtitle:
             if usetilt:

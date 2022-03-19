@@ -1,3 +1,4 @@
+* matplotlib format bugfix in psd_chdeg
 * improvements for kappa goniometers
 * remove use of deprecated scipy namespace
 
