@@ -441,7 +441,7 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
         """
         flags = 0
         if self._has_translations:
@@ -521,7 +521,7 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
         Returns
         -------
@@ -725,7 +725,7 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
         Returns
         -------
@@ -975,7 +975,7 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
 
         Returns
@@ -1534,7 +1534,7 @@ class Experiment(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
         Returns
         -------
