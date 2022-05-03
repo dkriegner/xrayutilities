@@ -14,12 +14,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a set of  routines to convert Seifert ASCII files to HDF5
 in fact there exist two posibilities how the data is stored (depending on the
-use detector):
+used detector):
 
  1. as a simple line scan (using the point detector)
  2. as a map using the PSD
@@ -83,7 +83,7 @@ class SeifertHeader(object):
     """
 
     def __init__(self):
-        pass
+        self.NumScans = 1
 
     def __str__(self):
         ostr = ""
@@ -147,7 +147,7 @@ class SeifertMultiScan(object):
         header_complete = False
 
         for line in self.fid:
-            lb = line.decode('ascii').strip()
+            lb = line.decode('iso-8859-1').strip()
 
             # the first thing needed is the number of scans in the file (in
             # file header)
@@ -224,7 +224,7 @@ class SeifertScan(object):
             print("XU.io.SeifertScan.parse: starting the parser")
         self.data = []
         for line in self.fid:
-            lb = line.decode('ascii')
+            lb = line.decode('iso-8859-1')
             # remove leading and trailing whitespace and newline characeters
             lb = lb.strip()
 
@@ -289,7 +289,7 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
         scan number(s)
     path :          str, optional
         common path to the filenames
-    scantype :      {'map', 'tsk'}, optional
+    scantype :      {'map', 'O2T', 'tsk'}, optional
         type of datafile: can be either 'map' (reciprocal space map measured
         with a regular Seifert job (default)) or 'tsk' (MCA spectra measured
         using the TaskInterpreter)
@@ -309,10 +309,12 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)
     tt = numpy.zeros(0)
-    if scantype == "map":
+    if scantype in ["map", "O2T"]:
         psd = numpy.zeros(0)
-    else:
+    elif scantype == "tsk":
         psd = numpy.zeros((0, Nchannels))
+    else:
+        raise ValueError("Unsupported scan type")
     # create scan names
     if scannrs is None:
         files = [filetemplate]
@@ -331,11 +333,18 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
             om = numpy.concatenate((om, d.m2_pos.flatten()))
             tt = numpy.concatenate((tt, d.sm_pos.flatten()))
             psd = numpy.concatenate((psd, d.data.flatten()))
-        else:  # scantype == "tsk":
+        elif scantype == "tsk":
             d = SeifertScan(os.path.join(path, f))
 
             om = numpy.concatenate((om, d.axispos['O'].flatten()))
             tt = numpy.concatenate((tt, d.axispos['T'].flatten()))
             psd = numpy.concatenate((psd, d.data[:, :, 1]))
+        elif scantype == 'O2T':
+            d = SeifertScan(os.path.join(path, f))
+            assert hasattr(d.hdr, "RSMmode")
+            assert d.hdr.RSMmode == scantype
+            om = numpy.concatenate((om, d.data[:, 0]))
+            tt = numpy.concatenate((tt, d.data[:, 1]))
+            psd = numpy.concatenate((psd, d.data[:, 2]))
 
     return om, tt, psd
