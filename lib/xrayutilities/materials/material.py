@@ -113,67 +113,67 @@ def Cij2Sijkl(cij):
 
     sij = numpy.linalg.inv(cij)
 
-    sijkl = numpy.zeros((3,3,3,3), dtype=numpy.double)
+    sijkl = numpy.zeros((3, 3, 3, 3), dtype=numpy.double)
     for i in range(0, 3):
         for j in range(0, 3):
             for k in range(0, 3):
-                for l in range(0, 3):
+                for L in range(0, 3):
                     if i == j:
                         m = i
-                        if k == l:
+                        if k == L:
                             n = k
-                            sijkl[i, j, k, l] = sij[m, n]
-                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            sijkl[i, j, k, L] = sij[m, n]
+                        if k == 1 and L == 2 or k == 2 and L == 1:
                             n = 3
-                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
-                        if k == 0 and l == 2 or k == 2 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
+                        if k == 0 and L == 2 or k == 2 and L == 0:
                             n = 4
-                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
-                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
+                        if k == 0 and L == 1 or k == 1 and L == 0:
                             n = 5
-                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
+                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
                     if i == 1 and j == 2 or i == 2 and j == 1:
                         m = 3
-                        if k == l:
+                        if k == L:
                             n = k
-                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
-                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
+                        if k == 1 and L == 2 or k == 2 and L == 1:
                             n = 3
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
-                        if k == 0 and l ==3 or k == 2 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
+                        if k == 0 and L == 3 or k == 2 and L == 0:
                             n = 4
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
-                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
+                        if k == 0 and L == 1 or k == 1 and L == 0:
                             n = 5
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
                     if i == 0 and j == 2 or i == 2 and j == 0:
                         m = 4
-                        if k == l:
+                        if k == L:
                             n = k
-                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
-                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
+                        if k == 1 and L == 2 or k == 2 and L == 1:
                             n = 3
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
-                        if k == 0 and l == 2 or k == 2 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
+                        if k == 0 and L == 2 or k == 2 and L == 0:
                             n = 4
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
-                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
+                        if k == 0 and L == 1 or k == 1 and L == 0:
                             n = 5
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
                     if i == 1 and j == 0 or i == 0 and j == 1:
                         m = 5
-                        if k == l:
+                        if k == L:
                             n = k
-                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
-                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
+                        if k == 1 and L == 2 or k == 2 and L == 1:
                             n = 3
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
-                        if k == 0 and l == 2 or k == 2 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
+                        if k == 0 and L == 2 or k == 2 and L == 0:
                             n = 4
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
-                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
+                        if k == 0 and L == 1 or k == 1 and L == 0:
                             n = 5
-                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
 
     return sijkl
 
@@ -1309,9 +1309,9 @@ class Crystal(Material):
 
     def GetStrain(sig_11, sig_12, sig_13, sig_22, sig_23, sig_33, elastic):
         """
-        Obtains strain matrix (3x3) from an applied stress matrix (3x3) using 
+        Obtains strain matrix (3x3) from an applied stress matrix (3x3) using
         a material's full rank elastic tensor (3x3x3x3).
-    
+
         Parameters
         ----------
         sig_kl = stress matrix components (float)
@@ -1331,12 +1331,17 @@ class Crystal(Material):
 
         for i in range(0, 3):
             for j in range(0, 3):
-                strain[i, j] = elastic_fr[i, j, 0, 0] * stress[0, 0] + elastic_fr[i, j, 0, 1] * stress[0, 1] + elastic_fr[i, j, 0, 2] * stress[0, 2] +\
-                elastic_fr[i, j, 1, 0] * stress[1, 0] + elastic_fr[i, j, 1, 1] * stress[1, 1] + elastic_fr[i, j, 1, 2] * stress[1, 2] +\
-                elastic_fr[i, j, 2, 0] * stress[2, 0] + elastic_fr[i, j, 2, 1] * stress[2, 1] + elastic_fr[i, j, 2, 2] * stress[2, 2]
+                strain[i, j] = elastic_fr[i, j, 0, 0] * stress[0, 0] +\
+                    elastic_fr[i, j, 0, 1] * stress[0, 1] +\
+                    elastic_fr[i, j, 0, 2] * stress[0, 2] +\
+                    elastic_fr[i, j, 1, 0] * stress[1, 0] +\
+                    elastic_fr[i, j, 1, 1] * stress[1, 1] +\
+                    elastic_fr[i, j, 1, 2] * stress[1, 2] +\
+                    elastic_fr[i, j, 2, 0] * stress[2, 0] +\
+                    elastic_fr[i, j, 2, 1] * stress[2, 1] +\
+                    elastic_fr[i, j, 2, 2] * stress[2, 2]
 
         return strain
-
 
     def GetMismatch(self, mat):
         """
@@ -1579,10 +1584,11 @@ def CubicElasticTensor(c11, c12, c44):
     return m
 
 
-def MonoclinicElasticTensor(c11, c12, c13, c16, c22, c23, c26, c33, c36, c44, c45, c55, c66):
+def MonoclinicElasticTensor(c11, c12, c13, c16, c22, c23, c26, c33, c36, c44,
+                            c45, c55, c66):
     """
-    Assemble the 6x6 matrix of elastic constants for a monoclinic material from the
-    thirteen independent components of a monoclinic crystal
+    Assemble the 6x6 matrix of elastic constants for a monoclinic material
+    from the thirteen independent components of a monoclinic crystal
 
     Parameters
     ----------
@@ -1610,12 +1616,12 @@ def MonoclinicElasticTensor(c11, c12, c13, c16, c22, c23, c26, c33, c36, c44, c4
     m[5, 5] = c66
 
     return m
-    
+
 
 def TrigonalElasticTensor(c11, c12, c13, c14, c15, c33, c44):
     """
-    Assemble the 6x6 matrix of elastic constants for a trigonal material from the
-    seven independent components of a trigonal crystal
+    Assemble the 6x6 matrix of elastic constants for a trigonal material
+    from the seven independent components of a trigonal crystal
 
     Parameters
     ----------
@@ -1627,7 +1633,7 @@ def TrigonalElasticTensor(c11, c12, c13, c14, c15, c33, c44):
    cij :    ndarray
         6x6 matrix with elastic constants
     """
-    m=numpy.zeros((6,6), dtype=numpy.double)
+    m = numpy.zeros((6, 6), dtype=numpy.double)
     m[0, 0] = m[1, 1] = c11
     m[0, 1] = m[1, 0] = c12
     m[0, 2] = m[1, 2] = m[2, 0] = m[2, 1] = c13
