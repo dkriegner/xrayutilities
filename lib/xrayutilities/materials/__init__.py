@@ -24,8 +24,9 @@ from .database import (DataBase, add_f0_from_intertab, add_f0_from_xop,
                        add_f1f2_from_kissel, add_mass_from_NIST,
                        init_material_db)
 from .material import (Alloy, Amorphous, Crystal, CubicAlloy,
-                       CubicElasticTensor, HexagonalElasticTensor, Material,
-                       PseudomorphicMaterial, WZTensorFromCub)
+                       CubicElasticTensor, MonoclinicElasticTensor, 
+                       TrigonalElasticTensor, HexagonalElasticTensor, 
+                       Material, PseudomorphicMaterial, WZTensorFromCub)
 from .plot import show_reciprocal_space_plane
 from .predefined_materials import *
 from .spacegrouplattice import SGLattice, SymOp

@@ -95,6 +95,89 @@ def Cij2Cijkl(cij):
     return cijkl
 
 
+def Cij2Sijkl(cij):
+    """
+    Converts the elastic constants matrix (tensor of rank 2) to
+    the full rank 4 sijkl compliance tensor.
+
+    Parameters
+    ----------
+    cij :   array-like
+        (6, 6) cij matrix
+
+    Returns
+    -------
+    sijkl   ndarray
+        (3, 3, 3, 3) sijkl tensor as numpy array
+    """
+
+    sij = numpy.linalg.inv(cij)
+
+    sijkl = numpy.zeros((3,3,3,3), dtype=numpy.double)
+    for i in range(0, 3):
+        for j in range(0, 3):
+            for k in range(0, 3):
+                for l in range(0, 3):
+                    if i == j:
+                        m = i
+                        if k == l:
+                            n = k
+                            sijkl[i, j, k, l] = sij[m, n]
+                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            n = 3
+                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
+                        if k == 0 and l == 2 or k == 2 and l == 0:
+                            n = 4
+                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
+                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            n = 5
+                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
+                    if i == 1 and j == 2 or i == 2 and j == 1:
+                        m = 3
+                        if k == l:
+                            n = k
+                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
+                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            n = 3
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                        if k == 0 and l ==3 or k == 2 and l == 0:
+                            n = 4
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            n = 5
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                    if i == 0 and j == 2 or i == 2 and j == 0:
+                        m = 4
+                        if k == l:
+                            n = k
+                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
+                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            n = 3
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                        if k == 0 and l == 2 or k == 2 and l == 0:
+                            n = 4
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            n = 5
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                    if i == 1 and j == 0 or i == 0 and j == 1:
+                        m = 5
+                        if k == l:
+                            n = k
+                            sijkl[i, j, k, l] = sij[m, n] * (1/2)
+                        if k == 1 and l == 2 or k == 2 and l == 1:
+                            n = 3
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                        if k == 0 and l == 2 or k == 2 and l == 0:
+                            n = 4
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+                        if k == 0 and l == 1 or k == 1 and l == 0:
+                            n = 5
+                            sijkl[i, j, k, l] = sij[m, n] * (1/4)
+
+    return sijkl
+
+
 def Cijkl2Cij(cijkl):
     """
     Converts the full rank 4 tensor of the elastic constants to
@@ -1224,6 +1307,37 @@ class Crystal(Material):
         # let strain act on the unit cell vectors
         self.lattice.ApplyStrain(strain)
 
+    def GetStrain(sig_11, sig_12, sig_13, sig_22, sig_23, sig_33, elastic):
+        """
+        Obtains strain matrix (3x3) from an applied stress matrix (3x3) using 
+        a material's full rank elastic tensor (3x3x3x3).
+    
+        Parameters
+        ----------
+        sig_kl = stress matrix components (float)
+        elastic = elastic tensor (6x6)
+        """
+        stress = numpy.zeros((3, 3), dtype=numpy.double)
+        stress[0, 0] = sig_11
+        stress[0, 1] = stress[1, 0] = sig_12
+        stress[0, 2] = stress[2, 0] = sig_13
+        stress[1, 1] = sig_22
+        stress[1, 2] = stress[2, 1] = sig_23
+        stress[2, 2] = sig_33
+
+        elastic_fr = Cij2Sijkl(elastic)
+
+        strain = numpy.zeros((3, 3), dtype=numpy.double)
+
+        for i in range(0, 3):
+            for j in range(0, 3):
+                strain[i, j] = elastic_fr[i, j, 0, 0] * stress[0, 0] + elastic_fr[i, j, 0, 1] * stress[0, 1] + elastic_fr[i, j, 0, 2] * stress[0, 2] +\
+                elastic_fr[i, j, 1, 0] * stress[1, 0] + elastic_fr[i, j, 1, 1] * stress[1, 1] + elastic_fr[i, j, 1, 2] * stress[1, 2] +\
+                elastic_fr[i, j, 2, 0] * stress[2, 0] + elastic_fr[i, j, 2, 1] * stress[2, 1] + elastic_fr[i, j, 2, 2] * stress[2, 2]
+
+        return strain
+
+
     def GetMismatch(self, mat):
         """
         Calculate the mismatch strain between the material and a second
@@ -1461,6 +1575,69 @@ def CubicElasticTensor(c11, c12, c44):
     m[0, 1] = m[0, 2] = c12
     m[1, 0] = m[1, 2] = c12
     m[2, 0] = m[2, 1] = c12
+
+    return m
+
+
+def MonoclinicElasticTensor(c11, c12, c13, c16, c22, c23, c26, c33, c36, c44, c45, c55, c66):
+    """
+    Assemble the 6x6 matrix of elastic constants for a monoclinic material from the
+    thirteen independent components of a monoclinic crystal
+
+    Parameters
+    ----------
+    c11, c12, c13, c16, c22, c23, c26, c33, c36, c44, c45, c55, c66 : float
+        independent components of the elastic tensor of monoclinic materials
+
+    Returns
+    -------
+   cij :    ndarray
+        6x6 matrix with elastic constants
+    """
+    m = numpy.zeros((6, 6), dtype=numpy.double)
+    m[0, 0] = c11
+    m[0, 1] = m[1, 0] = c12
+    m[2, 0] = m[0, 2] = c13
+    m[0, 5] = m[5, 0] = c16
+    m[1, 1] = c22
+    m[1, 2] = m[2, 1] = c23
+    m[1, 5] = m[5, 1] = c26
+    m[2, 2] = c33
+    m[2, 5] = m[5, 2] = c36
+    m[3, 3] = c44
+    m[3, 4] = m[4, 3] = c45
+    m[4, 4] = c55
+    m[5, 5] = c66
+
+    return m
+    
+
+def TrigonalElasticTensor(c11, c12, c13, c14, c15, c33, c44):
+    """
+    Assemble the 6x6 matrix of elastic constants for a trigonal material from the
+    seven independent components of a trigonal crystal
+
+    Parameters
+    ----------
+    c11, c12, c13, c14, c15, c33, c44 : float
+        independent components of the elastic tensor of trigonal materials
+
+    Returns
+    -------
+   cij :    ndarray
+        6x6 matrix with elastic constants
+    """
+    m=numpy.zeros((6,6), dtype=numpy.double)
+    m[0, 0] = m[1, 1] = c11
+    m[0, 1] = m[1, 0] = c12
+    m[0, 2] = m[1, 2] = m[2, 0] = m[2, 1] = c13
+    m[0, 3] = m[3, 0] = m[4, 5] = m[5, 4] = c14
+    m[1, 3] = m[3, 1] = -c14
+    m[0, 4] = m[4, 0] = c15
+    m[1, 4] = m[4, 1] = m[3, 5] = m[5, 3] = -c15
+    m[2, 2] = c33
+    m[3, 3] = m[4, 4] = c44
+    m[5, 5] = 0.5 * (c11 - c12)
 
     return m
 
