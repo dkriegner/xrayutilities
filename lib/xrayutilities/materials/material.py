@@ -1307,39 +1307,40 @@ class Crystal(Material):
         # let strain act on the unit cell vectors
         self.lattice.ApplyStrain(strain)
 
-    def GetStrain(self, sig_11, sig_12, sig_13, sig_22, sig_23, sig_33):
+    def GetStrain(self, sig):
         """
         Obtains strain matrix (3x3) from an applied stress matrix (3x3) using
         a material's full rank elastic tensor (3x3x3x3).
 
         Parameters
         ----------
-        sig_kl = stress matrix components (float)
+        sig = stress matrix (3x3)
         elastic = elastic tensor (6x6)
         """
-        stress = numpy.zeros((3, 3), dtype=numpy.double)
-        stress[0, 0] = sig_11
-        stress[0, 1] = stress[1, 0] = sig_12
-        stress[0, 2] = stress[2, 0] = sig_13
-        stress[1, 1] = sig_22
-        stress[1, 2] = stress[2, 1] = sig_23
-        stress[2, 2] = sig_33
-
-        elastic_fr = Cij2Sijkl(self.cij)
+        if isinstance(sig, (list, tuple)):
+            sig = numpy.asarray(sig, dtype=numpy.double)
+        if sig.shape != (3, 3):
+            raise InputError("GetStrain needs a 3x3 matrix "
+                             "with stress values")
+        if not numpy.any(self.cij):
+            raise InputError("GetStrain needs a crystal "
+                             "with a defined Elastic Tensor")
+        else:
+            elastic_fr = Cij2Sijkl(self.cij)
 
         strain = numpy.zeros((3, 3), dtype=numpy.double)
 
         for i in range(0, 3):
             for j in range(0, 3):
-                strain[i, j] = elastic_fr[i, j, 0, 0] * stress[0, 0] +\
-                    elastic_fr[i, j, 0, 1] * stress[0, 1] +\
-                    elastic_fr[i, j, 0, 2] * stress[0, 2] +\
-                    elastic_fr[i, j, 1, 0] * stress[1, 0] +\
-                    elastic_fr[i, j, 1, 1] * stress[1, 1] +\
-                    elastic_fr[i, j, 1, 2] * stress[1, 2] +\
-                    elastic_fr[i, j, 2, 0] * stress[2, 0] +\
-                    elastic_fr[i, j, 2, 1] * stress[2, 1] +\
-                    elastic_fr[i, j, 2, 2] * stress[2, 2]
+                strain[i, j] = elastic_fr[i, j, 0, 0] * sig[0, 0] +\
+                               elastic_fr[i, j, 0, 1] * sig[0, 1] +\
+                               elastic_fr[i, j, 0, 2] * sig[0, 2] +\
+                               elastic_fr[i, j, 1, 0] * sig[1, 0] +\
+                               elastic_fr[i, j, 1, 1] * sig[1, 1] +\
+                               elastic_fr[i, j, 1, 2] * sig[1, 2] +\
+                               elastic_fr[i, j, 2, 0] * sig[2, 0] +\
+                               elastic_fr[i, j, 2, 1] * sig[2, 1] +\
+                               elastic_fr[i, j, 2, 2] * sig[2, 2]
 
         return strain
 
