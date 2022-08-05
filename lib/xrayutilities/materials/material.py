@@ -1307,7 +1307,7 @@ class Crystal(Material):
         # let strain act on the unit cell vectors
         self.lattice.ApplyStrain(strain)
 
-    def GetStrain(sig_11, sig_12, sig_13, sig_22, sig_23, sig_33, elastic):
+    def GetStrain(self, sig_11, sig_12, sig_13, sig_22, sig_23, sig_33):
         """
         Obtains strain matrix (3x3) from an applied stress matrix (3x3) using
         a material's full rank elastic tensor (3x3x3x3).
@@ -1325,7 +1325,7 @@ class Crystal(Material):
         stress[1, 2] = stress[2, 1] = sig_23
         stress[2, 2] = sig_33
 
-        elastic_fr = Cij2Sijkl(elastic)
+        elastic_fr = Cij2Sijkl(self.cij)
 
         strain = numpy.zeros((3, 3), dtype=numpy.double)
 
