@@ -28,9 +28,12 @@ class TestMaterialsTransform(unittest.TestCase):
     def setUp(cls):
         cls.a, cls.b, cls.c = numpy.random.rand(3) * 2 + 4
         cls.alpha, cls.beta, cls.gamma = numpy.random.rand(3) * 60 + 60
+        cls.c11, cls.c12, cls.c44 = numpy.random.rand(3) * 1e10
         cls.p1mat = xu.materials.Crystal(
             'P1', xu.materials.SGLattice(1, cls.a, cls.b, cls.c,
-                                         cls.alpha, cls.beta, cls.gamma))
+                                         cls.alpha, cls.beta, cls.gamma), 
+                                         xu.materials.CubicElasticTensor(
+                                         cls.c11, cls.c12, cls.c44))
 
     def test_q2hkl_hkl2q(self):
         for i in range(3):
@@ -124,6 +127,18 @@ class TestMaterialsTransform(unittest.TestCase):
             mat = getattr(xu.materials, mname)
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
             self.assertFalse(mat.lattice.isequivalent(hkl1, hkl2s[1]))
+
+    def test_GetStrain(self):
+        strain = numpy.random.rand(3,3)
+        stress = xu.materials.GetStress(p1mat, strain)
+        strain_rev = xu.materials.GetStrain(p1mat, stress)
+        self.assertArrayAlmostEqual(strain, strain_rev, decimal=2)
+
+    def test_GetStress(self):
+        stress = numpy.random.rand(3,3)
+        strain = xu.materials.GetStrain(p1mat, stress)
+        stress_rev = xu.materials.GetStress(p1mat, strain)
+        self.assertArrayAlmostEqual(stress, stress_rev, decimal=2)
 
 
 if __name__ == '__main__':

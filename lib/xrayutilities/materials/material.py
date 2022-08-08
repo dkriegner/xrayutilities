@@ -110,70 +110,14 @@ def Cij2Sijkl(cij):
     sijkl   ndarray
         (3, 3, 3, 3) sijkl tensor as numpy array
     """
-
     sij = numpy.linalg.inv(cij)
 
-    sijkl = numpy.zeros((3, 3, 3, 3), dtype=numpy.double)
-    for i in range(0, 3):
-        for j in range(0, 3):
-            for k in range(0, 3):
-                for L in range(0, 3):
-                    if i == j:
-                        m = i
-                        if k == L:
-                            n = k
-                            sijkl[i, j, k, L] = sij[m, n]
-                        if k == 1 and L == 2 or k == 2 and L == 1:
-                            n = 3
-                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
-                        if k == 0 and L == 2 or k == 2 and L == 0:
-                            n = 4
-                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
-                        if k == 0 and L == 1 or k == 1 and L == 0:
-                            n = 5
-                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
-                    if i == 1 and j == 2 or i == 2 and j == 1:
-                        m = 3
-                        if k == L:
-                            n = k
-                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
-                        if k == 1 and L == 2 or k == 2 and L == 1:
-                            n = 3
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                        if k == 0 and L == 3 or k == 2 and L == 0:
-                            n = 4
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                        if k == 0 and L == 1 or k == 1 and L == 0:
-                            n = 5
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                    if i == 0 and j == 2 or i == 2 and j == 0:
-                        m = 4
-                        if k == L:
-                            n = k
-                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
-                        if k == 1 and L == 2 or k == 2 and L == 1:
-                            n = 3
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                        if k == 0 and L == 2 or k == 2 and L == 0:
-                            n = 4
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                        if k == 0 and L == 1 or k == 1 and L == 0:
-                            n = 5
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                    if i == 1 and j == 0 or i == 0 and j == 1:
-                        m = 5
-                        if k == L:
-                            n = k
-                            sijkl[i, j, k, L] = sij[m, n] * (1/2)
-                        if k == 1 and L == 2 or k == 2 and L == 1:
-                            n = 3
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                        if k == 0 and L == 2 or k == 2 and L == 0:
-                            n = 4
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
-                        if k == 0 and L == 1 or k == 1 and L == 0:
-                            n = 5
-                            sijkl[i, j, k, L] = sij[m, n] * (1/4)
+    sij[0:3, 0:3] = sij[0:3, 0:3]
+    sij[3:6, 3:6] = sij[3:6, 3:6]/4
+    sij[0:3, 3:6] = sij[0:3, 3:6]/2
+    sij[3:6, 0:3] = sij[3:6, 0:3]/2
+
+    sijkl = Cij2Cijkl(sij)
 
     return sijkl
 
@@ -1299,7 +1243,8 @@ class Crystal(Material):
         """
         Applies a certain strain on the lattice of the material. The result is
         a change in the base vectors of the real space as well as reciprocal
-        space lattice.  The full strain matrix (3x3) needs to be given.
+        space lattice.  The full strain matrix (3x3) needs to be given, which
+        can be GetStrain's output. 
 
         Note:
             NO elastic response of the material will be considered!
@@ -1309,40 +1254,48 @@ class Crystal(Material):
 
     def GetStrain(self, sig):
         """
-        Obtains strain matrix (3x3) from an applied stress matrix (3x3) using
-        a material's full rank elastic tensor (3x3x3x3).
-
-        Parameters
-        ----------
-        sig = stress matrix (3x3)
-        elastic = elastic tensor (6x6)
+        Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
+        using a material's full rank elastic tensor (3x3x3x3). The full stress
+        matrix (3x3) needs to be given. The results can then be used as an
+        input in ApplyStrain. Inverse operation of GetStress.
         """
         if isinstance(sig, (list, tuple)):
             sig = numpy.asarray(sig, dtype=numpy.double)
         if sig.shape != (3, 3):
             raise InputError("GetStrain needs a 3x3 matrix "
                              "with stress values")
+
         if not numpy.any(self.cij):
             raise InputError("GetStrain needs a crystal "
                              "with a defined Elastic Tensor")
         else:
             elastic_fr = Cij2Sijkl(self.cij)
-
-        strain = numpy.zeros((3, 3), dtype=numpy.double)
-
-        for i in range(0, 3):
-            for j in range(0, 3):
-                strain[i, j] = elastic_fr[i, j, 0, 0] * sig[0, 0] +\
-                               elastic_fr[i, j, 0, 1] * sig[0, 1] +\
-                               elastic_fr[i, j, 0, 2] * sig[0, 2] +\
-                               elastic_fr[i, j, 1, 0] * sig[1, 0] +\
-                               elastic_fr[i, j, 1, 1] * sig[1, 1] +\
-                               elastic_fr[i, j, 1, 2] * sig[1, 2] +\
-                               elastic_fr[i, j, 2, 0] * sig[2, 0] +\
-                               elastic_fr[i, j, 2, 1] * sig[2, 1] +\
-                               elastic_fr[i, j, 2, 2] * sig[2, 2]
+        
+        strain = numpy.einsum('ijkl,kl->ij', elastic_fr, sig)
 
         return strain
+
+    def GetStress(self, eps):
+        """
+        Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
+        using a material's full rank elastic tensor (3x3x3x3). The full stress
+        matrix (3x3) needs to be given. Inverse operation of GetStrain.
+        """
+        if isinstance(eps, (list, tuple)):
+            eps = numpy.asarray(eps, dtype=numpy.double)
+        if eps.shape != (3, 3):
+            raise InputError("GetStress needs a 3x3 matrix "
+                             "with stress values")
+
+        if not numpy.any(self.cij):
+            raise InputError("GetStress needs a crystal "
+                             "with a defined Elastic Tensor")
+        else:
+            elastic_fr = Cij2Cijkl(self.cij)
+        
+        stress = numpy.einsum('ijkl,kl->ij', elastic_fr, eps)
+
+        return stress
 
     def GetMismatch(self, mat):
         """
