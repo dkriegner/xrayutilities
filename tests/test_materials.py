@@ -130,14 +130,14 @@ class TestMaterialsTransform(unittest.TestCase):
 
     def test_GetStrain(self):
         strain = numpy.random.rand(3,3)
-        stress = xu.materials.GetStress(p1mat, strain)
-        strain_rev = xu.materials.GetStrain(p1mat, stress)
+        stress = xu.material.material.GetStress(p1mat, strain)
+        strain_rev = xu.material.material.GetStrain(p1mat, stress)
         self.assertArrayAlmostEqual(strain, strain_rev, decimal=2)
 
     def test_GetStress(self):
         stress = numpy.random.rand(3,3)
-        strain = xu.materials.GetStrain(p1mat, stress)
-        stress_rev = xu.materials.GetStress(p1mat, strain)
+        strain = xu.materials.material.GetStrain(p1mat, stress)
+        stress_rev = xu.materials.material.GetStress(p1mat, strain)
         self.assertArrayAlmostEqual(stress, stress_rev, decimal=2)
 
 
