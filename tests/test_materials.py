@@ -128,13 +128,13 @@ class TestMaterialsTransform(unittest.TestCase):
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
             self.assertFalse(mat.lattice.isequivalent(hkl1, hkl2s[1]))
 
-    def test_GetStrain(self):
+    def test_Strain(self):
         strain = numpy.random.rand(3,3)
         stress = xu.materials.material.GetStress(p1mat, strain)
         strain_rev = xu.materials.material.GetStrain(p1mat, stress)
         self.assertArrayAlmostEqual(strain, strain_rev, decimal=2)
 
-    def test_GetStress(self):
+    def test_Stress(self):
         stress = numpy.random.rand(3,3)
         strain = xu.materials.material.GetStrain(p1mat, stress)
         stress_rev = xu.materials.material.GetStress(p1mat, strain)

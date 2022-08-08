@@ -1292,7 +1292,7 @@ class Crystal(Material):
                              "with a defined Elastic Tensor")
         else:
             elastic_fr = Cij2Cijkl(self.cij)
-        
+
         stress = numpy.einsum('ijkl,kl->ij', elastic_fr, eps)
 
         return stress
