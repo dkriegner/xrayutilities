@@ -1244,7 +1244,7 @@ class Crystal(Material):
         Applies a certain strain on the lattice of the material. The result is
         a change in the base vectors of the real space as well as reciprocal
         space lattice.  The full strain matrix (3x3) needs to be given, which
-        can be GetStrain's output. 
+        can be GetStrain's output.
 
         Note:
             NO elastic response of the material will be considered!
@@ -1270,7 +1270,7 @@ class Crystal(Material):
                              "with a defined Elastic Tensor")
         else:
             elastic_fr = Cij2Sijkl(self.cij)
-        
+
         strain = numpy.einsum('ijkl,kl->ij', elastic_fr, sig)
 
         return strain
