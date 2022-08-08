@@ -129,16 +129,28 @@ class TestMaterialsTransform(unittest.TestCase):
             self.assertFalse(mat.lattice.isequivalent(hkl1, hkl2s[1]))
 
     def test_Strain(self):
-        strain = numpy.random.rand(3,3)
-        stress = xu.materials.material.GetStress(p1mat, strain)
-        strain_rev = xu.materials.material.GetStrain(p1mat, stress)
-        self.assertArrayAlmostEqual(strain, strain_rev, decimal=2)
+        strain = numpy.zeros((3,3), dtype=numpy.double)
+        strain[0,0:3] = numpy.random.rand(3)
+        strain[1,1:3] = numpy.random.rand(2)
+        strain[2,2] = numpy.random.rand(1)
+        strain[0:3,0] = strain[0,0:3]
+        strain[1:3,1] = strain[1,1:3]
+
+        stress = xu.materials.material.GetStress(self.p1mat, strain)
+        strain_rev = xu.materials.material.GetStrain(self.p1mat, stress)
+        numpy.testing.assert_almost_equal(strain, strain_rev)
 
     def test_Stress(self):
-        stress = numpy.random.rand(3,3)
-        strain = xu.materials.material.GetStrain(p1mat, stress)
-        stress_rev = xu.materials.material.GetStress(p1mat, strain)
-        self.assertArrayAlmostEqual(stress, stress_rev, decimal=2)
+        stress = numpy.zeros((3,3), dtype=numpy.double)
+        stress[0,0:3] = numpy.random.rand(3)
+        stress[1,1:3] = numpy.random.rand(2)
+        stress[2,2] = numpy.random.rand(1)
+        stress[0:3,0] = stress[0,0:3]
+        stress[1:3,1] = stress[1,1:3]
+        
+        strain = xu.materials.material.GetStrain(self.p1mat, stress)
+        stress_rev = xu.materials.material.GetStress(self.p1mat, strain)
+        numpy.testing.assert_almost_equal(stress, stress_rev)
 
 
 if __name__ == '__main__':
