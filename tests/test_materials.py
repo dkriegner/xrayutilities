@@ -137,8 +137,8 @@ class TestMaterialsTransform(unittest.TestCase):
         strain[0:3,0] = strain[0,0:3]
         strain[1:3,1] = strain[1,1:3]
 
-        stress = elf.p1mat.GetStress(strain)
-        strain_rev = elf.p1mat.GetStrain(stress)
+        stress = self.p1mat.GetStress(strain)
+        strain_rev = self.p1mat.GetStrain(stress)
         numpy.testing.assert_almost_equal(strain, strain_rev)
 
     def test_Stress(self):
