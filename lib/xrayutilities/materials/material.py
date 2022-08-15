@@ -16,6 +16,7 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
+# Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
 """
 Classes decribing materials. Materials are devided with respect to their
@@ -58,6 +59,8 @@ def index_map_ijkl2ij(i, j):
 def index_map_ij2ijkl(ij):
     return map_ij2ijkl["%i" % ij]
 
+def check_symmetric(matrix):
+    return numpy.allclose(matrix, matrix.T, rtol=1e-05, atol=1e-08)
 
 def Cij2Cijkl(cij):
     """
@@ -304,6 +307,67 @@ class Material(utilities.ABC):
             numpy.set_printoptions(**d)
 
         return ostr
+
+    def GetStrain(self, sig):
+        """
+        Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
+        using a material's full rank elastic tensor (3x3x3x3). The full stress
+        matrix (3x3) needs to be given. The results can then be used as an
+        input in ApplyStrain. Inverse operation of GetStress.
+
+        Parameters
+            ----------
+            sig :   list, tuple or array-like
+                stress matrix (3x3) in N/m^2
+        """
+        if isinstance(sig, (list, tuple)):
+            if check_symmetric(sig) == True:
+                sig = numpy.asarray(sig, dtype=numpy.double)
+            else:
+                raise InputError("GetStrain needs a symmetric matrix")
+        if sig.shape != (3, 3):
+            raise InputError("GetStrain needs a 3x3 matrix "
+                             "with stress values")
+
+        if not numpy.any(self.cij):
+            raise InputError("GetStrain needs a crystal "
+                             "with a defined Elastic Tensor")
+        else:
+            elastic_fr = Cij2Sijkl(self.cij)
+
+        strain = numpy.einsum('ijkl,kl->ij', elastic_fr, sig)
+
+        return strain
+
+    def GetStress(self, eps):
+        """
+        Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
+        using a material's full rank elastic tensor (3x3x3x3). The full stress
+        matrix (3x3) needs to be given. Inverse operation of GetStrain.
+
+        Parameters
+            ----------
+            eps :   list, tuple or array-like
+                strain matrix (3x3)
+        """
+        if isinstance(eps, (list, tuple)):
+            if check_symmetric(eps) == True:
+                eps = numpy.asarray(eps, dtype=numpy.double)
+            else:
+                raise InputError("GetStress needs a symmetric matrix")
+        if eps.shape != (3, 3):
+            raise InputError("GetStress needs a 3x3 matrix "
+                             "with stress values")
+
+        if not numpy.any(self.cij):
+            raise InputError("GetStress needs a crystal "
+                             "with a defined Elastic Tensor")
+        else:
+            elastic_fr = Cij2Cijkl(self.cij)
+
+        stress = numpy.einsum('ijkl,kl->ij', elastic_fr, eps)
+
+        return stress
 
 
 class Amorphous(Material):
@@ -1463,50 +1527,6 @@ class Crystal(Material):
 
         return fig
 
-def GetStrain(self, sig):
-    """
-    Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
-    using a material's full rank elastic tensor (3x3x3x3). The full stress
-    matrix (3x3) needs to be given. The results can then be used as an
-    input in ApplyStrain. Inverse operation of GetStress.
-    """
-    if isinstance(sig, (list, tuple)):
-        sig = numpy.asarray(sig, dtype=numpy.double)
-    if sig.shape != (3, 3):
-        raise InputError("GetStrain needs a 3x3 matrix "
-                         "with stress values")
-
-    if not numpy.any(self.cij):
-        raise InputError("GetStrain needs a crystal "
-                         "with a defined Elastic Tensor")
-    else:
-        elastic_fr = Cij2Sijkl(self.cij)
-
-    strain = numpy.einsum('ijkl,kl->ij', elastic_fr, sig)
-
-    return strain
-
-def GetStress(self, eps):
-    """
-    Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
-    using a material's full rank elastic tensor (3x3x3x3). The full stress
-    matrix (3x3) needs to be given. Inverse operation of GetStrain.
-    """
-    if isinstance(eps, (list, tuple)):
-        eps = numpy.asarray(eps, dtype=numpy.double)
-    if eps.shape != (3, 3):
-        raise InputError("GetStress needs a 3x3 matrix "
-                         "with stress values")
-
-    if not numpy.any(self.cij):
-        raise InputError("GetStress needs a crystal "
-                         "with a defined Elastic Tensor")
-    else:
-        elastic_fr = Cij2Cijkl(self.cij)
-
-    stress = numpy.einsum('ijkl,kl->ij', elastic_fr, eps)
-
-    return stress
 
 def CubicElasticTensor(c11, c12, c44):
     """

@@ -15,6 +15,7 @@
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
 from . import elements
 from .atom import Atom
