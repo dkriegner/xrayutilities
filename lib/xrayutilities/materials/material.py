@@ -16,6 +16,7 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
+# Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
 """
 Classes decribing materials. Materials are devided with respect to their
@@ -58,6 +59,8 @@ def index_map_ijkl2ij(i, j):
 def index_map_ij2ijkl(ij):
     return map_ij2ijkl["%i" % ij]
 
+def check_symmetric(matrix):
+    return numpy.allclose(matrix, matrix.T, rtol=1e-05, atol=1e-08)
 
 def Cij2Cijkl(cij):
     """
@@ -93,6 +96,33 @@ def Cij2Cijkl(cij):
                     mj = index_map_ijkl2ij(k, n)
                     cijkl[i, j, k, n] = m[mi, mj]
     return cijkl
+
+
+def Cij2Sijkl(cij):
+    """
+    Converts the elastic constants matrix (tensor of rank 2) to
+    the full rank 4 sijkl compliance tensor.
+
+    Parameters
+    ----------
+    cij :   array-like
+        (6, 6) cij matrix
+
+    Returns
+    -------
+    sijkl   ndarray
+        (3, 3, 3, 3) sijkl tensor as numpy array
+    """
+    sij = numpy.linalg.inv(cij)
+
+    sij[0:3, 0:3] = sij[0:3, 0:3]
+    sij[3:6, 3:6] = sij[3:6, 3:6]/4
+    sij[0:3, 3:6] = sij[0:3, 3:6]/2
+    sij[3:6, 0:3] = sij[3:6, 0:3]/2
+
+    sijkl = Cij2Cijkl(sij)
+
+    return sijkl
 
 
 def Cijkl2Cij(cijkl):
@@ -277,6 +307,67 @@ class Material(utilities.ABC):
             numpy.set_printoptions(**d)
 
         return ostr
+
+    def GetStrain(self, sig):
+        """
+        Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
+        using a material's full rank elastic tensor (3x3x3x3). The full stress
+        matrix (3x3) needs to be given. The results can then be used as an
+        input in ApplyStrain. Inverse operation of GetStress.
+
+        Parameters
+            ----------
+            sig :   list, tuple or array-like
+                stress matrix (3x3) in N/m^2
+        """
+        if isinstance(sig, (list, tuple)):
+            if check_symmetric(sig) == True:
+                sig = numpy.asarray(sig, dtype=numpy.double)
+            else:
+                raise InputError("GetStrain needs a symmetric matrix")
+        if sig.shape != (3, 3):
+            raise InputError("GetStrain needs a 3x3 matrix "
+                             "with stress values")
+
+        if not numpy.any(self.cij):
+            raise InputError("GetStrain needs a crystal "
+                             "with a defined Elastic Tensor")
+        else:
+            elastic_fr = Cij2Sijkl(self.cij)
+
+        strain = numpy.einsum('ijkl,kl->ij', elastic_fr, sig)
+
+        return strain
+
+    def GetStress(self, eps):
+        """
+        Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
+        using a material's full rank elastic tensor (3x3x3x3). The full stress
+        matrix (3x3) needs to be given. Inverse operation of GetStrain.
+
+        Parameters
+            ----------
+            eps :   list, tuple or array-like
+                strain matrix (3x3)
+        """
+        if isinstance(eps, (list, tuple)):
+            if check_symmetric(eps) == True:
+                eps = numpy.asarray(eps, dtype=numpy.double)
+            else:
+                raise InputError("GetStress needs a symmetric matrix")
+        if eps.shape != (3, 3):
+            raise InputError("GetStress needs a 3x3 matrix "
+                             "with stress values")
+
+        if not numpy.any(self.cij):
+            raise InputError("GetStress needs a crystal "
+                             "with a defined Elastic Tensor")
+        else:
+            elastic_fr = Cij2Cijkl(self.cij)
+
+        stress = numpy.einsum('ijkl,kl->ij', elastic_fr, eps)
+
+        return stress
 
 
 class Amorphous(Material):
@@ -1216,7 +1307,8 @@ class Crystal(Material):
         """
         Applies a certain strain on the lattice of the material. The result is
         a change in the base vectors of the real space as well as reciprocal
-        space lattice.  The full strain matrix (3x3) needs to be given.
+        space lattice.  The full strain matrix (3x3) needs to be given, which
+        can be GetStrain's output.
 
         Note:
             NO elastic response of the material will be considered!
@@ -1461,6 +1553,70 @@ def CubicElasticTensor(c11, c12, c44):
     m[0, 1] = m[0, 2] = c12
     m[1, 0] = m[1, 2] = c12
     m[2, 0] = m[2, 1] = c12
+
+    return m
+
+
+def MonoclinicElasticTensor(c11, c12, c13, c16, c22, c23, c26, c33, c36, c44,
+                            c45, c55, c66):
+    """
+    Assemble the 6x6 matrix of elastic constants for a monoclinic material
+    from the thirteen independent components of a monoclinic crystal
+
+    Parameters
+    ----------
+    c11, c12, c13, c16, c22, c23, c26, c33, c36, c44, c45, c55, c66 : float
+        independent components of the elastic tensor of monoclinic materials
+
+    Returns
+    -------
+   cij :    ndarray
+        6x6 matrix with elastic constants
+    """
+    m = numpy.zeros((6, 6), dtype=numpy.double)
+    m[0, 0] = c11
+    m[0, 1] = m[1, 0] = c12
+    m[2, 0] = m[0, 2] = c13
+    m[0, 5] = m[5, 0] = c16
+    m[1, 1] = c22
+    m[1, 2] = m[2, 1] = c23
+    m[1, 5] = m[5, 1] = c26
+    m[2, 2] = c33
+    m[2, 5] = m[5, 2] = c36
+    m[3, 3] = c44
+    m[3, 4] = m[4, 3] = c45
+    m[4, 4] = c55
+    m[5, 5] = c66
+
+    return m
+
+
+def TrigonalElasticTensor(c11, c12, c13, c14, c15, c33, c44):
+    """
+    Assemble the 6x6 matrix of elastic constants for a trigonal material
+    from the seven independent components of a trigonal crystal
+
+    Parameters
+    ----------
+    c11, c12, c13, c14, c15, c33, c44 : float
+        independent components of the elastic tensor of trigonal materials
+
+    Returns
+    -------
+   cij :    ndarray
+        6x6 matrix with elastic constants
+    """
+    m = numpy.zeros((6, 6), dtype=numpy.double)
+    m[0, 0] = m[1, 1] = c11
+    m[0, 1] = m[1, 0] = c12
+    m[0, 2] = m[1, 2] = m[2, 0] = m[2, 1] = c13
+    m[0, 3] = m[3, 0] = m[4, 5] = m[5, 4] = c14
+    m[1, 3] = m[3, 1] = -c14
+    m[0, 4] = m[4, 0] = c15
+    m[1, 4] = m[4, 1] = m[3, 5] = m[5, 3] = -c15
+    m[2, 2] = c33
+    m[3, 3] = m[4, 4] = c44
+    m[5, 5] = 0.5 * (c11 - c12)
 
     return m
 

@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
 import math
 import unittest
@@ -28,9 +29,12 @@ class TestMaterialsTransform(unittest.TestCase):
     def setUp(cls):
         cls.a, cls.b, cls.c = numpy.random.rand(3) * 2 + 4
         cls.alpha, cls.beta, cls.gamma = numpy.random.rand(3) * 60 + 60
+        cls.c11, cls.c12, cls.c44 = numpy.random.rand(3) * 1e10
         cls.p1mat = xu.materials.Crystal(
             'P1', xu.materials.SGLattice(1, cls.a, cls.b, cls.c,
-                                         cls.alpha, cls.beta, cls.gamma))
+                                         cls.alpha, cls.beta, cls.gamma), 
+                                         xu.materials.CubicElasticTensor(
+                                         cls.c11, cls.c12, cls.c44))
 
     def test_q2hkl_hkl2q(self):
         for i in range(3):
@@ -124,6 +128,30 @@ class TestMaterialsTransform(unittest.TestCase):
             mat = getattr(xu.materials, mname)
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
             self.assertFalse(mat.lattice.isequivalent(hkl1, hkl2s[1]))
+
+    def test_Strain(self):
+        strain = numpy.zeros((3,3), dtype=numpy.double)
+        strain[0,0:3] = numpy.random.rand(3)
+        strain[1,1:3] = numpy.random.rand(2)
+        strain[2,2] = numpy.random.rand(1)
+        strain[0:3,0] = strain[0,0:3]
+        strain[1:3,1] = strain[1,1:3]
+
+        stress = self.p1mat.GetStress(strain)
+        strain_rev = self.p1mat.GetStrain(stress)
+        numpy.testing.assert_almost_equal(strain, strain_rev)
+
+    def test_Stress(self):
+        stress = numpy.zeros((3,3), dtype=numpy.double)
+        stress[0,0:3] = numpy.random.rand(3)
+        stress[1,1:3] = numpy.random.rand(2)
+        stress[2,2] = numpy.random.rand(1)
+        stress[0:3,0] = stress[0,0:3]
+        stress[1:3,1] = stress[1,1:3]
+        
+        strain = self.p1mat.GetStrain(stress)
+        stress_rev = self.p1mat.GetStress(strain)
+        numpy.testing.assert_almost_equal(stress, stress_rev)
 
 
 if __name__ == '__main__':
