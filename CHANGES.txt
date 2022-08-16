@@ -1,3 +1,6 @@
+* Additional convenience functions for elasticity tensor symmetries for
+  Monoclinic and Trigonal symmetry (#138 by @f-iniv)
+* GetStrain and GetStress functions for xu.material.Material (#138 by @f-iniv)
 * enable correct parsing of Seifert RSM map measurements
 * matplotlib format bugfix in psd_chdeg
 * improvements for kappa goniometers
