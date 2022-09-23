@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 import abc
 import collections.abc
 import copy
@@ -604,7 +604,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         """
         calculate the Poisson ratio of the alloy
         """
-        return 2 * (4.54 + 0.8*x) / (8.34 + 3.56*x)  # according to IOFFE
+        return 2 * (5.38 - 0.84*x) / (11.88 - 3.54*y)  # according to IOFFE
 
     @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
