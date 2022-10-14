@@ -862,8 +862,8 @@ class QConversion(object):
         # other none keyword arguments
         self._area_Nch1 = int(Nch1)
         self._area_Nch2 = int(Nch2)
-        self._area_cch1 = int(cch1)
-        self._area_cch2 = int(cch2)
+        self._area_cch1 = float(cch1)
+        self._area_cch2 = float(cch2)
 
         # if detector rotation is present add new motor to consider it in
         # conversion
