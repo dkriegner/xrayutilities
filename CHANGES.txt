@@ -1,3 +1,4 @@
+* fix data type casting of cch1,2 in QConversion.init_area -> these can now be floating point values (#141 by @trdd)
 * fix Poisson ratio of GaInAs Darwin model (thanks to Danny Chrastina for
   reporting)
 * Additional convenience functions for elasticity tensor symmetries for
