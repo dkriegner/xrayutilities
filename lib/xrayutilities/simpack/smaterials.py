@@ -427,8 +427,8 @@ class Powder(SMaterial):
     preferred_orientation :     tuple, optional
         HKL of the preferred orientation
     preferred_orientation_factor : float, optional
-        March-Dollase preferred orientation factor: > 1 for platy crystallits ,
-        < 1 for rod-like crystallites, and = 1 for random orientation of
+        March-Dollase preferred orientation factor: < 1 for platy crystallits ,
+        > 1 for rod-like crystallites, and = 1 for random orientation of
         crystallites.
     """
 
