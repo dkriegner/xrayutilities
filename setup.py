@@ -183,7 +183,6 @@ setup(
         "xrayutilities": ["VERSION", "*.conf"],
         "xrayutilities.materials": [os.path.join("data", "*")]
     },
-    include_package_data=True,
     python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
     install_requires=['numpy>=1.9.2', 'scipy>=0.18.0', 'h5py'],
