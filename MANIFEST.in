@@ -20,6 +20,4 @@ include lib/xrayutilities/xrayutilities_default.conf
 
 # exclude development files
 global-exclude .gitignore
-exclude .coveragerc
-exclude tox.ini
 exclude release.txt
