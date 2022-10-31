@@ -59,8 +59,10 @@ def index_map_ijkl2ij(i, j):
 def index_map_ij2ijkl(ij):
     return map_ij2ijkl["%i" % ij]
 
+
 def check_symmetric(matrix):
     return numpy.allclose(matrix, matrix.T, rtol=1e-05, atol=1e-08)
+
 
 def Cij2Cijkl(cij):
     """
@@ -321,7 +323,7 @@ class Material(utilities.ABC):
                 stress matrix (3x3) in N/m^2
         """
         if isinstance(sig, (list, tuple)):
-            if check_symmetric(sig) == True:
+            if check_symmetric(sig):
                 sig = numpy.asarray(sig, dtype=numpy.double)
             else:
                 raise InputError("GetStrain needs a symmetric matrix")
@@ -351,7 +353,7 @@ class Material(utilities.ABC):
                 strain matrix (3x3)
         """
         if isinstance(eps, (list, tuple)):
-            if check_symmetric(eps) == True:
+            if check_symmetric(eps):
                 eps = numpy.asarray(eps, dtype=numpy.double)
             else:
                 raise InputError("GetStress needs a symmetric matrix")

@@ -62,7 +62,8 @@ class PowderModel(object):
         -----
         In particular interesting keys in the fpsettings dictionary might be:
          'displacement':
-          {'specimen_displacement': sample's z-displacement from the rotation center
+          {'specimen_displacement': sample's z-displacement from the rotation
+                                    center
            'zero_error_deg': zero error of the 2theta angle}
 
          'absorption':

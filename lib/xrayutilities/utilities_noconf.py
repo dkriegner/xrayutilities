@@ -65,7 +65,7 @@ def set_bit(f, offset):
     sets the bit at an offset
     """
     mask = 1 << offset
-    return(f | mask)
+    return (f | mask)
 
 
 def clear_bit(f, offset):
@@ -73,7 +73,7 @@ def clear_bit(f, offset):
     clears the bet at an offset
     """
     mask = ~(1 << offset)
-    return(f & mask)
+    return (f & mask)
 
 
 def lam2en(inp):

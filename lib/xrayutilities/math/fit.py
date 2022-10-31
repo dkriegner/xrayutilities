@@ -617,7 +617,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     if numpy.any(bmask):
         k, d = numpy.polyfit(lx[bmask], ldata[bmask], 1)
     else:
-        if(config.VERBOSITY >= config.DEBUG):
+        if config.VERBOSITY >= config.DEBUG:
             print("XU.math.multPeakFit: no data outside peak regions!")
         k, d = (0, ldata.min())
 
@@ -630,7 +630,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     # background parameters
     p += [k, d]
 
-    if(config.VERBOSITY >= config.DEBUG):
+    if config.VERBOSITY >= config.DEBUG:
         print("XU.math.multPeakFit: intial parameters")
         print(p)
 
@@ -643,7 +643,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     my_odr.set_job(fit_type=2)
     fit = my_odr.run()
 
-    if(config.VERBOSITY >= config.DEBUG):
+    if config.VERBOSITY >= config.DEBUG:
         print("XU.math.multPeakFit: fitted parameters")
         print(fit.beta)
     try:
