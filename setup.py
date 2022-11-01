@@ -128,32 +128,6 @@ extmodul = Extension('xrayutilities.cxrayutilities',
 with open('lib/xrayutilities/VERSION') as version_file:
     version = version_file.read().strip().replace('\n', '.')
 
-try:
-    import sphinx
-    from sphinx.setup_command import BuildDoc
-
-    class build_doc(BuildDoc):
-        def run(self):
-            # make sure the python path is pointing to the newly built
-            # code so that the documentation is built on this and not a
-            # previously installed version
-            build = self.get_finalized_command('build')
-            sys.path.insert(0, os.path.abspath(build.build_lib))
-            try:
-                sphinx.setup_command.BuildDoc.run(self)
-            except UnicodeDecodeError:
-                print("ERROR: unable to build documentation"
-                      " because Sphinx do not handle"
-                      " source path with non-ASCII characters. Please"
-                      " try to move the source package to another"
-                      " location (path with *only* ASCII characters)")
-            sys.path.pop(0)
-
-    cmdclass['build_doc'] = build_doc
-
-except ImportError:
-    pass
-
 setup(
     name="xrayutilities",
     version=version,
