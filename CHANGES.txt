@@ -1,3 +1,4 @@
+* use plain pytest in the CI integration (no code change in the package)
 * remove build_doc target for setup.py, use sphinx (see builddocs pipeline)
 
 v1.7.4, 2022-10-31

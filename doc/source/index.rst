@@ -23,7 +23,7 @@ Welcome to xrayutilities's documentation!
   .. image:: https://img.shields.io/pypi/l/xrayutilities.svg
      :target: https://pypi.python.org/pypi/xrayutilities/
      :alt: License
-  .. image:: https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/tox-testing?repoName=dkriegner%2Fxrayutilities&branchName=main
+  .. image:: https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/testing?repoName=dkriegner%2Fxrayutilities&branchName=main
      :target: https://dev.azure.com/dominikkriegner/xrayutilities/_build
      :alt: Unit test status
 
@@ -209,7 +209,7 @@ Additionally, the following Python modules are needed when building *xrayutiliti
  * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.
  * **Python development headers**
  * **setuptools** build system
- * **tox** needed for running the pre-configured unittest environment, which in principal can also be achieved only by the unittest package (optional)
+ * **pytest** needed for running the pre-configured unittest environment, which in principal can also be achieved only by the unittest package (optional)
 
 For building the documention (which you do not need to do) the requirements are:
  * **sphinx** the Python documentation generator

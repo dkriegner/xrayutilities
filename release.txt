@@ -20,7 +20,7 @@ lib/xrayutilities/math/fit.py:192:80: E501 line too long (90 > 79 characters)
 lib/xrayutilities/math/fit.py:266:80: E501 line too long (90 > 79 characters)
 lib/xrayutilities/math/fit.py:307:80: E501 line too long (90 > 79 characters)
   # run the unit tests
-  tox
+  pytest
 
 
 PACKAGING
