@@ -1,0 +1,7 @@
+# minimal requirements
+numpy
+scipy
+h5py
+# recommended packages
+lmfit
+matplotlib
