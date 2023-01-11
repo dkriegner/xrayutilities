@@ -19,11 +19,18 @@
 # Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
+import enum
 
 import numpy
 
 from . import config, cxrayutilities, utilities
 from .exception import InputError
+
+
+class GridderFlags(enum.IntFlag):
+    NO_DATA_INIT = 1
+    NO_NORMALIZATION = 4
+    VERBOSE = 16
 
 
 def delta(min_value, max_value, n):
@@ -99,15 +106,14 @@ class Gridder(utilities.ABC):
         Constructor defining default properties of any Gridder class
         """
 
-        self.flags = 0
+        # flags represent a way to transmit options to the C-code
+        # no data initialization necessary in c-code
+        self.flags = GridderFlags.NO_DATA_INIT
         # by default every call to gridder will start a new gridding
         self.keep_data = False
         self.normalize = True
         # flag to allow for sequential gridding with fixed data range
         self.fixed_range = False
-
-        # no data initialization necessary in c-code
-        self.flags = utilities.set_bit(self.flags, 0)
 
         if not hasattr(self, '_gdata'):
             self._gdata = numpy.empty(0)
@@ -115,7 +121,7 @@ class Gridder(utilities.ABC):
             self._gnorm = numpy.empty(0)
 
         if config.VERBOSITY >= config.INFO_ALL:
-            self.flags = utilities.set_bit(self.flags, 3)
+            self.flags |= GridderFlags.VERBOSE
 
     @abc.abstractmethod
     def __call__(self):
@@ -135,10 +141,10 @@ class Gridder(utilities.ABC):
             raise TypeError("Normalize flag must be a boolan value "
                             "(True/False)!")
         self.normalize = bool
-        if bool:
-            self.flags = utilities.clear_bit(self.flags, 2)
+        if bool:  # Note this is usually done in Python anyways!
+            self.flags &= ~GridderFlags.NO_NORMALIZATION
         else:
-            self.flags = utilities.set_bit(self.flags, 2)
+            self.flags |= GridderFlags.NO_NORMALIZATION
 
     def KeepData(self, bool):
         if bool not in [False, True]:
@@ -273,7 +279,7 @@ class Gridder1D(Gridder):
         x, data = self._checktransinput(x, data)
         # remove normalize flag for C-code, normalization is always performed
         # in python
-        flags = utilities.set_bit(self.flags, 2)
+        flags = self.flags | GridderFlags.NO_NORMALIZATION
         cxrayutilities.gridder1d(x, data, self.nx, self.xmin, self.xmax,
                                  self._gdata, self._gnorm, flags)
 
@@ -309,7 +315,7 @@ class FuzzyGridder1D(Gridder1D):
 
         # remove normalize flag for C-code, normalization is always performed
         # in python
-        flags = utilities.set_bit(self.flags, 2)
+        flags = self.flags | GridderFlags.NO_NORMALIZATION
         cxrayutilities.fuzzygridder1d(x, data, self.nx, self.xmin, self.xmax,
                                       self._gdata, self._gnorm, width, flags)
 

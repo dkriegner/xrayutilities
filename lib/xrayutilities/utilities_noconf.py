@@ -36,9 +36,9 @@ except AttributeError:  # Python 2.7
     ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
 
 
-__all__ = ['ABC', 'check_kwargs', 'clear_bit', 'en2lam', 'energies', 'energy',
+__all__ = ['ABC', 'check_kwargs', 'en2lam', 'energies', 'energy',
            'exchange_filepath', 'exchange_path', 'is_valid_variable_name',
-           'lam2en', 'makeNaturalName', 'set_bit', 'wavelength']
+           'lam2en', 'makeNaturalName', 'wavelength']
 
 energies = {
     'CuKa1': 8047.82310,
@@ -58,22 +58,6 @@ energies = {
 # Xray data booklet:
 # CoKa1
 # CoKa2
-
-
-def set_bit(f, offset):
-    """
-    sets the bit at an offset
-    """
-    mask = 1 << offset
-    return (f | mask)
-
-
-def clear_bit(f, offset):
-    """
-    clears the bet at an offset
-    """
-    mask = ~(1 << offset)
-    return (f & mask)
 
 
 def lam2en(inp):
