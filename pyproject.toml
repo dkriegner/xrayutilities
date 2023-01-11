@@ -14,34 +14,3 @@ parallel = true
 source = [
     "xrayutilities"
 ]
-
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-envlist = py{36,37,38,39,310},coverage
-distshare = {toxinidir}/dist
-
-[testenv]
-wheel = true
-allowlist_externals =
-    mv
-deps =
-    h5py
-    lmfit
-    matplotlib
-    numpy
-    scipy
-    pytest
-    pytest-cov
-    coverage[toml]
-commands =
-    pytest --cov --cov-config pyproject.toml --junitxml=.tox/junit.{envname}.xml --cov-report=xml:.tox/coverage.xml
-    mv .coverage .tox/.coverage.{envname}
-
-[testenv:coverage]
-commands =
-    coverage combine .tox/
-    coverage xml -i -o .tox/coverage.xml
-    coverage report -i
-    mv .coverage .tox/
-"""
