@@ -92,7 +92,7 @@ When building from source you also might need:
 - C-compiler (preferential with OpenMP support)
 - Python dev headers
 - setuptools
-- tox (optional - only if you want to run the test environment)
+- pytest (optional - only if you want to run the test environment)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)
 - rst2pdf (optional - only when you want to build the documentation)

@@ -12,9 +12,3 @@ dist/
 build/
 MANIFEST
 xrayutilities.egg-info/
-
-# test coverage data
-.coverage
-.coverage.*
-htmlcov
-.tox
