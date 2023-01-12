@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -28,6 +28,7 @@ configured to describe almost any goniometer geometry.
 """
 
 import copy
+import enum
 import numbers
 import re
 import warnings
@@ -43,6 +44,13 @@ from .exception import InputError
 directionSyntax = re.compile("[xyz][+-]")
 circleSyntaxDetector = re.compile("([xyz][+-])|(t[xyz])")
 circleSyntaxSample = re.compile("[xyzk][+-]")
+
+
+class QConvFlags(enum.IntFlag):
+    NONE = 0
+    HAS_TRANSLATIONS = 1
+    HAS_SAMPLEDIS = 4
+    VERBOSE = 16
 
 
 class QConversion(object):
@@ -443,9 +451,9 @@ class QConversion(object):
             sample displacement vector in relative units of the detector
             distance. Applies to parallel beam geometry. (default: (0, 0, 0))
         """
-        flags = 0
+        flags = QConvFlags.NONE
         if self._has_translations:
-            flags = utilities.set_bit(flags, 0)
+            flags |= QConvFlags.HAS_TRANSLATIONS
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -470,7 +478,7 @@ class QConversion(object):
 
         sd = numpy.asarray(kwargs.get('sampledis', [0, 0, 0]))
         if 'sampledis' in kwargs:
-            flags = utilities.set_bit(flags, 2)
+            flags |= QConvFlags.HAS_SAMPLEDIS
 
         return Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags
 
