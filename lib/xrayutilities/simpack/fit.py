@@ -13,14 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
-
-import warnings
+# Copyright (c) 2016-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
-from .. import config, utilities
-from ..exception import InputError
+from .. import utilities
 from . import models
 
 

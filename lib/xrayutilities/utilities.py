@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities utilities contains a conglomeration of useful functions
@@ -26,7 +26,10 @@ import math
 import numpy
 
 from . import config
-from .utilities_noconf import *
+from .utilities_noconf import (ABC, check_kwargs, en2lam,  # noqa: F401
+                               energies, energy, exchange_filepath,
+                               exchange_path, is_valid_variable_name, lam2en,
+                               makeNaturalName, wavelength)
 
 
 def import_matplotlib_pyplot(funcname='XU'):
@@ -47,12 +50,10 @@ def import_matplotlib_pyplot(funcname='XU'):
     """
     try:
         from matplotlib import pyplot as plt
-
-        from .mpl_helper import SqrtAllowNegScale
         return True, plt
     except ImportError:
         if config.VERBOSITY >= config.INFO_LOW:
-            print("%s: Warning: plot functionality not available" % funcname)
+            print(f"{funcname}: Warning: plot functionality not available")
         return False, None
 
 
@@ -64,8 +65,8 @@ def import_lmfit(funcname='XU'):
         import lmfit
         return lmfit
     except ImportError:
-        raise ImportError("%s: Fitting of models needs the lmfit package "
-                          "(https://pypi.python.org/pypi/lmfit)" % funcname)
+        raise ImportError(f"{funcname}: Fitting of models needs the lmfit "
+                          "package (https://pypi.python.org/pypi/lmfit)")
 
 
 def import_mayavi_mlab(funcname='XU'):
@@ -89,7 +90,7 @@ def import_mayavi_mlab(funcname='XU'):
         return True, mlab
     except ImportError:
         if config.VERBOSITY >= config.INFO_LOW:
-            print("%s: Warning: plot functionality not available" % funcname)
+            print(f"{funcname}: Warning: plot functionality not available")
         return False, None
 
 
@@ -134,13 +135,13 @@ def maplog(inte, dynlow="config", dynhigh="config"):
     return numpy.log10(numpy.minimum(numpy.maximum(inte, mi), ma))
 
 
-def frac2str(f, denominator_limit=25, fmt='%7.4f'):
+def frac2str(fnumber, denominator_limit=25, fmt='%7.4f'):
     """
     convert a float to a string attempting to represent it as a fraction
 
     Parameters
     ----------
-    f :    float
+    fnumber :    float
         floating point number to be represented as string
     denominator_limit : int
         maximal integer used as denominator. If f can't be expressed
@@ -153,8 +154,7 @@ def frac2str(f, denominator_limit=25, fmt='%7.4f'):
     -------
     str
     """
-    frac = fractions.Fraction(f).limit_denominator(denominator_limit)
-    if math.isclose(float(frac), f, abs_tol=config.EPSILON):
+    frac = fractions.Fraction(fnumber).limit_denominator(denominator_limit)
+    if math.isclose(float(frac), fnumber, abs_tol=config.EPSILON):
         return str(frac)
-    else:
-        return fmt % f
+    return fmt % fnumber

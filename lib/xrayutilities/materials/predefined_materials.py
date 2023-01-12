@@ -13,12 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
 from . import elements as e
-from .heuslerlib import *
+from .heuslerlib import *  # noqa: F401, F403
 from .material import (Crystal, CubicAlloy, CubicElasticTensor,
                        HexagonalElasticTensor, WZTensorFromCub)
 from .spacegrouplattice import SGLattice

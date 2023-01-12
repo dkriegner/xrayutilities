@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
 from . import elements
@@ -25,9 +25,9 @@ from .database import (DataBase, add_f0_from_intertab, add_f0_from_xop,
                        add_f1f2_from_kissel, add_mass_from_NIST,
                        init_material_db)
 from .material import (Alloy, Amorphous, Crystal, CubicAlloy,
-                       CubicElasticTensor, MonoclinicElasticTensor,
-                       TrigonalElasticTensor, HexagonalElasticTensor,
-                       Material, PseudomorphicMaterial, WZTensorFromCub)
+                       CubicElasticTensor, HexagonalElasticTensor, Material,
+                       MonoclinicElasticTensor, PseudomorphicMaterial,
+                       TrigonalElasticTensor, WZTensorFromCub)
 from .plot import show_reciprocal_space_plane
-from .predefined_materials import *
+from .predefined_materials import *  # noqa: F403
 from .spacegrouplattice import SGLattice, SymOp

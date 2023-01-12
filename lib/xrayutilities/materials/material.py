@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 # Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
@@ -1422,7 +1422,7 @@ class Crystal(Material):
         if mode == 'matplotlib':
             plot, plt = utilities.import_matplotlib_pyplot('XU.materials')
             try:
-                import mpl_toolkits.mplot3d
+                import mpl_toolkits.mplot3d  # noqa: F401
             except ImportError:
                 plot = False
         else:
@@ -1481,7 +1481,7 @@ class Crystal(Material):
                 fig = plt.figure()
             elif not isinstance(fig, plt.Figure):
                 raise TypeError("'fig' argument must be a matplotlib figure!")
-            ax = fig.add_subplot(subplot, projection='3d')
+            fig.add_subplot(subplot, projection='3d')
         else:
             if fig is None:
                 fig = mlab.figure(bgcolor=(1, 1, 1))
