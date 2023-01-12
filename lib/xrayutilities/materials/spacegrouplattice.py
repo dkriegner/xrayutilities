@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module handling crystal lattice structures. A SGLattice consists of a space
 group number and the position of atoms specified as Wyckoff positions along
@@ -37,7 +37,7 @@ from .. import config, cxrayutilities, math, utilities
 from ..exception import InputError
 from . import elements
 from .atom import Atom
-from .wyckpos import *
+from .wyckpos import RangeDict, eqhkl_custom, eqhkl_default, wp
 
 # space group number to symmetry and number of parameters dictionary
 sgrp_sym = RangeDict({range(1, 3): ('triclinic', 6),
@@ -1172,7 +1172,6 @@ class SGLattice(object):
 
         hklset = set()
         hkltested = set()
-        q = numpy.empty(3)
         recurse_hkl(0, 0, 0, +1)
         recurse_hkl(1, -1, 0, -1)
         hklset.remove((0, 0, 0))

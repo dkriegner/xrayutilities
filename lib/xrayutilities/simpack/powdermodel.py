@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numbers
 from math import sqrt
@@ -571,6 +571,8 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
     if not plot:
         return
+    if scale == 'sqrt':
+        from ..mpl_helper import SqrtAllowNegScale  # noqa: F401
 
     f = plt.figure(fig, figsize=(10, 7))
     f.clf()

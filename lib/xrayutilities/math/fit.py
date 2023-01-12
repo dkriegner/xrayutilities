@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module with a function wrapper to scipy.optimize.leastsq
 for fitting of a 2D function to a peak or a 1D Gauss fit with
@@ -90,7 +90,8 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
 
     iparams :   list, optional
         initial paramters, determined automatically if not specified
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}, optional
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}, optional
         type of peak to fit
     maxit :     int, optional
         maximal iteration number of the fit
@@ -189,7 +190,8 @@ def _getfit_func(peaktype, background):
 
     Parameters
     ----------
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
         type of peak function
     background : {'constant', 'linear'}
         type of background function
@@ -215,41 +217,33 @@ def _getfit_func(peaktype, background):
         fdx = PseudoVoigt1d_der_x
         fdp = PseudoVoigt1d_der_p
     elif peaktype == 'PseudoVoigtAsym':
-        if background == 'linear':
-            def gfunc(param, x):
-                return PseudoVoigt1dasym(x, *param) + x * param[-1]
-        else:
-            def gfunc(param, x):
-                return PseudoVoigt1dasym(x, *param)
+        f = PseudoVoigt1dasym
     elif peaktype == 'PseudoVoigtAsym2':
-        if background == 'linear':
-            def gfunc(param, x):
-                return PseudoVoigt1dasym2(x, *param) + x * param[-1]
-        else:
-            def gfunc(param, x):
-                return PseudoVoigt1dasym2(x, *param)
+        f = PseudoVoigt1dasym2
     else:
         raise InputError("keyword argument peaktype takes invalid value!")
 
+    if background == 'linear':
+        def gfunc(param, x):
+            return f(x, *param) + x * param[-1]
+    else:
+        def gfunc(param, x):
+            return f(x, *param)
+
     if peaktype in ('Gauss', 'Lorentz', 'PseudoVoigt'):
         if background == 'linear':
-            def gfunc(param, x):
-                return f(x, *param) + x * param[-1]
-
             def gfunc_dx(param, x):
                 return fdx(x, *param) + param[-1]
 
             def gfunc_dp(param, x):
                 return numpy.vstack((fdp(x, *param), x))
         else:
-            def gfunc(param, x):
-                return f(x, *param)
-
             def gfunc_dx(param, x):
                 return fdx(x, *param)
 
             def gfunc_dp(param, x):
                 return fdp(x, *param)
+
     return gfunc, gfunc_dx, gfunc_dp
 
 
@@ -263,7 +257,8 @@ def _check_iparams(iparams, peaktype, background):
     ----------
     iparams :   list
         initial paramters for the fit
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
         type of peak to fit
     background : {'constant', 'linear'}
         type of background
@@ -304,7 +299,8 @@ def _guess_iparams(xdata, ydata, peaktype, background):
         x-coordinates of the data to be fitted
     ydata :     array-like
         y-coordinates of the data which should be fit
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
         type of peak to fit
     background : {'constant', 'linear'}
         type of background, either
