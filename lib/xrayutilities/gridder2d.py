@@ -226,7 +226,7 @@ class FuzzyGridder2D(Gridder2D):
             wx = delta(self.xmin, self.xmax, self.nx) / 2.
             wy = delta(self.ymin, self.ymax, self.ny) / 2.
         # remove normalize flag for C-code
-        flags = self.flags > GridderFlags.NO_NORMALIZATION
+        flags = self.flags | GridderFlags.NO_NORMALIZATION
         cxrayutilities.fuzzygridder2d(x, y, data, self.nx, self.ny,
                                       self.xmin, self.xmax,
                                       self.ymin, self.ymax,
