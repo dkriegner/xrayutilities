@@ -14,3 +14,10 @@ parallel = true
 source = [
     "xrayutilities"
 ]
+
+[tool.flake8]
+extend-ignore = ["E741", "E203", ]
+per-file-ignores = [
+    "__init__.py:F401",
+]
+count = true
