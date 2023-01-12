@@ -1,3 +1,4 @@
+* fix typo in Poisson ratio of GaInAs Darwin model (introduced in 1.7.4)
 * make C-code respect the VERBOSITY. C-Code should now be silent with
   VERBOSITY<INFO_ALL. Otherwise lots of info is printed. #145
 * remove set_bit/clear_bit functions in favor of using enum.IntFlag
