@@ -21,7 +21,7 @@
 import numpy
 
 from . import cxrayutilities, exception, utilities
-from .gridder import Gridder, axis, delta, ones
+from .gridder import Gridder, GridderFlags, axis, delta, ones
 
 
 class Gridder3D(Gridder):
@@ -165,7 +165,7 @@ class Gridder3D(Gridder):
         x, y, z, data = self._checktransinput(x, y, z, data)
 
         # remove normalize flag for C-code
-        flags = utilities.set_bit(self.flags, 2)
+        flags = self.flags | GridderFlags.NO_NORMALIZATION
         cxrayutilities.gridder3d(x, y, z, data, self.nx, self.ny, self.nz,
                                  self.xmin, self.xmax,
                                  self.ymin, self.ymax,
@@ -228,7 +228,7 @@ class FuzzyGridder3D(Gridder3D):
             wz = delta(self.zmin, self.zmax, self.nz) / 2.
 
         # remove normalize flag for C-code
-        flags = utilities.set_bit(self.flags, 2)
+        flags = self.flags | GridderFlags.NO_NORMALIZATION
         cxrayutilities.fuzzygridder3d(x, y, z, data, self.nx, self.ny, self.nz,
                                       self.xmin, self.xmax,
                                       self.ymin, self.ymax,
