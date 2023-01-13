@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2019-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2019-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 import subprocess
@@ -67,29 +67,17 @@ scriptfiles = [
 ]
 
 
-class TestExampleScriptsMeta(type):
-    def __new__(mcs, name, bases, dict):
-        def test_generator(scriptname):
-            def test(self):
+class TestExampleScripts(unittest.TestCase):
+    def test_examples(self):
+        """Testrun example scripts."""
+        for sf in scriptfiles:
+            with self.subTest(script=sf):
                 with tempfile.TemporaryFile(mode='w') as fid:
                     env = os.environ.copy()
                     env['MPLBACKEND'] = 'agg'
-                    cmd = [sys.executable, scriptname]
+                    cmd = [sys.executable, sf]
                     subprocess.run(cmd, env=env, cwd=scriptdir, stdout=fid,
                                    check=True)
-            return test
-
-        for sf in scriptfiles:
-            test_name = 'test_%s' % os.path.splitext(sf)[0]
-            test = test_generator(sf)
-            dict[test_name] = test
-        return type.__new__(mcs, name, bases, dict)
-
-
-@unittest.skipIf(sys.version_info < (3, 5),
-                 "needs subprocess.run -> python 3.5 or newer")
-class TestExampleScripts(unittest.TestCase, metaclass=TestExampleScriptsMeta):
-    pass
 
 
 if __name__ == '__main__':
