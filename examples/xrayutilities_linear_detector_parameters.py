@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 script to show how the detector parameters (like pixel width, center channel
@@ -21,8 +21,6 @@ and detector tilt can be determined for a linear detector.
 """
 
 import os
-
-import matplotlib.pyplot as plt
 
 import xrayutilities as xu
 

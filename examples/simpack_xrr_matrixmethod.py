@@ -14,16 +14,14 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2018 Numan Laanait <nlaanait@gmail.com>
-# Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2018-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # Notes:
 # 1. Code needs to be tested for multiple layers.
 # 2. Code needs to be tested for roughness.
 
-import os
-
-import numpy as np
-from matplotlib.pylab import *
+import numpy
+from matplotlib.pylab import plt, suptitle, tight_layout
 
 import xrayutilities as xu
 
@@ -32,7 +30,7 @@ CTO = xu.materials.CaTiO3
 STO = xu.materials.SrTiO3
 
 # Make CTO/STO thin-film.
-STO_sub = xu.simpack.Layer(STO, inf)
+STO_sub = xu.simpack.Layer(STO, numpy.inf)
 CTO_layer = xu.simpack.Layer(CTO, 200, roughness=1e-5)
 thin_film = xu.simpack.LayerStack('CTO/STO', STO_sub+CTO_layer)
 
@@ -44,7 +42,7 @@ model_S = xu.simpack.DynamicalReflectivityModel(thin_film, energy=energy,
 model_P = xu.simpack.DynamicalReflectivityModel(thin_film, energy=energy,
                                                 polarization='P')
 
-alpha = np.linspace(0., 90., num=1000)
+alpha = numpy.linspace(0., 90., num=1000)
 Reflec_S, Trans_S = model_S.simulate(alpha)
 Reflec_P, Trans_P = model_P.simulate(alpha)
 
