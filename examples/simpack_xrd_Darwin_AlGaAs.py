@@ -13,9 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from matplotlib.pylab import *
+from numpy import linspace
+from matplotlib.pylab import (clf, figure, legend, mpl, plot, plt, semilogy,
+                              show, subplot, tight_layout, twinx, xlabel, xlim,
+                              ylabel, ylim)
 from scipy.special import erf
 
 import xrayutilities as xu
@@ -38,7 +41,7 @@ def period(xavg, xwell, wellratio, thick, sigmaup, sigmadown):
     xb = (xavg*thick - twell*xwell)/(thick - twell)
     tb = (thick-twell)/2
     print('using barrier Al-content, well thickness, barrier thickness/2: '
-          '%.3f %.1f %.1f' % (xb, twell, tb))
+          f'{xb:.3f} {twell:.1f} {tb:.1f}')
     return lambda z: xb + (xwell-xb)*(erf((z-tb)/sigmaup) +
                                       erf(-(z-(tb+twell))/sigmadown))/2.
 

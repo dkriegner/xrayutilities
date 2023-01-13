@@ -13,9 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from matplotlib.pylab import *
+from numpy import inf, linspace, mean, pi, sqrt
+from matplotlib.pylab import (clf, figure, legend, mpl, semilogy, show,
+                              tight_layout, vlines, xlabel, xlim, ylabel)
 
 import xrayutilities as xu
 

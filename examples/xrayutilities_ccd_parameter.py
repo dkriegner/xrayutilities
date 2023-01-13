@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2018-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
 
@@ -22,14 +22,11 @@ example script for determining ESRF/ID01 detector parameters using a specfile
 from the second half of 2017
 """
 
-import os
-import re
-
 import xrayutilities_id01_functions as id01
 
 import xrayutilities as xu
 
-s = xu.io.SPECFile(specfile)  # insert specfile name here
+s = xu.io.SPECFile("<your_spec_file>")  # insert specfile name here
 specscan = s.scan3
 en = id01.getmono_energy(specscan)
 # template for the CCD file names
@@ -40,7 +37,7 @@ ang1 = specscan.data['nu']
 ang2 = specscan.data['del']
 
 # read images and angular positions from the data file
-for imgnr in imagenrs:
+for imgnr in [100, 101, 102]:  # put your imagenrs here
     filename = filetmp % imgnr
     edf = xu.io.EDFFile(filename)
     images.append(edf.data)

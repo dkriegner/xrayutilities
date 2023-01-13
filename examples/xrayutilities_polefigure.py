@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
 from itertools import permutations
@@ -21,7 +21,7 @@ from itertools import permutations
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
-from mpl_toolkits.basemap import *
+from mpl_toolkits.basemap import Basemap
 
 import xrayutilities as xu
 

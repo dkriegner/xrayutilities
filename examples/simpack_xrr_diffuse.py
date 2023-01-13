@@ -13,11 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2018-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import time
 
-from matplotlib.pylab import *
+from numpy import arange, inf
+from matplotlib.pylab import (figure, legend, semilogy, tight_layout, xlabel,
+                              ylabel)
 
 import xrayutilities as xu
 
@@ -35,7 +37,7 @@ m = xu.simpack.DiffuseReflectivityModel(ls, sample_width=10, beam_width=1,
                                         energy='CuKa1', vert_correl=1000,
                                         vert_nu=0, H=1, method=1, vert_int=0)
 d1 = m.simulate(alphai)
-print("elapsed time: %.4f" % (time.time() - start))
+print(f"elapsed time: {time.time() - start:.4f}")
 
 
 print("calculate method=2, H=1, vert=0")

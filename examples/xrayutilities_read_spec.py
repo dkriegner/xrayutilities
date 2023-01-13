@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Example script to show how to use xrayutilities to read and plot
@@ -28,7 +28,6 @@ import os
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy
 
 import xrayutilities as xu
 
@@ -106,16 +105,17 @@ omalign, ttalign, p, cov = xu.analysis.fit_bragg_peak(
 # calculate data on a regular grid of 200x201 points
 gridder = xu.Gridder2D(200, 201)
 gridder(qy, qz, psd)
-INT = xu.maplog(gridder.data.transpose(), 8.5, 0)
 
 # plot the intensity as contour plot
 plt.figure()
 plt.clf()
-cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend='min')
+cf = plt.pcolormesh(
+    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=mpl.colors.LogNorm())
 plt.xlabel(r'$Q_{[11\bar2]}$ ($\mathrm{\AA}^{-1}$)')
 plt.ylabel(r'$Q_{[\bar1\bar1\bar1]}$ ($\mathrm{\AA}^{-1}$)')
-cb = plt.colorbar(cf)
+cb = plt.colorbar(cf, extend='min')
 cb.set_label(r"$\log($Int$)$ (cps)")
+plt.tight_layout()
 
 
 # The same again for a second (asymmetric peak)
@@ -147,19 +147,18 @@ gridder = xu.Gridder2D(400, 600)
 gridder(qy, qz, psd)
 # calculate intensity which should be plotted
 INT = xu.maplog(gridder.data.transpose(), 8.5, 0)
+INT = gridder.data.transpose()
 
 # plot the intensity as contour plot
 plt.figure()
 plt.clf()
-cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend='min')
-# levels = numpy.logspace(numpy.log10(INT[INT>0].min()/2.),
-#                         numpy.log10(INT.max()),num=100)
-# norm = mpl.colors.LogNorm() should be used in future (not yet working in
-# matplotlib with extend='min')
+cf = plt.pcolormesh(
+    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=mpl.colors.LogNorm())
 plt.xlabel(r'$Q_{[11\bar2]}$ ($\mathrm{\AA}^{-1}$)')
 plt.ylabel(r'$Q_{[\bar1\bar1\bar1]}$ ($\mathrm{\AA}^{-1}$)')
-cb = plt.colorbar(cf)
+cb = plt.colorbar(cf, extend='min')
 cb.set_label(r"$\log($Int$)$ (cps)")
+plt.tight_layout()
 
 # clean up HDF5 file (not needed in real life!)
 os.remove(h5file)

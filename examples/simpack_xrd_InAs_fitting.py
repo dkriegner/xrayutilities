@@ -13,11 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2019-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from matplotlib.pylab import *
+from numpy import arcsin, cos, inf
+from matplotlib.pylab import (figure, legend, plot, semilogy, show,
+                              tight_layout, xlabel, xlim, ylabel, ylim)
 
 import xrayutilities as xu
+
 
 # global parameters
 wavelength = xu.wavelength('CuKa1')

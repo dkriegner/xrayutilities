@@ -14,14 +14,15 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014 Raphael Grifone <raphael.grifone@esrf.fr>
-# Copyright (C) 2014,2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2014-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import os
-
+import numpy
 import xrayutilities_id01_functions as id01
-from matplotlib.pylab import *
+from matplotlib.pylab import (axis, figure, mpl, pcolormesh, subplot,
+                              tight_layout, tricontourf, xlabel, ylabel)
 
 import xrayutilities as xu
+from xrayutilities_id01_functions import datadir, deadpixelkill
 
 # 3S+2D goniometer (ID01 goniometer, sample mu, eta, phi detector
 # nu, del, mpxy, mpxz
@@ -75,7 +76,10 @@ g3d = fss.get_average_RSM(81, 82, 83, qconv, datadir=id01.datadir,
 xu.config.VERBOSITY = 1
 numpy.savez_compressed('RSM3D.npz', qx=g3d.xaxis, qy=g3d.yaxis, qz=g3d.zaxis,
                        data=g3d.data)
-
+qx = g3d.xaxis
+qy = g3d.yaxis
+qz = g3d.zaxis
+data = g3d.data
 
 figure()
 subplot(221)
@@ -103,9 +107,9 @@ numpy.savez_compressed('output_sxrd_map.npz', x=x, y=y, data=data)
 
 
 figure()
-lev_exp = np.linspace(np.log10(data.min()),
-                      np.log10(data.max()), 100)
-levs = np.power(10, lev_exp)
+lev_exp = numpy.linspace(numpy.log10(data.min()),
+                         numpy.log10(data.max()), 100)
+levs = numpy.power(10, lev_exp)
 tricontourf(y, x, data, levs, norm=mpl.colors.LogNorm())
 axis('scaled')
 ylabel('piy (um)')
