@@ -10,7 +10,6 @@ for details about the measurement see:
 import os
 
 import matplotlib.pyplot as plt
-import numpy
 import xrayutilities as xu
 
 # global setting for the experiment
