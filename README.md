@@ -13,7 +13,7 @@ simulation of crystal truncation rods as well as fundamental parameters powder
 diffraction is included.
 
 
-Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
@@ -85,7 +85,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 - numpy (version >= 1.9)
 - lmfit (>= 1.0.1, optional)
 - matplotlib (optional, version >= 3.1.0)
-- mayavi (optional, only used optionally in Crystal.show_unitcell)
+- mayavi (optional, only used optionally in `Crystal.show_unitcell`)
 
 When building from source you also might need:
 
