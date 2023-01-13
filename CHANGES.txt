@@ -1,3 +1,4 @@
+* minor code improvements, forcing flake8 to pass upon merging a PR
 * fix typo in Poisson ratio of GaInAs Darwin model (introduced in 1.7.4)
 * make C-code respect the VERBOSITY. C-Code should now be silent with
   VERBOSITY<INFO_ALL. Otherwise lots of info is printed. #145
