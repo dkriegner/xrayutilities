@@ -193,8 +193,7 @@ class Material(utilities.ABC):
                 cij = self.cij
 
             return cij[i - 1, j - 1]
-        else:
-            object.__getattribute__(self, name)
+        return object.__getattribute__(self, name)
 
     def _getmu(self):
         return self.cij[3, 3]
@@ -565,7 +564,7 @@ class Amorphous(Material):
 
         beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
-        return (-2 * delta + 2j * beta)
+        return -2 * delta + 2j * beta
 
     def __str__(self):
         ostr = super().__str__()
@@ -1008,7 +1007,7 @@ class Crystal(Material):
         v = self.lattice.UnitCellVolume()
         beta *= re / (2 * numpy.pi) * lam ** 2 / v
         delta *= re / (2 * numpy.pi) * lam ** 2 / v
-        return (-2 * delta + 2j * beta)
+        return -2 * delta + 2j * beta
 
     def _debyewallerfactor(self, temp, qnorm):
         """

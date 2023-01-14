@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to parse xrayutilities user-specific config file
@@ -157,8 +157,8 @@ for k in ('main_width', 'tail_left', 'tail_right', 'tail_intens'):
     trytomake(POWDER[subsec], k, float)
 
 if VERBOSITY >= DEBUG:
-    print("XU.config: xrayutilities configuration files: %s" % repr(cfiles))
+    print(f"XU.config: xrayutilities configuration files: {repr(cfiles)}")
     print("xrayutilities configuration:")
     for (name, value) in xuParser.items("xrayutilities"):
-        print("%s: %s" % (name, value))
+        print(f"{name}: {value}")
     print("---")
