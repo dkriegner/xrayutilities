@@ -15,6 +15,9 @@ source = [
     "xrayutilities"
 ]
 
+[tool.pylint]
+disable = ["invalid-name"]
+
 [tool.flake8]
 extend-ignore = ["E741", "E203", ]
 per-file-ignores = [
