@@ -526,8 +526,7 @@ def Rietveld_error_metrics(exp, sim, weight=None, std=None,
     chi2 = M / (len(exp) - Nvar)
     Rwpexp = Rwp / sqrt(chi2)
     if disp:
-        print('Rp=%.4f Rwp=%.4f Rwpexp=%.4f chi2=%.4f'
-              % (Rp, Rwp, Rwpexp, chi2))
+        print(f"Rp={Rp:.4f} Rwp={Rwp:.4f} Rwpexp={Rwpexp:.4f} chi2={chi2:.4f}")
     return M, Rp, Rwp, Rwpexp, chi2
 
 
