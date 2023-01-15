@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to handle spectra data
@@ -87,7 +87,7 @@ class SPECTRAFileParameters(dict):
             i = self[k]
             if not isinstance(i, str):
                 # if the item is not a string it must be converted
-                i = "%f" % i
+                i = f"{i:f}"
 
             if len(i) > lmax_item:
                 lmax_item = len(i)
@@ -102,7 +102,7 @@ class SPECTRAFileParameters(dict):
         for key in self:
             value = self[key]
             if not isinstance(value, str):
-                value = "%f" % value
+                value = f"{value:f}"
 
             ostr += kvfmt % (key, value)
             cnt += 1
@@ -406,8 +406,8 @@ class SPECTRAFile(object):
                         key = "_" + key
                     value = value.strip()
                     if config.VERBOSITY >= config.DEBUG:
-                        print("XU.io.SPECTRAFile.Read: comment: k, v: %s, %s"
-                              % (key, value))
+                        print("XU.io.SPECTRAFile.Read: "
+                              f"comment({key}): {value}")
 
                     try:
                         value = float(value)
@@ -424,7 +424,7 @@ class SPECTRAFile(object):
                         (key, value) = line.split("=")
                     except ValueError:
                         print("XU.io.SPECTRAFile.Read: cannot interpret the "
-                              "parameter string: %s" % (line))
+                              f"parameter string: {line}")
 
                     key = key.strip()
                     # remove whitespaces to be conform with natural naming
@@ -479,9 +479,9 @@ class SPECTRAFile(object):
                             SPECTRAFileDataColumn(index, name, unit, dtype))
 
                         if name in col_names:
-                            name += "%s_1" % name
-                        col_names.append("%s" % name)
-                        col_types.append("%s" % (dtype_map[dtype]))
+                            name += f"{name}_1"
+                        col_names.append(f"{name}")
+                        col_types.append(f"{dtype_map[dtype]}")
 
                     else:
                         # read data
@@ -592,7 +592,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
             for i in notscanmotors:
                 motname = args[i]
                 buf = numpy.ones(scanshape) * \
-                    h5scan.attrs.get("%s" % motname)
+                    h5scan.attrs.get(f"{motname}")
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []

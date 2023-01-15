@@ -121,7 +121,7 @@ class EDFFile(object):
 
         with xu_open(self.full_filename, 'rb') as fid:
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.io.EDFFile.Parse: file: %s" % self.full_filename)
+                print(f"XU.io.EDFFile.Parse: file: {self.full_filename}")
 
             if self.headerflag:
                 while True:  # until end of file
@@ -161,8 +161,7 @@ class EDFFile(object):
                                 try:
                                     key, value = edf_kv_split.split(line, 1)
                                 except ValueError:
-                                    print("XU.io.EDFFile.Parse: "
-                                          "line: %s" % line)
+                                    print(f"XU.io.EDFFile.Parse: line: {line}")
 
                                 key = key.strip()
                                 value = value.strip()
@@ -262,7 +261,7 @@ class EDFFile(object):
         if config.VERBOSITY >= config.DEBUG:
             print("XU.io.EDFFile: read binary data: nofp: %d len: %d"
                   % (tot_nofp, len(bindata)))
-            print("XU.io.EDFFile: format: %s" % fmt_str)
+            print(f"XU.io.EDFFile: format: {fmt_str}")
 
         try:
             data = numpy.frombuffer(bindata, count=tot_nofp, dtype=fmt_str)
@@ -341,7 +340,7 @@ class EDFFile(object):
                 print(ca_name)
 
             # create the array description
-            ca_desc = "EDF CCD data from file %s " % (self.filename)
+            ca_desc = f"EDF CCD data from file {self.filename} "
             kwds = {'fletcher32': True}
             if comp:
                 kwds['compression'] = 'gzip'

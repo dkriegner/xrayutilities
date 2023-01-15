@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2018-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 implement convenience functions to define Heusler materials.
@@ -61,7 +61,7 @@ def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a, atoms=[x, y, z], pos=['8c', '4a', '4b'],
                              b=biso, occ=occ))
 
@@ -91,7 +91,7 @@ def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a,
                              atoms=[x, y, z, y, z],
                              pos=['8c', '4a', '4b', '4b', '4a'],
@@ -126,7 +126,7 @@ def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a,
                              atoms=[x, x, x, y, y, y, z, z, z],
                              pos=['8c', '4a', '4b',
@@ -170,7 +170,7 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a,
                              atoms=[x, y, z,
                                     x, y,
@@ -204,8 +204,7 @@ def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('(%s%s)%s\'%s' % (x.basename, y.basename,
-                                     x.basename, z.basename),
+    return Crystal(f'({x.basename}{y.basename}){x.basename}\'{z.basename}',
                    SGLattice(216, a, atoms=[x, x, y, z],
                              pos=['4a', '4d', '4b', '4c'],
                              b=[biso[0], ] + biso,
@@ -230,7 +229,7 @@ def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(139, a, c,
                              atoms=[x, y, z],
                              pos=['4d', '2b', '2a'],
@@ -255,7 +254,7 @@ def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(119, a, c,
                              atoms=[x, x, y, z],
                              pos=['2b', '2c', '2d', '2a'],
@@ -281,7 +280,7 @@ def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}{y.basename}{z.basename}',
                    SGLattice(194, a, c,
                              atoms=[x, y, z],
                              pos=['2a', '2c', '2d'],

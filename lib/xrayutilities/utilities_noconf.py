@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities utilities contains a conglomeration of useful functions
@@ -276,7 +276,7 @@ def makeNaturalName(name, check=False):
     if not check or isvalid:
         return ret
     elif not isvalid:
-        raise ValueError("'{}' is not valid variable name".format(ret))
+        raise ValueError(f"'{ret}' is not valid variable name")
 
 
 def is_valid_variable_name(name):
@@ -296,7 +296,7 @@ def check_kwargs(kwargs, valid_kwargs, identifier):
     identifier :    str
         string to identifier the caller of this function
     """
-    desc = ', '.join(["'%s': %s" % (k, d) for k, d in valid_kwargs.items()])
+    desc = ', '.join([f"'{k}': {d}" for k, d in valid_kwargs.items()])
     for k in kwargs:
         if k not in valid_kwargs:
             raise TypeError("%s: unknown keyword argument ('%s') given; "

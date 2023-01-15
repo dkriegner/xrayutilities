@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -287,12 +287,12 @@ class QConversion(object):
     def __str__(self):
         pstr = 'QConversion geometry \n'
         pstr += '---------------------------\n'
-        pstr += 'sample geometry(%d): ' % len(self._sampleAxis) + \
+        pstr += f'sample geometry({len(self._sampleAxis)}): ' + \
             self._sampleAxis_str + '\n'
         if self._sampleAxis_str.find('k') != -1:
             pstr += ('kappa rotation axis (%5.3f %5.3f %5.3f)\n'
                      % tuple(self._kappa_dir))
-        pstr += 'detector geometry(%d): ' % len(self._detectorAxis) + \
+        pstr += f'detector geometry({len(self._detectorAxis)}): ' + \
             self._detectorAxis_str + '\n'
         pstr += ('primary beam direction: (%5.2f %5.2f %5.2f) \n'
                  % (self.r_i[0], self.r_i[1], self.r_i[2]))
@@ -308,7 +308,7 @@ class QConversion(object):
                      % (self._linear_distance, self._linear_pixwidth))
             chpdeg = 2 * self._linear_distance / \
                 self._linear_pixwidth * numpy.tan(numpy.radians(0.5))
-            pstr += 'corresponds to channel per degree: %8.2f\n' % (chpdeg)
+            pstr += f'corresponds to channel per degree: {chpdeg:8.2f}\n'
         if self._area_init:
             pstr += '\n area detector initialized:\n'
             pstr += 'area detector mount directions: %s/%s\n' % (
@@ -578,8 +578,8 @@ class QConversion(object):
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns, Nd))
-            print("XU.QConversion: sAngles / dAngles %s / %s"
-                  % (str(sAngles), str(dAngles)))
+            print(f"XU.QConversion: sAngles / dAngles {str(sAngles)} / "
+                  f"{str(dAngles)}")
 
         qpos = cxrayutilities.ang2q_conversion(
             sAngles, dAngles, self.r_i, sAxis, dAxis,
@@ -1049,7 +1049,7 @@ class QConversion(object):
         if config.VERBOSITY >= config.DEBUG:
             print("QConversion.area: roi, number of points per frame: %s, %d"
                   % (str(roi), (roi[1] - roi[0]) * (roi[3] - roi[2])))
-            print("QConversion.area: cch1, cch2: %5.2f %5.2f" % (cch1, cch2))
+            print(f"QConversion.area: cch1, cch2: {cch1:5.2f} {cch2:5.2f}")
 
         sAxis = self._sampleAxis_str
         dAxis = self._detectorAxis_str
@@ -1393,8 +1393,8 @@ class Experiment(object):
         ostr += "second refercence direction: (%f %f %f)\n" % (self.ndir[0],
                                                                self.ndir[1],
                                                                self.ndir[2])
-        ostr += "energy: %f (eV)\n" % self._en
-        ostr += "wavelength: %f (angstrom)\n" % (self._wl)
+        ostr += f"energy: {self._en:f} (eV)\n"
+        ostr += f"wavelength: {self._wl:f} (angstrom)\n"
         ostr += self._A2QConversion.__str__()
 
         return ostr
@@ -1868,7 +1868,7 @@ class HXRD(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.HXRD.Q2Ang: q= %s" % repr(q))
+            print(f"XU.HXRD.Q2Ang: q= {repr(q)}")
 
         qa = math.VecNorm(q)
         tth = 2. * numpy.arcsin(qa / 2. / k)
@@ -1936,8 +1936,7 @@ class HXRD(Experiment):
             om[mnot] = math.VecAngle(ki0, y)
             psi_i[mnot] = numpy.arcsin(math.VecDot(ki0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.HXRD.Q2Ang: ki, ki0 = %s %s"
-                      % (repr(ki), repr(ki0)))
+                print(f"XU.HXRD.Q2Ang: ki, ki0 = {repr(ki)} {repr(ki0)}")
 
             # refraction at exit facet
             m = math.VecDot(kd, fd) < 0
@@ -1957,8 +1956,7 @@ class HXRD(Experiment):
             tth[mnot] = math.VecAngle(ki0, kd0)
             psi_d[mnot] = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.HXRD.Q2Ang: kd, kd0 = %s %s"
-                      % (repr(kd), repr(kd0)))
+                print(f"XU.HXRD.Q2Ang: kd, kd0 = {repr(kd)} {repr(kd0)}")
 
         if geom == 'realTilt':
             angle[0, :] = om
@@ -2145,7 +2143,7 @@ class NonCOP(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.NonCop.Q2Ang: q= %s" % repr(q))
+            print(f"XU.NonCop.Q2Ang: q= {repr(q)}")
 
         qa = math.VecNorm(q)
         tth = 2. * numpy.arcsin(qa / 2. / self.k0)
@@ -2167,7 +2165,7 @@ class NonCOP(Experiment):
         if q.shape[0] == 1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: [om, chi, phi, tth] = %s" % repr(angle))
+                print(f"XU.HXRD.Q2Ang: [om, chi, phi, tth] = {repr(angle)}")
 
         if deg:
             return numpy.degrees(angle)
@@ -2267,7 +2265,7 @@ class GID(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.GID.Q2Ang: q = %s" % repr(q))
+            print(f"XU.GID.Q2Ang: q = {repr(q)}")
 
         # set parameters for the calculation
         z = self.Transform(self.ndir)  # z
@@ -2276,8 +2274,8 @@ class GID(Experiment):
 
         # check if reflection is inplane
         if numpy.abs(math.VecDot(q, z)) >= 0.001:
-            raise InputError("Reflection not reachable in GID geometry (Q: %s)"
-                             % str(q))
+            raise InputError(
+                f"Reflection not reachable in GID geometry (Q: {str(q)})")
 
         # calculate angle to inplane reference direction
         aref = numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))

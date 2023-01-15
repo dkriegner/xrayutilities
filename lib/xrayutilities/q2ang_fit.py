@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2014-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Module provides functions to convert a q-vector from reciprocal space to
@@ -102,7 +102,7 @@ def _makebounds(boundsin):
             lb.append(-numpy.inf)
             ub.append(numpy.inf)
         else:
-            raise InputError('bound value is of invalid type (%s)' % type(b))
+            raise InputError(f'bound value is of invalid type ({type(b)})')
 
     return scipy.optimize.Bounds(lb, ub), constraints
 

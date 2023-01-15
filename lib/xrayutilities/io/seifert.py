@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a set of  routines to convert Seifert ASCII files to HDF5
@@ -90,9 +90,9 @@ class SeifertHeader(object):
         for k in self.__dict__.keys():
             value = self.__getattribute__(k)
             if isinstance(value, float):
-                ostr += k + " = %f\n" % value
+                ostr += k + f" = {value:f}\n"
             else:
-                ostr += k + " = %s\n" % value
+                ostr += k + f" = {value}\n"
 
         return ostr
 
@@ -134,7 +134,7 @@ class SeifertMultiScan(object):
 
         with xu_open(self.Filename) as self.fid:
             if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.io.SeifertScan: parsing file: %s" % self.Filename)
+                print(f"XU.io.SeifertScan: parsing file: {self.Filename}")
             self.parse()
 
     def parse(self):
@@ -212,7 +212,7 @@ class SeifertScan(object):
 
         with xu_open(self.Filename) as self.fid:
             if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.io.SeifertScan: parsing file: %s" % self.Filename)
+                print(f"XU.io.SeifertScan: parsing file: {self.Filename}")
             self.parse()
 
         if self.hdr.NumScans != 1:

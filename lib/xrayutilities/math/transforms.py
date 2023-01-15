@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import math
 import re
@@ -54,8 +54,8 @@ def VecNorm(v):
         if len(v.shape) >= 2:
             return numpy.linalg.norm(v, axis=-1)
     if len(v) != 3:
-        raise ValueError("Vector must be of length 3, but has length %d!"
-                         % len(v))
+        raise ValueError(
+            f"Vector must be of length 3, but has length {len(v)}!")
     return math.sqrt(v[0]**2 + v[1]**2 + v[2]**2)
 
 
@@ -224,7 +224,7 @@ def getVector(string):
     if len(string) != 2:
         raise InputError("wrong length of string for conversion given")
     if not circleSyntax.search(string):
-        raise InputError("getVector: incorrect string syntax (%s)" % string)
+        raise InputError(f"getVector: incorrect string syntax ({string})")
 
     if string[0] == 'x':
         v = [1., 0, 0]

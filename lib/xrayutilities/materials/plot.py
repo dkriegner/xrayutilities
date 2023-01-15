@@ -189,8 +189,7 @@ def show_reciprocal_space_plane(
     def update_annot(ind):
         pos = h.get_offsets()[ind["ind"][0]]
         annot.xy = pos
-        text = "{}\n{}".format(mat.name,
-                               str(d['hkl'][m][ind['ind'][0]]))
+        text = f"{mat.name}\n{str(d['hkl'][m][ind['ind'][0]])}"
         annot.set_text(text)
         annot.get_bbox_patch().set_facecolor(h.get_facecolor()[0])
         annot.get_bbox_patch().set_alpha(0.2)

@@ -127,7 +127,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
     if not any(iparams):
         iparams = _guess_iparams(xdata, ydata, peaktype, background)
     if config.VERBOSITY >= config.DEBUG:
-        print("XU.math.peak_fit: iparams: %s" % str(tuple(iparams)))
+        print(f"XU.math.peak_fit: iparams: {str(tuple(iparams))}")
 
     # set up odr fitting
     peak = odr.Model(gfunc, fjacd=gfunc_dx, fjacb=gfunc_dp)
@@ -174,7 +174,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
             plt.plot(xdata, gfunc(iparams, xdata), '-', color='0.5',
                      label='estimate')
         plt.plot(xdata, gfunc(fparam, xdata), '-r',
-                 label='%s-fit' % peaktype)
+                 label=f'{peaktype}-fit')
         plt.legend()
 
     if func_out:
@@ -421,7 +421,7 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     s = time.time() - s
     if config.VERBOSITY >= config.INFO_ALL:
         print("finished in %8.2f sec, (data length used %d)" % (s, ldata.size))
-        print("XU.math.fit: %s" % errmsg)
+        print(f"XU.math.fit: {errmsg}")
 
     # calculate correct variance covariance matrix
     if cov is not None:
@@ -644,8 +644,8 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         print(fit.beta)
     try:
         if fit.stopreason[0] not in ['Sum of squares convergence']:
-            print("XU.math.multPeakFit: fit NOT converged (%s)"
-                  % fit.stopreason[0])
+            print("XU.math.multPeakFit: fit NOT converged "
+                  f"({fit.stopreason[0]})")
             return None, None, None, None
     except IndexError:
         print("XU.math.multPeakFit: fit most probably NOT converged (%s)"

@@ -781,7 +781,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 CC = abs(numpy.cos(ai+ah))
             pom = k**4 * self.chih['S'] * self.chimh['S']
             if config.VERBOSITY >= config.INFO_ALL:
-                print('XU.DynamicalModel: calc. %s-polarization...' % (pol))
+                print(f'XU.DynamicalModel: calc. {pol}-polarization...')
 
             M = numpy.zeros((nal, 4, 4), dtype=complex)
             for j in range(4):

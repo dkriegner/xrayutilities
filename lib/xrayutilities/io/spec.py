@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2019 Daniel Schick <schick.daniel@gmail.com>
 
 """
@@ -277,8 +277,8 @@ class SPECScan(object):
                              "formats": len(self.colnames) * [numpy.float32]}
 
             if config.VERBOSITY >= config.DEBUG:
-                print("xu.io.SPECScan.ReadData: type descriptor: %s"
-                      % (repr(type_desc)))
+                print("xu.io.SPECScan.ReadData: type descriptor: "
+                      f"{repr(type_desc)}")
 
             record_list = []  # from this list the record array while be built
 
@@ -300,15 +300,15 @@ class SPECScan(object):
                         scan_aborted_flag = True
                         self.scan_status = "ABORTED"
                         if config.VERBOSITY >= config.INFO_ALL:
-                            print("XU.io.SPECScan.ReadData: %s aborted"
-                                  % self.name)
+                            print(f"XU.io.SPECScan.ReadData: {self.name} "
+                                  "aborted")
                         continue
                     elif SPEC_scanresumed.match(line):
                         self.scan_status = "OK"
                         scan_aborted_flag = False
                         if config.VERBOSITY >= config.INFO_ALL:
-                            print("XU.io.SPECScan.ReadData: %s resumed"
-                                  % self.name)
+                            print(f"XU.io.SPECScan.ReadData: {self.name} "
+                                  "resumed")
                         continue
                     elif SPEC_commentline.match(line):
                         continue
@@ -331,7 +331,7 @@ class SPECScan(object):
                     # the line is a scalar data line
                     line_list = SPEC_num_value.findall(line)
                     if config.VERBOSITY >= config.DEBUG:
-                        print("XU.io.SPECScan.ReadData: %s" % line)
+                        print(f"XU.io.SPECScan.ReadData: {line}")
                         print("XU.io.SPECScan.ReadData: read scalar values %s"
                               % repr(line_list))
                     # convert strings to numbers
@@ -422,7 +422,7 @@ class SPECScan(object):
             try:
                 ydata = self.data[yname]
             except ValueError:
-                raise InputError("no column with name %s exists!" % yname)
+                raise InputError(f"no column with name {yname} exists!")
                 continue
             if logy:
                 plt.semilogy(xdata, ydata, ystyle)
@@ -431,7 +431,7 @@ class SPECScan(object):
 
             leglist.append(yname)
 
-        plt.xlabel("%s" % xname)
+        plt.xlabel(f"{xname}")
         plt.legend(leglist)
         plt.title("scan %i %s\n%s %s"
                   % (self.nr, self.command, self.date, self.time))
@@ -640,7 +640,7 @@ class SPECFile(object):
             else:
                 raise AttributeError("requested scan-number not found")
         else:
-            raise AttributeError("SPECFile has no attribute '%s'" % name)
+            raise AttributeError(f"SPECFile has no attribute '{name}'")
 
     def __len__(self):
         return self.scan_list.__len__()
@@ -674,7 +674,7 @@ class SPECFile(object):
             except ValueError:
                 g = h5.get(groupname)
 
-            g.attrs['TITLE'] = "Data of SPEC - File %s" % (self.filename)
+            g.attrs['TITLE'] = f"Data of SPEC - File {self.filename}"
             for k in optattrs:
                 g.attrs[k] = optattrs[k]
             for s in self.scan_list:
@@ -723,7 +723,7 @@ class SPECFile(object):
                 linelength = len(line)
                 line = line.decode('ascii', 'ignore')
                 if config.VERBOSITY >= config.DEBUG:
-                    print('parsing line: %s' % line)
+                    print(f'parsing line: {line}')
 
                 # remove trailing and leading blanks from the read line
                 line = line.strip()
@@ -1081,7 +1081,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                 motname = args[i]
                 natmotname = utilities.makeNaturalName(motname)
                 buf = numpy.ones(scanshape) * \
-                    h5scan.attrs["INIT_MOPO_%s" % natmotname]
+                    h5scan.attrs[f"INIT_MOPO_{natmotname}"]
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
     # create return values in correct order
