@@ -16,7 +16,7 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
 import enum
@@ -254,8 +254,8 @@ class Gridder1D(Gridder):
         data = self._prepare_array(data)
 
         if x.size != data.size:
-            raise InputError("XU.%s: size of given datasets (x, data)"
-                             " is not equal!" % self.__class__.__name__)
+            raise InputError(f"XU.{self.__class__.__name__}: size of given "
+                             "datasets (x, data) is not equal!")
 
         if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the

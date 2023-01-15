@@ -16,7 +16,7 @@
 # Copyright (C) 2009-2010, 2013
 #               Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009 Mario Keplinger <mario.keplinger@jku.at>
-# Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -131,9 +131,9 @@ class Gridder3D(Gridder):
         data = self._prepare_array(data)
 
         if x.size != y.size or y.size != z.size or z.size != data.size:
-            raise exception.InputError("XU.%s: size of given datasets "
-                                       "(x, y, z, data) is not equal!"
-                                       % self.__class__.__name__)
+            raise exception.InputError(
+                f"XU.{self.__class__.__name__}: size of given datasets "
+                "(x, y, z, data) is not equal!")
 
         if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the
