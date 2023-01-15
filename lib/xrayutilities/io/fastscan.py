@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014 Raphael Grifone <raphael.grifone@esrf.fr>
-# Copyright (C) 2014-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2014-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 modules to help with the analysis of FastScan data acquired at the ESRF.
@@ -1127,7 +1127,7 @@ class FastScanSeries(object):
 
         # read ccd shape from first image
         imgindex, filenumber = fsccd._get_image_number(
-                        valuelist[0][1], nextNr, nextNr, ccdtemplate)
+            valuelist[0][1], nextNr, nextNr, ccdtemplate)
         filename = ccdtemplate % filenumber
         ccdshape = fsccd._read_image(filename, imgindex, nav, roi,
                                      filterfunc).shape

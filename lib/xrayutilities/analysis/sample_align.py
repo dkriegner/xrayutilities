@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2011-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
@@ -1339,7 +1339,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
     avg = 0
     imgpbcnt = 0
     for i in range(Npoints):
-        if (numpy.all(hkls[i] == (0, 0, 0))):
+        if numpy.all(hkls[i] == (0, 0, 0)):
             avg += numpy.sum(ccdimages[i])
             imgpbcnt += 1
 

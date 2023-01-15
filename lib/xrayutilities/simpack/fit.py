@@ -31,6 +31,7 @@ class FitModel(object):
 
     Later on you can call `fit` and `eval` methods with those parameter list.
     """
+
     def __init__(self, lmodel, verbose=False, plot=False, elog=True, **kwargs):
         """
         initialization of a FitModel which uses lmfit for the actual fitting,

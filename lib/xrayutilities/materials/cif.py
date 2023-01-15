@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import copy
 import io
@@ -73,6 +73,7 @@ class CIFFile(object):
     parse all of them into the the data dictionary. By default all methods
     access the first data set found in the file.
     """
+
     def __init__(self, filestr, digits=4):
         """
         initialization of the CIFFile class
