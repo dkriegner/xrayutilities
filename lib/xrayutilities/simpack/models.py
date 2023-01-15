@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
 import copy
@@ -940,7 +940,6 @@ class SpecularReflectivityModel(LayerModel):
         sig = numpy.asarray([layer.roughness for layer in self.lstack])
         rho = numpy.asarray([layer.density/layer.material.density
                              for layer in self.lstack])
-        cd = self.cd
 
         sai = numpy.sin(numpy.radians(lai))
 
@@ -956,11 +955,12 @@ class SpecularReflectivityModel(LayerModel):
 
         ETs = numpy.ones(np, dtype=complex)
         ERs = numpy.zeros(np, dtype=complex)
-        ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[0] * rho[0])
+        ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * self.cd[0] * rho[0])
 
         for i in range(ns):
             if i < ns-1:
-                k = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[i+1] * rho[i+1])
+                k = -self.exp.k0 * numpy.sqrt(sai**2 - 2 *
+                                              self.cd[i+1] * rho[i+1])
                 phi = numpy.exp(1j * k * t[i+1])
             else:
                 k = -self.exp.k0 * sai
@@ -1079,6 +1079,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
     It uses the transfer Matrix methods as given in chapter 3
     "Daillant, J., & Gibaud, A. (2008). X-ray and Neutron Reflectivity"
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a reflectivity model. The arguments consist of a
@@ -1280,6 +1281,7 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
     model for specular reflectivity calculations
     CURRENTLY UNDER DEVELOPEMENT! DO NOT USE!
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a reflectivity model. The arguments consist of a
@@ -1799,7 +1801,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 return numpy.imag(func(*args))
             real_integral = integrate.quad(real_func, a, b, **kwargs)
             imag_integral = integrate.quad(imag_func, a, b, **kwargs)
-            return (real_integral[0] + 1j*imag_integral[0])
+            return real_integral[0] + 1j*imag_integral[0]
 
         # begin of _xrrdiffv2
         K = 2 * numpy.pi / lam

@@ -1496,7 +1496,7 @@ class Crystal(Material):
                         if all(a > -config.EPSILON and a < 1+config.EPSILON
                                for a in atpos):
                             vecpos = atpos[0]*self.a1 + atpos[1]*self.a2 +\
-                                     atpos[2]*self.a3
+                                atpos[2]*self.a3
                             plot_sphere(fig, vecpos, r, occ, complexity,
                                         a.color)
 
