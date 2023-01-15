@@ -428,18 +428,18 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         detaxis = 'z' + flipsign(sign, detd[argm])
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.analysis.linear_detector_calib:\n\tused/total spectra: %d/%d"
-              % (mca_spectra.shape[0] - nignored, mca_spectra.shape[0]))
-        print("\tdetector rotation axis (given by user/default input): %s"
-              % detrotaxis)
+        print("XU.analysis.linear_detector_calib:\n\tused/total spectra: "
+              f"{mca_spectra.shape[0] - nignored:d}/{mca_spectra.shape[0]:d}")
+        print("\tdetector rotation axis (given by user/default input): "
+              f"{detrotaxis}")
         if len(detparam) == 3:
             tilt = detparam[2]
         else:
             tilt = 0
-        print("\tdetector initialization with: init_linear('%s', %.2f, %d"
-              ", pixelwidth=%.4e, distance=1., tilt=%.2f)"
-              % (detaxis, abs(detparam[1]), mca_spectra.shape[1],
-                 abs(detparam[0]), tilt))
+        print(f"\tdetector initialization with: init_linear('{detaxis}', "
+              f"{abs(detparam[1]):.2f}, {mca_spectra.shape[1]:d}, "
+              f"pixelwidth={abs(detparam[0]):.4e}, distance=1., "
+              f"tilt={tilt:.2f})")
 
     return detparam
 
@@ -540,7 +540,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     (N1, N2) = ccdimages[0].shape
 
     if debug:
-        print("average intensity per image: %.1f" % avg)
+        print(f"average intensity per image: {avg:.1f}")
 
     for i in range(Npoints):
         if debug and i == 0:
@@ -553,8 +553,8 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
             ang1 = numpy.append(ang1, angle1[i])
             ang2 = numpy.append(ang2, angle2[i])
             if debug:
-                print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-                                                   cen1, cen2))
+                print(f"{angle1[i]:8.3f} {angle2[i]:8.3f} \t"
+                      f"{cen1:.2f} {cen2:.2f}")
     Nused = len(ang1)
 
     if debug:
@@ -565,7 +565,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         ang1 - start[6], ang2, n1, n2, detaxis, r_i)
 
     if debug:
-        print("determined detector directions:[%s, %s]" % (detdir1, detdir2))
+        print(f"determined detector directions:[{detdir1}, {detdir2}]")
 
     epslist = []
     paramlist = []
@@ -601,7 +601,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
 
     startparam = start[:5] + (detrot,) + (start[6],)
     if debug:
-        print("start params: %s" % str(startparam))
+        print(f"start params: {str(startparam)}")
 
     Ntot = Ntiltaz * Ntilt * Noffset
     ict = 0
@@ -683,7 +683,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("total time needed for fit: %.2fsec" % (time.time() - t0))
+        print(f"total time needed for fit: {time.time() - t0:.2f}sec")
         print("fitted parameters: epsilon: %10.4e (%d,%s) "
               % (epsmin, fitmin.info, repr(fitmin.stopreason)))
         print("param: (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt, "
@@ -696,15 +696,15 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         print("please check the resulting data (consider setting plot=True)")
         print("detector rotation axis / primary beam direction "
               "(given by user): %s / %s" % (repr(detaxis), r_i))
-        print("detector pixel directions / distance: %s %s / %g"
-              % (detdir1, detdir2, 1.))
+        print(f"detector pixel directions / distance: {detdir1} {detdir2} / "
+              f"{1.0:g}")
         print("\tdetector initialization with: init_area('%s', '%s', "
               "cch1=%.2f, cch2=%.2f, Nch1=%d, Nch2=%d, pwidth1=%.4e, "
               "pwidth2=%.4e, distance=%.5f, detrot=%.3f, tiltazimuth=%.1f, "
               "tilt=%.3f)" % (detdir1, detdir2, cch1, cch2, N1, N2, pwidth1,
                               pwidth2, distance, detrot, tiltazimuth, tilt))
-        print("AND ALWAYS USE an (additional) OFFSET of %.4fdeg in the "
-              "OUTER DETECTOR ANGLE!" % (outerangle_offset))
+        print("AND ALWAYS USE an (additional) OFFSET of "
+              f"{outerangle_offset:.4f}deg in the OUTER DETECTOR ANGLE!")
 
     return (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth,
             tilt, detrot, outerangle_offset), epsmin
@@ -1351,7 +1351,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
     (N1, N2) = ccdimages[0].shape
 
     if debug:
-        print("average intensity per image in the primary beam: %.1f" % avg)
+        print(f"average intensity per image in the primary beam: {avg:.1f}")
 
     for i in range(Npoints):
         if debug and i == 0:
@@ -1368,8 +1368,8 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
             sang = numpy.append(sang, sampleang[i])
             usedhkls.append(hkls[i])
             if debug:
-                print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-                                                   cen1, cen2))
+                print(f"{angle1[i]:8.3f} {angle2[i]:8.3f} \t"
+                      f"{cen1:.2f} {cen2:.2f}")
 
     Nused = len(ang1)
     usedhkls = numpy.array(usedhkls)
@@ -1514,7 +1514,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("total time needed for fit: %.2fsec" % (time.time() - t0))
+        print(f"total time needed for fit: {time.time() - t0:.2f}sec")
         print("fitted parameters: epsilon: %10.4e (%d,%s) "
               % (epsmin, fitmin.info, repr(fitmin.stopreason)))
         print("param: (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, "
@@ -1914,9 +1914,9 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         param[:-4], detdir1, detdir2, r_i, detaxis, sangs, ang1s, ang2s,
         n1s, n2s, delta=[0, param[8], 0.], wl=wavelength)
     if debug:
-        print("average qx: %.3f(%.3f)" % (numpy.average(qx), numpy.std(qx)))
-        print("average qy: %.3f(%.3f)" % (numpy.average(qy), numpy.std(qy)))
-        print("average qz: %.3f(%.3f)" % (numpy.average(qz), numpy.std(qz)))
+        print(f"average qx: {numpy.average(qx):.3f}({numpy.std(qx):.3f})")
+        print(f"average qy: {numpy.average(qy):.3f}({numpy.std(qy):.3f})")
+        print(f"average qz: {numpy.average(qz):.3f}({numpy.std(qz):.3f})")
 
     qvecav = (numpy.average(qx), numpy.average(qy), numpy.average(qz))
     sampletilt = xumath.VecAngle(experiment.Transform(experiment.ndir),

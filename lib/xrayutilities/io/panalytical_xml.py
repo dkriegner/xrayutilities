@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Panalytical XML (www.XRDML.com) data file parser
@@ -142,7 +142,7 @@ class XRDMLMeasurement(object):
                         is_scalar = 1
                     else:
                         raise ValueError(
-                            "no positions for axis {} found".format(aname))
+                            f"no positions for axis {aname} found")
 
                     # have to append the data to the data dictionary in case
                     # the scan is complete!
@@ -180,10 +180,9 @@ class XRDMLMeasurement(object):
     def __str__(self):
         ostr = "XRDML Measurement\n"
         if self.material:
-            ostr += "Material: '%s'; hkl: %s\n" % (self.material,
-                                                   str(self.hkl))
+            ostr += f"Material: '{self.material}'; hkl: {str(self.hkl)}\n"
         for k in self.ddict:
-            ostr += "%s with %s points\n" % (k, str(self.ddict[k].shape))
+            ostr += f"{k} with {str(self.ddict[k].shape)} points\n"
 
         return ostr
 
@@ -232,7 +231,7 @@ class XRDMLFile(object):
             self.scan = self.scans[0]
 
     def __str__(self):
-        ostr = "XRDML File: %s\n" % self.filename
+        ostr = f"XRDML File: {self.filename}\n"
         for s in self.scans:
             ostr += s.__str__()
 

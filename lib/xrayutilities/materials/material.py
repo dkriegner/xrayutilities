@@ -299,7 +299,7 @@ class Material(utilities.ABC):
         return utilities.en2lam(en) / (2 * numpy.pi * self.ibeta(en) * 2) / 1e4
 
     def __str__(self):
-        ostr = "%s: %s\n" % (self.__class__.__name__, self.name)
+        ostr = f"{self.__class__.__name__}: {self.name}\n"
         if numpy.any(self.cij):
             ostr += "Elastic tensor (6x6):\n"
             d = numpy.get_printoptions()
@@ -439,8 +439,8 @@ class Amorphous(Material):
             chemical element and atomic fraction
         """
         if re.findall(r'[\(\)]', cstring):
-            raise ValueError('unsupported chemical formula (%s) given.'
-                             % cstring)
+            raise ValueError(
+                f"unsupported chemical formula ({cstring}) given.")
         elems = re.findall('[A-Z][^A-Z]*', cstring)
         r = re.compile(r"([a-zA-Z]+)([0-9\.]+)")
         ret = []
@@ -568,11 +568,11 @@ class Amorphous(Material):
 
     def __str__(self):
         ostr = super().__str__()
-        ostr += "density: %.2f\n" % self.density
+        ostr += f"density: {self.density:.2f}\n"
         if self.base:
             ostr += "atoms: "
             for at, o in self.base:
-                ostr += "(%s, %.3f) " % (at.name, o)
+                ostr += f"({at.name}, {o:.3f}) "
             ostr += "\n"
 
         return ostr
@@ -1041,8 +1041,8 @@ class Crystal(Material):
             exponentf = 3 / 2. * hbar ** 2 * 1.0e20 / \
                 (m * kb * self.thetaDebye) * (math.Debye1(x) / x + 0.25)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.materials.Crystal: DWF = exp(-W*q**2) W= %g"
-                      % exponentf)
+                print("XU.materials.Crystal: DWF = exp(-W*q**2) "
+                      f"W= {exponentf:g}")
             dwf = numpy.exp(-exponentf * qnorm ** 2)
         else:
             dwf = 1.0
@@ -1734,8 +1734,7 @@ class Alloy(Crystal):
 
     def _setxb(self, x):
         self._xb = x
-        self.name = ("%s(%2.2f)%s(%2.2f)"
-                     % (self.matA.name, 1-x, self.matB.name, x))
+        self.name = f"{self.matA.name}({1 - x:2.2f}){self.matB.name}({x:2.2f})"
         # modify the free parameters of the lattice
         for k in self.lattice.free_parameters:
             setattr(self.lattice, k,
@@ -1763,7 +1762,7 @@ class Alloy(Crystal):
         if isinstance(arg, numbers.Number) and numpy.isfinite(arg):
             return float(arg)
         else:
-            raise TypeError("argument (%s) must be a scalar!" % name)
+            raise TypeError(f"argument ({name}) must be a scalar!")
 
     def _checkarray(self, arg, name=""):
         if isinstance(arg, (list, tuple, numpy.ndarray)):
@@ -1956,8 +1955,8 @@ class CubicAlloy(Alloy):
             return asub + relax * (abulk_perp(x) - asub)
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.materials.Alloy.ContentB: abulk_perp: %8.5g"
-                  % (abulk_perp(0.)))
+            print("XU.materials.Alloy.ContentB: abulk_perp: "
+                  f"{abulk_perp(0.0):8.5g}")
 
         def equation(x):
             return ((aperp - abulk_perp(x)) +

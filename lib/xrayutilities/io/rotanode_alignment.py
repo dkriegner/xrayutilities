@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 parser for the alignment log file of the rotating anode
@@ -64,8 +64,7 @@ class RA_Alignment(object):
             self.fid = xu_open(self.filename)
         except OSError:
             self.fid = None
-            raise IOError("error opening alignment log file %s"
-                          % self.filename)
+            raise IOError(f"error opening alignment log file {self.filename}")
 
         self.peaks = []
         self.alignnames = []

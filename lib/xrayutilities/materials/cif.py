@@ -92,7 +92,7 @@ class CIFFile(object):
             try:
                 self.fid = open(self.filename, "rb")
             except OSError:
-                raise IOError("cannot open CIF file %s" % self.filename)
+                raise IOError(f"cannot open CIF file {self.filename}")
         else:
             if filestr.count('\n') == 0:
                 print('XU.materials.CIFFile: "filestr" contains only one line '
@@ -106,7 +106,7 @@ class CIFFile(object):
                 self.fid = io.BytesIO(bytes(filestr.encode('ascii')))
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.materials: parsing CIF file %s' % self.filename)
+            print(f'XU.materials: parsing CIF file {self.filename}')
         self._default_dataset = None
         self.data = {}
         self.Parse()
@@ -159,9 +159,9 @@ class CIFFile(object):
         returns a string with positions and names of the atoms for all datasets
         """
         ostr = ""
-        ostr += "CIF-File: %s\n" % self.filename
+        ostr += f"CIF-File: {self.filename}\n"
         for ds in self.data:
-            ostr += "\nDataset: %s" % ds
+            ostr += f"\nDataset: {ds}"
             if ds == self._default_dataset:
                 ostr += " (default)"
             ostr += "\n"
@@ -196,7 +196,7 @@ class CIFDataset(object):
         self.has_atoms = False
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.materials: parsing cif dataset %s' % self.name)
+            print(f'XU.materials: parsing cif dataset {self.name}')
         self.Parse(fid)
         self.SymStruct()
 
@@ -453,7 +453,7 @@ class CIFDataset(object):
                 self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
                 allwyckp = wyckpos.wp[self.sgrp]
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.materials: trying space group %s' % self.sgrp)
+                    print(f'XU.materials: trying space group {self.sgrp}')
 
             # determine all unique positions for definition of a P1 space group
             symops = self.symops
@@ -507,11 +507,11 @@ class CIFDataset(object):
                         if foundwp:
                             break
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.materials: %d of %d Wyckoff positions identified'
-                          % (len(self.wp), len(self.atoms)))
+                    print(f"XU.materials: {len(self.wp):d} of "
+                          f"{len(self.atoms):d} Wyckoff positions identified")
                     if len(self.wp) < len(self.atoms):
-                        print('XU.materials: space group %s seems not to fit'
-                              % self.sgrp)
+                        print(f"XU.materials: space group {self.sgrp} seems "
+                              "not to fit")
 
                 # free unit cell parameters
                 self.crystal_system, nargs = sgl.sgrp_sym[self.sgrp_nr]
@@ -527,8 +527,8 @@ class CIFDataset(object):
 
                 if len(self.wp) == len(self.atoms):
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print('XU.materials: identified space group as %s'
-                              % self.sgrp)
+                        print("XU.materials: identified space group as "
+                              f"{self.sgrp}")
                     break
 
     def SGLattice(self, use_p1=False):
@@ -594,10 +594,10 @@ def cifexport(filename, mat):
 
     def unique_label(basename, names):
         num = 1
-        name = '{name}{num:d}'.format(name=basename, num=num)
+        name = f'{basename}{num:d}'
         while name in names:
             num += 1
-            name = '{name}{num:d}'.format(name=basename, num=num)
+            name = f'{basename}{num:d}'
         return name
 
     general = """data_global
@@ -628,7 +628,7 @@ _space_group_name_H-M_alt '{hmsymb}'
 
     sgrpsuf = mat.lattice.space_group_suf[1:]
     if sgrpsuf:
-        ctxt += '_symmetry_cell_setting {suf}\n'.format(suf=sgrpsuf)
+        ctxt += f'_symmetry_cell_setting {sgrpsuf}\n'
 
     symloop = """
 loop_

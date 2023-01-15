@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # module for handling files stored in the CBF data format
 
@@ -116,10 +116,10 @@ class CBFFile(object):
             if cbf_name_start_num.match(name):
                 name = "ccd_" + name
             if config.VERBOSITY >= config.INFO_ALL:
-                print("xu.io.CBFFile: HDF5 group name: %s" % name)
+                print(f"xu.io.CBFFile: HDF5 group name: {name}")
 
             # create the array description
-            desc = "CBF CCD data from file %s " % (self.filename)
+            desc = f"CBF CCD data from file {self.filename} "
 
             # create the dataset for the array
             kwds = {'fletcher32': True}

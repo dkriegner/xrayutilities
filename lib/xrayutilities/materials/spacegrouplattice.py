@@ -410,7 +410,7 @@ class WyckoffBase(list):
             ostr += '%d: %s %s ' % (i, str(atom), p[0])
             if p[1] is not None:
                 ostr += ' '.join(map(utilities.frac2str, p[1]))
-            ostr += ' occ=%5.3f b=%5.3f\n' % (occ, b)
+            ostr += f' occ={occ:5.3f} b={b:5.3f}\n'
         return ostr
 
     def __contains__(self, item):
@@ -489,7 +489,7 @@ class WyckoffBase(list):
             if (atom == item[0] and self.pos_eq(p, item[1]) and
                     isclose(b, item[3], abs_tol=1e-4)):
                 return i
-        raise ValueError("%s is not in list" % str(item))
+        raise ValueError(f"{str(item)} is not in list")
 
 
 class SymOp(object):
@@ -565,7 +565,7 @@ class SymOp(object):
             expr = expr.strip('+')
             ret += expr + ', '
         if showtimerev:
-            ret += '{:+d}'.format(self._m)
+            ret += f'{self._m:+d}'
         return ret.strip(', ')
 
     @property
@@ -607,7 +607,7 @@ class SymOp(object):
         return SymOp(W[:3, :3], self.foldback(W[:3, 3]), self._m*other._m)
 
     def __str__(self):
-        return '({})'.format(self.xyz(showtimerev=True))
+        return f'({self.xyz(showtimerev=True)})'
 
     def __repr__(self):
         return self.__str__()
@@ -1183,7 +1183,7 @@ class SGLattice(object):
         and of Wyckoff positions
         """
         ostr = "Reflection conditions:\n"
-        ostr += " general: %s\n" % str(self._gp[2])
+        ostr += f" general: {str(self._gp[2])}\n"
         for wplabel in set([e[1][0] for e in self._wbase]):
             ostr += "%8s: %s \n" % (wplabel,
                                     str(wp[self.space_group][wplabel][2]))

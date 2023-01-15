@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module for reading ILL data files (station D23): numor files
@@ -167,12 +167,13 @@ class numorFile(object):
                 data, names=self.columns[self.header['manip']])
 
     def __str__(self):
-        ostr = 'Numor: %d (%s)\n' % (self.runnumber, self.filename)
-        ostr += 'Comments: %s\n' % " ".join(
-            s for c in self.comments for s in c[1])
-        ostr += 'Npoints/Ndone: %(nkmes)d/%(npdone)d\n' % (self.header)
-        ostr += 'Nspectra: %d\n' % self.nspectra
-        ostr += 'Ncolumns: %s' % self.data.shape[1]
+        ostr = f"Numor: {self.runnumber:d} ({self.filename:s})\n"
+        com = " ".join(s for c in self.comments for s in c[1])
+        ostr += f"Comments: {com}\n"
+        ostr += f"Npoints/Ndone: {self.header['nkmes']:d}/"
+        ostr += f"{self.header['npdone']:d}\n"
+        ostr += f"Nspectra: {self.nspectra:d}\n"
+        ostr += f"Ncolumns: {self.data.shape[1]}"
         return ostr
 
 
@@ -210,8 +211,7 @@ def numor_scan(scannumbers, *args, **kwargs):
     elif isinstance(scannumbers, collections.abc.Iterable):
         scanlist = scannumbers
     else:
-        raise TypeError('scannumbers is of invalid type (%s)'
-                        % type(scannumbers))
+        raise TypeError(f"scannumbers has invalid type ({type(scannumbers)})")
 
     angles = dict.fromkeys(args)
     for key in angles:

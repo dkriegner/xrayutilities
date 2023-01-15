@@ -15,7 +15,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
-# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
 
@@ -242,7 +242,7 @@ class FP_profile:
         """
         if anglemode not in ("d", "twotheta"):
             raise Exception(
-                "invalid angle mode %s, must be 'd' or 'twotheta'" % anglemode)
+                f"invalid angle mode {anglemode}, must be 'd' or 'twotheta'")
         # set to either 'd' for d-spacing based position, or 'twotheta' for
         # angle-based position
         self.anglemode = anglemode
@@ -559,7 +559,7 @@ class FP_profile:
         keys.sort()  # always return info in the same order
         # global is always first, anyways!
         keys.insert(0, keys.pop(keys.index('conv_global')))
-        strings = ["", "***convolver id 0x%08x:" % id(self)]
+        strings = ["", f"***convolver id 0x{id(self):08x}:"]
         for k in keys:
             strfn = "str_" + k[5:]
             if hasattr(self, strfn):
@@ -1201,12 +1201,12 @@ class FP_profile:
         nm = 1e9 * self.length_scale_m
         items = ["emission and broadening:"]
         items.append("spectrum=\n" + str(spect.transpose()))
-        items.append("crystallite_size_lor (nm): %.5g" %
-                     (xx.crystallite_size_lor * nm))
+        items.append(
+            f"crystallite_size_lor (nm): {xx.crystallite_size_lor * nm:.5g}")
         items.append("crystallite_size_gauss (nm): %.5g" %
                      (xx.crystallite_size_gauss * nm))
-        items.append("strain_lor: %.5g" % xx.strain_lor)
-        items.append("strain_gauss: %.5g" % xx.strain_gauss)
+        items.append(f"strain_lor: {xx.strain_lor:.5g}")
+        items.append(f"strain_gauss: {xx.strain_gauss:.5g}")
         return '\n'.join(items)
 
     def conv_emission(self):
@@ -1506,7 +1506,7 @@ class FP_profile:
         # wanted
         me = self.get_function_name()  # the name of the convolver, as a string
         if not self.gaussian_smoother_bins_sigma:
-            return  # no smoothing
+            return None  # no smoothing
         flag, buf = self.get_conv(me, self.gaussian_smoother_bins_sigma,
                                   format=float)
         if flag:

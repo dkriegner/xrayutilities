@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -58,7 +58,7 @@ def xu_open(filename, mode='rb'):
         which is not caught within the function
     """
     if config.VERBOSITY >= config.INFO_ALL:
-        print("XU:io: opening file %s" % filename)
+        print(f"XU:io: opening file {filename}")
     if filename.endswith('.gz'):
         fid = gzip.open(filename, mode)
     elif filename.endswith('.bz2'):

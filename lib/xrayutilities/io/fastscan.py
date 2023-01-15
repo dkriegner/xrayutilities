@@ -139,11 +139,11 @@ class FastScan(object):
                 return self.data[motorname]
             except ValueError:
                 try:
-                    return self.specscan.init_motor_pos['INIT_MOPO_%s'
-                                                        % motorname]
-                except KeyError:
-                    raise ValueError("given motorname '%s' not found in the "
-                                     "Spec-data" % motorname)
+                    return self.specscan.init_motor_pos[
+                        f"INIT_MOPO_{motorname}"]
+                except KeyError as exc:
+                    raise ValueError(f"given motorname '{motorname}' not "
+                                     "found in the Spec-data") from exc
         else:
             return None
 

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import collections.abc
 import copy
@@ -125,10 +125,10 @@ class SMaterial(object):
                                                              wp[2], value)
 
     def __radd__(self, other):
-        return MaterialList('%s + %s' % (other.name, self.name), other, self)
+        return MaterialList(f'{other.name} + {self.name}', other, self)
 
     def __add__(self, other):
-        return MaterialList('%s + %s' % (self.name, other.name), self, other)
+        return MaterialList(f'{self.name} + {other.name}', self, other)
 
     def __mul__(self, other):
         return _multiply(self, other)
@@ -136,15 +136,14 @@ class SMaterial(object):
     __rmul__ = __mul__
 
     def __repr__(self):
-        s = '{cls}-{name} ('.format(name=self.material.name,
-                                    cls=self.__class__.__name__)
+        s = f'{self.__class__.__name__}-{self.material.name} ('
         for k in self.__dict__:
             if k not in ('name', '_material', '_structural_params'):
                 v = getattr(self, k)
                 if isinstance(v, numbers.Number):
-                    s += '{key}: {value:.5g}, '.format(key=k, value=v)
+                    s += f'{k}: {v:.5g}, '
                 else:
-                    s += '{key}: {value}, '.format(key=k, value=v)
+                    s += f'{k}: {v}, '
         return s + ')'
 
 
@@ -180,10 +179,10 @@ class MaterialList(collections.abc.MutableSequence):
             else:
                 num = 1
                 basename = v.name
-            name = '{name}_{num:d}'.format(name=basename, num=num)
+            name = f'{basename}_{num:d}'
             while name in self.namelist:
                 num += 1
-                name = '{name}_{num:d}'.format(name=basename, num=num)
+                name = f'{basename}_{num:d}'
             v.name = name
         return v.name
 
@@ -209,13 +208,13 @@ class MaterialList(collections.abc.MutableSequence):
             self.list.insert(i+j, val)
 
     def __radd__(self, other):
-        ml = MaterialList('%s + %s' % (other.name, self.name))
+        ml = MaterialList(f'{other.name} + {self.name}')
         ml.append(other)
         ml.append(self)
         return ml
 
     def __add__(self, other):
-        ml = MaterialList('%s + %s' % (self.name, other.name))
+        ml = MaterialList(f'{self.name} + {other.name}')
         ml.append(self)
         ml.append(other)
         return ml
@@ -227,7 +226,7 @@ class MaterialList(collections.abc.MutableSequence):
 
     def __str__(self):
         layer = ',\n  '.join([str(entry) for entry in self.list])
-        s = '{name} [\n  {layer}\n]'.format(name=self.name, layer=layer)
+        s = f'{self.name} [\n  {layer}\n]'
         return s
 
     def __repr__(self):

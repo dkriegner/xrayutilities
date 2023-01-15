@@ -68,26 +68,26 @@ class FitModel(object):
         funcstr = "def func(x, "
         # add LayerModel parameters
         for p in self.lmodel.fit_paramnames:
-            funcstr += "{}, ".format(p)
+            funcstr += f"{p}, "
         # add LayerStack parameters
         for layer in self.lmodel.lstack:
             for param in self.lmodel.lstack_params:
-                funcstr += '{}_{}, '.format(layer.name, param)
+                funcstr += f'{layer.name}_{param}, '
             if self.lmodel.lstack_structural_params:
                 for param in layer._structural_params:
-                    funcstr += '{}_{}, '.format(layer.name, param)
+                    funcstr += f'{layer.name}_{param}, '
         funcstr += "lmodel=self.lmodel, **kwargs):\n"
         # define modelfunc content
         for p in self.lmodel.fit_paramnames:
-            funcstr += "    setattr(lmodel, '{}', {})\n".format(p, p)
+            funcstr += f"    setattr(lmodel, '{p}', {p})\n"
         for i, l in enumerate(self.lmodel.lstack):
             for param in self.lmodel.lstack_params:
-                varname = '{}_{}'.format(l.name, param)
+                varname = f'{l.name}_{param}'
                 cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
                 funcstr += cmd.format(i, param, varname)
             if self.lmodel.lstack_structural_params:
                 for param in l._structural_params:
-                    varname = '{}_{}'.format(l.name, param)
+                    varname = f'{l.name}_{param}'
                     cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
                     funcstr += cmd.format(i, param, varname)
         # perform actual model calculation
@@ -258,7 +258,7 @@ class FitModel(object):
         # create callback function
         def cb_func(params, niter, resid, *args, **kwargs):
             if self.verbose:
-                print('{:04d} {:12.3e}'.format(niter, numpy.sum(resid**2)))
+                print(f'{niter:04d} {numpy.sum(resid ** 2):12.3e}')
             if self.fitplot.plot and niter % 20 == 0:
                 self.fitplot.updatemodelline(kwargs['x'],
                                              self.eval(params, **kwargs))
@@ -296,7 +296,7 @@ class FitModel(object):
         # parameters of the layerstack
         for lay in self.lmodel.lstack:
             for param in self.lmodel.lstack_params:
-                varname = '{}_{}'.format(lay.name, param)
+                varname = f'{lay.name}_{param}'
                 self.set_param_hint(varname, value=getattr(lay, param), min=0)
                 if param == 'density':
                     self.set_param_hint(varname, max=1.5*lay.material.density)
@@ -306,7 +306,7 @@ class FitModel(object):
                     self.set_param_hint(varname, max=50)
             if self.lmodel.lstack_structural_params:
                 for param in lay._structural_params:
-                    varname = '{}_{}'.format(lay.name, param)
+                    varname = f'{lay.name}_{param}'
                     self.set_param_hint(varname, value=getattr(lay, param),
                                         vary=False)
                     if 'occupation' in param:
@@ -314,5 +314,5 @@ class FitModel(object):
                     if 'biso' in param:
                         self.set_param_hint(varname, min=0, max=5)
         if self.lmodel.lstack[0].thickness == numpy.inf:
-            varname = '{}_{}'.format(self.lmodel.lstack[0].name, 'thickness')
+            varname = f"{self.lmodel.lstack[0].name}_thickness"
             self.set_param_hint(varname, vary=False)

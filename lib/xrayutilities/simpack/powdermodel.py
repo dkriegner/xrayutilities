@@ -76,7 +76,7 @@ class PowderModel(object):
         if len(args) == 1 and isinstance(args[0], PowderList):
             self.materials = args[0]
         else:
-            self.materials = PowderList('%s List' % self.__class__.__name__,
+            self.materials = PowderList(f'{self.__class__.__name__} List',
                                         *args)
         self.I0 = kwargs.pop('I0', 1.0)
         self.pdiff = []
@@ -427,7 +427,7 @@ class PowderModel(object):
                 x = 2*pd.data[h]['ang']
                 y = 0.5
                 annot.xy = (x, y)
-                text = "{}: {} {} {}".format(pd.mat.name, h[0], h[1], h[2])
+                text = f"{pd.mat.name}: {h[0]} {h[1]} {h[2]}"
                 annot.set_text(text)
                 annot.get_bbox_patch().set_edgecolor(lines.get_color()[0])
                 annot.set_zorder(10)
@@ -482,7 +482,7 @@ class PowderModel(object):
         string representation of the PowderModel
         """
         ostr = "PowderModel {\n"
-        ostr += "I0: %f\n" % self.I0
+        ostr += f"I0: {self.I0:f}\n"
         ostr += str(self.materials)
         ostr += "}"
         return ostr
