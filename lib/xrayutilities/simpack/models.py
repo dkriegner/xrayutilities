@@ -175,23 +175,28 @@ class LayerModel(Model, utilities.ABC):
             forwarded to the superclass.
         experiment :    Experiment, optional
             class containing geometry and energy of the experiment.
-        surface_hkl :   list or tuple, optional
-            Miller indices of the surface (default: (0, 0, 1))
+        polarization: {'S', 'P', 'both'}, optional
+            polarization of the x-ray beam. If set to 'both' also Cmono, the
+            polarization factor of the monochromator should be set
+        Cmono :     float, optional
+            polarization factor of the monochromator
         """
         exp = kwargs.pop('experiment', None)
+        self.polarization = kwargs.pop('polarization', 'S')
+        self.Cmono = kwargs.pop('Cmono', 1)
         super().__init__(exp, **kwargs)
         self.lstack_params = []
         self.lstack_structural_params = False
         self.xlabelstr = 'x (1)'
         if len(args) == 1:
             if isinstance(args[0], Layer):
-                self.lstack = LayerStack('Stack for %s'
-                                         % self.__class__.__name__, *args)
+                self.lstack = LayerStack(
+                    f"Stack for {self.__class__.__name__}", *args)
             else:
                 self.lstack = args[0]
         else:
-            self.lstack = LayerStack('Stack for %s' % self.__class__.__name__,
-                                     *args)
+            self.lstack = LayerStack(
+                f"Stack for {self.__class__.__name__}", *args)
 
     @abc.abstractmethod
     def simulate(self):
@@ -199,7 +204,6 @@ class LayerModel(Model, utilities.ABC):
         abstract method that every implementation of a LayerModel has to
         override.
         """
-        pass
 
     def _create_return(self, x, E, ai=None, af=None, Ir=None,
                        rettype='intensity'):
@@ -246,8 +250,7 @@ class LayerModel(Model, utilities.ABC):
         """
         if self.polarization == 'both':
             return ('S', 'P')
-        else:
-            return (self.polarization,)
+        return (self.polarization, )
 
     def join_polarizations(self, Is, Ip):
         """
@@ -558,8 +561,6 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         if not hasattr(self, 'fit_paramnames'):
             self.fit_paramnames = []
         self.fit_paramnames += ['Cmono', ]
-        self.polarization = kwargs.pop('polarization', 'S')
-        self.Cmono = kwargs.pop('Cmono', 1)
         super().__init__(*args, **kwargs)
         self.xlabelstr = 'incidence angle (deg)'
         self.hkl = None
@@ -1107,7 +1108,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         polarization:   ['P', 'S']
             x-ray polarization
         """
-        self.polarization = kwargs.pop('polarization', 'P')
+        kwargs.setdefault('polarization', 'P')
         super().__init__(*args, **kwargs)
         self._init_en_opt = 0
         self._setOpticalConstants()
@@ -1309,7 +1310,6 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         polarization:   ['P', 'S']
             x-ray polarization
         """
-        self.polarization = kwargs.pop('polarization', 'S')
         super().__init__(*args, **kwargs)
 
     def simulate(self, alphai):
@@ -2030,7 +2030,7 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
                      (pymath.sqrt(2) * sigmas[idxl])))
 
     # normalize weight functions
-    wsum = numpy.add.reduce([w for w in W.values()])
+    wsum = numpy.add.reduce(list(W.values()))
     for k in W:
         W[k] /= wsum
 
@@ -2057,7 +2057,7 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
                 density += W[idxl][idxp] * l.density
 
         if density != 0:
-            mat = Amorphous('slice %d' % idxp, density, atoms=atoms)
+            mat = Amorphous(f"slice {idxp}", density, atoms=atoms)
             sls.append(Layer(mat, step, roughness=roughness))
 
     return sls
