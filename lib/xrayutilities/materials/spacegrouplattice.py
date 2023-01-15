@@ -1119,7 +1119,7 @@ class SGLattice(object):
         if self._hklcond == [] and self._gp[2] is not None:
             self._hklcond = hklcond_group.findall(self._gp[2])
         if self._hklcond_wp == []:
-            for lab in set([e[1][0] for e in self._wbase]):
+            for lab in set(e[1][0] for e in self._wbase):
                 if lab == self._gplabel:  # if gen. pos. is occupied skip it
                     self._hklcond_wp.append(None)
                 elif wp[self.space_group][lab][2] is None:
@@ -1184,9 +1184,8 @@ class SGLattice(object):
         """
         ostr = "Reflection conditions:\n"
         ostr += f" general: {str(self._gp[2])}\n"
-        for wplabel in set([e[1][0] for e in self._wbase]):
-            ostr += "%8s: %s \n" % (wplabel,
-                                    str(wp[self.space_group][wplabel][2]))
+        for wplabel in set(e[1][0] for e in self._wbase):
+            ostr += f"{wplabel:8s}: {str(wp[self.space_group][wplabel][2])}\n"
         return ostr
 
     def __str__(self):

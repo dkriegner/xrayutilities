@@ -127,7 +127,7 @@ class numorFile(object):
                         names += self.getline(fid).split()
                     values = numpy.fromfile(fid, dtype=int,
                                             count=int(info[0]), sep=' ')
-                    self.header = {k: v for k, v in zip(names, values)}
+                    self.header = dict(zip(names, values))
 
                 if re_values.match(line):
                     # read FFFF section: initial motor positions
@@ -139,7 +139,7 @@ class numorFile(object):
                         names += self.ssplit(self.getline(fid))
                     values = numpy.fromfile(fid, dtype=float,
                                             count=int(info[0]), sep=' ')
-                    self.init_mopo = {k: v for k, v in zip(names, values)}
+                    self.init_mopo = dict(zip(names, values))
 
                 if re_spectrum.match(line):
                     # read SSSS section: initial motor positions

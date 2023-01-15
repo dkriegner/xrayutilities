@@ -176,7 +176,7 @@ def exitAngleConst(angles, alphaf, xrd):
     """
     qconv = xrd._A2QConversion
     # calc kf
-    detangles = [a for a in angles[-len(qconv.detectorAxis):]]
+    detangles = list(angles[-len(qconv.detectorAxis):])
     kf = qconv.getDetectorPos(*detangles)
     if numpy.linalg.norm(kf) == 0:
         af = 0

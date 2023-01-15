@@ -257,11 +257,10 @@ class FP_profile:
             x for x in dir(self) if x.startswith("conv_")]
         # A dictionary which will store all the parameters local to each
         # convolution
-        self.param_dicts = dict([(c, {}) for c in convolvers])
+        self.param_dicts = {c: {} for c in convolvers}
         # add global parameters, associated with no specific convolver
         # A dictionary of bound functions to call to compute convolutions
-        self.convolver_funcs = dict(
-            [(x, getattr(self, x)) for x in convolvers])
+        self.convolver_funcs = {x: getattr(self, x) for x in convolvers}
         # If *True*, print cache hit information
         self.debug_cache = False
         # keep a record of things we don't keep when pickled
@@ -401,7 +400,7 @@ class FP_profile:
 
         # A dictionary in which we collect recent state for each convolution.
         # whenever the window gets reset, all of these get cleared
-        self.convolution_history = dict([(x, []) for x in self.convolvers])
+        self.convolution_history = {x: [] for x in self.convolvers}
 
         # A dictionary of Lorentz widths, used for de-periodizing the final
         # result.
