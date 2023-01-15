@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2014-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2014-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Module provides functions to convert a q-vector from reciprocal space to
@@ -291,7 +291,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     if ((config.VERBOSITY >= config.DEBUG) or (qerror > 10*config.EPSILON and
                                                config.VERBOSITY >=
                                                config.INFO_LOW)):
-        print("XU.Q2AngFit: q-error=%.4g with error-code %d (%s)"
-              % (qerror, errcode, res.message))
+        print(f"XU.Q2AngFit: q-error={qerror:.4g} with error-code {errcode} "
+              f"({res.message})")
 
     return x, qerror, errcode

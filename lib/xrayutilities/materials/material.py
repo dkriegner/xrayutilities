@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (c) 2009-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 # Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
@@ -53,11 +53,11 @@ map_ij2ijkl = {"0": [0, 0], "1": [1, 1], "2": [2, 2],
 
 
 def index_map_ijkl2ij(i, j):
-    return map_ijkl2ij["%i%i" % (i, j)]
+    return map_ijkl2ij[f"{i}{j}"]
 
 
 def index_map_ij2ijkl(ij):
-    return map_ij2ijkl["%i" % ij]
+    return map_ij2ijkl[f"{ij}"]
 
 
 def check_symmetric(matrix):
@@ -401,12 +401,12 @@ class Amorphous(Material):
         """
         super().__init__(name, cij)
         self._density = density
-        self.base = list()
+        self.base = []
         if atoms is None:
             comp = Amorphous.parseChemForm(name)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.materials.Amorphous: using '%s' as chemical formula"
-                      % ''.join(['%s%.2f ' % (e.name, c) for e, c in comp]))
+                ceq = "".join([f"{e.name}{c:.2f} " for e, c in comp])
+                print(f"XU.materials.Amorphous: using '{ceq}' as formula")
             for (e, c) in comp:
                 self.base.append((e, c))
         else:
@@ -760,14 +760,14 @@ class Crystal(Material):
                 natoms = 1
 
         # generate output strig
-        cstr = ''
-        fmtstr = '%d' if isint else '%%.%df' % ndigits
+        cstr = ""
+        fmtstr = "%d" if isint else f"%.{ndigits}f"
         for e in elem:
             n = elem[e] / float(natom) * natoms
             cstr += e
             if n != 1:
                 cstr += fmtstr % n
-            cstr += ' ' if with_spaces else ''
+            cstr += " " if with_spaces else ""
         return cstr.strip()
 
     def environment(self, *pos, **kwargs):
@@ -1280,8 +1280,7 @@ class Crystal(Material):
         else:
             raise TypeError("q must be a list or numpy array!")
         if len(q.shape) != 2:
-            raise ValueError("q does not have the correct shape (shape = %s)"
-                             % str(q.shape))
+            raise ValueError(f"q does not have the correct shape ({q.shape})")
         qnorm = numpy.linalg.norm(q, axis=1)
 
         if isinstance(en0, str) and en0 == 'config':
@@ -1768,8 +1767,8 @@ class Alloy(Crystal):
         if isinstance(arg, (list, tuple, numpy.ndarray)):
             return numpy.asarray(arg, dtype=numpy.double)
         else:
-            raise TypeError("argument (%s) must be of type "
-                            "list, tuple or numpy.ndarray" % name)
+            raise TypeError(f"argument ({name}) must be of type "
+                            "list, tuple or numpy.ndarray")
 
     def _definehelpers(self, hkl, cijA, cijB):
         """
@@ -2037,8 +2036,8 @@ class CubicAlloy(Alloy):
                        numpy.inner(n, hkl))
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.materials.Alloy.ContentB: abulk_inp/perp: %8.5g %8.5g"
-                  % (abulk_inp(0.), abulk_perp(0.)))
+            print("XU.materials.Alloy.ContentB: abulk_inp/perp: "
+                  f"{abulk_inp(0.):8.5g} {abulk_perp(0.):8.5g}")
 
         def equation(x):
             return ((aperp - abulk_perp(x)) +
@@ -2105,7 +2104,7 @@ def PseudomorphicMaterial(sub, layer, relaxation=0, trans=None):
     eps = trans.inverse(numpy.diag((epar, epar, eperp)), rank=2)
     if config.VERBOSITY >= config.INFO_ALL:
         print("XU.materials.PseudomorphicMaterial: applying strain (inplane, "
-              "perpendicular): %.4g %.4g" % (epar, eperp))
+              f"perpendicular): {epar:.4g} {eperp:.4g}")
 
     # create the pseudomorphic material
     pmlatt = copy.deepcopy(layer.lattice)
