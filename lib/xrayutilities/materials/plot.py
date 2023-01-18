@@ -110,7 +110,7 @@ def show_reciprocal_space_plane(
 
     if not plot:
         print('matplotlib needed for show_reciprocal_space_plane')
-        return
+        return None, None  # return values for consistency with signature below
 
     if ttmax is None:
         ttmax = 180

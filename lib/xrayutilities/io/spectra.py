@@ -63,6 +63,7 @@ class SPECTRAFileComments(dict):
     def __getattr__(self, name):
         if name in self:
             return self[name]
+        raise KeyError(f"'{name}' not found in SPECTRA file comments")
 
 
 class SPECTRAFileParameters(dict):
@@ -73,6 +74,7 @@ class SPECTRAFileParameters(dict):
     def __getattr__(self, name):
         if name in self:
             return self[name]
+        raise KeyError(f"'{name}' not found in SPECTRA file parameters")
 
     def __str__(self):
         ostr = ""
@@ -142,9 +144,10 @@ class SPECTRAFileData(object):
     def __getitem__(self, key):
         try:
             return self.data[key]
-        except IndexError:
+        except IndexError as exc:
             print("XU.io.specta.SPECTRAFileData: data contains no column "
                   "named: %s!" % key)
+            raise exc
 
     def __str__(self):
         ostr = ""
@@ -162,7 +165,7 @@ class SPECTRAFileData(object):
         nres = len(self.collist) % nc
         nrows = (len(self.collist) - nres) / nc
 
-        fmtstr = "| %%-%is| %%-%is| %%-%is|\n" % (lmax, lmax, lmax)
+        fmtstr = f"| %-{lmax}s| %-{lmax}s| %-{lmax}s|\n"
 
         ostr += (3 * lmax + 7) * "-" + "\n"
         ostr += "|Column names:" + (3 * lmax - 8) * " " + "|\n"

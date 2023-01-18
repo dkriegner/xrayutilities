@@ -310,12 +310,14 @@ def get_wyckpos(sgrp, atompos):
     position argument for WyckoffBase.append
     """
     for k, wyckpos in wp[sgrp].items():
-        parint, poslist, reflcond = wyckpos
+        parint, poslist, _ = wyckpos
         item = poslist[0]
         for pos in atompos:
             foundwp, par = testwp(parint, item, pos)
             if foundwp:
                 return k if par is None else (k, list(par))
+    raise ValueError(
+        f"Wyckoff could not be identified for SG {sgrp} and pos {atompos}")
 
 
 class WyckoffBase(list):

@@ -275,8 +275,7 @@ def makeNaturalName(name, check=False):
     isvalid = is_valid_variable_name(ret)
     if not check or isvalid:
         return ret
-    elif not isvalid:
-        raise ValueError(f"'{ret}' is not valid variable name")
+    raise ValueError(f"'{ret}' is not valid variable name")
 
 
 def is_valid_variable_name(name):

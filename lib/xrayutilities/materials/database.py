@@ -60,7 +60,7 @@ class DataBase(object):
         if self.h5file is not None:
             print("database already opened - "
                   "close first to create new database")
-            return None
+            return
 
         # tryp to open the database file
         try:
@@ -700,7 +700,7 @@ def add_f1f2_from_ascii_file(db, asciifile, element, verbose=False):
         af = numpy.loadtxt(asciifile)
     except OSError:
         print("cannot open f1f2 database file")
-        return None
+        return
     db.SetMaterial(element)
 
     en = af[:, 0]

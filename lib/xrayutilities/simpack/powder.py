@@ -1145,7 +1145,7 @@ class FP_profile:
             the updated convolver buffer, or *None* if the width was *None*
         """
         if width is None:
-            return  # no convolver
+            return None  # no convolver
         flag, conv = self.get_conv(name, width, float)
         if flag:
             return conv  # already up to date

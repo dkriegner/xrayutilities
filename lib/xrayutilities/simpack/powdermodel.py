@@ -354,11 +354,11 @@ class PowderModel(object):
 
         Returns
         -------
-        matplotlib.axes object
+        matplotlib.axes object or None if matplotlib is not available
         """
         plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
         if not plot:
-            return
+            return None
 
         if ax is None:
             fig, iax = plt.subplots()
@@ -566,10 +566,14 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
         format specifier for the experimental data
     formatsim : str
         format specifier for the simulation curve
+
+    Returns
+    -------
+    List of lines in the plot. Empty list in case matplotlib can't be imported
     """
     plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
     if not plot:
-        return
+        return []
     if scale == 'sqrt':
         from ..mpl_helper import SqrtAllowNegScale  # noqa: F401
 

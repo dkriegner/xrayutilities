@@ -1136,7 +1136,7 @@ def getspec_scan(specf, scans, *args, **kwargs):
     >>>                                     'Counter2')
     """
     if not args:
-        return
+        return InputError("no motor or counter names given")
 
     if numpy.iterable(scans):
         scanlist = scans

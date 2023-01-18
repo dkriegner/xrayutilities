@@ -1433,7 +1433,7 @@ class Crystal(Material):
 
         if not plot:
             print('matplotlib and/or mayavi.mlab needed for show_unitcell()')
-            return
+            return None
 
         def plot_sphere(fig, vecpos, r, alpha, complexity, color):
             """
