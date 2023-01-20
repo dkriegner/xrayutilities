@@ -91,15 +91,17 @@ class build_ext_subclass(build_ext):
 
 
 class build_with_database(build_py):
+    dbfilename = os.path.join('materials', 'data', 'elements.db')
+
     def build_database(self):
-        dbfilename = os.path.join(self.build_lib, 'xrayutilities',
-                                  'materials', 'data', 'elements.db')
+        self.fulldbfilename = os.path.join(self.build_lib, 'xrayutilities',
+                                           self.dbfilename)
         cmd = [sys.executable,
                os.path.join('lib', 'xrayutilities', 'materials',
                             '_create_database.py'),
-               dbfilename]
-        self.mkpath(os.path.dirname(dbfilename))
-        print('building database: {}'.format(dbfilename))
+               self.fulldbfilename]
+        self.mkpath(os.path.dirname(self.fulldbfilename))
+        print(f'building database: {self.fulldbfilename}')
         try:
             if sys.version_info >= (3, 5):
                 subprocess.run(cmd, stderr=subprocess.PIPE,
@@ -111,9 +113,16 @@ class build_with_database(build_py):
             sys.stdout.buffer.write(cpe.stderr)
             raise
 
+    def copy_database(self):
+        pkg_dir = self.get_package_dir("xrayutilities")
+        inplace_file = os.path.join(pkg_dir, self.dbfilename)
+        self.copy_file(self.fulldbfilename, inplace_file)
+
     def run(self):
         super().run()
         self.build_database()
+        if self.editable_mode:
+            self.copy_database()
 
 
 cmdclass = {'build_py': build_with_database,
