@@ -25,7 +25,7 @@ from .. import utilities
 def show_reciprocal_space_plane(
         mat, exp, ttmax=None, maxqout=0.01, scalef=100, ax=None, color=None,
         show_Laue=True, show_legend=True, projection='perpendicular',
-        label=None):
+        label=None, **kwargs):
     """
     show a plot of the coplanar diffraction plane with peak positions for the
     respective material. the size of the spots is scaled with the strength of
@@ -64,6 +64,9 @@ def show_reciprocal_space_plane(
     label:  None or str, optional
         label to be used for the legend. If 'None' the name of the material
         will be used.
+    kwargs: optional
+        kwargs are forwarded to matplotlib.pyplot.scatter and allow to change
+        the appearance of the points.
 
     Returns
     -------
@@ -166,10 +169,11 @@ def show_reciprocal_space_plane(
     else:
         s = d['r'][m]*scalef
 
-    label = label if label else mat.name
-    h = plt.scatter(x, y, s=s, zorder=2, label=label)
-    if color:
-        h.set_color(color)
+    kwargs.setdefault("label", label if label else mat.name)
+    kwargs.setdefault("zorder", 2)
+    kwargs.setdefault("s", s)
+    kwargs.setdefault("c", color)
+    h = plt.scatter(x, y, **kwargs)
 
     plt.xlabel(r'$Q$ inplane ($\mathrm{\AA^{-1}}$)')
     plt.ylabel(r'$Q$ out of plane ($\mathrm{\AA^{-1}}$)')
