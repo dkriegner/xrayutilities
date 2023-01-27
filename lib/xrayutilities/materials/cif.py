@@ -90,9 +90,9 @@ class CIFFile(object):
         if os.path.isfile(filestr):
             self.filename = filestr
             try:
-                self.fid = open(self.filename, "rb")
-            except OSError:
-                raise IOError(f"cannot open CIF file {self.filename}")
+                fid = open(self.filename, "rb")
+            except OSError as exc:
+                raise IOError(f"cannot open CIF file {self.filename}") from exc
         else:
             if filestr.count('\n') == 0:
                 print('XU.materials.CIFFile: "filestr" contains only one line '
@@ -101,43 +101,37 @@ class CIFFile(object):
                       'content of a CIF file!')
             self.filename = '__from_str__'
             if isinstance(filestr, bytes):
-                self.fid = io.BytesIO(filestr)
+                fid = io.BytesIO(filestr)
             else:
-                self.fid = io.BytesIO(bytes(filestr.encode('ascii')))
+                fid = io.BytesIO(bytes(filestr.encode('ascii')))
 
         if config.VERBOSITY >= config.INFO_ALL:
             print(f'XU.materials: parsing CIF file {self.filename}')
-        self._default_dataset = None
+        self.default_dataset = None
         self.data = {}
-        self.Parse()
+        self.Parse(fid)
+        fid.close()
 
-    def __del__(self):
-        """
-        class destructor which closes open files
-        """
-        if self.fid is not None:
-            self.fid.close()
-
-    def Parse(self):
+    def Parse(self, fid):
         """
         function to parse a CIF file. The function reads all the included data
         sets and adds them to the data dictionary.
 
         """
-        fidpos = self.fid.tell()
+        fidpos = fid.tell()
         while True:
-            line = self.fid.readline()
+            line = fid.readline()
             if not line:
                 break
-            fidpos = self.fid.tell()
+            fidpos = fid.tell()
             line = line.decode('ascii', 'ignore')
             m = re_data.match(line)
             if m:
-                self.fid.seek(fidpos)
+                fid.seek(fidpos)
                 name = line[m.end():].strip()
-                self.data[name] = CIFDataset(self.fid, name, self.digits)
-                if self.data[name].has_atoms and not self._default_dataset:
-                    self._default_dataset = name
+                self.data[name] = CIFDataset(fid, name, self.digits)
+                if self.data[name].has_atoms and not self.default_dataset:
+                    self.default_dataset = name
 
     def SGLattice(self, dataset=None, use_p1=False):
         """
@@ -151,7 +145,7 @@ class CIFFile(object):
             force the use of P1 symmetry, default False
         """
         if not dataset:
-            dataset = self._default_dataset
+            dataset = self.default_dataset
         return self.data[dataset].SGLattice(use_p1=use_p1)
 
     def __str__(self):
@@ -160,12 +154,12 @@ class CIFFile(object):
         """
         ostr = ""
         ostr += f"CIF-File: {self.filename}\n"
-        for ds in self.data:
-            ostr += f"\nDataset: {ds}"
-            if ds == self._default_dataset:
+        for name, dataset in self.data.items():
+            ostr += f"\nDataset: {name}"
+            if name == self.default_dataset:
                 ostr += " (default)"
             ostr += "\n"
-            ostr += str(self.data[ds])
+            ostr += str(dataset)
         return ostr
 
 

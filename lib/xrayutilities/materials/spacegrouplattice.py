@@ -211,7 +211,7 @@ def _get_pardict(parint, x):
     return pardict
 
 
-def testwp(parint, wp, cifpos, digits=config.DIGITS):
+def testwp(parint, wyckpos, cifpos, digits=config.DIGITS):
     """
     test if a Wyckoff position can describe the given position from a CIF file
 
@@ -219,7 +219,7 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
     ----------
     parint :    int
         telling which Parameters the given Wyckoff position has
-    wp :        str or tuple
+    wyckpos :        str or tuple
         expression of the Wyckoff position
     cifpos :    list, or tuple or array-like
         (x, y, z) position of the atom in the CIF file
@@ -240,10 +240,9 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
         p2 = p2 - numpy.round(p2, digits) // 1
         if numpy.round(p1, digits) == numpy.round(p2, digits):
             return True
-        else:
-            return False
+        return False
 
-    wyckp = wp.strip('()').split(',')
+    wyckp = wyckpos.strip('()').split(',')
     # test agreement in positions witout variables
     match = [False, False, False]
     variables = []
@@ -289,8 +288,7 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
             match[i] = check_positions_match(pos, cifpos[i], digits)
     if all(match):
         return True, list(opt.x)
-    else:
-        return False, None
+    return False, None
 
 
 def get_wyckpos(sgrp, atompos):
@@ -409,10 +407,10 @@ class WyckoffBase(list):
     def __str__(self):
         ostr = ''
         for i, (atom, p, occ, b) in enumerate(self):
-            ostr += '%d: %s %s ' % (i, str(atom), p[0])
+            ostr += f"{i}: {str(atom)} {p[0]} "
             if p[1] is not None:
-                ostr += ' '.join(map(utilities.frac2str, p[1]))
-            ostr += f' occ={occ:5.3f} b={b:5.3f}\n'
+                ostr += " ".join(map(utilities.frac2str, p[1]))
+            ostr += f" occ={occ:5.3f} b={b:5.3f}\n"
         return ostr
 
     def __contains__(self, item):
@@ -430,7 +428,7 @@ class WyckoffBase(list):
         -------
         bool
         """
-        for atom, p, occ, b in self:
+        for atom, p, _, b in self:
             if (atom == item[0] and self.pos_eq(p, item[1]) and
                     isclose(b, item[3], abs_tol=1e-4)):
                 return True
@@ -466,10 +464,9 @@ class WyckoffBase(list):
             return False
         if pos1[1] == pos2[1]:
             return True
-        else:
-            for f1, f2 in zip(pos1[1], pos2[1]):
-                if not isclose(f1 % 1, f2 % 1, abs_tol=1e-5):
-                    return False
+        for f1, f2 in zip(pos1[1], pos2[1]):
+            if not isclose(f1 % 1, f2 % 1, abs_tol=1e-5):
+                return False
         return True
 
     def index(self, item):
@@ -487,7 +484,7 @@ class WyckoffBase(list):
         -------
         int
         """
-        for i, (atom, p, occ, b) in enumerate(self):
+        for i, (atom, p, _, b) in enumerate(self):
             if (atom == item[0] and self.pos_eq(p, item[1]) and
                     isclose(b, item[3], abs_tol=1e-4)):
                 return i
@@ -676,9 +673,10 @@ class SGLattice(object):
         self.crystal_system, nargs = sgrp_sym[self.space_group_nr]
         self.crystal_system += self.space_group_suf
         if len(args) != nargs:
-            raise ValueError('XU: number of parameters (%d) does not match the'
-                             ' crystal symmetry (%s:%d)'
-                             % (len(args), self.crystal_system, nargs))
+            raise ValueError(
+                f"XU: number of parameters ({len(args)}) does not match the"
+                f"crystal symmetry ({self.crystal_system}:{nargs})"
+            )
         self.free_parameters = OrderedDict()
         for a, par in zip(args, sgrp_params[self.crystal_system][0]):
             self.free_parameters[par] = a
@@ -694,7 +692,7 @@ class SGLattice(object):
         # define lattice vectors
         self._ai = numpy.zeros((3, 3))
         self._bi = numpy.empty((3, 3))
-        a, b, c, alpha, beta, gamma = self._parameters.values()
+        a, b, _, alpha, beta, gamma = self._parameters.values()
         ra = radians(alpha)
         self._paramhelp = [cos(ra), cos(radians(beta)),
                            cos(radians(gamma)), sin(ra), 0]
@@ -746,7 +744,7 @@ class SGLattice(object):
         return the set of symmetry operations from the general Wyckoff
         position of the space group.
         """
-        if self._symops == []:
+        if not self._symops:
             for p in self._gp[1]:
                 self._symops.append(SymOp.from_xyz(p))
         return self._symops
@@ -838,6 +836,14 @@ class SGLattice(object):
             if isinstance(key, str):
                 if p not in self.free_parameters:
                     self._parameters[p] = self.free_parameters[key]
+
+    @property
+    def ai(self):
+        return self._ai
+
+    @property
+    def B(self):
+        return self._qtransform.matrix
 
     @property
     def a(self):
@@ -1152,25 +1158,24 @@ class SGLattice(object):
         def recurse_hkl(h, k, l, kstep):
             if (h, k, l) in hkltested:
                 return
-            m = self._qtransform.matrix
+            m = self.B
             q = m[:, 0]*h + m[:, 1]*k + m[:, 2]*l  # efficient matmul
             if sqrt(q[0]**2 + q[1]**2 + q[2]**2) >= qmax:
                 return
-            else:
-                allowed, eqhkl = self.hkl_allowed((h, k, l),
-                                                  returnequivalents=True)
-                hkltested.update(eqhkl)
+            allowed, eqhkl = self.hkl_allowed((h, k, l),
+                                              returnequivalents=True)
+            hkltested.update(eqhkl)
+            if not self.iscentrosymmetric:
+                hkltested.update((-h, -k, -l) for (h, k, l) in eqhkl)
+            if allowed:
+                hklset.update(eqhkl)
                 if not self.iscentrosymmetric:
-                    hkltested.update((-h, -k, -l) for (h, k, l) in eqhkl)
-                if allowed:
+                    eqhkl = self.equivalent_hkls((-h, -k, -l))
                     hklset.update(eqhkl)
-                    if not self.iscentrosymmetric:
-                        eqhkl = self.equivalent_hkls((-h, -k, -l))
-                        hklset.update(eqhkl)
-                recurse_hkl(h+1, k, l, kstep)
-                recurse_hkl(h, k+kstep, l, kstep)
-                recurse_hkl(h, k, l+1, kstep)
-                recurse_hkl(h, k, l-1, kstep)
+            recurse_hkl(h+1, k, l, kstep)
+            recurse_hkl(h, k+kstep, l, kstep)
+            recurse_hkl(h, k, l+1, kstep)
+            recurse_hkl(h, k, l-1, kstep)
 
         hklset = set()
         hkltested = set()

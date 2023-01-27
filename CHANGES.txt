@@ -1,3 +1,4 @@
+* enable setting free lattice parameters from the Crystal instance
 * minor code improvements, forcing flake8 to pass upon merging a PR #149
 * fix typo in Poisson ratio of GaInAs Darwin model (introduced in 1.7.4)
 * make C-code respect the VERBOSITY. C-Code should now be silent with

@@ -143,7 +143,6 @@ class DarwinModel(LayerModel):
         """
         calculates the needed atomic structure factors
         """
-        pass
 
     def _calc_mono(self, pdict, pol):
         """
@@ -162,7 +161,6 @@ class DarwinModel(LayerModel):
         r, rbar, t :    float or array-like
             reflection, backside reflection, and tranmission coefficients
         """
-        pass
 
     def _calc_double(self, ra, rabar, ta, rb, rbbar, tb, d):
         """
