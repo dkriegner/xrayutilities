@@ -129,7 +129,6 @@ class Gridder(utilities.ABC):
         abstract call method which every implementation of a Gridder has to
         override
         """
-        pass
 
     def Normalize(self, bool):
         """

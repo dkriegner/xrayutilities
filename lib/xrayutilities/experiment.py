@@ -1737,7 +1737,6 @@ class HXRD(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
     def Q2Ang(self, *Q, **keyargs):
         """
@@ -2087,7 +2086,6 @@ class NonCOP(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
     def Q2Ang(self, *Q, **keyargs):
         """
@@ -2331,7 +2329,6 @@ class GID(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
 
 class GISAXS(Experiment):
@@ -2404,7 +2401,6 @@ class GISAXS(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
 
 class PowderExperiment(Experiment):

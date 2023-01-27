@@ -1839,9 +1839,8 @@ class Alloy(Crystal):
         cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
         cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
-        a1, a2, a3, V, b1, b2, b3, qhklx, frac = self._definehelpers(hkl,
-                                                                     cijA,
-                                                                     cijB)
+        a1, _, _, _, _, _, _, qhklx, frac = self._definehelpers(
+            hkl, cijA, cijB)
 
         qr_i = trans(qhklx(self.x))[1]
         qr_p = trans(qhklx(self.x))[2]
@@ -1925,9 +1924,8 @@ class CubicAlloy(Alloy):
         cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
         cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
-        a1, a2, a3, V, b1, b2, b3, qhklx, frac = self._definehelpers(hkl,
-                                                                     cijA,
-                                                                     cijB)
+        _, _, _, _, _, _, _, qhklx, frac = self._definehelpers(
+            hkl, cijA, cijB)
 
         # the following line is not generally true! only cubic materials
         def abulk_perp(x):
@@ -2007,9 +2005,8 @@ class CubicAlloy(Alloy):
         cijA = Cijkl2Cij(trans(self.matA.cijkl, rank=4))
         cijB = Cijkl2Cij(trans(self.matB.cijkl, rank=4))
 
-        a1, a2, a3, V, b1, b2, b3, qhklx, frac = self._definehelpers(hkl,
-                                                                     cijA,
-                                                                     cijB)
+        _, _, _, _, _, _, _, qhklx, frac = self._definehelpers(
+            hkl, cijA, cijB)
 
         # the following two lines are not generally true! only cubic materials
         def abulk_inp(x):
