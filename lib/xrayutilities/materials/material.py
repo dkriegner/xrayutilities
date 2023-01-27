@@ -755,7 +755,7 @@ class Crystal(Material):
         # generate output strig
         cstr = ""
         fmtstr = "%d" if isint else f"%.{ndigits}f"
-        for name, e in elem:
+        for name, e in elem.items():
             n = e / float(natom) * natoms
             cstr += name
             if n != 1:
@@ -975,7 +975,7 @@ class Crystal(Material):
         for (_, _, occ, _), fa in zip(self.lattice.base(), f):
             beta += numpy.imag(fa) * occ
 
-        beta *= re / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
+        beta *= er / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
         return beta
 
     def chi0(self, en='config'):
