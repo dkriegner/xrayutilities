@@ -177,8 +177,7 @@ def get_default_sgrp_suf(sgrp_nr):
     possibilities = get_possible_sgrp_suf(sgrp_nr)
     if possibilities:
         return possibilities[0]
-    else:
-        return ''
+    return ''
 
 
 def _get_pardict(parint, x):
@@ -1118,8 +1117,7 @@ class SGLattice(object):
         def build_return(allowed, requi=returnequivalents):
             if requi:
                 return allowed, hkls
-            else:
-                return allowed
+            return allowed
 
         # load reflection conditions if needed
         if self._gp[2] == 'n/a':
@@ -1303,15 +1301,14 @@ class SGLattice(object):
                             if nremoved != num:
                                 # not all equivalent positions occupied
                                 return False, None
+                            # add Wyckoff position to output
+                            if pospar is None:
+                                atomdict['pos'].append(k)
                             else:
-                                # add Wyckoff position to output
-                                if pospar is None:
-                                    atomdict['pos'].append(k)
-                                else:
-                                    atomdict['pos'].append((k, list(pospar)))
-                                atomdict['atoms'].append(el)
-                                atomdict['occ'].append(occ)
-                                atomdict['b'].append(biso)
+                                atomdict['pos'].append((k, list(pospar)))
+                            atomdict['atoms'].append(el)
+                            atomdict['occ'].append(occ)
+                            atomdict['b'].append(biso)
 
                     if num > len(catoms)-sum(found):
                         break
@@ -1419,12 +1416,11 @@ class SGLattice(object):
             pos = tuple(numpy.round(pos, config.DIGITS))
             if pos in outset:
                 return
-            else:
-                outset.add(pos)
-                g = numpy.mgrid[-1:2, -1:2, -1:2].T.reshape(27, 3).tolist()
-                g.remove([0, 0, 0])
-                for off in g:
-                    recurse_cells(numpy.add(fracpos, off), outset)
+            outset.add(pos)
+            g = numpy.mgrid[-1:2, -1:2, -1:2].T.reshape(27, 3).tolist()
+            g.remove([0, 0, 0])
+            for off in g:
+                recurse_cells(numpy.add(fracpos, off), outset)
 
         allatoms = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
         invmat = numpy.linalg.inv(mat)

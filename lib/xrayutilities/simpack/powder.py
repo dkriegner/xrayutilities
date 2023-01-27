@@ -1053,18 +1053,17 @@ class FP_profile:
         if xx.axDiv != "full" or xx.twotheta0_deg == 90.0:
             axfn[:] = 1
             return axfn
-        else:
-            axbuf = self.full_axdiv_I3(
-                nsteps=xx.n_integral_points,
-                epsvals=self.epsilon,
-                Lx=xx.slit_length_source,
-                Lr=xx.slit_length_target,
-                Ls=xx.length_sample,
-                sollerIdeg=xx.angI_deg,
-                sollerDdeg=xx.angD_deg,
-                R=xx.diffractometer_radius,
-                twotheta=xx.twotheta0
-            )
+        axbuf = self.full_axdiv_I3(
+            nsteps=xx.n_integral_points,
+            epsvals=self.epsilon,
+            Lx=xx.slit_length_source,
+            Lr=xx.slit_length_target,
+            Ls=xx.length_sample,
+            sollerIdeg=xx.angI_deg,
+            sollerDdeg=xx.angD_deg,
+            R=xx.diffractometer_radius,
+            twotheta=xx.twotheta0
+        )
         axfn[:] = best_rfft(axbuf)
 
         return axfn
@@ -2474,9 +2473,8 @@ class PowderDiffraction(PowderExperiment):
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Powder.Convolute: exec time=", time.time() - t_start)
             return out
-        else:
-            print("XU.Powder: not initialized for calculation -> exiting!")
-            return None
+        print("XU.Powder: not initialized for calculation -> exiting!")
+        return None
 
     def Calculate(self, twotheta, **kwargs):
         """
@@ -2507,9 +2505,8 @@ class PowderDiffraction(PowderExperiment):
             self.update_powder_lines(self._tt_cutoff)
             self.set_window()
             return self.Convolve(twotheta, **kwargs)
-        else:
-            print("XU.Powder: not initialized for calculation -> exiting!")
-            return None
+        print("XU.Powder: not initialized for calculation -> exiting!")
+        return None
 
     def __str__(self):
         """

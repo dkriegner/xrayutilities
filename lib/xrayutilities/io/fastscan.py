@@ -335,8 +335,7 @@ class FastScanCCD(FastScan):
             ccdfilt = filterfunc(ccdfilt)
         if roi is None and nav[0] == 1 and nav[1] == 1:
             return ccdfilt
-        else:
-            return blockAverage2D(ccdfilt, nav[0], nav[1], **kwdict)
+        return blockAverage2D(ccdfilt, nav[0], nav[1], **kwdict)
 
     def _get_image_number(self, imgnum, imgoffset, fileoffset, ccdfiletmp):
         """
@@ -556,8 +555,7 @@ class FastScanCCD(FastScan):
                 ccdroi[j, i] = numpy.sum(ccd[m])
         if len(lmask) == 1:
             return self.xvalues, self.yvalues, ccdroi[0]
-        else:
-            return self.xvalues, self.yvalues, ccdroi
+        return self.xvalues, self.yvalues, ccdroi
 
     def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
                 replacedir=None, nav=[1, 1], gridrange=None, filterfunc=None):

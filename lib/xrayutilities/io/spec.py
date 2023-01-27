@@ -637,19 +637,17 @@ class SPECFile(object):
 
             if s is not None:
                 return s
-            else:
-                raise AttributeError("requested scan-number not found")
-        else:
-            raise AttributeError(f"SPECFile has no attribute '{name}'")
+            raise AttributeError("requested scan-number not found")
+        raise AttributeError(f"SPECFile has no attribute '{name}'")
 
     def __len__(self):
         return self.scan_list.__len__()
 
     def __str__(self):
         ostr = ""
-        for i in range(len(self.scan_list)):
-            ostr = ostr + "%5i" % (i)
-            ostr = ostr + self.scan_list[i].__str__()
+        for i, scan in enumerate(self.scan_list):
+            ostr = ostr + f"{i:5d}"
+            ostr = ostr + str(scan)
 
         return ostr
 
@@ -1100,8 +1098,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
 
     if not args:
         return MAP
-    else:
-        return retval, MAP
+    return retval, MAP
 
 
 def getspec_scan(specf, scans, *args, **kwargs):

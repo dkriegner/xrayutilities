@@ -45,8 +45,7 @@ def delta(min_value, max_value, n):
     """
     if n != 1:
         return (float(max_value) - float(min_value)) / float(n - 1)
-    else:
-        return numpy.inf
+    return numpy.inf
 
 
 def axis(min_value, max_value, n):
@@ -161,8 +160,7 @@ class Gridder(utilities.ABC):
             mask = (self._gnorm != 0)
             tmp[mask] /= self._gnorm[mask].astype(numpy.double)
             return tmp
-        else:
-            return self._gdata.copy()
+        return self._gdata.copy()
 
     data = property(__get_data)
 

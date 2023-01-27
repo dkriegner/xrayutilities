@@ -115,27 +115,26 @@ class Model(object):
         """
         if self.resolution_width == 0:
             return y
+        dx = numpy.mean(numpy.gradient(x))
+        nres = int(20 * numpy.abs(self.resolution_width / dx))
+        xres = startdelta(-10*self.resolution_width, dx, nres + 1)
+        # the following works only exactly for equally spaced data points
+        if self.resolution_type == 'Gauss':
+            fres = NormGauss1d
         else:
-            dx = numpy.mean(numpy.gradient(x))
-            nres = int(20 * numpy.abs(self.resolution_width / dx))
-            xres = startdelta(-10*self.resolution_width, dx, nres + 1)
-            # the following works only exactly for equally spaced data points
-            if self.resolution_type == 'Gauss':
-                fres = NormGauss1d
-            else:
-                fres = NormLorentz1d
-            resf = fres(xres, numpy.mean(xres), self.resolution_width)
-            resf /= numpy.sum(resf)  # proper normalization for discrete conv.
-            # pad y to avoid edge effects
-            interp = interpolate.InterpolatedUnivariateSpline(x, y, k=1)
-            nextmin = numpy.ceil(nres/2.)
-            nextpos = numpy.floor(nres/2.)
-            xext = numpy.concatenate(
-                (startdelta(x[0]-dx, -dx, nextmin)[-1::-1],
-                 x,
-                 startdelta(x[-1]+dx, dx, nextpos)))
-            ypad = numpy.asarray(interp(xext))
-            return numpy.convolve(ypad, resf, mode='valid')
+            fres = NormLorentz1d
+        resf = fres(xres, numpy.mean(xres), self.resolution_width)
+        resf /= numpy.sum(resf)  # proper normalization for discrete conv.
+        # pad y to avoid edge effects
+        interp = interpolate.InterpolatedUnivariateSpline(x, y, k=1)
+        nextmin = numpy.ceil(nres/2.)
+        nextpos = numpy.floor(nres/2.)
+        xext = numpy.concatenate(
+            (startdelta(x[0]-dx, -dx, nextmin)[-1::-1],
+             x,
+             startdelta(x[-1]+dx, dx, nextpos)))
+        ypad = numpy.asarray(interp(xext))
+        return numpy.convolve(ypad, resf, mode='valid')
 
     def scale_simulation(self, y):
         """

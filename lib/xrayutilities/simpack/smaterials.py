@@ -287,14 +287,13 @@ class Layer(SMaterial):
         """
         if name == "density":
             return self.material.density
-        elif name == "roughness":
+        if name == "roughness":
             return 0
-        elif name == "lat_correl":
+        if name == "lat_correl":
             return numpy.inf
-        elif name == "relaxation":
+        if name == "relaxation":
             return 1
-        else:
-            return super().__getattribute__(name)
+        return super().__getattribute__(name)
 
 
 class LayerStack(MaterialList):

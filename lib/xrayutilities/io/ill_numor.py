@@ -247,7 +247,6 @@ def numor_scan(scannumbers, *args, **kwargs):
 
     if not args:
         return MAP
-    elif len(args) == 1:
+    if len(args) == 1:
         return retval[0], MAP
-    else:
-        return retval, MAP
+    return retval, MAP

@@ -193,8 +193,7 @@ class RA_Alignment(object):
         if key in self.alignnames:
             i = self.alignnames.index(key)
             return self.data[i]
-        else:
-            raise KeyError("RA_Alignment: unknown key given!")
+        raise KeyError("RA_Alignment: unknown key given!")
 
     def plot(self, pname):
         """

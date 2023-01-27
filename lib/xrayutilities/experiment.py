@@ -587,10 +587,9 @@ class QConversion(object):
 
         if Npoints == 1:
             return (qpos[0, 0], qpos[0, 1], qpos[0, 2])
-        else:
-            return numpy.reshape(qpos[:, 0], retshape), \
-                numpy.reshape(qpos[:, 1], retshape), \
-                numpy.reshape(qpos[:, 2], retshape)
+        return numpy.reshape(qpos[:, 0], retshape), \
+            numpy.reshape(qpos[:, 1], retshape), \
+            numpy.reshape(qpos[:, 2], retshape)
 
     def init_linear(self, detectorDir, cch, Nchannel, distance=None,
                     pixelwidth=None, chpdeg=None, tilt=0, **kwargs):
@@ -793,9 +792,8 @@ class QConversion(object):
         if Npoints == 1:
             qpos.shape = (Npoints * (roi[1] - roi[0]), 3)
             return qpos[:, 0], qpos[:, 1], qpos[:, 2]
-        else:
-            qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
-            return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
+        qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+        return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
 
     def init_area(self, detectorDir1, detectorDir2, cch1, cch2, Nch1, Nch2,
                   distance=None, pwidth1=None, pwidth2=None, chpdeg1=None,
@@ -1064,9 +1062,8 @@ class QConversion(object):
         if Npoints == 1:
             qpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
             return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
-        else:
-            qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
-            return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
+        qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+        return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
 
     def transformSample2Lab(self, vector, *args):
         """
@@ -1209,11 +1206,10 @@ class QConversion(object):
             if Npoints == 1:
                 dpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
                 return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
-            else:
-                dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
-                return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
+            dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+            return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
 
-        elif dim == 1:
+        if dim == 1:
             cfunc = cxrayutilities.ang2q_detpos_linear
             dpos = cfunc(dAngles, self.r_i, dAxis, cch, pwidth, roi,
                          self._linear_detdir, self._linear_tilt,
@@ -1223,20 +1219,17 @@ class QConversion(object):
             if Npoints == 1:
                 dpos.shape = (Npoints * (roi[1] - roi[0]), 3)
                 return dpos[:, 0], dpos[:, 1], dpos[:, 2]
-            else:
-                dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
-                return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
+            dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+            return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
 
-        else:
-            cfunc = cxrayutilities.ang2q_detpos
-            dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
+        cfunc = cxrayutilities.ang2q_detpos
+        dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
 
-            if Npoints == 1:
-                return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
-            else:
-                return numpy.reshape(dpos[:, 0], retshape), \
-                    numpy.reshape(dpos[:, 1], retshape), \
-                    numpy.reshape(dpos[:, 2], retshape)
+        if Npoints == 1:
+            return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
+        return numpy.reshape(dpos[:, 0], retshape), \
+            numpy.reshape(dpos[:, 1], retshape), \
+            numpy.reshape(dpos[:, 2], retshape)
 
     def getDetectorDistance(self, *args, **kwargs):
         """
@@ -1588,10 +1581,9 @@ class Experiment(object):
 
         if typ == 'linear':
             return self.Ang2Q.linear(*args, **kwargs)
-        elif typ == 'area':
+        if typ == 'area':
             return self.Ang2Q.area(*args, **kwargs)
-        else:
-            return self.Ang2Q(*args, **kwargs)
+        return self.Ang2Q(*args, **kwargs)
 
     def Transform(self, v):
         """
@@ -1977,8 +1969,7 @@ class HXRD(Experiment):
 
         if deg:
             return numpy.degrees(angle)
-        else:
-            return angle
+        return angle
 
 
 class FourC(HXRD):
@@ -2167,8 +2158,7 @@ class NonCOP(Experiment):
 
         if deg:
             return numpy.degrees(angle)
-        else:
-            return angle
+        return angle
 
 
 class GID(Experiment):
@@ -2211,7 +2201,7 @@ class GID(Experiment):
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
-    def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
+    def Q2Ang(self, qvec, trans=True, deg=True, **kwargs):
         """
         calculate the GID angles needed in the experiment
         the inplane reference direction defines the direction were
@@ -2224,7 +2214,7 @@ class GID(Experiment):
 
         Parameters
         ----------
-        Q :         list, tuple or array-like
+        qvec :         list, tuple or array-like
             array of shape (3) with q-space vector components or 3
             separate lists with qx, qy, qz
 
@@ -2252,10 +2242,10 @@ class GID(Experiment):
                         'deg': 'degree-flag'}
         utilities.check_kwargs(kwargs, valid_kwargs, 'Q2Ang')
 
-        if isinstance(Q, list):
-            q = numpy.array(Q, dtype=numpy.double)
-        elif isinstance(Q, numpy.ndarray):
-            q = Q
+        if isinstance(qvec, list):
+            q = numpy.array(qvec, dtype=numpy.double)
+        elif isinstance(qvec, numpy.ndarray):
+            q = qvec
         else:
             raise TypeError("Q vector must be a list or numpy array")
 
@@ -2289,8 +2279,8 @@ class GID(Experiment):
             ang = [0, azimuth, tth, 0]
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.GID.Q2Ang: [ai, azimuth, tth, beta] = %s \n difference "
-                  "to inplane reference which is %5.2f" % (str(ang), aref))
+            print(f"XU.GID.Q2Ang: [ai, azimuth, tth, beta] = {str(ang)}\n"
+                  f"difference to inplane reference which is {aref:5.2f}")
 
         return ang
 
