@@ -15,9 +15,7 @@
 #
 # Copyright (c) 2016-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import fractions
 import math
-import sys
 
 import numpy
 

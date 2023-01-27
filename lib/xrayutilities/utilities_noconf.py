@@ -214,11 +214,10 @@ def exchange_path(orig, new, keep=0, replace=None):
             if not s:
                 subdirs.append(o)
                 break
-            elif not o:
+            if not o:
                 subdirs.append(s)
                 break
-            else:
-                subdirs.append(s)
+            subdirs.append(s)
         subdirs.reverse()
         out = new
         for s in subdirs[replace:]:

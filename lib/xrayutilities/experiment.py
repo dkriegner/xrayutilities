@@ -275,8 +275,7 @@ class QConversion(object):
         if tmp.shape != (3, 3) and tmp.size != 9:
             raise InputError("QConversion: incorrect shape of UB matrix "
                              "(shape: %s)" % str(tmp.shape))
-        else:
-            self._UB = tmp.reshape((3, 3))
+        self._UB = tmp.reshape((3, 3))
 
     energy = property(_get_energy, _set_energy)
     wavelength = property(_get_wavelength, _set_wavelength)
@@ -402,16 +401,12 @@ class QConversion(object):
 
         for i in range(len(args)):
             arg = args[i]
-            if not isinstance(
-                arg,
-                (numbers.Number,
-                 list,
-                 tuple,
-                 numpy.ndarray)):
+            if not isinstance(arg,
+                              (numbers.Number, list, tuple, numpy.ndarray)):
                 raise TypeError("QConversion: invalid type for one of the "
                                 "sample coordinates, must be scalar, list or "
                                 "array")
-            elif isinstance(arg, numbers.Number):
+            if isinstance(arg, numbers.Number):
                 arg = numpy.ones(npoints, dtype=numpy.double) * arg
             elif isinstance(arg, (list, tuple)):
                 arg = numpy.array(arg, dtype=numpy.double)
@@ -1134,7 +1129,7 @@ class QConversion(object):
         if dim == 1 and not self._linear_init:
             raise Exception("QConversion: linear detector not initialized -> "
                             "call Ang2Q.init_linear(...)")
-        elif dim == 2 and not self._area_init:
+        if dim == 2 and not self._area_init:
             raise Exception("QConversion: area detector not initialized -> "
                             "call Ang2Q.init_area(...)")
 
@@ -1164,9 +1159,9 @@ class QConversion(object):
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Nd:
-            raise InputError("QConversion: wrong amount (%d) of arguments "
-                             "given, number of arguments should be %d"
-                             % (len(args), Nd))
+            raise InputError(f"QConversion: wrong amount ({len(args)}) of "
+                             "arguments given, number of arguments should be "
+                             f"{Nd}")
 
         # determine the number of points and reshape input arguments
         Npoints = self._checkInput(*args)

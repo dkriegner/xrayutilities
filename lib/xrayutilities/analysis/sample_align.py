@@ -1029,7 +1029,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
                 raise TypeError("QConversionPixel: invalid type for one of "
                                 "the detector coordinates, must be scalar, "
                                 "list or array")
-            elif isinstance(arg, numbers.Number):
+            if isinstance(arg, numbers.Number):
                 arg = numpy.array([arg], dtype=numpy.double)
             elif isinstance(arg, list):
                 arg = numpy.array(arg, dtype=numpy.double)
@@ -1050,7 +1050,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             raise TypeError("QConversionPixel: invalid type for one of the "
                             "detector coordinates, must be scalar, list or "
                             "array")
-        elif isinstance(arg, numbers.Number):
+        if isinstance(arg, numbers.Number):
             arg = numpy.array([arg], dtype=numpy.double)
         elif isinstance(arg, list):
             arg = numpy.array(arg, dtype=numpy.double)
@@ -1061,7 +1061,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             raise TypeError("QConversionPixel: invalid type for one of the "
                             "detector coordinates, must be scalar, list or "
                             "array")
-        elif isinstance(arg, numbers.Number):
+        if isinstance(arg, numbers.Number):
             arg = numpy.array([arg], dtype=numpy.double)
         elif isinstance(arg, list):
             arg = numpy.array(arg, dtype=numpy.double)

@@ -86,10 +86,10 @@ class RASFile(object):
                 line = fid.readline()
                 line = line.decode('ascii', 'ignore')
                 if config.VERBOSITY >= config.DEBUG:
-                    print("XU.io.RASFile: %d: '%s'" % (t, line))
+                    print(f"XU.io.RASFile: {t}: '{line}'")
                 if re_measstart.match(line):
                     continue
-                elif re_headerstart.match(line):
+                if re_headerstart.match(line):
                     s = RASScan(self.full_filename, t)
                     self.scans.append(s)
                     fid.seek(s.fidend)  # set handle to after scan

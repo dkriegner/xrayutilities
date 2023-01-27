@@ -2108,8 +2108,7 @@ class PowderDiffraction(PowderExperiment):
                 fptt = d['conv'].twotheta_window_center_deg
                 if abs(ttpeak-fptt) / ww < 0.25 and not force:
                     continue
-                else:
-                    nset[h] = True
+                nset[h] = True
             else:
                 nset[h] = True
             # set window in local instances
@@ -2459,15 +2458,14 @@ class PowderDiffraction(PowderExperiment):
                     for h, r in zip(chunk, res):
                         if r is None:
                             continue
-                        else:
-                            ttpeak = 2 * self.data[h]['ang']
-                            mask = numpy.argwhere(
-                                numpy.logical_and(tt > ttpeak - ww/2,
-                                                  tt < ttpeak + ww/2))
+                        ttpeak = 2 * self.data[h]['ang']
+                        mask = numpy.argwhere(
+                            numpy.logical_and(tt > ttpeak - ww/2,
+                                              tt < ttpeak + ww/2))
 
-                            out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
-                                                      r.peak*self.data[h]['r'],
-                                                      left=0, right=0)
+                        out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
+                                                  r.peak*self.data[h]['r'],
+                                                  left=0, right=0)
                     gotit.discard(idx)  # got that result, don't expect more
 
             if config.VERBOSITY >= config.INFO_ALL:

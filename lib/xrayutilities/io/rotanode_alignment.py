@@ -103,11 +103,11 @@ class RA_Alignment(object):
                     opencommenttag = True
                     continue
 
-                elif LOG_datetime.match(line):
+                if LOG_datetime.match(line):
                     # data is so far ignored
                     continue
 
-                elif LOG_peakname.match(line):
+                if LOG_peakname.match(line):
                     # line with peak name found
                     pname = LOG_peakname.sub("", line)
                     pname = pname.strip()
@@ -157,7 +157,7 @@ class RA_Alignment(object):
 
         # convert data to numpy array and combine position and intensity
         self.data = []
-        for i, k in enumerate(self.keys()):
+        for i, _ in enumerate(self.keys()):
             self.data.append(numpy.array((self.motorpos[i],
                                           self.intensities[i],
                                           self.iterations[i])))
