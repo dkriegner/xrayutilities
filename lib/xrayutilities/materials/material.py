@@ -172,7 +172,7 @@ class Material(utilities.ABC):
             raise TypeError("Elastic constants must be a list or numpy array!")
 
         self.name = name
-        self.transform = None
+        self.transform = lambda x: x
         self._density = None
 
     def __getattr__(self, name):
@@ -187,11 +187,7 @@ class Material(utilities.ABC):
             if i > 6 or i < 1 or j > 6 or j < 1:
                 raise AttributeError("Cij indices must be between 1 and 6")
 
-            if callable(self.transform):
-                cij = Cijkl2Cij(self.transform(Cij2Cijkl(self.cij)))
-            else:
-                cij = self.cij
-
+            cij = Cijkl2Cij(self.transform(Cij2Cijkl(self.cij)))
             return cij[i - 1, j - 1]
         return object.__getattribute__(self, name)
 
@@ -218,7 +214,6 @@ class Material(utilities.ABC):
         abstract method which every implementation of a Material has to
         override
         """
-        pass
 
     @abc.abstractmethod
     def ibeta(self, en='config'):
@@ -226,7 +221,6 @@ class Material(utilities.ABC):
         abstract method which every implementation of a Material has to
         override
         """
-        pass
 
     def chi0(self, en='config'):
         """
@@ -333,8 +327,7 @@ class Material(utilities.ABC):
         if not numpy.any(self.cij):
             raise InputError("GetStrain needs a crystal "
                              "with a defined Elastic Tensor")
-        else:
-            elastic_fr = Cij2Sijkl(self.cij)
+        elastic_fr = Cij2Sijkl(self.cij)
 
         strain = numpy.einsum('ijkl,kl->ij', elastic_fr, sig)
 
@@ -363,8 +356,7 @@ class Material(utilities.ABC):
         if not numpy.any(self.cij):
             raise InputError("GetStress needs a crystal "
                              "with a defined Elastic Tensor")
-        else:
-            elastic_fr = Cij2Cijkl(self.cij)
+        elastic_fr = Cij2Cijkl(self.cij)
 
         stress = numpy.einsum('ijkl,kl->ij', elastic_fr, eps)
 
@@ -476,7 +468,7 @@ class Amorphous(Material):
             atomic scattering factors for every atom in the unit cell
         """
         f = {}
-        for at, occ in self.base:
+        for at, _ in self.base:
             if at.num not in f:
                 f[at.num] = at.f(q, en)
         return [f[a.num] for a, o in self.base]
@@ -495,8 +487,8 @@ class Amorphous(Material):
         -------
         float or array-like
         """
-        re = scipy.constants.physical_constants['classical electron radius'][0]
-        re *= 1e10
+        er = scipy.constants.physical_constants['classical electron radius'][0]
+        er *= 1e10
         if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
@@ -508,7 +500,7 @@ class Amorphous(Material):
             delta += numpy.real(fa) * occ
             m += at.weight * occ
 
-        delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
+        delta *= er / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         return delta
 
     def ibeta(self, en='config'):
@@ -525,8 +517,8 @@ class Amorphous(Material):
         -------
         float or array-like
         """
-        re = scipy.constants.physical_constants['classical electron radius'][0]
-        re *= 1e10
+        er = scipy.constants.physical_constants['classical electron radius'][0]
+        er *= 1e10
         if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
@@ -538,7 +530,7 @@ class Amorphous(Material):
             beta += numpy.imag(fa) * occ
             m += at.weight * occ
 
-        beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
+        beta *= er / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         return beta
 
     def chi0(self, en='config'):
@@ -547,8 +539,8 @@ class Amorphous(Material):
         They are closely related to delta and beta
         (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
         """
-        re = scipy.constants.physical_constants['classical electron radius'][0]
-        re *= 1e10
+        er = scipy.constants.physical_constants['classical electron radius'][0]
+        er *= 1e10
         if isinstance(en, str) and en == 'config':
             en = utilities.energy(config.ENERGY)
 
@@ -562,8 +554,8 @@ class Amorphous(Material):
             delta += numpy.real(f0) * occ
             m += at.weight * occ
 
-        beta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
-        delta *= re / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
+        beta *= er / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
+        delta *= er / (2 * numpy.pi) * lam ** 2 / (m / self.density) * 1e-30
         return -2 * delta + 2j * beta
 
     def __str__(self):
@@ -592,6 +584,31 @@ class Crystal(Material):
         else:
             self.thetaDebye = thetaDebye
 
+        Crystal.a = property(
+            lambda self: self.lattice.a,
+            lambda self, value: setattr(self.lattice, "a", value)
+        )
+        Crystal.b = property(
+            lambda self: self.lattice.b,
+            lambda self, value: setattr(self.lattice, "b", value)
+        )
+        Crystal.c = property(
+            lambda self: self.lattice.c,
+            lambda self, value: setattr(self.lattice, "c", value)
+        )
+        Crystal.alpha = property(
+            lambda self: self.lattice.alpha,
+            lambda self, value: setattr(self.lattice, "alpha", value)
+        )
+        Crystal.beta = property(
+            lambda self: self.lattice.beta,
+            lambda self, value: setattr(self.lattice, "beta", value)
+        )
+        Crystal.gamma = property(
+            lambda self: self.lattice.gamma,
+            lambda self, value: setattr(self.lattice, "gamma", value)
+        )
+
     @classmethod
     def fromCIF(cls, ciffilestr, **kwargs):
         """
@@ -611,7 +628,7 @@ class Crystal(Material):
         """
         cf = cif.CIFFile(ciffilestr, **kwargs)
         lat = cf.SGLattice()
-        return cls(cf.data[cf._default_dataset].name, lat)
+        return cls(cf.data[cf.default_dataset].name, lat)
 
     def loadLatticefromCIF(self, ciffilestr):
         """
@@ -638,40 +655,16 @@ class Crystal(Material):
         cif.cifexport(ciffilename, self)
 
     @property
-    def a(self):
-        return self.lattice.a
-
-    @property
-    def b(self):
-        return self.lattice.b
-
-    @property
-    def c(self):
-        return self.lattice.c
-
-    @property
-    def alpha(self):
-        return self.lattice.alpha
-
-    @property
-    def beta(self):
-        return self.lattice.beta
-
-    @property
-    def gamma(self):
-        return self.lattice.gamma
-
-    @property
     def a1(self):
-        return self.lattice._ai[0, :]
+        return self.lattice.ai[0, :]
 
     @property
     def a2(self):
-        return self.lattice._ai[1, :]
+        return self.lattice.ai[1, :]
 
     @property
     def a3(self):
-        return self.lattice._ai[2, :]
+        return self.lattice.ai[2, :]
 
     @property
     def B(self):
@@ -746,15 +739,15 @@ class Crystal(Material):
                 elem[e] += occ
             else:
                 elem[e] = occ
-        natom = sum([elem[e] for e in elem])
+        natom = sum(list(elem.values()))
         isint = True
-        for e in elem:
-            if not float(elem[e]).is_integer():
+        for e in elem.values():
+            if not float(e).is_integer():
                 isint = False
         # determine number of atoms
         if not natoms:
             if isint:
-                gcd = math.gcd([int(elem[e]) for e in elem])
+                gcd = math.gcd([int(e) for e in elem.values()])
                 natoms = natom/gcd
             else:
                 natoms = 1
@@ -762,9 +755,9 @@ class Crystal(Material):
         # generate output strig
         cstr = ""
         fmtstr = "%d" if isint else f"%.{ndigits}f"
-        for e in elem:
-            n = elem[e] / float(natom) * natoms
-            cstr += e
+        for name, e in elem:
+            n = e / float(natom) * natoms
+            cstr += name
             if n != 1:
                 cstr += fmtstr % n
             cstr += " " if with_spaces else ""
@@ -800,7 +793,7 @@ class Crystal(Material):
                 raise InputError("need 3 coordinates of the "
                                  "reference position")
 
-        refpos = self.lattice._ai.T @ pos
+        refpos = self.lattice.ai.T @ pos
         lst = []
 
         # determine lattice base
@@ -823,9 +816,9 @@ class Crystal(Material):
 
         # determine distance of all atoms w.r.t. the refpos
         ucidx = numpy.mgrid[-Na:Na+1, -Nb:Nb+1, -Nc:Nc+1].reshape(3, -1)
-        for a, p, o, b in base:
-            ucpos = self.lattice._ai.T @ p
-            pos = ucpos + numpy.einsum('ji, ...i', self.lattice._ai.T, ucidx.T)
+        for a, p, o, _ in base:
+            ucpos = self.lattice.ai.T @ p
+            pos = ucpos + numpy.einsum('ji, ...i', self.lattice.ai.T, ucidx.T)
             distance = math.VecNorm(pos - refpos)
             lst += [(d, a, o) for d in distance]
 
@@ -891,7 +884,7 @@ class Crystal(Material):
             mass density in kg/m^3
         """
         m = 0.
-        for at, pos, occ, b in self.lattice.base():
+        for at, _, occ, _ in self.lattice.base():
             m += at.weight * occ
 
         return m / self.lattice.UnitCellVolume() * 1e30
@@ -918,12 +911,11 @@ class Crystal(Material):
         """
         f = {}
         if self.lattice.nsites > 0:
-            for at, pos, occ, b in self.lattice.base():
+            for at, _, occ, b in self.lattice.base():
                 if at.num not in f:
                     f[at.num] = at.f(q, en)
-            return [f[a.num] for a, p, o, b in self.lattice.base()]
-        else:
-            return None
+            return [f[a.num] for a, _, _, _ in self.lattice.base()]
+        return None
 
     def _get_lamen(self, en):
         if isinstance(en, str) and en == 'config':
@@ -946,16 +938,16 @@ class Crystal(Material):
         -------
         float
         """
-        re = scipy.constants.physical_constants['classical electron radius'][0]
-        re *= 1e10
+        er = scipy.constants.physical_constants['classical electron radius'][0]
+        er *= 1e10
 
         lam, en = self._get_lamen(en)
         delta = 0.
         f = self._get_f(0, en)
-        for (at, pos, occ, b), fa in zip(self.lattice.base(), f):
+        for (_, _, occ, _), fa in zip(self.lattice.base(), f):
             delta += numpy.real(fa) * occ
 
-        delta *= re / (2 * numpy.pi) * lam ** 2 / \
+        delta *= er / (2 * numpy.pi) * lam ** 2 / \
             self.lattice.UnitCellVolume()
         return delta
 
@@ -974,13 +966,13 @@ class Crystal(Material):
         -------
         float
         """
-        re = scipy.constants.physical_constants['classical electron radius'][0]
-        re *= 1e10
+        er = scipy.constants.physical_constants['classical electron radius'][0]
+        er *= 1e10
 
         lam, en = self._get_lamen(en)
         beta = 0.
         f = self._get_f(0, en)
-        for (at, pos, occ, b), fa in zip(self.lattice.base(), f):
+        for (_, _, occ, _), fa in zip(self.lattice.base(), f):
             beta += numpy.imag(fa) * occ
 
         beta *= re / (2 * numpy.pi) * lam ** 2 / self.lattice.UnitCellVolume()
@@ -992,21 +984,21 @@ class Crystal(Material):
         They are closely related to delta and beta
         (n = 1 + chi_r0/2 + i*chi_i0/2   vs.  n = 1 - delta + i*beta)
         """
-        re = scipy.constants.physical_constants['classical electron radius'][0]
-        re *= 1e10
+        er = scipy.constants.physical_constants['classical electron radius'][0]
+        er *= 1e10
 
         lam, en = self._get_lamen(en)
         beta = 0.
         delta = 0.
         if self.lattice.nsites > 0:
             f = self._get_f(0, en)
-            for (at, pos, occ, b), f0 in zip(self.lattice.base(), f):
+            for (_, _, occ, _), f0 in zip(self.lattice.base(), f):
                 beta += numpy.imag(f0) * occ
                 delta += numpy.real(f0) * occ
 
         v = self.lattice.UnitCellVolume()
-        beta *= re / (2 * numpy.pi) * lam ** 2 / v
-        delta *= re / (2 * numpy.pi) * lam ** 2 / v
+        beta *= er / (2 * numpy.pi) * lam ** 2 / v
+        delta *= er / (2 * numpy.pi) * lam ** 2 / v
         return -2 * delta + 2j * beta
 
     def _debyewallerfactor(self, temp, qnorm):
@@ -1034,7 +1026,7 @@ class Crystal(Material):
             x = self.thetaDebye / float(temp)
             m = 0.
             im = 0
-            for a, p, o, b in self.lattice.base():
+            for a, _, _, _ in self.lattice.base():
                 m += a.weight
                 im += 1
             m = m / float(im)
@@ -1094,7 +1086,7 @@ class Crystal(Material):
         si = 0. + 0.j
         # a: atom, p: position, o: occupancy, b: temperature-factor
         f = self._get_f(qnorm, en)
-        for (a, p, o, b), F in zip(self.lattice.base(), f):
+        for (_, p, o, b), F in zip(self.lattice.base(), f):
             r = self.lattice.GetPoint(p)
             if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
@@ -1191,8 +1183,8 @@ class Crystal(Material):
 
         s = 0. + 0.j
         f = self._get_f(qnorm, en)
-        # a: atom, p: position, o: occupancy, b: temperature-factor
-        for (a, p, o, b), fq in zip(self.lattice.base(), f):
+        # p: position, o: occupancy, b: temperature-factor
+        for (_, p, o, b), fq in zip(self.lattice.base(), f):
             r = self.lattice.GetPoint(p)
             if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 /
@@ -1243,8 +1235,8 @@ class Crystal(Material):
 
         s = 0. + 0.j
         f = self._get_f(qnorm, en)
-        # a: atom, p: position, o: occupancy, b: temperature-factor
-        for (a, p, o, b), fq in zip(self.lattice.base(), f):
+        # p: position, o: occupancy, b: temperature-factor
+        for (_, p, o, b), fq in zip(self.lattice.base(), f):
             if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
             r = self.lattice.GetPoint(p)
@@ -1293,8 +1285,8 @@ class Crystal(Material):
 
         s = 0. + 0.j
         f = self._get_f(qnorm, en0)
-        # a: atom, p: position, o: occupancy, b: temperature-factor
-        for (a, p, o, b), fq in zip(self.lattice.base(), f):
+        # p: position, o: occupancy, b: temperature-factor
+        for (_, p, o, b), fq in zip(self.lattice.base(), f):
             if temp == 0:
                 dwf = numpy.exp(-b * qnorm ** 2 / (4 * numpy.pi) ** 2)
 
@@ -1376,12 +1368,7 @@ class Crystal(Material):
                 self._distances.append(dis)
                 self._dis_hist.append(1)
 
-        # create return value
-        ret = []
-        for i in range(len(self._distances)):
-            ret.append((self._distances[i], self._dis_hist[i]))
-
-        return ret
+        return list(zip(self._distances, self._dis_hist))
 
     def show_unitcell(self, fig=None, subplot=111, scale=0.6, complexity=11,
                       linewidth=1.5, mode='matplotlib'):
@@ -1486,7 +1473,7 @@ class Crystal(Material):
             elif not isinstance(fig, mayavi.core.scene.Scene):
                 raise TypeError("'fig' argument must be a Mayavi Scene!")
 
-        for a, pos, occ, b in self.lattice.base():
+        for a, pos, occ, _ in self.lattice.base():
             r = a.radius * scale
             for i in range(-1, 2):
                 for j in range(-1, 2):
@@ -1760,15 +1747,13 @@ class Alloy(Crystal):
     def _checkfinitenumber(self, arg, name=""):
         if isinstance(arg, numbers.Number) and numpy.isfinite(arg):
             return float(arg)
-        else:
-            raise TypeError(f"argument ({name}) must be a scalar!")
+        raise TypeError(f"argument ({name}) must be a scalar!")
 
     def _checkarray(self, arg, name=""):
         if isinstance(arg, (list, tuple, numpy.ndarray)):
             return numpy.asarray(arg, dtype=numpy.double)
-        else:
-            raise TypeError(f"argument ({name}) must be of type "
-                            "list, tuple or numpy.ndarray")
+        raise TypeError(f"argument ({name}) must be of type "
+                        "list, tuple or numpy.ndarray")
 
     def _definehelpers(self, hkl, cijA, cijB):
         """
