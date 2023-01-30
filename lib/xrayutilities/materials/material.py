@@ -1696,7 +1696,7 @@ class Alloy(Crystal):
                              "incompatible!")
 
     @staticmethod
-    def lattice_const_AB(latA, latB, x, name=''):
+    def lattice_const_AB(latA, latB, x):
         """
         method to calculated the interpolation of lattice parameters and unit
         cell angles of the Alloy. By default linear interpolation between the
@@ -1709,9 +1709,6 @@ class Alloy(Crystal):
             can be a scalar or vector.
         x :             float
             fraction of material B in the alloy.
-        name :          str, optional
-            label of the property which is interpolated. Can be 'a', 'b', 'c',
-            'alpha', 'beta', or 'gamma'.
         """
         return (latB - latA) * x + latA
 
@@ -1725,7 +1722,7 @@ class Alloy(Crystal):
         for k in self.lattice.free_parameters:
             setattr(self.lattice, k,
                     self.lattice_const_AB(getattr(self.matA, k),
-                                          getattr(self.matB, k), x, name=k))
+                                          getattr(self.matB, k), x))
         # set elastic constants
         self.cij = (self.matB.cij - self.matA.cij) * x + self.matA.cij
         self.cijkl = (self.matB.cijkl - self.matA.cijkl) * x + self.matA.cijkl
@@ -1761,16 +1758,13 @@ class Alloy(Crystal):
         positions
         """
         def a1(x):
-            return self.lattice_const_AB(self.matA.a1, self.matB.a1,
-                                         x, name='a')
+            return self.lattice_const_AB(self.matA.a1, self.matB.a1, x)
 
         def a2(x):
-            return self.lattice_const_AB(self.matA.a2, self.matB.a2,
-                                         x, name='b')
+            return self.lattice_const_AB(self.matA.a2, self.matB.a2, x)
 
         def a3(x):
-            return self.lattice_const_AB(self.matA.a3, self.matB.a3,
-                                         x, name='c')
+            return self.lattice_const_AB(self.matA.a3, self.matB.a3, x)
 
         def V(x):
             return numpy.dot(a3(x), numpy.cross(a1(x), a2(x)))
