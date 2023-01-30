@@ -39,7 +39,7 @@ def _check_elements(*elem):
     return ret
 
 
-def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
+def FullHeuslerCubic225(X, Y, Z, a, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225)
@@ -66,7 +66,7 @@ def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
                              b=biso, occ=occ))
 
 
-def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
+def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225) with B2-type (CsCl)
@@ -101,7 +101,7 @@ def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
                              b=biso + [biso[1], biso[2]]))
 
 
-def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
+def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225) with A2-type (W)
@@ -140,8 +140,8 @@ def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
                              b=[biso[0], ]*3 + [biso[1], ]*3 + [biso[2], ]*3))
 
 
-def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
-                            occ=[1, 1, 1]):
+def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=(0, 0, 0),
+                            occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225) with DO_3-type (BiF3)
@@ -186,7 +186,7 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
                              b=biso + [biso[0], biso[1]] + [biso[0], biso[2]]))
 
 
-def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
+def InverseHeuslerCubic216(X, Y, Z, a, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula (XY)X'Z structure;
     space group F-43m (216)
@@ -211,7 +211,7 @@ def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
                              occ=[occ[0], ] + occ))
 
 
-def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
+def HeuslerTetragonal139(X, Y, Z, a, c, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Tetragonal Heusler structure with formula X2YZ
     space group I4/mmm (139)
@@ -236,7 +236,7 @@ def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
                              b=biso, occ=occ))
 
 
-def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
+def HeuslerTetragonal119(X, Y, Z, a, c, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Tetragonal Heusler structure with formula X2YZ
     space group I-4m2 (119)
@@ -262,7 +262,7 @@ def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
                              occ=[occ[0], ] + occ))
 
 
-def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
+def HeuslerHexagonal194(X, Y, Z, a, c, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Hexagonal Heusler structure with formula XYZ
     space group P63/mmc (194)

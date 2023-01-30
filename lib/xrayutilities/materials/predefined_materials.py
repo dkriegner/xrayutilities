@@ -257,7 +257,7 @@ class SiGe(CubicAlloy):
         super().__init__(Si, Ge, x)
 
     @staticmethod
-    def lattice_const_AB(latA, latB, x, **kwargs):
+    def lattice_const_AB(latA, latB, x):
         """
         method to calculate the lattice parameter of the SiGe alloy with
         composition Si_{1-x}Ge_x

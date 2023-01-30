@@ -2020,16 +2020,18 @@ class PowderDiffraction(PowderExperiment):
             fp = d['conv']
             fp.set_parameters(convolver='emission', **samplesettings)
 
-    def update_settings(self, newsettings={}):
+    def update_settings(self, newsettings=None):
         """
         update settings of all instances of FP_profile
 
         Parameters
         ----------
-        newsettings :   dict
+        newsettings :   dict, optional
             dictionary with new settings. It has to include one subdictionary
             for every convolver which should have its settings changed.
         """
+        if newsettings is None:
+            return
         if 'global' in newsettings:
             if 'dominant_wavelength' in newsettings['global']:
                 print('PowderDiffraction: dominant wavelength is a read only'
