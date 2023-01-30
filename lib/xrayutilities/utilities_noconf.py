@@ -130,12 +130,11 @@ def energy(en):
 
     if isinstance(en, numbers.Number):
         return numpy.double(en)
-    elif isinstance(en, (numpy.ndarray, list, tuple)):
+    if isinstance(en, (numpy.ndarray, list, tuple)):
         return numpy.asarray(en)
-    elif isinstance(en, str):
+    if isinstance(en, str):
         return energies[en]
-    else:
-        raise InputError("wrong type for argument en")
+    raise InputError("wrong type for argument en")
 
 
 def wavelength(wl):
@@ -159,12 +158,11 @@ def wavelength(wl):
 
     if isinstance(wl, numbers.Number):
         return numpy.double(wl)
-    elif isinstance(wl, (numpy.ndarray, list, tuple)):
+    if isinstance(wl, (numpy.ndarray, list, tuple)):
         return numpy.asarray(wl)
-    elif isinstance(wl, str):
+    if isinstance(wl, str):
         return en2lam(energies[wl])
-    else:
-        raise InputError("wrong type for argument wavelength")
+    raise InputError("wrong type for argument wavelength")
 
 
 def exchange_path(orig, new, keep=0, replace=None):
@@ -216,11 +214,10 @@ def exchange_path(orig, new, keep=0, replace=None):
             if not s:
                 subdirs.append(o)
                 break
-            elif not o:
+            if not o:
                 subdirs.append(s)
                 break
-            else:
-                subdirs.append(s)
+            subdirs.append(s)
         subdirs.reverse()
         out = new
         for s in subdirs[replace:]:
@@ -264,10 +261,8 @@ def exchange_filepath(orig, new, keep=0, replace=None):
     if new:
         if replace is None:
             return exchange_path(orig, new, keep+1)
-        else:
-            return exchange_path(orig, new, replace=replace)
-    else:
-        return orig
+        return exchange_path(orig, new, replace=replace)
+    return orig
 
 
 def makeNaturalName(name, check=False):

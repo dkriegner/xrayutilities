@@ -284,8 +284,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
 
     if usetilt:
         return (1. / math.degrees(fit.beta[0]), fit.beta[1], fit.beta[2])
-    else:
-        return (1. / math.degrees(fit.beta[0]), fit.beta[1], 0.)
+    return (1. / math.degrees(fit.beta[0]), fit.beta[1], 0.)
 
 
 #################################################
@@ -415,10 +414,8 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         if numpy.sign(val) < 0:
             if char == '+':
                 return '-'
-            else:
-                return '+'
-        else:
-            return char
+            return '+'
+        return char
 
     if argm == 0:
         detaxis = 'x' + flipsign(sign, detd[argm])
@@ -1032,7 +1029,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
                 raise TypeError("QConversionPixel: invalid type for one of "
                                 "the detector coordinates, must be scalar, "
                                 "list or array")
-            elif isinstance(arg, numbers.Number):
+            if isinstance(arg, numbers.Number):
                 arg = numpy.array([arg], dtype=numpy.double)
             elif isinstance(arg, list):
                 arg = numpy.array(arg, dtype=numpy.double)
@@ -1053,7 +1050,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             raise TypeError("QConversionPixel: invalid type for one of the "
                             "detector coordinates, must be scalar, list or "
                             "array")
-        elif isinstance(arg, numbers.Number):
+        if isinstance(arg, numbers.Number):
             arg = numpy.array([arg], dtype=numpy.double)
         elif isinstance(arg, list):
             arg = numpy.array(arg, dtype=numpy.double)
@@ -1064,7 +1061,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             raise TypeError("QConversionPixel: invalid type for one of the "
                             "detector coordinates, must be scalar, list or "
                             "array")
-        elif isinstance(arg, numbers.Number):
+        if isinstance(arg, numbers.Number):
             arg = numpy.array([arg], dtype=numpy.double)
         elif isinstance(arg, list):
             arg = numpy.array(arg, dtype=numpy.double)
@@ -1231,8 +1228,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
     if full_output:
         return final_error, (cch1, cch2, pwidth1, pwidth2, distance,
                              tiltazimuth, tilt, detrot, outerangle_offset), fit
-    else:
-        return final_error
+    return final_error
 
 
 # #####################################################
@@ -2003,8 +1999,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         return final_error, (cch1, cch2, pwidth1, pwidth2, distance,
                              tiltazimuth, tilt, detrot, outerangle_offset,
                              sampletilt, stazimuth, wavelength), fit
-    else:
-        return final_error
+    return final_error
 
 
 #################################################

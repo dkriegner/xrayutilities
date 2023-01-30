@@ -298,8 +298,7 @@ class EDFFile(object):
             self._data_read = True
         if self.nimages == 1:
             return self._data[0]
-        else:
-            return self._data
+        return self._data
 
     def Save2HDF5(self, h5f, group="/", comp=True):
         """

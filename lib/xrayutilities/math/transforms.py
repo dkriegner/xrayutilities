@@ -77,8 +77,7 @@ def VecUnit(v):
     vtmp = _checkvec(v)
     if len(vtmp.shape) == 1:
         return vtmp / VecNorm(vtmp)
-    else:
-        return vtmp / VecNorm(vtmp)[..., numpy.newaxis]
+    return vtmp / VecNorm(vtmp)[..., numpy.newaxis]
 
 
 def VecDot(v1, v2):

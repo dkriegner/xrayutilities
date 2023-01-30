@@ -61,17 +61,16 @@ def linregress(x, y):
     lx, ly = (x[mask], y[mask])
     if numpy.all(numpy.isclose(lx-lx[0], numpy.zeros_like(lx))):
         return (0, numpy.mean(ly)), 0
-    else:
-        p = numpy.polyfit(lx, ly, 1)
+    p = numpy.polyfit(lx, ly, 1)
 
-        # calculation of r-squared
-        f = numpy.polyval(p, lx)
-        fbar = numpy.sum(ly) / len(ly)
-        ssreg = numpy.sum((f-fbar)**2)
-        sstot = numpy.sum((ly - fbar)**2)
-        rsq = ssreg / sstot
+    # calculation of r-squared
+    f = numpy.polyval(p, lx)
+    fbar = numpy.sum(ly) / len(ly)
+    ssreg = numpy.sum((f-fbar)**2)
+    sstot = numpy.sum((ly - fbar)**2)
+    rsq = ssreg / sstot
 
-        return p, rsq
+    return p, rsq
 
 
 def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
@@ -179,8 +178,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
 
     if func_out:
         return fparam, fit.sd_beta, itlim, lambda x: gfunc(fparam, x)
-    else:
-        return fparam, fit.sd_beta, itlim
+    return fparam, fit.sd_beta, itlim
 
 
 def _getfit_func(peaktype, background):
@@ -266,26 +264,25 @@ def _check_iparams(iparams, peaktype, background):
     """
     if not any(iparams):
         return
+    ptypes = {('Gauss', 'constant'): 4, ('Lorentz', 'constant'): 4,
+              ('Gauss', 'linear'): 5, ('Lorentz', 'linear'): 5,
+              ('PseudoVoigt', 'constant'): 5, ('PseudoVoigt', 'linear'): 6,
+              ('PseudoVoigtAsym', 'constant'): 6,
+              ('PseudoVoigtAsym', 'linear'): 7,
+              ('PseudoVoigtAsym2', 'constant'): 7,
+              ('PseudoVoigtAsym2', 'linear'): 8}
+    if not all(numpy.isreal(iparams)):
+        raise InputError("XU.math.peak_fit: all initial parameters need to"
+                         "be real!")
+    if (peaktype, background) in ptypes:
+        nparams = ptypes[(peaktype, background)]
+        if len(iparams) != nparams:
+            raise InputError(f"XU.math.peak_fit: {nparams} initial parameters "
+                             f"are needed for {peaktype}-peak with "
+                             f"{background} background.")
     else:
-        ptypes = {('Gauss', 'constant'): 4, ('Lorentz', 'constant'): 4,
-                  ('Gauss', 'linear'): 5, ('Lorentz', 'linear'): 5,
-                  ('PseudoVoigt', 'constant'): 5, ('PseudoVoigt', 'linear'): 6,
-                  ('PseudoVoigtAsym', 'constant'): 6,
-                  ('PseudoVoigtAsym', 'linear'): 7,
-                  ('PseudoVoigtAsym2', 'constant'): 7,
-                  ('PseudoVoigtAsym2', 'linear'): 8}
-        if not all(numpy.isreal(iparams)):
-            raise InputError("XU.math.peak_fit: all initial parameters need to"
-                             "be real!")
-        elif (peaktype, background) in ptypes:
-            nparams = ptypes[(peaktype, background)]
-            if len(iparams) != nparams:
-                raise InputError("XU.math.peak_fit: %d initial parameters "
-                                 "are needed for %s-peak with %s background."
-                                 % (nparams, peaktype, background))
-        else:
-            raise InputError("XU.math.peak_fit: invalid peak (%s) or "
-                             "background (%s)" % (peaktype, background))
+        raise InputError(f"XU.math.peak_fit: invalid peak ({peaktype}) or "
+                         f"background ({background})")
 
 
 def _guess_iparams(xdata, ydata, peaktype, background):

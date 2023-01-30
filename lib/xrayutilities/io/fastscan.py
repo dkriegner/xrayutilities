@@ -335,8 +335,7 @@ class FastScanCCD(FastScan):
             ccdfilt = filterfunc(ccdfilt)
         if roi is None and nav[0] == 1 and nav[1] == 1:
             return ccdfilt
-        else:
-            return blockAverage2D(ccdfilt, nav[0], nav[1], **kwdict)
+        return blockAverage2D(ccdfilt, nav[0], nav[1], **kwdict)
 
     def _get_image_number(self, imgnum, imgoffset, fileoffset, ccdfiletmp):
         """
@@ -556,8 +555,7 @@ class FastScanCCD(FastScan):
                 ccdroi[j, i] = numpy.sum(ccd[m])
         if len(lmask) == 1:
             return self.xvalues, self.yvalues, ccdroi[0]
-        else:
-            return self.xvalues, self.yvalues, ccdroi
+        return self.xvalues, self.yvalues, ccdroi
 
     def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
                 replacedir=None, nav=[1, 1], gridrange=None, filterfunc=None):
@@ -631,18 +629,17 @@ class FastScanCCD(FastScan):
             for j in range(gdata.shape[1]):
                 if not gdata[i, j]:
                     continue
-                else:
-                    framecount = 0
-                    # read ccd-frames and average them
-                    for imgnum in gdata[i, j]:
-                        imgindex, filenumber = self._get_image_number(
-                            imgnum, nextNr, nextNr, ccdtemplate)
-                        filename = ccdtemplate % filenumber
-                        ccd = self._read_image(filename, imgindex, nav,
-                                               roi, filterfunc)
-                        ccddata[i, j, ...] += ccd
-                        framecount += 1
-                    ccddata[i, j, ...] /= float(framecount)
+                framecount = 0
+                # read ccd-frames and average them
+                for imgnum in gdata[i, j]:
+                    imgindex, filenumber = self._get_image_number(
+                        imgnum, nextNr, nextNr, ccdtemplate)
+                    filename = ccdtemplate % filenumber
+                    ccd = self._read_image(filename, imgindex, nav,
+                                           roi, filterfunc)
+                    ccddata[i, j, ...] += ccd
+                    framecount += 1
+                ccddata[i, j, ...] /= float(framecount)
 
         return g2l.xmatrix, g2l.ymatrix, ccddata
 
@@ -1146,19 +1143,18 @@ class FastScanSeries(object):
             # read CCD
             if not ccdnrs:
                 continue
-            else:
-                ccdtemplate, nextNr = fsccd.getccdFileTemplate(fsccd.specscan)
-                framecount = 0
-                # read ccd-frames and average them
-                for imgnum in ccdnrs:
-                    imgindex, filenumber = fsccd._get_image_number(
-                        imgnum, nextNr, nextNr, ccdtemplate)
-                    filename = ccdtemplate % filenumber
-                    ccd = fsccd._read_image(filename, imgindex, nav, roi,
-                                            filterfunc)
-                    ccddata[i, ...] += ccd
-                    framecount += 1
-                ccddata[i, ...] /= float(framecount)
+            ccdtemplate, nextNr = fsccd.getccdFileTemplate(fsccd.specscan)
+            framecount = 0
+            # read ccd-frames and average them
+            for imgnum in ccdnrs:
+                imgindex, filenumber = fsccd._get_image_number(
+                    imgnum, nextNr, nextNr, ccdtemplate)
+                filename = ccdtemplate % filenumber
+                ccd = fsccd._read_image(filename, imgindex, nav, roi,
+                                        filterfunc)
+                ccddata[i, ...] += ccd
+                framecount += 1
+            ccddata[i, ...] /= float(framecount)
 
         qx, qy, qz = qconv.area(*motors, roi=roi, Nav=nav, UB=U)
         return qx, qy, qz, ccddata, valuelist

@@ -444,11 +444,10 @@ class PowderModel(object):
                                 annot.set_visible(True)
                                 fig.canvas.draw_idle()
                                 return
-                            else:
-                                if vis:
-                                    annot.set_visible(False)
-                                    fig.canvas.draw_idle()
-                                    return
+                            if vis:
+                                annot.set_visible(False)
+                                fig.canvas.draw_idle()
+                                return
 
             def click(event):
                 for pd, tax, annot, wllist in zip(self.pdiff, taxlist,

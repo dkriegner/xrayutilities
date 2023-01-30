@@ -13,11 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import fractions
 import math
-import sys
 
 import numpy
 
@@ -63,8 +61,7 @@ def center_of_mass(pos, data, background='none', full_output=False):
     ipos = numpy.sum(pos * ld) / numpy.sum(ld)
     if full_output:
         return ipos, ld, back, slope
-    else:
-        return ipos
+    return ipos
 
 
 def fwhm_exp(pos, data):
@@ -119,10 +116,9 @@ def fwhm_exp(pos, data):
 
     if pl is None:
         return numpy.abs(pr - p0)*2
-    elif pr is None:
+    if pr is None:
         return numpy.abs(pl - p0)*2
-    else:
-        return numpy.abs(pr - pl)
+    return numpy.abs(pr - pl)
 
 
 def gcd(lst):
@@ -141,8 +137,5 @@ def gcd(lst):
     """
     if numpy.version.version >= '1.15.0':
         return numpy.gcd.reduce(lst)
-    elif sys.version_info >= (3, 5):
-        gcdfunc = numpy.frompyfunc(math.gcd, 2, 1)
-    else:
-        gcdfunc = numpy.frompyfunc(fractions.gcd, 2, 1)
+    gcdfunc = numpy.frompyfunc(math.gcd, 2, 1)
     return numpy.ufunc.reduce(gcdfunc, lst)

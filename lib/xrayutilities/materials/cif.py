@@ -535,10 +535,9 @@ class CIFDataset(object):
                     return sgl.SGLattice(self.sgrp, *self.uc_params,
                                          atoms=self.elements, pos=self.wp,
                                          occ=self.occ, b=self.biso)
-                else:
-                    if config.VERBOSITY >= config.INFO_LOW:
-                        print('XU.materials: Wyckoff positions missing, '
-                              'using P1')
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print('XU.materials: Wyckoff positions missing, '
+                          'using P1')
             else:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print('XU.materials: space-group detection failed, '

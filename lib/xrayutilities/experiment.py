@@ -275,8 +275,7 @@ class QConversion(object):
         if tmp.shape != (3, 3) and tmp.size != 9:
             raise InputError("QConversion: incorrect shape of UB matrix "
                              "(shape: %s)" % str(tmp.shape))
-        else:
-            self._UB = tmp.reshape((3, 3))
+        self._UB = tmp.reshape((3, 3))
 
     energy = property(_get_energy, _set_energy)
     wavelength = property(_get_wavelength, _set_wavelength)
@@ -402,16 +401,12 @@ class QConversion(object):
 
         for i in range(len(args)):
             arg = args[i]
-            if not isinstance(
-                arg,
-                (numbers.Number,
-                 list,
-                 tuple,
-                 numpy.ndarray)):
+            if not isinstance(arg,
+                              (numbers.Number, list, tuple, numpy.ndarray)):
                 raise TypeError("QConversion: invalid type for one of the "
                                 "sample coordinates, must be scalar, list or "
                                 "array")
-            elif isinstance(arg, numbers.Number):
+            if isinstance(arg, numbers.Number):
                 arg = numpy.ones(npoints, dtype=numpy.double) * arg
             elif isinstance(arg, (list, tuple)):
                 arg = numpy.array(arg, dtype=numpy.double)
@@ -587,10 +582,9 @@ class QConversion(object):
 
         if Npoints == 1:
             return (qpos[0, 0], qpos[0, 1], qpos[0, 2])
-        else:
-            return numpy.reshape(qpos[:, 0], retshape), \
-                numpy.reshape(qpos[:, 1], retshape), \
-                numpy.reshape(qpos[:, 2], retshape)
+        return numpy.reshape(qpos[:, 0], retshape), \
+            numpy.reshape(qpos[:, 1], retshape), \
+            numpy.reshape(qpos[:, 2], retshape)
 
     def init_linear(self, detectorDir, cch, Nchannel, distance=None,
                     pixelwidth=None, chpdeg=None, tilt=0, **kwargs):
@@ -793,9 +787,8 @@ class QConversion(object):
         if Npoints == 1:
             qpos.shape = (Npoints * (roi[1] - roi[0]), 3)
             return qpos[:, 0], qpos[:, 1], qpos[:, 2]
-        else:
-            qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
-            return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
+        qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+        return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
 
     def init_area(self, detectorDir1, detectorDir2, cch1, cch2, Nch1, Nch2,
                   distance=None, pwidth1=None, pwidth2=None, chpdeg1=None,
@@ -1064,9 +1057,8 @@ class QConversion(object):
         if Npoints == 1:
             qpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
             return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
-        else:
-            qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
-            return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
+        qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+        return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
 
     def transformSample2Lab(self, vector, *args):
         """
@@ -1137,7 +1129,7 @@ class QConversion(object):
         if dim == 1 and not self._linear_init:
             raise Exception("QConversion: linear detector not initialized -> "
                             "call Ang2Q.init_linear(...)")
-        elif dim == 2 and not self._area_init:
+        if dim == 2 and not self._area_init:
             raise Exception("QConversion: area detector not initialized -> "
                             "call Ang2Q.init_area(...)")
 
@@ -1167,9 +1159,9 @@ class QConversion(object):
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Nd:
-            raise InputError("QConversion: wrong amount (%d) of arguments "
-                             "given, number of arguments should be %d"
-                             % (len(args), Nd))
+            raise InputError(f"QConversion: wrong amount ({len(args)}) of "
+                             "arguments given, number of arguments should be "
+                             f"{Nd}")
 
         # determine the number of points and reshape input arguments
         Npoints = self._checkInput(*args)
@@ -1209,11 +1201,10 @@ class QConversion(object):
             if Npoints == 1:
                 dpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
                 return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
-            else:
-                dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
-                return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
+            dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+            return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
 
-        elif dim == 1:
+        if dim == 1:
             cfunc = cxrayutilities.ang2q_detpos_linear
             dpos = cfunc(dAngles, self.r_i, dAxis, cch, pwidth, roi,
                          self._linear_detdir, self._linear_tilt,
@@ -1223,20 +1214,17 @@ class QConversion(object):
             if Npoints == 1:
                 dpos.shape = (Npoints * (roi[1] - roi[0]), 3)
                 return dpos[:, 0], dpos[:, 1], dpos[:, 2]
-            else:
-                dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
-                return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
+            dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+            return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
 
-        else:
-            cfunc = cxrayutilities.ang2q_detpos
-            dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
+        cfunc = cxrayutilities.ang2q_detpos
+        dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
 
-            if Npoints == 1:
-                return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
-            else:
-                return numpy.reshape(dpos[:, 0], retshape), \
-                    numpy.reshape(dpos[:, 1], retshape), \
-                    numpy.reshape(dpos[:, 2], retshape)
+        if Npoints == 1:
+            return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
+        return numpy.reshape(dpos[:, 0], retshape), \
+            numpy.reshape(dpos[:, 1], retshape), \
+            numpy.reshape(dpos[:, 2], retshape)
 
     def getDetectorDistance(self, *args, **kwargs):
         """
@@ -1588,10 +1576,9 @@ class Experiment(object):
 
         if typ == 'linear':
             return self.Ang2Q.linear(*args, **kwargs)
-        elif typ == 'area':
+        if typ == 'area':
             return self.Ang2Q.area(*args, **kwargs)
-        else:
-            return self.Ang2Q(*args, **kwargs)
+        return self.Ang2Q(*args, **kwargs)
 
     def Transform(self, v):
         """
@@ -1977,8 +1964,7 @@ class HXRD(Experiment):
 
         if deg:
             return numpy.degrees(angle)
-        else:
-            return angle
+        return angle
 
 
 class FourC(HXRD):
@@ -2167,8 +2153,7 @@ class NonCOP(Experiment):
 
         if deg:
             return numpy.degrees(angle)
-        else:
-            return angle
+        return angle
 
 
 class GID(Experiment):
@@ -2211,7 +2196,7 @@ class GID(Experiment):
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
-    def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
+    def Q2Ang(self, qvec, trans=True, deg=True, **kwargs):
         """
         calculate the GID angles needed in the experiment
         the inplane reference direction defines the direction were
@@ -2224,7 +2209,7 @@ class GID(Experiment):
 
         Parameters
         ----------
-        Q :         list, tuple or array-like
+        qvec :         list, tuple or array-like
             array of shape (3) with q-space vector components or 3
             separate lists with qx, qy, qz
 
@@ -2252,10 +2237,10 @@ class GID(Experiment):
                         'deg': 'degree-flag'}
         utilities.check_kwargs(kwargs, valid_kwargs, 'Q2Ang')
 
-        if isinstance(Q, list):
-            q = numpy.array(Q, dtype=numpy.double)
-        elif isinstance(Q, numpy.ndarray):
-            q = Q
+        if isinstance(qvec, list):
+            q = numpy.array(qvec, dtype=numpy.double)
+        elif isinstance(qvec, numpy.ndarray):
+            q = qvec
         else:
             raise TypeError("Q vector must be a list or numpy array")
 
@@ -2289,8 +2274,8 @@ class GID(Experiment):
             ang = [0, azimuth, tth, 0]
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.GID.Q2Ang: [ai, azimuth, tth, beta] = %s \n difference "
-                  "to inplane reference which is %5.2f" % (str(ang), aref))
+            print(f"XU.GID.Q2Ang: [ai, azimuth, tth, beta] = {str(ang)}\n"
+                  f"difference to inplane reference which is {aref:5.2f}")
 
         return ang
 

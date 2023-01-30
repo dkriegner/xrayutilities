@@ -303,37 +303,35 @@ class SPECScan(object):
                             print(f"XU.io.SPECScan.ReadData: {self.name} "
                                   "aborted")
                         continue
-                    elif SPEC_scanresumed.match(line):
+                    if SPEC_scanresumed.match(line):
                         self.scan_status = "OK"
                         scan_aborted_flag = False
                         if config.VERBOSITY >= config.INFO_ALL:
                             print(f"XU.io.SPECScan.ReadData: {self.name} "
                                   "resumed")
                         continue
-                    elif SPEC_commentline.match(line):
+                    if SPEC_commentline.match(line):
                         continue
-                    elif SPEC_errorbm20.match(line):
+                    if SPEC_errorbm20.match(line):
                         print(line)
                         continue
-                    else:
-                        break
+                    break
 
                 if SPEC_headerline.match(line) or \
                    SPEC_commentline.match(line):
                     if SPEC_scanresumed.match(line):
                         continue
-                    elif SPEC_commentline.match(line):
+                    if SPEC_commentline.match(line):
                         continue
-                    else:
-                        break
+                    break
 
                 if mca_counter == 0:
                     # the line is a scalar data line
                     line_list = SPEC_num_value.findall(line)
                     if config.VERBOSITY >= config.DEBUG:
                         print(f"XU.io.SPECScan.ReadData: {line}")
-                        print("XU.io.SPECScan.ReadData: read scalar values %s"
-                              % repr(line_list))
+                        print("XU.io.SPECScan.ReadData: read scalar values "
+                              f"{repr(line_list)}")
                     # convert strings to numbers
                     line_list = map(float, line_list)
 
@@ -556,8 +554,7 @@ class SPECScan(object):
                 if firstonly:
                     ret = m.groups()[0]
                     break
-                else:
-                    ret.append(m.groups()[0])
+                ret.append(m.groups()[0])
         return ret
 
 
@@ -637,19 +634,17 @@ class SPECFile(object):
 
             if s is not None:
                 return s
-            else:
-                raise AttributeError("requested scan-number not found")
-        else:
-            raise AttributeError(f"SPECFile has no attribute '{name}'")
+            raise AttributeError("requested scan-number not found")
+        raise AttributeError(f"SPECFile has no attribute '{name}'")
 
     def __len__(self):
         return self.scan_list.__len__()
 
     def __str__(self):
         ostr = ""
-        for i in range(len(self.scan_list)):
-            ostr = ostr + "%5i" % (i)
-            ostr = ostr + self.scan_list[i].__str__()
+        for i, scan in enumerate(self.scan_list):
+            ostr = ostr + f"{i:5d}"
+            ostr = ostr + str(scan)
 
         return ostr
 
@@ -1100,8 +1095,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
 
     if not args:
         return MAP
-    else:
-        return retval, MAP
+    return retval, MAP
 
 
 def getspec_scan(specf, scans, *args, **kwargs):

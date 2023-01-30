@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2015-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -86,10 +86,10 @@ class RASFile(object):
                 line = fid.readline()
                 line = line.decode('ascii', 'ignore')
                 if config.VERBOSITY >= config.DEBUG:
-                    print("XU.io.RASFile: %d: '%s'" % (t, line))
+                    print(f"XU.io.RASFile: {t}: '{line}'")
                 if re_measstart.match(line):
                     continue
-                elif re_headerstart.match(line):
+                if re_headerstart.match(line):
                     s = RASScan(self.full_filename, t)
                     self.scans.append(s)
                     fid.seek(s.fidend)  # set handle to after scan
@@ -278,7 +278,6 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
 
     if not args:
         return MAP
-    elif len(args) == 1:
+    if len(args) == 1:
         return retval[0], MAP
-    else:
-        return retval, MAP
+    return retval, MAP

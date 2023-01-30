@@ -1053,18 +1053,17 @@ class FP_profile:
         if xx.axDiv != "full" or xx.twotheta0_deg == 90.0:
             axfn[:] = 1
             return axfn
-        else:
-            axbuf = self.full_axdiv_I3(
-                nsteps=xx.n_integral_points,
-                epsvals=self.epsilon,
-                Lx=xx.slit_length_source,
-                Lr=xx.slit_length_target,
-                Ls=xx.length_sample,
-                sollerIdeg=xx.angI_deg,
-                sollerDdeg=xx.angD_deg,
-                R=xx.diffractometer_radius,
-                twotheta=xx.twotheta0
-            )
+        axbuf = self.full_axdiv_I3(
+            nsteps=xx.n_integral_points,
+            epsvals=self.epsilon,
+            Lx=xx.slit_length_source,
+            Lr=xx.slit_length_target,
+            Ls=xx.length_sample,
+            sollerIdeg=xx.angI_deg,
+            sollerDdeg=xx.angD_deg,
+            R=xx.diffractometer_radius,
+            twotheta=xx.twotheta0
+        )
         axfn[:] = best_rfft(axbuf)
 
         return axfn
@@ -2109,8 +2108,7 @@ class PowderDiffraction(PowderExperiment):
                 fptt = d['conv'].twotheta_window_center_deg
                 if abs(ttpeak-fptt) / ww < 0.25 and not force:
                     continue
-                else:
-                    nset[h] = True
+                nset[h] = True
             else:
                 nset[h] = True
             # set window in local instances
@@ -2460,23 +2458,21 @@ class PowderDiffraction(PowderExperiment):
                     for h, r in zip(chunk, res):
                         if r is None:
                             continue
-                        else:
-                            ttpeak = 2 * self.data[h]['ang']
-                            mask = numpy.argwhere(
-                                numpy.logical_and(tt > ttpeak - ww/2,
-                                                  tt < ttpeak + ww/2))
+                        ttpeak = 2 * self.data[h]['ang']
+                        mask = numpy.argwhere(
+                            numpy.logical_and(tt > ttpeak - ww/2,
+                                              tt < ttpeak + ww/2))
 
-                            out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
-                                                      r.peak*self.data[h]['r'],
-                                                      left=0, right=0)
+                        out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
+                                                  r.peak*self.data[h]['r'],
+                                                  left=0, right=0)
                     gotit.discard(idx)  # got that result, don't expect more
 
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Powder.Convolute: exec time=", time.time() - t_start)
             return out
-        else:
-            print("XU.Powder: not initialized for calculation -> exiting!")
-            return None
+        print("XU.Powder: not initialized for calculation -> exiting!")
+        return None
 
     def Calculate(self, twotheta, **kwargs):
         """
@@ -2507,9 +2503,8 @@ class PowderDiffraction(PowderExperiment):
             self.update_powder_lines(self._tt_cutoff)
             self.set_window()
             return self.Convolve(twotheta, **kwargs)
-        else:
-            print("XU.Powder: not initialized for calculation -> exiting!")
-            return None
+        print("XU.Powder: not initialized for calculation -> exiting!")
+        return None
 
     def __str__(self):
         """
