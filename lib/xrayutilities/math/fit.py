@@ -123,7 +123,7 @@ def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
 
     # determine initial parameters
     _check_iparams(iparams, peaktype, background)
-    if not any(iparams):
+    if iparams is None:
         iparams = _guess_iparams(xdata, ydata, peaktype, background)
     if config.VERBOSITY >= config.DEBUG:
         print(f"XU.math.peak_fit: iparams: {str(tuple(iparams))}")
@@ -263,7 +263,7 @@ def _check_iparams(iparams, peaktype, background):
         type of background
 
     """
-    if not any(iparams):
+    if iparams is None:
         return
     ptypes = {('Gauss', 'constant'): 4, ('Lorentz', 'constant'): 4,
               ('Gauss', 'linear'): 5, ('Lorentz', 'linear'): 5,
