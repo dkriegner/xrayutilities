@@ -66,7 +66,7 @@ SPEC_errorbm20 = re.compile(r"^MI:")
 scan_status_flags = ["OK", "NODATA", "ABORTED", "CORRUPTED"]
 
 
-class SPECScan(object):
+class SPECScan:
     """
     Represents a single SPEC scan. This class is usually not called by the
     user directly but used via the SPECFile class.
@@ -558,7 +558,7 @@ class SPECScan(object):
         return ret
 
 
-class SPECFile(object):
+class SPECFile:
 
     """
     This class represents a single SPEC file. The class provides
@@ -924,7 +924,7 @@ class SPECFile(object):
             self.last_offset = self.scan_list[-1].doffset
 
 
-class SPECCmdLine(object):
+class SPECCmdLine:
 
     def __init__(self, n, prompt, cmdl, out=""):
         self.linenumber = n
@@ -937,7 +937,7 @@ class SPECCmdLine(object):
         return ostr
 
 
-class SPECLog(object):
+class SPECLog:
     """
     class to parse a SPEC log file to find the command history
     """

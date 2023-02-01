@@ -196,7 +196,7 @@ def blockAverageCCD(data3d, Nav1, Nav2, **kwargs):
 # #####################################
 
 
-class IntensityNormalizer(object):
+class IntensityNormalizer:
 
     """
     generic class for correction of intensity (point detector, or MCA,

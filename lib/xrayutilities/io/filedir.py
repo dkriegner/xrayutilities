@@ -22,7 +22,7 @@ from .. import config
 from .helper import xu_h5open
 
 
-class FileDirectory(object):
+class FileDirectory:
 
     """
     Parses a directory for files, which can be stored to a HDF5 file for

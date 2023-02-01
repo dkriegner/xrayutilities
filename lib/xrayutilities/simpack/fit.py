@@ -21,7 +21,7 @@ from .. import utilities
 from . import models
 
 
-class FitModel(object):
+class FitModel:
     """
     Wrapper for the lmfit Model class working for instances of LayerModel
 
@@ -170,7 +170,7 @@ class FitModel(object):
         -------
         lmfit.ModelResult
         """
-        class FitPlot(object):
+        class FitPlot:
             def __init__(self, figname, logscale):
                 self.figname = figname
                 self.logscale = logscale

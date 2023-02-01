@@ -47,7 +47,7 @@ def get_key(*args):
     return hash(tuple(tup))
 
 
-class Atom(object):
+class Atom:
     max_cache_length = 1000
 
     def __init__(self, name, num):

@@ -323,7 +323,7 @@ def getSyntax(vec):
     return string
 
 
-class Transform(object):
+class Transform:
 
     def __init__(self, matrix):
         self.matrix = matrix

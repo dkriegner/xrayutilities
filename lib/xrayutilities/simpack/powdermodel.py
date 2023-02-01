@@ -26,7 +26,7 @@ from .powder import PowderDiffraction
 from .smaterials import PowderList
 
 
-class PowderModel(object):
+class PowderModel:
     """
     Class to help with powder calculations for multiple materials.  For basic
     calculations the Powder class together with the Fundamental parameters

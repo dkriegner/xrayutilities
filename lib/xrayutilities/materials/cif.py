@@ -62,7 +62,7 @@ re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma", re.IGNORECASE)
 re_comment = re.compile(r"^\s*#")
 
 
-class CIFFile(object):
+class CIFFile:
     """
     class for parsing CIF (Crystallographic Information File) files. The class
     aims to provide an additional way of creating material classes instead of
@@ -163,7 +163,7 @@ class CIFFile(object):
         return ostr
 
 
-class CIFDataset(object):
+class CIFDataset:
     """
     class for parsing CIF (Crystallographic Information File) files. The class
     aims to provide an additional way of creating material classes instead of

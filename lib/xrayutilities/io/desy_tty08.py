@@ -44,7 +44,7 @@ re_epoch = re.compile(r"^/\*T epoch")
 re_initmopo = re.compile(r"^/\*M")
 
 
-class tty08File(object):
+class tty08File:
 
     """
     Represents a tty08 data file. The file is read during the

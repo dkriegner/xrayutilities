@@ -29,7 +29,7 @@ import numpy
 import scipy.constants
 
 
-class DataBase(object):
+class DataBase:
 
     def __init__(self, fname):
         self.fname = fname

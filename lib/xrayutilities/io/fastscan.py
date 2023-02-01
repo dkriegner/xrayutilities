@@ -51,7 +51,7 @@ from .edf import EDFFile
 from .spec import SPECFile
 
 
-class FastScan(object):
+class FastScan:
 
     """
     class to help parsing and treating fast scan data.  FastScan is the
@@ -644,7 +644,7 @@ class FastScanCCD(FastScan):
         return g2l.xmatrix, g2l.ymatrix, ccddata
 
 
-class FastScanSeries(object):
+class FastScanSeries:
 
     """
     class to help parsing and treating a series of fast scan data including CCD

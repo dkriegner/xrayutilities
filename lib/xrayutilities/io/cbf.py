@@ -29,7 +29,7 @@ from .helper import xu_h5open, xu_open
 cbf_name_start_num = re.compile(r"^\d")
 
 
-class CBFFile(object):
+class CBFFile:
 
     def __init__(self, fname, nxkey="X-Binary-Size-Fastest-Dimension",
                  nykey="X-Binary-Size-Second-Dimension",

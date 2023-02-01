@@ -147,7 +147,7 @@ moment_list = []
 collect_moment_errors = False
 
 
-class profile_data(object):
+class profile_data:
     """
     a skeleton class which makes a combined dict and namespace interface for
     easy pickling and data passing
@@ -1707,7 +1707,7 @@ class FP_profile:
             pass
 
 
-class convolver_handler(object):
+class convolver_handler:
     """
     manage the convolvers of on process
     """
