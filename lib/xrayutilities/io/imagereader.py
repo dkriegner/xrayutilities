@@ -26,7 +26,7 @@ from ..exception import InputError
 from .helper import xu_open
 
 
-class ImageReader(object):
+class ImageReader:
 
     """
     parse CCD frames in the form of tiffs or binary data (``*.bin``)

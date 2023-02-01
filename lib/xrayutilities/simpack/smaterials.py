@@ -41,7 +41,7 @@ def _multiply(a, b):
     return m
 
 
-class SMaterial(object):
+class SMaterial:
     """
     Simulation Material. Extends the xrayutilities Materials by properties
     needed for simulations

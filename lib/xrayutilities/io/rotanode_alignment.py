@@ -35,7 +35,7 @@ LOG_tagline = re.compile(r"^#")
 LOG_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+")
 
 
-class RA_Alignment(object):
+class RA_Alignment:
 
     """
     class to parse the data file created by the alignment routine

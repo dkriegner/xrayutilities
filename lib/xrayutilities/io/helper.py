@@ -71,7 +71,7 @@ def xu_open(filename, mode='rb'):
     return fid
 
 
-class xu_h5open(object):
+class xu_h5open:
     """
     helper object to decide if a HDF5 file has to be opened/closed when
     using with a 'with' statement.

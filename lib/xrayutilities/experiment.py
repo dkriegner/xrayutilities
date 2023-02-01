@@ -53,7 +53,7 @@ class QConvFlags(enum.IntFlag):
     VERBOSE = 16
 
 
-class QConversion(object):
+class QConversion:
 
     """
     Class for the conversion of angular coordinates to momentum space for
@@ -1260,7 +1260,7 @@ class QConversion(object):
         return numpy.sqrt(x**2 + y**2 + z**2)
 
 
-class Experiment(object):
+class Experiment:
 
     """
     base class for describing experiments

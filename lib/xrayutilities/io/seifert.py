@@ -77,7 +77,7 @@ def repair_key(key):
     return key
 
 
-class SeifertHeader(object):
+class SeifertHeader:
     """
     helper class to represent a Seifert (NJA) scan file header
     """
@@ -97,7 +97,7 @@ class SeifertHeader(object):
         return ostr
 
 
-class SeifertMultiScan(object):
+class SeifertMultiScan:
     """
     Class to parse a Seifert (NJA) multiscan file
     """
@@ -188,7 +188,7 @@ class SeifertMultiScan(object):
         self.sm_pos.shape = (self.nscans, self.n_sm_pos)
 
 
-class SeifertScan(object):
+class SeifertScan:
     """
     Class to parse a single Seifert (NJA) scan file
     """

@@ -32,7 +32,7 @@ from .. import config
 from .helper import xu_open
 
 
-class XRDMLMeasurement(object):
+class XRDMLMeasurement:
 
     """
     class to handle scans in a XRDML datafile
@@ -187,7 +187,7 @@ class XRDMLMeasurement(object):
         return ostr
 
 
-class XRDMLFile(object):
+class XRDMLFile:
 
     """
     class to handle XRDML data files. The class is supplied with a file

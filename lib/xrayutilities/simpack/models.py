@@ -38,7 +38,7 @@ def startdelta(start, delta, num):
     return numpy.linspace(start, end, int(num))
 
 
-class Model(object):
+class Model:
     """
     generic model class from which further models can be derived from
     """

@@ -490,7 +490,7 @@ class WyckoffBase(list):
         raise ValueError(f"{str(item)} is not in list")
 
 
-class SymOp(object):
+class SymOp:
     """
     Class descriping a symmetry operation in a crystal. The symmetry operation
     is characterized by a 3x3 transformation matrix as well as a 3-vector
@@ -611,7 +611,7 @@ class SymOp(object):
         return self.__str__()
 
 
-class SGLattice(object):
+class SGLattice:
     """
     lattice object created from the space group number and corresponding unit
     cell parameters. atoms in the unit cell are specified by their Wyckoff

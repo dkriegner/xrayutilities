@@ -43,7 +43,7 @@ def remove_comments(line, sep='#'):
     return line
 
 
-class pdCIF(object):
+class pdCIF:
 
     """
     the class implements a primitive parser for pdCIF-like files.  It reads

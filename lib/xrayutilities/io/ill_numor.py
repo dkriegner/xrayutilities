@@ -36,7 +36,7 @@ re_spectrum = re.compile(r"^S+$")
 re_header = re.compile(r"^I+$")
 
 
-class numorFile(object):
+class numorFile:
     """
     Represents a ILL data file (numor). The file is read during the Constructor
     call. This class should work for created at station D23 using the mad

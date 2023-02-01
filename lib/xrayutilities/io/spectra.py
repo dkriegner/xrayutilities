@@ -119,7 +119,7 @@ class SPECTRAFileParameters(dict):
         return ostr
 
 
-class SPECTRAFileDataColumn(object):
+class SPECTRAFileDataColumn:
 
     def __init__(self, index, name, unit, type):
         self.index = int(index)
@@ -132,7 +132,7 @@ class SPECTRAFileDataColumn(object):
         return ostr
 
 
-class SPECTRAFileData(object):
+class SPECTRAFileData:
 
     def __init__(self):
         self.collist = []
@@ -188,7 +188,7 @@ class SPECTRAFileData(object):
         return ostr
 
 
-class SPECTRAFile(object):
+class SPECTRAFile:
 
     """
     Represents a SPECTRA data file. The file is read during the

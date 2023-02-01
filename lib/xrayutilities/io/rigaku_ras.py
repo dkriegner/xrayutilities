@@ -52,7 +52,7 @@ re_measspeed = re.compile(r"^\*MEAS_SCAN_SPEED ")
 re_measstep = re.compile(r"^\*MEAS_SCAN_STEP ")
 
 
-class RASFile(object):
+class RASFile:
 
     """
     Represents a RAS data file. The file is read during the
@@ -101,7 +101,7 @@ class RASFile(object):
             self.scan = self.scans[0]
 
 
-class RASScan(object):
+class RASScan:
 
     """
     Represents a single Scan portion of a RAS data file. The scan is parsed

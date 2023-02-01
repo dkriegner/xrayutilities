@@ -55,7 +55,7 @@ DataTypeDict = {"SignedByte": "b",
 # caused troubles ("I" works)
 
 
-class EDFFile(object):
+class EDFFile:
 
     def __init__(self, fname, nxkey="Dim_1", nykey="Dim_2",
                  dtkey="DataType", path="", header=True, keep_open=False):
