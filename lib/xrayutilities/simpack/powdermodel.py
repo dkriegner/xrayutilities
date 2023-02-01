@@ -326,7 +326,7 @@ class PowderModel(object):
         return fitres
 
     def plot(self, twotheta, showlines=True, label='simulation', color=None,
-             formatspec='-', lcolors=[], ax=None, **kwargs):
+             formatspec='-', lcolors=None, ax=None, **kwargs):
         """
         plot the powder diffraction pattern and indicate line positions for all
         components in the model.

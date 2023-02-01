@@ -437,7 +437,7 @@ class SPECScan(object):
         lim = plt.axis()
         plt.axis([xdata.min(), xdata.max(), lim[2], lim[3]])
 
-    def Save2HDF5(self, h5f, group="/", title="", optattrs={}, comp=True):
+    def Save2HDF5(self, h5f, group="/", title="", optattrs=None, comp=True):
         """
         Save a SPEC scan to an HDF5 file. The method creates a group with the
         name of the scan and stores the data there as a table object with name
@@ -462,14 +462,14 @@ class SPECScan(object):
         comp :	 bool, optional
             activate compression - true by default
         """
-
+        if optattrs is None:
+            optattrs = {}
         with xu_h5open(h5f, 'a') as h5:
             # check if data object has been already written
             if self.data is None:
                 raise InputError("XU.io.SPECScan.Save2HDF5: No data has been"
                                  "read so far - call ReadData method of the "
                                  "scan")
-                return None
 
             # parse keyword arguments:
             if isinstance(group, str):
@@ -491,7 +491,7 @@ class SPECScan(object):
             # if the group already exists the name must be changed and
             # another will be made to create the group.
             while group_title in rootgroup:
-                group_title = raw_grp_title + "_%i" % (copy_count)
+                group_title = raw_grp_title + f"_{copy_count}"
                 copy_count = copy_count + 1
             g = rootgroup.create_group(group_title)
 
@@ -509,8 +509,8 @@ class SPECScan(object):
             g.attrs['scan_status'] = self.scan_status
 
             # write the initial motor positions as attributes
-            for k in self.init_motor_pos:
-                g.attrs[k] = float(self.init_motor_pos[k])
+            for key, val in self.init_motor_pos.items():
+                g.attrs[key] = float(val)
 
             # if scan contains MCA data write also MCA parameters
             g.attrs['has_mca'] = self.has_mca
@@ -546,7 +546,7 @@ class SPECScan(object):
         """
         if not self.header:
             self.ReadData()
-        re_key = re.compile(r'^#%s (.*)' % key)
+        re_key = re.compile(f'^#{key} (.*)')
         ret = []
         for line in self.header:
             m = re_key.match(line)
@@ -648,7 +648,7 @@ class SPECFile(object):
 
         return ostr
 
-    def Save2HDF5(self, h5f, comp=True, optattrs={}):
+    def Save2HDF5(self, h5f, comp=True, optattrs=None):
         """
         Save the entire file in an HDF5 file. For that purpose a group is set
         up in the root group of the file with the name of the file without
@@ -662,6 +662,8 @@ class SPECFile(object):
         comp :  bool, optional
             activate compression - true by default
         """
+        if optattrs is None:
+            optattrs = {}
         with xu_h5open(h5f, 'a') as h5:
             groupname = os.path.splitext(os.path.splitext(self.filename)[0])[0]
             try:

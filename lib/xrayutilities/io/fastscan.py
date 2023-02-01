@@ -420,7 +420,7 @@ class FastScanCCD(FastScan):
         return r, int(num)
 
     def getCCD(self, ccdnr, roi=None, datadir=None, keepdir=0,
-               replacedir=None, nav=[1, 1], filterfunc=None):
+               replacedir=None, nav=(1, 1), filterfunc=None):
         """
         function to read the ccd files and return the raw X, Y and DATA values.
         DATA represents a 3D object with first dimension representing the data
@@ -558,7 +558,7 @@ class FastScanCCD(FastScan):
         return self.xvalues, self.yvalues, ccdroi
 
     def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
-                replacedir=None, nav=[1, 1], gridrange=None, filterfunc=None):
+                replacedir=None, nav=(1, 1), gridrange=None, filterfunc=None):
         """
         function to grid the internal data and ccd files and return the gridded
         X, Y and DATA values. DATA represents a 4D object with first two
@@ -621,8 +621,8 @@ class FastScanCCD(FastScan):
         ccdshape = self._read_image(filename, 0, nav, roi, filterfunc).shape
         ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.io.FastScanCCD: allocated ccddata array with %d bytes'
-                  % ccddata.nbytes)
+            print("XU.io.FastScanCCD: allocated ccddata array with "
+                  f"{ccddata.nbytes} bytes")
 
         # go through the gridded data and average the ccd-frames
         for i in range(gdata.shape[0]):
@@ -1051,7 +1051,7 @@ class FastScanSeries(object):
 
         return ret
 
-    def rawRSM(self, posx, posy, qconv, roi=None, nav=[1, 1], typ='real',
+    def rawRSM(self, posx, posy, qconv, roi=None, nav=(1, 1), typ='real',
                datadir=None, keepdir=0, replacedir=None, filterfunc=None,
                **kwargs):
         """
@@ -1159,7 +1159,7 @@ class FastScanSeries(object):
         qx, qy, qz = qconv.area(*motors, roi=roi, Nav=nav, UB=U)
         return qx, qy, qz, ccddata, valuelist
 
-    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, roi=None, nav=[1, 1],
+    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, roi=None, nav=(1, 1),
                 typ='real', filterfunc=None, **kwargs):
         """
         function to calculate the reciprocal space map at a certain
@@ -1246,9 +1246,9 @@ class FastScanSeries(object):
         for fs in self.fastscans:
             # check if counter is in data fields
             if counter not in fs.data.dtype.fields:
-                raise ValueError("field named '%s' not found in data parsed "
-                                 "from scan #%d in file %s"
-                                 % (counter, fs.scannr, fs.filename))
+                raise ValueError(
+                    f"field named '{counter}' not found in scan #{fs.scannr} "
+                    f"in file {fs.filename}")
 
             # grid data
             g2d(fs.xvalues, fs.yvalues, fs.data[counter])

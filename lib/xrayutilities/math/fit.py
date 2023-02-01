@@ -73,7 +73,7 @@ def linregress(x, y):
     return p, rsq
 
 
-def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
+def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
              background='constant', plot=False, func_out=False, debug=False):
     """
     fit function using odr-pack wrapper in scipy similar to
@@ -123,7 +123,7 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
 
     # determine initial parameters
     _check_iparams(iparams, peaktype, background)
-    if not any(iparams):
+    if iparams is None:
         iparams = _guess_iparams(xdata, ydata, peaktype, background)
     if config.VERBOSITY >= config.DEBUG:
         print(f"XU.math.peak_fit: iparams: {str(tuple(iparams))}")
@@ -200,8 +200,6 @@ def _getfit_func(peaktype, background):
         fit function, function of derivative regarding `x`, and functions of
         derivatives regarding the parameters
     """
-    gfunc_dx = None
-    gfunc_dp = None
     if peaktype == 'Gauss':
         f = Gauss1d
         fdx = Gauss1d_der_x
@@ -241,6 +239,9 @@ def _getfit_func(peaktype, background):
 
             def gfunc_dp(param, x):
                 return fdp(x, *param)
+    else:
+        gfunc_dx = None
+        gfunc_dp = None
 
     return gfunc, gfunc_dx, gfunc_dp
 
@@ -262,7 +263,7 @@ def _check_iparams(iparams, peaktype, background):
         type of background
 
     """
-    if not any(iparams):
+    if iparams is None:
         return
     ptypes = {('Gauss', 'constant'): 4, ('Lorentz', 'constant'): 4,
               ('Gauss', 'linear'): 5, ('Lorentz', 'linear'): 5,
@@ -338,7 +339,7 @@ def _guess_iparams(xdata, ydata, peaktype, background):
     return iparams
 
 
-def gauss_fit(xdata, ydata, iparams=[], maxit=300):
+def gauss_fit(xdata, ydata, iparams=None, maxit=300):
     """
     Gauss fit function using odr-pack wrapper in scipy similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting

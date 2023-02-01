@@ -187,7 +187,7 @@ def exitAngleConst(angles, alphaf, xrd):
 
 
 def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
-             startvalues=None, constraints=[]):
+             startvalues=None, constraints=None):
     """
     Functions to convert a q-vector from reciprocal space to angular space.
     This implementation uses scipy optimize routines to perform a fit for a
@@ -216,7 +216,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         start values for the fit, which can significantly speed up the
         conversion. The number of values must correspond to the number of
         angles in the goniometer of the expclass
-    constraints :   list
+    constraints :   list, optional
         sequence of constraint dictionaries. This allows applying arbitrary
         (e.g. pseudo-angle) contraints by supplying according constraint
         functions. An entry of the constraints argument must be a dictionary
@@ -244,6 +244,8 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         raise ValueError("XU.Q2AngFit: length of given q-vector is not 3 "
                          "-> invalid")
     lqvec = numpy.asarray(qvec)
+    if constraints is None:
+        constraints = []
 
     qconv = expclass._A2QConversion
     nangles = len(qconv.sampleAxis) + len(qconv.detectorAxis)
