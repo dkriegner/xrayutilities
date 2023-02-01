@@ -25,6 +25,7 @@ open gzipped and bzipped files
 
 import bz2
 import gzip
+import io
 import lzma
 
 import h5py
@@ -41,8 +42,8 @@ def xu_open(filename, mode='rb'):
 
     Parameters
     ----------
-    filename :  str
-        filename of the file to open (full including path)
+    filename :  str or bytes
+        filename of the file to open or a bytes-stream with the file contents
     mode :      str, optional
         mode in which the file should be opened
 
@@ -59,7 +60,9 @@ def xu_open(filename, mode='rb'):
     """
     if config.VERBOSITY >= config.INFO_ALL:
         print(f"XU:io: opening file {filename}")
-    if filename.endswith('.gz'):
+    if isinstance(filename, bytes):
+        fid = io.BytesIO(filename)
+    elif filename.endswith('.gz'):
         fid = gzip.open(filename, mode)
     elif filename.endswith('.bz2'):
         fid = bz2.BZ2File(filename, mode)

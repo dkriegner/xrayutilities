@@ -209,8 +209,12 @@ class XRDMLFile:
         path :      str, optional
             path to the XRDML file
         """
-        self.full_filename = os.path.join(path, fname)
-        self.filename = os.path.basename(self.full_filename)
+        if isinstance(fname, str):
+            self.full_filename = os.path.join(path, fname)
+            self.filename = os.path.basename(self.full_filename)
+        else:
+            self.full_filename = fname
+            self.filename = None
         with xu_open(self.full_filename) as fid:
             d = ElementTree.parse(fid)
         root = d.getroot()
