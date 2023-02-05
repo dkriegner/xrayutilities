@@ -27,11 +27,72 @@ import bz2
 import gzip
 import io
 import lzma
+import string
+
+from collections.abc import Iterable
+from operator import itemgetter
 
 import h5py
 
 from .. import config
 from ..exception import InputError
+
+
+def generate_filenames(filetemplate, scannrs=None):
+    """
+    generate a list of filenames from a template and replacement values.
+
+    Parameters
+    ----------
+    filetemplate: str or list
+      template string which should contain placeholders if scannrs is not None
+    scannrs: iterable, optional
+      list of scan numbers. If None then the filetemplate will be returned.
+
+    Examples
+    --------
+    >>> generate_filenames("filename_%d.ras", [1, 2, 3])
+    ["filename_1.ras", "filename_2.ras", "filename_3.ras"]
+
+    >>> generate_filenames("filename_{}.ras", [1, 2, 3])
+    ["filename_1.ras", "filename_2.ras", "filename_3.ras"]
+
+    >>> generate_filenames("filename_{}_{}.ras", [(11, 1), (21, 2), (31, 3)])
+    ["filename_11_1.ras", "filename_21_2.ras", "filename_31_3.ras"]
+
+    >>> generate_filenames("filename_%d.ras", 1)
+    ["filename_1.ras"]
+
+    >>> generate_filenames("filename.ras")
+    ["filename.ras"]
+
+    >>> generate_filenames(["filename.ras", "othername.ras"])
+    ["filename.ras", "othername.ras"]
+
+    Returns
+    -------
+    list of filenames. If only a single filename is returned it will still be
+    encapsulated in a list
+    """
+    if scannrs is None:
+        if isinstance(filetemplate, list):
+            return filetemplate
+        return [filetemplate]
+
+    files = []
+    if not isinstance(scannrs, Iterable):
+        scannrs = [scannrs]
+    placeholders = map(itemgetter(1), string.Formatter().parse(filetemplate))
+    isformatstring = any(p is not None for p in placeholders)
+    for nr in scannrs:
+        if isinstance(nr, tuple) and isformatstring:
+            files.append(filetemplate.format(*nr))
+        elif isformatstring:
+            files.append(filetemplate.format(nr))
+        else:
+            files.append(filetemplate % nr)
+
+    return files
 
 
 def xu_open(filename, mode='rb'):
@@ -44,7 +105,7 @@ def xu_open(filename, mode='rb'):
     ----------
     filename :  str or bytes
         filename of the file to open or a bytes-stream with the file contents
-    mode :      str, optional
+    mode :  str, optional
         mode in which the file should be opened
 
     Returns

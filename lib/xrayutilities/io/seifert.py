@@ -34,7 +34,7 @@ import re
 import numpy
 
 from .. import config
-from .helper import xu_open
+from .helper import generate_filenames, xu_open
 
 # define some regular expressions
 nscans_re = re.compile(r"^&NumScans=\d+")
@@ -257,14 +257,14 @@ class SeifertScan:
                     elif key == "Pos":
                         self.axispos[axes] += [value, ]
 
-                    self.hdr.__setattr__(key, value)
+                    setattr(self.hdr, key, value)
                 else:
                     try:
                         tmplist.append(float(e))
                     except ValueError:
                         pass
 
-            if tmplist != []:
+            if tmplist:
                 self.data.append(tmplist)
 
         # in the end we convert the data list to a numeric array
@@ -282,11 +282,12 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
 
     Parameters
     ----------
-    filetemplate :  str
-        template string for the file names, can contain a %d which is replaced
-        by the scan number or be a list of filenames
+    filetemplate :  str or list
+        template string for the file names, or list of filenames.
+        See :func:`~xrayutilities.io.helper.generate_filenames` for details.
     scannrs :       int or list, optional
-        scan number(s)
+        scan number(s), or other values needed to generate filenames from the
+        filetemplate.
     path :          str, optional
         common path to the filenames
     scantype :      {'map', 'O2T', 'tsk'}, optional
@@ -316,14 +317,8 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
     else:
         raise ValueError("Unsupported scan type")
     # create scan names
-    if scannrs is None:
-        files = [filetemplate]
-    else:
-        files = list()
-        if not getattr(scannrs, '__iter__', False):
-            scannrs = [scannrs]
-        for nr in scannrs:
-            files.append(filetemplate % nr)
+
+    files = generate_filenames(filetemplate, scannrs)
 
     # parse files
     for f in files:
@@ -341,8 +336,8 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
             psd = numpy.concatenate((psd, d.data[:, :, 1]))
         elif scantype == 'O2T':
             d = SeifertScan(os.path.join(path, f))
-            assert hasattr(d.hdr, "RSMmode")
-            assert d.hdr.RSMmode == scantype
+            if getattr(d.hdr, "RSMmode") != scantype:
+                raise ValueError(f"Scan {scantype} incompatible with RSMmode")
             om = numpy.concatenate((om, d.data[:, 0]))
             tt = numpy.concatenate((tt, d.data[:, 1]))
             psd = numpy.concatenate((psd, d.data[:, 2]))

@@ -29,7 +29,7 @@ from xml.etree import cElementTree as ElementTree
 import numpy
 
 from .. import config
-from .helper import xu_open
+from .helper import generate_filenames, xu_open
 
 
 class XRDMLMeasurement:
@@ -181,8 +181,8 @@ class XRDMLMeasurement:
         ostr = "XRDML Measurement\n"
         if self.material:
             ostr += f"Material: '{self.material}'; hkl: {str(self.hkl)}\n"
-        for k in self.ddict:
-            ostr += f"{k} with {str(self.ddict[k].shape)} points\n"
+        for k, v in self.ddict.items():
+            ostr += f"{k} with {str(v.shape)} points\n"
 
         return ostr
 
@@ -252,8 +252,11 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     Parameters
     ----------
     filetemplate :  str
-        template string for the file names, can contain a %d which is replaced
-        by the scan number or be a list of filenames
+        template string for the file names, can contain a %d or other
+        replacement variables which are understood be
+        :func:`~xrayutilities.io.helper.generate_filenames`. also see the
+        scannrs argument which is used to specify the replacement
+        variables.
     scannrs :       int or list, optional
         scan number(s)
     path :          str, optional
@@ -284,14 +287,7 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     tt = numpy.zeros(0)
     psd = numpy.zeros(0)
     # create scan names
-    if scannrs is None:
-        files = [filetemplate]
-    else:
-        files = list()
-        if not getattr(scannrs, '__iter__', False):
-            scannrs = [scannrs]
-        for nr in scannrs:
-            files.append(filetemplate % nr)
+    files = generate_filenames(filetemplate, scannrs)
 
     # parse files
     for f in files:
@@ -335,9 +331,11 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     Parameters
     ----------
     filetemplate :  str
-        template string for the file names, can contain a %d which is replaced
-        by the scan number or be a list of filenames given by the scannrs
-        keyword argument
+        template string for the file names, can contain a %d or other
+        replacement variables which are understood be
+        :func:`~xrayutilities.io.helper.generate_filenames`. also see the
+        scannrs keyword argument which is used to specify the replacement
+        variables.
 
     motors :        str
         motor names to return: e.g.: 'Omega', '2Theta', ...  one can also use
@@ -391,17 +389,7 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     motvals = numpy.empty((len(motnames) + 1, 0))
     detvals = numpy.empty(0)
     # create scan names
-    if scannrs is None:
-        if isinstance(filetemplate, list):
-            files = filetemplate
-        else:
-            files = [filetemplate]
-    else:
-        files = list()
-        if not numpy.iterable(scannrs):
-            scannrs = [scannrs]
-        for nr in scannrs:
-            files.append(filetemplate % nr)
+    files = generate_filenames(filetemplate, scannrs)
 
     # parse files
     if len(files) == 1:

@@ -1,3 +1,5 @@
+* more possibilities to specify filename lists in getras_scan, getSeifert_map,
+  and getxrdml_scan
 * allow bytes-stream instead of filename in XRDML
 * enable setting free lattice parameters from the Crystal instance
 * minor code improvements, forcing flake8 to pass upon merging a PR #149
