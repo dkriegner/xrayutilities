@@ -17,7 +17,7 @@ source = [
 
 [tool.pylint]
 disable = ["invalid-name", "R", "C", "W"]
-extension-pkg-whitelist = "xrayutilities.cxrayutilities"
+extension-pkg-whitelist = ["xrayutilities.cxrayutilities"]
 ignored-modules = ["scipy.special"]
 
 [tool.flake8]

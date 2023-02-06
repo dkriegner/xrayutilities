@@ -2,6 +2,6 @@
 numpy
 scipy
 h5py
-# recommended packages
 lmfit
+# recommended packages
 matplotlib

@@ -57,18 +57,6 @@ def import_matplotlib_pyplot(funcname='XU'):
         return False, None
 
 
-def import_lmfit(funcname='XU'):
-    """
-    lazy import function for lmfit
-    """
-    try:
-        import lmfit
-        return lmfit
-    except ImportError:
-        raise ImportError(f"{funcname}: Fitting of models needs the lmfit "
-                          "package (https://pypi.python.org/pypi/lmfit)")
-
-
 def import_mayavi_mlab(funcname='XU'):
     """
     lazy import function of mayavi.mlab

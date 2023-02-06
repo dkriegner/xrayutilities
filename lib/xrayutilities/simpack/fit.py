@@ -16,12 +16,13 @@
 # Copyright (c) 2016-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
+from lmfit import Model
 
 from .. import utilities
 from . import models
 
 
-class FitModel:
+class FitModel(Model):
     """
     Wrapper for the lmfit Model class working for instances of LayerModel
 
@@ -60,7 +61,6 @@ class FitModel:
         self.verbose = verbose
         self.plot = plot
         self.elog = elog
-        lmfit = utilities.import_lmfit('XU.simpack')
 
         assert isinstance(lmodel, models.LayerModel)
         self.lmodel = lmodel
@@ -116,12 +116,9 @@ class FitModel:
                 diff *= weights
             return numpy.asarray(diff).ravel()
 
-        self.lmm = lmfit.Model(self.func,
-                               name=self.lmodel.__class__.__name__, **kwargs)
-        self.lmm._residual = _residual
-        for method in ('set_param_hint', 'print_param_hints', 'eval',
-                       'make_params'):
-            setattr(self, method, getattr(self.lmm, method))
+        super().__init__(self.func,
+                         name=self.lmodel.__class__.__name__, **kwargs)
+        self._residual = _residual
         # set default parameter hints
         self._default_hints()
         self.set_fit_limits()
@@ -209,8 +206,7 @@ class FitModel:
                     self.ax.set_yscale("log")
                 self.fline = None
 
-            def showplot(self, xlab=self.lmodel.xlabelstr,
-                         ylab='Intensity (arb. u.)'):
+            def showplot(self, xlab, ylab='Intensity (arb. u.)'):
                 if not self.plot:
                     return
                 self.plt.xlabel(xlab)
@@ -253,7 +249,7 @@ class FitModel:
         self.fitplot = FitPlot(self.plot, self.elog)
         initmodel = self.eval(params, x=x, **kwargs)
         self.fitplot.plot_init(x, data, weights, initmodel, mask, self.verbose)
-        self.fitplot.showplot()
+        self.fitplot.showplot(xlab=self.lmodel.xlabelstr)
 
         # create callback function
         def cb_func(params, niter, resid, *args, **kwargs):
@@ -264,8 +260,8 @@ class FitModel:
                                              self.eval(params, **kwargs))
 
         # perform fitting
-        res = self.lmm.fit(data[mask], params, x=x[mask], weights=mweights,
-                           fit_kws=fit_kws, iter_cb=cb_func, **kwargs)
+        res = super().fit(data[mask], params, x=x[mask], weights=mweights,
+                          fit_kws=fit_kws, iter_cb=cb_func, **kwargs)
 
         # final update of plot
         if self.fitplot.plot:
@@ -277,7 +273,7 @@ class FitModel:
             fittedmodel = self.eval(res.params, x=x, **kwargs)
             self.fitplot.addfullmodelline(x, fittedmodel)
             self.fitplot.updatemodelline(x[mask], fittedmodel[mask])
-            self.fitplot.showplot()
+            self.fitplot.showplot(xlab=self.lmodel.xlabelstr)
 
         return res
 
