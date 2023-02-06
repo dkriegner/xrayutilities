@@ -1639,7 +1639,7 @@ class HXRD(Experiment):
     the class describes a two circle (omega, twotheta) goniometer to
     help with coplanar x-ray diffraction experiments. Nevertheless 3D data
     can be treated with the use of linear and area detectors.
-    see help self.Ang2Q
+    see "help(HXRDInstance.Ang2Q)"
     """
 
     def __init__(self, idir, ndir, geometry='hi_lo', **keyargs):
@@ -1677,6 +1677,7 @@ class HXRD(Experiment):
                 (self._en, self.geometry, str(
                     self.Ang2Q)))
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, om, tt, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -1964,7 +1965,8 @@ class FourC(HXRD):
 
     the class describes a four circle (omega, chi, phi, twotheta) goniometer to
     help with coplanar x-ray diffraction experiments. Nevertheless 3D data can
-    be treated with the use of linear and area detectors.  see help self.Ang2Q
+    be treated with the use of linear and area detectors.  see
+    "help(FourCInstance.Ang2Q)"
     """
 
     def __init__(self, idir, ndir, **keyargs):
@@ -2005,7 +2007,7 @@ class NonCOP(Experiment):
 
     The class describes a four circle (omega, chi, phi, twotheta) goniometer to
     help with x-ray diffraction experiments. Linear and area detectors can be
-    treated as described in "help self.Ang2Q"
+    treated as described in "help(NonCOPInstance.Ang2Q)"
     """
 
     def __init__(self, idir, ndir, **keyargs):
@@ -2025,6 +2027,7 @@ class NonCOP(Experiment):
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, om, chi, phi, tt, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -2115,7 +2118,7 @@ class NonCOP(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.DEBUG:
-            print(f"XU.NonCop.Q2Ang: q= {repr(q)}")
+            print(f"XU.NonCOP.Q2Ang: q= {repr(q)}")
 
         qa = math.VecNorm(q)
         tth = 2. * numpy.arcsin(qa / 2. / self.k0)
@@ -2154,7 +2157,7 @@ class GID(Experiment):
     the class describes a four circle (alpha_i, azimuth, twotheta, beta)
     goniometer to help with GID experiments at the ROTATING ANODE.
     3D data can be treated with the use of linear and area detectors.
-    see help self.Ang2Q
+    see "help(GIDInstance.Ang2Q)"
 
     Using this class the default sample surface orientation is determined by
     the inner most sample rotation (which is usually the azimuth motor).
@@ -2267,6 +2270,7 @@ class GID(Experiment):
 
         return ang
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, ai, phi, tt, beta, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -2339,6 +2343,7 @@ class GISAXS(Experiment):
     def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
         pass
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, ai, tt, beta, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see

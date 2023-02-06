@@ -6,7 +6,7 @@
 Examples
 ========
 
-In the following a few code-snippets are shown which should help you getting started with *xrayutilities*. Not all of the codes shown in the following will be run-able as stand-alone script. For fully running scripts look in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ or in the `download <https://sourceforge.net/projects/xrayutilities>`_.
+In the following a few code-snippets are shown which should help you getting started with *xrayutilities*. Not all of the codes shown in the following will be run-able as stand-alone script. For fully running scripts look in the `GitHub examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ or in the `download <https://sourceforge.net/projects/xrayutilities>`_.
 
 
 Reading data from data files
