@@ -29,7 +29,6 @@ import io
 import lzma
 import string
 
-from collections.abc import Iterable
 from operator import itemgetter
 
 import h5py
@@ -80,7 +79,7 @@ def generate_filenames(filetemplate, scannrs=None):
         return [filetemplate]
 
     files = []
-    if not isinstance(scannrs, Iterable):
+    if not isinstance(scannrs, (list, tuple)):
         scannrs = [scannrs]
     placeholders = map(itemgetter(1), string.Formatter().parse(filetemplate))
     isformatstring = any(p is not None for p in placeholders)
