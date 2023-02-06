@@ -1479,7 +1479,7 @@ class Crystal(Material):
                 for j in range(-1, 2):
                     for k in range(-1, 2):
                         atpos = (pos + [i, j, k])
-                        if all(a > -config.EPSILON and a < 1+config.EPSILON
+                        if all(0-config.EPSILON < a < 1+config.EPSILON
                                for a in atpos):
                             vecpos = atpos[0]*self.a1 + atpos[1]*self.a2 +\
                                 atpos[2]*self.a3

@@ -2282,10 +2282,10 @@ class PowderDiffraction(PowderExperiment):
         # add remaining lines
         add_lines(currq, curref, currhkl)
 
-        qpos = numpy.array(qpos, dtype=numpy.double)
-        ang = self.Q2Ang(qpos)
-        refstrength = numpy.array(refstrength, dtype=numpy.double)
-        return hkl, qpos, ang, refstrength
+        return (hkl,
+                numpy.array(qpos, dtype=numpy.double),
+                self.Q2Ang(qpos),
+                numpy.array(refstrength, dtype=numpy.double))
 
     def correction_factor(self, ang):
         """

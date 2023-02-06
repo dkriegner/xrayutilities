@@ -78,7 +78,7 @@ def GradedBuffer(xfrom, xto, nsteps, thickness, relaxation=1):
     return layerlist
 
 
-class DarwinModel(LayerModel):
+class DarwinModel(LayerModel, utilities.ABC):
     """
     model class inmplementing the basics of the Darwin theory for layers
     materials.  This class is not fully functional and should be used to derive
@@ -143,6 +143,7 @@ class DarwinModel(LayerModel):
         """
         calculates the needed atomic structure factors
         """
+        raise NotImplementedError("abstract method needs to be overwritten")
 
     def _calc_mono(self, pdict, pol):
         """
@@ -161,6 +162,7 @@ class DarwinModel(LayerModel):
         r, rbar, t :    float or array-like
             reflection, backside reflection, and tranmission coefficients
         """
+        raise NotImplementedError("abstract method needs to be overwritten")
 
     def _calc_double(self, ra, rabar, ta, rb, rbbar, tb, d):
         """
@@ -185,7 +187,7 @@ class DarwinModel(LayerModel):
         self.ncalls += 1
         e = numpy.exp(-1j*self.qz*d)
         eh = numpy.exp(-1j*self.qz*d/2)
-        denom = (1-rabar*rb*e)
+        denom = 1 - rabar * rb * e
         rab = ra + rb*(ta*ta*e)/denom
         rabbar = rbbar + rabar*(tb*tb*e)/(1-rbbar*ra*e)
         tab = ta*tb*eh/denom
@@ -273,6 +275,8 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
     get_dperp_apar() method and define the substrate lattice parameter (asub).
     See the DarwinModelSiGe001 class for an implementation example.
     """
+    asub = None  # needs to be defined by subclasses
+
     @abc.abstractmethod
     def get_dperp_apar(self, x, apar, r=1):
         """

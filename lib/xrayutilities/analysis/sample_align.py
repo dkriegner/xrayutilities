@@ -567,7 +567,6 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     epslist = []
     paramlist = []
     epsmin = numpy.inf
-    fitmin = None
 
     print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
     print("------------------------------------------------------------")
@@ -682,6 +681,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     if config.VERBOSITY >= config.INFO_LOW:
         print(f"total time needed for fit: {time.time() - t0:.2f}sec")
         print("fitted parameters: epsilon: %10.4e (%d,%s) "
+              # pylint: disable-next=no-member
               % (epsmin, fitmin.info, repr(fitmin.stopreason)))
         print("param: (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt, "
               "detrot, outerangle_offset)")
@@ -1215,6 +1215,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
     final_error = numpy.mean(final_q)
 
     if debug:
+        # pylint: disable-next=no-member
         print("fitted parameters: (%e, %d, %s) " % (final_error, fit.info,
                                                     repr(fit.stopreason)))
         print("primary beam / detector pixel directions / distance: "
@@ -1512,6 +1513,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
     if config.VERBOSITY >= config.INFO_LOW:
         print(f"total time needed for fit: {time.time() - t0:.2f}sec")
         print("fitted parameters: epsilon: %10.4e (%d,%s) "
+              # pylint: disable-next=no-member
               % (epsmin, fitmin.info, repr(fitmin.stopreason)))
         print("param: (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, "
               "tilt, detrot, outerangle_offset, sampletilt, stazimuth, "
@@ -1983,6 +1985,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
     final_error = numpy.mean(final_q)
 
     if debug:
+        # pylint: disable-next=no-member
         print("fitted parameters: (%e, %d, %s) " % (final_error, fit.info,
                                                     repr(fit.stopreason)))
         print("primary beam / detector pixel directions / distance: %s / %s "

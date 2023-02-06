@@ -16,7 +16,9 @@ source = [
 ]
 
 [tool.pylint]
-disable = ["invalid-name"]
+disable = ["invalid-name", "R", "C", "W"]
+extension-pkg-whitelist = "xrayutilities.cxrayutilities"
+ignored-modules = ["scipy.special"]
 
 [tool.flake8]
 extend-ignore = ["E741", "E203", ]

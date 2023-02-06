@@ -191,10 +191,9 @@ class RASScan:
                                                      'att'])
             self.fid.seek(offset)
             lines = islice(self.fid, self.length)
-            dlength = numpy.sum([len(line) for line in lines])
+            dlength = sum(len(line) for line in lines)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.io.RASScan: offset %d; data-length %d"
-                      % (offset, dlength))
+                print(f"XU.io.RASScan: offset {offset}; data-length {dlength}")
             self.fid.seek(offset + dlength)
         else:
             raise IOError('File handle at wrong position to read data!')
@@ -262,8 +261,7 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
             # append scan data to MAP, where all data are stored
             MAP = numpy.append(MAP, sdata)
             # check type of scan
-            for i in range(len(args)):
-                motname = args[i]
+            for motname in args:
                 scanlength = len(sdata)
                 try:
                     buf = sdata[motname]

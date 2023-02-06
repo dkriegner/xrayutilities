@@ -38,7 +38,7 @@ from numpy.linalg import norm
 
 # package internal imports
 from . import config, cxrayutilities, math, utilities
-from .exception import InputError
+from .exception import InputError, UsageError
 
 # regular expression to check goniometer circle syntax
 directionSyntax = re.compile("[xyz][+-]")
@@ -736,8 +736,8 @@ class QConversion:
         """
 
         if not self._linear_init:
-            raise Exception("QConversion: linear detector not initialized -> "
-                            "call Ang2Q.init_linear(...)")
+            raise UsageError("QConversion: linear detector not initialized -> "
+                             "call Ang2Q.init_linear(...)")
 
         valid_kwargs = copy.copy(self._valid_call_kwargs)
         valid_kwargs.update(self._valid_linear_kwargs)
@@ -988,8 +988,8 @@ class QConversion:
         """
 
         if not self._area_init:
-            raise Exception("QConversion: area detector not initialized -> "
-                            "call Ang2Q.init_area(...)")
+            raise UsageError("QConversion: area detector not initialized -> "
+                             "call Ang2Q.init_area(...)")
 
         valid_kwargs = copy.copy(self._valid_call_kwargs)
         valid_kwargs.update(self._valid_linear_kwargs)
@@ -1127,11 +1127,11 @@ class QConversion:
         dim = kwargs.get('dim', 0)
 
         if dim == 1 and not self._linear_init:
-            raise Exception("QConversion: linear detector not initialized -> "
-                            "call Ang2Q.init_linear(...)")
+            raise UsageError("QConversion: linear detector not initialized -> "
+                             "call Ang2Q.init_linear(...)")
         if dim == 2 and not self._area_init:
-            raise Exception("QConversion: area detector not initialized -> "
-                            "call Ang2Q.init_area(...)")
+            raise UsageError("QConversion: area detector not initialized -> "
+                             "call Ang2Q.init_area(...)")
 
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
@@ -1139,22 +1139,6 @@ class QConversion:
 
         # kwargs
         deg = kwargs.get('deg', True)
-
-        if 'roi' in kwargs:
-            oroi = kwargs['roi']
-        else:
-            if dim == 1:
-                oroi = self._linear_roi
-            elif dim == 2:
-                oroi = self._area_roi
-
-        if 'Nav' in kwargs:
-            nav = kwargs['Nav']
-        else:
-            if dim == 1:
-                nav = self._linear_nav
-            elif dim == 2:
-                nav = self._area_nav
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
@@ -1183,9 +1167,13 @@ class QConversion:
         dAngles = dAngles.transpose()
 
         if dim == 2:
+            oroi = kwargs.get('roi', self._area_roi)
+            nav = kwargs.get('Nav', self._area_nav)
             cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(oroi,
                                                                         nav)
         elif dim == 1:
+            oroi = kwargs.get('roi', self._linear_roi)
+            nav = kwargs.get('Nav', self._linear_nav)
             cch, pwidth, roi = self._get_detparam_linear(oroi, nav)
 
         dAxis = self._detectorAxis_str
