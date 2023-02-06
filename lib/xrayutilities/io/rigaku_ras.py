@@ -33,7 +33,7 @@ import numpy.lib.recfunctions
 from .. import config
 from ..exception import InputError
 # relative imports from xrayutilities
-from .helper import xu_open
+from .helper import generate_filenames, xu_open
 
 re_measstart = re.compile(r"^\*RAS_DATA_START")
 re_measend = re.compile(r"^\*RAS_DATA_END")
@@ -139,7 +139,7 @@ class RASScan:
             line = line.decode('ascii', 'ignore')
             self.header.append(line)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.io.RASScan: %d: '%s'" % (offset, line))
+                print(f"XU.io.RASScan: {offset}: '{line}'")
 
             if re_datestart.match(line):
                 m = line.split(' ', 1)[-1].strip()
@@ -211,11 +211,14 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
 
     Parameters
     ----------
-    scanname :      str
-        name of the scans, for multiple scans this needs to be a template
-        string
-    scannumbers :   int, tuple or list
-        number of the scans of the reciprocal space map
+    scanname :      str or list
+        name of the scans, for multiple scans this can be a template string or
+        a list of filenames. See
+        :func:`~xrayutilities.io.helper.generate_filenames` for details and
+        examples.
+    scannumbers :   int, tuple or list or None
+        List of scan numbers or generally replacement values for the template
+        string given as scanname. Set to None if not needed.
     args :          str, optional
         names of the motors. to read reciprocal space maps measured in coplanar
         diffraction give:
@@ -240,10 +243,7 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
     >>>                                   'TwoTheta')
     """
 
-    if isinstance(scannumbers, (list, tuple)):
-        scanlist = scannumbers
-    else:
-        scanlist = list([scannumbers])
+    filenames = generate_filenames(scanname, scannumbers)
 
     angles = dict.fromkeys(args)
     for key in angles:
@@ -253,8 +253,8 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
     buf = numpy.zeros(0)
     MAP = numpy.zeros(0)
 
-    for nr in scanlist:
-        rasfile = RASFile(scanname % nr, **kwargs)
+    for fn in filenames:
+        rasfile = RASFile(fn, **kwargs)
         for scan in rasfile.scans:
             sdata = scan.data
             if MAP.dtype == numpy.float64:
