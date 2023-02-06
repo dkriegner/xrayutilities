@@ -121,7 +121,7 @@ class build_with_database(build_py):
     def run(self):
         super().run()
         self.build_database()
-        if self.editable_mode:
+        if hasattr(self, 'editable_mode') and self.editable_mode:
             self.copy_database()
 
 
