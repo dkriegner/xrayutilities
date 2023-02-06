@@ -196,8 +196,7 @@ class FitModel(Model):
                 else:
                     eline, = self.ax.plot(x, data, 'ok', label='data')
                 if verbose:
-                    init, = self.ax.plot(
-                        x, model, '-', color='0.5', label='initial')
+                    self.ax.plot(x, model, '-', color='0.5', label='initial')
                 if eline:
                     self.zord = eline.zorder+2
                 else:

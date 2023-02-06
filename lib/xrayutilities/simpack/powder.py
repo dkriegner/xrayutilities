@@ -1048,21 +1048,20 @@ class FP_profile:
         if flag:
             return axfn  # already up to date if first return is True
 
-        xx = type("data", (), kwargs)
         # no axial divergence, transform of delta fn
-        if xx.axDiv != "full" or xx.twotheta0_deg == 90.0:
+        if kwargs["axDiv"] != "full" or kwargs["twotheta0_deg"] == 90.0:
             axfn[:] = 1
             return axfn
         axbuf = self.full_axdiv_I3(
-            nsteps=xx.n_integral_points,
+            nsteps=kwargs["n_integral_points"],
             epsvals=self.epsilon,
-            Lx=xx.slit_length_source,
-            Lr=xx.slit_length_target,
-            Ls=xx.length_sample,
-            sollerIdeg=xx.angI_deg,
-            sollerDdeg=xx.angD_deg,
-            R=xx.diffractometer_radius,
-            twotheta=xx.twotheta0
+            Lx=kwargs["slit_length_source"],
+            Lr=kwargs["slit_length_target"],
+            Ls=kwargs["length_sample"],
+            sollerIdeg=kwargs["angI_deg"],
+            sollerDdeg=kwargs["angD_deg"],
+            R=kwargs["diffractometer_radius"],
+            twotheta=kwargs["twotheta0"]
         )
         axfn[:] = best_rfft(axbuf)
 
@@ -1097,14 +1096,14 @@ class FP_profile:
         # be
         # x/(2*diffractometer_radius) since the detector is 2R from the source,
         # but since this is just a fit parameter, we'll defin it as does Topas
-        xx = type("data", (), kwargs)  # allow dotted notation
 
-        tail_eps = (xx.tail_right - xx.tail_left) / xx.diffractometer_radius
-        main_eps = xx.main_width / xx.diffractometer_radius
-        tail_center = (xx.tail_right + xx.tail_left) / \
-            xx.diffractometer_radius / 2.0
-        tail_area = xx.tail_intens * \
-            (xx.tail_right - xx.tail_left) / xx.main_width
+        tail_eps = (kwargs["tail_right"] - kwargs["tail_left"]) / \
+            kwargs["diffractometer_radius"]
+        main_eps = kwargs["main_width"] / kwargs["diffractometer_radius"]
+        tail_center = (kwargs["tail_right"] + kwargs["tail_left"]) / \
+            kwargs["diffractometer_radius"] / 2.0
+        tail_area = kwargs["tail_intens"] * \
+            (kwargs["tail_right"] - kwargs["tail_left"]) / kwargs["main_width"]
 
         cb1 = self._cb1
         rb1 = self._rb1
@@ -1188,10 +1187,9 @@ class FP_profile:
         dd.setdefault("crystallite_size_gauss", 1e10)
         dd.setdefault("strain_lor", 0)
         dd.setdefault("strain_gauss", 0)
-        xx = type("data", (), dd)
         spect = numpy.array((
-            xx.emiss_wavelengths, xx.emiss_intensities,
-            xx.emiss_lor_widths, xx.emiss_gauss_widths))
+            dd["emiss_wavelengths"], dd["emiss_intensities"],
+            dd["emiss_lor_widths"], dd["emiss_gauss_widths"]))
         # convert to angstroms, like Topas
         spect[0] *= 1e10 * self.length_scale_m
         spect[2] *= 1e13 * self.length_scale_m  # milli-angstroms
@@ -1199,12 +1197,12 @@ class FP_profile:
         nm = 1e9 * self.length_scale_m
         items = ["emission and broadening:"]
         items.append("spectrum=\n" + str(spect.transpose()))
-        items.append(
-            f"crystallite_size_lor (nm): {xx.crystallite_size_lor * nm:.5g}")
-        items.append("crystallite_size_gauss (nm): %.5g" %
-                     (xx.crystallite_size_gauss * nm))
-        items.append(f"strain_lor: {xx.strain_lor:.5g}")
-        items.append(f"strain_gauss: {xx.strain_gauss:.5g}")
+        items.append("crystallite_size_lor (nm): "
+                     f"{dd['crystallite_size_lor']*nm:.5g}")
+        items.append("crystallite_size_gauss (nm): "
+                     f"{dd['crystallite_size_gauss']*nm:.5g}")
+        items.append(f"strain_lor: {dd['strain_lor']:.5g}")
+        items.append(f"strain_gauss: {dd['strain_gauss']:.5g}")
         return '\n'.join(items)
 
     def conv_emission(self):
@@ -1244,31 +1242,33 @@ class FP_profile:
         if flag:
             return emiss  # already up to date
 
-        xx = type("data", (), kwargs)  # make it dot-notation accessible
-
-        epsilon0s = (2 * nasin(asarray(xx.emiss_wavelengths)/(2.0*xx.d)) -
-                     xx.twotheta0)
-        theta = xx.twotheta0 / 2
+        epsilon0s = (
+            2 * nasin(asarray(kwargs["emiss_wavelengths"])/(2.0*kwargs["d"])) -
+            kwargs["twotheta0"]
+        )
+        theta = kwargs["twotheta0"] / 2
         # Emission profile FWHM + crystallite broadening (scale factors are
         # Topas choice!) (Lorentzian)
         # note: the strain broadenings in Topas are expressed in degrees
         # 2theta, must convert to radians(theta) with pi/360
         widths = (
-            (asarray(xx.emiss_lor_widths) / asarray(xx.emiss_wavelengths)) *
-            tan(theta) + math.radians(xx.strain_lor) / 2 * tan(theta) +
-            (asarray(xx.emiss_wavelengths) /
-             (2*xx.crystallite_size_lor*cos(theta)))
+            (asarray(kwargs["emiss_lor_widths"]) /
+             asarray(kwargs["emiss_wavelengths"])) *
+            tan(theta) + math.radians(kwargs["strain_lor"]) / 2 * tan(theta) +
+            (asarray(kwargs["emiss_wavelengths"]) /
+             (2*kwargs["crystallite_size_lor"]*cos(theta)))
         )
         # save weighted average width for future reference in periodicity fixer
-        self.lor_widths[me] = sum(
-            widths * xx.emiss_intensities) / sum(xx.emiss_intensities)
+        self.lor_widths[me] = sum(widths * kwargs["emiss_intensities"]) / \
+            sum(kwargs["emiss_intensities"])
         # gaussian bits add in quadrature
         gfwhm2s = (
-            ((2*asarray(xx.emiss_gauss_widths)/asarray(xx.emiss_wavelengths)) *
+            ((2 * asarray(kwargs["emiss_gauss_widths"]) /
+              asarray(kwargs["emiss_wavelengths"])) *
              tan(theta))**2 +
-            (math.radians(xx.strain_gauss) / 2 * tan(theta))**2 +
-            (asarray(xx.emiss_wavelengths) /
-             (xx.crystallite_size_gauss*cos(theta)))**2
+            (math.radians(kwargs["strain_gauss"]) / 2 * tan(theta))**2 +
+            (asarray(kwargs["emiss_wavelengths"]) /
+             (kwargs["crystallite_size_gauss"]*cos(theta)))**2
         )
 
         # note that the Fourier transform of a lorentzian with FWHM 2a
@@ -1278,7 +1278,7 @@ class FP_profile:
         # note that the transform of f(x+dx)=exp(i omega dx) f~(x)
         omega_vals = self.omega_vals
         for wid, gfwhm2, eps, intens in zip(widths, gfwhm2s, epsilon0s,
-                                            xx.emiss_intensities):
+                                            kwargs["emiss_intensities"]):
             xvals = numpy.clip(omega_vals * (-wid), -100, 0)
             sig2 = gfwhm2 / (8 * math.log(2.0))  # convert fwhm**2 to sigma**2
             gxv = numpy.clip((sig2 / -2.0) * omega_vals * omega_vals, -100, 0)
@@ -1346,14 +1346,14 @@ class FP_profile:
         flag, conv = self.get_conv(me, kwargs, complex)
         if flag:
             return conv  # already up to date
-        xx = type("data", (), kwargs)  # make it dot-notation accessible
 
         # absorption, from Cheary, Coelho & Cline 2004 NIST eq. 12,
         # EXCEPT delta = 1/(2*mu*R) instead of 2/(mu*R)
         # from Mathematica, unnormalized transform is
         # (1-exp(epsmin*(i w + 1/delta)))/(i w + 1/delta)
-        delta = sin(xx.twotheta0) / (2 * xx.absorption_coefficient *
-                                     xx.diffractometer_radius)
+        delta = sin(kwargs["twotheta0"]) / \
+            (2 * kwargs["absorption_coefficient"] *
+             kwargs["diffractometer_radius"])
         # arg=(1/delta)+complex(0,-1)*omega_vals
         cb = self._cb1
         cb.imag = self.omega_vals
@@ -1363,8 +1363,9 @@ class FP_profile:
         conv *= 1.0 / delta  # normalize
         # rest of transform of function with cutoff
         if kwargs.get("sample_thickness", None) is not None:
-            epsmin = -2.0 * xx.sample_thickness * \
-                cos(xx.twotheta0 / 2.0) / xx.diffractometer_radius
+            epsmin = -2.0 * kwargs["sample_thickness"] * \
+                cos(kwargs["twotheta0"] / 2.0) / \
+                kwargs["diffractometer_radius"]
             cb *= epsmin
             numpy.expm1(cb, cb)
             cb *= -1
@@ -1459,18 +1460,17 @@ class FP_profile:
         if flag:
             return conv  # already up to date
 
-        xx = type("data", (), kwargs)
-
-        if not xx.equatorial_divergence_deg or not xx.si_psd_window_bounds:
+        if not (kwargs["equatorial_divergence_deg"] and
+                kwargs["si_psd_window_bounds"]):
             # if either of these is zero or None, convolution is trivial
             conv[:] = 1
             return conv
 
-        psd_lower_window_pos, psd_upper_window_pos = xx.si_psd_window_bounds
-        dthl = psd_lower_window_pos / xx.diffractometer_radius
-        dthu = psd_upper_window_pos / xx.diffractometer_radius
-        alpha = math.radians(xx.equatorial_divergence_deg)
-        argscale = alpha / (2.0 * tan(xx.twotheta0 / 2))
+        psd_lower_win_pos, psd_upper_win_pos = kwargs["si_psd_window_bounds"]
+        dthl = psd_lower_win_pos / kwargs["diffractometer_radius"]
+        dthu = psd_upper_win_pos / kwargs["diffractometer_radius"]
+        alpha = math.radians(kwargs["equatorial_divergence_deg"])
+        argscale = alpha / (2.0 * tan(kwargs["twotheta0"] / 2))
         # WARNING si(x)=integral(sin(x)/x), not integral(sin(pi x)/(pi x))
         # i.e. they sinc function is not consistent with the si function
         # whence the missing pi in the denominator of argscale

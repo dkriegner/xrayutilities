@@ -36,7 +36,7 @@ def _multiply(a, b):
     if b < 1:
         raise ValueError("multiplication factor needs to be positive!")
     m = MaterialList('%d * (%s)' % (b, a.name), a)
-    for i in range(b-1):
+    for _ in range(b-1):
         m.append(copy.deepcopy(a))
     return m
 

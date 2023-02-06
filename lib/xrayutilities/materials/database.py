@@ -520,8 +520,8 @@ def add_f0_from_intertab(db, itf, verbose=False):
                 print(f"{ename + elemstate} = Atom('{lb[2]}', {lb[1]})")
             db.SetMaterial(ename)
             # make two dummy reads
-            for i in range(2):
-                itf.readline()
+            itf.readline()
+            itf.readline()
             # read fit parameters
             lb = itf.readline().decode("utf-8")
             lb = lb.strip()
@@ -567,7 +567,7 @@ def add_f0_from_xop(db, xop, verbose=False):
             db.SetMaterial(ename)
 
             # make nine dummy reads
-            for i in range(9):
+            for _ in range(9):
                 xop.readline()
             # read fit parameters
             lb = xop.readline().decode("utf-8")
@@ -615,7 +615,7 @@ def add_f1f2_from_henkedb(db, hf, verbose=False):
                     print(f"set element {ename}")
                 db.SetMaterial(ename)
                 # make one dummy read
-                for i in range(5):
+                for _ in range(5):
                     hf.readline()
 
                 # read data
@@ -666,7 +666,7 @@ def add_f1f2_from_kissel(db, kf, verbose=False):
                     print(f"set element {ename}")
                 db.SetMaterial(ename)
                 # make 28 dummy reads
-                for i in range(28):
+                for _ in range(28):
                     kf.readline()
 
                 # read data
@@ -701,6 +701,9 @@ def add_f1f2_from_ascii_file(db, asciifile, element, verbose=False):
     except OSError:
         print("cannot open f1f2 database file")
         return
+
+    if verbose:
+        print(f"set element {element}")
     db.SetMaterial(element)
 
     en = af[:, 0]

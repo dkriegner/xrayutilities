@@ -370,31 +370,33 @@ def gauss_fit(xdata, ydata, iparams=None, maxit=300):
 
 def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     """
-    fit a two dimensional function to a two dimensional data set
-    e.g. a reciprocal space map
+    fit a two dimensional function to a two dimensional data set e.g. a
+    reciprocal space map.
 
     Parameters
     ----------
-    x, y :      array-like
-        data coordinates (do NOT need to be regularly spaced)
-    data :      array-like
-        data set used for fitting (e.g. intensity at the data coords)
-    start :     list
+    x : array-like
+        first data coordinate (does not need to be regularly spaced)
+    y : array-like
+        second data coordinate (does not need to be regularly spaced)
+    data : array-like
+        data set used for fitting (e.g. intensity at the data coordinates)
+    start : list
         set of starting parameters for the fit used as first parameter of
         function fit_function
-    drange :    list
+    drange : list
         limits for the data ranges used in the fitting algorithm, e.g. it is
         clever to use only a small region around the peak which should be
-        fitted: [xmin, xmax, ymin, ymax]
+        fitted, i.e. [xmin, xmax, ymin, ymax]
     fit_function : callable
-        function which should be fitted, must be of form accept the parameters
-        ``fit_function (x, y, *params) -> ndarray``
+        function which should be fitted. Call signature must be
+        :func:`fit_function(x, y, *params) -> ndarray`
 
     Returns
     -------
-    fitparam :  list
+    fitparam : list
         fitted parameters
-    cov :       array-like
+    cov : array-like
         covariance matrix
     """
     s = time.time()

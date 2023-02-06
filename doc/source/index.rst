@@ -56,7 +56,7 @@ Overview
 --------
 
 *xrayutilities* is a collection of scripts used to analyze and simulate x-ray diffraction data. It consists of a python package and several routines coded in C.
-It especially useful for the reciprocal space conversion of diffraction data taken with linear and area detectors. Several models for the simulation of thin film reflectivity and diffraction curves are included.
+It especially useful for the reciprocal space conversion of diffraction data taken with linear and area detectors. Several models for the simulation of thin film reflectivity and diffraction curves are included. For details see the full API documentation of :mod:`xrayutilities` found here: :ref:`expapi`.
 
 In the following few concepts of usage for the *xrayutilities* package will be described.
 First one should get a brief idea of how to analyze x-ray diffraction data with *xrayutilities*.
@@ -153,16 +153,6 @@ A minimal example for an AlGaAs superlattice structure is shown below. It shows 
 More detailed examples and description of model parameters can be found on the :ref:`simulationspage` page or in the ``examples`` directory.
 
 
-xrayutilities Python package
-============================
-
-.. automodule:: xrayutilities
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-for more details see the full API documentation of :mod:`xrayutilities` found here: :ref:`expapi`.
-
 Source Installation
 ===================
 
@@ -198,10 +188,10 @@ The needed runtime dependencies are:
  * **Numpy** a Python module providing numerical array objects (version >= 1.9)
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.13.0)
  * **h5py** a powerful Python interface to HDF5.
+ * **lmfit** a Python module for least-squares minimization with bounds and constraints (needed for fitting XRR/XRD data)
 
 For several features optional dependencies are needed:
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optional, version >= 3.1.0)
- * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR/XRD data)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
  * **mayavi** only used optionally in Crystal.show_unitcell where it produces a superior visualization to otherwise used Matplotlib 3D plots
 
