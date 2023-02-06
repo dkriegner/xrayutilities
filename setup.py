@@ -169,10 +169,9 @@ setup(
     },
     python_requires='~=3.6',
     setup_requires=['numpy', 'scipy', 'h5py'],
-    install_requires=['numpy>=1.9.2', 'scipy>=0.18.0', 'h5py'],
+    install_requires=['numpy>=1.9.2', 'scipy>=0.18.0', 'h5py', 'lmfit>=1.0.1'],
     extras_require={
         'plot': ["matplotlib>=3.1.0"],
-        'fit': ["lmfit>=1.0.1"],
         '3D': ["mayavi"],
     },
     include_dirs=[numpy.get_include()],

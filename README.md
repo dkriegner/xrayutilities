@@ -83,7 +83,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 - h5py
 - scipy (version >= 0.18.0)
 - numpy (version >= 1.9)
-- lmfit (>= 1.0.1, optional)
+- lmfit (>= 1.0.1)
 - matplotlib (optional, version >= 3.1.0)
 - mayavi (optional, only used optionally in `Crystal.show_unitcell`)
 

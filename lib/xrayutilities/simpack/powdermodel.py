@@ -18,6 +18,7 @@
 import numbers
 from math import sqrt
 
+import lmfit
 import numpy
 from scipy import interpolate
 
@@ -39,10 +40,6 @@ class PowderModel:
         or individual Powder(s). Optional parameters are specified in the
         keyword arguments.
 
-        Note:
-            After the end-of-use it is advisable to call the `close()` method
-            to cleanup the multiprocessing calculation!
-
         Parameters
         ----------
         args :      PowderList or Powders
@@ -55,23 +52,32 @@ class PowderModel:
         fpsettings : dict
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
-        I0 :        float, optional
+        I0 : float, optional
             scaling factor for the simulation result
 
         Notes
         -----
-        In particular interesting keys in the fpsettings dictionary might be:
-         'displacement':
-          {'specimen_displacement': sample's z-displacement from the rotation
-                                    center
-           'zero_error_deg': zero error of the 2theta angle}
 
-         'absorption':
-          {'sample_thickness': sample thickness (m),
-           'absorption_coefficient': sample's absorption (m^-1)}
+         - After the end-of-use it is advisable to call the `close()` method
+           to cleanup the multiprocessing calculation!
+         - In particular interesting keys in the fpsettings dictionary are
+           listed in the following. Note that this a short excerpt of the full
+           functionality:
 
-         'axial':
-          {'length_sample': sample length in the axial direction (m)}
+           - 'displacement'-dictionary with keys:
+
+             - 'specimen_displacement': sample's z-displacement from the
+                rotation center
+             - 'zero_error_deg': zero error of the 2theta angle
+
+           - 'absorption'-dictionary with keys:
+
+             - 'sample_thickness': sample thickness (m),
+             - 'absorption_coefficient': sample's absorption (m^-1)
+
+           - 'axial'-dictionary with keys:
+
+             - 'length_sample': sample length in the axial direction (m)
         """
         if len(args) == 1 and isinstance(args[0], PowderList):
             self.materials = args[0]
@@ -164,8 +170,6 @@ class PowderModel:
         -------
         lmfit.Parameters
         """
-        lmfit = utilities.import_lmfit('XU.PowderModel')
-
         params = lmfit.Parameters()
         # sample phase parameters
         for mat, name in zip(self.materials, self.materials.namelist):
@@ -290,8 +294,6 @@ class PowderModel:
         -------
         lmfit.MinimizerResult
         """
-        lmfit = utilities.import_lmfit('XU.PowderModel')
-
         def residual(pars, tt, data, weight):
             """
             residual function for lmfit Minimizer routine
