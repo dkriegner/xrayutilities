@@ -954,13 +954,14 @@ class SGLattice:
 
         Examples
         --------
+        >>> import xrayutilities as xu
         >>> xu.materials.Si.lattice.GetPoint(0, 0, 4)
-        array([  0.     ,   0.     ,  21.72416])
+        array([ 0.     ,  0.     , 21.72416])
 
         or
 
         >>> xu.materials.Si.lattice.GetPoint((1, 1, 1))
-        array([ 5.43104,  5.43104,  5.43104])
+        array([5.43104, 5.43104, 5.43104])
         """
         if len(args) == 1:
             args = args[0]

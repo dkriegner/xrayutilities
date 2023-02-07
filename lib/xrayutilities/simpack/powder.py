@@ -2512,7 +2512,7 @@ class PowderDiffraction(PowderExperiment):
         """
         Prints out available information about the material and reflections
         """
-        ostr = "\nPowder diffraction object \n"
+        ostr = "Powder diffraction object\n"
         ostr += "-------------------------\n"
         ostr += self.mat.__repr__() + "\n"
         ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
@@ -2520,8 +2520,8 @@ class PowderDiffraction(PowderExperiment):
         for d in self.data.values():
             if d['r'] > rmax:
                 rmax = d['r']
-        ostr += "\nReflections: \n"
-        ostr += "--------------\n"
+        ostr += "\nReflections:\n"
+        ostr += "------------\n"
         ostr += ("      h k l     |    tth    |    |Q|    |"
                  "Int     |   Int (%)\n")
         ostr += ("   ------------------------------------"

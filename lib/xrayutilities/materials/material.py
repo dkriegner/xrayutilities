@@ -858,13 +858,14 @@ class Crystal(Material):
 
         Examples
         --------
+        >>> import xrayutilities as xu
         >>> xu.materials.Si.planeDistance(0, 0, 4)
-        1.3577600000000001
+        1.3577600000000003
 
         or
 
         >>> xu.materials.Si.planeDistance((1, 1, 1))
-        3.1356124059796255
+        3.1356124059796264
         """
         if len(hkl) < 3:
             hkl = hkl[0]

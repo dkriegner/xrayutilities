@@ -236,7 +236,7 @@ class IntensityNormalizer:
         Examples
         --------
         >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
-        >>>     absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(float))
+        ... absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(float))
         """
         valid_kwargs = {'mon': 'monitor field name',
                         'time': 'count time field/value',

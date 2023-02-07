@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2011-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
@@ -111,8 +111,8 @@ def get_qz_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
     Examples
     --------
-    >>> qzcut, qzcut_int, mask = get_qz_scan([qy, qz], inten, 3.0, 200,
-                                             intrange=0.3)
+    >>> qzcut, qzcut_int, mask = get_qz_scan([qy, qz], inten, 3.0, 200,\
+    ... intrange=0.3)  # doctest: +SKIP
     """
     intdir = kwargs.get('intdir', 'q')
     lam = kwargs.get('wl', config.WAVELENGTH)
@@ -197,8 +197,8 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
     Examples
     --------
-    >>> qycut, qycut_int, mask = get_qy_scan([qy, qz], inten, 5.0, 250,
-                                             intrange=0.02, intdir='2theta')
+    >>> qycut, qycut_int, mask = get_qy_scan([qy, qz], inten, 5.0, 250, \
+    ... intrange=0.02, intdir='2theta')  # doctest: +SKIP
     """
     intdir = kwargs.get('intdir', 'q')
     lam = kwargs.get('wl', config.WAVELENGTH)
@@ -287,8 +287,8 @@ def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
     Examples
     --------
-    >>> qxcut, qxcut_int, mask = get_qx_scan([qx, qy, qz], inten, [0, 2.0],
-                                             250, intrange=0.01)
+    >>> qxcut, qxcut_int, mask = get_qx_scan([qx, qy, qz], inten, [0, 2.0], \
+    ... 250, intrange=0.01)  # doctest: +SKIP
     """
     intdir = kwargs.get('intdir', 'q')
     lam = kwargs.get('wl', config.WAVELENGTH)
@@ -362,8 +362,8 @@ def get_omega_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
     Examples
     --------
-    >>> omcut, omcut_int, mask = get_omega_scan([qy, qz], inten, [2.0, 5.0],
-                                                250, intrange=0.1)
+    >>> omcut, omcut_int, mask = get_omega_scan([qy, qz], inten, [2.0, 5.0], \
+    ... 250, intrange=0.1)  # doctest: +SKIP
     """
     intdir = kwargs.get('intdir', '2theta')
     lam = kwargs.get('wl', config.WAVELENGTH)
@@ -437,8 +437,8 @@ def get_radial_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
     Examples
     --------
-    >>> ttcut, omtt_int, mask = get_radial_scan([qy, qz], inten, [2.0, 5.0],
-                                                250, intrange=0.1)
+    >>> ttcut, omtt_int, mask = get_radial_scan([qy, qz], inten, [2.0, 5.0], \
+    ... 250, intrange=0.1)  # doctest: +SKIP
     """
     intdir = kwargs.get('intdir', 'omega')
     lam = kwargs.get('wl', config.WAVELENGTH)
@@ -514,8 +514,8 @@ def get_ttheta_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
 
     Examples
     --------
-    >>> ttcut, tt_int, mask = get_ttheta_scan([qy, qz], inten, [2.0, 5.0],
-                                              250, intrange=0.1)
+    >>> ttcut, tt_int, mask = get_ttheta_scan([qy, qz], inten, [2.0, 5.0], \
+    ... 250, intrange=0.1)  # doctest: +SKIP
     """
     intdir = kwargs.get('intdir', 'omega')
     lam = kwargs.get('wl', config.WAVELENGTH)
@@ -575,9 +575,9 @@ def get_arbitrary_line(qpos, intensity, point, vec, npoints, intrange):
 
     Examples
     --------
-    >>> qcut, qint, mask = get_arbitrary_line([qx, qy, qz], inten,
-                                              (1.1, 2.2, 0.0),
-                                              (1, 1, 1), 200, 0.1)
+    >>> qcut, qint, mask = get_arbitrary_line([qx, qy, qz], inten, \
+    ... (1.1, 2.2, 0.0), \
+    ... (1, 1, 1), 200, 0.1)  # doctest: +SKIP
     """
     # make all data 3D
     if len(qpos) == 2:

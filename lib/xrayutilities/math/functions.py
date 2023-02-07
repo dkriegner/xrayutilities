@@ -128,9 +128,13 @@ def Gauss1d(x, *p):
     Calling with a list of parameters needs a call looking as shown below
     (note the '*') or explicit listing of the parameters
 
-    >>> Gauss1d(x,*p)
+    >>> Gauss1d(x, *p)  # doctest: +SKIP
 
-    >>> Gauss1d(numpy.linspace(0, 10, 100), 5, 1, 1e3, 0)
+    >>> import numpy
+    >>> Gauss1d(numpy.linspace(0, 10, 10), 5, 1, 1e3, 0)
+    array([3.72665317e-03, 5.19975743e-01, 2.11096565e+01, 2.49352209e+02,
+           8.56996891e+02, 8.56996891e+02, 2.49352209e+02, 2.11096565e+01,
+           5.19975743e-01, 3.72665317e-03])
     """
     g = p[3] + p[2] * numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
     return g

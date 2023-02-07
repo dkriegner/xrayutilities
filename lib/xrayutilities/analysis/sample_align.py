@@ -2031,7 +2031,10 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
 
     Examples
     --------
-    >>> psd_refl_align(500, [0, 0.1, 0.2, 0.3], [550, 600, 640, 700])
+    >>> zeroangle = psd_refl_align(500, [0, 0.1, 0.2, 0.3],
+    ... [550, 600, 640, 700])
+    XU.analysis.psd_refl_align: sample is parallel to beam at goniometer angle\
+ -0.0986 (R^2=0.9942)
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.psd_refl_'
@@ -2068,7 +2071,7 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.psd_refl_align: sample is parallel to beam at "
-              "goniometer angle %8.4f (R^2=%6.4f)" % (zeropos, rsq))
+              "goniometer angle %7.4f (R^2=%6.4f)" % (zeropos, rsq))
     return zeropos
 
 

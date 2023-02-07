@@ -195,13 +195,13 @@ def exchange_path(orig, new, keep=0, replace=None):
 
     Examples
     --------
-    >>> exchange_path('/dir_a/subdir/img/sam', '/home/user/data', keep=2)
-    '/home/user/data/img/sam'
+    >>> p = exchange_path('/dir_a/subdir/img/sam', '/home/user/data', keep=2)\
+    # you get '/home/user/data/img/sam'
     """
     subdirs = []
     o = orig
     if replace is None:
-        for i in range(keep):
+        for _ in range(keep):
             o, s = os.path.split(o)
             subdirs.append(s)
         out = new
@@ -255,8 +255,8 @@ def exchange_filepath(orig, new, keep=0, replace=None):
 
     Examples
     --------
-    >>> exchange_filepath('/dir_a/subdir/sam/file.txt', '/data', 1)
-    '/data/sam/file.txt'
+    >>> newfile = exchange_filepath('/dir_a/subdir/sam/file.txt', '/data', 1)\
+    # you get '/data/sam/file.txt'
     """
     if new:
         if replace is None:

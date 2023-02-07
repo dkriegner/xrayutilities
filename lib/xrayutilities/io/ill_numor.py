@@ -203,7 +203,8 @@ def numor_scan(scannumbers, *args, **kwargs):
 
     Examples
     --------
-    >>> [om, gam], data = xu.io.numor_scan(414363, 'omega', 'gamma')
+    >>> [om, gam], data = xu.io.numor_scan(414363, 'omega', 'gamma')\
+    # doctest: +SKIP
     """
 
     if isinstance(scannumbers, (str, int)):
