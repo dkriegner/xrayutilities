@@ -342,6 +342,7 @@ All diffraction models can be embedded into the :class:`~xrayutilities.simpack.f
 
 .. testcode:: fitting
 
+    from copy import deepcopy
     import xrayutilities as xu
     from matplotlib.pylab import *
 
@@ -350,8 +351,8 @@ All diffraction models can be embedded into the :class:`~xrayutilities.simpack.f
     offset = -0.035  # angular offset of the zero position of the data
 
     # set up LayerStack for simulation: InAs(001)/(In,Mn)As(~25 nm)
-    InAs = xu.materials.InAs
-    InAs.lattice.a = 6.057
+    InAs = deepcopy(xu.materials.InAs)  # do not modify internal database
+    InAs.a = 6.057
     lInAs = xu.simpack.Layer(InAs, inf)
     InMnAs = xu.materials.Crystal('InMnAs', xu.materials.SGLattice(
         216, 6.050, atoms=('In', 'Mn', 'As'), pos=('4a', '4a', '4c'),
