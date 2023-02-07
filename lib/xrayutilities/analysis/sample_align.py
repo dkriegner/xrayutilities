@@ -2031,11 +2031,10 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
 
     Examples
     --------
-    >>> import xrayutilities as xu
-    >>> xu.config.VERBOSITY = 0
-    >>> xu.analysis.psd_refl_align(500, [0, 0.1, 0.2, 0.3],
+    >>> zeroangle = psd_refl_align(500, [0, 0.1, 0.2, 0.3],
     ... [550, 600, 640, 700])
-    -0.09855072463768066
+    XU.analysis.psd_refl_align: sample is parallel to beam at goniometer angle\
+ -0.0986 (R^2=0.9942)
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.psd_refl_'
