@@ -1,3 +1,4 @@
+* extend continuous integration tests by adding doctests
 * directly depend on the lmfit package for implementation of our fitting
   models.
 * more possibilities to specify filename lists in getras_scan, getSeifert_map,
