@@ -358,10 +358,10 @@ class npyGridder1D(Gridder1D):
             self.dataRange(lx.min(), lx.max(), self.keep_data)
 
         # grid the data using numpy histogram
-        tmpgdata, bins = numpy.histogram(lx, weights=ldata, bins=self.nx,
-                                         range=(self.xmin, self.xmax))
-        tmpgnorm, bins = numpy.histogram(lx, bins=self.nx,
-                                         range=(self.xmin, self.xmax))
+        tmpgdata, _ = numpy.histogram(lx, weights=ldata, bins=self.nx,
+                                      range=(self.xmin, self.xmax))
+        tmpgnorm, _ = numpy.histogram(lx, bins=self.nx,
+                                      range=(self.xmin, self.xmax))
         if self.keep_data:
             self._gnorm += tmpgnorm
             self._gdata += tmpgdata

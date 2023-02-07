@@ -131,13 +131,13 @@ def get_qz_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         qperp = numpy.sqrt((lqpos[0]-lcut[0])**2 + (lqpos[1]-lcut[1])**2)
         ret = _get_cut(lqpos[2], qperp, intensity, intrange/2., npoints)
     elif intdir == 'omega':
-        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
         q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt/2))
         ocut = numpy.degrees(numpy.arcsin(lcut[1]/q)) + tt / 2
         qzpos = q * numpy.cos(numpy.radians(ocut - tt/2))
         ret = _get_cut(qzpos, om-ocut, intensity, intrange/2., npoints)
     elif intdir == '2theta':
-        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
         q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt/2))
         ttcut = 2 * (om - numpy.degrees(numpy.arcsin(lcut[1]/q)))
         qzpos = 4 * numpy.pi / lam * numpy.sin(numpy.radians(ttcut/2)) *\
@@ -217,14 +217,14 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         qperp = numpy.sqrt((lqpos[0]-lcut[0])**2 + (lqpos[2]-lcut[1])**2)
         ret = _get_cut(lqpos[1], qperp, intensity, intrange/2., npoints)
     elif intdir == 'omega':
-        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
         q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt/2))
         ocut = tt / 2 + (numpy.sign(lqpos[1].ravel()) *
                          numpy.degrees(numpy.arccos(lcut[1]/q)))
         qypos = q * numpy.sin(numpy.radians(ocut - tt/2))
         ret = _get_cut(qypos, om-ocut, intensity, intrange/2., npoints)
     elif intdir == '2theta':
-        om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
         ttcut = (om - numpy.degrees(numpy.arcsin(numpy.sin(numpy.radians(om)) -
                                     lcut[1]*lam/(2*numpy.pi)))) % 360
         ttcut2 = (om +
@@ -300,15 +300,15 @@ def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         ret = _get_cut(qpos[0], qperp, intensity, intrange/2., npoints)
     elif intdir == 'omega':
         # needs testing
-        om, chi, phi, tt = hxrd.Q2Ang(*qpos, trans=False, geometry='realTilt')
-        ocut, dmy, dmy, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
-                                           trans=False, geometry='realTilt')
+        om, _, _, tt = hxrd.Q2Ang(*qpos, trans=False, geometry='realTilt')
+        ocut, _, _, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
+                                       trans=False, geometry='realTilt')
         ret = _get_cut(qpos[0], om-ocut, intensity, intrange/2., npoints)
     elif intdir == '2theta':
         # needs testing
-        om, chi, phi, tt = hxrd.Q2Ang(*qpos, trans=False, geometry='realTilt')
-        ocut, dmy, dmy, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
-                                           trans=False, geometry='realTilt')
+        om, _, _, tt = hxrd.Q2Ang(*qpos, trans=False, geometry='realTilt')
+        ocut, _, _, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
+                                       trans=False, geometry='realTilt')
         ret = _get_cut(qpos[0], tt-ttcut, intensity, intrange/2., npoints)
 
     return ret
@@ -378,8 +378,8 @@ def get_omega_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-    ocut, dmy, dmy, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
+    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
+    _, _, _, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
     if intdir == '2theta':
         ret = _get_cut(om, tt-ttcut, intensity, intrange/2., npoints)
     elif intdir == 'radial':
@@ -453,8 +453,8 @@ def get_radial_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-    ocut, dmy, dmy, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
+    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
+    ocut, _, _, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
     if intdir == 'omega':
         ret = _get_cut(tt, om-((tt-ttcut)/2+ocut), intensity, intrange/2.,
                        npoints)
@@ -530,8 +530,8 @@ def get_ttheta_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    om, chi, phi, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-    ocut, dmy, dmy, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
+    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
+    ocut, _, _, _ = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
     if intdir == 'omega':
         ret = _get_cut(tt, om-ocut, intensity, intrange/2., npoints)
     elif intdir == 'radial':

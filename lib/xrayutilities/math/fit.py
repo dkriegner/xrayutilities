@@ -417,7 +417,7 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     def errfunc(p, x, z, data):
         return fit_function(x, z, *p) - data
 
-    p, cov, infodict, errmsg, success = optimize.leastsq(
+    p, cov, _, errmsg, success = optimize.leastsq(
         errfunc, start, args=(lx, ly, ldata), full_output=1, maxfev=maxfev)
 
     s = time.time() - s

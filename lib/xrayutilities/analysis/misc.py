@@ -148,7 +148,7 @@ def coplanar_intensity(mat, exp, hkl, thickness, thMono, sample_width=10,
         intensity of the peak
     """
     # angle calculation for geometrical factors
-    om, chi, phi, tt = exp.Q2Ang(mat.Q(hkl))
+    om, _, _, tt = exp.Q2Ang(mat.Q(hkl))
 
     # structure factor calculation
     r = abs(mat.StructureFactor(mat.Q(hkl)))**2

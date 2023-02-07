@@ -485,7 +485,7 @@ class CIFDataset:
                             wpcand.append((keys[j], allwyckp[keys[j]]))
                     for j, (k, wp) in enumerate(
                             sorted(wpcand, key=operator.itemgetter(1))):
-                        parint, poslist, reflcond = wp
+                        parint, poslist, _ = wp
                         for positem in poslist:
                             foundwp, xyz = sgl.testwp(parint, positem,
                                                       (x, y, z), self.digits)
@@ -508,7 +508,7 @@ class CIFDataset:
                               "not to fit")
 
                 # free unit cell parameters
-                self.crystal_system, nargs = sgl.sgrp_sym[self.sgrp_nr]
+                self.crystal_system, _ = sgl.sgrp_sym[self.sgrp_nr]
                 self.crystal_system += self.sgrp_suf
                 self.uc_params = []
                 p2i = {'a': 0, 'b': 1, 'c': 2,

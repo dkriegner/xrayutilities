@@ -743,7 +743,7 @@ class QConversion:
         valid_kwargs.update(self._valid_linear_kwargs)
         utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2Q/linear')
 
-        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
+        Ns, _, Ncirc, wl, deg, delta, UB, sd, flags = \
             self._parse_common_kwargs(**kwargs)
 
         # extra keyword arguments
@@ -762,14 +762,12 @@ class QConversion:
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
-                                               self.sampleAxis, *args[:Ns],
-                                               deg=deg)
+        sAngles = self._reshapeInput(Npoints, delta[:Ns],
+                                     self.sampleAxis, *args[:Ns], deg=deg)[0]
         dAngles = self._reshapeInput(Npoints, delta[Ns:],
-                                     self.detectorAxis, *args[Ns:],
-                                     deg=deg)[0]
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
-                                            wl, deg=False)[0])
+                                     self.detectorAxis, *args[Ns:], deg=deg)[0]
+        wl = numpy.ravel(
+            self._reshapeInput(Npoints, (0, ), 'a', wl, deg=False)[0])
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -1014,11 +1012,10 @@ class QConversion:
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
-                                               self.sampleAxis, *args[:Ns],
-                                               deg=deg)
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
-                                            wl, deg=False)[0])
+        sAngles = self._reshapeInput(Npoints, delta[:Ns],
+                                     self.sampleAxis, *args[:Ns], deg=deg)[0]
+        wl = numpy.ravel(
+            self._reshapeInput(Npoints, (0, ), 'a', wl, deg=False)[0])
 
         if self._area_detrotaxis_set:
             Nd = Nd + 1

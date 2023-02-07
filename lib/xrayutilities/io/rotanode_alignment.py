@@ -218,7 +218,7 @@ class RA_Alignment:
             if k.find(pname) >= 0:
                 axnames.append(k)
 
-        fig, ax = plt.subplots(nrows=len(axnames), sharex=True)
+        _, ax = plt.subplots(nrows=len(axnames), sharex=True)
 
         for an, axis in zip(axnames, ax):
             d = self.get(an)

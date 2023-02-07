@@ -100,7 +100,7 @@ class numorFile:
                     # read AAAA sections
                     line = self.getline(fid)
                     desc = []
-                    for j in range(int(line.split()[1])):
+                    for _ in range(int(line.split()[1])):
                         desc += self.ssplit(self.getline(fid))
                     comval = self.ssplit(self.getline(fid))
                     self.comments.append((desc, comval))
@@ -113,7 +113,7 @@ class numorFile:
 
                     if int(info[1]) > 0:
                         headerdesc = ''
-                        for j in range(int(info[1])):
+                        for _ in range(int(info[1])):
                             headerdesc += self.getline(fid) + '\n'
                         self.comments.append((['Fileheader'], [headerdesc]))
 

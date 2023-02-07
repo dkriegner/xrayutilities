@@ -452,8 +452,8 @@ class PowderModel:
                                 return
 
             def click(event):
-                for pd, tax, annot, wllist in zip(self.pdiff, taxlist,
-                                                  annotlist, lineslist):
+                for pd, tax, _, wllist in zip(self.pdiff, taxlist,
+                                              annotlist, lineslist):
                     if event.inaxes == tax:
                         for lines in wllist:
                             cont, ind = lines.contains(event)

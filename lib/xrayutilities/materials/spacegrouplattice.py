@@ -808,7 +808,7 @@ class SGLattice:
                 yield atom, pos, occ, b
 
     def _setlat(self):
-        a, b, c, alpha, beta, gamma = self._parameters.values()
+        a, b, c, _, _, _ = self._parameters.values()
         ca, cb, cg, sa, vh = self._paramhelp
         vh = sqrt(1 - ca**2-cb**2-cg**2 + 2*ca*cb*cg)
         self._paramhelp[4] = vh
@@ -988,7 +988,7 @@ class SGLattice:
         """
         function to calculate the unit cell volume of a lattice (angstrom^3)
         """
-        a, b, c, alpha, beta, gamma = self._parameters.values()
+        a, b, c, _, _, _ = self._parameters.values()
         return a * b * c * self._paramhelp[4]
 
     def ApplyStrain(self, eps):
@@ -1033,7 +1033,7 @@ class SGLattice:
         # set new transformations
         self._setlat()
         # update free_parameters
-        for p, v in self.free_parameters.items():
+        for p in self.free_parameters:
             self.free_parameters[p] = self._parameters[p]
         # artificially reduce symmetry if needed
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
@@ -1269,9 +1269,8 @@ class SGLattice:
             atomdict = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
             success = True
 
-            elements = set(at[0] for at in atoms)
             # check all atomic species seperately
-            for el in elements:
+            for el in set(at[0] for at in atoms):
                 catoms = list(filter(lambda at: at[0] == el, atoms))
                 found = numpy.zeros(len(catoms), dtype=bool)
                 # see if atomic positions fit to Wyckoff positions
@@ -1279,7 +1278,7 @@ class SGLattice:
                     num = int(k[:-1])
                     if num > len(catoms)-sum(found):
                         break
-                    parint, poslist, reflcond = wyckpos
+                    parint, poslist, _ = wyckpos
                     for f, (dummy, xyz, occ, biso) in zip(found, catoms):
                         if f:
                             continue
@@ -1425,9 +1424,8 @@ class SGLattice:
 
         allatoms = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
         invmat = numpy.linalg.inv(mat)
-        elements = set(at[0] for at in self.base())
         # check all atomic species seperately
-        for el in elements:
+        for el in set(at[0] for at in self.base()):
             catoms = list(filter(lambda at: at[0] == el, self.base()))
             elset = set()
             for at in catoms:

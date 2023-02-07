@@ -982,7 +982,7 @@ class FP_profile:
         for iidx in range(nsteps):
             beta = beta2 * iidx / float(nsteps)
 
-            eps, idxmin, idxmax, I2p, I2m = self.full_axdiv_I2(
+            _, idxmin, idxmax, I2p, I2m = self.full_axdiv_I2(
                 Lx=Lx, Lr=Lr, Ls=Ls, beta=beta, R=R,
                 twotheta=twotheta, epsvals=epsvals)
 
@@ -1314,11 +1314,11 @@ class FP_profile:
         eqdiv = self._epsb2
         eqdiv[:] = 0
         dtwoth = (self.twothetasamples[1] - self.twothetasamples[0])
-        idx0, idx1 = self.axial_helper(destination=eqdiv,
-                                       outerbound=-epsm,
-                                       innerbound=0,
-                                       epsvals=self.epsilon,
-                                       peakpos=0, k=dtwoth/(2.0*sqrt(epsm)))
+        self.axial_helper(destination=eqdiv,
+                          outerbound=-epsm,
+                          innerbound=0,
+                          epsvals=self.epsilon,
+                          peakpos=0, k=dtwoth/(2.0*sqrt(epsm)))
 
         conv[:] = best_rfft(eqdiv)
         conv[1::2] *= -1  # flip center
@@ -1719,7 +1719,7 @@ class convolver_handler:
         self.convolvers.append(convolver)
 
     def update_parameters(self, parameters):
-        for idx, c in enumerate(self.convolvers):
+        for c in self.convolvers:
             for k, v in parameters.items():
                 if k == 'classoptions':
                     continue
@@ -1906,7 +1906,7 @@ class PowderDiffraction(PowderExperiment):
                 threading.Thread(target=self._send_work, args=(idx, )),
                 queue.Queue(), self.output_queue))
         self._running = True
-        for th, q1, q2 in self.threads:
+        for th, _, _ in self.threads:
             th.daemon = True
             th.start()
         atexit.register(self.__stop__)
@@ -1918,7 +1918,7 @@ class PowderDiffraction(PowderExperiment):
         self._running = False
         try:  # try/except needed only for python2 compatibility
             # end daemon threads which distribute the work load
-            for th, q1, q2 in self.threads:
+            for th, q1, _ in self.threads:
                 q1.put(None)
                 th.join()
             delattr(self, 'threads')
@@ -1994,7 +1994,7 @@ class PowderDiffraction(PowderExperiment):
             if 'emiss_wavelengths' in pem:
                 wl = pem['emiss_wavelengths'][0]
                 self.settings['global']['dominant_wavelength'] = wl
-                for h, d in self.data.items():
+                for d in self.data.values():
                     fp = d['conv']
                     fp.set_parameters(convolver='global',
                                       **self.settings['global'])
@@ -2016,7 +2016,7 @@ class PowderDiffraction(PowderExperiment):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
         self.settings['emission'].update(samplesettings)
-        for h, d in self.data.items():
+        for d in self.data.values():
             fp = d['conv']
             fp.set_parameters(convolver='emission', **samplesettings)
 
@@ -2046,7 +2046,7 @@ class PowderDiffraction(PowderExperiment):
         for k in newsettings:
             if k == 'classoptions':
                 continue
-            for h, d in self.data.items():
+            for d in self.data.values():
                 fp = d['conv']
                 fp.set_parameters(convolver=k, **newsettings[k])
             if k not in self.settings:
@@ -2127,16 +2127,16 @@ class PowderDiffraction(PowderExperiment):
         """
         a threaded block which watches for data and runs computation
         """
-        th, input, output = self.threads[idx]
+        _, qinput, qoutput = self.threads[idx]
         while self._running:
             try:
-                settings, run, ttpeaks = input.get(True)
+                settings, run, ttpeaks = qinput.get(True)
             except TypeError:
                 break
             handler = self.conv_handlers[idx]
             handler.update_parameters(settings)
             results = handler.calc(run, ttpeaks)
-            output.put((idx, results))  # put results on output queue
+            qoutput.put((idx, results))  # put results on output queue
         self._running = False
 
     def reflection_strength(self, tt_cutoff):

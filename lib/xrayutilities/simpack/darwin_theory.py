@@ -362,7 +362,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
             if isinstance(sd, dict):
                 sd = [sd, ]
             if any([r > 0 for r in getit(sd, 'r')]):  # if relaxation
-                for i in range(nrep):
+                for _ in range(nrep):
                     for subsd in sd:
                         ml, apar = self._recur_makeml(subsd, ml, apar=apar)
             else:  # no relaxation in substructure
@@ -427,9 +427,6 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
         propx : ndarray
             value of the property prop for every monolayer
         """
-
-        def startinterval(start, inter, N):
-            return numpy.arange(start, start+inter*(N+0.5), inter)
 
         def _recur_prop(nrep, ml, zp, propx, propn):
             if isinstance(ml, list):

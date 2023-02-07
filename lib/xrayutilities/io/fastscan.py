@@ -881,7 +881,7 @@ class FastScanSeries:
             ccdav = numpy.zeros_like(qx[fsidx, ...])
 
             # go through the ccdframes
-            for i, imgnum in enumerate(ccdnumbers):
+            for imgnum in ccdnumbers:
                 # read ccdframes
                 imgindex, filenumber = fsccd._get_image_number(
                     imgnum, nextNr, nextNr, ccdtemplate)
@@ -1204,7 +1204,7 @@ class FastScanSeries:
         Gridder3D
             object with gridded reciprocal space map
         """
-        qx, qy, qz, ccddata, vallist = self.rawRSM(
+        qx, qy, qz, ccddata, _ = self.rawRSM(
             posx, posy, qconv, roi=roi, nav=nav,
             typ=typ, filterfunc=filterfunc, **kwargs)
         # perform 3D gridding and return the data or gridder

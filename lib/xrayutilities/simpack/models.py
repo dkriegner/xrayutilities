@@ -387,7 +387,7 @@ class KinematicalModel(LayerModel):
             the calculate intensity is returned
         """
         self.init_chi0()
-        rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, _, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
         z = numpy.zeros(len(self.lstack))
         for i, l in enumerate(self.lstack[-1:0:-1]):
@@ -474,7 +474,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
             the calculate intensity is returned
         """
         self.init_chi0()
-        rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, f, _, E, t = self._prepare_kincalculation(qz, hkl)
 
         # calculate interface positions for integer unit-cell thickness
         z = numpy.zeros(len(self.lstack))
@@ -656,7 +656,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         # return values
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
 
-        t, hx, hz = self._prepare_dyncalculation(geometry)
+        _, hx, hz = self._prepare_dyncalculation(geometry)
         epsilon = (hz[idxref] - hz) / hz
 
         k = self.exp.k0
@@ -758,7 +758,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
         Ir = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
 
-        t, hx, hz = self._prepare_dyncalculation(geometry)
+        _, hx, hz = self._prepare_dyncalculation(geometry)
 
         k = self.exp.k0
         kc = k * numpy.sqrt(1 + self.chi0)
@@ -1482,7 +1482,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         """
         lai = alphai - self.offset
         # get layer properties
-        t, sig, rho, delta, xiL = self._get_layer_prop()
+        t, sig, _, delta, xiL = self._get_layer_prop()
 
         deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
         lam = utilities.en2lam(self.energy)
@@ -1519,7 +1519,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             (len(qL), len(qz))
         """
         # get layer properties
-        t, sig, rho, delta, xiL = self._get_layer_prop()
+        t, sig, _, delta, xiL = self._get_layer_prop()
 
         deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
         lam = utilities.en2lam(self.energy)
@@ -1697,7 +1697,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 correlation function
             """
             psi = numpy.zeros((NqL, Nqz), dtype=complex)
-            if H == 0.5 or H == 1:
+            if H in (0.5, 1):
                 dpsi = numpy.zeros_like(psi, dtype=complex)
                 m = isurf > 0
                 n = 1
@@ -2039,7 +2039,7 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
         sls.append(Layer(layerstack[0].material, pymath.inf,
                          roughness=roughness))
 
-    for idxp, p in enumerate(z):
+    for idxp in range(len(z)):
         # create compound material for all contributing layers
         atoms = []
         elements = []

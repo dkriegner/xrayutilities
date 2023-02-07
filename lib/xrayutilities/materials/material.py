@@ -912,7 +912,7 @@ class Crystal(Material):
         """
         f = {}
         if self.lattice.nsites > 0:
-            for at, _, occ, b in self.lattice.base():
+            for at, _, _, _ in self.lattice.base():
                 if at.num not in f:
                     f[at.num] = at.f(q, en)
             return [f[a.num] for a, _, _, _ in self.lattice.base()]

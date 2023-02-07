@@ -380,7 +380,7 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         # fit beam position
         # determine maximal usable length of array around peak position
         Nuse = min(maxp + N // 2, len(row) - 1) - max(maxp - N // 2, 0)
-        param, perr, itlim = xumath.peak_fit(
+        param, perr, _ = xumath.peak_fit(
             numpy.arange(Nuse),
             row[max(maxp - N // 2, 0):min(maxp + N // 2, len(row) - 1)],
             peaktype='PseudoVoigt')
@@ -762,10 +762,10 @@ def _determine_detdir(ang1, ang2, n1, n2, detaxis, r_i):
     fits to the observed pixel numbers of the primary beam.
     """
     # center channel and detector pixel direction and pixel size
-    (s1, i1), r1 = xumath.linregress(ang1, n1)
-    (s2, i2), r2 = xumath.linregress(ang1, n2)
-    (s3, i3), r3 = xumath.linregress(ang2, n1)
-    (s4, i4), r4 = xumath.linregress(ang2, n2)
+    (s1, _), r1 = xumath.linregress(ang1, n1)
+    (s2, _), r2 = xumath.linregress(ang1, n2)
+    (s3, _), r3 = xumath.linregress(ang2, n1)
+    (s4, _), r4 = xumath.linregress(ang2, n2)
 
     # determine detector directions
     s = ord('x') + ord('y') + ord('z')
@@ -2233,10 +2233,10 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
         raise InputError("peaktype must be either 'Gauss' or 'Lorentz'")
 
     if om.size != psd.size:
-        [qx, qy, qz] = exphxrd.Ang2Q.linear(om, tt)
+        [_, qy, qz] = exphxrd.Ang2Q.linear(om, tt)
     else:
-        [qx, qy, qz] = exphxrd.Ang2Q(om, tt)
-    [qxsub, qysub, qzsub] = exphxrd.Ang2Q(omalign, ttalign)
+        [_, qy, qz] = exphxrd.Ang2Q(om, tt)
+    [_, qysub, qzsub] = exphxrd.Ang2Q(omalign, ttalign)
     params = [qysub, qzsub, 0.001, 0.001, psd.max(), 0, 0.]
     drange = [qysub - frange[0], qysub + frange[0], qzsub - frange[1],
               qzsub + frange[1]]
