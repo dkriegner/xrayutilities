@@ -273,7 +273,7 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     Examples
     --------
     >>> om, tt, psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",
-    >>>                                             [1, 2], path="./data")
+    ... [1, 2], path="data")  # doctest: +SKIP
     """
     def getOmPixcel(omraw, ttraw):
         """
@@ -358,8 +358,8 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
 
     Examples
     --------
-    >>> scanmot, om, tt, inte = xrayutilities.io.getxrdml_scan(
-    >>>     "samplename_1.xrdml", 'om', 'tt', path="./data")
+    >>> scanmot, om, tt, inte = getxrdml_scan(
+    ... "samplename_1.xrdml", 'om', 'tt', path="data")  # doctest: +SKIP
     """
     flatten = True
     # parse keyword arguments

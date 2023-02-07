@@ -106,13 +106,16 @@ def maplog(inte, dynlow="config", dynhigh="config"):
 
     Examples
     --------
-    >>> lint = maplog(int, 5, 2)
+    >>> maplog(((0.1 , 1e5, 1e6), (10, 100, 1000)), 5, 2)
+    array([[1., 4., 4.],
+           [1., 2., 3.]])
     """
     if dynlow == "config":
         dynlow = config.DYNLOW
     if dynhigh == "config":
         dynhigh = config.DYNHIGH
 
+    inte = numpy.asarray(inte)
     mask = numpy.logical_not(numpy.isnan(inte))
     if inte[mask].max() <= 0.0:
         raise ValueError("XU.maplog: only negativ or zero values given. "

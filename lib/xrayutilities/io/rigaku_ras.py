@@ -238,8 +238,8 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
 
     Examples
     --------
-    >>> [om, tt], MAP = xu.io.getras_scan('text%05d.ras', 36, 'Omega',
-    >>>                                   'TwoTheta')
+    >>> [om, tt], MAP = getras_scan('text%05d.ras', 36, 'Omega',
+    ... 'TwoTheta')  # doctest: +SKIP
     """
 
     filenames = generate_filenames(scanname, scannumbers)

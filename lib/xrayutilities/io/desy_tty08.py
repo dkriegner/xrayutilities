@@ -172,7 +172,7 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
     Examples
     --------
     >>> [om, tt], MAP = xu.io.gettty08_scan('text%05d.dat', 36, 'omega',
-    >>>                                     'gamma')
+    ... 'gamma')  # doctest: +SKIP
     """
 
     if isinstance(scannumbers, (list, tuple)):

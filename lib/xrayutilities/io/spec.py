@@ -1034,7 +1034,8 @@ def geth5_scan(h5f, scans, *args, **kwargs):
 
     Examples
     --------
-    >>> [om, tt], MAP = xu.io.geth5_scan(h5file, 36, 'omega', 'gamma')
+    >>> [om, tt], MAP = geth5_scan("h5file", 36,
+    ... 'omega', 'gamma')  # doctest: +SKIP
     """
 
     with xu_h5open(h5f) as h5:
@@ -1128,8 +1129,8 @@ def getspec_scan(specf, scans, *args, **kwargs):
 
     Examples
     --------
-    >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma',
-    >>>                                     'Counter2')
+    >>> [om, tt, cnt2] = getspec_scan(s, 36, 'omega', 'gamma',
+    ... 'Counter2')  # doctest: +SKIP
     """
     if not args:
         return InputError("no motor or counter names given")

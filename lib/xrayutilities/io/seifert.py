@@ -304,8 +304,8 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
 
     Examples
     --------
-    >>> om, tt, psd = xrayutilities.io.getSeifert_map("samplename_%d.xrdml",
-    >>>                                               [1, 2], path="./data")
+    >>> om, tt, psd = getSeifert_map("samplename_%d.xrdml", [1, 2],
+    ... path="data")  # doctest: +SKIP
     """
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)

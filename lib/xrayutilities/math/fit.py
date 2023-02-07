@@ -55,8 +55,10 @@ def linregress(x, y):
 
     Examples
     --------
-    >>> (k, d), R2 = xu.math.linregress(x, y)
+    >>> (k, d), R2 = linregress([1, 2, 3], [3.3, 4.1, 5.05])
     """
+    x = numpy.asarray(x)
+    y = numpy.asarray(y)
     mask = numpy.logical_not(numpy.isnan(y))
     lx, ly = (x[mask], y[mask])
     if numpy.all(numpy.isclose(lx-lx[0], numpy.zeros_like(lx))):

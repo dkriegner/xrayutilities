@@ -636,7 +636,7 @@ def rotarb(vec, axis, ang, deg=True):
 
     Examples
     --------
-    >>> rotarb([1, 0, 0],[0, 0, 1], 90)
-    array([  6.12323400e-17,   1.00000000e+00,   0.00000000e+00])
+    >>> rotarb([1, 0, 0], [0, 0, 1], 90)
+    array([6.123234e-17, 1.000000e+00, 0.000000e+00])
     """
     return ArbRotation(axis, ang, deg)(vec)

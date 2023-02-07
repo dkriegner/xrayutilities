@@ -51,22 +51,22 @@ def generate_filenames(filetemplate, scannrs=None):
     Examples
     --------
     >>> generate_filenames("filename_%d.ras", [1, 2, 3])
-    ["filename_1.ras", "filename_2.ras", "filename_3.ras"]
+    ['filename_1.ras', 'filename_2.ras', 'filename_3.ras']
 
     >>> generate_filenames("filename_{}.ras", [1, 2, 3])
-    ["filename_1.ras", "filename_2.ras", "filename_3.ras"]
+    ['filename_1.ras', 'filename_2.ras', 'filename_3.ras']
 
     >>> generate_filenames("filename_{}_{}.ras", [(11, 1), (21, 2), (31, 3)])
-    ["filename_11_1.ras", "filename_21_2.ras", "filename_31_3.ras"]
+    ['filename_11_1.ras', 'filename_21_2.ras', 'filename_31_3.ras']
 
     >>> generate_filenames("filename_%d.ras", 1)
-    ["filename_1.ras"]
+    ['filename_1.ras']
 
     >>> generate_filenames("filename.ras")
-    ["filename.ras"]
+    ['filename.ras']
 
     >>> generate_filenames(["filename.ras", "othername.ras"])
-    ["filename.ras", "othername.ras"]
+    ['filename.ras', 'othername.ras']
 
     Returns
     -------

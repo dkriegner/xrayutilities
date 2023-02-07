@@ -102,7 +102,9 @@ Reading XRDML files
 ^^^^^^^^^^^^^^^^^^^
 
 Files recorded by `Panalytical <http://www.panalytical.com>`_ diffractometers in the ``.xrdml`` format can be parsed.
-All supported file formats can also be parsed transparently when they are saved as compressed files using common compression formats. The parsing of such compressed ``.xrdml`` files conversion to reciprocal space and visualization by gridding is shown below::
+All supported file formats can also be parsed transparently when they are saved as compressed files using common compression formats. The parsing of such compressed ``.xrdml`` files conversion to reciprocal space and visualization by gridding is shown below:
+
+.. code-block:: python
 
     import xrayutilities as xu
     om, tt, psd = xu.io.getxrdml_map('rsm_%d.xrdml.bz2', [1, 2, 3, 4, 5],
@@ -138,80 +140,113 @@ Angle calculation using :class:`~xrayutilities.experiment.Experiment` and :mod:`
 
 Methods for high angle x-ray diffraction experiments. Mostly for experiments performed in coplanar scattering geometry. An example will be given for the calculation of the position of Bragg reflections.
 
-.. code-block:: python
+.. doctest::
 
-    import xrayutilities as xu
-    Si = xu.materials.Si  # load material from materials submodule
+ >>> import xrayutilities as xu
+ >>> Si = xu.materials.Si  # load material from materials submodule
+ >>>
+ >>> # initialize experimental class with directions from experiment
+ >>> hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1))
+ >>> # calculate angles of Bragg reflections and print them to the screen
+ >>> om, chi, phi, tt = hxrd.Q2Ang(Si.Q(1, 1, 1))
+ >>> print("Si (111)")
+ Si (111)
+ >>> print(f"om, tt: {om:8.3f} {tt:8.3f}")
+ om, tt:   14.221   28.442
+ >>> om, chi, phi, tt = hxrd.Q2Ang(Si.Q(2, 2, 4))
+ >>> print("Si (224)")
+ Si (224)
+ >>> print(f"om, tt: {om:8.3f} {tt:8.3f}")
+ om, tt:   63.485   88.028
 
-    # initialize experimental class with directions from experiment
-    hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1))
-    # calculate angles of Bragg reflections and print them to the screen
-    om, chi, phi, tt = hxrd.Q2Ang(Si.Q(1, 1, 1))
-    print("Si (111)")
-    print("om,tt: %8.3f %8.3f" % (om, tt))
-    om, chi, phi, tt = hxrd.Q2Ang(Si.Q(2, 2, 4))
-    print("Si (224)")
-    print("om,tt: %8.3f %8.3f" % (om, tt))
 
-Note that on line 5 the :class:`~xrayutilities.experiment.HXRD` class is initialized without specifying the energy used in the experiment. It will use the default energy stored in the configuration file, which defaults to CuK-alpha1.
+Note that above the :class:`~xrayutilities.experiment.HXRD` class is initialized without specifying the energy used in the experiment. It will use the default energy stored in the configuration file, which defaults to CuK-:math:`{\alpha}_1`.
 
 One could also call::
 
-    hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), en=10000) # energy in eV
+    hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), en=10000)  # energy in eV
 
 to specify the energy explicitly.
 The :class:`~xrayutilities.experiment.HXRD` class by default describes a four-circle goniometer as described in more detail `here <http://www.certif.com/spec_manual/fourc_4_1.html>`_.
 
 Similar functions exist for other experimental geometries. For grazing incidence diffraction one might use
 
-.. code-block:: python
+.. doctest::
 
-    gid = xu.GID(Si.Q(1, -1, 0), Si.Q(0, 0, 1))
-    # calculate angles and print them to the screen
-    (alphai, azimuth, tt, beta) = gid.Q2Ang(Si.Q(2, -2, 0))
-    print("azimuth,tt: %8.3f %8.3f" % (azimuth, tt))
+ >>> import xrayutilities as xu
+ >>> gid = xu.GID(xu.materials.Si.Q(1, -1, 0), xu.materials.Si.Q(0, 0, 1))
+ >>> # calculate angles and print them to the screen
+ >>> (alphai, azimuth, tt, beta) = gid.Q2Ang(xu.materials.Si.Q(2, -2, 0))
+ >>> print(f"azimuth, tt: {azimuth:8.3f} {tt:8.3f}")
+ azimuth, tt:  113.651   47.302
 
 There is on implementation of a GID 2S+2D diffractometer. Be sure to check if the order of the detector circles fits your goniometer, otherwise define one yourself!
 
 There exists also a powder diffraction class, which is able to convert powder scans from angular to reciprocal space.
 
-.. code-block:: python
+.. testcode::
 
     import xrayutilities as xu
     import numpy
-
     energy = 'CuKa12'
-
     # creating powder experiment
     xup = xu.PowderExperiment(en=energy)
-    theta = arange(0, 70, 0.01)
+    theta = numpy.arange(0, 70, 0.01)
     q = xup.Ang2Q(theta)
 
 More information about powdered materials can be obtained from the :class:`~xrayutilities.simpack.powder.PowderDiffraction` class. It contains information about peak positions and intensities
 
-.. code-block:: python
+.. doctest::
 
+ >>> import xrayutilities as xu
  >>> print(xu.simpack.PowderDiffraction(xu.materials.In))
-    Powder diffraction object
-    -------------------------
-    Powder-In (volume: 1, )
-    Lattice:
-    a1 = (3.252300 0.000000 0.000000), 3.252300
-    a2 = (0.000000 3.252300 0.000000), 3.252300
-    a3 = (0.000000 0.000000 4.946100), 4.946100
-    alpha = 90.000000, beta = 90.000000, gamma = 90.000000
-    Lattice base:
-    Base point 0: In (49) (0.000000 0.000000 0.000000) occ=1.00 b=0.00
-    Base point 1: In (49) (0.500000 0.500000 0.500000) occ=1.00 b=0.00
-    Reflections:
-    --------------
-          h k l     |    tth    |    |Q|    |    Int     |   Int (%)
-       ---------------------------------------------------------------
-         [0, 1, -1]    32.9338      2.312       217.24      100.00
-         [0, 0, -2]    36.2964      2.541        41.69       19.19
-         [-1, 1, 0]    39.1392      2.732        67.54       31.09
-       [-1, -1, -2]    54.4383      3.731        50.58       23.28
-       ....
+ Powder diffraction object
+ -------------------------
+ Powder-In (a: 3.2523, c: 4.9461, at0_In_2a_occupation: 1, at0_In_2a_biso: 0, volume: 1, )
+ Lattice:
+ 139 tetragonal I4/mmm: a = 3.2523, b = 3.2523 c= 4.9461
+ alpha = 90.000, beta = 90.000, gamma = 90.000
+ Lattice base:
+ 0: In (49) 2a  occ=1.000 b=0.000
+ Reflection conditions:
+  general: hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, 00l: l=2n, h00: h=2n
+ 2a      : None
+ <BLANKLINE>
+ Reflections:
+ ------------
+       h k l     |    tth    |    |Q|    |Int     |   Int (%)
+    ---------------------------------------------------------------
+       (1, 0, 1)    32.9339      2.312       217.24      100.00
+       (0, 0, 2)    36.2964      2.541        41.69       19.19
+       (1, 1, 0)    39.1392      2.732        67.54       31.09
+      (1, 1, -2)    54.4383      3.731        50.58       23.28
+       (2, 0, 0)    56.5486      3.864        22.47       10.34
+      (1, 0, -3)    63.1775      4.273        31.82       14.65
+       (2, 1, 1)    67.0127      4.503        53.09       24.44
+       (2, 0, 2)    69.0720      4.624        24.22       11.15
+       (0, 0, 4)    77.0641      5.081         4.43        2.04
+       (2, 2, 0)    84.1193      5.464         7.13        3.28
+      (2, 1, -3)    89.8592      5.761        24.97       11.49
+       (1, 1, 4)    90.0301      5.769        12.44        5.73
+       (3, 0, 1)    93.3390      5.933        11.75        5.41
+      (2, -2, 2)    95.2543      6.026        11.43        5.26
+       (3, 1, 0)    97.0033      6.109        11.19        5.15
+      (2, 0, -4)   102.9976      6.384        10.69        4.92
+       (3, 1, 2)   108.4189      6.617        21.19        9.75
+       (1, 0, 5)   108.9602      6.639        10.60        4.88
+       (3, 0, 3)   116.5074      6.936        11.01        5.07
+      (2, -3, 1)   120.4651      7.081        22.87       10.53
+      (2, 2, -4)   132.3519      7.462        13.70        6.31
+       (0, 0, 6)   138.2722      7.622         3.88        1.79
+      (2, 1, -5)   140.6857      7.681        32.94       15.16
+       (4, 0, 0)   142.6631      7.728         8.67        3.99
+      (3, 2, -3)   153.5192      7.940        48.97       22.54
+       (3, 1, 4)   153.9051      7.946        49.71       22.88
+       (4, 1, 1)   162.8984      8.066        76.17       35.07
+       (1, 1, 6)   166.0961      8.097        46.91       21.60
+       (4, 0, 2)   171.5398      8.135        77.25       35.56
+ <BLANKLINE>
+
 
 If you are interested in simulations of powder diffraction patterns look at section :ref:`pdiff-simulations`
 
@@ -326,7 +361,7 @@ Examples show how to define a new material by defining its lattice and deriving 
 
 First defining a new material from scratch is shown. This is done from the space group and Wyckhoff positions of the atoms inside the unit cell. Depending on the space group number the initialization of a new :class:`~xrayutilities.materials.spacegrouplattice.SGLattice` object expects a different amount of parameters. For a cubic materials only the lattice parameter *a* should be given while for a triclinic materials *a*, *b*, *c*, *alpha*, *beta*, and *gamma* have to be specified. Its similar for the Wyckoff positions. While some Wyckoff positions require only the type of atom others have some free paramters which can be specified. Below we show the definition of zincblende InP as well as for its hexagonal wurtzite polytype together with a quick visualization of the unit cells. A more accurate visualization of the unit cell can be performed when using :meth:`~xrayutilities.materials.material.Crystal.show_unitcell` with the Mayavi mode or by using the CIF-exporter and an external tool.
 
-.. code-block:: python
+.. testcode::
 
     import matplotlib.pyplot as plt
     import xrayutilities as xu
@@ -356,9 +391,9 @@ First defining a new material from scratch is shown. This is done from the space
                                                               ('2b', 3/8.)]))
     f = plt.figure()
     InP.show_unitcell(fig=f, subplot=121)
-    title('InP zincblende')
+    plt.title('InP zincblende')
     InPWZ.show_unitcell(fig=f, subplot=122)
-    title('InP wurtzite')
+    plt.title('InP wurtzite')
 
 .. figure:: pics/show_unitcell.png
    :alt: primitive unit cell visualization with matplotlib. Note that the rendering has mistakes but can nevertheless help to spot errors in material definition.
@@ -366,7 +401,7 @@ First defining a new material from scratch is shown. This is done from the space
 
 InP (in both variants) is already included in the xu.materials module and can be loaded by
 
-.. code-block:: python
+.. testcode::
 
     InP = xu.materials.InP
     InPWZ = xu.materials.InPWZ
@@ -374,7 +409,12 @@ InP (in both variants) is already included in the xu.materials module and can be
 Similar definitions exist for many other materials.
 Alternatively to giving the Wyckoff labels and parameters one can also specify the position of one atom for every unique site within the unit cell. *xrayutilities* will then search the corresponding Wyckoff position of this atom and populate therefore populate all equivalent sites as well. For the example of InP in zincblende form the material definition could also look as shown below. Note that instead of the elements also the elemental symbol as string can be used:
 
-.. code-block:: python
+.. testcode::
+   :hide:
+
+   xu.config.VERBOSITY = 0
+
+.. testcode::
 
     InP = xu.materials.Crystal(
         "InP", xu.materials.SGLattice(216, 5.8687, atoms=["In", "P"],
@@ -384,10 +424,9 @@ Alternatively to giving the Wyckoff labels and parameters one can also specify t
 
 Using the material properties the calculation of the reflection strength of a Bragg reflection can be done as follows
 
-.. code-block:: python
+.. testcode::
 
     import xrayutilities as xu
-    import numpy
 
     # defining material and experimental setup
     InAs = xu.materials.InAs
@@ -398,12 +437,18 @@ Using the material properties the calculation of the reflection strength of a Br
     for hkl in hkllist:
         qvec = InAs.Q(hkl)
         F = InAs.StructureFactor(qvec, energy)
-        print(" |F| = %8.3f" % numpy.abs(F))
+        print(f"|F| = {abs(F):8.3f}")
 
+.. testoutput::
+   :hide:
+
+   |F| =  213.356
+   |F| =   53.017
+   |F| =  127.558
 
 Similar also the energy dependence of the structure factor can be determined
 
-.. code-block:: python
+.. testcode::
 
     import matplotlib.pyplot as plt
 
@@ -419,20 +464,26 @@ Similar also the energy dependence of the structure factor can be determined
 
 It is also possible to calculate the components of the structure factor of atoms, which may be needed for input into XRD simulations.
 
-.. code-block:: python
+.. testcode::
 
     # f = f0(|Q|) + f1(en) + j * f2(en)
     import xrayutilities as xu
-    import numpy
 
     Fe = xu.materials.elements.Fe # iron atom
-    Q = numpy.array([0, 0, 1.9], dtype=numpy.double)
+    Q = [0, 0, 1.9]
     en = 10000 # energy in eV
 
-    print("Iron (Fe): E: %9.1f eV" % en)
-    print("f0: %8.4g" % Fe.f0(numpy.linalg.norm(Q)))
-    print("f1: %8.4g" % Fe.f1(en))
-    print("f2: %8.4g" % Fe.f2(en))
+    print(f"Iron (Fe): E: {en:9.1f} eV")
+    print(f"f0: {Fe.f0(xu.math.VecNorm(Q)):8.4g}")
+    print(f"f1: {Fe.f1(en):8.4g}")
+    print(f"f2: {Fe.f2(en):8.4g}")
+
+.. testoutput::
+
+    Iron (Fe): E:   10000.0 eV
+    f0:    21.78
+    f1:  -0.0178
+    f2:    2.239
 
 Transformation of :class:`~xrayutilities.materials.spacegrouplattice.SGLattice`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -455,7 +506,7 @@ The code below shows the example of the Diamond structure converted between the 
 
 For dynamical diffraction simulations of cubic crystals with (111) surface it might be required to convert the unit cell in a way that a principle axis is pointing along the surface normal. Using an apropriate conversion matrix this is shown for the example of InP
 
-.. code-block:: python
+.. testcode::
 
     import xrayutilities as xu
     InP111_lattice = xu.materials.InP.lattice.transform(((-1/2, 0, 1),
@@ -471,7 +522,7 @@ Visualization of the Bragg peaks in a reciprocal space plane
 
 If you want to explore which peaks are available and reachable in coplanar diffraction geometry and what their relationship between different materials is *xrayutilities* provides a function which generates a slightly interactive plot which helps you with this task.
 
-.. code-block:: python
+.. testcode::
 
     import xrayutilities as xu
     mat = xu.materials.Crystal('GaTe',
@@ -504,7 +555,7 @@ More goniometer angles can be kept free if some pseudo-angle constraints are use
 
 The example below shows the necessary code to perform such an angle calculation for a custom defined material with orthorhombic unit cell.
 
-.. code-block:: python
+.. testcode::
 
     import xrayutilities as xu
     import numpy as np
@@ -520,14 +571,14 @@ The example below shows the necessary code to perform such an angle calculation 
     # 2S+2D goniometer
     qconv=xu.QConversion(('x+', 'z+'), ('z+', 'x+'), (0, 1, 0))
     # [1,1,0] surface normal
-    hxrd = xu.HXRD(SmFeO3.Q(0, 0, 1), SmFeO3.Q(1, 1, 0), qconv=qconv)
+    hxrd = xu.Experiment(SmFeO3.Q(0, 0, 1), SmFeO3.Q(1, 1, 0), qconv=qconv)
 
     hkl=(2, 0, 0)
     q_material = SmFeO3.Q(hkl)
     q_laboratory = hxrd.Transform(q_material) # transform
 
-    print('SmFeO3: \thkl ', hkl, '\tqvec ', np.round(q_material, 5))
-    print('Lattice plane distance: %.4f' % SmFeO3.planeDistance(hkl))
+    print(f"SmFeO3: hkl {hkl}, qvec {np.round(q_material, 5)}")
+    print(f"Lattice plane distance: {SmFeO3.planeDistance(hkl):.4f}")
 
     #### determine the goniometer angles with the correct geometry restrictions
     # tell bounds of angles / (min,max) pair or fixed value for all motors.
@@ -535,10 +586,19 @@ The example below shows the necessary code to perform such an angle calculation 
     # om, phi, tt, delta
     bounds = (5, (-180, 180), (-1, 90), (-1, 90))
     ang, qerror, errcode = xu.Q2AngFit(q_laboratory, hxrd, bounds)
-    print('err %d (%.3g) angles %s' % (errcode, qerror, str(np.round(ang, 5))))
+    print(f"err {errcode} ({qerror:.3g}) angles {np.round(ang, 5)}")
     # check that qerror is small!!
-    print('sanity check with back-transformation (hkl): ',
+    print("sanity check with back-transformation (hkl): ",
           np.round(hxrd.Ang2HKL(*ang,mat=SmFeO3),5))
+
+The output of the code above would be similar to:
+
+.. testoutput::
+
+    SmFeO3: hkl (2, 0, 0), qvec [2.24399 0.      0.     ]
+    Lattice plane distance: 2.8000
+    err 0 (9.61e-09) angles [ 5.      20.44854 19.65315 25.69328]
+    sanity check with back-transformation (hkl):  [ 2.  0. -0.]
 
 In the example above all angles can be kept free if a pseudo-angle constraint is used in addition.
 This is shown below for the incidence angle, which when fixed to 5 degree results in the same goniometer angles as shown above.

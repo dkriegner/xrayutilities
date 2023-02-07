@@ -312,9 +312,9 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
             form superlattices. As an example 5 repetitions of a
             Si(10nm)/Ge(15nm) superlattice on Si would like like:
 
-            >>> s = [(5, [{'t': 100, 'x': 0, 'r': 0},
-            >>>           {'t': 150, 'x': 1, 'r': 0}]),
-            >>>      {'t': 3500000, 'x': 0, 'r': 0}]
+            >>> s = [(5, [{'t': 100, 'x': 0, 'r': 0}, \
+                          {'t': 150, 'x': 1, 'r': 0}]), \
+                     {'t': 3500000, 'x': 0, 'r': 0}]
 
             the dictionaries must contain 't': thickness in A, 'x': chemical
             composition, and either 'r': relaxation or 'ai': inplane lattice
