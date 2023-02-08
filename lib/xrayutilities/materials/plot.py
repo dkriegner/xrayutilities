@@ -195,7 +195,13 @@ def show_reciprocal_space_plane(
         annot.xy = pos
         text = f"{mat.name}\n{str(d['hkl'][m][ind['ind'][0]])}"
         annot.set_text(text)
-        annot.get_bbox_patch().set_facecolor(h.get_facecolor()[0])
+        if h.get_facecolor().size > 0:
+            color = h.get_facecolor()[0]
+        elif h.get_edgecolor().size > 0:
+            color = h.get_edgecolor()[0]
+        else:
+            color = 'w'
+        annot.get_bbox_patch().set_facecolor(color)
         annot.get_bbox_patch().set_alpha(0.2)
 
     def hover(event):
