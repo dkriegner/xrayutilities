@@ -292,6 +292,47 @@ class Material(utilities.ABC):
             en = utilities.energy(config.ENERGY)
         return utilities.en2lam(en) / (2 * numpy.pi * self.ibeta(en) * 2) / 1e4
 
+    def youngs_modulus(self, direction, sijkl=None):
+        """
+        Obtain Youngs Modulus for a certain direction
+
+        Parameters
+        ----------
+        direction: vector (array of length 3)
+          Vectorial direction for this the Youngs modulus should be obtained.
+          This does not need to be normalized.
+
+        Returns
+        -------
+        Youngs modulus in Pa
+        """
+        n = math.VecUnit(direction)
+        if sijkl is None:
+            sijkl = Cij2Sijkl(self.cij)
+        return 1 / numpy.einsum("ijkl,i,j,k,l", sijkl, n, n, n, n)
+
+    def poisson_ratio(self, direction, perpendicular):
+        """
+        Obtain the Poisson ratio for a certain extenstion direction and one
+        perpendicular direction.
+
+        Parameters
+        ----------
+        direction: vector (array of length 3)
+          Axial extension direction.
+        perpendicular: vector
+          Lateral contraction direction.
+
+        Returns
+        -------
+        Poisson ratio
+        """
+        n = math.VecUnit(direction)
+        m = math.VecUnit(perpendicular)
+        sijkl = Cij2Sijkl(self.cij)
+        E = self.youngs_modulus(n, sijkl=sijkl)
+        return -E * numpy.einsum("ijkl,i,j,k,l", sijkl, n, n, m, m)
+
     def __str__(self):
         ostr = f"{self.__class__.__name__}: {self.name}\n"
         if numpy.any(self.cij):
