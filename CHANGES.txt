@@ -1,3 +1,6 @@
+* implement the calculation of the anisotropic Poission ratio of materials
+  (#139). Related to that a method in the DarwinModel was renamed and declared
+  internal.
 * extend continuous integration tests by adding doctests
 * directly depend on the lmfit package for implementation of our fitting
   models.

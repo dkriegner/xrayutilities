@@ -472,7 +472,7 @@ class DarwinModelSiGe001(DarwinModelAlloy):
     Ge = materials.Ge
     eSi = materials.elements.Si
     eGe = materials.elements.Ge
-    aSi = materials.Si.a1[0]
+    aSi = materials.Si.a
     asub = aSi  # needed for the make_monolayer function
     re = physical_constants['classical electron radius'][0] * 1e10
 
@@ -484,9 +484,10 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         return cls.aSi + (0.2 * x + 0.027 * x ** 2)
 
     @staticmethod
-    def poisson_ratio(x):
+    def _deformation_ratio(x):
         """
-        calculate the Poisson ratio of the alloy
+        calculate the deformation ratio of the alloy for biaxial strain. This
+        corresponds to 2*c12/c11.
         """
         return 2 * (63.9-15.6*x) / (165.8-37.3*x)  # according to IOFFE
 
@@ -516,7 +517,7 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
@@ -586,7 +587,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
     eGa = materials.elements.Ga
     eIn = materials.elements.In
     eAs = materials.elements.As
-    aGaAs = materials.GaAs.a1[0]
+    aGaAs = materials.GaAs.a
     asub = aGaAs  # needed for the make_monolayer function
     re = physical_constants['classical electron radius'][0] * 1e10
 
@@ -599,9 +600,10 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         return cls.aGaAs + 0.40505*x
 
     @staticmethod
-    def poisson_ratio(x):
+    def _deformation_ratio(x):
         """
-        calculate the Poisson ratio of the alloy
+        calculate the deformation ratio of the alloy for biaxial strain. This
+        corresponds to 2*c12/c11.
         """
         return 2 * (5.38 - 0.84*x) / (11.88 - 3.54*x)  # according to IOFFE
 
@@ -631,7 +633,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
@@ -691,7 +693,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
     eGa = materials.elements.Ga
     eAl = materials.elements.Al
     eAs = materials.elements.As
-    aGaAs = materials.GaAs.a1[0]
+    aGaAs = materials.GaAs.a
     asub = aGaAs  # needed for the make_monolayer function
     re = physical_constants['classical electron radius'][0] * 1e10
 
@@ -704,9 +706,10 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         return cls.aGaAs + 0.0078*x
 
     @staticmethod
-    def poisson_ratio(x):
+    def _deformation_ratio(x):
         """
-        calculate the Poisson ratio of the alloy
+        calculate the deformation ratio of the alloy for biaxial strain. This
+        corresponds to 2*c12/c11.
         """
         return 2 * (5.38+0.32*x) / (11.88+0.14*x)  # according to IOFFE
 
@@ -736,7 +739,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
