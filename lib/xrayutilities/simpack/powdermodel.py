@@ -419,7 +419,7 @@ class PowderModel:
                     arrowprops=dict(arrowstyle="->"), fontsize='x-small')
                 annot.set_visible(False)
                 # next line important to avoid zorder issues
-                tax.figure.texts.append(tax.texts.pop())
+                tax.figure.texts.append(tax.texts[-1])
                 taxlist.append(tax)
                 lineslist.append(wllist)
                 annotlist.append(annot)
