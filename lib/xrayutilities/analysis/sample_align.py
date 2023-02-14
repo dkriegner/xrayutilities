@@ -662,7 +662,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                 plt.semilogy(nparams[:, p] * xscale[p], neps, '.k')
             else:
                 plt.scatter(nparams[:, p] * xscale[p], neps, c=nparams[:, -1],
-                            s=10, marker='o', cmap=plt.cm.gnuplot,
+                            s=10, marker='o', cmap="gnuplot",
                             edgecolor='none')
             plt.xlabel(labels[p])
             if plotlog:
@@ -1494,7 +1494,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
                 plt.semilogy(nparams[:, p] * xscale[p], neps, '.k')
             else:
                 plt.scatter(nparams[:, p] * xscale[p], neps, c=nparams[:, -1],
-                            s=10, marker='o', cmap=plt.cm.gnuplot,
+                            s=10, marker='o', cmap="gnuplot",
                             edgecolor='none')
             plt.xlabel(labels[p])
             if plotlog:
