@@ -64,6 +64,10 @@ GaSb = Crystal("GaSb", SGLattice(216, 6.09593, atoms=[e.Ga, e.Sb],
                                  pos=['4a', '4c']),
                CubicElasticTensor(8.83e+10, 4.02e+10, 4.32e+10),
                thetaDebye=266)
+AlSb = Crystal("AlSb", SGLattice(216, 6.1355, atoms=[e.Al, e.Sb],
+                                 pos=['4a', '4c']),
+               CubicElasticTensor(8.769e+10, 4.341e+10, 4.076e+10),
+               thetaDebye=370)
 # from Cryst. Growth Des. 15, 4795-4803 (2015)
 GaAsWZ = Crystal("GaAs(WZ)",
                  SGLattice(186, 3.9845, 6.5701, atoms=[e.Ga, e.As],
