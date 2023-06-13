@@ -170,6 +170,9 @@ class FitModel(Model):
         -------
         lmfit.ModelResult
         """
+        if not lmfit_kws:
+            lmfit_kws = {}
+
         class FitPlot:
             def __init__(self, figname, logscale):
                 self.figname = figname
