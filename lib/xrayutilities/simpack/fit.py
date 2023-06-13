@@ -142,7 +142,8 @@ class FitModel(Model):
         self.xmin = xmin
         self.xmax = xmax
 
-    def fit(self, data, params, x, weights=None, fit_kws=None, **kwargs):
+    def fit(self, data, params, x, weights=None, fit_kws=None, lmfit_kws=None,
+            **kwargs):
         """
         wrapper around lmfit.Model.fit which enables plotting during the
         fitting
@@ -160,8 +161,10 @@ class FitModel(Model):
             values of weights for the fit, same size as data
         fit_kws :   dict, optional
             Options to pass to the minimizer being used
-        kwargs :    dict, optional
+        lmfit_kws : dict, optional
             keyword arguments which are passed to lmfit.Model.fit
+        kwargs :    dict, optional
+            keyword arguments passed to lmfit.Model.eval
 
         Returns
         -------
@@ -260,7 +263,7 @@ class FitModel(Model):
 
         # perform fitting
         res = super().fit(data[mask], params, x=x[mask], weights=mweights,
-                          fit_kws=fit_kws, iter_cb=cb_func, **kwargs)
+                          fit_kws=fit_kws, iter_cb=cb_func, **lmfit_kws)
 
         # final update of plot
         if self.fitplot.plot:

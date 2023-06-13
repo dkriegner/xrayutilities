@@ -1,3 +1,4 @@
+* Added AlSb to predefined_materials.py (#164) (by @andrews-tuwien)
 * allow parsing of SPEC files/scans with missing data entry
 * implement the calculation of the anisotropic Poission ratio of materials
   (#139). Related to that a method in the DarwinModel was renamed and declared
