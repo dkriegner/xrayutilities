@@ -1,3 +1,7 @@
+* enable building Python 3.11 wheels
+
+v1.7.5, 2023-06-14
+
 * Added AlSb to predefined_materials.py (#164) (by @andrews-tuwien)
 * allow parsing of SPEC files/scans with missing data entry
 * implement the calculation of the anisotropic Poission ratio of materials
