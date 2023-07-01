@@ -56,9 +56,10 @@ GaAs = Crystal("GaAs", SGLattice(216, 5.65325, atoms=[e.Ga, e.As],
                                  pos=['4a', '4c']),
                CubicElasticTensor(11.9e+10, 5.34e+10, 5.96e+10),
                thetaDebye=360)
-AlAs = Crystal("AlAs", SGLattice(216, 5.6611, atoms=[e.Al, e.As],
+# data updated from Appl. Phys. Lett. 66, 682–684 (1995)
+AlAs = Crystal("AlAs", SGLattice(216, 5.66172, atoms=[e.Al, e.As],
                                  pos=['4a', '4c']),
-               CubicElasticTensor(12.02e+10, 5.70e+10, 5.99e+10),
+               CubicElasticTensor(11.99e+10, 5.75e+10, 5.66e+10),
                thetaDebye=446)
 GaSb = Crystal("GaSb", SGLattice(216, 6.09593, atoms=[e.Ga, e.Sb],
                                  pos=['4a', '4c']),
