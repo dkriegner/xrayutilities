@@ -560,6 +560,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         if not hasattr(self, 'fit_paramnames'):
             self.fit_paramnames = []
         self.fit_paramnames += ['Cmono', ]
+        self.offset = kwargs.pop('offset', 0)
         super().__init__(*args, **kwargs)
         self.xlabelstr = 'incidence angle (deg)'
         self.hkl = None
@@ -665,7 +666,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         asym = numpy.arctan2(hx, hz[idxref])
         gamma0 = numpy.sin(asym + thetaB)
         gammah = numpy.sin(asym - thetaB)
-
+        alphai=alphai-self.offset
         # deviation of the incident beam from the kinematical maximum
         eta = numpy.radians(alphai) - thetaB - asym
 
@@ -762,7 +763,8 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
 
         k = self.exp.k0
         kc = k * numpy.sqrt(1 + self.chi0)
-        ai = numpy.radians(alphai)
+        alphai=alphai-self.offset
+        ai = numpy.radians(alphai - self.offset)
         Kix = k * numpy.cos(ai)
         Kiz = -k * numpy.sin(ai)
         Khz = numpy.sqrt(k**2 - (Kix + hx)**2)
