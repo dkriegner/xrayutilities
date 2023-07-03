@@ -33,7 +33,7 @@ class FitModel(Model):
     Later on you can call `fit` and `eval` methods with those parameter list.
     """
 
-    def __init__(self, lmodel, verbose=False, plot=False, elog=True, **kwargs):
+    def __init__(self, lmodel, verbose=False, plot=False, elog=True, method='leastsq', **kwargs):
         """
         initialization of a FitModel which uses lmfit for the actual fitting,
         and generates an according lmfit.Model internally for the given
@@ -54,6 +54,9 @@ class FitModel(Model):
             flag to enable a logarithmic error metric between model and data.
             Since the dynamic range of data is often large its often benefitial
             to keep this enabled.
+        method: str, optional
+            Name of the fitting method to use. Valid method are given here:
+            https://lmfit.github.io/lmfit-py/fitting.html
         kwargs :    dict, optional
             additional keyword arguments are forwarded to the `simulate` method
             of `lmodel`
@@ -61,7 +64,7 @@ class FitModel(Model):
         self.verbose = verbose
         self.plot = plot
         self.elog = elog
-
+        self.method=method
         assert isinstance(lmodel, models.LayerModel)
         self.lmodel = lmodel
         # generate dynamic function for model evalution
@@ -265,7 +268,8 @@ class FitModel(Model):
                                              self.eval(params, **kwargs))
 
         # perform fitting
-        res = super().fit(data[mask], params, x=x[mask], weights=mweights,
+        method=self.method
+        res = super().fit(data[mask], params, x=x[mask], weights=mweights, method=method
                           fit_kws=fit_kws, iter_cb=cb_func, **lmfit_kws)
 
         # final update of plot
