@@ -5,8 +5,6 @@
 		<entry>Goniometer=PW3050/65 (Theta/2Theta); Minimum step size 2Theta:0.0001; Minimum step size Omega:0.0001</entry>
 		<entry>Sample stage=MRD Cradle; Minimum step size Phi:0.01; Minimum step size Chi:0.01; Minimum step size X:0.01; Minimum step size Y:0.01; Minimum step size Z:0.001</entry>
 		<entry>Diffractometer system=XPERT-PRO</entry>
-		<entry>Measurement program=C:\PANalytical\Data Collector\Programs\Aristide\om_2th_rel_trplx.xrdmp, Created identifier={88D0C8FE-F085-479D-9388-8099899F0F04}, Created by=User, Id=WL:PC-XPERTM.phona.local:User, Creation date=27/06/2023 17:51:50</entry>
-		<entry>Batch program=C:\PANalytical\Data Collector\Programs\Aristide\Batch0_180.xrdmp, Created identifier={1278CB1C-D1B2-4FFD-8627-A2D8B3D9C71B}, Created by=User, Id=WL:PC-XPERTM.phona.local:User, Creation date=27/06/2023 17:57:02</entry>
 	</comment>
 	<sample type="To be analyzed">
 		<id></id>
