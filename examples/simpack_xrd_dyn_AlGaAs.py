@@ -14,6 +14,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2023 C2N - CNRS
+# Author:	  Aristide Lemaître <aristide.lemaitre@c2n.upsaclay.fr>
 
 
 # This is an example of the modelling and fitting of the diffraction data
@@ -38,8 +40,7 @@
 # Xray set-up: X'PERT Panalytical with
 #       copper anode,focusing mirror, Ge(220)x4 monochromator,
 # Ge(220)x2 triple axis detection
-# Copyright (c) 2023 C2N - CNRS
-# Author:	  Aristide Lemaître <aristide.lemaitre@c2n.upsaclay.fr>
+
 
 import xrayutilities as xu
 import numpy as np
