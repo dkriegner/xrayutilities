@@ -1,3 +1,4 @@
+* update AlAs lattice parameters from APL 66, 682 (1995) (by @VeryBitter)
 * enable building Python 3.11 wheels
 
 v1.7.5, 2023-06-14
