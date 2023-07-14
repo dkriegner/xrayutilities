@@ -49,7 +49,8 @@ import matplotlib.pyplot as plt
 
 # read experimental file
 
-scan = xu.io.panalytical_xml.XRDMLFile('simpack_xrd_AlGaAs.xrdml.gz', path='data')
+scan = xu.io.panalytical_xml.XRDMLFile('simpack_xrd_AlGaAs.xrdml.gz',
+                                       path='data')
 om = scan.scans[0]['Omega']
 Int = scan.scans[0].int
 
