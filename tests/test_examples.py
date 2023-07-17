@@ -27,6 +27,7 @@ scriptfiles = [
     'simpack_powdermodel.py',
     'simpack_xrd_AlGaAs.py',
     'simpack_xrd_Darwin_AlGaAs.py',
+    'simpack_xrd_dyn_AlGaAs.py',
     'simpack_xrd_InAs_fitting.py',
     'simpack_xrd_SiGe111.py',
     'simpack_xrd_SiGe_asymmmetric.py',
