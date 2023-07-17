@@ -2102,7 +2102,8 @@ class PowderDiffraction(PowderExperiment):
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
             try:
-                np = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
+                np = int(math.ceil(len(idx) /
+                                   (tt[idx[-1, 0]]-tt[idx[0, 0]]) * ww))
             except OverflowError:
                 np = 1
             npoints[h] = np

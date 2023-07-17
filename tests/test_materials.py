@@ -132,7 +132,7 @@ class TestMaterialsTransform(unittest.TestCase):
         strain = numpy.zeros((3, 3), dtype=numpy.double)
         strain[0, 0:3] = numpy.random.rand(3)
         strain[1, 1:3] = numpy.random.rand(2)
-        strain[2, 2] = numpy.random.rand(1)
+        strain[2, 2] = numpy.random.rand(1)[0]
         strain[0:3, 0] = strain[0, 0:3]
         strain[1:3, 1] = strain[1, 1:3]
 
@@ -144,7 +144,7 @@ class TestMaterialsTransform(unittest.TestCase):
         stress = numpy.zeros((3, 3), dtype=numpy.double)
         stress[0, 0:3] = numpy.random.rand(3)
         stress[1, 1:3] = numpy.random.rand(2)
-        stress[2, 2] = numpy.random.rand(1)
+        stress[2, 2] = numpy.random.rand(1)[0]
         stress[0:3, 0] = stress[0, 0:3]
         stress[1:3, 1] = stress[1, 1:3]
 
