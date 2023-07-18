@@ -138,15 +138,16 @@ fitmdyn.set_param_hint('resolution_width', vary=True, min=0.0012, max=0.0015)
 params = fitmdyn.make_params()
 
 
+lmfit_kws = {}
 # choose your fitting method, default 'leastsq'
-fit_kws = {'method': 'differential_evolution'}
+# 'differential_evolution' can help to overcome local minima but is slower
+# lmfit_kws['method'] = 'differential_evolution'
 
 # option to avoid error during fit
-lmfit_kws = {'nan_policy': 'omit'}
+lmfit_kws['nan_policy'] = 'omit'
 
 # launch fitting procedure
-fitr = fitmdyn.fit(Int, params, om_off, fit_kws=fit_kws,
-                   lmfit_kws=lmfit_kws)
+fitr = fitmdyn.fit(Int, params, om_off, lmfit_kws=lmfit_kws)
 
 
 # get Al composition for perpendicular lattice parameter
