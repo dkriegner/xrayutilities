@@ -47,7 +47,7 @@ class SMaterial:
     needed for simulations
     """
 
-    def __init__(self, material, **kwargs):
+    def __init__(self, material, name=None, **kwargs):
         """
         initialize a simulation material by specifiying its Material and
         optional other properties
@@ -57,10 +57,15 @@ class SMaterial:
         material :  Material (Crystal, or Amorphous)
             Material object containing optical/crystal properties of for the
             simulation; a deepcopy is used internally.
+        name : str, optional
+            name of the material used in the simulations
         kwargs :    dict
             optional properties of the material needed for the simulation
         """
-        self.name = utilities.makeNaturalName(material.name, check=True)
+        if name is not None:
+            self.name = utilities.makeNaturalName(name, check=True)
+        else:
+            self.name = utilities.makeNaturalName(material.name, check=True)
         self.material = copy.deepcopy(material)
         for kw in kwargs:
             setattr(self, kw, kwargs[kw])
@@ -136,7 +141,7 @@ class SMaterial:
     __rmul__ = __mul__
 
     def __repr__(self):
-        s = f'{self.__class__.__name__}-{self.material.name} ('
+        s = f'{self.__class__.__name__}-{self.name} ('
         for k in self.__dict__:
             if k not in ('name', '_material', '_structural_params'):
                 v = getattr(self, k)
@@ -247,10 +252,13 @@ class Layer(SMaterial):
         film thickness in angstrom
     """
 
-    _valid_init_kwargs = {'roughness': 'root mean square roughness',
-                          'density': 'density in kg/m^3',
-                          'relaxation': 'degree of relaxation',
-                          'lat_correl': 'lateral correlation length'}
+    _valid_init_kwargs = {
+        'name': 'Custom name of the Layer',
+        'roughness': 'root mean square roughness',
+        'density': 'density in kg/m^3',
+        'relaxation': 'degree of relaxation',
+        'lat_correl': 'lateral correlation length'
+    }
 
     def __init__(self, material, thickness, **kwargs):
         """
@@ -431,13 +439,16 @@ class Powder(SMaterial):
         crystallites.
     """
 
-    _valid_init_kwargs = {'crystallite_size_lor': 'Lorentzian cryst. size',
-                          'crystallite_size_gauss': 'Gaussian cryst. size',
-                          'strain_lor': 'microstrain broadening',
-                          'strain_gauss': 'microstrain broadening',
-                          'preferred_orientation': 'HKL of pref. orientation',
-                          'preferred_orientation_factor':
-                          'March-Dollase preferred orientation factor'}
+    _valid_init_kwargs = {
+        'name': 'Custom name of the Powder',
+        'crystallite_size_lor': 'Lorentzian crystallite size',
+        'crystallite_size_gauss': 'Gaussian crystallite size',
+        'strain_lor': 'microstrain broadening',
+        'strain_gauss': 'microstrain broadening',
+        'preferred_orientation': 'HKL of the preferred orientation',
+        'preferred_orientation_factor':
+        'March-Dollase preferred orientation factor'
+    }
 
     def __init__(self, material, volume, **kwargs):
         """
