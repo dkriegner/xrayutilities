@@ -176,7 +176,11 @@ class RASScan:
         # generate header dictionary
         self.init_mopo = {}
         for k in keys:
-            self.init_mopo[keys[k]] = position[k]
+            try:
+                self.init_mopo[keys[k]] = position[k]
+            except KeyError:
+                # in case of missing position entry in the datafile header
+                self.init_mopo[keys[k]] = None
         self.fid.seek(offset)
 
     def _parse_data(self):
