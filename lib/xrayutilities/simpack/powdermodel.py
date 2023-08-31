@@ -545,7 +545,7 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     exp :       array-like
         experimental data (same shape as twotheta). If None only the simulation
         and no difference will be plotted
-    sim :       array-like or PowederModel
+    sim :       array-like or PowderModel
         simulated data or PowderModel instance. If a PowderModel instance is
         given the plot-method of PowderModel is used.
     mask :      array-like, optional
