@@ -295,7 +295,9 @@ class CIFDataset:
                 loop_start = True
                 loop_labels = []
                 symop_loop = False
+                symop_idx = None
                 atom_loop = False
+                alab_idx = None
                 ax_idx = None
                 ay_idx = None
                 az_idx = None
