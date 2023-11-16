@@ -1,3 +1,6 @@
+v1.7.6, 2023-11-16
+
+* fix parsing error due to missing header entry in Rigaku ras file
 * allow naming of simulation materials (Powder, Layer)
 * example script for fitting diffraction data of an epitaxial multilayer (by @VeryBitter)
 * update AlAs lattice parameters from APL 66, 682 (1995) (by @VeryBitter)
