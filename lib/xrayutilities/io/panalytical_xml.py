@@ -67,12 +67,12 @@ class XRDMLMeasurement:
             else:
                 self.scanmotname = s.get("scanAxis")
                 reflection = s.find(self.namespace + "reflection")
-                if reflection:
+                if reflection is not None:
                     m = reflection.find(self.namespace + "material")
                     if m is not None:
                         self.material = m.text
                     hkl = reflection.find(self.namespace + "hkl")
-                    if hkl:
+                    if hkl is not None:
                         hkl_h = int(hkl.find(self.namespace + "h").text)
                         hkl_k = int(hkl.find(self.namespace + "k").text)
                         hkl_l = int(hkl.find(self.namespace + "l").text)
