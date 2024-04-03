@@ -15,7 +15,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
-# Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
 
@@ -58,6 +58,8 @@
 # 15 August, 2018 -- MHM
 # fixed apparent error in flip of eps0 across twotheta=90 around line 681
 #
+# 3 April, 2024
+# comment debugging code which looks for negative intensities. see issue 179
 
 """
 This module contains the core definitions for the XRD Fundamental Parameneters
@@ -730,12 +732,12 @@ class FP_profile:
         intg[0] += y0 * dx0
         intg[-2] += y0 * dx1
 
-        # intensities are never less than zero!
-        if min(intg[:-1]) < -1e-10 * max(intg[:-1]):
-            print("bad parameters:", (5 * "%10.4f") %
-                  (peakpos, innerbound, outerbound, k, y0))
-            print(len(intg), intg[:-1])
-            raise ValueError("Bad axial helper parameters")
+#        # intensities are never less than zero!
+#        if min(intg[:-1]) < -1e-10 * max(intg[:-1]):
+#            print("bad parameters:", (5 * "%10.4f") %
+#                  (peakpos, innerbound, outerbound, k, y0))
+#            print(len(intg), intg[:-1])
+#            raise ValueError("Bad axial helper parameters")
 
         # now, make sure the underlying area is the exactly correct
         # integral, without bumps due to discretizing the grid.
