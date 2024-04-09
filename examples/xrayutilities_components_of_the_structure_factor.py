@@ -16,6 +16,7 @@
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
+
 # f = f0(|Q|) + f1(en) + j * f2(en)
 import xrayutilities as xu
 

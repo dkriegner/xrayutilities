@@ -13,14 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2016-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 
 import lmfit
+import matplotlib.pylab as pylab
 import numpy
+
 import xrayutilities as xu
-from matplotlib.pylab import *
 
 # load experimental data
 ai, edata, eps = numpy.loadtxt(os.path.join('data', 'xrr_data.txt'),
@@ -29,7 +30,7 @@ ai /= 2.0
 
 # define layers
 # SiO2 / Ru(5) / CoFe(3) / IrMn(3) / AlOx(10)
-lSiO2 = xu.simpack.Layer(xu.materials.SiO2, inf, roughness=2.5)
+lSiO2 = xu.simpack.Layer(xu.materials.SiO2, numpy.inf, roughness=2.5)
 lRu = xu.simpack.Layer(xu.materials.Ru, 47, roughness=2.8)
 rho_cf = 0.5*8900 + 0.5*7874
 mat_cf = xu.materials.Amorphous('CoFe', rho_cf)
@@ -58,4 +59,12 @@ res = fitm.fit(edata, p, ai, weights=1/eps)
 lmfit.report_fit(res, min_correl=0.5)
 
 m.densityprofile(500, plot=True)
-show()
+pylab.show()
+
+# export the fit result for the full data range (Note that only data between
+# xmin and xmax were actually optimized)
+numpy.savetxt(
+    "xrrfit.dat",
+    numpy.vstack((ai, res.eval(res.params, x=ai))).T,
+    header="incidence angle (deg), fitted intensity (arb. u.)",
+)

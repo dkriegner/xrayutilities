@@ -13,7 +13,7 @@ simulation of crystal truncation rods as well as fundamental parameters powder
 diffraction is included.
 
 
-Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+Copyright (C) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 Copyright (C) 2009-2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
 
@@ -71,13 +71,9 @@ installation path.
 
 By default the installation procedure tries to enable OpenMP support
 (recommended). It is disabled silently if OpenMP is not available. It can also
-be disable by using the *--without-openmp* option for the installation:
+be disabled by using the *--without-openmp* option for the installation:
 
-    pip install --global-option="--without-openmp" xrayutilities
-
-or
-
-    python setup.py --without-openmp install
+    python setup.py build_ext --without-openmp install
 
 Requirements
 ------------
@@ -85,18 +81,18 @@ The following requirements are needed for installing and using *xrayutilities*:
 
 - Python (>= 3.6)
 - h5py
-- scipy (version >= 0.13.0)
+- scipy (version >= 0.18.0)
 - numpy (version >= 1.9)
-- lmfit (>= 1.0.1, optional)
+- lmfit (>= 1.0.1)
 - matplotlib (optional, version >= 3.1.0)
-- mayavi (optional, only used optionally in Crystal.show_unitcell)
+- mayavi (optional, only used optionally in `Crystal.show_unitcell`)
 
 When building from source you also might need:
 
 - C-compiler (preferential with OpenMP support)
 - Python dev headers
 - setuptools
-- tox (optional - only if you want to run the test environment)
+- pytest (optional - only if you want to run the test environment)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)
 - rst2pdf (optional - only when you want to build the documentation)

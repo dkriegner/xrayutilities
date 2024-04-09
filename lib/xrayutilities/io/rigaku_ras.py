@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2015-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -33,7 +33,7 @@ import numpy.lib.recfunctions
 from .. import config
 from ..exception import InputError
 # relative imports from xrayutilities
-from .helper import xu_open
+from .helper import generate_filenames, xu_open
 
 re_measstart = re.compile(r"^\*RAS_DATA_START")
 re_measend = re.compile(r"^\*RAS_DATA_END")
@@ -52,7 +52,7 @@ re_measspeed = re.compile(r"^\*MEAS_SCAN_SPEED ")
 re_measstep = re.compile(r"^\*MEAS_SCAN_STEP ")
 
 
-class RASFile(object):
+class RASFile:
 
     """
     Represents a RAS data file. The file is read during the
@@ -86,10 +86,10 @@ class RASFile(object):
                 line = fid.readline()
                 line = line.decode('ascii', 'ignore')
                 if config.VERBOSITY >= config.DEBUG:
-                    print("XU.io.RASFile: %d: '%s'" % (t, line))
+                    print(f"XU.io.RASFile: {t}: '{line}'")
                 if re_measstart.match(line):
                     continue
-                elif re_headerstart.match(line):
+                if re_headerstart.match(line):
                     s = RASScan(self.full_filename, t)
                     self.scans.append(s)
                     fid.seek(s.fidend)  # set handle to after scan
@@ -101,7 +101,7 @@ class RASFile(object):
             self.scan = self.scans[0]
 
 
-class RASScan(object):
+class RASScan:
 
     """
     Represents a single Scan portion of a RAS data file. The scan is parsed
@@ -139,7 +139,7 @@ class RASScan(object):
             line = line.decode('ascii', 'ignore')
             self.header.append(line)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.io.RASScan: %d: '%s'" % (offset, line))
+                print(f"XU.io.RASScan: {offset}: '{line}'")
 
             if re_datestart.match(line):
                 m = line.split(' ', 1)[-1].strip()
@@ -176,7 +176,11 @@ class RASScan(object):
         # generate header dictionary
         self.init_mopo = {}
         for k in keys:
-            self.init_mopo[keys[k]] = position[k]
+            try:
+                self.init_mopo[keys[k]] = position[k]
+            except KeyError:
+                # in case of missing position entry in the datafile header
+                self.init_mopo[keys[k]] = None
         self.fid.seek(offset)
 
     def _parse_data(self):
@@ -191,10 +195,9 @@ class RASScan(object):
                                                      'att'])
             self.fid.seek(offset)
             lines = islice(self.fid, self.length)
-            dlength = numpy.sum([len(line) for line in lines])
+            dlength = sum(len(line) for line in lines)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.io.RASScan: offset %d; data-length %d"
-                      % (offset, dlength))
+                print(f"XU.io.RASScan: offset {offset}; data-length {dlength}")
             self.fid.seek(offset + dlength)
         else:
             raise IOError('File handle at wrong position to read data!')
@@ -211,11 +214,14 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
 
     Parameters
     ----------
-    scanname :      str
-        name of the scans, for multiple scans this needs to be a template
-        string
-    scannumbers :   int, tuple or list
-        number of the scans of the reciprocal space map
+    scanname :      str or list
+        name of the scans, for multiple scans this can be a template string or
+        a list of filenames. See
+        :func:`~xrayutilities.io.helper.generate_filenames` for details and
+        examples.
+    scannumbers :   int, tuple or list or None
+        List of scan numbers or generally replacement values for the template
+        string given as scanname. Set to None if not needed.
     args :          str, optional
         names of the motors. to read reciprocal space maps measured in coplanar
         diffraction give:
@@ -236,14 +242,11 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
 
     Examples
     --------
-    >>> [om, tt], MAP = xu.io.getras_scan('text%05d.ras', 36, 'Omega',
-    >>>                                   'TwoTheta')
+    >>> [om, tt], MAP = getras_scan('text%05d.ras', 36, 'Omega',
+    ... 'TwoTheta')  # doctest: +SKIP
     """
 
-    if isinstance(scannumbers, (list, tuple)):
-        scanlist = scannumbers
-    else:
-        scanlist = list([scannumbers])
+    filenames = generate_filenames(scanname, scannumbers)
 
     angles = dict.fromkeys(args)
     for key in angles:
@@ -253,8 +256,8 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
     buf = numpy.zeros(0)
     MAP = numpy.zeros(0)
 
-    for nr in scanlist:
-        rasfile = RASFile(scanname % nr, **kwargs)
+    for fn in filenames:
+        rasfile = RASFile(fn, **kwargs)
         for scan in rasfile.scans:
             sdata = scan.data
             if MAP.dtype == numpy.float64:
@@ -262,8 +265,7 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
             # append scan data to MAP, where all data are stored
             MAP = numpy.append(MAP, sdata)
             # check type of scan
-            for i in range(len(args)):
-                motname = args[i]
+            for motname in args:
                 scanlength = len(sdata)
                 try:
                     buf = sdata[motname]
@@ -278,7 +280,6 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
 
     if not args:
         return MAP
-    elif len(args) == 1:
+    if len(args) == 1:
         return retval[0], MAP
-    else:
-        return retval, MAP
+    return retval, MAP

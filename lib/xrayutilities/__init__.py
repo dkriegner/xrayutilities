@@ -14,11 +14,11 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities is a Python package for assisting with x-ray diffraction
-experiments. Its the python package included in *xrayutilities*.
+experiments. Its the Python package included in *xrayutilities*.
 
 It helps with planning experiments as well as analyzing the data.
 
@@ -38,8 +38,8 @@ from .gridder3d import FuzzyGridder3D, Gridder3D
 from .normalize import (IntensityNormalizer, blockAverage1D, blockAverage2D,
                         blockAverageCCD, blockAveragePSD)
 from .q2ang_fit import Q2AngFit
-from .utilities import (clear_bit, en2lam, energy, frac2str, lam2en,
-                        makeNaturalName, maplog, set_bit, wavelength)
+from .utilities import (en2lam, energy, frac2str, lam2en, makeNaturalName,
+                        maplog, wavelength)
 
 # load package version
 with open(os.path.join(__path__[0], 'VERSION')) as version_file:

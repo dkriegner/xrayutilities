@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module handling crystal lattice structures. A SGLattice consists of a space
 group number and the position of atoms specified as Wyckoff positions along
@@ -37,7 +37,7 @@ from .. import config, cxrayutilities, math, utilities
 from ..exception import InputError
 from . import elements
 from .atom import Atom
-from .wyckpos import *
+from .wyckpos import RangeDict, eqhkl_custom, eqhkl_default, wp
 
 # space group number to symmetry and number of parameters dictionary
 sgrp_sym = RangeDict({range(1, 3): ('triclinic', 6),
@@ -177,8 +177,7 @@ def get_default_sgrp_suf(sgrp_nr):
     possibilities = get_possible_sgrp_suf(sgrp_nr)
     if possibilities:
         return possibilities[0]
-    else:
-        return ''
+    return ''
 
 
 def _get_pardict(parint, x):
@@ -211,7 +210,7 @@ def _get_pardict(parint, x):
     return pardict
 
 
-def testwp(parint, wp, cifpos, digits=config.DIGITS):
+def testwp(parint, wyckpos, cifpos, digits=config.DIGITS):
     """
     test if a Wyckoff position can describe the given position from a CIF file
 
@@ -219,7 +218,7 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
     ----------
     parint :    int
         telling which Parameters the given Wyckoff position has
-    wp :        str or tuple
+    wyckpos :        str or tuple
         expression of the Wyckoff position
     cifpos :    list, or tuple or array-like
         (x, y, z) position of the atom in the CIF file
@@ -240,10 +239,9 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
         p2 = p2 - numpy.round(p2, digits) // 1
         if numpy.round(p1, digits) == numpy.round(p2, digits):
             return True
-        else:
-            return False
+        return False
 
-    wyckp = wp.strip('()').split(',')
+    wyckp = wyckpos.strip('()').split(',')
     # test agreement in positions witout variables
     match = [False, False, False]
     variables = []
@@ -289,8 +287,7 @@ def testwp(parint, wp, cifpos, digits=config.DIGITS):
             match[i] = check_positions_match(pos, cifpos[i], digits)
     if all(match):
         return True, list(opt.x)
-    else:
-        return False, None
+    return False, None
 
 
 def get_wyckpos(sgrp, atompos):
@@ -310,12 +307,14 @@ def get_wyckpos(sgrp, atompos):
     position argument for WyckoffBase.append
     """
     for k, wyckpos in wp[sgrp].items():
-        parint, poslist, reflcond = wyckpos
+        parint, poslist, _ = wyckpos
         item = poslist[0]
         for pos in atompos:
             foundwp, par = testwp(parint, item, pos)
             if foundwp:
                 return k if par is None else (k, list(par))
+    raise ValueError(
+        f"Wyckoff could not be identified for SG {sgrp} and pos {atompos}")
 
 
 class WyckoffBase(list):
@@ -407,10 +406,10 @@ class WyckoffBase(list):
     def __str__(self):
         ostr = ''
         for i, (atom, p, occ, b) in enumerate(self):
-            ostr += '%d: %s %s ' % (i, str(atom), p[0])
+            ostr += f"{i}: {str(atom)} {p[0]} "
             if p[1] is not None:
-                ostr += ' '.join(map(utilities.frac2str, p[1]))
-            ostr += ' occ=%5.3f b=%5.3f\n' % (occ, b)
+                ostr += " ".join(map(utilities.frac2str, p[1]))
+            ostr += f" occ={occ:5.3f} b={b:5.3f}\n"
         return ostr
 
     def __contains__(self, item):
@@ -428,7 +427,7 @@ class WyckoffBase(list):
         -------
         bool
         """
-        for atom, p, occ, b in self:
+        for atom, p, _, b in self:
             if (atom == item[0] and self.pos_eq(p, item[1]) and
                     isclose(b, item[3], abs_tol=1e-4)):
                 return True
@@ -464,10 +463,9 @@ class WyckoffBase(list):
             return False
         if pos1[1] == pos2[1]:
             return True
-        else:
-            for f1, f2 in zip(pos1[1], pos2[1]):
-                if not isclose(f1 % 1, f2 % 1, abs_tol=1e-5):
-                    return False
+        for f1, f2 in zip(pos1[1], pos2[1]):
+            if not isclose(f1 % 1, f2 % 1, abs_tol=1e-5):
+                return False
         return True
 
     def index(self, item):
@@ -485,14 +483,14 @@ class WyckoffBase(list):
         -------
         int
         """
-        for i, (atom, p, occ, b) in enumerate(self):
+        for i, (atom, p, _, b) in enumerate(self):
             if (atom == item[0] and self.pos_eq(p, item[1]) and
                     isclose(b, item[3], abs_tol=1e-4)):
                 return i
-        raise ValueError("%s is not in list" % str(item))
+        raise ValueError(f"{str(item)} is not in list")
 
 
-class SymOp(object):
+class SymOp:
     """
     Class descriping a symmetry operation in a crystal. The symmetry operation
     is characterized by a 3x3 transformation matrix as well as a 3-vector
@@ -565,7 +563,7 @@ class SymOp(object):
             expr = expr.strip('+')
             ret += expr + ', '
         if showtimerev:
-            ret += '{:+d}'.format(self._m)
+            ret += f'{self._m:+d}'
         return ret.strip(', ')
 
     @property
@@ -607,13 +605,13 @@ class SymOp(object):
         return SymOp(W[:3, :3], self.foldback(W[:3, 3]), self._m*other._m)
 
     def __str__(self):
-        return '({})'.format(self.xyz(showtimerev=True))
+        return f'({self.xyz(showtimerev=True)})'
 
     def __repr__(self):
         return self.__str__()
 
 
-class SGLattice(object):
+class SGLattice:
     """
     lattice object created from the space group number and corresponding unit
     cell parameters. atoms in the unit cell are specified by their Wyckoff
@@ -674,9 +672,10 @@ class SGLattice(object):
         self.crystal_system, nargs = sgrp_sym[self.space_group_nr]
         self.crystal_system += self.space_group_suf
         if len(args) != nargs:
-            raise ValueError('XU: number of parameters (%d) does not match the'
-                             ' crystal symmetry (%s:%d)'
-                             % (len(args), self.crystal_system, nargs))
+            raise ValueError(
+                f"XU: number of parameters ({len(args)}) does not match the"
+                f"crystal symmetry ({self.crystal_system}:{nargs})"
+            )
         self.free_parameters = OrderedDict()
         for a, par in zip(args, sgrp_params[self.crystal_system][0]):
             self.free_parameters[par] = a
@@ -692,7 +691,7 @@ class SGLattice(object):
         # define lattice vectors
         self._ai = numpy.zeros((3, 3))
         self._bi = numpy.empty((3, 3))
-        a, b, c, alpha, beta, gamma = self._parameters.values()
+        a, b, _, alpha, beta, gamma = self._parameters.values()
         ra = radians(alpha)
         self._paramhelp = [cos(ra), cos(radians(beta)),
                            cos(radians(gamma)), sin(ra), 0]
@@ -744,7 +743,7 @@ class SGLattice(object):
         return the set of symmetry operations from the general Wyckoff
         position of the space group.
         """
-        if self._symops == []:
+        if not self._symops:
             for p in self._gp[1]:
                 self._symops.append(SymOp.from_xyz(p))
         return self._symops
@@ -809,7 +808,7 @@ class SGLattice(object):
                 yield atom, pos, occ, b
 
     def _setlat(self):
-        a, b, c, alpha, beta, gamma = self._parameters.values()
+        a, b, c, _, _, _ = self._parameters.values()
         ca, cb, cg, sa, vh = self._paramhelp
         vh = sqrt(1 - ca**2-cb**2-cg**2 + 2*ca*cb*cg)
         self._paramhelp[4] = vh
@@ -836,6 +835,14 @@ class SGLattice(object):
             if isinstance(key, str):
                 if p not in self.free_parameters:
                     self._parameters[p] = self.free_parameters[key]
+
+    @property
+    def ai(self):
+        return self._ai
+
+    @property
+    def B(self):
+        return self._qtransform.matrix
 
     @property
     def a(self):
@@ -947,13 +954,14 @@ class SGLattice(object):
 
         Examples
         --------
+        >>> import xrayutilities as xu
         >>> xu.materials.Si.lattice.GetPoint(0, 0, 4)
-        array([  0.     ,   0.     ,  21.72416])
+        array([ 0.     ,  0.     , 21.72416])
 
         or
 
         >>> xu.materials.Si.lattice.GetPoint((1, 1, 1))
-        array([ 5.43104,  5.43104,  5.43104])
+        array([5.43104, 5.43104, 5.43104])
         """
         if len(args) == 1:
             args = args[0]
@@ -980,7 +988,7 @@ class SGLattice(object):
         """
         function to calculate the unit cell volume of a lattice (angstrom^3)
         """
-        a, b, c, alpha, beta, gamma = self._parameters.values()
+        a, b, c, _, _, _ = self._parameters.values()
         return a * b * c * self._paramhelp[4]
 
     def ApplyStrain(self, eps):
@@ -1025,7 +1033,7 @@ class SGLattice(object):
         # set new transformations
         self._setlat()
         # update free_parameters
-        for p, v in self.free_parameters.items():
+        for p in self.free_parameters:
             self.free_parameters[p] = self._parameters[p]
         # artificially reduce symmetry if needed
         for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
@@ -1110,8 +1118,7 @@ class SGLattice(object):
         def build_return(allowed, requi=returnequivalents):
             if requi:
                 return allowed, hkls
-            else:
-                return allowed
+            return allowed
 
         # load reflection conditions if needed
         if self._gp[2] == 'n/a':
@@ -1119,7 +1126,7 @@ class SGLattice(object):
         if self._hklcond == [] and self._gp[2] is not None:
             self._hklcond = hklcond_group.findall(self._gp[2])
         if self._hklcond_wp == []:
-            for lab in set([e[1][0] for e in self._wbase]):
+            for lab in set(e[1][0] for e in self._wbase):
                 if lab == self._gplabel:  # if gen. pos. is occupied skip it
                     self._hklcond_wp.append(None)
                 elif wp[self.space_group][lab][2] is None:
@@ -1150,29 +1157,27 @@ class SGLattice(object):
         def recurse_hkl(h, k, l, kstep):
             if (h, k, l) in hkltested:
                 return
-            m = self._qtransform.matrix
+            m = self.B
             q = m[:, 0]*h + m[:, 1]*k + m[:, 2]*l  # efficient matmul
             if sqrt(q[0]**2 + q[1]**2 + q[2]**2) >= qmax:
                 return
-            else:
-                allowed, eqhkl = self.hkl_allowed((h, k, l),
-                                                  returnequivalents=True)
-                hkltested.update(eqhkl)
+            allowed, eqhkl = self.hkl_allowed((h, k, l),
+                                              returnequivalents=True)
+            hkltested.update(eqhkl)
+            if not self.iscentrosymmetric:
+                hkltested.update((-h, -k, -l) for (h, k, l) in eqhkl)
+            if allowed:
+                hklset.update(eqhkl)
                 if not self.iscentrosymmetric:
-                    hkltested.update((-h, -k, -l) for (h, k, l) in eqhkl)
-                if allowed:
+                    eqhkl = self.equivalent_hkls((-h, -k, -l))
                     hklset.update(eqhkl)
-                    if not self.iscentrosymmetric:
-                        eqhkl = self.equivalent_hkls((-h, -k, -l))
-                        hklset.update(eqhkl)
-                recurse_hkl(h+1, k, l, kstep)
-                recurse_hkl(h, k+kstep, l, kstep)
-                recurse_hkl(h, k, l+1, kstep)
-                recurse_hkl(h, k, l-1, kstep)
+            recurse_hkl(h+1, k, l, kstep)
+            recurse_hkl(h, k+kstep, l, kstep)
+            recurse_hkl(h, k, l+1, kstep)
+            recurse_hkl(h, k, l-1, kstep)
 
         hklset = set()
         hkltested = set()
-        q = numpy.empty(3)
         recurse_hkl(0, 0, 0, +1)
         recurse_hkl(1, -1, 0, -1)
         hklset.remove((0, 0, 0))
@@ -1184,10 +1189,9 @@ class SGLattice(object):
         and of Wyckoff positions
         """
         ostr = "Reflection conditions:\n"
-        ostr += " general: %s\n" % str(self._gp[2])
-        for wplabel in set([e[1][0] for e in self._wbase]):
-            ostr += "%8s: %s \n" % (wplabel,
-                                    str(wp[self.space_group][wplabel][2]))
+        ostr += f" general: {str(self._gp[2])}\n"
+        for wplabel in set(e[1][0] for e in self._wbase):
+            ostr += f"{wplabel:8s}: {str(wp[self.space_group][wplabel][2])}\n"
         return ostr
 
     def __str__(self):
@@ -1265,9 +1269,8 @@ class SGLattice(object):
             atomdict = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
             success = True
 
-            elements = set(at[0] for at in atoms)
             # check all atomic species seperately
-            for el in elements:
+            for el in set(at[0] for at in atoms):
                 catoms = list(filter(lambda at: at[0] == el, atoms))
                 found = numpy.zeros(len(catoms), dtype=bool)
                 # see if atomic positions fit to Wyckoff positions
@@ -1275,7 +1278,7 @@ class SGLattice(object):
                     num = int(k[:-1])
                     if num > len(catoms)-sum(found):
                         break
-                    parint, poslist, reflcond = wyckpos
+                    parint, poslist, _ = wyckpos
                     for f, (dummy, xyz, occ, biso) in zip(found, catoms):
                         if f:
                             continue
@@ -1298,15 +1301,14 @@ class SGLattice(object):
                             if nremoved != num:
                                 # not all equivalent positions occupied
                                 return False, None
+                            # add Wyckoff position to output
+                            if pospar is None:
+                                atomdict['pos'].append(k)
                             else:
-                                # add Wyckoff position to output
-                                if pospar is None:
-                                    atomdict['pos'].append(k)
-                                else:
-                                    atomdict['pos'].append((k, list(pospar)))
-                                atomdict['atoms'].append(el)
-                                atomdict['occ'].append(occ)
-                                atomdict['b'].append(biso)
+                                atomdict['pos'].append((k, list(pospar)))
+                            atomdict['atoms'].append(el)
+                            atomdict['occ'].append(occ)
+                            atomdict['b'].append(biso)
 
                     if num > len(catoms)-sum(found):
                         break
@@ -1414,18 +1416,16 @@ class SGLattice(object):
             pos = tuple(numpy.round(pos, config.DIGITS))
             if pos in outset:
                 return
-            else:
-                outset.add(pos)
-                g = numpy.mgrid[-1:2, -1:2, -1:2].T.reshape(27, 3).tolist()
-                g.remove([0, 0, 0])
-                for off in g:
-                    recurse_cells(numpy.add(fracpos, off), outset)
+            outset.add(pos)
+            g = numpy.mgrid[-1:2, -1:2, -1:2].T.reshape(27, 3).tolist()
+            g.remove([0, 0, 0])
+            for off in g:
+                recurse_cells(numpy.add(fracpos, off), outset)
 
         allatoms = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
         invmat = numpy.linalg.inv(mat)
-        elements = set(at[0] for at in self.base())
         # check all atomic species seperately
-        for el in elements:
+        for el in set(at[0] for at in self.base()):
             catoms = list(filter(lambda at: at[0] == el, self.base()))
             elset = set()
             for at in catoms:

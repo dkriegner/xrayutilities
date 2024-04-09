@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to handle the access to the optical parameters database
@@ -29,7 +29,7 @@ import numpy
 import scipy.constants
 
 
-class DataBase(object):
+class DataBase:
 
     def __init__(self, fname):
         self.fname = fname
@@ -60,13 +60,13 @@ class DataBase(object):
         if self.h5file is not None:
             print("database already opened - "
                   "close first to create new database")
-            return None
+            return
 
         # tryp to open the database file
         try:
             self.h5file = h5py.File(self.fname, 'w')
         except OSError:
-            print('cannot create database file %s!' % (self.fname))
+            print(f'cannot create database file {self.fname}!')
             raise
 
         # set attributes to the root group with database name and
@@ -86,7 +86,7 @@ class DataBase(object):
         try:
             self.h5file = h5py.File(self.fname, mode)
         except OSError:
-            print("cannot open database file %s!" % (self.fname))
+            print(f"cannot open database file {self.fname}!")
 
     def Close(self):
         """
@@ -192,11 +192,11 @@ class DataBase(object):
             subset = 'default'
 
         try:
-            del self.h5group['f0/%s' % subset]
+            del self.h5group[f'f0/{subset}']
         except KeyError:
             pass
 
-        self.h5group.create_dataset('f0/%s' % subset, data=p)
+        self.h5group.create_dataset(f'f0/{subset}', data=p)
         self.h5file.flush()
 
     def SetF1F2(self, en, f1, f2):
@@ -269,7 +269,7 @@ class DataBase(object):
         try:
             self.h5group = self.h5file[name]
         except KeyError:
-            print("XU.materials.database: material '%s' not existing!" % name)
+            print(f"XU.materials.database: material '{name}' not existing!")
 
         try:
             self.f0_params = self.h5group['f0']
@@ -517,12 +517,11 @@ def add_f0_from_intertab(db, itf, verbose=False):
             ename = re.sub('[^A-Za-z]', '', lb[2])
 
             if verbose:
-                print("{pyname} = Atom('{name}', {num})".format(
-                    pyname=ename+elemstate, name=lb[2], num=lb[1]))
+                print(f"{ename + elemstate} = Atom('{lb[2]}', {lb[1]})")
             db.SetMaterial(ename)
             # make two dummy reads
-            for i in range(2):
-                itf.readline()
+            itf.readline()
+            itf.readline()
             # read fit parameters
             lb = itf.readline().decode("utf-8")
             lb = lb.strip()
@@ -564,12 +563,11 @@ def add_f0_from_xop(db, xop, verbose=False):
             ename = re.sub('[^A-Za-z]', '', lb[2])
 
             if verbose:
-                print("{pyname} = Atom('{name}', {num})".format(
-                    pyname=ename+elemstate, name=lb[2], num=lb[1]))
+                print(f"{ename + elemstate} = Atom('{lb[2]}', {lb[1]})")
             db.SetMaterial(ename)
 
             # make nine dummy reads
-            for i in range(9):
+            for _ in range(9):
                 xop.readline()
             # read fit parameters
             lb = xop.readline().decode("utf-8")
@@ -614,10 +612,10 @@ def add_f1f2_from_henkedb(db, hf, verbose=False):
 
             if invalidelem.findall(ename) == []:
                 if verbose:
-                    print("set element %s" % ename)
+                    print(f"set element {ename}")
                 db.SetMaterial(ename)
                 # make one dummy read
-                for i in range(5):
+                for _ in range(5):
                     hf.readline()
 
                 # read data
@@ -665,10 +663,10 @@ def add_f1f2_from_kissel(db, kf, verbose=False):
 
             if invalidelem.findall(ename) == []:
                 if verbose:
-                    print("set element %s" % ename)
+                    print(f"set element {ename}")
                 db.SetMaterial(ename)
                 # make 28 dummy reads
-                for i in range(28):
+                for _ in range(28):
                     kf.readline()
 
                 # read data
@@ -702,7 +700,10 @@ def add_f1f2_from_ascii_file(db, asciifile, element, verbose=False):
         af = numpy.loadtxt(asciifile)
     except OSError:
         print("cannot open f1f2 database file")
-        return None
+        return
+
+    if verbose:
+        print(f"set element {element}")
     db.SetMaterial(element)
 
     en = af[:, 0]
@@ -740,7 +741,7 @@ def add_mass_from_NIST(db, nistfile, verbose=False):
                 ename = lb[-1]
 
                 if verbose:
-                    print("set element %s" % ename)
+                    print(f"set element {ename}")
                 db.SetMaterial(ename)
 
                 # read data
@@ -774,7 +775,7 @@ def add_color_from_JMOL(db, cfile, verbose=False):
             color = [float(num)/255. for num in s[2].strip('[]').split(',')]
             color = tuple(color)
             if verbose:
-                print("set element %s" % ename)
+                print(f"set element {ename}")
             db.SetMaterial(ename)
             db.SetColor(color)
 
@@ -789,7 +790,7 @@ def add_radius_from_WIKI(db, dfile, verbose=False):
             ename = s[1]
             radius = float(s[3]) / 100.
             if verbose:
-                print("set element %s" % ename)
+                print(f"set element {ename}")
             db.SetMaterial(ename)
             db.SetRadius(radius)
 

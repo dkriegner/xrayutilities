@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Panalytical XML (www.XRDML.com) data file parser
@@ -29,10 +29,10 @@ from xml.etree import cElementTree as ElementTree
 import numpy
 
 from .. import config
-from .helper import xu_open
+from .helper import generate_filenames, xu_open
 
 
-class XRDMLMeasurement(object):
+class XRDMLMeasurement:
 
     """
     class to handle scans in a XRDML datafile
@@ -67,12 +67,12 @@ class XRDMLMeasurement(object):
             else:
                 self.scanmotname = s.get("scanAxis")
                 reflection = s.find(self.namespace + "reflection")
-                if reflection:
+                if reflection is not None:
                     m = reflection.find(self.namespace + "material")
                     if m is not None:
                         self.material = m.text
                     hkl = reflection.find(self.namespace + "hkl")
-                    if hkl:
+                    if hkl is not None:
                         hkl_h = int(hkl.find(self.namespace + "h").text)
                         hkl_k = int(hkl.find(self.namespace + "k").text)
                         hkl_l = int(hkl.find(self.namespace + "l").text)
@@ -142,7 +142,7 @@ class XRDMLMeasurement(object):
                         is_scalar = 1
                     else:
                         raise ValueError(
-                            "no positions for axis {} found".format(aname))
+                            f"no positions for axis {aname} found")
 
                     # have to append the data to the data dictionary in case
                     # the scan is complete!
@@ -180,15 +180,14 @@ class XRDMLMeasurement(object):
     def __str__(self):
         ostr = "XRDML Measurement\n"
         if self.material:
-            ostr += "Material: '%s'; hkl: %s\n" % (self.material,
-                                                   str(self.hkl))
-        for k in self.ddict:
-            ostr += "%s with %s points\n" % (k, str(self.ddict[k].shape))
+            ostr += f"Material: '{self.material}'; hkl: {str(self.hkl)}\n"
+        for k, v in self.ddict.items():
+            ostr += f"{k} with {str(v.shape)} points\n"
 
         return ostr
 
 
-class XRDMLFile(object):
+class XRDMLFile:
 
     """
     class to handle XRDML data files. The class is supplied with a file
@@ -210,8 +209,12 @@ class XRDMLFile(object):
         path :      str, optional
             path to the XRDML file
         """
-        self.full_filename = os.path.join(path, fname)
-        self.filename = os.path.basename(self.full_filename)
+        if isinstance(fname, str):
+            self.full_filename = os.path.join(path, fname)
+            self.filename = os.path.basename(self.full_filename)
+        else:
+            self.full_filename = fname
+            self.filename = None
         with xu_open(self.full_filename) as fid:
             d = ElementTree.parse(fid)
         root = d.getroot()
@@ -232,7 +235,7 @@ class XRDMLFile(object):
             self.scan = self.scans[0]
 
     def __str__(self):
-        ostr = "XRDML File: %s\n" % self.filename
+        ostr = f"XRDML File: {self.filename}\n"
         for s in self.scans:
             ostr += s.__str__()
 
@@ -249,8 +252,11 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     Parameters
     ----------
     filetemplate :  str
-        template string for the file names, can contain a %d which is replaced
-        by the scan number or be a list of filenames
+        template string for the file names, can contain a %d or other
+        replacement variables which are understood be
+        :func:`~xrayutilities.io.helper.generate_filenames`. also see the
+        scannrs argument which is used to specify the replacement
+        variables.
     scannrs :       int or list, optional
         scan number(s)
     path :          str, optional
@@ -267,7 +273,7 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     Examples
     --------
     >>> om, tt, psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",
-    >>>                                             [1, 2], path="./data")
+    ... [1, 2], path="data")  # doctest: +SKIP
     """
     def getOmPixcel(omraw, ttraw):
         """
@@ -281,14 +287,7 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     tt = numpy.zeros(0)
     psd = numpy.zeros(0)
     # create scan names
-    if scannrs is None:
-        files = [filetemplate]
-    else:
-        files = list()
-        if not getattr(scannrs, '__iter__', False):
-            scannrs = [scannrs]
-        for nr in scannrs:
-            files.append(filetemplate % nr)
+    files = generate_filenames(filetemplate, scannrs)
 
     # parse files
     for f in files:
@@ -332,9 +331,11 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     Parameters
     ----------
     filetemplate :  str
-        template string for the file names, can contain a %d which is replaced
-        by the scan number or be a list of filenames given by the scannrs
-        keyword argument
+        template string for the file names, can contain a %d or other
+        replacement variables which are understood be
+        :func:`~xrayutilities.io.helper.generate_filenames`. also see the
+        scannrs keyword argument which is used to specify the replacement
+        variables.
 
     motors :        str
         motor names to return: e.g.: 'Omega', '2Theta', ...  one can also use
@@ -357,8 +358,8 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
 
     Examples
     --------
-    >>> scanmot, om, tt, inte = xrayutilities.io.getxrdml_scan(
-    >>>     "samplename_1.xrdml", 'om', 'tt', path="./data")
+    >>> scanmot, om, tt, inte = getxrdml_scan(
+    ... "samplename_1.xrdml", 'om', 'tt', path="data")  # doctest: +SKIP
     """
     flatten = True
     # parse keyword arguments
@@ -388,17 +389,7 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     motvals = numpy.empty((len(motnames) + 1, 0))
     detvals = numpy.empty(0)
     # create scan names
-    if scannrs is None:
-        if isinstance(filetemplate, list):
-            files = filetemplate
-        else:
-            files = [filetemplate]
-    else:
-        files = list()
-        if not numpy.iterable(scannrs):
-            scannrs = [scannrs]
-        for nr in scannrs:
-            files.append(filetemplate % nr)
+    files = generate_filenames(filetemplate, scannrs)
 
     # parse files
     if len(files) == 1:

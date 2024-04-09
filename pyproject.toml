@@ -15,33 +15,14 @@ source = [
     "xrayutilities"
 ]
 
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-envlist = py{36,37,38,39},coverage
-distshare = {toxinidir}/dist
+[tool.pylint]
+disable = ["invalid-name", "R", "C", "W"]
+extension-pkg-allow-list = ["xrayutilities.cxrayutilities"]
+ignored-modules = ["scipy.special"]
 
-[testenv]
-wheel = true
-allowlist_externals =
-    mv
-deps =
-    h5py
-    lmfit
-    matplotlib
-    numpy
-    scipy
-    pytest
-    pytest-cov
-    coverage[toml]
-commands =
-    pytest --cov --cov-config pyproject.toml --junitxml=.tox/junit.{envname}.xml --cov-report=xml:.tox/coverage.xml
-    mv .coverage .tox/.coverage.{envname}
-
-[testenv:coverage]
-commands =
-    coverage combine .tox/
-    coverage xml -i -o .tox/coverage.xml
-    coverage report -i
-    mv .coverage .tox/
-"""
+[tool.flake8]
+extend-ignore = ["E741", "E203", ]
+per-file-ignores = [
+    "__init__.py:F401",
+]
+count = true

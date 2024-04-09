@@ -13,11 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 
-import numpy
 import xrayutilities as xu
 
 bite = xu.materials.Crystal.fromCIF(os.path.join("data", "bi2te3.cif"))

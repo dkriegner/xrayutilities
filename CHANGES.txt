@@ -1,3 +1,60 @@
+v1.7.6, 2023-11-16
+
+* fix parsing error due to missing header entry in Rigaku ras file
+* allow naming of simulation materials (Powder, Layer)
+* example script for fitting diffraction data of an epitaxial multilayer (by @VeryBitter)
+* update AlAs lattice parameters from APL 66, 682 (1995) (by @VeryBitter)
+* enable building Python 3.11 wheels
+
+v1.7.5, 2023-06-14
+
+* Added AlSb to predefined_materials.py (#164) (by @andrews-tuwien)
+* allow parsing of SPEC files/scans with missing data entry
+* implement the calculation of the anisotropic Poission ratio of materials
+  (#139). Related to that a method in the DarwinModel was renamed and declared
+  internal.
+* extend continuous integration tests by adding doctests
+* directly depend on the lmfit package for implementation of our fitting
+  models.
+* more possibilities to specify filename lists in getras_scan, getSeifert_map,
+  and getxrdml_scan
+* allow bytes-stream instead of filename in XRDML
+* enable setting free lattice parameters from the Crystal instance
+* minor code improvements, forcing flake8 to pass upon merging a PR #149
+* fix typo in Poisson ratio of GaInAs Darwin model (introduced in 1.7.4)
+* make C-code respect the VERBOSITY. C-Code should now be silent with
+  VERBOSITY<INFO_ALL. Otherwise lots of info is printed. #145
+* remove set_bit/clear_bit functions in favor of using enum.IntFlag
+* use plain pytest in the CI integration (no code change in the package)
+* remove build_doc target for setup.py, use sphinx (see builddocs pipeline)
+
+v1.7.4, 2022-10-31
+
+* fix data type casting of cch1,2 in QConversion.init_area -> these can now be floating point values (#141 by @trdd)
+* fix docstring for March-Dollase texture model in xu.simpack.Powder. The
+  parameter preferred_orientation_factor was described wrong. Platy crystals
+  need a factor < 1! see W. A. Dollase, J. Appl. Cryst. (1986). 19, 267-272
+* fix Poisson ratio of GaInAs Darwin model (thanks to Danny Chrastina for
+  reporting)
+* Additional convenience functions for elasticity tensor symmetries for
+  Monoclinic and Trigonal symmetry (#138 by @f-iniv)
+* GetStrain and GetStress functions for xu.material.Material (#138 by @f-iniv)
+* enable correct parsing of Seifert RSM map measurements
+* matplotlib format bugfix in psd_chdeg
+* improvements for kappa goniometers
+* remove use of deprecated scipy namespace
+
+v1.7.3, 2021-11-26
+
+* enable building Python 3.10 wheels
+* fix missing files in source package on PyPI
+* make builddocs pipeline more robust
+
+v1.7.2, 2021-11-22
+
+* fix returned fitting error in area_detector_calib* (issue #126)
+* remove dependency on soon deprecated distutils
+* fix regression bug with matplotlib 3.5
 * update copyright notices from git commit history
 * fix code error found by linting (flake8)
 * CIF atom type normalization of oxidation state (issue #122)

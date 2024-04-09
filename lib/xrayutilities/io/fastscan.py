@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014 Raphael Grifone <raphael.grifone@esrf.fr>
-# Copyright (C) 2014-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2014-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 modules to help with the analysis of FastScan data acquired at the ESRF.
@@ -51,7 +51,7 @@ from .edf import EDFFile
 from .spec import SPECFile
 
 
-class FastScan(object):
+class FastScan:
 
     """
     class to help parsing and treating fast scan data.  FastScan is the
@@ -139,11 +139,11 @@ class FastScan(object):
                 return self.data[motorname]
             except ValueError:
                 try:
-                    return self.specscan.init_motor_pos['INIT_MOPO_%s'
-                                                        % motorname]
-                except KeyError:
-                    raise ValueError("given motorname '%s' not found in the "
-                                     "Spec-data" % motorname)
+                    return self.specscan.init_motor_pos[
+                        f"INIT_MOPO_{motorname}"]
+                except KeyError as exc:
+                    raise ValueError(f"given motorname '{motorname}' not "
+                                     "found in the Spec-data") from exc
         else:
             return None
 
@@ -335,8 +335,7 @@ class FastScanCCD(FastScan):
             ccdfilt = filterfunc(ccdfilt)
         if roi is None and nav[0] == 1 and nav[1] == 1:
             return ccdfilt
-        else:
-            return blockAverage2D(ccdfilt, nav[0], nav[1], **kwdict)
+        return blockAverage2D(ccdfilt, nav[0], nav[1], **kwdict)
 
     def _get_image_number(self, imgnum, imgoffset, fileoffset, ccdfiletmp):
         """
@@ -421,7 +420,7 @@ class FastScanCCD(FastScan):
         return r, int(num)
 
     def getCCD(self, ccdnr, roi=None, datadir=None, keepdir=0,
-               replacedir=None, nav=[1, 1], filterfunc=None):
+               replacedir=None, nav=(1, 1), filterfunc=None):
         """
         function to read the ccd files and return the raw X, Y and DATA values.
         DATA represents a 3D object with first dimension representing the data
@@ -556,11 +555,10 @@ class FastScanCCD(FastScan):
                 ccdroi[j, i] = numpy.sum(ccd[m])
         if len(lmask) == 1:
             return self.xvalues, self.yvalues, ccdroi[0]
-        else:
-            return self.xvalues, self.yvalues, ccdroi
+        return self.xvalues, self.yvalues, ccdroi
 
     def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
-                replacedir=None, nav=[1, 1], gridrange=None, filterfunc=None):
+                replacedir=None, nav=(1, 1), gridrange=None, filterfunc=None):
         """
         function to grid the internal data and ccd files and return the gridded
         X, Y and DATA values. DATA represents a 4D object with first two
@@ -623,31 +621,30 @@ class FastScanCCD(FastScan):
         ccdshape = self._read_image(filename, 0, nav, roi, filterfunc).shape
         ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.io.FastScanCCD: allocated ccddata array with %d bytes'
-                  % ccddata.nbytes)
+            print("XU.io.FastScanCCD: allocated ccddata array with "
+                  f"{ccddata.nbytes} bytes")
 
         # go through the gridded data and average the ccd-frames
         for i in range(gdata.shape[0]):
             for j in range(gdata.shape[1]):
                 if not gdata[i, j]:
                     continue
-                else:
-                    framecount = 0
-                    # read ccd-frames and average them
-                    for imgnum in gdata[i, j]:
-                        imgindex, filenumber = self._get_image_number(
-                            imgnum, nextNr, nextNr, ccdtemplate)
-                        filename = ccdtemplate % filenumber
-                        ccd = self._read_image(filename, imgindex, nav,
-                                               roi, filterfunc)
-                        ccddata[i, j, ...] += ccd
-                        framecount += 1
-                    ccddata[i, j, ...] /= float(framecount)
+                framecount = 0
+                # read ccd-frames and average them
+                for imgnum in gdata[i, j]:
+                    imgindex, filenumber = self._get_image_number(
+                        imgnum, nextNr, nextNr, ccdtemplate)
+                    filename = ccdtemplate % filenumber
+                    ccd = self._read_image(filename, imgindex, nav,
+                                           roi, filterfunc)
+                    ccddata[i, j, ...] += ccd
+                    framecount += 1
+                ccddata[i, j, ...] /= float(framecount)
 
         return g2l.xmatrix, g2l.ymatrix, ccddata
 
 
-class FastScanSeries(object):
+class FastScanSeries:
 
     """
     class to help parsing and treating a series of fast scan data including CCD
@@ -884,7 +881,7 @@ class FastScanSeries(object):
             ccdav = numpy.zeros_like(qx[fsidx, ...])
 
             # go through the ccdframes
-            for i, imgnum in enumerate(ccdnumbers):
+            for imgnum in ccdnumbers:
                 # read ccdframes
                 imgindex, filenumber = fsccd._get_image_number(
                     imgnum, nextNr, nextNr, ccdtemplate)
@@ -1054,7 +1051,7 @@ class FastScanSeries(object):
 
         return ret
 
-    def rawRSM(self, posx, posy, qconv, roi=None, nav=[1, 1], typ='real',
+    def rawRSM(self, posx, posy, qconv, roi=None, nav=(1, 1), typ='real',
                datadir=None, keepdir=0, replacedir=None, filterfunc=None,
                **kwargs):
         """
@@ -1127,7 +1124,7 @@ class FastScanSeries(object):
 
         # read ccd shape from first image
         imgindex, filenumber = fsccd._get_image_number(
-                        valuelist[0][1], nextNr, nextNr, ccdtemplate)
+            valuelist[0][1], nextNr, nextNr, ccdtemplate)
         filename = ccdtemplate % filenumber
         ccdshape = fsccd._read_image(filename, imgindex, nav, roi,
                                      filterfunc).shape
@@ -1146,24 +1143,23 @@ class FastScanSeries(object):
             # read CCD
             if not ccdnrs:
                 continue
-            else:
-                ccdtemplate, nextNr = fsccd.getccdFileTemplate(fsccd.specscan)
-                framecount = 0
-                # read ccd-frames and average them
-                for imgnum in ccdnrs:
-                    imgindex, filenumber = fsccd._get_image_number(
-                        imgnum, nextNr, nextNr, ccdtemplate)
-                    filename = ccdtemplate % filenumber
-                    ccd = fsccd._read_image(filename, imgindex, nav, roi,
-                                            filterfunc)
-                    ccddata[i, ...] += ccd
-                    framecount += 1
-                ccddata[i, ...] /= float(framecount)
+            ccdtemplate, nextNr = fsccd.getccdFileTemplate(fsccd.specscan)
+            framecount = 0
+            # read ccd-frames and average them
+            for imgnum in ccdnrs:
+                imgindex, filenumber = fsccd._get_image_number(
+                    imgnum, nextNr, nextNr, ccdtemplate)
+                filename = ccdtemplate % filenumber
+                ccd = fsccd._read_image(filename, imgindex, nav, roi,
+                                        filterfunc)
+                ccddata[i, ...] += ccd
+                framecount += 1
+            ccddata[i, ...] /= float(framecount)
 
         qx, qy, qz = qconv.area(*motors, roi=roi, Nav=nav, UB=U)
         return qx, qy, qz, ccddata, valuelist
 
-    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, roi=None, nav=[1, 1],
+    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, roi=None, nav=(1, 1),
                 typ='real', filterfunc=None, **kwargs):
         """
         function to calculate the reciprocal space map at a certain
@@ -1208,7 +1204,7 @@ class FastScanSeries(object):
         Gridder3D
             object with gridded reciprocal space map
         """
-        qx, qy, qz, ccddata, vallist = self.rawRSM(
+        qx, qy, qz, ccddata, _ = self.rawRSM(
             posx, posy, qconv, roi=roi, nav=nav,
             typ=typ, filterfunc=filterfunc, **kwargs)
         # perform 3D gridding and return the data or gridder
@@ -1250,9 +1246,9 @@ class FastScanSeries(object):
         for fs in self.fastscans:
             # check if counter is in data fields
             if counter not in fs.data.dtype.fields:
-                raise ValueError("field named '%s' not found in data parsed "
-                                 "from scan #%d in file %s"
-                                 % (counter, fs.scannr, fs.filename))
+                raise ValueError(
+                    f"field named '{counter}' not found in scan #{fs.scannr} "
+                    f"in file {fs.filename}")
 
             # grid data
             g2d(fs.xvalues, fs.yvalues, fs.data[counter])

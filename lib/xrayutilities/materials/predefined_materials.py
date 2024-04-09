@@ -13,12 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
 
 from . import elements as e
-from .heuslerlib import *
+from .heuslerlib import *  # noqa: F401, F403
 from .material import (Crystal, CubicAlloy, CubicElasticTensor,
                        HexagonalElasticTensor, WZTensorFromCub)
 from .spacegrouplattice import SGLattice
@@ -56,14 +56,19 @@ GaAs = Crystal("GaAs", SGLattice(216, 5.65325, atoms=[e.Ga, e.As],
                                  pos=['4a', '4c']),
                CubicElasticTensor(11.9e+10, 5.34e+10, 5.96e+10),
                thetaDebye=360)
-AlAs = Crystal("AlAs", SGLattice(216, 5.6611, atoms=[e.Al, e.As],
+# data updated from Appl. Phys. Lett. 66, 682–684 (1995)
+AlAs = Crystal("AlAs", SGLattice(216, 5.66172, atoms=[e.Al, e.As],
                                  pos=['4a', '4c']),
-               CubicElasticTensor(12.02e+10, 5.70e+10, 5.99e+10),
+               CubicElasticTensor(11.99e+10, 5.75e+10, 5.66e+10),
                thetaDebye=446)
 GaSb = Crystal("GaSb", SGLattice(216, 6.09593, atoms=[e.Ga, e.Sb],
                                  pos=['4a', '4c']),
                CubicElasticTensor(8.83e+10, 4.02e+10, 4.32e+10),
                thetaDebye=266)
+AlSb = Crystal("AlSb", SGLattice(216, 6.1355, atoms=[e.Al, e.Sb],
+                                 pos=['4a', '4c']),
+               CubicElasticTensor(8.769e+10, 4.341e+10, 4.076e+10),
+               thetaDebye=370)
 # from Cryst. Growth Des. 15, 4795-4803 (2015)
 GaAsWZ = Crystal("GaAs(WZ)",
                  SGLattice(186, 3.9845, 6.5701, atoms=[e.Ga, e.As],
@@ -257,7 +262,7 @@ class SiGe(CubicAlloy):
         super().__init__(Si, Ge, x)
 
     @staticmethod
-    def lattice_const_AB(latA, latB, x, **kwargs):
+    def lattice_const_AB(latA, latB, x):
         """
         method to calculate the lattice parameter of the SiGe alloy with
         composition Si_{1-x}Ge_x

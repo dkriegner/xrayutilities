@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -44,7 +44,7 @@ re_epoch = re.compile(r"^/\*T epoch")
 re_initmopo = re.compile(r"^/\*M")
 
 
-class tty08File(object):
+class tty08File:
 
     """
     Represents a tty08 data file. The file is read during the
@@ -172,7 +172,7 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
     Examples
     --------
     >>> [om, tt], MAP = xu.io.gettty08_scan('text%05d.dat', 36, 'omega',
-    >>>                                     'gamma')
+    ... 'gamma')  # doctest: +SKIP
     """
 
     if isinstance(scannumbers, (list, tuple)):
@@ -212,7 +212,6 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
 
     if not args:
         return MAP
-    elif len(args) == 1:
+    if len(args) == 1:
         return retval[0], MAP
-    else:
-        return retval, MAP
+    return retval, MAP

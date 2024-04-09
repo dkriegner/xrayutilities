@@ -18,6 +18,7 @@
 from math import sqrt
 
 import numpy
+
 import xrayutilities as xu
 
 # define elements

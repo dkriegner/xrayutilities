@@ -27,6 +27,7 @@ experimental angles can be calculated for this geometry
 import time
 
 import numpy
+
 import xrayutilities as xu
 
 numpy.set_printoptions(precision=4, threshold=100, suppress=True)

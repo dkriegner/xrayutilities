@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os.path
 import time
@@ -26,7 +26,7 @@ from ..exception import InputError
 from .helper import xu_open
 
 
-class ImageReader(object):
+class ImageReader:
 
     """
     parse CCD frames in the form of tiffs or binary data (``*.bin``)
@@ -145,7 +145,7 @@ class ImageReader(object):
             full_filename = filename
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.io.ImageReader.readImage: file %s" % (full_filename))
+            print(f"XU.io.ImageReader.readImage: file {full_filename}")
             t1 = time.time()
 
         with xu_open(full_filename) as fh:
@@ -166,8 +166,7 @@ class ImageReader(object):
 
         if config.VERBOSITY >= config.INFO_ALL:
             t2 = time.time()
-            print("XU.io.ImageReader.readImage: parsing time %8.3f"
-                  % (t2 - t1))
+            print(f"XU.io.ImageReader.readImage: parsing time {t2 - t1:8.3f}")
 
         return img
 
@@ -259,7 +258,7 @@ class TIFFRead(ImageReader):
             self.version = numpy.frombuffer(fh.read(dlen['word']),
                                             dtype=numpy.uint16)[0]
             if self.byteorder not in (b'II', b'MM') or self.version != 42:
-                raise TypeError("Not a TIFF file (%s)" % filename)
+                raise TypeError(f"Not a TIFF file ({filename})")
             if self.byteorder != b'II':
                 raise NotImplementedError("The 'MM' byte order is not yet "
                                           "implemented, please file a bug!")
@@ -316,7 +315,7 @@ class TIFFRead(ImageReader):
         """
 
         self.imgtags = {}
-        for i in range(ntags):
+        for _ in range(ntags):
             ftag = numpy.frombuffer(fh.read(dlen['word']),
                                     dtype=numpy.uint16)[0]
             ftype = numpy.frombuffer(fh.read(dlen['word']),
@@ -447,13 +446,13 @@ def get_tiff(filename, path=None):
     """
 
     if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.io.get_tiff: file %s" % (filename))
+        print(f"XU.io.get_tiff: file {filename}")
         t1 = time.time()
 
     t = TIFFRead(filename, path=path)
 
     if config.VERBOSITY >= config.INFO_ALL:
         t2 = time.time()
-        print("XU.io.get_tiff: parsing time %8.3f" % (t2 - t1))
+        print(f"XU.io.get_tiff: parsing time {t2 - t1:8.3f}")
 
     return t.data

@@ -13,15 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import multiprocessing
 import os
 
 import lmfit
 import numpy
+from matplotlib.pylab import mpl
+
 import xrayutilities as xu
-from matplotlib.pylab import *
 
 
 def main():
@@ -38,8 +39,8 @@ def main():
 
     ###############################
     # load example data
-    tt, det, sig = loadtxt(os.path.join('data', 'LaB6_d500_si_psd.xye.bz2'),
-                           unpack=True)
+    tt, det, sig = numpy.loadtxt(
+        os.path.join('data', 'LaB6_d500_si_psd.xye.bz2'), unpack=True)
 
     ##############################
     La = xu.materials.elements.La
@@ -78,20 +79,20 @@ def main():
 
     ##############################
     # define background
-    btt, bint = asarray([(15.158, 1136.452),
-                         (17.886, 841.925),
-                         (22.906, 645.784),
-                         (26.556, 551.663),
-                         (34.554, 401.219),
-                         (45.764, 260.595),
-                         (58.365, 171.993),
-                         (81.950, 112.838),
-                         (92.370, 101.276),
-                         (106.441, 102.486),
-                         (126.624, 112.838),
-                         (139.096, 132.063),
-                         (146.240, 136.500),
-                         (152.022, 157.204)]).T
+    btt, bint = numpy.asarray([(15.158, 1136.452),
+                               (17.886, 841.925),
+                               (22.906, 645.784),
+                               (26.556, 551.663),
+                               (34.554, 401.219),
+                               (45.764, 260.595),
+                               (58.365, 171.993),
+                               (81.950, 112.838),
+                               (92.370, 101.276),
+                               (106.441, 102.486),
+                               (126.624, 112.838),
+                               (139.096, 132.063),
+                               (146.240, 136.500),
+                               (152.022, 157.204)]).T
 
     pm.set_background('spline', x=btt, y=bint)
     mask = numpy.logical_and(tt > 18, tt < 148)
@@ -104,7 +105,7 @@ def main():
                       ('displacement_zero_error_deg', (-0.01, 0.01))):
         p[pn].set(vary=True, min=limit[0], max=limit[1])
 
-    fitres1 = pm.fit(p, tt[mask], det[mask], std=sig[mask], maxfev=50)
+    pm.fit(p, tt[mask], det[mask], std=sig[mask], maxfev=50)
 
     ##############################
     # second fit run to optimize absorption

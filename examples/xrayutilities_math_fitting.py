@@ -16,6 +16,7 @@
 # Copyright (C) 2014 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
+
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 3

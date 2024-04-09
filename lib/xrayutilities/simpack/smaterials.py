@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import collections.abc
 import copy
@@ -36,18 +36,18 @@ def _multiply(a, b):
     if b < 1:
         raise ValueError("multiplication factor needs to be positive!")
     m = MaterialList('%d * (%s)' % (b, a.name), a)
-    for i in range(b-1):
+    for _ in range(b-1):
         m.append(copy.deepcopy(a))
     return m
 
 
-class SMaterial(object):
+class SMaterial:
     """
     Simulation Material. Extends the xrayutilities Materials by properties
     needed for simulations
     """
 
-    def __init__(self, material, **kwargs):
+    def __init__(self, material, name=None, **kwargs):
         """
         initialize a simulation material by specifiying its Material and
         optional other properties
@@ -57,10 +57,15 @@ class SMaterial(object):
         material :  Material (Crystal, or Amorphous)
             Material object containing optical/crystal properties of for the
             simulation; a deepcopy is used internally.
+        name : str, optional
+            name of the material used in the simulations
         kwargs :    dict
             optional properties of the material needed for the simulation
         """
-        self.name = utilities.makeNaturalName(material.name, check=True)
+        if name is not None:
+            self.name = utilities.makeNaturalName(name, check=True)
+        else:
+            self.name = utilities.makeNaturalName(material.name, check=True)
         self.material = copy.deepcopy(material)
         for kw in kwargs:
             setattr(self, kw, kwargs[kw])
@@ -125,10 +130,10 @@ class SMaterial(object):
                                                              wp[2], value)
 
     def __radd__(self, other):
-        return MaterialList('%s + %s' % (other.name, self.name), other, self)
+        return MaterialList(f'{other.name} + {self.name}', other, self)
 
     def __add__(self, other):
-        return MaterialList('%s + %s' % (self.name, other.name), self, other)
+        return MaterialList(f'{self.name} + {other.name}', self, other)
 
     def __mul__(self, other):
         return _multiply(self, other)
@@ -136,15 +141,14 @@ class SMaterial(object):
     __rmul__ = __mul__
 
     def __repr__(self):
-        s = '{cls}-{name} ('.format(name=self.material.name,
-                                    cls=self.__class__.__name__)
+        s = f'{self.__class__.__name__}-{self.name} ('
         for k in self.__dict__:
             if k not in ('name', '_material', '_structural_params'):
                 v = getattr(self, k)
                 if isinstance(v, numbers.Number):
-                    s += '{key}: {value:.5g}, '.format(key=k, value=v)
+                    s += f'{k}: {v:.5g}, '
                 else:
-                    s += '{key}: {value}, '.format(key=k, value=v)
+                    s += f'{k}: {v}, '
         return s + ')'
 
 
@@ -180,10 +184,10 @@ class MaterialList(collections.abc.MutableSequence):
             else:
                 num = 1
                 basename = v.name
-            name = '{name}_{num:d}'.format(name=basename, num=num)
+            name = f'{basename}_{num:d}'
             while name in self.namelist:
                 num += 1
-                name = '{name}_{num:d}'.format(name=basename, num=num)
+                name = f'{basename}_{num:d}'
             v.name = name
         return v.name
 
@@ -209,13 +213,13 @@ class MaterialList(collections.abc.MutableSequence):
             self.list.insert(i+j, val)
 
     def __radd__(self, other):
-        ml = MaterialList('%s + %s' % (other.name, self.name))
+        ml = MaterialList(f'{other.name} + {self.name}')
         ml.append(other)
         ml.append(self)
         return ml
 
     def __add__(self, other):
-        ml = MaterialList('%s + %s' % (self.name, other.name))
+        ml = MaterialList(f'{self.name} + {other.name}')
         ml.append(self)
         ml.append(other)
         return ml
@@ -227,7 +231,7 @@ class MaterialList(collections.abc.MutableSequence):
 
     def __str__(self):
         layer = ',\n  '.join([str(entry) for entry in self.list])
-        s = '{name} [\n  {layer}\n]'.format(name=self.name, layer=layer)
+        s = f'{self.name} [\n  {layer}\n]'
         return s
 
     def __repr__(self):
@@ -248,10 +252,13 @@ class Layer(SMaterial):
         film thickness in angstrom
     """
 
-    _valid_init_kwargs = {'roughness': 'root mean square roughness',
-                          'density': 'density in kg/m^3',
-                          'relaxation': 'degree of relaxation',
-                          'lat_correl': 'lateral correlation length'}
+    _valid_init_kwargs = {
+        'name': 'Custom name of the Layer',
+        'roughness': 'root mean square roughness',
+        'density': 'density in kg/m^3',
+        'relaxation': 'degree of relaxation',
+        'lat_correl': 'lateral correlation length'
+    }
 
     def __init__(self, material, thickness, **kwargs):
         """
@@ -288,14 +295,13 @@ class Layer(SMaterial):
         """
         if name == "density":
             return self.material.density
-        elif name == "roughness":
+        if name == "roughness":
             return 0
-        elif name == "lat_correl":
+        if name == "lat_correl":
             return numpy.inf
-        elif name == "relaxation":
+        if name == "relaxation":
             return 1
-        else:
-            return super().__getattribute__(name)
+        return super().__getattribute__(name)
 
 
 class LayerStack(MaterialList):
@@ -361,9 +367,10 @@ class PseudomorphicStack001(CrystalStack):
     trans = Transform(numpy.identity(3))
 
     def make_epitaxial(self, i):
+        """Make the i-th sublayer pseudomorphic to the layer below."""
         layer = self.list[i]
         if i == 0:
-            return layer
+            return
         psub = self.list[i-1].material
         mpseudo = PseudomorphicMaterial(psub, layer.material, layer.relaxation,
                                         trans=self.trans)
@@ -427,18 +434,21 @@ class Powder(SMaterial):
     preferred_orientation :     tuple, optional
         HKL of the preferred orientation
     preferred_orientation_factor : float, optional
-        March-Dollase preferred orientation factor: > 1 for platy crystallits ,
-        < 1 for rod-like crystallites, and = 1 for random orientation of
+        March-Dollase preferred orientation factor: < 1 for platy crystallits ,
+        > 1 for rod-like crystallites, and = 1 for random orientation of
         crystallites.
     """
 
-    _valid_init_kwargs = {'crystallite_size_lor': 'Lorentzian cryst. size',
-                          'crystallite_size_gauss': 'Gaussian cryst. size',
-                          'strain_lor': 'microstrain broadening',
-                          'strain_gauss': 'microstrain broadening',
-                          'preferred_orientation': 'HKL of pref. orientation',
-                          'preferred_orientation_factor':
-                          'March-Dollase preferred orientation factor'}
+    _valid_init_kwargs = {
+        'name': 'Custom name of the Powder',
+        'crystallite_size_lor': 'Lorentzian crystallite size',
+        'crystallite_size_gauss': 'Gaussian crystallite size',
+        'strain_lor': 'microstrain broadening',
+        'strain_gauss': 'microstrain broadening',
+        'preferred_orientation': 'HKL of the preferred orientation',
+        'preferred_orientation_factor':
+        'March-Dollase preferred orientation factor'
+    }
 
     def __init__(self, material, volume, **kwargs):
         """

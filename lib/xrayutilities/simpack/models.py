@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
 import copy
@@ -38,7 +38,7 @@ def startdelta(start, delta, num):
     return numpy.linspace(start, end, int(num))
 
 
-class Model(object):
+class Model:
     """
     generic model class from which further models can be derived from
     """
@@ -115,27 +115,26 @@ class Model(object):
         """
         if self.resolution_width == 0:
             return y
+        dx = numpy.mean(numpy.gradient(x))
+        nres = int(20 * numpy.abs(self.resolution_width / dx))
+        xres = startdelta(-10*self.resolution_width, dx, nres + 1)
+        # the following works only exactly for equally spaced data points
+        if self.resolution_type == 'Gauss':
+            fres = NormGauss1d
         else:
-            dx = numpy.mean(numpy.gradient(x))
-            nres = int(20 * numpy.abs(self.resolution_width / dx))
-            xres = startdelta(-10*self.resolution_width, dx, nres + 1)
-            # the following works only exactly for equally spaced data points
-            if self.resolution_type == 'Gauss':
-                fres = NormGauss1d
-            else:
-                fres = NormLorentz1d
-            resf = fres(xres, numpy.mean(xres), self.resolution_width)
-            resf /= numpy.sum(resf)  # proper normalization for discrete conv.
-            # pad y to avoid edge effects
-            interp = interpolate.InterpolatedUnivariateSpline(x, y, k=1)
-            nextmin = numpy.ceil(nres/2.)
-            nextpos = numpy.floor(nres/2.)
-            xext = numpy.concatenate(
-                (startdelta(x[0]-dx, -dx, nextmin)[-1::-1],
-                 x,
-                 startdelta(x[-1]+dx, dx, nextpos)))
-            ypad = numpy.asarray(interp(xext))
-            return numpy.convolve(ypad, resf, mode='valid')
+            fres = NormLorentz1d
+        resf = fres(xres, numpy.mean(xres), self.resolution_width)
+        resf /= numpy.sum(resf)  # proper normalization for discrete conv.
+        # pad y to avoid edge effects
+        interp = interpolate.InterpolatedUnivariateSpline(x, y, k=1)
+        nextmin = numpy.ceil(nres/2.)
+        nextpos = numpy.floor(nres/2.)
+        xext = numpy.concatenate(
+            (startdelta(x[0]-dx, -dx, nextmin)[-1::-1],
+             x,
+             startdelta(x[-1]+dx, dx, nextpos)))
+        ypad = numpy.asarray(interp(xext))
+        return numpy.convolve(ypad, resf, mode='valid')
 
     def scale_simulation(self, y):
         """
@@ -175,23 +174,28 @@ class LayerModel(Model, utilities.ABC):
             forwarded to the superclass.
         experiment :    Experiment, optional
             class containing geometry and energy of the experiment.
-        surface_hkl :   list or tuple, optional
-            Miller indices of the surface (default: (0, 0, 1))
+        polarization: {'S', 'P', 'both'}, optional
+            polarization of the x-ray beam. If set to 'both' also Cmono, the
+            polarization factor of the monochromator should be set
+        Cmono :     float, optional
+            polarization factor of the monochromator
         """
         exp = kwargs.pop('experiment', None)
+        self.polarization = kwargs.pop('polarization', 'S')
+        self.Cmono = kwargs.pop('Cmono', 1)
         super().__init__(exp, **kwargs)
         self.lstack_params = []
         self.lstack_structural_params = False
         self.xlabelstr = 'x (1)'
         if len(args) == 1:
             if isinstance(args[0], Layer):
-                self.lstack = LayerStack('Stack for %s'
-                                         % self.__class__.__name__, *args)
+                self.lstack = LayerStack(
+                    f"Stack for {self.__class__.__name__}", *args)
             else:
                 self.lstack = args[0]
         else:
-            self.lstack = LayerStack('Stack for %s' % self.__class__.__name__,
-                                     *args)
+            self.lstack = LayerStack(
+                f"Stack for {self.__class__.__name__}", *args)
 
     @abc.abstractmethod
     def simulate(self):
@@ -199,7 +203,6 @@ class LayerModel(Model, utilities.ABC):
         abstract method that every implementation of a LayerModel has to
         override.
         """
-        pass
 
     def _create_return(self, x, E, ai=None, af=None, Ir=None,
                        rettype='intensity'):
@@ -246,8 +249,7 @@ class LayerModel(Model, utilities.ABC):
         """
         if self.polarization == 'both':
             return ('S', 'P')
-        else:
-            return (self.polarization,)
+        return (self.polarization, )
 
     def join_polarizations(self, Is, Ip):
         """
@@ -385,7 +387,7 @@ class KinematicalModel(LayerModel):
             the calculate intensity is returned
         """
         self.init_chi0()
-        rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, _, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
         z = numpy.zeros(len(self.lstack))
         for i, l in enumerate(self.lstack[-1:0:-1]):
@@ -472,7 +474,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
             the calculate intensity is returned
         """
         self.init_chi0()
-        rel, ai, af, f, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
+        rel, ai, af, f, _, E, t = self._prepare_kincalculation(qz, hkl)
 
         # calculate interface positions for integer unit-cell thickness
         z = numpy.zeros(len(self.lstack))
@@ -558,8 +560,6 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         if not hasattr(self, 'fit_paramnames'):
             self.fit_paramnames = []
         self.fit_paramnames += ['Cmono', ]
-        self.polarization = kwargs.pop('polarization', 'S')
-        self.Cmono = kwargs.pop('Cmono', 1)
         super().__init__(*args, **kwargs)
         self.xlabelstr = 'incidence angle (deg)'
         self.hkl = None
@@ -656,7 +656,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         # return values
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
 
-        t, hx, hz = self._prepare_dyncalculation(geometry)
+        _, hx, hz = self._prepare_dyncalculation(geometry)
         epsilon = (hz[idxref] - hz) / hz
 
         k = self.exp.k0
@@ -758,7 +758,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
         Ir = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
 
-        t, hx, hz = self._prepare_dyncalculation(geometry)
+        _, hx, hz = self._prepare_dyncalculation(geometry)
 
         k = self.exp.k0
         kc = k * numpy.sqrt(1 + self.chi0)
@@ -780,7 +780,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 CC = abs(numpy.cos(ai+ah))
             pom = k**4 * self.chih['S'] * self.chimh['S']
             if config.VERBOSITY >= config.INFO_ALL:
-                print('XU.DynamicalModel: calc. %s-polarization...' % (pol))
+                print(f'XU.DynamicalModel: calc. {pol}-polarization...')
 
             M = numpy.zeros((nal, 4, 4), dtype=complex)
             for j in range(4):
@@ -940,7 +940,6 @@ class SpecularReflectivityModel(LayerModel):
         sig = numpy.asarray([layer.roughness for layer in self.lstack])
         rho = numpy.asarray([layer.density/layer.material.density
                              for layer in self.lstack])
-        cd = self.cd
 
         sai = numpy.sin(numpy.radians(lai))
 
@@ -956,11 +955,12 @@ class SpecularReflectivityModel(LayerModel):
 
         ETs = numpy.ones(np, dtype=complex)
         ERs = numpy.zeros(np, dtype=complex)
-        ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[0] * rho[0])
+        ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * self.cd[0] * rho[0])
 
         for i in range(ns):
             if i < ns-1:
-                k = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[i+1] * rho[i+1])
+                k = -self.exp.k0 * numpy.sqrt(sai**2 - 2 *
+                                              self.cd[i+1] * rho[i+1])
                 phi = numpy.exp(1j * k * t[i+1])
             else:
                 k = -self.exp.k0 * sai
@@ -1079,6 +1079,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
     It uses the transfer Matrix methods as given in chapter 3
     "Daillant, J., & Gibaud, A. (2008). X-ray and Neutron Reflectivity"
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a reflectivity model. The arguments consist of a
@@ -1106,7 +1107,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         polarization:   ['P', 'S']
             x-ray polarization
         """
-        self.polarization = kwargs.pop('polarization', 'P')
+        kwargs.setdefault('polarization', 'P')
         super().__init__(*args, **kwargs)
         self._init_en_opt = 0
         self._setOpticalConstants()
@@ -1280,6 +1281,7 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
     model for specular reflectivity calculations
     CURRENTLY UNDER DEVELOPEMENT! DO NOT USE!
     """
+
     def __init__(self, *args, **kwargs):
         """
         constructor for a reflectivity model. The arguments consist of a
@@ -1307,7 +1309,6 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         polarization:   ['P', 'S']
             x-ray polarization
         """
-        self.polarization = kwargs.pop('polarization', 'S')
         super().__init__(*args, **kwargs)
 
     def simulate(self, alphai):
@@ -1481,7 +1482,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         """
         lai = alphai - self.offset
         # get layer properties
-        t, sig, rho, delta, xiL = self._get_layer_prop()
+        t, sig, _, delta, xiL = self._get_layer_prop()
 
         deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
         lam = utilities.en2lam(self.energy)
@@ -1518,7 +1519,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             (len(qL), len(qz))
         """
         # get layer properties
-        t, sig, rho, delta, xiL = self._get_layer_prop()
+        t, sig, _, delta, xiL = self._get_layer_prop()
 
         deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
         lam = utilities.en2lam(self.energy)
@@ -1696,7 +1697,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 correlation function
             """
             psi = numpy.zeros((NqL, Nqz), dtype=complex)
-            if H == 0.5 or H == 1:
+            if H in (0.5, 1):
                 dpsi = numpy.zeros_like(psi, dtype=complex)
                 m = isurf > 0
                 n = 1
@@ -1799,7 +1800,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 return numpy.imag(func(*args))
             real_integral = integrate.quad(real_func, a, b, **kwargs)
             imag_integral = integrate.quad(imag_func, a, b, **kwargs)
-            return (real_integral[0] + 1j*imag_integral[0])
+            return real_integral[0] + 1j*imag_integral[0]
 
         # begin of _xrrdiffv2
         K = 2 * numpy.pi / lam
@@ -2028,7 +2029,7 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
                      (pymath.sqrt(2) * sigmas[idxl])))
 
     # normalize weight functions
-    wsum = numpy.add.reduce([w for w in W.values()])
+    wsum = numpy.add.reduce(list(W.values()))
     for k in W:
         W[k] /= wsum
 
@@ -2038,7 +2039,7 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
         sls.append(Layer(layerstack[0].material, pymath.inf,
                          roughness=roughness))
 
-    for idxp, p in enumerate(z):
+    for idxp in range(len(z)):
         # create compound material for all contributing layers
         atoms = []
         elements = []
@@ -2055,7 +2056,7 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
                 density += W[idxl][idxp] * l.density
 
         if density != 0:
-            mat = Amorphous('slice %d' % idxp, density, atoms=atoms)
+            mat = Amorphous(f"slice {idxp}", density, atoms=atoms)
             sls.append(Layer(mat, step, roughness=roughness))
 
     return sls

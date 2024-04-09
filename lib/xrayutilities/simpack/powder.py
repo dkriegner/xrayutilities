@@ -15,7 +15,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
-# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
 
@@ -114,7 +114,8 @@ from .smaterials import Powder
 
 # figure out which FFT package we have, and import it
 try:
-    from pyfftw.interfaces import numpy_fft, cache
+    from pyfftw.interfaces import cache, numpy_fft
+
     # recorded variant of real fft that we will use
     best_rfft = numpy_fft.rfft
     # recorded variant of inverse real fft that we will use
@@ -146,7 +147,7 @@ moment_list = []
 collect_moment_errors = False
 
 
-class profile_data(object):
+class profile_data:
     """
     a skeleton class which makes a combined dict and namespace interface for
     easy pickling and data passing
@@ -241,7 +242,7 @@ class FP_profile:
         """
         if anglemode not in ("d", "twotheta"):
             raise Exception(
-                "invalid angle mode %s, must be 'd' or 'twotheta'" % anglemode)
+                f"invalid angle mode {anglemode}, must be 'd' or 'twotheta'")
         # set to either 'd' for d-spacing based position, or 'twotheta' for
         # angle-based position
         self.anglemode = anglemode
@@ -256,11 +257,10 @@ class FP_profile:
             x for x in dir(self) if x.startswith("conv_")]
         # A dictionary which will store all the parameters local to each
         # convolution
-        self.param_dicts = dict([(c, {}) for c in convolvers])
+        self.param_dicts = {c: {} for c in convolvers}
         # add global parameters, associated with no specific convolver
         # A dictionary of bound functions to call to compute convolutions
-        self.convolver_funcs = dict(
-            [(x, getattr(self, x)) for x in convolvers])
+        self.convolver_funcs = {x: getattr(self, x) for x in convolvers}
         # If *True*, print cache hit information
         self.debug_cache = False
         # keep a record of things we don't keep when pickled
@@ -292,7 +292,7 @@ class FP_profile:
         to identify themselves
 
         Returns
-        ----------
+        -------
         str
             name of calling function
         """
@@ -400,7 +400,7 @@ class FP_profile:
 
         # A dictionary in which we collect recent state for each convolution.
         # whenever the window gets reset, all of these get cleared
-        self.convolution_history = dict([(x, []) for x in self.convolvers])
+        self.convolution_history = {x: [] for x in self.convolvers}
 
         # A dictionary of Lorentz widths, used for de-periodizing the final
         # result.
@@ -558,7 +558,7 @@ class FP_profile:
         keys.sort()  # always return info in the same order
         # global is always first, anyways!
         keys.insert(0, keys.pop(keys.index('conv_global')))
-        strings = ["", "***convolver id 0x%08x:" % id(self)]
+        strings = ["", f"***convolver id 0x{id(self):08x}:"]
         for k in keys:
             strfn = "str_" + k[5:]
             if hasattr(self, strfn):
@@ -982,7 +982,7 @@ class FP_profile:
         for iidx in range(nsteps):
             beta = beta2 * iidx / float(nsteps)
 
-            eps, idxmin, idxmax, I2p, I2m = self.full_axdiv_I2(
+            _, idxmin, idxmax, I2p, I2m = self.full_axdiv_I2(
                 Lx=Lx, Lr=Lr, Ls=Ls, beta=beta, R=R,
                 twotheta=twotheta, epsvals=epsvals)
 
@@ -1048,23 +1048,21 @@ class FP_profile:
         if flag:
             return axfn  # already up to date if first return is True
 
-        xx = type("data", (), kwargs)
         # no axial divergence, transform of delta fn
-        if xx.axDiv != "full" or xx.twotheta0_deg == 90.0:
+        if kwargs["axDiv"] != "full" or kwargs["twotheta0_deg"] == 90.0:
             axfn[:] = 1
             return axfn
-        else:
-            axbuf = self.full_axdiv_I3(
-                nsteps=xx.n_integral_points,
-                epsvals=self.epsilon,
-                Lx=xx.slit_length_source,
-                Lr=xx.slit_length_target,
-                Ls=xx.length_sample,
-                sollerIdeg=xx.angI_deg,
-                sollerDdeg=xx.angD_deg,
-                R=xx.diffractometer_radius,
-                twotheta=xx.twotheta0
-            )
+        axbuf = self.full_axdiv_I3(
+            nsteps=kwargs["n_integral_points"],
+            epsvals=self.epsilon,
+            Lx=kwargs["slit_length_source"],
+            Lr=kwargs["slit_length_target"],
+            Ls=kwargs["length_sample"],
+            sollerIdeg=kwargs["angI_deg"],
+            sollerDdeg=kwargs["angD_deg"],
+            R=kwargs["diffractometer_radius"],
+            twotheta=kwargs["twotheta0"]
+        )
         axfn[:] = best_rfft(axbuf)
 
         return axfn
@@ -1098,14 +1096,14 @@ class FP_profile:
         # be
         # x/(2*diffractometer_radius) since the detector is 2R from the source,
         # but since this is just a fit parameter, we'll defin it as does Topas
-        xx = type("data", (), kwargs)  # allow dotted notation
 
-        tail_eps = (xx.tail_right - xx.tail_left) / xx.diffractometer_radius
-        main_eps = xx.main_width / xx.diffractometer_radius
-        tail_center = (xx.tail_right + xx.tail_left) / \
-            xx.diffractometer_radius / 2.0
-        tail_area = xx.tail_intens * \
-            (xx.tail_right - xx.tail_left) / xx.main_width
+        tail_eps = (kwargs["tail_right"] - kwargs["tail_left"]) / \
+            kwargs["diffractometer_radius"]
+        main_eps = kwargs["main_width"] / kwargs["diffractometer_radius"]
+        tail_center = (kwargs["tail_right"] + kwargs["tail_left"]) / \
+            kwargs["diffractometer_radius"] / 2.0
+        tail_area = kwargs["tail_intens"] * \
+            (kwargs["tail_right"] - kwargs["tail_left"]) / kwargs["main_width"]
 
         cb1 = self._cb1
         rb1 = self._rb1
@@ -1145,7 +1143,7 @@ class FP_profile:
             the updated convolver buffer, or *None* if the width was *None*
         """
         if width is None:
-            return  # no convolver
+            return None  # no convolver
         flag, conv = self.get_conv(name, width, float)
         if flag:
             return conv  # already up to date
@@ -1189,10 +1187,9 @@ class FP_profile:
         dd.setdefault("crystallite_size_gauss", 1e10)
         dd.setdefault("strain_lor", 0)
         dd.setdefault("strain_gauss", 0)
-        xx = type("data", (), dd)
         spect = numpy.array((
-            xx.emiss_wavelengths, xx.emiss_intensities,
-            xx.emiss_lor_widths, xx.emiss_gauss_widths))
+            dd["emiss_wavelengths"], dd["emiss_intensities"],
+            dd["emiss_lor_widths"], dd["emiss_gauss_widths"]))
         # convert to angstroms, like Topas
         spect[0] *= 1e10 * self.length_scale_m
         spect[2] *= 1e13 * self.length_scale_m  # milli-angstroms
@@ -1200,12 +1197,12 @@ class FP_profile:
         nm = 1e9 * self.length_scale_m
         items = ["emission and broadening:"]
         items.append("spectrum=\n" + str(spect.transpose()))
-        items.append("crystallite_size_lor (nm): %.5g" %
-                     (xx.crystallite_size_lor * nm))
-        items.append("crystallite_size_gauss (nm): %.5g" %
-                     (xx.crystallite_size_gauss * nm))
-        items.append("strain_lor: %.5g" % xx.strain_lor)
-        items.append("strain_gauss: %.5g" % xx.strain_gauss)
+        items.append("crystallite_size_lor (nm): "
+                     f"{dd['crystallite_size_lor']*nm:.5g}")
+        items.append("crystallite_size_gauss (nm): "
+                     f"{dd['crystallite_size_gauss']*nm:.5g}")
+        items.append(f"strain_lor: {dd['strain_lor']:.5g}")
+        items.append(f"strain_gauss: {dd['strain_gauss']:.5g}")
         return '\n'.join(items)
 
     def conv_emission(self):
@@ -1245,31 +1242,33 @@ class FP_profile:
         if flag:
             return emiss  # already up to date
 
-        xx = type("data", (), kwargs)  # make it dot-notation accessible
-
-        epsilon0s = (2 * nasin(asarray(xx.emiss_wavelengths)/(2.0*xx.d)) -
-                     xx.twotheta0)
-        theta = xx.twotheta0 / 2
+        epsilon0s = (
+            2 * nasin(asarray(kwargs["emiss_wavelengths"])/(2.0*kwargs["d"])) -
+            kwargs["twotheta0"]
+        )
+        theta = kwargs["twotheta0"] / 2
         # Emission profile FWHM + crystallite broadening (scale factors are
         # Topas choice!) (Lorentzian)
         # note: the strain broadenings in Topas are expressed in degrees
         # 2theta, must convert to radians(theta) with pi/360
         widths = (
-            (asarray(xx.emiss_lor_widths) / asarray(xx.emiss_wavelengths)) *
-            tan(theta) + math.radians(xx.strain_lor) / 2 * tan(theta) +
-            (asarray(xx.emiss_wavelengths) /
-             (2*xx.crystallite_size_lor*cos(theta)))
+            (asarray(kwargs["emiss_lor_widths"]) /
+             asarray(kwargs["emiss_wavelengths"])) *
+            tan(theta) + math.radians(kwargs["strain_lor"]) / 2 * tan(theta) +
+            (asarray(kwargs["emiss_wavelengths"]) /
+             (2*kwargs["crystallite_size_lor"]*cos(theta)))
         )
         # save weighted average width for future reference in periodicity fixer
-        self.lor_widths[me] = sum(
-            widths * xx.emiss_intensities) / sum(xx.emiss_intensities)
+        self.lor_widths[me] = sum(widths * kwargs["emiss_intensities"]) / \
+            sum(kwargs["emiss_intensities"])
         # gaussian bits add in quadrature
         gfwhm2s = (
-            ((2*asarray(xx.emiss_gauss_widths)/asarray(xx.emiss_wavelengths)) *
+            ((2 * asarray(kwargs["emiss_gauss_widths"]) /
+              asarray(kwargs["emiss_wavelengths"])) *
              tan(theta))**2 +
-            (math.radians(xx.strain_gauss) / 2 * tan(theta))**2 +
-            (asarray(xx.emiss_wavelengths) /
-             (xx.crystallite_size_gauss*cos(theta)))**2
+            (math.radians(kwargs["strain_gauss"]) / 2 * tan(theta))**2 +
+            (asarray(kwargs["emiss_wavelengths"]) /
+             (kwargs["crystallite_size_gauss"]*cos(theta)))**2
         )
 
         # note that the Fourier transform of a lorentzian with FWHM 2a
@@ -1279,7 +1278,7 @@ class FP_profile:
         # note that the transform of f(x+dx)=exp(i omega dx) f~(x)
         omega_vals = self.omega_vals
         for wid, gfwhm2, eps, intens in zip(widths, gfwhm2s, epsilon0s,
-                                            xx.emiss_intensities):
+                                            kwargs["emiss_intensities"]):
             xvals = numpy.clip(omega_vals * (-wid), -100, 0)
             sig2 = gfwhm2 / (8 * math.log(2.0))  # convert fwhm**2 to sigma**2
             gxv = numpy.clip((sig2 / -2.0) * omega_vals * omega_vals, -100, 0)
@@ -1315,11 +1314,11 @@ class FP_profile:
         eqdiv = self._epsb2
         eqdiv[:] = 0
         dtwoth = (self.twothetasamples[1] - self.twothetasamples[0])
-        idx0, idx1 = self.axial_helper(destination=eqdiv,
-                                       outerbound=-epsm,
-                                       innerbound=0,
-                                       epsvals=self.epsilon,
-                                       peakpos=0, k=dtwoth/(2.0*sqrt(epsm)))
+        self.axial_helper(destination=eqdiv,
+                          outerbound=-epsm,
+                          innerbound=0,
+                          epsvals=self.epsilon,
+                          peakpos=0, k=dtwoth/(2.0*sqrt(epsm)))
 
         conv[:] = best_rfft(eqdiv)
         conv[1::2] *= -1  # flip center
@@ -1347,14 +1346,14 @@ class FP_profile:
         flag, conv = self.get_conv(me, kwargs, complex)
         if flag:
             return conv  # already up to date
-        xx = type("data", (), kwargs)  # make it dot-notation accessible
 
         # absorption, from Cheary, Coelho & Cline 2004 NIST eq. 12,
         # EXCEPT delta = 1/(2*mu*R) instead of 2/(mu*R)
         # from Mathematica, unnormalized transform is
         # (1-exp(epsmin*(i w + 1/delta)))/(i w + 1/delta)
-        delta = sin(xx.twotheta0) / (2 * xx.absorption_coefficient *
-                                     xx.diffractometer_radius)
+        delta = sin(kwargs["twotheta0"]) / \
+            (2 * kwargs["absorption_coefficient"] *
+             kwargs["diffractometer_radius"])
         # arg=(1/delta)+complex(0,-1)*omega_vals
         cb = self._cb1
         cb.imag = self.omega_vals
@@ -1364,8 +1363,9 @@ class FP_profile:
         conv *= 1.0 / delta  # normalize
         # rest of transform of function with cutoff
         if kwargs.get("sample_thickness", None) is not None:
-            epsmin = -2.0 * xx.sample_thickness * \
-                cos(xx.twotheta0 / 2.0) / xx.diffractometer_radius
+            epsmin = -2.0 * kwargs["sample_thickness"] * \
+                cos(kwargs["twotheta0"] / 2.0) / \
+                kwargs["diffractometer_radius"]
             cb *= epsmin
             numpy.expm1(cb, cb)
             cb *= -1
@@ -1460,18 +1460,17 @@ class FP_profile:
         if flag:
             return conv  # already up to date
 
-        xx = type("data", (), kwargs)
-
-        if not xx.equatorial_divergence_deg or not xx.si_psd_window_bounds:
+        if not (kwargs["equatorial_divergence_deg"] and
+                kwargs["si_psd_window_bounds"]):
             # if either of these is zero or None, convolution is trivial
             conv[:] = 1
             return conv
 
-        psd_lower_window_pos, psd_upper_window_pos = xx.si_psd_window_bounds
-        dthl = psd_lower_window_pos / xx.diffractometer_radius
-        dthu = psd_upper_window_pos / xx.diffractometer_radius
-        alpha = math.radians(xx.equatorial_divergence_deg)
-        argscale = alpha / (2.0 * tan(xx.twotheta0 / 2))
+        psd_lower_win_pos, psd_upper_win_pos = kwargs["si_psd_window_bounds"]
+        dthl = psd_lower_win_pos / kwargs["diffractometer_radius"]
+        dthu = psd_upper_win_pos / kwargs["diffractometer_radius"]
+        alpha = math.radians(kwargs["equatorial_divergence_deg"])
+        argscale = alpha / (2.0 * tan(kwargs["twotheta0"] / 2))
         # WARNING si(x)=integral(sin(x)/x), not integral(sin(pi x)/(pi x))
         # i.e. they sinc function is not consistent with the si function
         # whence the missing pi in the denominator of argscale
@@ -1505,7 +1504,7 @@ class FP_profile:
         # wanted
         me = self.get_function_name()  # the name of the convolver, as a string
         if not self.gaussian_smoother_bins_sigma:
-            return  # no smoothing
+            return None  # no smoothing
         flag, buf = self.get_conv(me, self.gaussian_smoother_bins_sigma,
                                   format=float)
         if flag:
@@ -1708,7 +1707,7 @@ class FP_profile:
             pass
 
 
-class convolver_handler(object):
+class convolver_handler:
     """
     manage the convolvers of on process
     """
@@ -1720,7 +1719,7 @@ class convolver_handler(object):
         self.convolvers.append(convolver)
 
     def update_parameters(self, parameters):
-        for idx, c in enumerate(self.convolvers):
+        for c in self.convolvers:
             for k, v in parameters.items():
                 if k == 'classoptions':
                     continue
@@ -1907,7 +1906,7 @@ class PowderDiffraction(PowderExperiment):
                 threading.Thread(target=self._send_work, args=(idx, )),
                 queue.Queue(), self.output_queue))
         self._running = True
-        for th, q1, q2 in self.threads:
+        for th, _, _ in self.threads:
             th.daemon = True
             th.start()
         atexit.register(self.__stop__)
@@ -1919,7 +1918,7 @@ class PowderDiffraction(PowderExperiment):
         self._running = False
         try:  # try/except needed only for python2 compatibility
             # end daemon threads which distribute the work load
-            for th, q1, q2 in self.threads:
+            for th, q1, _ in self.threads:
                 q1.put(None)
                 th.join()
             delattr(self, 'threads')
@@ -1995,7 +1994,7 @@ class PowderDiffraction(PowderExperiment):
             if 'emiss_wavelengths' in pem:
                 wl = pem['emiss_wavelengths'][0]
                 self.settings['global']['dominant_wavelength'] = wl
-                for h, d in self.data.items():
+                for d in self.data.values():
                     fp = d['conv']
                     fp.set_parameters(convolver='global',
                                       **self.settings['global'])
@@ -2017,20 +2016,22 @@ class PowderDiffraction(PowderExperiment):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
         self.settings['emission'].update(samplesettings)
-        for h, d in self.data.items():
+        for d in self.data.values():
             fp = d['conv']
             fp.set_parameters(convolver='emission', **samplesettings)
 
-    def update_settings(self, newsettings={}):
+    def update_settings(self, newsettings=None):
         """
         update settings of all instances of FP_profile
 
         Parameters
         ----------
-        newsettings :   dict
+        newsettings :   dict, optional
             dictionary with new settings. It has to include one subdictionary
             for every convolver which should have its settings changed.
         """
+        if newsettings is None:
+            return
         if 'global' in newsettings:
             if 'dominant_wavelength' in newsettings['global']:
                 print('PowderDiffraction: dominant wavelength is a read only'
@@ -2045,7 +2046,7 @@ class PowderDiffraction(PowderExperiment):
         for k in newsettings:
             if k == 'classoptions':
                 continue
-            for h, d in self.data.items():
+            for d in self.data.values():
                 fp = d['conv']
                 fp.set_parameters(convolver=k, **newsettings[k])
             if k not in self.settings:
@@ -2101,7 +2102,8 @@ class PowderDiffraction(PowderExperiment):
             idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
                                                    tt < ttpeak + ww/2))
             try:
-                np = int(math.ceil(len(idx) / (tt[idx[-1]]-tt[idx[0]]) * ww))
+                np = int(math.ceil(len(idx) /
+                                   (tt[idx[-1, 0]]-tt[idx[0, 0]]) * ww))
             except OverflowError:
                 np = 1
             npoints[h] = np
@@ -2109,8 +2111,7 @@ class PowderDiffraction(PowderExperiment):
                 fptt = d['conv'].twotheta_window_center_deg
                 if abs(ttpeak-fptt) / ww < 0.25 and not force:
                     continue
-                else:
-                    nset[h] = True
+                nset[h] = True
             else:
                 nset[h] = True
             # set window in local instances
@@ -2127,16 +2128,16 @@ class PowderDiffraction(PowderExperiment):
         """
         a threaded block which watches for data and runs computation
         """
-        th, input, output = self.threads[idx]
+        _, qinput, qoutput = self.threads[idx]
         while self._running:
             try:
-                settings, run, ttpeaks = input.get(True)
+                settings, run, ttpeaks = qinput.get(True)
             except TypeError:
                 break
             handler = self.conv_handlers[idx]
             handler.update_parameters(settings)
             results = handler.calc(run, ttpeaks)
-            output.put((idx, results))  # put results on output queue
+            qoutput.put((idx, results))  # put results on output queue
         self._running = False
 
     def reflection_strength(self, tt_cutoff):
@@ -2282,10 +2283,10 @@ class PowderDiffraction(PowderExperiment):
         # add remaining lines
         add_lines(currq, curref, currhkl)
 
-        qpos = numpy.array(qpos, dtype=numpy.double)
-        ang = self.Q2Ang(qpos)
-        refstrength = numpy.array(refstrength, dtype=numpy.double)
-        return hkl, qpos, ang, refstrength
+        return (hkl,
+                numpy.array(qpos, dtype=numpy.double),
+                self.Q2Ang(qpos),
+                numpy.array(refstrength, dtype=numpy.double))
 
     def correction_factor(self, ang):
         """
@@ -2460,23 +2461,21 @@ class PowderDiffraction(PowderExperiment):
                     for h, r in zip(chunk, res):
                         if r is None:
                             continue
-                        else:
-                            ttpeak = 2 * self.data[h]['ang']
-                            mask = numpy.argwhere(
-                                numpy.logical_and(tt > ttpeak - ww/2,
-                                                  tt < ttpeak + ww/2))
+                        ttpeak = 2 * self.data[h]['ang']
+                        mask = numpy.argwhere(
+                            numpy.logical_and(tt > ttpeak - ww/2,
+                                              tt < ttpeak + ww/2))
 
-                            out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
-                                                      r.peak*self.data[h]['r'],
-                                                      left=0, right=0)
+                        out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
+                                                  r.peak*self.data[h]['r'],
+                                                  left=0, right=0)
                     gotit.discard(idx)  # got that result, don't expect more
 
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Powder.Convolute: exec time=", time.time() - t_start)
             return out
-        else:
-            print("XU.Powder: not initialized for calculation -> exiting!")
-            return None
+        print("XU.Powder: not initialized for calculation -> exiting!")
+        return None
 
     def Calculate(self, twotheta, **kwargs):
         """
@@ -2507,15 +2506,14 @@ class PowderDiffraction(PowderExperiment):
             self.update_powder_lines(self._tt_cutoff)
             self.set_window()
             return self.Convolve(twotheta, **kwargs)
-        else:
-            print("XU.Powder: not initialized for calculation -> exiting!")
-            return None
+        print("XU.Powder: not initialized for calculation -> exiting!")
+        return None
 
     def __str__(self):
         """
         Prints out available information about the material and reflections
         """
-        ostr = "\nPowder diffraction object \n"
+        ostr = "Powder diffraction object\n"
         ostr += "-------------------------\n"
         ostr += self.mat.__repr__() + "\n"
         ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
@@ -2523,8 +2521,8 @@ class PowderDiffraction(PowderExperiment):
         for d in self.data.values():
             if d['r'] > rmax:
                 rmax = d['r']
-        ostr += "\nReflections: \n"
-        ostr += "--------------\n"
+        ostr += "\nReflections:\n"
+        ostr += "------------\n"
         ostr += ("      h k l     |    tth    |    |Q|    |"
                  "Int     |   Int (%)\n")
         ostr += ("   ------------------------------------"

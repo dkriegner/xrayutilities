@@ -13,11 +13,11 @@ graft examples/data
 graft src
 recursive-include tests *.py
 
-# include database files
+# include in source data files
 graft lib/xrayutilities/materials/data
+include lib/xrayutilities/VERSION
+include lib/xrayutilities/xrayutilities_default.conf
 
 # exclude development files
 global-exclude .gitignore
-exclude .coveragerc
-exclude tox.ini
 exclude release.txt

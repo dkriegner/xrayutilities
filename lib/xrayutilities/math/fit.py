@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module with a function wrapper to scipy.optimize.leastsq
 for fitting of a 2D function to a peak or a 1D Gauss fit with
@@ -25,7 +25,7 @@ import warnings
 
 import numpy
 import scipy.optimize as optimize
-from scipy.odr import odrpack as odr
+from scipy import odr
 
 from .. import config, utilities
 from ..exception import InputError
@@ -55,26 +55,27 @@ def linregress(x, y):
 
     Examples
     --------
-    >>> (k, d), R2 = xu.math.linregress(x, y)
+    >>> (k, d), R2 = linregress([1, 2, 3], [3.3, 4.1, 5.05])
     """
+    x = numpy.asarray(x)
+    y = numpy.asarray(y)
     mask = numpy.logical_not(numpy.isnan(y))
     lx, ly = (x[mask], y[mask])
     if numpy.all(numpy.isclose(lx-lx[0], numpy.zeros_like(lx))):
         return (0, numpy.mean(ly)), 0
-    else:
-        p = numpy.polyfit(lx, ly, 1)
+    p = numpy.polyfit(lx, ly, 1)
 
-        # calculation of r-squared
-        f = numpy.polyval(p, lx)
-        fbar = numpy.sum(ly) / len(ly)
-        ssreg = numpy.sum((f-fbar)**2)
-        sstot = numpy.sum((ly - fbar)**2)
-        rsq = ssreg / sstot
+    # calculation of r-squared
+    f = numpy.polyval(p, lx)
+    fbar = numpy.sum(ly) / len(ly)
+    ssreg = numpy.sum((f-fbar)**2)
+    sstot = numpy.sum((ly - fbar)**2)
+    rsq = ssreg / sstot
 
-        return p, rsq
+    return p, rsq
 
 
-def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
+def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
              background='constant', plot=False, func_out=False, debug=False):
     """
     fit function using odr-pack wrapper in scipy similar to
@@ -90,7 +91,8 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
 
     iparams :   list, optional
         initial paramters, determined automatically if not specified
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}, optional
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}, optional
         type of peak to fit
     maxit :     int, optional
         maximal iteration number of the fit
@@ -123,10 +125,10 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
 
     # determine initial parameters
     _check_iparams(iparams, peaktype, background)
-    if not any(iparams):
+    if iparams is None:
         iparams = _guess_iparams(xdata, ydata, peaktype, background)
     if config.VERBOSITY >= config.DEBUG:
-        print("XU.math.peak_fit: iparams: %s" % str(tuple(iparams)))
+        print(f"XU.math.peak_fit: iparams: {str(tuple(iparams))}")
 
     # set up odr fitting
     peak = odr.Model(gfunc, fjacd=gfunc_dx, fjacb=gfunc_dp)
@@ -173,13 +175,12 @@ def peak_fit(xdata, ydata, iparams=[], peaktype='Gauss', maxit=300,
             plt.plot(xdata, gfunc(iparams, xdata), '-', color='0.5',
                      label='estimate')
         plt.plot(xdata, gfunc(fparam, xdata), '-r',
-                 label='%s-fit' % peaktype)
+                 label=f'{peaktype}-fit')
         plt.legend()
 
     if func_out:
         return fparam, fit.sd_beta, itlim, lambda x: gfunc(fparam, x)
-    else:
-        return fparam, fit.sd_beta, itlim
+    return fparam, fit.sd_beta, itlim
 
 
 def _getfit_func(peaktype, background):
@@ -189,7 +190,8 @@ def _getfit_func(peaktype, background):
 
     Parameters
     ----------
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
         type of peak function
     background : {'constant', 'linear'}
         type of background function
@@ -200,8 +202,6 @@ def _getfit_func(peaktype, background):
         fit function, function of derivative regarding `x`, and functions of
         derivatives regarding the parameters
     """
-    gfunc_dx = None
-    gfunc_dp = None
     if peaktype == 'Gauss':
         f = Gauss1d
         fdx = Gauss1d_der_x
@@ -215,41 +215,36 @@ def _getfit_func(peaktype, background):
         fdx = PseudoVoigt1d_der_x
         fdp = PseudoVoigt1d_der_p
     elif peaktype == 'PseudoVoigtAsym':
-        if background == 'linear':
-            def gfunc(param, x):
-                return PseudoVoigt1dasym(x, *param) + x * param[-1]
-        else:
-            def gfunc(param, x):
-                return PseudoVoigt1dasym(x, *param)
+        f = PseudoVoigt1dasym
     elif peaktype == 'PseudoVoigtAsym2':
-        if background == 'linear':
-            def gfunc(param, x):
-                return PseudoVoigt1dasym2(x, *param) + x * param[-1]
-        else:
-            def gfunc(param, x):
-                return PseudoVoigt1dasym2(x, *param)
+        f = PseudoVoigt1dasym2
     else:
         raise InputError("keyword argument peaktype takes invalid value!")
 
+    if background == 'linear':
+        def gfunc(param, x):
+            return f(x, *param) + x * param[-1]
+    else:
+        def gfunc(param, x):
+            return f(x, *param)
+
     if peaktype in ('Gauss', 'Lorentz', 'PseudoVoigt'):
         if background == 'linear':
-            def gfunc(param, x):
-                return f(x, *param) + x * param[-1]
-
             def gfunc_dx(param, x):
                 return fdx(x, *param) + param[-1]
 
             def gfunc_dp(param, x):
                 return numpy.vstack((fdp(x, *param), x))
         else:
-            def gfunc(param, x):
-                return f(x, *param)
-
             def gfunc_dx(param, x):
                 return fdx(x, *param)
 
             def gfunc_dp(param, x):
                 return fdp(x, *param)
+    else:
+        gfunc_dx = None
+        gfunc_dp = None
+
     return gfunc, gfunc_dx, gfunc_dp
 
 
@@ -263,34 +258,34 @@ def _check_iparams(iparams, peaktype, background):
     ----------
     iparams :   list
         initial paramters for the fit
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
         type of peak to fit
     background : {'constant', 'linear'}
         type of background
 
     """
-    if not any(iparams):
+    if iparams is None:
         return
+    ptypes = {('Gauss', 'constant'): 4, ('Lorentz', 'constant'): 4,
+              ('Gauss', 'linear'): 5, ('Lorentz', 'linear'): 5,
+              ('PseudoVoigt', 'constant'): 5, ('PseudoVoigt', 'linear'): 6,
+              ('PseudoVoigtAsym', 'constant'): 6,
+              ('PseudoVoigtAsym', 'linear'): 7,
+              ('PseudoVoigtAsym2', 'constant'): 7,
+              ('PseudoVoigtAsym2', 'linear'): 8}
+    if not all(numpy.isreal(iparams)):
+        raise InputError("XU.math.peak_fit: all initial parameters need to"
+                         "be real!")
+    if (peaktype, background) in ptypes:
+        nparams = ptypes[(peaktype, background)]
+        if len(iparams) != nparams:
+            raise InputError(f"XU.math.peak_fit: {nparams} initial parameters "
+                             f"are needed for {peaktype}-peak with "
+                             f"{background} background.")
     else:
-        ptypes = {('Gauss', 'constant'): 4, ('Lorentz', 'constant'): 4,
-                  ('Gauss', 'linear'): 5, ('Lorentz', 'linear'): 5,
-                  ('PseudoVoigt', 'constant'): 5, ('PseudoVoigt', 'linear'): 6,
-                  ('PseudoVoigtAsym', 'constant'): 6,
-                  ('PseudoVoigtAsym', 'linear'): 7,
-                  ('PseudoVoigtAsym2', 'constant'): 7,
-                  ('PseudoVoigtAsym2', 'linear'): 8}
-        if not all(numpy.isreal(iparams)):
-            raise InputError("XU.math.peak_fit: all initial parameters need to"
-                             "be real!")
-        elif (peaktype, background) in ptypes:
-            nparams = ptypes[(peaktype, background)]
-            if len(iparams) != nparams:
-                raise InputError("XU.math.peak_fit: %d initial parameters "
-                                 "are needed for %s-peak with %s background."
-                                 % (nparams, peaktype, background))
-        else:
-            raise InputError("XU.math.peak_fit: invalid peak (%s) or "
-                             "background (%s)" % (peaktype, background))
+        raise InputError(f"XU.math.peak_fit: invalid peak ({peaktype}) or "
+                         f"background ({background})")
 
 
 def _guess_iparams(xdata, ydata, peaktype, background):
@@ -304,7 +299,8 @@ def _guess_iparams(xdata, ydata, peaktype, background):
         x-coordinates of the data to be fitted
     ydata :     array-like
         y-coordinates of the data which should be fit
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt', 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
+    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
+                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}
         type of peak to fit
     background : {'constant', 'linear'}
         type of background, either
@@ -345,7 +341,7 @@ def _guess_iparams(xdata, ydata, peaktype, background):
     return iparams
 
 
-def gauss_fit(xdata, ydata, iparams=[], maxit=300):
+def gauss_fit(xdata, ydata, iparams=None, maxit=300):
     """
     Gauss fit function using odr-pack wrapper in scipy similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
@@ -376,31 +372,33 @@ def gauss_fit(xdata, ydata, iparams=[], maxit=300):
 
 def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     """
-    fit a two dimensional function to a two dimensional data set
-    e.g. a reciprocal space map
+    fit a two dimensional function to a two dimensional data set e.g. a
+    reciprocal space map.
 
     Parameters
     ----------
-    x, y :      array-like
-        data coordinates (do NOT need to be regularly spaced)
-    data :      array-like
-        data set used for fitting (e.g. intensity at the data coords)
-    start :     list
+    x : array-like
+        first data coordinate (does not need to be regularly spaced)
+    y : array-like
+        second data coordinate (does not need to be regularly spaced)
+    data : array-like
+        data set used for fitting (e.g. intensity at the data coordinates)
+    start : list
         set of starting parameters for the fit used as first parameter of
         function fit_function
-    drange :    list
+    drange : list
         limits for the data ranges used in the fitting algorithm, e.g. it is
         clever to use only a small region around the peak which should be
-        fitted: [xmin, xmax, ymin, ymax]
+        fitted, i.e. [xmin, xmax, ymin, ymax]
     fit_function : callable
-        function which should be fitted, must be of form accept the parameters
-        ``fit_function (x, y, *params) -> ndarray``
+        function which should be fitted. Call signature must be
+        :func:`fit_function(x, y, *params) -> ndarray`
 
     Returns
     -------
-    fitparam :  list
+    fitparam : list
         fitted parameters
-    cov :       array-like
+    cov : array-like
         covariance matrix
     """
     s = time.time()
@@ -419,13 +417,13 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     def errfunc(p, x, z, data):
         return fit_function(x, z, *p) - data
 
-    p, cov, infodict, errmsg, success = optimize.leastsq(
+    p, cov, _, errmsg, success = optimize.leastsq(
         errfunc, start, args=(lx, ly, ldata), full_output=1, maxfev=maxfev)
 
     s = time.time() - s
     if config.VERBOSITY >= config.INFO_ALL:
         print("finished in %8.2f sec, (data length used %d)" % (s, ldata.size))
-        print("XU.math.fit: %s" % errmsg)
+        print(f"XU.math.fit: {errmsg}")
 
     # calculate correct variance covariance matrix
     if cov is not None:
@@ -617,7 +615,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     if numpy.any(bmask):
         k, d = numpy.polyfit(lx[bmask], ldata[bmask], 1)
     else:
-        if(config.VERBOSITY >= config.DEBUG):
+        if config.VERBOSITY >= config.DEBUG:
             print("XU.math.multPeakFit: no data outside peak regions!")
         k, d = (0, ldata.min())
 
@@ -630,7 +628,7 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     # background parameters
     p += [k, d]
 
-    if(config.VERBOSITY >= config.DEBUG):
+    if config.VERBOSITY >= config.DEBUG:
         print("XU.math.multPeakFit: intial parameters")
         print(p)
 
@@ -643,13 +641,13 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     my_odr.set_job(fit_type=2)
     fit = my_odr.run()
 
-    if(config.VERBOSITY >= config.DEBUG):
+    if config.VERBOSITY >= config.DEBUG:
         print("XU.math.multPeakFit: fitted parameters")
         print(fit.beta)
     try:
         if fit.stopreason[0] not in ['Sum of squares convergence']:
-            print("XU.math.multPeakFit: fit NOT converged (%s)"
-                  % fit.stopreason[0])
+            print("XU.math.multPeakFit: fit NOT converged "
+                  f"({fit.stopreason[0]})")
             return None, None, None, None
     except IndexError:
         print("XU.math.multPeakFit: fit most probably NOT converged (%s)"

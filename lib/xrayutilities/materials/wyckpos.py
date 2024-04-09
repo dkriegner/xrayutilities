@@ -13,20 +13,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 __all__ = ["RangeDict", "eqhkl_default", "eqhkl_custom", "wp"]
 
 
 class RangeDict(dict):
+    """Dictionary type which uses range as keys"""
     def __getitem__(self, item):
         if not isinstance(item, range):
             for key in self:
                 if item in key:
                     return self[key]
             return super().__getitem__(item)
-        else:
-            return super().__getitem__(item)
+        return super().__getitem__(item)
 
 
 eqhkl_default = RangeDict({

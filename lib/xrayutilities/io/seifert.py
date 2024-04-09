@@ -14,12 +14,12 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 a set of  routines to convert Seifert ASCII files to HDF5
 in fact there exist two posibilities how the data is stored (depending on the
-use detector):
+used detector):
 
  1. as a simple line scan (using the point detector)
  2. as a map using the PSD
@@ -34,7 +34,7 @@ import re
 import numpy
 
 from .. import config
-from .helper import xu_open
+from .helper import generate_filenames, xu_open
 
 # define some regular expressions
 nscans_re = re.compile(r"^&NumScans=\d+")
@@ -77,27 +77,27 @@ def repair_key(key):
     return key
 
 
-class SeifertHeader(object):
+class SeifertHeader:
     """
     helper class to represent a Seifert (NJA) scan file header
     """
 
     def __init__(self):
-        pass
+        self.NumScans = 1
 
     def __str__(self):
         ostr = ""
         for k in self.__dict__.keys():
             value = self.__getattribute__(k)
             if isinstance(value, float):
-                ostr += k + " = %f\n" % value
+                ostr += k + f" = {value:f}\n"
             else:
-                ostr += k + " = %s\n" % value
+                ostr += k + f" = {value}\n"
 
         return ostr
 
 
-class SeifertMultiScan(object):
+class SeifertMultiScan:
     """
     Class to parse a Seifert (NJA) multiscan file
     """
@@ -134,7 +134,7 @@ class SeifertMultiScan(object):
 
         with xu_open(self.Filename) as self.fid:
             if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.io.SeifertScan: parsing file: %s" % self.Filename)
+                print(f"XU.io.SeifertScan: parsing file: {self.Filename}")
             self.parse()
 
     def parse(self):
@@ -147,7 +147,7 @@ class SeifertMultiScan(object):
         header_complete = False
 
         for line in self.fid:
-            lb = line.decode('ascii').strip()
+            lb = line.decode('iso-8859-1').strip()
 
             # the first thing needed is the number of scans in the file (in
             # file header)
@@ -188,7 +188,7 @@ class SeifertMultiScan(object):
         self.sm_pos.shape = (self.nscans, self.n_sm_pos)
 
 
-class SeifertScan(object):
+class SeifertScan:
     """
     Class to parse a single Seifert (NJA) scan file
     """
@@ -212,7 +212,7 @@ class SeifertScan(object):
 
         with xu_open(self.Filename) as self.fid:
             if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.io.SeifertScan: parsing file: %s" % self.Filename)
+                print(f"XU.io.SeifertScan: parsing file: {self.Filename}")
             self.parse()
 
         if self.hdr.NumScans != 1:
@@ -224,7 +224,7 @@ class SeifertScan(object):
             print("XU.io.SeifertScan.parse: starting the parser")
         self.data = []
         for line in self.fid:
-            lb = line.decode('ascii')
+            lb = line.decode('iso-8859-1')
             # remove leading and trailing whitespace and newline characeters
             lb = lb.strip()
 
@@ -257,14 +257,14 @@ class SeifertScan(object):
                     elif key == "Pos":
                         self.axispos[axes] += [value, ]
 
-                    self.hdr.__setattr__(key, value)
+                    setattr(self.hdr, key, value)
                 else:
                     try:
                         tmplist.append(float(e))
                     except ValueError:
                         pass
 
-            if tmplist != []:
+            if tmplist:
                 self.data.append(tmplist)
 
         # in the end we convert the data list to a numeric array
@@ -282,14 +282,15 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
 
     Parameters
     ----------
-    filetemplate :  str
-        template string for the file names, can contain a %d which is replaced
-        by the scan number or be a list of filenames
+    filetemplate :  str or list
+        template string for the file names, or list of filenames.
+        See :func:`~xrayutilities.io.helper.generate_filenames` for details.
     scannrs :       int or list, optional
-        scan number(s)
+        scan number(s), or other values needed to generate filenames from the
+        filetemplate.
     path :          str, optional
         common path to the filenames
-    scantype :      {'map', 'tsk'}, optional
+    scantype :      {'map', 'O2T', 'tsk'}, optional
         type of datafile: can be either 'map' (reciprocal space map measured
         with a regular Seifert job (default)) or 'tsk' (MCA spectra measured
         using the TaskInterpreter)
@@ -303,25 +304,21 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
 
     Examples
     --------
-    >>> om, tt, psd = xrayutilities.io.getSeifert_map("samplename_%d.xrdml",
-    >>>                                               [1, 2], path="./data")
+    >>> om, tt, psd = getSeifert_map("samplename_%d.xrdml", [1, 2],
+    ... path="data")  # doctest: +SKIP
     """
     # read raw data and convert to reciprocal space
     om = numpy.zeros(0)
     tt = numpy.zeros(0)
-    if scantype == "map":
+    if scantype in ["map", "O2T"]:
         psd = numpy.zeros(0)
-    else:
+    elif scantype == "tsk":
         psd = numpy.zeros((0, Nchannels))
-    # create scan names
-    if scannrs is None:
-        files = [filetemplate]
     else:
-        files = list()
-        if not getattr(scannrs, '__iter__', False):
-            scannrs = [scannrs]
-        for nr in scannrs:
-            files.append(filetemplate % nr)
+        raise ValueError("Unsupported scan type")
+    # create scan names
+
+    files = generate_filenames(filetemplate, scannrs)
 
     # parse files
     for f in files:
@@ -331,11 +328,18 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
             om = numpy.concatenate((om, d.m2_pos.flatten()))
             tt = numpy.concatenate((tt, d.sm_pos.flatten()))
             psd = numpy.concatenate((psd, d.data.flatten()))
-        else:  # scantype == "tsk":
+        elif scantype == "tsk":
             d = SeifertScan(os.path.join(path, f))
 
             om = numpy.concatenate((om, d.axispos['O'].flatten()))
             tt = numpy.concatenate((tt, d.axispos['T'].flatten()))
             psd = numpy.concatenate((psd, d.data[:, :, 1]))
+        elif scantype == 'O2T':
+            d = SeifertScan(os.path.join(path, f))
+            if getattr(d.hdr, "RSMmode") != scantype:
+                raise ValueError(f"Scan {scantype} incompatible with RSMmode")
+            om = numpy.concatenate((om, d.data[:, 0]))
+            tt = numpy.concatenate((tt, d.data[:, 1]))
+            psd = numpy.concatenate((psd, d.data[:, 2]))
 
     return om, tt, psd

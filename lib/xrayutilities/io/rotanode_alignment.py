@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 parser for the alignment log file of the rotating anode
@@ -35,7 +35,7 @@ LOG_tagline = re.compile(r"^#")
 LOG_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+")
 
 
-class RA_Alignment(object):
+class RA_Alignment:
 
     """
     class to parse the data file created by the alignment routine
@@ -64,8 +64,7 @@ class RA_Alignment(object):
             self.fid = xu_open(self.filename)
         except OSError:
             self.fid = None
-            raise IOError("error opening alignment log file %s"
-                          % self.filename)
+            raise IOError(f"error opening alignment log file {self.filename}")
 
         self.peaks = []
         self.alignnames = []
@@ -104,11 +103,11 @@ class RA_Alignment(object):
                     opencommenttag = True
                     continue
 
-                elif LOG_datetime.match(line):
+                if LOG_datetime.match(line):
                     # data is so far ignored
                     continue
 
-                elif LOG_peakname.match(line):
+                if LOG_peakname.match(line):
                     # line with peak name found
                     pname = LOG_peakname.sub("", line)
                     pname = pname.strip()
@@ -158,7 +157,7 @@ class RA_Alignment(object):
 
         # convert data to numpy array and combine position and intensity
         self.data = []
-        for i, k in enumerate(self.keys()):
+        for i, _ in enumerate(self.keys()):
             self.data.append(numpy.array((self.motorpos[i],
                                           self.intensities[i],
                                           self.iterations[i])))
@@ -194,8 +193,7 @@ class RA_Alignment(object):
         if key in self.alignnames:
             i = self.alignnames.index(key)
             return self.data[i]
-        else:
-            raise KeyError("RA_Alignment: unknown key given!")
+        raise KeyError("RA_Alignment: unknown key given!")
 
     def plot(self, pname):
         """
@@ -220,7 +218,7 @@ class RA_Alignment(object):
             if k.find(pname) >= 0:
                 axnames.append(k)
 
-        fig, ax = plt.subplots(nrows=len(axnames), sharex=True)
+        _, ax = plt.subplots(nrows=len(axnames), sharex=True)
 
         for an, axis in zip(axnames, ax):
             d = self.get(an)

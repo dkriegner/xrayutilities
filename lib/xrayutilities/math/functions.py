@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module with several common function needed in xray data analysis
@@ -128,9 +128,13 @@ def Gauss1d(x, *p):
     Calling with a list of parameters needs a call looking as shown below
     (note the '*') or explicit listing of the parameters
 
-    >>> Gauss1d(x,*p)
+    >>> Gauss1d(x, *p)  # doctest: +SKIP
 
-    >>> Gauss1d(numpy.linspace(0, 10, 100), 5, 1, 1e3, 0)
+    >>> import numpy
+    >>> Gauss1d(numpy.linspace(0, 10, 10), 5, 1, 1e3, 0)
+    array([3.72665317e-03, 5.19975743e-01, 2.11096565e+01, 2.49352209e+02,
+           8.56996891e+02, 8.56996891e+02, 2.49352209e+02, 2.11096565e+01,
+           5.19975743e-01, 3.72665317e-03])
     """
     g = p[3] + p[2] * numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
     return g
@@ -684,7 +688,7 @@ def Debye1(x):
         integral = (0, 0)
         d1 = 1.
 
-    if (config.VERBOSITY >= config.DEBUG):
+    if config.VERBOSITY >= config.DEBUG:
         print(
             "XU.math.Debye1: Debye integral value/error estimate: %g %g" %
             (integral[0], integral[1]))

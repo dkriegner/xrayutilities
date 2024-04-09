@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2014-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2014-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 Module provides functions to convert a q-vector from reciprocal space to
@@ -102,7 +102,7 @@ def _makebounds(boundsin):
             lb.append(-numpy.inf)
             ub.append(numpy.inf)
         else:
-            raise InputError('bound value is of invalid type (%s)' % type(b))
+            raise InputError(f'bound value is of invalid type ({type(b)})')
 
     return scipy.optimize.Bounds(lb, ub), constraints
 
@@ -176,7 +176,7 @@ def exitAngleConst(angles, alphaf, xrd):
     """
     qconv = xrd._A2QConversion
     # calc kf
-    detangles = [a for a in angles[-len(qconv.detectorAxis):]]
+    detangles = list(angles[-len(qconv.detectorAxis):])
     kf = qconv.getDetectorPos(*detangles)
     if numpy.linalg.norm(kf) == 0:
         af = 0
@@ -187,7 +187,7 @@ def exitAngleConst(angles, alphaf, xrd):
 
 
 def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
-             startvalues=None, constraints=[]):
+             startvalues=None, constraints=None):
     """
     Functions to convert a q-vector from reciprocal space to angular space.
     This implementation uses scipy optimize routines to perform a fit for a
@@ -216,7 +216,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         start values for the fit, which can significantly speed up the
         conversion. The number of values must correspond to the number of
         angles in the goniometer of the expclass
-    constraints :   list
+    constraints :   list, optional
         sequence of constraint dictionaries. This allows applying arbitrary
         (e.g. pseudo-angle) contraints by supplying according constraint
         functions. An entry of the constraints argument must be a dictionary
@@ -244,6 +244,8 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
         raise ValueError("XU.Q2AngFit: length of given q-vector is not 3 "
                          "-> invalid")
     lqvec = numpy.asarray(qvec)
+    if constraints is None:
+        constraints = []
 
     qconv = expclass._A2QConversion
     nangles = len(qconv.sampleAxis) + len(qconv.detectorAxis)
@@ -291,7 +293,7 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     if ((config.VERBOSITY >= config.DEBUG) or (qerror > 10*config.EPSILON and
                                                config.VERBOSITY >=
                                                config.INFO_LOW)):
-        print("XU.Q2AngFit: q-error=%.4g with error-code %d (%s)"
-              % (qerror, errcode, res.message))
+        print(f"XU.Q2AngFit: q-error={qerror:.4g} with error-code {errcode} "
+              f"({res.message})")
 
     return x, qerror, errcode

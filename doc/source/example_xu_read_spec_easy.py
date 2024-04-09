@@ -10,7 +10,6 @@ for details about the measurement see:
 import os
 
 import matplotlib.pyplot as plt
-import numpy
 import xrayutilities as xu
 
 # global setting for the experiment
@@ -20,6 +19,7 @@ center_ch = 715.9  # center channel of the linear detector
 chpdeg = 345.28  # channels per degree of the linear detector
 roi = [100, 1340]  # region of interest of the detector
 nchannel = 1500  # number of channels of the detector
+datapath = os.path.join("examples", "data")
 
 # intensity normalizer function responsible for count time and absorber
 # correction
@@ -46,11 +46,11 @@ hxrd.Ang2Q.init_linear('z-', center_ch, nchannel, chpdeg=chpdeg, roi=roi)
 
 # read spec file and save to HDF5-file
 # since reading is much faster from HDF5 once the data are transformed
-h5file = os.path.join("data", sample + ".h5")
+h5file = os.path.join(datapath, sample + ".h5")
 try:
     s  # try if spec file object already exist ("run -i" in ipython)
 except NameError:
-    s = xu.io.SPECFile(sample + ".spec", path="data")
+    s = xu.io.SPECFile(sample + ".spec.bz2", path=datapath)
 else:
     s.Update()
 s.Save2HDF5(h5file)

@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -28,6 +28,7 @@ configured to describe almost any goniometer geometry.
 """
 
 import copy
+import enum
 import numbers
 import re
 import warnings
@@ -37,7 +38,7 @@ from numpy.linalg import norm
 
 # package internal imports
 from . import config, cxrayutilities, math, utilities
-from .exception import InputError
+from .exception import InputError, UsageError
 
 # regular expression to check goniometer circle syntax
 directionSyntax = re.compile("[xyz][+-]")
@@ -45,7 +46,14 @@ circleSyntaxDetector = re.compile("([xyz][+-])|(t[xyz])")
 circleSyntaxSample = re.compile("[xyzk][+-]")
 
 
-class QConversion(object):
+class QConvFlags(enum.IntFlag):
+    NONE = 0
+    HAS_TRANSLATIONS = 1
+    HAS_SAMPLEDIS = 4
+    VERBOSE = 16
+
+
+class QConversion:
 
     """
     Class for the conversion of angular coordinates to momentum space for
@@ -180,51 +188,7 @@ class QConversion(object):
                     raise InputError("QConversion: incorrect sample circle "
                                      "syntax (%s)" % circ)
                 if circ[0] == 'k':  # determine kappa rotation axis
-                    # determine reference direction
-                    if config.KAPPA_PLANE[0] == 'x':
-                        self._kappa_dir = numpy.array((1., 0, 0))
-                        # turn reference direction
-                        if config.KAPPA_PLANE[1] == 'y':
-                            self._kappa_dir = math.ZRotation(
-                                config.KAPPA_ANGLE)(self._kappa_dir)
-                        elif config.KAPPA_PLANE[1] == 'z':
-                            self._kappa_dir = math.YRotation(
-                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
-                        else:
-                            raise TypeError("Qconverision init: invalid "
-                                            "kappa_plane in config!")
-                    elif config.KAPPA_PLANE[0] == 'y':
-                        self._kappa_dir = numpy.array((0, 1., 0))
-                        # turn reference direction
-                        if config.KAPPA_PLANE[1] == 'z':
-                            self._kappa_dir = math.XRotation(
-                                config.KAPPA_ANGLE)(self._kappa_dir)
-                        elif config.KAPPA_PLANE[1] == 'x':
-                            self._kappa_dir = math.ZRotation(
-                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
-                        else:
-                            raise TypeError("Qconverision init: invalid "
-                                            "kappa_plane in config!")
-                    elif config.KAPPA_PLANE[0] == 'z':
-                        self._kappa_dir = numpy.array((0, 0, 1.))
-                        # turn reference direction
-                        if config.KAPPA_PLANE[1] == 'x':
-                            self._kappa_dir = math.YRotation(
-                                config.KAPPA_ANGLE)(self._kappa_dir)
-                        elif config.KAPPA_PLANE[1] == 'y':
-                            self._kappa_dir = math.XRotation(
-                                -1 * config.KAPPA_ANGLE)(self._kappa_dir)
-                        else:
-                            raise TypeError("Qconverision init: invalid "
-                                            "kappa_plane in config!")
-                    else:
-                        raise TypeError("Qconverision init: invalid "
-                                        "kappa_plane in config!")
-
-                    # rotation sense
-                    if circ[1] == '-':
-                        self._kappa_dir *= -1
-
+                    self._kappa_dir = math.getVector(circ)
                     if config.VERBOSITY >= config.DEBUG:
                         print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)"
                               % tuple(self._kappa_dir))
@@ -311,8 +275,7 @@ class QConversion(object):
         if tmp.shape != (3, 3) and tmp.size != 9:
             raise InputError("QConversion: incorrect shape of UB matrix "
                              "(shape: %s)" % str(tmp.shape))
-        else:
-            self._UB = tmp.reshape((3, 3))
+        self._UB = tmp.reshape((3, 3))
 
     energy = property(_get_energy, _set_energy)
     wavelength = property(_get_wavelength, _set_wavelength)
@@ -323,12 +286,12 @@ class QConversion(object):
     def __str__(self):
         pstr = 'QConversion geometry \n'
         pstr += '---------------------------\n'
-        pstr += 'sample geometry(%d): ' % len(self._sampleAxis) + \
+        pstr += f'sample geometry({len(self._sampleAxis)}): ' + \
             self._sampleAxis_str + '\n'
         if self._sampleAxis_str.find('k') != -1:
             pstr += ('kappa rotation axis (%5.3f %5.3f %5.3f)\n'
                      % tuple(self._kappa_dir))
-        pstr += 'detector geometry(%d): ' % len(self._detectorAxis) + \
+        pstr += f'detector geometry({len(self._detectorAxis)}): ' + \
             self._detectorAxis_str + '\n'
         pstr += ('primary beam direction: (%5.2f %5.2f %5.2f) \n'
                  % (self.r_i[0], self.r_i[1], self.r_i[2]))
@@ -344,7 +307,7 @@ class QConversion(object):
                      % (self._linear_distance, self._linear_pixwidth))
             chpdeg = 2 * self._linear_distance / \
                 self._linear_pixwidth * numpy.tan(numpy.radians(0.5))
-            pstr += 'corresponds to channel per degree: %8.2f\n' % (chpdeg)
+            pstr += f'corresponds to channel per degree: {chpdeg:8.2f}\n'
         if self._area_init:
             pstr += '\n area detector initialized:\n'
             pstr += 'area detector mount directions: %s/%s\n' % (
@@ -438,16 +401,12 @@ class QConversion(object):
 
         for i in range(len(args)):
             arg = args[i]
-            if not isinstance(
-                arg,
-                (numbers.Number,
-                 list,
-                 tuple,
-                 numpy.ndarray)):
+            if not isinstance(arg,
+                              (numbers.Number, list, tuple, numpy.ndarray)):
                 raise TypeError("QConversion: invalid type for one of the "
                                 "sample coordinates, must be scalar, list or "
                                 "array")
-            elif isinstance(arg, numbers.Number):
+            if isinstance(arg, numbers.Number):
                 arg = numpy.ones(npoints, dtype=numpy.double) * arg
             elif isinstance(arg, (list, tuple)):
                 arg = numpy.array(arg, dtype=numpy.double)
@@ -485,11 +444,11 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
         """
-        flags = 0
+        flags = QConvFlags.NONE
         if self._has_translations:
-            flags = utilities.set_bit(flags, 0)
+            flags |= QConvFlags.HAS_TRANSLATIONS
 
         Ns = len(self.sampleAxis)
         Nd = len(self.detectorAxis)
@@ -514,7 +473,7 @@ class QConversion(object):
 
         sd = numpy.asarray(kwargs.get('sampledis', [0, 0, 0]))
         if 'sampledis' in kwargs:
-            flags = utilities.set_bit(flags, 2)
+            flags |= QConvFlags.HAS_SAMPLEDIS
 
         return Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags
 
@@ -565,7 +524,7 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
         Returns
         -------
@@ -614,8 +573,8 @@ class QConversion(object):
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns, Nd))
-            print("XU.QConversion: sAngles / dAngles %s / %s"
-                  % (str(sAngles), str(dAngles)))
+            print(f"XU.QConversion: sAngles / dAngles {str(sAngles)} / "
+                  f"{str(dAngles)}")
 
         qpos = cxrayutilities.ang2q_conversion(
             sAngles, dAngles, self.r_i, sAxis, dAxis,
@@ -623,10 +582,9 @@ class QConversion(object):
 
         if Npoints == 1:
             return (qpos[0, 0], qpos[0, 1], qpos[0, 2])
-        else:
-            return numpy.reshape(qpos[:, 0], retshape), \
-                numpy.reshape(qpos[:, 1], retshape), \
-                numpy.reshape(qpos[:, 2], retshape)
+        return numpy.reshape(qpos[:, 0], retshape), \
+            numpy.reshape(qpos[:, 1], retshape), \
+            numpy.reshape(qpos[:, 2], retshape)
 
     def init_linear(self, detectorDir, cch, Nchannel, distance=None,
                     pixelwidth=None, chpdeg=None, tilt=0, **kwargs):
@@ -769,7 +727,7 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
         Returns
         -------
@@ -778,14 +736,14 @@ class QConversion(object):
         """
 
         if not self._linear_init:
-            raise Exception("QConversion: linear detector not initialized -> "
-                            "call Ang2Q.init_linear(...)")
+            raise UsageError("QConversion: linear detector not initialized -> "
+                             "call Ang2Q.init_linear(...)")
 
         valid_kwargs = copy.copy(self._valid_call_kwargs)
         valid_kwargs.update(self._valid_linear_kwargs)
         utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2Q/linear')
 
-        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
+        Ns, _, Ncirc, wl, deg, delta, UB, sd, flags = \
             self._parse_common_kwargs(**kwargs)
 
         # extra keyword arguments
@@ -804,14 +762,12 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
-                                               self.sampleAxis, *args[:Ns],
-                                               deg=deg)
+        sAngles = self._reshapeInput(Npoints, delta[:Ns],
+                                     self.sampleAxis, *args[:Ns], deg=deg)[0]
         dAngles = self._reshapeInput(Npoints, delta[Ns:],
-                                     self.detectorAxis, *args[Ns:],
-                                     deg=deg)[0]
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
-                                            wl, deg=False)[0])
+                                     self.detectorAxis, *args[Ns:], deg=deg)[0]
+        wl = numpy.ravel(
+            self._reshapeInput(Npoints, (0, ), 'a', wl, deg=False)[0])
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -829,9 +785,8 @@ class QConversion(object):
         if Npoints == 1:
             qpos.shape = (Npoints * (roi[1] - roi[0]), 3)
             return qpos[:, 0], qpos[:, 1], qpos[:, 2]
-        else:
-            qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
-            return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
+        qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+        return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
 
     def init_area(self, detectorDir1, detectorDir2, cch1, cch2, Nch1, Nch2,
                   distance=None, pwidth1=None, pwidth2=None, chpdeg1=None,
@@ -906,8 +861,8 @@ class QConversion(object):
         # other none keyword arguments
         self._area_Nch1 = int(Nch1)
         self._area_Nch2 = int(Nch2)
-        self._area_cch1 = int(cch1)
-        self._area_cch2 = int(cch2)
+        self._area_cch1 = float(cch1)
+        self._area_cch2 = float(cch2)
 
         # if detector rotation is present add new motor to consider it in
         # conversion
@@ -1019,7 +974,7 @@ class QConversion(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
 
         Returns
@@ -1031,8 +986,8 @@ class QConversion(object):
         """
 
         if not self._area_init:
-            raise Exception("QConversion: area detector not initialized -> "
-                            "call Ang2Q.init_area(...)")
+            raise UsageError("QConversion: area detector not initialized -> "
+                             "call Ang2Q.init_area(...)")
 
         valid_kwargs = copy.copy(self._valid_call_kwargs)
         valid_kwargs.update(self._valid_linear_kwargs)
@@ -1057,11 +1012,10 @@ class QConversion(object):
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
-                                               self.sampleAxis, *args[:Ns],
-                                               deg=deg)
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
-                                            wl, deg=False)[0])
+        sAngles = self._reshapeInput(Npoints, delta[:Ns],
+                                     self.sampleAxis, *args[:Ns], deg=deg)[0]
+        wl = numpy.ravel(
+            self._reshapeInput(Npoints, (0, ), 'a', wl, deg=False)[0])
 
         if self._area_detrotaxis_set:
             Nd = Nd + 1
@@ -1085,7 +1039,7 @@ class QConversion(object):
         if config.VERBOSITY >= config.DEBUG:
             print("QConversion.area: roi, number of points per frame: %s, %d"
                   % (str(roi), (roi[1] - roi[0]) * (roi[3] - roi[2])))
-            print("QConversion.area: cch1, cch2: %5.2f %5.2f" % (cch1, cch2))
+            print(f"QConversion.area: cch1, cch2: {cch1:5.2f} {cch2:5.2f}")
 
         sAxis = self._sampleAxis_str
         dAxis = self._detectorAxis_str
@@ -1100,9 +1054,8 @@ class QConversion(object):
         if Npoints == 1:
             qpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
             return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
-        else:
-            qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
-            return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
+        qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+        return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
 
     def transformSample2Lab(self, vector, *args):
         """
@@ -1171,11 +1124,11 @@ class QConversion(object):
         dim = kwargs.get('dim', 0)
 
         if dim == 1 and not self._linear_init:
-            raise Exception("QConversion: linear detector not initialized -> "
-                            "call Ang2Q.init_linear(...)")
-        elif dim == 2 and not self._area_init:
-            raise Exception("QConversion: area detector not initialized -> "
-                            "call Ang2Q.init_area(...)")
+            raise UsageError("QConversion: linear detector not initialized -> "
+                             "call Ang2Q.init_linear(...)")
+        if dim == 2 and not self._area_init:
+            raise UsageError("QConversion: area detector not initialized -> "
+                             "call Ang2Q.init_area(...)")
 
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
@@ -1184,28 +1137,12 @@ class QConversion(object):
         # kwargs
         deg = kwargs.get('deg', True)
 
-        if 'roi' in kwargs:
-            oroi = kwargs['roi']
-        else:
-            if dim == 1:
-                oroi = self._linear_roi
-            elif dim == 2:
-                oroi = self._area_roi
-
-        if 'Nav' in kwargs:
-            nav = kwargs['Nav']
-        else:
-            if dim == 1:
-                nav = self._linear_nav
-            elif dim == 2:
-                nav = self._area_nav
-
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Nd:
-            raise InputError("QConversion: wrong amount (%d) of arguments "
-                             "given, number of arguments should be %d"
-                             % (len(args), Nd))
+            raise InputError(f"QConversion: wrong amount ({len(args)}) of "
+                             "arguments given, number of arguments should be "
+                             f"{Nd}")
 
         # determine the number of points and reshape input arguments
         Npoints = self._checkInput(*args)
@@ -1227,9 +1164,13 @@ class QConversion(object):
         dAngles = dAngles.transpose()
 
         if dim == 2:
+            oroi = kwargs.get('roi', self._area_roi)
+            nav = kwargs.get('Nav', self._area_nav)
             cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(oroi,
                                                                         nav)
         elif dim == 1:
+            oroi = kwargs.get('roi', self._linear_roi)
+            nav = kwargs.get('Nav', self._linear_nav)
             cch, pwidth, roi = self._get_detparam_linear(oroi, nav)
 
         dAxis = self._detectorAxis_str
@@ -1245,11 +1186,10 @@ class QConversion(object):
             if Npoints == 1:
                 dpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
                 return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
-            else:
-                dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
-                return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
+            dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+            return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
 
-        elif dim == 1:
+        if dim == 1:
             cfunc = cxrayutilities.ang2q_detpos_linear
             dpos = cfunc(dAngles, self.r_i, dAxis, cch, pwidth, roi,
                          self._linear_detdir, self._linear_tilt,
@@ -1259,20 +1199,17 @@ class QConversion(object):
             if Npoints == 1:
                 dpos.shape = (Npoints * (roi[1] - roi[0]), 3)
                 return dpos[:, 0], dpos[:, 1], dpos[:, 2]
-            else:
-                dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
-                return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
+            dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+            return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
 
-        else:
-            cfunc = cxrayutilities.ang2q_detpos
-            dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
+        cfunc = cxrayutilities.ang2q_detpos
+        dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
 
-            if Npoints == 1:
-                return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
-            else:
-                return numpy.reshape(dpos[:, 0], retshape), \
-                    numpy.reshape(dpos[:, 1], retshape), \
-                    numpy.reshape(dpos[:, 2], retshape)
+        if Npoints == 1:
+            return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
+        return numpy.reshape(dpos[:, 0], retshape), \
+            numpy.reshape(dpos[:, 1], retshape), \
+            numpy.reshape(dpos[:, 2], retshape)
 
     def getDetectorDistance(self, *args, **kwargs):
         """
@@ -1308,7 +1245,7 @@ class QConversion(object):
         return numpy.sqrt(x**2 + y**2 + z**2)
 
 
-class Experiment(object):
+class Experiment:
 
     """
     base class for describing experiments
@@ -1429,8 +1366,8 @@ class Experiment(object):
         ostr += "second refercence direction: (%f %f %f)\n" % (self.ndir[0],
                                                                self.ndir[1],
                                                                self.ndir[2])
-        ostr += "energy: %f (eV)\n" % self._en
-        ostr += "wavelength: %f (angstrom)\n" % (self._wl)
+        ostr += f"energy: {self._en:f} (eV)\n"
+        ostr += f"wavelength: {self._wl:f} (angstrom)\n"
         ostr += self._A2QConversion.__str__()
 
         return ostr
@@ -1578,7 +1515,7 @@ class Experiment(object):
             flag to tell if angles are passed as degree (default: True)
         sampledis : tuple or list or array-like
             sample displacement vector in relative units of the detector
-            distance. Applies to parallal beam geometry. (default: (0, 0, 0))
+            distance. Applies to parallel beam geometry. (default: (0, 0, 0))
 
         Returns
         -------
@@ -1624,10 +1561,9 @@ class Experiment(object):
 
         if typ == 'linear':
             return self.Ang2Q.linear(*args, **kwargs)
-        elif typ == 'area':
+        if typ == 'area':
             return self.Ang2Q.area(*args, **kwargs)
-        else:
-            return self.Ang2Q(*args, **kwargs)
+        return self.Ang2Q(*args, **kwargs)
 
     def Transform(self, v):
         """
@@ -1700,7 +1636,7 @@ class HXRD(Experiment):
     the class describes a two circle (omega, twotheta) goniometer to
     help with coplanar x-ray diffraction experiments. Nevertheless 3D data
     can be treated with the use of linear and area detectors.
-    see help self.Ang2Q
+    see "help(HXRDInstance.Ang2Q)"
     """
 
     def __init__(self, idir, ndir, geometry='hi_lo', **keyargs):
@@ -1738,6 +1674,7 @@ class HXRD(Experiment):
                 (self._en, self.geometry, str(
                     self.Ang2Q)))
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, om, tt, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -1773,7 +1710,6 @@ class HXRD(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
     def Q2Ang(self, *Q, **keyargs):
         """
@@ -1904,7 +1840,7 @@ class HXRD(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.HXRD.Q2Ang: q= %s" % repr(q))
+            print(f"XU.HXRD.Q2Ang: q= {repr(q)}")
 
         qa = math.VecNorm(q)
         tth = 2. * numpy.arcsin(qa / 2. / k)
@@ -1972,8 +1908,7 @@ class HXRD(Experiment):
             om[mnot] = math.VecAngle(ki0, y)
             psi_i[mnot] = numpy.arcsin(math.VecDot(ki0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.HXRD.Q2Ang: ki, ki0 = %s %s"
-                      % (repr(ki), repr(ki0)))
+                print(f"XU.HXRD.Q2Ang: ki, ki0 = {repr(ki)} {repr(ki0)}")
 
             # refraction at exit facet
             m = math.VecDot(kd, fd) < 0
@@ -1993,8 +1928,7 @@ class HXRD(Experiment):
             tth[mnot] = math.VecAngle(ki0, kd0)
             psi_d[mnot] = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.HXRD.Q2Ang: kd, kd0 = %s %s"
-                      % (repr(kd), repr(kd0)))
+                print(f"XU.HXRD.Q2Ang: kd, kd0 = {repr(kd)} {repr(kd0)}")
 
         if geom == 'realTilt':
             angle[0, :] = om
@@ -2016,8 +1950,7 @@ class HXRD(Experiment):
 
         if deg:
             return numpy.degrees(angle)
-        else:
-            return angle
+        return angle
 
 
 class FourC(HXRD):
@@ -2029,7 +1962,8 @@ class FourC(HXRD):
 
     the class describes a four circle (omega, chi, phi, twotheta) goniometer to
     help with coplanar x-ray diffraction experiments. Nevertheless 3D data can
-    be treated with the use of linear and area detectors.  see help self.Ang2Q
+    be treated with the use of linear and area detectors.  see
+    "help(FourCInstance.Ang2Q)"
     """
 
     def __init__(self, idir, ndir, **keyargs):
@@ -2070,7 +2004,7 @@ class NonCOP(Experiment):
 
     The class describes a four circle (omega, chi, phi, twotheta) goniometer to
     help with x-ray diffraction experiments. Linear and area detectors can be
-    treated as described in "help self.Ang2Q"
+    treated as described in "help(NonCOPInstance.Ang2Q)"
     """
 
     def __init__(self, idir, ndir, **keyargs):
@@ -2090,6 +2024,7 @@ class NonCOP(Experiment):
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, om, chi, phi, tt, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -2125,7 +2060,6 @@ class NonCOP(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
     def Q2Ang(self, *Q, **keyargs):
         """
@@ -2181,7 +2115,7 @@ class NonCOP(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.NonCop.Q2Ang: q= %s" % repr(q))
+            print(f"XU.NonCOP.Q2Ang: q= {repr(q)}")
 
         qa = math.VecNorm(q)
         tth = 2. * numpy.arcsin(qa / 2. / self.k0)
@@ -2203,12 +2137,11 @@ class NonCOP(Experiment):
         if q.shape[0] == 1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: [om, chi, phi, tth] = %s" % repr(angle))
+                print(f"XU.HXRD.Q2Ang: [om, chi, phi, tth] = {repr(angle)}")
 
         if deg:
             return numpy.degrees(angle)
-        else:
-            return angle
+        return angle
 
 
 class GID(Experiment):
@@ -2221,7 +2154,7 @@ class GID(Experiment):
     the class describes a four circle (alpha_i, azimuth, twotheta, beta)
     goniometer to help with GID experiments at the ROTATING ANODE.
     3D data can be treated with the use of linear and area detectors.
-    see help self.Ang2Q
+    see "help(GIDInstance.Ang2Q)"
 
     Using this class the default sample surface orientation is determined by
     the inner most sample rotation (which is usually the azimuth motor).
@@ -2251,7 +2184,7 @@ class GID(Experiment):
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
-    def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
+    def Q2Ang(self, qvec, trans=True, deg=True, **kwargs):
         """
         calculate the GID angles needed in the experiment
         the inplane reference direction defines the direction were
@@ -2264,7 +2197,7 @@ class GID(Experiment):
 
         Parameters
         ----------
-        Q :         list, tuple or array-like
+        qvec :         list, tuple or array-like
             array of shape (3) with q-space vector components or 3
             separate lists with qx, qy, qz
 
@@ -2292,10 +2225,10 @@ class GID(Experiment):
                         'deg': 'degree-flag'}
         utilities.check_kwargs(kwargs, valid_kwargs, 'Q2Ang')
 
-        if isinstance(Q, list):
-            q = numpy.array(Q, dtype=numpy.double)
-        elif isinstance(Q, numpy.ndarray):
-            q = Q
+        if isinstance(qvec, list):
+            q = numpy.array(qvec, dtype=numpy.double)
+        elif isinstance(qvec, numpy.ndarray):
+            q = qvec
         else:
             raise TypeError("Q vector must be a list or numpy array")
 
@@ -2303,7 +2236,7 @@ class GID(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.GID.Q2Ang: q = %s" % repr(q))
+            print(f"XU.GID.Q2Ang: q = {repr(q)}")
 
         # set parameters for the calculation
         z = self.Transform(self.ndir)  # z
@@ -2312,8 +2245,8 @@ class GID(Experiment):
 
         # check if reflection is inplane
         if numpy.abs(math.VecDot(q, z)) >= 0.001:
-            raise InputError("Reflection not reachable in GID geometry (Q: %s)"
-                             % str(q))
+            raise InputError(
+                f"Reflection not reachable in GID geometry (Q: {str(q)})")
 
         # calculate angle to inplane reference direction
         aref = numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
@@ -2329,11 +2262,12 @@ class GID(Experiment):
             ang = [0, azimuth, tth, 0]
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.GID.Q2Ang: [ai, azimuth, tth, beta] = %s \n difference "
-                  "to inplane reference which is %5.2f" % (str(ang), aref))
+            print(f"XU.GID.Q2Ang: [ai, azimuth, tth, beta] = {str(ang)}\n"
+                  f"difference to inplane reference which is {aref:5.2f}")
 
         return ang
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, ai, phi, tt, beta, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -2369,7 +2303,6 @@ class GID(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
 
 class GISAXS(Experiment):
@@ -2407,6 +2340,7 @@ class GISAXS(Experiment):
     def Q2Ang(self, Q, trans=True, deg=True, **kwargs):
         pass
 
+    # pylint: disable-next=method-hidden
     def Ang2Q(self, ai, tt, beta, **kwargs):
         """
         angular to momentum space conversion for a point detector. Also see
@@ -2442,7 +2376,6 @@ class GISAXS(Experiment):
         """
         # dummy function to have some documentation string available
         # the real function is generated dynamically in the __init__ routine
-        pass
 
 
 class PowderExperiment(Experiment):

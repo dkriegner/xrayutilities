@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities utilities contains a conglomeration of useful functions
@@ -36,9 +36,9 @@ except AttributeError:  # Python 2.7
     ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
 
 
-__all__ = ['ABC', 'check_kwargs', 'clear_bit', 'en2lam', 'energies', 'energy',
+__all__ = ['ABC', 'check_kwargs', 'en2lam', 'energies', 'energy',
            'exchange_filepath', 'exchange_path', 'is_valid_variable_name',
-           'lam2en', 'makeNaturalName', 'set_bit', 'wavelength']
+           'lam2en', 'makeNaturalName', 'wavelength']
 
 energies = {
     'CuKa1': 8047.82310,
@@ -58,22 +58,6 @@ energies = {
 # Xray data booklet:
 # CoKa1
 # CoKa2
-
-
-def set_bit(f, offset):
-    """
-    sets the bit at an offset
-    """
-    mask = 1 << offset
-    return(f | mask)
-
-
-def clear_bit(f, offset):
-    """
-    clears the bet at an offset
-    """
-    mask = ~(1 << offset)
-    return(f & mask)
 
 
 def lam2en(inp):
@@ -146,12 +130,11 @@ def energy(en):
 
     if isinstance(en, numbers.Number):
         return numpy.double(en)
-    elif isinstance(en, (numpy.ndarray, list, tuple)):
+    if isinstance(en, (numpy.ndarray, list, tuple)):
         return numpy.asarray(en)
-    elif isinstance(en, str):
+    if isinstance(en, str):
         return energies[en]
-    else:
-        raise InputError("wrong type for argument en")
+    raise InputError("wrong type for argument en")
 
 
 def wavelength(wl):
@@ -175,12 +158,11 @@ def wavelength(wl):
 
     if isinstance(wl, numbers.Number):
         return numpy.double(wl)
-    elif isinstance(wl, (numpy.ndarray, list, tuple)):
+    if isinstance(wl, (numpy.ndarray, list, tuple)):
         return numpy.asarray(wl)
-    elif isinstance(wl, str):
+    if isinstance(wl, str):
         return en2lam(energies[wl])
-    else:
-        raise InputError("wrong type for argument wavelength")
+    raise InputError("wrong type for argument wavelength")
 
 
 def exchange_path(orig, new, keep=0, replace=None):
@@ -213,13 +195,13 @@ def exchange_path(orig, new, keep=0, replace=None):
 
     Examples
     --------
-    >>> exchange_path('/dir_a/subdir/img/sam', '/home/user/data', keep=2)
-    '/home/user/data/img/sam'
+    >>> p = exchange_path('/dir_a/subdir/img/sam', '/home/user/data', keep=2)\
+    # you get '/home/user/data/img/sam'
     """
     subdirs = []
     o = orig
     if replace is None:
-        for i in range(keep):
+        for _ in range(keep):
             o, s = os.path.split(o)
             subdirs.append(s)
         out = new
@@ -232,11 +214,10 @@ def exchange_path(orig, new, keep=0, replace=None):
             if not s:
                 subdirs.append(o)
                 break
-            elif not o:
+            if not o:
                 subdirs.append(s)
                 break
-            else:
-                subdirs.append(s)
+            subdirs.append(s)
         subdirs.reverse()
         out = new
         for s in subdirs[replace:]:
@@ -274,16 +255,14 @@ def exchange_filepath(orig, new, keep=0, replace=None):
 
     Examples
     --------
-    >>> exchange_filepath('/dir_a/subdir/sam/file.txt', '/data', 1)
-    '/data/sam/file.txt'
+    >>> newfile = exchange_filepath('/dir_a/subdir/sam/file.txt', '/data', 1)\
+    # you get '/data/sam/file.txt'
     """
     if new:
         if replace is None:
             return exchange_path(orig, new, keep+1)
-        else:
-            return exchange_path(orig, new, replace=replace)
-    else:
-        return orig
+        return exchange_path(orig, new, replace=replace)
+    return orig
 
 
 def makeNaturalName(name, check=False):
@@ -291,8 +270,7 @@ def makeNaturalName(name, check=False):
     isvalid = is_valid_variable_name(ret)
     if not check or isvalid:
         return ret
-    elif not isvalid:
-        raise ValueError("'{}' is not valid variable name".format(ret))
+    raise ValueError(f"'{ret}' is not valid variable name")
 
 
 def is_valid_variable_name(name):
@@ -312,7 +290,7 @@ def check_kwargs(kwargs, valid_kwargs, identifier):
     identifier :    str
         string to identifier the caller of this function
     """
-    desc = ', '.join(["'%s': %s" % (k, d) for k, d in valid_kwargs.items()])
+    desc = ', '.join([f"'{k}': {d}" for k, d in valid_kwargs.items()])
     for k in kwargs:
         if k not in valid_kwargs:
             raise TypeError("%s: unknown keyword argument ('%s') given; "

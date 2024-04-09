@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 import abc
 import collections.abc
 import copy
@@ -78,7 +78,7 @@ def GradedBuffer(xfrom, xto, nsteps, thickness, relaxation=1):
     return layerlist
 
 
-class DarwinModel(LayerModel):
+class DarwinModel(LayerModel, utilities.ABC):
     """
     model class inmplementing the basics of the Darwin theory for layers
     materials.  This class is not fully functional and should be used to derive
@@ -143,7 +143,7 @@ class DarwinModel(LayerModel):
         """
         calculates the needed atomic structure factors
         """
-        pass
+        raise NotImplementedError("abstract method needs to be overwritten")
 
     def _calc_mono(self, pdict, pol):
         """
@@ -162,7 +162,7 @@ class DarwinModel(LayerModel):
         r, rbar, t :    float or array-like
             reflection, backside reflection, and tranmission coefficients
         """
-        pass
+        raise NotImplementedError("abstract method needs to be overwritten")
 
     def _calc_double(self, ra, rabar, ta, rb, rbbar, tb, d):
         """
@@ -187,7 +187,7 @@ class DarwinModel(LayerModel):
         self.ncalls += 1
         e = numpy.exp(-1j*self.qz*d)
         eh = numpy.exp(-1j*self.qz*d/2)
-        denom = (1-rabar*rb*e)
+        denom = 1 - rabar * rb * e
         rab = ra + rb*(ta*ta*e)/denom
         rabbar = rbbar + rabar*(tb*tb*e)/(1-rbbar*ra*e)
         tab = ta*tb*eh/denom
@@ -275,6 +275,8 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
     get_dperp_apar() method and define the substrate lattice parameter (asub).
     See the DarwinModelSiGe001 class for an implementation example.
     """
+    asub = None  # needs to be defined by subclasses
+
     @abc.abstractmethod
     def get_dperp_apar(self, x, apar, r=1):
         """
@@ -311,8 +313,8 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
             Si(10nm)/Ge(15nm) superlattice on Si would like like:
 
             >>> s = [(5, [{'t': 100, 'x': 0, 'r': 0},
-            >>>           {'t': 150, 'x': 1, 'r': 0}]),
-            >>>      {'t': 3500000, 'x': 0, 'r': 0}]
+            ...           {'t': 150, 'x': 1, 'r': 0}]),
+            ...      {'t': 3500000, 'x': 0, 'r': 0}]
 
             the dictionaries must contain 't': thickness in A, 'x': chemical
             composition, and either 'r': relaxation or 'ai': inplane lattice
@@ -360,7 +362,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
             if isinstance(sd, dict):
                 sd = [sd, ]
             if any([r > 0 for r in getit(sd, 'r')]):  # if relaxation
-                for i in range(nrep):
+                for _ in range(nrep):
                     for subsd in sd:
                         ml, apar = self._recur_makeml(subsd, ml, apar=apar)
             else:  # no relaxation in substructure
@@ -400,8 +402,8 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                 s.update({'d': dperp, 'x': x, 'ai': apar})
                 ml.insert(0, (nmono, s))
         else:
-            raise Exception('wrong type (%s) of sublayer, must be tuple or'
-                            ' dict' % (type(s)))
+            raise Exception(
+                f"wrong type ({type(s)}) of sublayer, must be tuple or dict")
         return ml, apar
 
     def prop_profile(self, ml, prop):
@@ -426,9 +428,6 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
             value of the property prop for every monolayer
         """
 
-        def startinterval(start, inter, N):
-            return numpy.arange(start, start+inter*(N+0.5), inter)
-
         def _recur_prop(nrep, ml, zp, propx, propn):
             if isinstance(ml, list):
                 lzp, lprop = ([], [])
@@ -449,7 +448,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                     propx = numpy.append(propx, lprop)
                 try:
                     curlzp = lzp[-1]
-                except IndexError:
+                except (IndexError, TypeError):
                     curlzp = lzp
                 lzp = numpy.append(lzp, lzp+curlzp)
                 lprop = numpy.append(lprop, lprop)
@@ -473,7 +472,7 @@ class DarwinModelSiGe001(DarwinModelAlloy):
     Ge = materials.Ge
     eSi = materials.elements.Si
     eGe = materials.elements.Ge
-    aSi = materials.Si.a1[0]
+    aSi = materials.Si.a
     asub = aSi  # needed for the make_monolayer function
     re = physical_constants['classical electron radius'][0] * 1e10
 
@@ -485,9 +484,10 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         return cls.aSi + (0.2 * x + 0.027 * x ** 2)
 
     @staticmethod
-    def poisson_ratio(x):
+    def _deformation_ratio(x):
         """
-        calculate the Poisson ratio of the alloy
+        calculate the deformation ratio of the alloy for biaxial strain. This
+        corresponds to 2*c12/c11.
         """
         return 2 * (63.9-15.6*x) / (165.8-37.3*x)  # according to IOFFE
 
@@ -517,7 +517,7 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
@@ -587,7 +587,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
     eGa = materials.elements.Ga
     eIn = materials.elements.In
     eAs = materials.elements.As
-    aGaAs = materials.GaAs.a1[0]
+    aGaAs = materials.GaAs.a
     asub = aGaAs  # needed for the make_monolayer function
     re = physical_constants['classical electron radius'][0] * 1e10
 
@@ -600,11 +600,12 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         return cls.aGaAs + 0.40505*x
 
     @staticmethod
-    def poisson_ratio(x):
+    def _deformation_ratio(x):
         """
-        calculate the Poisson ratio of the alloy
+        calculate the deformation ratio of the alloy for biaxial strain. This
+        corresponds to 2*c12/c11.
         """
-        return 2 * (4.54 + 0.8*x) / (8.34 + 3.56*x)  # according to IOFFE
+        return 2 * (5.38 - 0.84*x) / (11.88 - 3.54*x)  # according to IOFFE
 
     @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
@@ -632,7 +633,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
@@ -692,7 +693,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
     eGa = materials.elements.Ga
     eAl = materials.elements.Al
     eAs = materials.elements.As
-    aGaAs = materials.GaAs.a1[0]
+    aGaAs = materials.GaAs.a
     asub = aGaAs  # needed for the make_monolayer function
     re = physical_constants['classical electron radius'][0] * 1e10
 
@@ -705,9 +706,10 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         return cls.aGaAs + 0.0078*x
 
     @staticmethod
-    def poisson_ratio(x):
+    def _deformation_ratio(x):
         """
-        calculate the Poisson ratio of the alloy
+        calculate the deformation ratio of the alloy for biaxial strain. This
+        corresponds to 2*c12/c11.
         """
         return 2 * (5.38+0.32*x) / (11.88+0.14*x)  # according to IOFFE
 
@@ -737,7 +739,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls.poisson_ratio(x)*(1-aparl/abulk))/4.
+        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):

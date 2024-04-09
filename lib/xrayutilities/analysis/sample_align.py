@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2011-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2011-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 functions to help with experimental alignment during experiments, especially
@@ -27,11 +27,9 @@ import re
 import time
 
 import numpy
-import scipy.optimize as optimize
 from numpy import cos, degrees, radians, sin, tan
-from scipy.ndimage.measurements import center_of_mass
-from scipy.odr import models
-from scipy.odr import odrpack as odr
+from scipy import odr, optimize
+from scipy.ndimage import center_of_mass
 
 from .. import config, cxrayutilities
 from .. import math as xumath
@@ -159,7 +157,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         return r
 
     # fit linear
-    model = models.unilinear
+    model = odr.unilinear
     data = odr.RealData(angles, channels, sy=stdevu)
     my_odr = odr.ODR(data, model)
     # fit type 2 for least squares
@@ -167,7 +165,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
     fitlin = my_odr.run()
 
     # fit linear with tangens angle
-    model = models.unilinear
+    model = odr.unilinear
     data = odr.RealData(degrees(tan(radians(angles))),
                         channels, sy=stdevu)
     my_odr = odr.ODR(data, model)
@@ -203,20 +201,20 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         angp = numpy.linspace(angles.min() - angr * 0.1,
                               angles.max() + angr * .1, 1000)
         if modelline:
-            plt.plot(angp, models._unilin(fittan.beta,
-                                          degrees(tan(radians(angp)))),
+            plt.plot(angp, odr.unilinear.fcn(fittan.beta,
+                                             degrees(tan(radians(angp)))),
                      modelline, label=mlabel, lw=linewidth)
-        plt.plot(angp, models._unilin(fitlin.beta, angp), '-k', label='')
+        plt.plot(angp, odr.unilinear.fcn(fitlin.beta, angp), '-k', label='')
         if usetilt:
             plt.plot(angp, straight_tilt(fittilt.beta, angp),
                      modeltilt, label=mtiltlabel, lw=linewidth)
         if stdev is None:
             plt.plot(angles, channels, datap, ms=markersize,
-                     mew=markeredgewidth, mec=datap[0],
+                     mew=markeredgewidth, mec=datap[-1],
                      mfc='none', label=dlabel)
         else:
             plt.errorbar(angles, channels, fmt=datap, yerr=stdevu,
-                         ms=markersize, mew=markeredgewidth, mec=datap[0],
+                         ms=markersize, mew=markeredgewidth, mec=datap[-1],
                          mfc='none', label=dlabel, ecolor='0.5')
         plt.grid(True)
         leg = plt.legend(numpoints=1)
@@ -227,28 +225,29 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
         # lower plot to show deviations from linear model
         plt.subplot(212, sharex=ax1)
         if modelline:
-            plt.plot(angp, models._unilin(fittan.beta,
-                                          degrees(tan(radians(angp)))) -
-                     models._unilin(fitlin.beta, angp),
+            plt.plot(angp, odr.unilinear.fcn(fittan.beta,
+                                             degrees(tan(radians(angp)))) -
+                     odr.unilinear.fcn(fitlin.beta, angp),
                      modelline, label=mlabel, lw=linewidth)
         if usetilt:
             plt.plot(angp, straight_tilt(fittilt.beta, angp) -
-                     models._unilin(fitlin.beta, angp),
+                     odr.unilinear.fcn(fitlin.beta, angp),
                      modeltilt, label=mtiltlabel, lw=linewidth)
         if stdev is None:
-            plt.plot(angles, channels - models._unilin(fitlin.beta, angles),
-                     datap, ms=markersize, mew=markeredgewidth, mec=datap[0],
+            plt.plot(angles, channels - odr.unilinear.fcn(fitlin.beta, angles),
+                     datap, ms=markersize, mew=markeredgewidth, mec=datap[-1],
                      mfc='none', label=dlabel)
         else:
             plt.errorbar(angles,
-                         channels - models._unilin(fitlin.beta, angles),
+                         channels - odr.unilinear.fcn(fitlin.beta, angles),
                          fmt=datap, yerr=stdevu, ms=markersize,
-                         mew=markeredgewidth, mec=datap[0], mfc='none',
+                         mew=markeredgewidth, mec=datap[-1], mfc='none',
                          label=dlabel, ecolor='0.5')
         plt.xlabel("detector angle (deg)")
         plt.ylabel("ch. num. - linear trend")
         plt.grid(True)
         plt.hlines(0, angp.min(), angp.max())
+        plt.tight_layout()
 
         if figtitle:
             if usetilt:
@@ -285,8 +284,7 @@ def psd_chdeg(angles, channels, stdev=None, usetilt=True, plot=True,
 
     if usetilt:
         return (1. / math.degrees(fit.beta[0]), fit.beta[1], fit.beta[2])
-    else:
-        return (1. / math.degrees(fit.beta[0]), fit.beta[1], 0.)
+    return (1. / math.degrees(fit.beta[0]), fit.beta[1], 0.)
 
 
 #################################################
@@ -382,7 +380,7 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         # fit beam position
         # determine maximal usable length of array around peak position
         Nuse = min(maxp + N // 2, len(row) - 1) - max(maxp - N // 2, 0)
-        param, perr, itlim = xumath.peak_fit(
+        param, perr, _ = xumath.peak_fit(
             numpy.arange(Nuse),
             row[max(maxp - N // 2, 0):min(maxp + N // 2, len(row) - 1)],
             peaktype='PseudoVoigt')
@@ -416,10 +414,8 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         if numpy.sign(val) < 0:
             if char == '+':
                 return '-'
-            else:
-                return '+'
-        else:
-            return char
+            return '+'
+        return char
 
     if argm == 0:
         detaxis = 'x' + flipsign(sign, detd[argm])
@@ -429,18 +425,18 @@ def linear_detector_calib(angle, mca_spectra, **keyargs):
         detaxis = 'z' + flipsign(sign, detd[argm])
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("XU.analysis.linear_detector_calib:\n\tused/total spectra: %d/%d"
-              % (mca_spectra.shape[0] - nignored, mca_spectra.shape[0]))
-        print("\tdetector rotation axis (given by user/default input): %s"
-              % detrotaxis)
+        print("XU.analysis.linear_detector_calib:\n\tused/total spectra: "
+              f"{mca_spectra.shape[0] - nignored:d}/{mca_spectra.shape[0]:d}")
+        print("\tdetector rotation axis (given by user/default input): "
+              f"{detrotaxis}")
         if len(detparam) == 3:
             tilt = detparam[2]
         else:
             tilt = 0
-        print("\tdetector initialization with: init_linear('%s', %.2f, %d"
-              ", pixelwidth=%.4e, distance=1., tilt=%.2f)"
-              % (detaxis, abs(detparam[1]), mca_spectra.shape[1],
-                 abs(detparam[0]), tilt))
+        print(f"\tdetector initialization with: init_linear('{detaxis}', "
+              f"{abs(detparam[1]):.2f}, {mca_spectra.shape[1]:d}, "
+              f"pixelwidth={abs(detparam[0]):.4e}, distance=1., "
+              f"tilt={tilt:.2f})")
 
     return detparam
 
@@ -541,7 +537,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
     (N1, N2) = ccdimages[0].shape
 
     if debug:
-        print("average intensity per image: %.1f" % avg)
+        print(f"average intensity per image: {avg:.1f}")
 
     for i in range(Npoints):
         if debug and i == 0:
@@ -554,8 +550,8 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
             ang1 = numpy.append(ang1, angle1[i])
             ang2 = numpy.append(ang2, angle2[i])
             if debug:
-                print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-                                                   cen1, cen2))
+                print(f"{angle1[i]:8.3f} {angle2[i]:8.3f} \t"
+                      f"{cen1:.2f} {cen2:.2f}")
     Nused = len(ang1)
 
     if debug:
@@ -566,12 +562,11 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         ang1 - start[6], ang2, n1, n2, detaxis, r_i)
 
     if debug:
-        print("determined detector directions:[%s, %s]" % (detdir1, detdir2))
+        print(f"determined detector directions:[{detdir1}, {detdir2}]")
 
     epslist = []
     paramlist = []
     epsmin = numpy.inf
-    fitmin = None
 
     print("tiltaz   tilt   detrot   offset:  error (relative) (fittime)")
     print("------------------------------------------------------------")
@@ -602,7 +597,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
 
     startparam = start[:5] + (detrot,) + (start[6],)
     if debug:
-        print("start params: %s" % str(startparam))
+        print(f"start params: {str(startparam)}")
 
     Ntot = Ntiltaz * Ntilt * Noffset
     ict = 0
@@ -667,7 +662,7 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
                 plt.semilogy(nparams[:, p] * xscale[p], neps, '.k')
             else:
                 plt.scatter(nparams[:, p] * xscale[p], neps, c=nparams[:, -1],
-                            s=10, marker='o', cmap=plt.cm.gnuplot,
+                            s=10, marker='o', cmap="gnuplot",
                             edgecolor='none')
             plt.xlabel(labels[p])
             if plotlog:
@@ -684,8 +679,9 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("total time needed for fit: %.2fsec" % (time.time() - t0))
+        print(f"total time needed for fit: {time.time() - t0:.2f}sec")
         print("fitted parameters: epsilon: %10.4e (%d,%s) "
+              # pylint: disable-next=no-member
               % (epsmin, fitmin.info, repr(fitmin.stopreason)))
         print("param: (cch1, cch2, pwidth1, pwidth2, tiltazimuth, tilt, "
               "detrot, outerangle_offset)")
@@ -697,18 +693,18 @@ def area_detector_calib(angle1, angle2, ccdimages, detaxis, r_i, plot=True,
         print("please check the resulting data (consider setting plot=True)")
         print("detector rotation axis / primary beam direction "
               "(given by user): %s / %s" % (repr(detaxis), r_i))
-        print("detector pixel directions / distance: %s %s / %g"
-              % (detdir1, detdir2, 1.))
+        print(f"detector pixel directions / distance: {detdir1} {detdir2} / "
+              f"{1.0:g}")
         print("\tdetector initialization with: init_area('%s', '%s', "
               "cch1=%.2f, cch2=%.2f, Nch1=%d, Nch2=%d, pwidth1=%.4e, "
               "pwidth2=%.4e, distance=%.5f, detrot=%.3f, tiltazimuth=%.1f, "
               "tilt=%.3f)" % (detdir1, detdir2, cch1, cch2, N1, N2, pwidth1,
                               pwidth2, distance, detrot, tiltazimuth, tilt))
-        print("AND ALWAYS USE an (additional) OFFSET of %.4fdeg in the "
-              "OUTER DETECTOR ANGLE!" % (outerangle_offset))
+        print("AND ALWAYS USE an (additional) OFFSET of "
+              f"{outerangle_offset:.4f}deg in the OUTER DETECTOR ANGLE!")
 
     return (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth,
-            tilt, detrot, outerangle_offset), eps
+            tilt, detrot, outerangle_offset), epsmin
 
 
 def _peak_position(img, nwindow, plot=False):
@@ -766,10 +762,10 @@ def _determine_detdir(ang1, ang2, n1, n2, detaxis, r_i):
     fits to the observed pixel numbers of the primary beam.
     """
     # center channel and detector pixel direction and pixel size
-    (s1, i1), r1 = xumath.linregress(ang1, n1)
-    (s2, i2), r2 = xumath.linregress(ang1, n2)
-    (s3, i3), r3 = xumath.linregress(ang2, n1)
-    (s4, i4), r4 = xumath.linregress(ang2, n2)
+    (s1, _), r1 = xumath.linregress(ang1, n1)
+    (s2, _), r2 = xumath.linregress(ang1, n2)
+    (s3, _), r3 = xumath.linregress(ang2, n1)
+    (s4, _), r4 = xumath.linregress(ang2, n2)
 
     # determine detector directions
     s = ord('x') + ord('y') + ord('z')
@@ -1033,7 +1029,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
                 raise TypeError("QConversionPixel: invalid type for one of "
                                 "the detector coordinates, must be scalar, "
                                 "list or array")
-            elif isinstance(arg, numbers.Number):
+            if isinstance(arg, numbers.Number):
                 arg = numpy.array([arg], dtype=numpy.double)
             elif isinstance(arg, list):
                 arg = numpy.array(arg, dtype=numpy.double)
@@ -1054,7 +1050,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             raise TypeError("QConversionPixel: invalid type for one of the "
                             "detector coordinates, must be scalar, list or "
                             "array")
-        elif isinstance(arg, numbers.Number):
+        if isinstance(arg, numbers.Number):
             arg = numpy.array([arg], dtype=numpy.double)
         elif isinstance(arg, list):
             arg = numpy.array(arg, dtype=numpy.double)
@@ -1065,7 +1061,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
             raise TypeError("QConversionPixel: invalid type for one of the "
                             "detector coordinates, must be scalar, list or "
                             "array")
-        elif isinstance(arg, numbers.Number):
+        if isinstance(arg, numbers.Number):
             arg = numpy.array([arg], dtype=numpy.double)
         elif isinstance(arg, list):
             arg = numpy.array(arg, dtype=numpy.double)
@@ -1219,6 +1215,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
     final_error = numpy.mean(final_q)
 
     if debug:
+        # pylint: disable-next=no-member
         print("fitted parameters: (%e, %d, %s) " % (final_error, fit.info,
                                                     repr(fit.stopreason)))
         print("primary beam / detector pixel directions / distance: "
@@ -1232,8 +1229,7 @@ def _area_detector_calib_fit(ang1, ang2, n1, n2, detaxis, r_i, detdir1,
     if full_output:
         return final_error, (cch1, cch2, pwidth1, pwidth2, distance,
                              tiltazimuth, tilt, detrot, outerangle_offset), fit
-    else:
-        return final_error
+    return final_error
 
 
 # #####################################################
@@ -1340,7 +1336,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
     avg = 0
     imgpbcnt = 0
     for i in range(Npoints):
-        if (numpy.all(hkls[i] == (0, 0, 0))):
+        if numpy.all(hkls[i] == (0, 0, 0)):
             avg += numpy.sum(ccdimages[i])
             imgpbcnt += 1
 
@@ -1352,7 +1348,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
     (N1, N2) = ccdimages[0].shape
 
     if debug:
-        print("average intensity per image in the primary beam: %.1f" % avg)
+        print(f"average intensity per image in the primary beam: {avg:.1f}")
 
     for i in range(Npoints):
         if debug and i == 0:
@@ -1369,8 +1365,8 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
             sang = numpy.append(sang, sampleang[i])
             usedhkls.append(hkls[i])
             if debug:
-                print("%8.3f %8.3f \t%.2f %.2f" % (angle1[i], angle2[i],
-                                                   cen1, cen2))
+                print(f"{angle1[i]:8.3f} {angle2[i]:8.3f} \t"
+                      f"{cen1:.2f} {cen2:.2f}")
 
     Nused = len(ang1)
     usedhkls = numpy.array(usedhkls)
@@ -1498,7 +1494,7 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
                 plt.semilogy(nparams[:, p] * xscale[p], neps, '.k')
             else:
                 plt.scatter(nparams[:, p] * xscale[p], neps, c=nparams[:, -1],
-                            s=10, marker='o', cmap=plt.cm.gnuplot,
+                            s=10, marker='o', cmap="gnuplot",
                             edgecolor='none')
             plt.xlabel(labels[p])
             if plotlog:
@@ -1515,8 +1511,9 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
-        print("total time needed for fit: %.2fsec" % (time.time() - t0))
+        print(f"total time needed for fit: {time.time() - t0:.2f}sec")
         print("fitted parameters: epsilon: %10.4e (%d,%s) "
+              # pylint: disable-next=no-member
               % (epsmin, fitmin.info, repr(fitmin.stopreason)))
         print("param: (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, "
               "tilt, detrot, outerangle_offset, sampletilt, stazimuth, "
@@ -1541,7 +1538,8 @@ def area_detector_calib_hkl(sampleang, angle1, angle2, ccdimages, hkls,
               "OUTER DETECTOR ANGLE!" % (outerangle_offset))
 
     return (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth,
-            tilt, detrot, outerangle_offset, stilt, stazimuth, wavelength), eps
+            tilt, detrot, outerangle_offset, stilt, stazimuth,
+            wavelength), epsmin
 
 
 def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
@@ -1914,9 +1912,9 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         param[:-4], detdir1, detdir2, r_i, detaxis, sangs, ang1s, ang2s,
         n1s, n2s, delta=[0, param[8], 0.], wl=wavelength)
     if debug:
-        print("average qx: %.3f(%.3f)" % (numpy.average(qx), numpy.std(qx)))
-        print("average qy: %.3f(%.3f)" % (numpy.average(qy), numpy.std(qy)))
-        print("average qz: %.3f(%.3f)" % (numpy.average(qz), numpy.std(qz)))
+        print(f"average qx: {numpy.average(qx):.3f}({numpy.std(qx):.3f})")
+        print(f"average qy: {numpy.average(qy):.3f}({numpy.std(qy):.3f})")
+        print(f"average qz: {numpy.average(qz):.3f}({numpy.std(qz):.3f})")
 
     qvecav = (numpy.average(qx), numpy.average(qy), numpy.average(qz))
     sampletilt = xumath.VecAngle(experiment.Transform(experiment.ndir),
@@ -1987,6 +1985,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
     final_error = numpy.mean(final_q)
 
     if debug:
+        # pylint: disable-next=no-member
         print("fitted parameters: (%e, %d, %s) " % (final_error, fit.info,
                                                     repr(fit.stopreason)))
         print("primary beam / detector pixel directions / distance: %s / %s "
@@ -2003,8 +2002,7 @@ def _area_detector_calib_fit2(sang, ang1, ang2, n1, n2, hkls, experiment,
         return final_error, (cch1, cch2, pwidth1, pwidth2, distance,
                              tiltazimuth, tilt, detrot, outerangle_offset,
                              sampletilt, stazimuth, wavelength), fit
-    else:
-        return final_error
+    return final_error
 
 
 #################################################
@@ -2033,7 +2031,10 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
 
     Examples
     --------
-    >>> psd_refl_align(500, [0, 0.1, 0.2, 0.3], [550, 600, 640, 700])
+    >>> zeroangle = psd_refl_align(500, [0, 0.1, 0.2, 0.3],
+    ... [550, 600, 640, 700])
+    XU.analysis.psd_refl_align: sample is parallel to beam at goniometer angle\
+ -0.0986 (R^2=0.9942)
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.analysis.psd_refl_'
@@ -2070,7 +2071,7 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
 
     if config.VERBOSITY >= config.INFO_LOW:
         print("XU.analysis.psd_refl_align: sample is parallel to beam at "
-              "goniometer angle %8.4f (R^2=%6.4f)" % (zeropos, rsq))
+              "goniometer angle %7.4f (R^2=%6.4f)" % (zeropos, rsq))
     return zeropos
 
 
@@ -2232,10 +2233,10 @@ def fit_bragg_peak(om, tt, psd, omalign, ttalign, exphxrd, frange=(0.03, 0.03),
         raise InputError("peaktype must be either 'Gauss' or 'Lorentz'")
 
     if om.size != psd.size:
-        [qx, qy, qz] = exphxrd.Ang2Q.linear(om, tt)
+        [_, qy, qz] = exphxrd.Ang2Q.linear(om, tt)
     else:
-        [qx, qy, qz] = exphxrd.Ang2Q(om, tt)
-    [qxsub, qysub, qzsub] = exphxrd.Ang2Q(omalign, ttalign)
+        [_, qy, qz] = exphxrd.Ang2Q(om, tt)
+    [_, qysub, qzsub] = exphxrd.Ang2Q(omalign, ttalign)
     params = [qysub, qzsub, 0.001, 0.001, psd.max(), 0, 0.]
     drange = [qysub - frange[0], qysub + frange[0], qzsub - frange[1],
               qzsub + frange[1]]

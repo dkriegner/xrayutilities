@@ -14,9 +14,9 @@
 
 import os
 import re
-# import sys
 
 import sphinx_rtd_theme
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -34,6 +34,7 @@ import sphinx_rtd_theme
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
+    'sphinx.ext.doctest',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'numpydoc',
@@ -53,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'xrayutilities'
-copyright = '2021, Dominik Kriegner, Eugen Wintersberger'
+copyright = '2023, Dominik Kriegner, Eugen Wintersberger'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -288,7 +289,7 @@ pdf_documents = [
 ]
 
 # A comma-separated list of custom stylesheets. Example:
-# pdf_stylesheets = ['sphinx','kerning','a4']
+pdf_stylesheets = ['sphinx', 'onecolumn', 'twocolumn']
 
 # A list of folders to search for stylesheets. Example:
 # pdf_style_path = ['.', '_styles']

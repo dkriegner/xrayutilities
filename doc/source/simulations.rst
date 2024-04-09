@@ -11,23 +11,28 @@ In the following a few code-snippets are shown which should help you getting sta
 Building Layer stacks for simulations
 -------------------------------------
 
-The basis of all simulations in *xrayutilities* are stacks of layers. Therefore several functions exist to build up such layered systems. The basic building block of all of them is a :class:`~xrayutilities.simpack.smaterials.Layer` object which takes a material and its thickness in ångström as initializing parameter.::
+The basis of all simulations in *xrayutilities* are stacks of layers. Therefore several functions exist to build up such layered systems. The basic building block of all of them is a :class:`~xrayutilities.simpack.smaterials.Layer` object which takes a material and its thickness in ångström as initializing parameter.
+
+.. testcode::
 
     import xrayutilities as xu
     lay = xu.simpack.Layer(xu.materials.Si, 200)
 
 In the shown example a silicon layer with 20 nm thickness is created. The first argument is the material of the layer. For diffraction simulations this needs to be derived from the :class:`~xrayutilities.materials.material.Crystal`-class. This means all predefined materials in *xrayutitities* can be used for this purpose. For x-ray reflectivity simulations, however, also knowing the chemical composition and density of the material is sufficient.
 
-A 5 nm thick metallic CoFe compound layer can therefore be defined by::
+A 5 nm thick metallic CoFe compound layer can therefore be defined sublayers
 
+.. testcode::
 
     rho_cf = 0.5*8900 + 0.5*7874  # mass density in kg/m^3
     mCoFe = xu.materials.Amorphous('CoFe', rho_cf)
-    lCoFe = xu.simpack.Layer(mat_cf, 50)
+    lCoFe = xu.simpack.Layer(mCoFe, 50)
 
 .. note:: The :class:`~xrayutilities.simpack.smaterials.Layer` object can have several more model dependent properties discussed in detail below.
 
-When several layers are defined they can be combined to a :class:`~xrayutilities.simpack.smaterials.LayerStack` which is used for the simulations below.::
+When several layers are defined they can be combined to a :class:`~xrayutilities.simpack.smaterials.LayerStack` which is used for the simulations below.
+
+.. testcode::
 
     sub = xu.simpack.Layer(xu.materials.Si, float('inf'))
     lay1 = xu.simpack.Layer(xu.materials.Ge, 200)
@@ -36,16 +41,20 @@ When several layers are defined they can be combined to a :class:`~xrayutilities
     # or equivalently
     ls = xu.simpack.LayerStack('Si/Ge', sub + lay1 + lay2)
 
-The last two lines show two different options of creating a stack of layers. As is shown in the last example the substrate thickness can be infinite (see below) and layers can be also stacked by summation. For creation of more complicated superlattice stacks one can further use multiplication::
+The last two lines show two different options of creating a stack of layers. As is shown in the last example the substrate thickness can be infinite (see below) and layers can be also stacked by summation. For creation of more complicated superlattice stacks one can further use multiplication
+
+.. testcode::
 
     lay1 = xu.simpack.Layer(xu.materials.SiGe(0.3), 50)
     lay2 = xu.simpack.Layer(xu.materials.SiGe(0.6), 40)
-    ls = xu.simpack.LayerStack('Si/SiGe SL', sub + 5*(lay1 + lay2))
+    layerstack = xu.simpack.LayerStack('Si/SiGe SL', sub + 5*(lay1 + lay2))
 
 Pseudomorphic Layers
 ~~~~~~~~~~~~~~~~~~~~
 
-All stacks of layers described above use the materials in the layer as they are supplied. However, epitaxial systems often adopt the inplane lattice parameter of the layers beneath. To mimic this behavior you can either supply the :class:`~xrayutilities.simpack.smaterials.Layer` objects which custom :class:`~xrayutilities.materials.material.Crystal` objects which have the appropriate lattice parameters or use the :class:`~xrayutilities.simpack.PseudomorphicStack*` classes which to the adaption of the lattice parameters automatically. In this respect the 'relaxation' parameter of the :class:`~xrayutilities.simpack.smaterials.Layer` class is important since it allows to create partially/fully relaxed layers.::
+All stacks of layers described above use the materials in the layer as they are supplied. However, epitaxial systems often adopt the inplane lattice parameter of the layers beneath. To mimic this behavior you can either supply the :class:`~xrayutilities.simpack.smaterials.Layer` objects which custom :class:`~xrayutilities.materials.material.Crystal` objects which have the appropriate lattice parameters or use the :class:`~xrayutilities.simpack.PseudomorphicStack*` classes which to the adaption of the lattice parameters automatically. In this respect the 'relaxation' parameter of the :class:`~xrayutilities.simpack.smaterials.Layer` class is important since it allows to create partially/fully relaxed layers.
+
+.. testcode::
 
     sub = xu.simpack.Layer(xu.materials.Si, float('inf'))
     buf1 = xu.simpack.Layer(xu.materials.SiGe(0.5), 5000, relaxation=1.0)
@@ -65,7 +74,9 @@ If you would like to check the resulting lattice objects of the different layers
 Special layer types
 ~~~~~~~~~~~~~~~~~~~
 
-So far one special layer mimicking a layer with gradually changing chemical composition is implemented. It consists of several thin sublayers of constant composition. So in order to obtain a smooth grading one has to select enough sublayers. This however has a negativ impact on the performance of all simulation models. A tradeoff needs to found! Below a graded SiGe buffer is shown which consists of 100 sublayers and has total thickness of 1µm.::
+So far one special layer mimicking a layer with gradually changing chemical composition is implemented. It consists of several thin sublayers of constant composition. So in order to obtain a smooth grading one has to select enough sublayers. This however has a negativ impact on the performance of all simulation models. A tradeoff needs to found! Below a graded SiGe buffer is shown which consists of 100 sublayers and has total thickness of 1 µm.
+
+.. testcode::
 
     buf = xu.simpack.GradedLayerStack(xu.materials.SiGe,
                                       0.2,  # xfrom Si0.8Ge0.2
@@ -86,7 +97,9 @@ This sectiondescribes the parameters which are common for all diffraction models
  * 'background': is the background added to the simulation after it was scaled by I0
  * 'energy': energy in eV used to obtain the optical parameters for the simulation. The energy can alternatively also be supplied via the 'experiment' parameter, however, the 'energy' value overrules this setting. If no energy is given the default energy from the configuration is used.
 
-The mentioned parameters can be supplied to the constructor method of all model classes derived from :class:`~xrayutilities.simpack.models.LayerModel`, which applies to all examples mentioned below.::
+The mentioned parameters can be supplied to the constructor method of all model classes derived from :class:`~xrayutilities.simpack.models.LayerModel`, which applies to all examples mentioned below.
+
+.. testcode::
 
     m = xu.simpack.SpecularReflectivityModel(layerstack, I0=1e6, background=1,
                                              resolution_width=0.001)
@@ -99,8 +112,11 @@ This section shows the calculation and fitting of specular x-ray reflectivity cu
 Specular x-ray reflectivity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For the specular reflectivity models currently only the Parrat formalism including non-correlated roughnesses is implemented. A minimal working example for a reflectivity calculation follows.::
+For the specular reflectivity models currently only the Parrat formalism including non-correlated roughnesses is implemented. A minimal working example for a reflectivity calculation follows.
 
+.. testcode::
+
+    import numpy
     # building a stack of layers
     sub = xu.simpack.Layer(xu.materials.GaAs, float('inf'), roughness=2.0)
     lay1 = xu.simpack.Layer(xu.materials.AlGaAs(0.25), 75, roughness=2.5)
@@ -109,7 +125,7 @@ For the specular reflectivity models currently only the Parrat formalism includi
 
     # reflectivity calculation
     m = xu.simpack.SpecularReflectivityModel(pls, sample_width=5, beam_width=0.3)
-    ai = linspace(0, 5, 10000)
+    ai = numpy.linspace(0, 5, 10000)
     Ixrr = m.simulate(ai)
 
 In addition to the layer thickness also the roughness and density (in kg/m^3) of a Layer can be set since they are important for the reflectivity calculation. This can be done upon definition of the :class:`~xrayutilities.simpack.smaterials.Layer` or also manipulated at any later stage.
@@ -118,10 +134,10 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
 .. code-block:: python
     :linenos:
 
-    from matplotlib.pylab import *
-    import xrayutilities as xu
     import lmfit
     import numpy
+
+    import xrayutilities as xu
 
     # load experimental data
     ai, edata, eps = numpy.loadtxt('data/xrr_data.txt'), unpack=True)
@@ -129,7 +145,7 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
 
     # define layers
     # SiO2 / Ru(5) / CoFe(3) / IrMn(3) / AlOx(10)
-    lSiO2 = xu.simpack.Layer(xu.materials.SiO2, inf, roughness=2.5)
+    lSiO2 = xu.simpack.Layer(xu.materials.SiO2, numpy.inf, roughness=2.5)
     lRu = xu.simpack.Layer(xu.materials.Ru, 47, roughness=2.8)
     rho_cf = 0.5*8900 + 0.5*7874
     mat_cf = xu.materials.Amorphous('CoFe', rho_cf)
@@ -156,6 +172,13 @@ Such x-ray reflectivity calculations can also be fitted to experimental data usi
     # perform the fit
     res = fitm.fit(edata, p, ai, weights=1/eps)
     lmfit.report_fit(res, min_correl=0.5)
+    # export the fit result for the full data range (Note that only data between
+    # xmin and xmax were actually optimized)
+    numpy.savetxt(
+        "xrrfit.dat",
+        numpy.vstack((ai, res.eval(res.params, x=ai))).T,
+        header="incidence angle (deg), fitted intensity (arb. u.)",
+    )
 
 
 This script can interactively show the fitting progress and after the fitting shows the final plot including the x-ray reflectivity trace of the initial and final parameters.
@@ -166,7 +189,9 @@ This script can interactively show the fitting progress and after the fitting sh
 
    The picture shows the final plot of the fitting example shown in one of the example scripts.
 
-After building a :class:`~xrayutilities.simpack.models.SpecularReflectivityModel` is built or fitted the density profile resulting from the thickness and roughness of layers can be plotted easily by::
+After building a :class:`~xrayutilities.simpack.models.SpecularReflectivityModel` is built or fitted the density profile resulting from the thickness and roughness of layers can be plotted easily by
+
+.. testcode::
 
     m.densityprofile(500, plot=True)  # 500 number of points
 
@@ -179,8 +204,7 @@ Diffuse reflectivity calculations
 
 For the calculation of diffuse x-ray reflectivity the :class:`~xrayutilities.simpack.smaterials.LayerStack` is built equally as shown before. The only difference is that an additional parameter for the lateral correlation length of the roughness can be included: `lat_correl`. The :class:`~xrayutilities.simpack.models.DiffuseReflectivityModel` also takes special parameters which change the vertical correlection length and the way how the diffuse reflectivity is calculated (to be document in more detail). For a Si/Ge superlattice with 5 periods the calculation of the diffuse reflectivity signal at the specular rod is calculated using the :func:`~xrayutilities.simpack.models.DiffuseReflectivityModel.simulate` method. A map of the diffuse reflectivity which can be obtained in the coplanar reflection plane can be calculated with the :func:`~xrayutilities.simpack.models.DiffuseReflectivityModel.simulate_map` method.
 
-.. code-block:: python
-    :linenos:
+.. testcode::
 
     from matplotlib.pylab import *
     import xrayutilities as xu
@@ -230,14 +254,25 @@ Kinematical diffraction models
 
 The most basic models consider only the kinematic diffraction of layers and substrate. Especially the semiinfinite substrate is not well described using the kinematical approximation which results in considerable deviations in close vicinity to substrate Bragg peak with respect to the more acurate dynamical diffraction models.
 
-Such a basic model is employed by::
+Such a basic model is employed by
 
+.. testcode::
+
+    en = 9000  # eV
     mk = xu.simpack.KinematicalModel(pls, energy=en, resolution_width=0.0001)
     Ikin = mk.simulate(qz, hkl=(0, 0, 4))
 
 A more appealing kinematical model is represented by the :class:`~xrayutilities.simpack.models.KinematicalMultiBeamModel` class which implements a true multibeam theory is, however, restricted to the use of (001) surfaces and layer thicknesses will be changed to be a multiple of the out of plane lattice spacing. This is necessary since otherwise the structure factor of the unit cell can not be used for the calculation.
 
-It can be employed by::
+It can be employed by
+
+.. testcode::
+   :hide:
+
+   import xrayutilities as xu
+   xu.config.VERBOSITY = 0
+
+.. testcode::
 
     mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
                                               surface_hkl=(0, 0, 1),
@@ -253,8 +288,11 @@ Both kinematical model's :func:`~xrayutilities.simpack.models.KinematicalMultiBe
 Dynamical diffraction models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Acurate description of the diffraction from thin films in close vicinity to the diffraction signal from a bulk substrate is only possible using the dynamical diffraction theory. In **xrayutilities** the dynamical two-beam theory with 4 tiepoints for the calculation of the dispersion surface is implemented. To use this theory you have to supply the :func:`~xrayutilities.simpack.models.DynamicalModel.simulate` method with the incidence angle in degree. Accordingly the 'resolution_width' parameter is also in degree for this model.::
+Acurate description of the diffraction from thin films in close vicinity to the diffraction signal from a bulk substrate is only possible using the dynamical diffraction theory. In **xrayutilities** the dynamical two-beam theory with 4 tiepoints for the calculation of the dispersion surface is implemented. To use this theory you have to supply the :func:`~xrayutilities.simpack.models.DynamicalModel.simulate` method with the incidence angle in degree. Accordingly the 'resolution_width' parameter is also in degree for this model.
 
+.. testcode::
+
+    resol = 0.001  # resolution in incidence angle
     md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resol)
     Idyn = md.simulate(ai, hkl=(0, 0, 4))
 
@@ -262,10 +300,14 @@ A second simplified dynamical model (:class:`~xrayutilities.simpack.models.Simpl
 
 The :class:`~xrayutilities.simpack.models.DynamicalModel` supports the calculation of diffracted signal for 'S' and 'P' polarization geometry. To simulate diffraction data of laboratory sources with Ge(220) monochromator crystal one should use::
 
+
+.. testcode::
+
+    import math
     qGe220 = linalg.norm(xu.materials.Ge.Q(2, 2, 0))
-    thMono = arcsin(qGe220 * lam / (4*pi))
-    md = xu.simpack.DynamicalModel(pls, energy='CuKa1',
-                                   Cmono=cos(2 * thMono),
+    thMono = math.asin(qGe220 * xu.config.WAVELENGTH / (4*math.pi))
+    md = xu.simpack.DynamicalModel(pls,
+                                   Cmono=math.cos(2 * thMono),
                                    polarization='both')
     Idyn = md.simulate(ai, hkl=(0, 0, 4))
 
@@ -298,9 +340,9 @@ Fitting of diffraction data
 
 All diffraction models can be embedded into the :class:`~xrayutilities.simpack.fit.FitModel` class, which is suitable to refine the model parameters. Below (and in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory) a runnable script is shown which shows the fitting for a pseudomorphic InMnAs epilayer on InAs(001). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. As one can see below the :func:`~xrayutilities.simpack.FitModel.set_param_hint` function can be used to set up the respective fit parameters including their boundaries and possible correlation with other parameters of the model. It should be equally possible to fit more complex layer structures, however, I expect that one needs to adjust manually the starting parameters to yield something very reasonable. Since this capabilities are rather new please report back any success/problems you have with this via the mailing list.
 
-.. code-block:: python
-    :linenos:
+.. testcode:: fitting
 
+    from copy import deepcopy
     import xrayutilities as xu
     from matplotlib.pylab import *
 
@@ -309,8 +351,8 @@ All diffraction models can be embedded into the :class:`~xrayutilities.simpack.f
     offset = -0.035  # angular offset of the zero position of the data
 
     # set up LayerStack for simulation: InAs(001)/(In,Mn)As(~25 nm)
-    InAs = xu.materials.InAs
-    InAs.lattice.a = 6.057
+    InAs = deepcopy(xu.materials.InAs)  # do not modify internal database
+    InAs.a = 6.057
     lInAs = xu.simpack.Layer(InAs, inf)
     InMnAs = xu.materials.Crystal('InMnAs', xu.materials.SGLattice(
         216, 6.050, atoms=('In', 'Mn', 'As'), pos=('4a', '4a', '4c'),
@@ -333,7 +375,7 @@ All diffraction models can be embedded into the :class:`~xrayutilities.simpack.f
 
     # plot experimental data
     f = figure(figsize=(7,5))
-    d = xu.io.RASFile('inas_layer_radial_002_004.ras.bz2', path='data'))
+    d = xu.io.RASFile('inas_layer_radial_002_004.ras.bz2', path='examples/data')
     scan = d.scans[-1]
     tt = scan.data[scan.scan_axis] - offset
     semilogy(tt, scan.data['int'], 'o-', ms=3, label='data')
@@ -342,7 +384,7 @@ All diffraction models can be embedded into the :class:`~xrayutilities.simpack.f
     fitmdyn.lmodel.set_hkl((0, 0, 4))
     ai = (d.scans[-1].data[d.scan.scan_axis] - offset)/2
     fitr = fitmdyn.fit(d.scans[-1].data['int'], params, ai)
-    print(fitr.fit_report())  # for older lmfit use: lmfit.report_fit(fitr)
+    # print(fitr.fit_report())  # to get a summary of the fitted parameters
 
 
 The resulting figure shows reasonable agreement between the dynamic diffraction simulation and the experimental data.
@@ -362,7 +404,9 @@ The :class:`~xrayutilities.simpack.powdermodel.PowderModel` internally uses :cla
 
 Several setup specific parameters should be adjusted by a user-specific configuration file or by supplying the appropriate parameters using the `fpsettings` argument of :class:`~xrayutilities.simpack.powdermodel.PowderModel`.
 
-If the correct settings are included in the config file the powder diffraction signal of a mixed sample of Co and Fe can be calculated with::
+If the correct settings are included in the config file the powder diffraction signal of a mixed sample of Co and Fe can be calculated with
+
+.. testcode:: powder
 
     import numpy
     import xrayutilities as xu
@@ -374,10 +418,12 @@ If the correct settings are included in the config file the powder diffraction s
                                   crystallite_size_gauss=200e-9)
     pm = xu.simpack.PowderModel(Fe_powder, Co_powder, I0=100)
     inte = pm.simulate(tt)
-    # pm.close()  # after end-of-use
+    pm.close()  # after end-of-use
 
 
-Note that in MS windows and macOS you need to encapsulate this code into a dummy function to allow for the multiprocessing module to work correctly. See the `Python documentation <https://docs.python.org/3/library/multiprocessing.html#the-spawn-and-forkserver-start-methods>`_ for details. The code then must look like::
+Note that in MS windows and macOS you need to encapsulate this code into a dummy function to allow for the multiprocessing module to work correctly. See the `Python documentation <https://docs.python.org/3/library/multiprocessing.html#the-spawn-and-forkserver-start-methods>`_ for details. The code then must look like:
+
+.. testcode:: powder_windows
 
     import numpy
     import xrayutilities as xu

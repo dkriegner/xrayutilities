@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2015-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2015-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module containing the Atom class which handles the database access for atomic
@@ -47,7 +47,7 @@ def get_key(*args):
     return hash(tuple(tup))
 
 
-class Atom(object):
+class Atom:
     max_cache_length = 1000
 
     def __init__(self, name, num):
@@ -61,7 +61,7 @@ class Atom(object):
         self.__weight = None
         self.__color = None
         self.__radius = numpy.nan
-        self._dbcache = dict([(prop, []) for prop in ('f0', 'f1', 'f2', 'f')])
+        self._dbcache = {prop: [] for prop in ('f0', 'f1', 'f2', 'f')}
 
     def __key__(self):
         """ key function to return the elements number """
@@ -183,7 +183,7 @@ class Atom(object):
 
     def __str__(self):
         ostr = self.name
-        ostr += " (%2d)" % self.num
+        ostr += f" ({self.num:2d})"
         return ostr
 
     def __repr__(self):

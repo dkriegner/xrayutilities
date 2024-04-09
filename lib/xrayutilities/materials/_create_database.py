@@ -29,9 +29,9 @@ directory is used.
 
 import sys
 
-# local import
+# local import, make troubles for pylint
+# pylint: disable-next=import-error
 from database import createAndFillDatabase
-
 
 if __name__ == "__main__":
     createAndFillDatabase(*sys.argv[1:], verbose=False)

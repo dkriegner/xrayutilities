@@ -14,23 +14,24 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 import os
 
 import numpy
 import vtk
-import xrayutilities as xu
+import xrayutilities_id01_functions as id01
 from vtk.util import numpy_support
 
-import xrayutilities_id01_functions as id01
+import xrayutilities as xu
 
 home = "DATADIR"  # data path (root)
 datadir = os.path.join(home, "FOLDERNAME")  # data path for CCD/Maxipix files
 specdir = home  # location of spec file
 
 sample = "SAMPLENAME"  # sample name -> used as spec file name
+SCANNR = 95  # put your scan number here
 # template for the CCD file names
 ccdfiletmp = os.path.join(datadir, "CCDFILENAME_%04d.edf.gz")
 

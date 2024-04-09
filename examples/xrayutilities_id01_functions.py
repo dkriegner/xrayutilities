@@ -13,15 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012,2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012,2018, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # ALSO LOOK AT THE FILE xrayutilities_example_plot_3D_ESRF_ID01.py
 
 import collections.abc
 import re
 
+from numpy import float32, identity, newaxis, ones, zeros
+
 import xrayutilities as xu
-from matplotlib.pylab import *
 
 # define root of the local data directory (needed because we assume the data
 # path of detector frames from the specfile are not correct anymore)
@@ -49,7 +50,7 @@ def deadpixelkill(ccdraw, f=1.0):
 
 
 def getmpx4_filetmp(specscan, replace=repl_n, key='ULIMA_mpx4', ext='.edf.gz',
-                    datadir=datadir):
+                    path=datadir):
     """
     read MaxiPix file template from the scan header.
 
@@ -67,7 +68,7 @@ def getmpx4_filetmp(specscan, replace=repl_n, key='ULIMA_mpx4', ext='.edf.gz',
      file template for the maxipix pictures
     """
     ret = specscan.getheader_element(key)
-    ret = xu.utilities.exchange_path(ret, datadir, replace=replace)
+    ret = xu.utilities.exchange_path(ret, path, replace=replace)
     fn = ret[:-len(ext)]
     sfn = fn.split('_')
     return '_'.join(sfn[:-1]) + '_%05d' + ext

@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2019 Daniel Schick <schick.daniel@gmail.com>
 
 """
@@ -68,7 +68,7 @@ SPEC_errorbm20 = re.compile(r"^MI:")
 scan_status_flags = ["OK", "NODATA", "ABORTED", "CORRUPTED"]
 
 
-class SPECScan(object):
+class SPECScan:
     """
     Represents a single SPEC scan. This class is usually not called by the
     user directly but used via the SPECFile class.
@@ -297,8 +297,8 @@ class SPECScan(object):
                              "formats": len(self.colnames) * [numpy.float32]}
 
             if config.VERBOSITY >= config.DEBUG:
-                print("xu.io.SPECScan.ReadData: type descriptor: %s"
-                      % (repr(type_desc)))
+                print("xu.io.SPECScan.ReadData: type descriptor: "
+                      f"{repr(type_desc)}")
 
             record_list = []  # from this list the record array while be built
             scalars_list = []
@@ -322,32 +322,30 @@ class SPECScan(object):
                         scan_aborted_flag = True
                         self.scan_status = "ABORTED"
                         if config.VERBOSITY >= config.INFO_ALL:
-                            print("XU.io.SPECScan.ReadData: %s aborted"
-                                  % self.name)
+                            print(f"XU.io.SPECScan.ReadData: {self.name} "
+                                  "aborted")
                         continue
-                    elif SPEC_scanresumed.match(line):
+                    if SPEC_scanresumed.match(line):
                         self.scan_status = "OK"
                         scan_aborted_flag = False
                         if config.VERBOSITY >= config.INFO_ALL:
-                            print("XU.io.SPECScan.ReadData: %s resumed"
-                                  % self.name)
+                            print(f"XU.io.SPECScan.ReadData: {self.name} "
+                                  "resumed")
                         continue
-                    elif SPEC_commentline.match(line):
+                    if SPEC_commentline.match(line):
                         continue
-                    elif SPEC_errorbm20.match(line):
+                    if SPEC_errorbm20.match(line):
                         print(line)
                         continue
-                    else:
-                        break
+                    break
 
                 if SPEC_headerline.match(line) or \
                    SPEC_commentline.match(line):
                     if SPEC_scanresumed.match(line):
                         continue
-                    elif SPEC_commentline.match(line):
+                    if SPEC_commentline.match(line):
                         continue
-                    else:
-                        break
+                    break
 
                 line_list = SPEC_num_value.findall(line)
                 line_list = map(numpy.float64, line_list)
@@ -452,7 +450,7 @@ class SPECScan(object):
             try:
                 ydata = self.data[yname]
             except ValueError:
-                raise InputError("no column with name %s exists!" % yname)
+                raise InputError(f"no column with name {yname} exists!")
                 continue
             if logy:
                 plt.semilogy(xdata, ydata, ystyle)
@@ -461,7 +459,7 @@ class SPECScan(object):
 
             leglist.append(yname)
 
-        plt.xlabel("%s" % xname)
+        plt.xlabel(f"{xname}")
         plt.legend(leglist)
         plt.title("scan %i %s\n%s %s"
                   % (self.nr, self.command, self.date, self.time))
@@ -469,7 +467,7 @@ class SPECScan(object):
         lim = plt.axis()
         plt.axis([xdata.min(), xdata.max(), lim[2], lim[3]])
 
-    def Save2HDF5(self, h5f, group="/", title="", optattrs={}, comp=True):
+    def Save2HDF5(self, h5f, group="/", title="", optattrs=None, comp=True):
         """
         Save a SPEC scan to an HDF5 file. The method creates a group with the
         name of the scan and stores the data there as a table object with name
@@ -494,14 +492,14 @@ class SPECScan(object):
         comp :	 bool, optional
             activate compression - true by default
         """
-
+        if optattrs is None:
+            optattrs = {}
         with xu_h5open(h5f, 'a') as h5:
             # check if data object has been already written
             if self.data is None:
                 raise InputError("XU.io.SPECScan.Save2HDF5: No data has been"
                                  "read so far - call ReadData method of the "
                                  "scan")
-                return None
 
             # parse keyword arguments:
             if isinstance(group, str):
@@ -523,7 +521,7 @@ class SPECScan(object):
             # if the group already exists the name must be changed and
             # another will be made to create the group.
             while group_title in rootgroup:
-                group_title = raw_grp_title + "_%i" % (copy_count)
+                group_title = raw_grp_title + f"_{copy_count}"
                 copy_count = copy_count + 1
             g = rootgroup.create_group(group_title)
 
@@ -541,8 +539,8 @@ class SPECScan(object):
             g.attrs['scan_status'] = self.scan_status
 
             # write the initial motor positions as attributes
-            for k in self.init_motor_pos:
-                g.attrs[k] = float(self.init_motor_pos[k])
+            for key, val in self.init_motor_pos.items():
+                g.attrs[key] = float(val)
 
             # if scan contains MCA data write also MCA parameters
             g.attrs['has_mca'] = self.has_mca
@@ -578,7 +576,7 @@ class SPECScan(object):
         """
         if not self.header:
             self.ReadData()
-        re_key = re.compile(r'^#%s (.*)' % key)
+        re_key = re.compile(f'^#{key} (.*)')
         ret = []
         for line in self.header:
             m = re_key.match(line)
@@ -586,12 +584,11 @@ class SPECScan(object):
                 if firstonly:
                     ret = m.groups()[0]
                     break
-                else:
-                    ret.append(m.groups()[0])
+                ret.append(m.groups()[0])
         return ret
 
 
-class SPECFile(object):
+class SPECFile:
 
     """
     This class represents a single SPEC file. The class provides
@@ -667,23 +664,21 @@ class SPECFile(object):
 
             if s is not None:
                 return s
-            else:
-                raise AttributeError("requested scan-number not found")
-        else:
-            raise AttributeError("SPECFile has no attribute '%s'" % name)
+            raise AttributeError("requested scan-number not found")
+        raise AttributeError(f"SPECFile has no attribute '{name}'")
 
     def __len__(self):
         return self.scan_list.__len__()
 
     def __str__(self):
         ostr = ""
-        for i in range(len(self.scan_list)):
-            ostr = ostr + "%5i" % (i)
-            ostr = ostr + self.scan_list[i].__str__()
+        for i, scan in enumerate(self.scan_list):
+            ostr = ostr + f"{i:5d}"
+            ostr = ostr + str(scan)
 
         return ostr
 
-    def Save2HDF5(self, h5f, comp=True, optattrs={}):
+    def Save2HDF5(self, h5f, comp=True, optattrs=None):
         """
         Save the entire file in an HDF5 file. For that purpose a group is set
         up in the root group of the file with the name of the file without
@@ -697,6 +692,8 @@ class SPECFile(object):
         comp :  bool, optional
             activate compression - true by default
         """
+        if optattrs is None:
+            optattrs = {}
         with xu_h5open(h5f, 'a') as h5:
             groupname = os.path.splitext(os.path.splitext(self.filename)[0])[0]
             try:
@@ -704,7 +701,7 @@ class SPECFile(object):
             except ValueError:
                 g = h5.get(groupname)
 
-            g.attrs['TITLE'] = "Data of SPEC - File %s" % (self.filename)
+            g.attrs['TITLE'] = f"Data of SPEC - File {self.filename}"
             for k in optattrs:
                 g.attrs[k] = optattrs[k]
             for s in self.scan_list:
@@ -755,7 +752,7 @@ class SPECFile(object):
                 linelength = len(line)
                 line = line.decode('ascii', 'ignore')
                 if config.VERBOSITY >= config.DEBUG:
-                    print('parsing line: %s' % line)
+                    print(f'parsing line: {line}')
 
                 # remove trailing and leading blanks from the read line
                 line = line.strip()
@@ -787,7 +784,8 @@ class SPECFile(object):
                     # define some necessary variables which could be missing in
                     # the scan header
                     itime = numpy.nan
-                    time = ''
+                    time = ""
+                    date = ""
                     if config.VERBOSITY >= config.INFO_ALL:
                         print("XU.io.SPECFile.Parse: processing scan nr. %d "
                               "..." % scannr)
@@ -972,7 +970,7 @@ class SPECFile(object):
             self.last_offset = self.scan_list[-1].doffset
 
 
-class SPECCmdLine(object):
+class SPECCmdLine:
 
     def __init__(self, n, prompt, cmdl, out=""):
         self.linenumber = n
@@ -985,7 +983,7 @@ class SPECCmdLine(object):
         return ostr
 
 
-class SPECLog(object):
+class SPECLog:
     """
     class to parse a SPEC log file to find the command history
     """
@@ -1082,7 +1080,8 @@ def geth5_scan(h5f, scans, *args, **kwargs):
 
     Examples
     --------
-    >>> [om, tt], MAP = xu.io.geth5_scan(h5file, 36, 'omega', 'gamma')
+    >>> [om, tt], MAP = geth5_scan("h5file", 36,
+    ... 'omega', 'gamma')  # doctest: +SKIP
     """
 
     with xu_h5open(h5f) as h5:
@@ -1126,7 +1125,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                 motname = args[i]
                 natmotname = utilities.makeNaturalName(motname)
                 buf = numpy.ones(scanshape) * \
-                    h5scan.attrs["INIT_MOPO_%s" % natmotname]
+                    h5scan.attrs[f"INIT_MOPO_{natmotname}"]
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
     # create return values in correct order
@@ -1145,8 +1144,7 @@ def geth5_scan(h5f, scans, *args, **kwargs):
 
     if not args:
         return MAP
-    else:
-        return retval, MAP
+    return retval, MAP
 
 
 def getspec_scan(specf, scans, *args, **kwargs):
@@ -1177,11 +1175,11 @@ def getspec_scan(specf, scans, *args, **kwargs):
 
     Examples
     --------
-    >>> [om, tt, cnt2] = xu.io.getspec_scan(s, 36, 'omega', 'gamma',
-    >>>                                     'Counter2')
+    >>> [om, tt, cnt2] = getspec_scan(s, 36, 'omega', 'gamma',
+    ... 'Counter2')  # doctest: +SKIP
     """
     if not args:
-        return
+        return InputError("no motor or counter names given")
 
     if numpy.iterable(scans):
         scanlist = scans

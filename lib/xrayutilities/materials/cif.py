@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import copy
 import io
@@ -62,7 +62,7 @@ re_cell_gamma = re.compile(r"^\s*_cell_angle_gamma", re.IGNORECASE)
 re_comment = re.compile(r"^\s*#")
 
 
-class CIFFile(object):
+class CIFFile:
     """
     class for parsing CIF (Crystallographic Information File) files. The class
     aims to provide an additional way of creating material classes instead of
@@ -73,6 +73,7 @@ class CIFFile(object):
     parse all of them into the the data dictionary. By default all methods
     access the first data set found in the file.
     """
+
     def __init__(self, filestr, digits=4):
         """
         initialization of the CIFFile class
@@ -89,9 +90,9 @@ class CIFFile(object):
         if os.path.isfile(filestr):
             self.filename = filestr
             try:
-                self.fid = open(self.filename, "rb")
-            except OSError:
-                raise IOError("cannot open CIF file %s" % self.filename)
+                fid = open(self.filename, "rb")
+            except OSError as exc:
+                raise IOError(f"cannot open CIF file {self.filename}") from exc
         else:
             if filestr.count('\n') == 0:
                 print('XU.materials.CIFFile: "filestr" contains only one line '
@@ -100,43 +101,37 @@ class CIFFile(object):
                       'content of a CIF file!')
             self.filename = '__from_str__'
             if isinstance(filestr, bytes):
-                self.fid = io.BytesIO(filestr)
+                fid = io.BytesIO(filestr)
             else:
-                self.fid = io.BytesIO(bytes(filestr.encode('ascii')))
+                fid = io.BytesIO(bytes(filestr.encode('ascii')))
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.materials: parsing CIF file %s' % self.filename)
-        self._default_dataset = None
+            print(f'XU.materials: parsing CIF file {self.filename}')
+        self.default_dataset = None
         self.data = {}
-        self.Parse()
+        self.Parse(fid)
+        fid.close()
 
-    def __del__(self):
-        """
-        class destructor which closes open files
-        """
-        if self.fid is not None:
-            self.fid.close()
-
-    def Parse(self):
+    def Parse(self, fid):
         """
         function to parse a CIF file. The function reads all the included data
         sets and adds them to the data dictionary.
 
         """
-        fidpos = self.fid.tell()
+        fidpos = fid.tell()
         while True:
-            line = self.fid.readline()
+            line = fid.readline()
             if not line:
                 break
-            fidpos = self.fid.tell()
+            fidpos = fid.tell()
             line = line.decode('ascii', 'ignore')
             m = re_data.match(line)
             if m:
-                self.fid.seek(fidpos)
+                fid.seek(fidpos)
                 name = line[m.end():].strip()
-                self.data[name] = CIFDataset(self.fid, name, self.digits)
-                if self.data[name].has_atoms and not self._default_dataset:
-                    self._default_dataset = name
+                self.data[name] = CIFDataset(fid, name, self.digits)
+                if self.data[name].has_atoms and not self.default_dataset:
+                    self.default_dataset = name
 
     def SGLattice(self, dataset=None, use_p1=False):
         """
@@ -150,7 +145,7 @@ class CIFFile(object):
             force the use of P1 symmetry, default False
         """
         if not dataset:
-            dataset = self._default_dataset
+            dataset = self.default_dataset
         return self.data[dataset].SGLattice(use_p1=use_p1)
 
     def __str__(self):
@@ -158,17 +153,17 @@ class CIFFile(object):
         returns a string with positions and names of the atoms for all datasets
         """
         ostr = ""
-        ostr += "CIF-File: %s\n" % self.filename
-        for ds in self.data:
-            ostr += "\nDataset: %s" % ds
-            if ds == self._default_dataset:
+        ostr += f"CIF-File: {self.filename}\n"
+        for name, dataset in self.data.items():
+            ostr += f"\nDataset: {name}"
+            if name == self.default_dataset:
                 ostr += " (default)"
             ostr += "\n"
-            ostr += str(self.data[ds])
+            ostr += str(dataset)
         return ostr
 
 
-class CIFDataset(object):
+class CIFDataset:
     """
     class for parsing CIF (Crystallographic Information File) files. The class
     aims to provide an additional way of creating material classes instead of
@@ -195,7 +190,7 @@ class CIFDataset(object):
         self.has_atoms = False
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.materials: parsing cif dataset %s' % self.name)
+            print(f'XU.materials: parsing cif dataset {self.name}')
         self.Parse(fid)
         self.SymStruct()
 
@@ -248,8 +243,8 @@ class CIFDataset(object):
                         # the neutral atom, but the effect this has should be
                         # minimal, currently simply the neutral atom is used
                         if config.VERBOSITY >= config.INFO_LOW:
-                            print('XU.materials: element %s used instead of %s'
-                                  % (elname, cifstring))
+                            print(f'XU.materials: Warning: element {elname} '
+                                  f'used instead of {cifstring}')
                         element = getattr(elements, elname)
                     else:
                         raise ValueError("XU.materials: element ('%s') could "
@@ -300,7 +295,9 @@ class CIFDataset(object):
                 loop_start = True
                 loop_labels = []
                 symop_loop = False
+                symop_idx = None
                 atom_loop = False
+                alab_idx = None
                 ax_idx = None
                 ay_idx = None
                 az_idx = None
@@ -452,7 +449,7 @@ class CIFDataset(object):
                 self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
                 allwyckp = wyckpos.wp[self.sgrp]
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.materials: trying space group %s' % self.sgrp)
+                    print(f'XU.materials: trying space group {self.sgrp}')
 
             # determine all unique positions for definition of a P1 space group
             symops = self.symops
@@ -490,7 +487,7 @@ class CIFDataset(object):
                             wpcand.append((keys[j], allwyckp[keys[j]]))
                     for j, (k, wp) in enumerate(
                             sorted(wpcand, key=operator.itemgetter(1))):
-                        parint, poslist, reflcond = wp
+                        parint, poslist, _ = wp
                         for positem in poslist:
                             foundwp, xyz = sgl.testwp(parint, positem,
                                                       (x, y, z), self.digits)
@@ -506,14 +503,14 @@ class CIFDataset(object):
                         if foundwp:
                             break
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.materials: %d of %d Wyckoff positions identified'
-                          % (len(self.wp), len(self.atoms)))
+                    print(f"XU.materials: {len(self.wp):d} of "
+                          f"{len(self.atoms):d} Wyckoff positions identified")
                     if len(self.wp) < len(self.atoms):
-                        print('XU.materials: space group %s seems not to fit'
-                              % self.sgrp)
+                        print(f"XU.materials: space group {self.sgrp} seems "
+                              "not to fit")
 
                 # free unit cell parameters
-                self.crystal_system, nargs = sgl.sgrp_sym[self.sgrp_nr]
+                self.crystal_system, _ = sgl.sgrp_sym[self.sgrp_nr]
                 self.crystal_system += self.sgrp_suf
                 self.uc_params = []
                 p2i = {'a': 0, 'b': 1, 'c': 2,
@@ -526,8 +523,8 @@ class CIFDataset(object):
 
                 if len(self.wp) == len(self.atoms):
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print('XU.materials: identified space group as %s'
-                              % self.sgrp)
+                        print("XU.materials: identified space group as "
+                              f"{self.sgrp}")
                     break
 
     def SGLattice(self, use_p1=False):
@@ -540,10 +537,9 @@ class CIFDataset(object):
                     return sgl.SGLattice(self.sgrp, *self.uc_params,
                                          atoms=self.elements, pos=self.wp,
                                          occ=self.occ, b=self.biso)
-                else:
-                    if config.VERBOSITY >= config.INFO_LOW:
-                        print('XU.materials: Wyckoff positions missing, '
-                              'using P1')
+                if config.VERBOSITY >= config.INFO_LOW:
+                    print('XU.materials: Wyckoff positions missing, '
+                          'using P1')
             else:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print('XU.materials: space-group detection failed, '
@@ -593,10 +589,10 @@ def cifexport(filename, mat):
 
     def unique_label(basename, names):
         num = 1
-        name = '{name}{num:d}'.format(name=basename, num=num)
+        name = f'{basename}{num:d}'
         while name in names:
             num += 1
-            name = '{name}{num:d}'.format(name=basename, num=num)
+            name = f'{basename}{num:d}'
         return name
 
     general = """data_global
@@ -627,7 +623,7 @@ _space_group_name_H-M_alt '{hmsymb}'
 
     sgrpsuf = mat.lattice.space_group_suf[1:]
     if sgrpsuf:
-        ctxt += '_symmetry_cell_setting {suf}\n'.format(suf=sgrpsuf)
+        ctxt += f'_symmetry_cell_setting {sgrpsuf}\n'
 
     symloop = """
 loop_

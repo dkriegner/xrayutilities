@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2013-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2013-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 
 """
@@ -25,12 +25,73 @@ open gzipped and bzipped files
 
 import bz2
 import gzip
+import io
 import lzma
+import string
+
+from operator import itemgetter
 
 import h5py
 
 from .. import config
 from ..exception import InputError
+
+
+def generate_filenames(filetemplate, scannrs=None):
+    """
+    generate a list of filenames from a template and replacement values.
+
+    Parameters
+    ----------
+    filetemplate: str or list
+      template string which should contain placeholders if scannrs is not None
+    scannrs: iterable, optional
+      list of scan numbers. If None then the filetemplate will be returned.
+
+    Examples
+    --------
+    >>> generate_filenames("filename_%d.ras", [1, 2, 3])
+    ['filename_1.ras', 'filename_2.ras', 'filename_3.ras']
+
+    >>> generate_filenames("filename_{}.ras", [1, 2, 3])
+    ['filename_1.ras', 'filename_2.ras', 'filename_3.ras']
+
+    >>> generate_filenames("filename_{}_{}.ras", [(11, 1), (21, 2), (31, 3)])
+    ['filename_11_1.ras', 'filename_21_2.ras', 'filename_31_3.ras']
+
+    >>> generate_filenames("filename_%d.ras", 1)
+    ['filename_1.ras']
+
+    >>> generate_filenames("filename.ras")
+    ['filename.ras']
+
+    >>> generate_filenames(["filename.ras", "othername.ras"])
+    ['filename.ras', 'othername.ras']
+
+    Returns
+    -------
+    list of filenames. If only a single filename is returned it will still be
+    encapsulated in a list
+    """
+    if scannrs is None:
+        if isinstance(filetemplate, list):
+            return filetemplate
+        return [filetemplate]
+
+    files = []
+    if not isinstance(scannrs, (list, tuple)):
+        scannrs = [scannrs]
+    placeholders = map(itemgetter(1), string.Formatter().parse(filetemplate))
+    isformatstring = any(p is not None for p in placeholders)
+    for nr in scannrs:
+        if isinstance(nr, tuple) and isformatstring:
+            files.append(filetemplate.format(*nr))
+        elif isformatstring:
+            files.append(filetemplate.format(nr))
+        else:
+            files.append(filetemplate % nr)
+
+    return files
 
 
 def xu_open(filename, mode='rb'):
@@ -41,9 +102,9 @@ def xu_open(filename, mode='rb'):
 
     Parameters
     ----------
-    filename :  str
-        filename of the file to open (full including path)
-    mode :      str, optional
+    filename :  str or bytes
+        filename of the file to open or a bytes-stream with the file contents
+    mode :  str, optional
         mode in which the file should be opened
 
     Returns
@@ -58,8 +119,10 @@ def xu_open(filename, mode='rb'):
         which is not caught within the function
     """
     if config.VERBOSITY >= config.INFO_ALL:
-        print("XU:io: opening file %s" % filename)
-    if filename.endswith('.gz'):
+        print(f"XU:io: opening file {filename}")
+    if isinstance(filename, bytes):
+        fid = io.BytesIO(filename)
+    elif filename.endswith('.gz'):
         fid = gzip.open(filename, mode)
     elif filename.endswith('.bz2'):
         fid = bz2.BZ2File(filename, mode)
@@ -71,7 +134,7 @@ def xu_open(filename, mode='rb'):
     return fid
 
 
-class xu_h5open(object):
+class xu_h5open:
     """
     helper object to decide if a HDF5 file has to be opened/closed when
     using with a 'with' statement.

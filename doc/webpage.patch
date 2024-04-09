@@ -1,34 +1,15 @@
---- build/sphinx/html/index.html.orig	2021-01-02 10:10:28.475662993 +0100
-+++ build/sphinx/html/index.html	2021-01-02 10:44:25.329092662 +0100
-@@ -57,7 +57,7 @@
- 
-           
-             
--            <img src="_static/xray-logo.png" class="logo" alt="Logo"/>
-+            <img src="_static/xray-logo.png" class="logo" alt="Logo" style="width: 100%; max-width:265px;"/>
-           
-           </a>
- 
-@@ -167,8 +167,16 @@
-             
-   <div class="section" id="welcome-to-xrayutilities-s-documentation">
- <h1>Welcome to xrayutilities’s documentation!<a class="headerlink" href="#welcome-to-xrayutilities-s-documentation" title="Permalink to this headline">¶</a></h1>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Latest Version" style="max-height: 25px; max-width:114px;" src="https://img.shields.io/pypi/v/xrayutilities.svg"/></a>
-+<a class="reference external image-reference" href="https://github.com/dkriegner/xrayutilities"><img alt="Git-repo on github" style="max-height: 25px; max-width:144px;" src="https://img.shields.io/badge/development-GIT-green.svg"/></a>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Supported Python versions" style="max-height: 25px; max-width:193px;" src="https://img.shields.io/pypi/pyversions/xrayutilities.svg" /></a>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="Development Status" style="max-height: 25px; max-width:114px;" src="https://img.shields.io/pypi/status/xrayutilities.svg" /></a>
-+<a class="reference external image-reference" href="https://pypi.python.org/pypi/xrayutilities/"><img alt="License" style="max-height: 25px; max-width:119px;" src="https://img.shields.io/pypi/l/xrayutilities.svg" /></a>
-+<a class="reference external image-reference" href="https://dev.azure.com/dominikkriegner/xrayutilities/_build"><img alt="Test status" style="max-height: 25px" src="https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/tox-testing?repoName=dkriegner%2Fxrayutilities&branchName=main" /></a>
-+
+--- build/sphinx/html/index.html.orig	2022-03-03 17:41:08.481169450 +0100
++++ build/sphinx/html/index.html	2022-03-03 17:46:43.226602844 +0100
+@@ -87,6 +87,7 @@
+ <a class="reference external image-reference" href="https://dev.azure.com/dominikkriegner/xrayutilities/_build"><img alt="Unit test status" src="https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/testing?repoName=dkriegner%2Fxrayutilities&amp;branchName=main" /></a>
  <p>If you look for downloading the package go to <a class="reference external" href="https://sourceforge.net/projects/xrayutilities">Sourceforge</a> or <a class="reference external" href="https://github.com/dkriegner/xrayutilities">GitHub</a> (source distribution) or the <a class="reference external" href="https://pypi.python.org/pypi/xrayutilities">Python package index</a> (MS Windows binary).</p>
--<p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
-+<p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a>.
-+This documentation can also be downloaded in <a href="xrayutilities.pdf">PDF format</a>.</p>
- </div>
- <div class="section" id="installation">
+ <p>Read more about <em>xrayutilities</em> below or in <a class="reference external" href="http://dx.doi.org/10.1107/S0021889813017214">Journal of Applied Crystallography 2013, Volume 46, 1162-1170</a></p>
++<p>This documentation can also be downloaded in <a href="xrayutilities.pdf">PDF format</a>.</p>
+ </section>
+ <section id="installation">
  <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-@@ -735,4 +743,4 @@
-    
+@@ -538,4 +539,4 @@
+   </script> 
  
  </body>
 -</html>

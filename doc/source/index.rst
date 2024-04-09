@@ -6,6 +6,27 @@
 Welcome to xrayutilities's documentation!
 =========================================
 
+.. only:: html
+
+  .. image:: https://img.shields.io/pypi/v/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: Latest Version
+  .. image:: https://img.shields.io/badge/development-GIT-green.svg
+     :target: https://github.com/dkriegner/xrayutilities
+     :alt: Git-repository on github
+  .. image:: https://img.shields.io/pypi/pyversions/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: Supported Python versions
+  .. image:: https://img.shields.io/pypi/status/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: Development Status
+  .. image:: https://img.shields.io/pypi/l/xrayutilities.svg
+     :target: https://pypi.python.org/pypi/xrayutilities/
+     :alt: License
+  .. image:: https://dev.azure.com/dominikkriegner/xrayutilities/_apis/build/status/testing?repoName=dkriegner%2Fxrayutilities&branchName=main
+     :target: https://dev.azure.com/dominikkriegner/xrayutilities/_build
+     :alt: Unit test status
+
 If you look for downloading the package go to `Sourceforge <https://sourceforge.net/projects/xrayutilities>`_ or `GitHub <https://github.com/dkriegner/xrayutilities>`_ (source distribution) or the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ (MS Windows binary).
 
 Read more about *xrayutilities* below or in `Journal of Applied Crystallography 2013, Volume 46, 1162-1170 <http://dx.doi.org/10.1107/S0021889813017214>`_
@@ -35,7 +56,7 @@ Overview
 --------
 
 *xrayutilities* is a collection of scripts used to analyze and simulate x-ray diffraction data. It consists of a python package and several routines coded in C.
-It especially useful for the reciprocal space conversion of diffraction data taken with linear and area detectors. Several models for the simulation of thin film reflectivity and diffraction curves are included.
+It especially useful for the reciprocal space conversion of diffraction data taken with linear and area detectors. Several models for the simulation of thin film reflectivity and diffraction curves are included. For details see the full API documentation of :mod:`xrayutilities` found here: :ref:`expapi`.
 
 In the following few concepts of usage for the *xrayutilities* package will be described.
 First one should get a brief idea of how to analyze x-ray diffraction data with *xrayutilities*.
@@ -132,16 +153,6 @@ A minimal example for an AlGaAs superlattice structure is shown below. It shows 
 More detailed examples and description of model parameters can be found on the :ref:`simulationspage` page or in the ``examples`` directory.
 
 
-xrayutilities Python package
-============================
-
-.. automodule:: xrayutilities
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-for more details see the full API documentation of :mod:`xrayutilities` found here: :ref:`expapi`.
-
 Source Installation
 ===================
 
@@ -177,10 +188,10 @@ The needed runtime dependencies are:
  * **Numpy** a Python module providing numerical array objects (version >= 1.9)
  * **Scipy** a Python module providing standard numerical routines, which is heavily using numpy arrays (version >= 0.13.0)
  * **h5py** a powerful Python interface to HDF5.
+ * **lmfit** a Python module for least-squares minimization with bounds and constraints (needed for fitting XRR/XRD data)
 
 For several features optional dependencies are needed:
  * **Matplotlib** a Python module for high quality 1D and 2D plotting (optional, version >= 3.1.0)
- * **lmfit** a Python module for least-squares minimization with bounds and constraints (optionally needed for fitting XRR/XRD data)
  * **IPython** although not a dependency of *xrayutilities* the IPython shell is perfectly suited for the interactive use of the *xrayutilities* python package.
  * **mayavi** only used optionally in Crystal.show_unitcell where it produces a superior visualization to otherwise used Matplotlib 3D plots
 
@@ -188,7 +199,7 @@ Additionally, the following Python modules are needed when building *xrayutiliti
  * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.
  * **Python development headers**
  * **setuptools** build system
- * **tox** needed for running the pre-configured unittest environment, which in principal can also be achieved only by the unittest package (optional)
+ * **pytest** needed for running the pre-configured unittest environment, which in principal can also be achieved only by the unittest package (optional)
 
 For building the documention (which you do not need to do) the requirements are:
  * **sphinx** the Python documentation generator
@@ -266,14 +277,7 @@ Examples and API-documentation
 
    examples
    simulations
-   xrayutilities
-   xrayutilities.analysis
-   xrayutilities.io
-   xrayutilities.materials
-   xrayutilities.math
-   xrayutilities.simpack
    modules
-
 
 Indices and tables
 ==================

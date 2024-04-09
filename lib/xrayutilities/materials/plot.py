@@ -13,21 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2018-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import math
-from math import pi
 
 import numpy
 
-from .. import config, utilities
-from ..math import VecNorm
+from .. import utilities
 
 
 def show_reciprocal_space_plane(
         mat, exp, ttmax=None, maxqout=0.01, scalef=100, ax=None, color=None,
         show_Laue=True, show_legend=True, projection='perpendicular',
-        label=None):
+        label=None, **kwargs):
     """
     show a plot of the coplanar diffraction plane with peak positions for the
     respective material. the size of the spots is scaled with the strength of
@@ -66,6 +64,9 @@ def show_reciprocal_space_plane(
     label:  None or str, optional
         label to be used for the legend. If 'None' the name of the material
         will be used.
+    kwargs: optional
+        kwargs are forwarded to matplotlib.pyplot.scatter and allow to change
+        the appearance of the points.
 
     Returns
     -------
@@ -112,7 +113,7 @@ def show_reciprocal_space_plane(
 
     if not plot:
         print('matplotlib needed for show_reciprocal_space_plane')
-        return
+        return None, None  # return values for consistency with signature below
 
     if ttmax is None:
         ttmax = 180
@@ -168,10 +169,11 @@ def show_reciprocal_space_plane(
     else:
         s = d['r'][m]*scalef
 
-    label = label if label else mat.name
-    h = plt.scatter(x, y, s=s, zorder=2, label=label)
-    if color:
-        h.set_color(color)
+    kwargs.setdefault("label", label if label else mat.name)
+    kwargs.setdefault("zorder", 2)
+    kwargs.setdefault("s", s)
+    kwargs.setdefault("c", color)
+    h = plt.scatter(x, y, **kwargs)
 
     plt.xlabel(r'$Q$ inplane ($\mathrm{\AA^{-1}}$)')
     plt.ylabel(r'$Q$ out of plane ($\mathrm{\AA^{-1}}$)')
@@ -191,10 +193,15 @@ def show_reciprocal_space_plane(
     def update_annot(ind):
         pos = h.get_offsets()[ind["ind"][0]]
         annot.xy = pos
-        text = "{}\n{}".format(mat.name,
-                               str(d['hkl'][m][ind['ind'][0]]))
+        text = f"{mat.name}\n{str(d['hkl'][m][ind['ind'][0]])}"
         annot.set_text(text)
-        annot.get_bbox_patch().set_facecolor(h.get_facecolor()[0])
+        if h.get_facecolor().size > 0:
+            color = h.get_facecolor()[0]
+        elif h.get_edgecolor().size > 0:
+            color = h.get_edgecolor()[0]
+        else:
+            color = 'w'
+        annot.get_bbox_patch().set_facecolor(color)
         annot.get_bbox_patch().set_alpha(0.2)
 
     def hover(event):
@@ -219,8 +226,9 @@ def show_reciprocal_space_plane(
                 q = (d['qx'][m][ind['ind'][0]], d['qy'][m][ind['ind'][0]],
                      d['qz'][m][ind['ind'][0]])
                 angles = exp.Q2Ang(q, trans=False, geometry='real')
-                text = "{}\nhkl: {}\nangles: {}".format(
-                    mat.name, str(d['hkl'][m][ind['ind'][0]]), str(angles))
+                text = f"""{mat.name}
+hkl: {d['hkl'][m][ind['ind'][0]]}
+exp.Q2Ang angles (om, tilt, azimuth, 2th): {angles}"""
                 numpy.set_printoptions(**popts)
                 print(text)
 

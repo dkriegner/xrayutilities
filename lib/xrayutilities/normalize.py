@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to provide functions that perform block averaging
@@ -100,7 +100,7 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
 
     if config.VERBOSITY >= config.DEBUG:
         N, M = (roi[1] - roi[0], roi[3] - roi[2])
-        print("xu.normalize.blockAverage2D: roi: %s" % (str(roi)))
+        print(f"xu.normalize.blockAverage2D: roi: {str(roi)}")
         print("xu.normalize.blockAverage2D: Nav1, 2: %d,%d" % (Nav1, Nav2))
         print("xu.normalize.blockAverage2D: number of points: (%d,%d)"
               % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2))))
@@ -181,7 +181,7 @@ def blockAverageCCD(data3d, Nav1, Nav2, **kwargs):
 
     if config.VERBOSITY >= config.DEBUG:
         N, M = (roi[1] - roi[0], roi[3] - roi[2])
-        print("xu.normalize.blockAverageCCD: roi: %s" % (str(roi)))
+        print(f"xu.normalize.blockAverageCCD: roi: {str(roi)}")
         print("xu.normalize.blockAverageCCD: Nav1, 2: %d,%d" % (Nav1, Nav2))
         print("xu.normalize.blockAverageCCD: number of points: (%d,%d)"
               % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2))))
@@ -196,7 +196,7 @@ def blockAverageCCD(data3d, Nav1, Nav2, **kwargs):
 # #####################################
 
 
-class IntensityNormalizer(object):
+class IntensityNormalizer:
 
     """
     generic class for correction of intensity (point detector, or MCA,
@@ -236,7 +236,7 @@ class IntensityNormalizer(object):
         Examples
         --------
         >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
-        >>>     absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(float))
+        ... absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(float))
         """
         valid_kwargs = {'mon': 'monitor field name',
                         'time': 'count time field/value',

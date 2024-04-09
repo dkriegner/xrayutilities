@@ -13,7 +13,8 @@ open an issue on the [Github issue tracker][2].
 Submitting an patch/pull request
 ================================
 
-Patches and pull requests can also be submitted via Github.
+Patches and pull requests can also be submitted via Github. Please include your
+name in the copyright statement at the beginning of the file.
 
 Styleguide
 ----------

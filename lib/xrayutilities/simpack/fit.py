@@ -13,18 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
-
-import warnings
+# Copyright (c) 2016-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
+from lmfit import Model
 
-from .. import config, utilities
-from ..exception import InputError
+from .. import utilities
 from . import models
 
 
-class FitModel(object):
+class FitModel(Model):
     """
     Wrapper for the lmfit Model class working for instances of LayerModel
 
@@ -34,6 +32,7 @@ class FitModel(object):
 
     Later on you can call `fit` and `eval` methods with those parameter list.
     """
+
     def __init__(self, lmodel, verbose=False, plot=False, elog=True, **kwargs):
         """
         initialization of a FitModel which uses lmfit for the actual fitting,
@@ -62,7 +61,6 @@ class FitModel(object):
         self.verbose = verbose
         self.plot = plot
         self.elog = elog
-        lmfit = utilities.import_lmfit('XU.simpack')
 
         assert isinstance(lmodel, models.LayerModel)
         self.lmodel = lmodel
@@ -70,26 +68,26 @@ class FitModel(object):
         funcstr = "def func(x, "
         # add LayerModel parameters
         for p in self.lmodel.fit_paramnames:
-            funcstr += "{}, ".format(p)
+            funcstr += f"{p}, "
         # add LayerStack parameters
         for layer in self.lmodel.lstack:
             for param in self.lmodel.lstack_params:
-                funcstr += '{}_{}, '.format(layer.name, param)
+                funcstr += f'{layer.name}_{param}, '
             if self.lmodel.lstack_structural_params:
                 for param in layer._structural_params:
-                    funcstr += '{}_{}, '.format(layer.name, param)
+                    funcstr += f'{layer.name}_{param}, '
         funcstr += "lmodel=self.lmodel, **kwargs):\n"
         # define modelfunc content
         for p in self.lmodel.fit_paramnames:
-            funcstr += "    setattr(lmodel, '{}', {})\n".format(p, p)
+            funcstr += f"    setattr(lmodel, '{p}', {p})\n"
         for i, l in enumerate(self.lmodel.lstack):
             for param in self.lmodel.lstack_params:
-                varname = '{}_{}'.format(l.name, param)
+                varname = f'{l.name}_{param}'
                 cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
                 funcstr += cmd.format(i, param, varname)
             if self.lmodel.lstack_structural_params:
                 for param in l._structural_params:
-                    varname = '{}_{}'.format(l.name, param)
+                    varname = f'{l.name}_{param}'
                     cmd = "    setattr(lmodel.lstack[{}], '{}', {})\n"
                     funcstr += cmd.format(i, param, varname)
         # perform actual model calculation
@@ -118,12 +116,9 @@ class FitModel(object):
                 diff *= weights
             return numpy.asarray(diff).ravel()
 
-        self.lmm = lmfit.Model(self.func,
-                               name=self.lmodel.__class__.__name__, **kwargs)
-        self.lmm._residual = _residual
-        for method in ('set_param_hint', 'print_param_hints', 'eval',
-                       'make_params'):
-            setattr(self, method, getattr(self.lmm, method))
+        super().__init__(self.func,
+                         name=self.lmodel.__class__.__name__, **kwargs)
+        self._residual = _residual
         # set default parameter hints
         self._default_hints()
         self.set_fit_limits()
@@ -147,7 +142,8 @@ class FitModel(object):
         self.xmin = xmin
         self.xmax = xmax
 
-    def fit(self, data, params, x, weights=None, fit_kws=None, **kwargs):
+    def fit(self, data, params, x, weights=None, fit_kws=None, lmfit_kws=None,
+            **kwargs):
         """
         wrapper around lmfit.Model.fit which enables plotting during the
         fitting
@@ -165,14 +161,19 @@ class FitModel(object):
             values of weights for the fit, same size as data
         fit_kws :   dict, optional
             Options to pass to the minimizer being used
-        kwargs :    dict, optional
+        lmfit_kws : dict, optional
             keyword arguments which are passed to lmfit.Model.fit
+        kwargs :    dict, optional
+            keyword arguments passed to lmfit.Model.eval
 
         Returns
         -------
         lmfit.ModelResult
         """
-        class FitPlot(object):
+        if not lmfit_kws:
+            lmfit_kws = {}
+
+        class FitPlot:
             def __init__(self, figname, logscale):
                 self.figname = figname
                 self.logscale = logscale
@@ -201,18 +202,16 @@ class FitModel(object):
                 else:
                     eline, = self.ax.plot(x, data, 'ok', label='data')
                 if verbose:
-                    init, = self.ax.plot(
-                        x, model, '-', color='0.5', label='initial')
+                    self.ax.plot(x, model, '-', color='0.5', label='initial')
                 if eline:
                     self.zord = eline.zorder+2
                 else:
                     self.zord = 1
                 if self.logscale:
-                    self.ax.set_yscale("log", nonposy='clip')
+                    self.ax.set_yscale("log")
                 self.fline = None
 
-            def showplot(self, xlab=self.lmodel.xlabelstr,
-                         ylab='Intensity (arb. u.)'):
+            def showplot(self, xlab, ylab='Intensity (arb. u.)'):
                 if not self.plot:
                     return
                 self.plt.xlabel(xlab)
@@ -255,19 +254,19 @@ class FitModel(object):
         self.fitplot = FitPlot(self.plot, self.elog)
         initmodel = self.eval(params, x=x, **kwargs)
         self.fitplot.plot_init(x, data, weights, initmodel, mask, self.verbose)
-        self.fitplot.showplot()
+        self.fitplot.showplot(xlab=self.lmodel.xlabelstr)
 
         # create callback function
         def cb_func(params, niter, resid, *args, **kwargs):
             if self.verbose:
-                print('{:04d} {:12.3e}'.format(niter, numpy.sum(resid**2)))
+                print(f'{niter:04d} {numpy.sum(resid ** 2):12.3e}')
             if self.fitplot.plot and niter % 20 == 0:
                 self.fitplot.updatemodelline(kwargs['x'],
                                              self.eval(params, **kwargs))
 
         # perform fitting
-        res = self.lmm.fit(data[mask], params, x=x[mask], weights=mweights,
-                           fit_kws=fit_kws, iter_cb=cb_func, **kwargs)
+        res = super().fit(data[mask], params, x=x[mask], weights=mweights,
+                          fit_kws=fit_kws, iter_cb=cb_func, **lmfit_kws)
 
         # final update of plot
         if self.fitplot.plot:
@@ -279,7 +278,7 @@ class FitModel(object):
             fittedmodel = self.eval(res.params, x=x, **kwargs)
             self.fitplot.addfullmodelline(x, fittedmodel)
             self.fitplot.updatemodelline(x[mask], fittedmodel[mask])
-            self.fitplot.showplot()
+            self.fitplot.showplot(xlab=self.lmodel.xlabelstr)
 
         return res
 
@@ -298,7 +297,7 @@ class FitModel(object):
         # parameters of the layerstack
         for lay in self.lmodel.lstack:
             for param in self.lmodel.lstack_params:
-                varname = '{}_{}'.format(lay.name, param)
+                varname = f'{lay.name}_{param}'
                 self.set_param_hint(varname, value=getattr(lay, param), min=0)
                 if param == 'density':
                     self.set_param_hint(varname, max=1.5*lay.material.density)
@@ -308,7 +307,7 @@ class FitModel(object):
                     self.set_param_hint(varname, max=50)
             if self.lmodel.lstack_structural_params:
                 for param in lay._structural_params:
-                    varname = '{}_{}'.format(lay.name, param)
+                    varname = f'{lay.name}_{param}'
                     self.set_param_hint(varname, value=getattr(lay, param),
                                         vary=False)
                     if 'occupation' in param:
@@ -316,5 +315,5 @@ class FitModel(object):
                     if 'biso' in param:
                         self.set_param_hint(varname, min=0, max=5)
         if self.lmodel.lstack[0].thickness == numpy.inf:
-            varname = '{}_{}'.format(self.lmodel.lstack[0].name, 'thickness')
+            varname = f"{self.lmodel.lstack[0].name}_thickness"
             self.set_param_hint(varname, vary=False)

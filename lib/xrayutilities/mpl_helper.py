@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 Defines new matplotlib Sqrt scale which further allows for negative values by
 using the sign of the original value as sign of the plotted value.
@@ -21,7 +21,6 @@ using the sign of the original value as sign of the plotted value.
 
 import math
 
-import matplotlib
 import numpy
 from matplotlib import scale as mscale
 from matplotlib import ticker as mticker

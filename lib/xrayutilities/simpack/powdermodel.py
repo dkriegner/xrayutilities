@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2017-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numbers
 from math import sqrt
 
+import lmfit
 import numpy
 from scipy import interpolate
 
@@ -26,7 +27,7 @@ from .powder import PowderDiffraction
 from .smaterials import PowderList
 
 
-class PowderModel(object):
+class PowderModel:
     """
     Class to help with powder calculations for multiple materials.  For basic
     calculations the Powder class together with the Fundamental parameters
@@ -38,10 +39,6 @@ class PowderModel(object):
         constructor for a powder model. The arguments consist of a PowderList
         or individual Powder(s). Optional parameters are specified in the
         keyword arguments.
-
-        Note:
-            After the end-of-use it is advisable to call the `close()` method
-            to cleanup the multiprocessing calculation!
 
         Parameters
         ----------
@@ -55,24 +52,37 @@ class PowderModel(object):
         fpsettings : dict
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
-        I0 :        float, optional
+        I0 : float, optional
             scaling factor for the simulation result
 
+        Notes
+        -----
 
-        In particular interesting in fpsettings might be:
-        {'displacement': {'specimen_displacement': z-displacement of the sample
-                                                   from the rotation center
-                          'zero_error_deg': zero error of the 2theta angle}
-         'absorption': {'sample_thickness': sample thickness (m),
-                        'absorption_coefficient': sample's absorption (m^-1)}
-         'axial': {'length_sample': the length of the sample in the axial
-                                    direction (m)}
-        }
+         - After the end-of-use it is advisable to call the `close()` method
+           to cleanup the multiprocessing calculation!
+         - In particular interesting keys in the fpsettings dictionary are
+           listed in the following. Note that this a short excerpt of the full
+           functionality:
+
+           - 'displacement'-dictionary with keys:
+
+             - 'specimen_displacement': sample's z-displacement from the
+                rotation center
+             - 'zero_error_deg': zero error of the 2theta angle
+
+           - 'absorption'-dictionary with keys:
+
+             - 'sample_thickness': sample thickness (m),
+             - 'absorption_coefficient': sample's absorption (m^-1)
+
+           - 'axial'-dictionary with keys:
+
+             - 'length_sample': sample length in the axial direction (m)
         """
         if len(args) == 1 and isinstance(args[0], PowderList):
             self.materials = args[0]
         else:
-            self.materials = PowderList('%s List' % self.__class__.__name__,
+            self.materials = PowderList(f'{self.__class__.__name__} List',
                                         *args)
         self.I0 = kwargs.pop('I0', 1.0)
         self.pdiff = []
@@ -160,8 +170,6 @@ class PowderModel(object):
         -------
         lmfit.Parameters
         """
-        lmfit = utilities.import_lmfit('XU.PowderModel')
-
         params = lmfit.Parameters()
         # sample phase parameters
         for mat, name in zip(self.materials, self.materials.namelist):
@@ -286,8 +294,6 @@ class PowderModel(object):
         -------
         lmfit.MinimizerResult
         """
-        lmfit = utilities.import_lmfit('XU.PowderModel')
-
         def residual(pars, tt, data, weight):
             """
             residual function for lmfit Minimizer routine
@@ -322,7 +328,7 @@ class PowderModel(object):
         return fitres
 
     def plot(self, twotheta, showlines=True, label='simulation', color=None,
-             formatspec='-', lcolors=[], ax=None, **kwargs):
+             formatspec='-', lcolors=None, ax=None, **kwargs):
         """
         plot the powder diffraction pattern and indicate line positions for all
         components in the model.
@@ -350,11 +356,11 @@ class PowderModel(object):
 
         Returns
         -------
-        matplotlib.axes object
+        matplotlib.axes object or None if matplotlib is not available
         """
         plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
         if not plot:
-            return
+            return None
 
         if ax is None:
             fig, iax = plt.subplots()
@@ -413,7 +419,7 @@ class PowderModel(object):
                     arrowprops=dict(arrowstyle="->"), fontsize='x-small')
                 annot.set_visible(False)
                 # next line important to avoid zorder issues
-                tax.figure.texts.append(tax.texts.pop())
+                tax.figure.texts.append(tax.texts[-1])
                 taxlist.append(tax)
                 lineslist.append(wllist)
                 annotlist.append(annot)
@@ -423,7 +429,7 @@ class PowderModel(object):
                 x = 2*pd.data[h]['ang']
                 y = 0.5
                 annot.xy = (x, y)
-                text = "{}: {} {} {}".format(pd.mat.name, h[0], h[1], h[2])
+                text = f"{pd.mat.name}: {h[0]} {h[1]} {h[2]}"
                 annot.set_text(text)
                 annot.get_bbox_patch().set_edgecolor(lines.get_color()[0])
                 annot.set_zorder(10)
@@ -440,15 +446,14 @@ class PowderModel(object):
                                 annot.set_visible(True)
                                 fig.canvas.draw_idle()
                                 return
-                            else:
-                                if vis:
-                                    annot.set_visible(False)
-                                    fig.canvas.draw_idle()
-                                    return
+                            if vis:
+                                annot.set_visible(False)
+                                fig.canvas.draw_idle()
+                                return
 
             def click(event):
-                for pd, tax, annot, wllist in zip(self.pdiff, taxlist,
-                                                  annotlist, lineslist):
+                for pd, tax, _, wllist in zip(self.pdiff, taxlist,
+                                              annotlist, lineslist):
                     if event.inaxes == tax:
                         for lines in wllist:
                             cont, ind = lines.contains(event)
@@ -478,7 +483,7 @@ class PowderModel(object):
         string representation of the PowderModel
         """
         ostr = "PowderModel {\n"
-        ostr += "I0: %f\n" % self.I0
+        ostr += f"I0: {self.I0:f}\n"
         ostr += str(self.materials)
         ostr += "}"
         return ostr
@@ -522,8 +527,7 @@ def Rietveld_error_metrics(exp, sim, weight=None, std=None,
     chi2 = M / (len(exp) - Nvar)
     Rwpexp = Rwp / sqrt(chi2)
     if disp:
-        print('Rp=%.4f Rwp=%.4f Rwpexp=%.4f chi2=%.4f'
-              % (Rp, Rwp, Rwpexp, chi2))
+        print(f"Rp={Rp:.4f} Rwp={Rwp:.4f} Rwpexp={Rwpexp:.4f} chi2={chi2:.4f}")
     return M, Rp, Rwp, Rwpexp, chi2
 
 
@@ -541,7 +545,7 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     exp :       array-like
         experimental data (same shape as twotheta). If None only the simulation
         and no difference will be plotted
-    sim :       array-like or PowederModel
+    sim :       array-like or PowderModel
         simulated data or PowderModel instance. If a PowderModel instance is
         given the plot-method of PowderModel is used.
     mask :      array-like, optional
@@ -563,10 +567,16 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
         format specifier for the experimental data
     formatsim : str
         format specifier for the simulation curve
+
+    Returns
+    -------
+    List of lines in the plot. Empty list in case matplotlib can't be imported
     """
     plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
     if not plot:
-        return
+        return []
+    if scale == 'sqrt':
+        from ..mpl_helper import SqrtAllowNegScale  # noqa: F401
 
     f = plt.figure(fig, figsize=(10, 7))
     f.clf()
@@ -590,8 +600,9 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     ax.set_xlabel('2Theta (deg)')
     ax.set_ylabel('Intensity')
     lines = ax.get_lines()
-    plt.figlegend(lines, [line.get_label() for line in lines],
-                  loc='upper right', frameon=True)
+    if show_legend:
+        plt.figlegend(lines, [line.get_label() for line in lines],
+                      loc='upper right', frameon=True)
     ax.set_yscale(scale)
     f.tight_layout()
     return lines

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2016-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import glob
 import os.path
@@ -22,7 +22,7 @@ from .. import config
 from .helper import xu_h5open
 
 
-class FileDirectory(object):
+class FileDirectory:
 
     """
     Parses a directory for files, which can be stored to a HDF5 file for
@@ -52,10 +52,10 @@ class FileDirectory(object):
 
         # create list of files to read
         self.files = glob.glob(os.path.join(
-            self.datapath, '*.%s' % (self.extension)))
+            self.datapath, f'*.{self.extension}'))
 
         if not self.files:
-            print("XU.io.FileDirectory: no file found in %s" % (self.datapath))
+            print(f"XU.io.FileDirectory: no file found in {self.datapath}")
             return
 
         if config.VERBOSITY >= config.INFO_ALL:

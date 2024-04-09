@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2018-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2018-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 implement convenience functions to define Heusler materials.
@@ -39,7 +39,7 @@ def _check_elements(*elem):
     return ret
 
 
-def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
+def FullHeuslerCubic225(X, Y, Z, a, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225)
@@ -61,12 +61,12 @@ def FullHeuslerCubic225(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a, atoms=[x, y, z], pos=['8c', '4a', '4b'],
                              b=biso, occ=occ))
 
 
-def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
+def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225) with B2-type (CsCl)
@@ -91,7 +91,7 @@ def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a,
                              atoms=[x, y, z, y, z],
                              pos=['8c', '4a', '4b', '4b', '4a'],
@@ -101,7 +101,7 @@ def FullHeuslerCubic225_B2(X, Y, Z, a, b2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
                              b=biso + [biso[1], biso[2]]))
 
 
-def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
+def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225) with A2-type (W)
@@ -126,7 +126,7 @@ def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a,
                              atoms=[x, x, x, y, y, y, z, z, z],
                              pos=['8c', '4a', '4b',
@@ -140,8 +140,8 @@ def FullHeuslerCubic225_A2(X, Y, Z, a, a2dis, biso=[0, 0, 0], occ=[1, 1, 1]):
                              b=[biso[0], ]*3 + [biso[1], ]*3 + [biso[2], ]*3))
 
 
-def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
-                            occ=[1, 1, 1]):
+def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=(0, 0, 0),
+                            occ=(1, 1, 1)):
     """
     Full Heusler structure with formula X2YZ.
     Strukturberichte symbol L2_1; space group Fm-3m (225) with DO_3-type (BiF3)
@@ -170,7 +170,7 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(225, a,
                              atoms=[x, y, z,
                                     x, y,
@@ -186,7 +186,7 @@ def FullHeuslerCubic225_DO3(X, Y, Z, a, do3disxy, do3disxz, biso=[0, 0, 0],
                              b=biso + [biso[0], biso[1]] + [biso[0], biso[2]]))
 
 
-def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
+def InverseHeuslerCubic216(X, Y, Z, a, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Full Heusler structure with formula (XY)X'Z structure;
     space group F-43m (216)
@@ -204,15 +204,14 @@ def InverseHeuslerCubic216(X, Y, Z, a, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('(%s%s)%s\'%s' % (x.basename, y.basename,
-                                     x.basename, z.basename),
+    return Crystal(f'({x.basename}{y.basename}){x.basename}\'{z.basename}',
                    SGLattice(216, a, atoms=[x, x, y, z],
                              pos=['4a', '4d', '4b', '4c'],
                              b=[biso[0], ] + biso,
                              occ=[occ[0], ] + occ))
 
 
-def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
+def HeuslerTetragonal139(X, Y, Z, a, c, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Tetragonal Heusler structure with formula X2YZ
     space group I4/mmm (139)
@@ -230,14 +229,14 @@ def HeuslerTetragonal139(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(139, a, c,
                              atoms=[x, y, z],
                              pos=['4d', '2b', '2a'],
                              b=biso, occ=occ))
 
 
-def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
+def HeuslerTetragonal119(X, Y, Z, a, c, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Tetragonal Heusler structure with formula X2YZ
     space group I-4m2 (119)
@@ -255,7 +254,7 @@ def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s2%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}2{y.basename}{z.basename}',
                    SGLattice(119, a, c,
                              atoms=[x, x, y, z],
                              pos=['2b', '2c', '2d', '2a'],
@@ -263,7 +262,7 @@ def HeuslerTetragonal119(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
                              occ=[occ[0], ] + occ))
 
 
-def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
+def HeuslerHexagonal194(X, Y, Z, a, c, biso=(0, 0, 0), occ=(1, 1, 1)):
     """
     Hexagonal Heusler structure with formula XYZ
     space group P63/mmc (194)
@@ -281,7 +280,7 @@ def HeuslerHexagonal194(X, Y, Z, a, c, biso=[0, 0, 0], occ=[1, 1, 1]):
         Crystal describing the Heusler material
     """
     x, y, z = _check_elements(X, Y, Z)
-    return Crystal('%s%s%s' % (x.basename, y.basename, z.basename),
+    return Crystal(f'{x.basename}{y.basename}{z.basename}',
                    SGLattice(194, a, c,
                              atoms=[x, y, z],
                              pos=['2a', '2c', '2d'],

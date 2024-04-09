@@ -36,23 +36,15 @@ none of the pre-defined exceptions is made for that purpose.
 
 
 class InputError(Exception):
-
     """
     Exception raised for errors in the input.
     Either wrong datatype not handled by TypeError or missing mandatory
     keyword argument (Note that the obligation to give keyword arguments
     might depend on the value of the arguments itself)
-
-    Parameters
-    ----------
-    expr :  str
-        input expression in which the error occurred
-    msg :   str
-        explanation of the error
     """
 
-    def __init__(self, msg):
-        self.msg = msg
 
-    def __str__(self):
-        return self.msg
+class UsageError(Exception):
+    """
+    Exception raised when a wrong use of an object is detected.
+    """

@@ -13,20 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2018 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012-2018, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 # ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
 
-import os
-
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy
-import xrayutilities as xu
-
 import xrayutilities_id01_functions as id01
 
+import xrayutilities as xu
+
 sample = 'SAMPLENAME'  # here used for the specfilename
+SCANNR = 200  # put your scan number here
 try:
     s
 except NameError:

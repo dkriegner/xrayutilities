@@ -13,9 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2012-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2012-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-import numpy
 import xrayutilities as xu
 
 # definition of materials is done from its space group and its free parameters.

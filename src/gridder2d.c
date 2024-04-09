@@ -225,10 +225,16 @@ int fuzzygridder2d(double *x, double *y, double *data, unsigned int n,
 
     /* warn the user in case more than half the data points where out
      * of the gridding area */
-    if (noutofbounds > n / 2) {
-        fprintf(stdout,"XU.FuzzyGridder2D(c): more than half of the datapoints"
+    if (flags & VERBOSE) {
+        if (noutofbounds > n / 2) {
+            fprintf(stdout,"XU.FuzzyGridder2D(c): more than half of the datapoints"
                         " out of the data range, consider regridding with"
                         " extended range!\n");
+        }
+        else {
+            fprintf(stdout, "XU.FuzzyGridder2D(c): %d datapoints out of the data "
+                        "range!\n", noutofbounds);
+        }
     }
 
     return 0;
@@ -379,10 +385,16 @@ int gridder2d(double *x, double *y, double *data, unsigned int n,
 
     /* warn the user in case more than half the data points where out
      * of the gridding area */
-    if (noutofbounds > n / 2) {
-        fprintf(stdout,"XU.Gridder2D(c): more than half of the datapoints out "
-                        "of the data range, consider regridding with extended "
-                        "range!\n");
+    if (flags & VERBOSE) {
+        if (noutofbounds > n / 2) {
+            fprintf(stdout,"XU.Gridder2D(c): more than half of the datapoints"
+                        " out of the data range, consider regridding with"
+                        " extended range!\n");
+        }
+        else {
+            fprintf(stdout, "XU.Gridder2D(c): %d datapoints out of the data "
+                        "range!\n", noutofbounds);
+        }
     }
 
     return 0;
