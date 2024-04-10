@@ -116,7 +116,7 @@ class FitModel(Model):
                 diff *= weights
             return numpy.asarray(diff).ravel()
 
-        super().__init__(self.func,
+        super().__init__(self.func, independent_vars='x',
                          name=self.lmodel.__class__.__name__, **kwargs)
         self._residual = _residual
         # set default parameter hints
@@ -265,6 +265,7 @@ class FitModel(Model):
                                              self.eval(params, **kwargs))
 
         # perform fitting
+        lmfit_kws.update(kwargs)  # add kwargs for function call
         res = super().fit(data[mask], params, x=x[mask], weights=mweights,
                           fit_kws=fit_kws, iter_cb=cb_func, **lmfit_kws)
 
