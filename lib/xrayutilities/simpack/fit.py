@@ -97,7 +97,6 @@ class FitModel(Model):
         exec(funcstr, {'lmodel': self.lmodel}, namespace)
         self.func = namespace['func']
         self.emetricfunc = numpy.log10 if self.elog else lambda x: x
-        super
 
         def _residual(params, data, weights, **kwargs):
             """
