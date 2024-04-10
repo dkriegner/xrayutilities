@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import glob
 import os.path
@@ -144,12 +144,11 @@ setup(
     description="package for x-ray diffraction data evaluation",
     classifiers=[
         "Programming Language :: C",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering :: Physics",
         "Intended Audience :: Science/Research",
         "Development Status :: 5 - Production/Stable",
