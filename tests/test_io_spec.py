@@ -32,7 +32,7 @@ fullfilename = os.path.join(datadir, testfile)
                  "additional test data needed (http://xrayutilities.sf.io)")
 class TestIO_SPEC(unittest.TestCase):
     dshape = (4001,)
-    dmax = 2567926.75
+    dmax = 2567926.8
     dmin = 1.0
     motmax = 95.40775
     motmin = 15.40775
