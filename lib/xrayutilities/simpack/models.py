@@ -628,7 +628,8 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         prepare dynamical calculation by calculating some helper values
         """
         t = self.exp._transform
-        ql0 = t(self.lstack[0].material.Q(*self.hkl[0]))  # use hkl of substrate
+        # use hkl of substrate
+        ql0 = t(self.lstack[0].material.Q(*self.hkl[0]))
         hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
         if geometry == 'lo_hi':
             hx = -hx
