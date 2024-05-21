@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
 import copy
@@ -577,11 +577,24 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             Miller indices of the Bragg peak for the calculation
         """
         if hkl != (None, ):
-            if len(hkl) < 3:
-                hkl = hkl[0]
+            newhkl = []
+            if len(hkl[0]) == len(self.lstack):
+                # assume one hkl is given for each layer
+                try:
+                    for indices in hkl[0]:
+                        if len(indices) == 3:
+                            newhkl.append(indices)
+                        else:
+                            break
+                except TypeError:
+                    pass
+            if len(newhkl) != len(self.lstack):
+                if len(hkl) < 3:
+                    hkl = hkl[0]
                 if len(hkl) < 3:
                     raise InputError("need 3 Miller indices")
-            newhkl = numpy.asarray(hkl)
+                newhkl = [hkl,] * len(self.lstack)
+            newhkl = numpy.asarray(newhkl)
         else:
             newhkl = self.hkl
 
@@ -592,8 +605,8 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             # calculate chih
             self.chih = {'S': [], 'P': []}
             self.chimh = {'S': [], 'P': []}
-            for lay in self.lstack:
-                q = lay.material.Q(self.hkl)
+            for hkl, lay in zip(self.hkl, self.lstack):
+                q = lay.material.Q(hkl)
                 thetaB = numpy.arcsin(numpy.linalg.norm(q) / 2 / self.exp.k0)
                 ch = lay.material.chih(q, en=self.energy, polarization='S')
                 self.chih['S'].append(-ch[0] + 1j*ch[1])
@@ -615,15 +628,15 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         prepare dynamical calculation by calculating some helper values
         """
         t = self.exp._transform
-        ql0 = t(self.lstack[0].material.Q(*self.hkl))
+        ql0 = t(self.lstack[0].material.Q(*self.hkl[0]))  # use hkl of substrate
         hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
         if geometry == 'lo_hi':
             hx = -hx
 
         # calculate vertical diffraction vector components and strain
         hz = numpy.zeros(len(self.lstack))
-        for i, l in enumerate(self.lstack):
-            hz[i] = t(l.material.Q(*self.hkl))[2]
+        for i, (hkl, l) in enumerate(zip(self.hkl, self.lstack)):
+            hz[i] = t(l.material.Q(*hkl))[2]
         return t, hx, hz
 
     def simulate(self, alphai, hkl=None, geometry='hi_lo', idxref=1):
