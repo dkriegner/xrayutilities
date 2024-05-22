@@ -202,6 +202,8 @@ def _getfit_func(peaktype, background):
         fit function, function of derivative regarding `x`, and functions of
         derivatives regarding the parameters
     """
+    fdx = None
+    fdp = None
     if peaktype == 'Gauss':
         f = Gauss1d
         fdx = Gauss1d_der_x

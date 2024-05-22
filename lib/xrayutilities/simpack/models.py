@@ -234,13 +234,13 @@ class LayerModel(Model, utilities.ABC):
         -------
         return value depends on value of rettype.
         """
-        if rettype == 'intensity':
-            ret = self.scale_simulation(
-                self.convolute_resolution(x, numpy.abs(E)**2))
-        elif rettype == 'field':
+        if rettype == 'field':
             ret = E
         elif rettype == 'all':
             ret = (E, numpy.degrees(ai), numpy.degrees(af), Ir)
+        else:  # default: rettype == 'intensity'
+            ret = self.scale_simulation(
+                self.convolute_resolution(x, numpy.abs(E)**2))
         return ret
 
     def get_polarizations(self):
@@ -1921,6 +1921,8 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                     elif ja == 3:
                         An = R1[jn, ...] * R2[jn, ...]
                         Qn = kz1[jn, ...] + kz2[jn, ...]
+                    else:
+                        raise ValueError("ja must be in range(4)")
                 for jm in range(jmdol, jn+1):
                     if jm == jn:
                         weight = 1
@@ -1960,6 +1962,8 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                             elif jb == 3:
                                 Am = R1[jm, ...] * R2[jm, ...]
                                 Qm = +kz1[jm, ...] + kz2[jm, ...]
+                            else:
+                                raise ValueError("ja must be in range(4)")
                         # lateral correlation function:
                         Psi = correl(QP*LP, Qn*numpy.conj(Qm)*sig**2, LP, H,
                                      eps, nmax, vert, K, NqL, Nqz, isurf)

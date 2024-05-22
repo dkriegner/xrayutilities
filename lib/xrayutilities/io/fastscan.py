@@ -413,8 +413,9 @@ class FastScanCCD(FastScan):
         if m:
             path, prefix, idxFmt, num, suffix = m.groups()
         else:
-            ValueError('spec-scan does not contain images or the '
-                       'corresponding header line is not detected correctly')
+            raise ValueError('spec-scan does not contain images or the '
+                             'corresponding header line is not detected '
+                             'correctly')
         ccdtmp = os.path.join(path, prefix + idxFmt + suffix)
         r = utilities.exchange_filepath(ccdtmp, datadir, keepdir, replacedir)
         return r, int(num)

@@ -363,6 +363,7 @@ class SPECTRAFile:
                 kcnt += 1
             lst[key] = v
 
+        read_mode = 0
         col_names = []
         col_types = []
         rec_list = []
@@ -375,16 +376,14 @@ class SPECTRAFile:
                 if re_end_section.match(line):
                     continue
 
-                # select the which section to read
+                # select which section to read
                 if re_comment_section.match(line):
                     read_mode = 1
                     continue
-
-                if re_parameter_section.match(line):
+                elif re_parameter_section.match(line):
                     read_mode = 2
                     continue
-
-                if re_data_section.match(line):
+                elif re_data_section.match(line):
                     read_mode = 3
                     continue
 
@@ -527,7 +526,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
 
     kwargs :    dict, optional
     mca :       str, optional
-        name of the mca data (if available) otherwise None (default: "MCA")
+        name of the mca data (if available). default: "MCA"
     samplename : str, optional
         string with the hdf5-group containing the scan data if omitted the
         first child node of h5f.root will be used to determine the sample name
@@ -570,9 +569,8 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
         for nr in scanlist:
             h5scan = h5.get(basename + "_%05d" % nr)
             sdata = h5scan.get('data')
-            if mca:
-                mcanode = h5.get(basename + "_%05d/%s" % (nr, mca))
-                mcadata = numpy.asarray(mcanode)
+            mcanode = h5.get(basename + "_%05d/%s" % (nr, mca))
+            mcadata = numpy.asarray(mcanode)
 
             # append scan data to MAP, where all data are stored
             mcatemp = mcadata.view([(mca, (mcadata.dtype, mcadata.shape[1]))])

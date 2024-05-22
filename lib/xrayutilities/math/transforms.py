@@ -380,6 +380,8 @@ class Transform:
         elif rank == 4:
             # cp_ijkl = m_in * m_jo * m_kp * m_lq * args_nopq
             out = numpy.einsum('in, jo, kp, lq,...nopq', m, m, m, m, args)
+        else:
+            raise ValueError("rank must be either 1, 2, or 4")
 
         return out
 

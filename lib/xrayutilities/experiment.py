@@ -1162,20 +1162,13 @@ class QConversion:
                                                    deg=deg)
 
         dAngles = dAngles.transpose()
+        dAxis = self._detectorAxis_str
 
         if dim == 2:
             oroi = kwargs.get('roi', self._area_roi)
             nav = kwargs.get('Nav', self._area_nav)
             cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(oroi,
                                                                         nav)
-        elif dim == 1:
-            oroi = kwargs.get('roi', self._linear_roi)
-            nav = kwargs.get('Nav', self._linear_nav)
-            cch, pwidth, roi = self._get_detparam_linear(oroi, nav)
-
-        dAxis = self._detectorAxis_str
-
-        if dim == 2:
             cfunc = cxrayutilities.ang2q_detpos_area
             dpos = cfunc(dAngles, self.r_i, dAxis, cch1, cch2, pwidth1,
                          pwidth2, roi, self._area_detdir1, self._area_detdir2,
@@ -1190,6 +1183,9 @@ class QConversion:
             return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
 
         if dim == 1:
+            oroi = kwargs.get('roi', self._linear_roi)
+            nav = kwargs.get('Nav', self._linear_nav)
+            cch, pwidth, roi = self._get_detparam_linear(oroi, nav)
             cfunc = cxrayutilities.ang2q_detpos_linear
             dpos = cfunc(dAngles, self.r_i, dAxis, cch, pwidth, roi,
                          self._linear_detdir, self._linear_tilt,
@@ -1798,10 +1794,6 @@ class HXRD(Experiment):
 
         # parse keyword arguments
         geom = keyargs.get('geometry', self.geometry)
-        if geom not in ["hi_lo", "lo_hi", "real", "realTilt"]:
-            raise InputError("HXRD: invalid value for the geometry argument "
-                             "given\n valid entries are: hi_lo, lo_hi, real, "
-                             "realTilt")
         trans = keyargs.get('trans', True)
         deg = keyargs.get('deg', True)
         mat = keyargs.get('mat', None)  # material for optical properties
@@ -1878,6 +1870,10 @@ class HXRD(Experiment):
             om = tth / 2 + numpy.arctan2(
                 math.VecDot(q, y),
                 numpy.sqrt(math.VecDot(q, z) ** 2 + math.VecDot(q, x) ** 2))
+        else:
+            raise ValueError("HXRD: invalid value for the geometry argument "
+                             "given\n valid entries are: hi_lo, lo_hi, real, "
+                             "realTilt")
 
         # refraction correction at incidence and exit facet
         psi_i = numpy.zeros_like(tth)
