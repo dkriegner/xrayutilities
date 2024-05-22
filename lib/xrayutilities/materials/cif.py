@@ -453,7 +453,8 @@ class CIFDataset:
             # determine all unique positions for definition of a P1 space group
             symops = self.symops
             if not symops and hasattr(self, 'sgrp') and self.atoms:
-                label = sorted(wyckpos.wp[self.sgrp], key=lambda s: int(s[:-1]))
+                label = sorted(wyckpos.wp[self.sgrp],
+                               key=lambda s: int(s[:-1]))
                 symops = wyckpos.wp[self.sgrp][label[-1]][1]
                 if config.VERBOSITY >= config.INFO_ALL:
                     print('XU.materials: no symmetry operations in CIF-Dataset'

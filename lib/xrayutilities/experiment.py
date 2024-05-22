@@ -1198,7 +1198,6 @@ class QConversion:
             dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
             return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
 
-
         cfunc = cxrayutilities.ang2q_detpos
         dpos = cfunc(dAngles, self.r_i, dAxis, config.NTHREADS)
 
