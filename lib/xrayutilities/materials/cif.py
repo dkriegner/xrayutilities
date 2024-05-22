@@ -447,15 +447,14 @@ class CIFDataset:
             self.sgrp_suf = sgrp_suf
             if hasattr(self, 'sgrp_nr'):
                 self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
-                allwyckp = wyckpos.wp[self.sgrp]
                 if config.VERBOSITY >= config.INFO_ALL:
                     print(f'XU.materials: trying space group {self.sgrp}')
 
             # determine all unique positions for definition of a P1 space group
             symops = self.symops
             if not symops and hasattr(self, 'sgrp') and self.atoms:
-                label = sorted(allwyckp, key=lambda s: int(s[:-1]))
-                symops = allwyckp[label[-1]][1]
+                label = sorted(wyckpos.wp[self.sgrp], key=lambda s: int(s[:-1]))
+                symops = wyckpos.wp[self.sgrp][label[-1]][1]
                 if config.VERBOSITY >= config.INFO_ALL:
                     print('XU.materials: no symmetry operations in CIF-Dataset'
                           '; using built in general positions.')
@@ -476,7 +475,7 @@ class CIFDataset:
                 self.occ = []
                 self.elements = []
                 self.biso = []
-                keys = list(allwyckp)
+                keys = list(wyckpos.wp[self.sgrp])
                 wpn = [int(re.sub(r"([a-zA-Z])", r"", k)) for k in keys]
                 for i, (el, (x, y, z), occ, biso) in enumerate(self.atoms):
                     # candidate positions from number of unique atoms
@@ -484,7 +483,8 @@ class CIFDataset:
                     wpcand = []
                     for j, n in enumerate(wpn):
                         if n == natoms:
-                            wpcand.append((keys[j], allwyckp[keys[j]]))
+                            wpcand.append((keys[j],
+                                           wyckpos.wp[self.sgrp][keys[j]]))
                     for j, (k, wp) in enumerate(
                             sorted(wpcand, key=operator.itemgetter(1))):
                         parint, poslist, _ = wp

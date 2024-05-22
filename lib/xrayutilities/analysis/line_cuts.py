@@ -143,6 +143,8 @@ def get_qz_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         qzpos = 4 * numpy.pi / lam * numpy.sin(numpy.radians(ttcut/2)) *\
             numpy.cos(numpy.radians(om - ttcut/2))
         ret = _get_cut(qzpos, tt-ttcut, intensity, intrange/2., npoints)
+    else:
+        raise ValueError("invalid option for argument 'intdir'")
 
     return ret
 
@@ -236,6 +238,8 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(ttcut/2))
         qypos = q * numpy.sin(numpy.radians(om - ttcut/2))
         ret = _get_cut(qypos, tt-ttcut, intensity, intrange/2., npoints)
+    else:
+        raise ValueError("invalid option for argument 'intdir'")
 
     return ret
 
@@ -310,6 +314,8 @@ def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         ocut, _, _, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
                                        trans=False, geometry='realTilt')
         ret = _get_cut(qpos[0], tt-ttcut, intensity, intrange/2., npoints)
+    else:
+        raise ValueError("invalid option for argument 'intdir'")
 
     return ret
 
@@ -385,6 +391,8 @@ def get_omega_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     elif intdir == 'radial':
         ret = _get_cut(om-(tt-ttcut)/2, tt-ttcut, intensity, intrange/2.,
                        npoints)
+    else:
+        raise ValueError("invalid option for argument 'intdir'")
 
     return ret
 
@@ -462,6 +470,8 @@ def get_radial_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         offcut = ttcut/2 - ocut
         ret = _get_cut(tt-2*(tt/2-om-offcut), 2*(tt/2-om-offcut), intensity,
                        intrange/2., npoints)
+    else:
+        raise ValueError("invalid option for argument 'intdir'")
 
     return ret
 
@@ -537,6 +547,8 @@ def get_ttheta_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     elif intdir == 'radial':
         ret = _get_cut(tt-2*(om-ocut), 2*(om-ocut), intensity,
                        intrange/2., npoints)
+    else:
+        raise ValueError("invalid option for argument 'intdir'")
 
     return ret
 

@@ -780,11 +780,11 @@ def multPeak2d(x, y, *args):
     if len(args) % 2 != 0:
         raise ValueError('number of arguments must be even!')
 
+    lx = numpy.array(x)
+    ly = numpy.array(y)
     if numpy.isscalar(x):
         f = 0
     else:
-        lx = numpy.array(x)
-        ly = numpy.array(y)
         f = numpy.zeros(lx.shape)
 
     for i in range(int(len(args) / 2)):

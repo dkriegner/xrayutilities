@@ -793,11 +793,15 @@ class FP_profile:
             z0p = Lx / 2 + beta * R * (1 + 1 / cos(twotheta))
         elif beta1 <= beta <= beta2:
             z0p = Ls / 2 + beta * R / cos(twotheta)
+        else:
+            raise ValueError("beta out of range")
 
         if -beta2 <= beta <= -beta1:
             z0m = -1 * Ls / 2 + beta * R / cos(twotheta)
         elif -beta1 < beta <= beta2:
             z0m = -1 * Lx / 2 + beta * R * (1 + 1 / cos(twotheta))
+        else:
+            raise ValueError("beta out of range")
 
         epsscale = tan(pi / 2 - twotheta) / (2 * R * R)  # =cotan(twotheta)...
 
