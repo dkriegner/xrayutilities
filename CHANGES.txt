@@ -1,3 +1,5 @@
+* allow different Miller indices for the various layers in a dynamic diffraction calculation
+
 v1.7.7, 2024-04-19
 
 * enable creation of Python 3.12 packages

@@ -151,7 +151,7 @@ fitr = fitmdyn.fit(Int, params, om_off, lmfit_kws=lmfit_kws)
 
 
 # get Al composition for perpendicular lattice parameter
-qz = 2 * np.pi * fitmdyn.lmodel.hkl[2] / fitr.params['AlAs_0_80_GaAs_0_20__c']
+qz = 2 * np.pi * hkl[2] / fitr.params['AlAs_0_80_GaAs_0_20__c']
 x_Al = AlGaAs80.ContentBsym(qz, hkl, np.array([0, 0, 1]), GaAs_.a, 0)
 
 # print fit results
