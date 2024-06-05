@@ -1,3 +1,5 @@
+v1.7.8, 2024-06-05
+
 * Numpy-2.0 support for wheels on PyPI
 * fix an Exception in the PowderDiffraction calculation occuring for some
   specific parameters (#179, thanks to @mendenmh).
