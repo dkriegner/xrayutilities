@@ -1,5 +1,13 @@
 [build-system]
-requires = ["setuptools", "wheel", "numpy"]
+requires = [
+    "setuptools",
+    "wheel",
+    # Note for packagers: the numpy version constraint is specific to wheels
+    # for PyPI; it is also supported to build against 1.xx still.
+    # If you do so, please ensure to include a `numpy<2.0` runtime requirement
+    # for those binary packages.
+    "numpy>=2.0.0rc1",
+]
 build-backend = "setuptools.build_meta"
 
 [tool.coverage.paths]
