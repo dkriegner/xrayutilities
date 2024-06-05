@@ -1,4 +1,6 @@
 * Numpy-2.0 support for wheels on PyPI
+* fix an Exception in the PowderDiffraction calculation occuring for some
+  specific parameters (#179, thanks to @mendenmh).
 * allow different Miller indices for the various layers in a dynamic diffraction calculation
 
 v1.7.7, 2024-04-19
