@@ -1,5 +1,7 @@
 [build-system]
 requires = [
+    "scipy",
+    "h5py",
     "setuptools",
     "wheel",
     # Note for packagers: the numpy version constraint is specific to wheels
