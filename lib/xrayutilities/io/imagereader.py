@@ -152,7 +152,8 @@ class ImageReader:
             # jump over header
             fh.seek(self.hdrlen)
             # read image
-            rlen = numpy.dtype(self.dtype).itemsize * self.nop1 * self.nop2
+            itemsize = numpy.dtype(self.dtype).itemsize
+            rlen = itemsize * int(self.nop1) * int(self.nop2)
             img = numpy.frombuffer(fh.read(rlen), dtype=self.dtype)
             if self.byteswap:
                 img = img.byteswap()
