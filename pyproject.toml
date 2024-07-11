@@ -8,7 +8,9 @@ requires = [
     # for PyPI; it is also supported to build against 1.xx still.
     # If you do so, please ensure to include a `numpy<2.0` runtime requirement
     # for those binary packages.
-    "numpy>=2.0.0rc1",
+    "numpy>=2.0.0rc1; python_version >= '3.9'",
+    "numpy; python_version < '3.9'",
+
 ]
 build-backend = "setuptools.build_meta"
 
