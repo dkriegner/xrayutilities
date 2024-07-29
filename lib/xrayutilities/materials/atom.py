@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2015-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2015-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module containing the Atom class which handles the database access for atomic
@@ -178,7 +178,7 @@ class Atom:
             return res
 
         res = self.f0(q) + self.f1(en) + 1.j * self.f2(en)
-        self.set_cache('f2', key, res)
+        self.set_cache('f', key, res)
         return res
 
     def __str__(self):
