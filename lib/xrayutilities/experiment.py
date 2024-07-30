@@ -103,8 +103,9 @@ class QConversion:
             single motor turning lefthanded around the x-axis.
 
         r_i :           array-like
-            vector giving the direction of the primary beam (length is relevant
-            only if translations are involved)
+            vector giving the direction of the primary beam, i.e. the beam
+            propergation direction. The length is relevant only if translations
+            are involved.
 
         kwargs :        dict, optional
             optional keyword arguments
@@ -1265,8 +1266,8 @@ class Experiment:
         Parameters
         ----------
         ipdir :     list or tuple or array-like
-            inplane reference direction (ipdir points into the primary beam
-            direction at zero angles)
+            inplane reference direction parallel to the primary beam
+            direction at zero angles.
         ndir :      list or tuple or array-like
             surface normal of your sample. ndir points in a direction
             perpendicular to the primary beam, how it is orientated in real
@@ -2160,8 +2161,8 @@ class GID(Experiment):
         """
         initialization routine for the GID Experiment class
 
-         - ``idir`` defines the inplane reference direction (idir points into
-           the PB direction at zero angles)
+         - ``idir`` defines the inplane reference direction (idir points
+           parallel to the primary beam direction at zero angles)
          - ``ndir`` defines the surface normal of your sample (ndir points
            along the innermost sample rotation axis)
 
@@ -2318,8 +2319,8 @@ class GISAXS(Experiment):
         """
         initialization routine for the GISAXS Experiment class
 
-        ``idir`` defines the inplane reference direction (idir points into the
-        PB direction at zero angles)
+        ``idir`` defines the inplane reference direction (idir points parallel
+        to the primary beam direction at zero angles)
 
         Parameters
         ----------
