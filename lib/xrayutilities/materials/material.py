@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 # Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
@@ -376,8 +376,8 @@ class Material(utilities.ABC):
 
     def GetStress(self, eps):
         """
-        Obtains the strain matrix (3x3) from an applied stress matrix (3x3)
-        using a material's full rank elastic tensor (3x3x3x3). The full stress
+        Obtains the stress matrix (3x3) from an applied strain matrix (3x3)
+        using a material's full rank elastic tensor (3x3x3x3). The full strain
         matrix (3x3) needs to be given. Inverse operation of GetStrain.
 
         Parameters
