@@ -21,11 +21,19 @@ import xrayutilities as xu
 
 # import matplotlib.pyplot as plt
 
+# # create material
+# Calcite = xu.materials.Crystal.fromCIF(os.path.join("data", "Calcite.cif"))
+
+# # experiment class with some weird directions
+# expcal = xu.HXRD(Calcite.Q(-2, 1, 9), Calcite.Q(1, -1, 4))
+
+# powder_cal = xu.simpack.PowderDiffraction(Calcite)
+
 # create material
-Calcite = xu.materials.Crystal.fromCIF(os.path.join("data", "Calcite.cif"))
+FeNi3 = xu.materials.Crystal.fromCIF(os.path.join("data", "FeNi3.cif"))
 
 # experiment class with some weird directions
-expcal = xu.HXRD(Calcite.Q(-2, 1, 9), Calcite.Q(1, -1, 4))
+expcal = xu.HXRD(FeNi3.Q(-2, 1, 9), FeNi3.Q(1, -1, 4))
 
-powder_cal = xu.simpack.PowderDiffraction(Calcite)
+powder_cal = xu.simpack.PowderDiffraction(FeNi3)
 print(powder_cal)

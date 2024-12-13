@@ -16,7 +16,7 @@
 # Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from multiprocessing import freeze_support
-
+import matplotlib.pyplot as plt
 import numpy
 
 import xrayutilities as xu
@@ -50,6 +50,7 @@ def main():
 
     ax = pm.plot(tt)
     ax.set_xlim(5, 120)
+    
     pm.close()
 
     return inte
