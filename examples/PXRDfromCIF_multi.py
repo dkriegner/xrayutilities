@@ -1,5 +1,4 @@
 import os
-import re
 import numpy as np
 import xrayutilities as xu
 from xrayutilities.materials.spacegrouplattice import WyckoffBase
@@ -10,7 +9,7 @@ def main():
 
     # --------------- START: ToDo ---------------
     # cif file(s) to load (needs to be two for one solution phase, otherwise any number of cif files)
-    cif = np.array(["Fe.cif", "Ni.cif"])
+    cif = np.array(["Fe.cif", "Ni.cif", "FeNi_fcc.cif"])
 
     # flag, 0: seperate display or 1: solution phase
     sol = 0
@@ -27,7 +26,7 @@ def main():
 
     # peak shape
     shape = 1 # 0: neither, 1: gaussian, 2: lorentzian
-    cryst_size = np.array([1e-7]) # meter (one value per cif, but one value if solution phase)
+    cryst_size = np.array([1e-7, 1e-7, 1e-7]) # meter (one value per cif, but one value if solution phase)
     # --------------- END: ToDo ---------------
 
     # for solution phases
