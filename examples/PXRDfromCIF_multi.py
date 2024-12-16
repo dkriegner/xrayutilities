@@ -41,33 +41,23 @@ def main():
 
     # flag for each coexisting phase, 0: seperate display or 1: solution phase
     sol = np.zeros(len(cifs))
+
+    # set flag and check for value errors
     for i, cif_files in enumerate(cifs):
         if len(cif_files) > 1:
             sol[i] = 1
+            if len(concentration_sol[i]) != 2:
+                raise ValueError("A concentration [at%] per end member has to be specified.")
+            if name_sol == '':
+                raise ValueError("Please specify a name to save the solution phase cif file.")
+            if concentration_sol[i][0] + concentration_sol[i][0] != 1.0:
+                raise ValueError("The concentrations [at%] for each solution phase have to sum up to 1.0.")
         else:
-            sol[i] = 0 
-
-    # for solution phases
-    if sol == 1:
-        # check input
-        if len(cif) != 2:
-            raise ValueError("Two seperate cif files are needed for the construction of a solution phase.")
-        if len(cryst_size) != 1:
-            raise ValueError("For a solution phase only one crystallite size value is required.")
-        if len(concentration) != 2:
-            raise ValueError("A concentration [at%] per end member has to be specified.")
-        if concentration[0] + concentration[1] != 1.0:
-            raise ValueError("Both concentrations [at%] have to sum up to 1.0.")
-        
-    # for seperatre phases
-    elif sol == 0:
-        if len(cif) != len(cryst_size):
-            # check cif and crystal size inputs
-            raise ValueError(f"Arrays 'cif' and 'cryst_size' must have the same length. Got len(cif)={len(cif)} and len(cryst_size)={len(cryst_size)}.")
-        
-    # check solution phase input
-    else:
-        raise ValueError("The solution phase flag has to be set either to 0 (seperate display) or 1 (solution phase).")
+            sol[i] = 0
+            if len(concentration_sol[i]) != 1 or concentration_sol[i][0] != 1.0:
+                raise ValueError("For pure coexisting phases, only one concentration of 1.0 has to be specified.")
+            if name_sol != '':
+                raise ValueError("No need to specify name for pure coexisting phase since no new cif file will be created.")  
 
     if sol == 0:
 
