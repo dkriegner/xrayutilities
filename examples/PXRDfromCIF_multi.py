@@ -6,17 +6,28 @@ import matplotlib.pyplot as plt
 from multiprocessing import freeze_support
 
 def main():
+    # initializing lists
+    cifs = []
+    name_sol = []
+    concentration_sol = []
+    cryst_size = []
 
     # --------------- START: ToDo ---------------
-    # cif file(s) to load (needs to be two for one solution phase, otherwise any number of cif files)
-    cif = np.array(["Fe.cif", "Ni.cif", "FeNi_fcc.cif"])
+    # Coexisting phase 0
+    cifs.append(np.array(["Fe.cif", "Ni.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
+    concentration_sol.append(np.array([0.5, 0.5])) # if solution phase: specify concentration of each constituent, otherwise 1.0
+    name_sol.append('FeNi_fcc_sol.cif') # if solution phase: specify name for cif, otherwise ''
+    cryst_size.append(1e-7) # meter (one value per phase)
 
-    # flag, 0: seperate display or 1: solution phase
-    sol = 0
+    # Coexisting phase 1
+    cifs.append(np.array(["FeNi_fcc.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
+    concentration_sol.append(np.array([1.0])) # if solution phase: specify concentration of each constituent, otherwise 1.0
+    name_sol.append('') # if solution phase: specify name for cif, otherwise ''
+    cryst_size.append(1e-7) # meter (one value per phase)
 
-    # if sol == 1, put name of solution phase cif and concentration [at%] of end members here, otherwise irrelevant
-    name_sol = 'FeNi_fcc.cif'
-    concentration = np.array([0.3, 0.7])
+
+    # specify concentration of coexisting phases, otherwise specify 1.0
+    concentration_coex = np.array([0.9, 0.1])
 
     # wavelength
     lambda_used = 1.5406 # Angström
@@ -26,8 +37,15 @@ def main():
 
     # peak shape
     shape = 1 # 0: neither, 1: gaussian, 2: lorentzian
-    cryst_size = np.array([1e-7, 1e-7, 1e-7]) # meter (one value per cif, but one value if solution phase)
     # --------------- END: ToDo ---------------
+
+    # flag for each coexisting phase, 0: seperate display or 1: solution phase
+    sol = np.zeros(len(cifs))
+    for i, cif_files in enumerate(cifs):
+        if len(cif_files) > 1:
+            sol[i] = 1
+        else:
+            sol[i] = 0 
 
     # for solution phases
     if sol == 1:
