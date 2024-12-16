@@ -43,12 +43,14 @@ def main():
     sol = np.zeros(len(cifs))
 
     # set flag and check for value errors
+    coex_sum = 0
     for i, cif_files in enumerate(cifs):
+        coex_sum = coex_sum + concentration_coex[i]
         if len(cif_files) > 1:
             sol[i] = 1
             if len(concentration_sol[i]) != 2:
                 raise ValueError("A concentration [at%] per end member has to be specified.")
-            if name_sol == '':
+            if name_sol[i] == '':
                 raise ValueError("Please specify a name to save the solution phase cif file.")
             if concentration_sol[i][0] + concentration_sol[i][0] != 1.0:
                 raise ValueError("The concentrations [at%] for each solution phase have to sum up to 1.0.")
@@ -56,8 +58,11 @@ def main():
             sol[i] = 0
             if len(concentration_sol[i]) != 1 or concentration_sol[i][0] != 1.0:
                 raise ValueError("For pure coexisting phases, only one concentration of 1.0 has to be specified.")
-            if name_sol != '':
+            if name_sol[i] != '':
                 raise ValueError("No need to specify name for pure coexisting phase since no new cif file will be created.")  
+    if len(concentration_coex) != len(cifs) or coex_sum != 1.0:
+        raise ValueError("Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0.")
+    
 
     if sol == 0:
 
