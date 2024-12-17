@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import xrayutilities as xu
+import copy
 from xrayutilities.materials.spacegrouplattice import WyckoffBase
 import matplotlib.pyplot as plt
 from multiprocessing import freeze_support
@@ -15,18 +16,18 @@ def main():
     # --------------- START: ToDo ---------------
     # Coexisting phase 0
     cifs.append(np.array(["Fe.cif", "Ni.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
-    concentration_sol.append(np.array([0.5, 0.5])) # if solution phase: specify concentration of each constituent, otherwise 1.0
-    name_sol.append('FeNi_fcc_sol.cif') # if solution phase: specify name for cif, otherwise ''
+    concentration_sol.append(np.array([0.1, 0.9])) # if solution phase: specify concentration of each constituent, otherwise 1.0
+    name_sol.append('FeNi_fcc_newl.cif') # if solution phase: specify name for cif, otherwise ''
     cryst_size.append(1e-7) # meter (one value per phase)
 
     # Coexisting phase 1
-    cifs.append(np.array(["FeNi_fcc.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
+    cifs.append(np.array(["Ni.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
     concentration_sol.append(np.array([1.0])) # if solution phase: specify concentration of each constituent, otherwise 1.0
     name_sol.append('') # if solution phase: specify name for cif, otherwise ''
     cryst_size.append(1e-7) # meter (one value per phase)
 
     # specify concentration of coexisting phases, otherwise specify 1.0
-    concentration_coex = np.array([0.9, 0.1])
+    concentration_coex = np.array([0.7, 0.3])
 
     # wavelength
     lambda_used = 1.5406 # Angström
@@ -42,21 +43,24 @@ def main():
     sol = np.zeros(len(cifs))
 
     # intensity and volume weight factor
-    intensity = np.zeros(len(two_theta), len(cifs))
+    intensity =  np.zeros((len(two_theta), len(cifs)))
     vol_at = np.zeros(len(cifs))
     vol_tot = 0
 
     # set solution phase flag and check for value errors
     coex_sum = 0
     for i, cif_files in enumerate(cifs):
-        coex_sum = coex_sum + concentration_coex[i]
+        coex_sum += concentration_coex[i]
         if len(cif_files) > 1:
             sol[i] = 1
             if len(concentration_sol[i]) != 2:
                 raise ValueError("A concentration [at%] per end member has to be specified.")
             if name_sol[i] == '':
                 raise ValueError("Please specify a name to save the solution phase cif file.")
-            if concentration_sol[i][0] + concentration_sol[i][0] != 1.0:
+            concentration_test = 0
+            for j in range(len(cif_files)):
+                concentration_test += concentration_sol[i][j]
+            if concentration_test != 1.0:
                 raise ValueError("The concentrations [at%] for each solution phase have to sum up to 1.0.")
         else:
             sol[i] = 0
@@ -72,7 +76,8 @@ def main():
 
         if sol[i] == 0:
             # create material
-            material = xu.materials.Crystal.fromCIF(os.path.join("cif", cif_files))
+            for cif_file in cif_files:
+                material = xu.materials.Crystal.fromCIF(os.path.join("cif", cif_file))
 
             # create pdf file
             powder_cal = xu.simpack.PowderDiffraction(material, enable_simulation=True)
@@ -114,22 +119,27 @@ def main():
                 sol_phase.append(xu.materials.Crystal.fromCIF(os.path.join("cif", cif_file)))
 
             # adapt lattice parameter
-            material_sol = sol_phase[0]
-            material_sol.a = 0
-            material_sol.b = 0
-            material_sol.c = 0
+            material_sol = copy.deepcopy(sol_phase[0])
+            material_sol.a = 1.0
+            material_sol.b = 1.0
+            material_sol.c = 1.0
 
             # adapt wyckoffBase
             new_wbase = WyckoffBase()
 
             for j in range(len(sol_phase)):
-                material_sol.a += concentration_sol[j] * sol_phase[j].a
-                material_sol.b += concentration_sol[j] * sol_phase[j].b
-                material_sol.c += concentration_sol[j] * sol_phase[j].c
+                material_sol.a += concentration_sol[i][j] * sol_phase[j].a
+                material_sol.b += concentration_sol[i][j] * sol_phase[j].b
+                material_sol.c += concentration_sol[i][j] * sol_phase[j].c
 
                 for atom, wyckoff, occ, b in sol_phase[j].lattice._wbase:
-                    new_occ = float(concentration_sol[j])  # Replace occupancy with concentration
+                    new_occ = float(concentration_sol[i][j])  # Replace occupancy with concentration
                     new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
+        
+            # correct for 1.0
+            material_sol.a += -1.0
+            material_sol.b += -1.0
+            material_sol.c += -1.0
 
             # Assign the new WyckoffBase to the lattice
             material_sol.lattice._wbase = new_wbase
