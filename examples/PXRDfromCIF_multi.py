@@ -25,7 +25,6 @@ def main():
     name_sol.append('') # if solution phase: specify name for cif, otherwise ''
     cryst_size.append(1e-7) # meter (one value per phase)
 
-
     # specify concentration of coexisting phases, otherwise specify 1.0
     concentration_coex = np.array([0.9, 0.1])
 
@@ -42,7 +41,12 @@ def main():
     # flag for each coexisting phase, 0: seperate display or 1: solution phase
     sol = np.zeros(len(cifs))
 
-    # set flag and check for value errors
+    # intensity and volume weight factor
+    intensity = np.zeros(len(two_theta), len(cifs))
+    vol_at = np.zeros(len(cifs))
+    vol_tot = 0
+
+    # set solution phase flag and check for value errors
     coex_sum = 0
     for i, cif_files in enumerate(cifs):
         coex_sum = coex_sum + concentration_coex[i]
@@ -63,15 +67,12 @@ def main():
     if len(concentration_coex) != len(cifs) or coex_sum != 1.0:
         raise ValueError("Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0.")
     
+    # calculate powder diffractograms
+    for i, cif_files in enumerate(cifs):
 
-    if sol == 0:
-
-        # create intensity vector
-        intensity = np.zeros((len(two_theta), len(cif)))
-
-        for cry in range(len(cif)):
+        if sol[i] == 0:
             # create material
-            material = xu.materials.Crystal.fromCIF(os.path.join("cif", cif[cry]))
+            material = xu.materials.Crystal.fromCIF(os.path.join("cif", cif_files))
 
             # create pdf file
             powder_cal = xu.simpack.PowderDiffraction(material, enable_simulation=True)
@@ -81,11 +82,11 @@ def main():
 
             # change peak shape
             if shape == 1:
-                powder_cal.settings['emission']['crystallite_size_gauss'] = cryst_size[cry]
+                powder_cal.settings['emission']['crystallite_size_gauss'] = cryst_size[i]
                 powder_cal.settings['emission']['crystallite_size_lor'] = 1e10 
             elif shape == 2:
                 powder_cal.settings['emission']['crystallite_size_gauss'] = 1e10 
-                powder_cal.settings['emission']['crystallite_size_lor'] = cryst_size[cry]
+                powder_cal.settings['emission']['crystallite_size_lor'] = cryst_size[i]
             else:
                 powder_cal.settings['emission']['crystallite_size_gauss'] = 1e10
                 powder_cal.settings['emission']['crystallite_size_lor'] = 1e10
@@ -96,43 +97,46 @@ def main():
             # update pdf
             powder_cal.set_sample_parameters()
             powder_cal.update_powder_lines(tt_cutoff=two_theta[-1])
-            print(f"------------------------- Currently processing information from {cif[cry]} -------------------------")
+            print(f"------------------------- Currently processing information from {cif_files} -------------------------")
             print(powder_cal)
 
-            # calculate the diffractogram for seperate display
-            intensity[:,cry] = powder_cal.Calculate(two_theta)
-    
-    elif sol == 1:
-            # create intensity vector
-            intensity = np.zeros((len(two_theta), 1))
+            # calculate weight factor and the intensity for diffractogram of this phase
+            vol_at[i] = material.lattice.UnitCellVolume() / len(material.lattice._wbase)
+            vol_tot += concentration_coex[i] * vol_at[i]
+            intensity[:,i] = powder_cal.Calculate(two_theta)
+
+        elif sol[i] == 1:
+            # create array for phases in solution phase
+            sol_phase = []
 
             # create material
-            material_0 = xu.materials.Crystal.fromCIF(os.path.join("cif", cif[0]))
-            material_1 = xu.materials.Crystal.fromCIF(os.path.join("cif", cif[1]))
+            for cif_file in cif_files:
+                sol_phase.append(xu.materials.Crystal.fromCIF(os.path.join("cif", cif_file)))
 
             # adapt lattice parameter
-            material_sol = material_0
-            material_sol.a = concentration[0] * material_0.a + concentration[1] * material_1.a
-            material_sol.b = concentration[0] * material_0.b + concentration[1] * material_1.b
-            material_sol.c = concentration[0] * material_0.c + concentration[1] * material_1.c
+            material_sol = sol_phase[0]
+            material_sol.a = 0
+            material_sol.b = 0
+            material_sol.c = 0
 
             # adapt wyckoffBase
             new_wbase = WyckoffBase()
-            # Update lines from material_0
-            for atom, wyckoff, occ, b in material_0.lattice._wbase:
-                new_occ = float(concentration[0])  # Replace occupancy with concentration[0]
-                new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
-            # Update lines from material_1
-            for atom, wyckoff, occ, b in material_1.lattice._wbase:
-                new_occ = float(concentration[1])  # Replace occupancy with concentration[1]
-                new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
+
+            for j in range(len(sol_phase)):
+                material_sol.a += concentration_sol[j] * sol_phase[j].a
+                material_sol.b += concentration_sol[j] * sol_phase[j].b
+                material_sol.c += concentration_sol[j] * sol_phase[j].c
+
+                for atom, wyckoff, occ, b in sol_phase[j].lattice._wbase:
+                    new_occ = float(concentration_sol[j])  # Replace occupancy with concentration
+                    new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
 
             # Assign the new WyckoffBase to the lattice
             material_sol.lattice._wbase = new_wbase
 
             # export to cif file
-            material_sol.toCIF(os.path.join("cif", name_sol))
-
+            material_sol.toCIF(os.path.join("cif", name_sol[i]))
+            
             # create pdf file
             powder_cal = xu.simpack.PowderDiffraction(material_sol, enable_simulation=True)
 
@@ -156,22 +160,25 @@ def main():
             # update pdf
             powder_cal.set_sample_parameters()
             powder_cal.update_powder_lines(tt_cutoff=two_theta[-1])
+            print(f"------------------------- Currently processing information from {name_sol[i]} -------------------------")
             print(powder_cal)
 
-            # calculate the diffractogram for seperate display
-            intensity[:,0] = powder_cal.Calculate(two_theta)
+            # calculate weight factor and the intensity for diffractogram of this phase
+            vol_at[i] = material_sol.lattice.UnitCellVolume() / len(material_sol.lattice._wbase)
+            vol_tot += concentration_coex[i] * vol_at[i]
+            intensity[:,i] = powder_cal.Calculate(two_theta)
 
-    # plot settings
-    if sol == 0:
-        for cry in range(len(cif)):
-            plt.plot(two_theta, intensity[:,cry], label=f"{cif[cry]}")
-    elif sol == 1:
-        plt.plot(two_theta, intensity[:,0], label=f"Sol. phase of {cif[0]} and {cif[1]}, ratio: {concentration[0]}/{concentration[1]}")
+    # apply weight factor to intensity
+    intensity_all = 0
+    for i, cif_files in enumerate(cifs):
+        intensity_all += intensity[:,i] * ( concentration_coex[i] * vol_at[i] / vol_tot )
+
+    # plotting
+    plt.plot(two_theta, intensity_all)
     plt.xlabel("2θ/degrees")
     plt.ylabel("Intensity")
     plt.gca().axes.yaxis.set_ticks([])
     plt.gca().axes.yaxis.set_ticklabels([])
-    plt.legend()
     plt.title(f"Powder Diffraction Pattern(s)")
     plt.show()
 
