@@ -15,13 +15,9 @@ def main():
 
     # --------------- START: ToDo ---------------
     # Coexisting phase 0
-    # cifs.append(np.array(["Fe.cif", "Ni.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
-    # concentration_sol.append(np.array([0.1, 0.9])) # if solution phase: specify concentration of each constituent, otherwise 1.0
-    # name_sol.append('FeNi_fcc_newl.cif') # if solution phase: specify name for cif, otherwise ''
-    # cryst_size.append(1e-7) # meter (one value per phase)
-    cifs.append(np.array(["Fe.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
-    concentration_sol.append(np.array([1.0])) # if solution phase: specify concentration of each constituent, otherwise 1.0
-    name_sol.append('') # if solution phase: specify name for cif, otherwise ''
+    cifs.append(np.array(["Fe.cif", "Ni.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
+    concentration_sol.append(np.array([0.1, 0.9])) # if solution phase: specify concentration of each constituent, otherwise 1.0
+    name_sol.append('FeNi_fcc_newl.cif') # if solution phase: specify name for cif, otherwise ''
     cryst_size.append(1e-7) # meter (one value per phase)
 
     # Coexisting phase 1
