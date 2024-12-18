@@ -2,6 +2,7 @@ import os
 import re
 import numpy as np
 import xrayutilities as xu
+import copy
 from xrayutilities.materials.spacegrouplattice import WyckoffBase
 import matplotlib.pyplot as plt
 from multiprocessing import freeze_support
@@ -27,7 +28,7 @@ def main():
 
     # peak shape
     shape = 1 # 0: neither, 1: gaussian, 2: lorentzian
-    cryst_size = np.array([1e-7]) # meter (one value per cif, but one value if solution phase)
+    cryst_size = np.array([1e-7, 1e-7]) # meter (one value per cif, but one value if solution phase)
     # --------------- END: ToDo ---------------
 
     # for solution phases
@@ -99,7 +100,7 @@ def main():
             material_1 = xu.materials.Crystal.fromCIF(os.path.join("cif", cif[1]))
 
             # adapt lattice parameter
-            material_sol = material_0
+            material_sol = copy.deepcopy(material_0)
             material_sol.a = concentration[0] * material_0.a + concentration[1] * material_1.a
             material_sol.b = concentration[0] * material_0.b + concentration[1] * material_1.b
             material_sol.c = concentration[0] * material_0.c + concentration[1] * material_1.c

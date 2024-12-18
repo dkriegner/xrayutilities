@@ -15,9 +15,13 @@ def main():
 
     # --------------- START: ToDo ---------------
     # Coexisting phase 0
-    cifs.append(np.array(["Fe.cif", "Ni.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
-    concentration_sol.append(np.array([0.1, 0.9])) # if solution phase: specify concentration of each constituent, otherwise 1.0
-    name_sol.append('FeNi_fcc_newl.cif') # if solution phase: specify name for cif, otherwise ''
+    # cifs.append(np.array(["Fe.cif", "Ni.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
+    # concentration_sol.append(np.array([0.1, 0.9])) # if solution phase: specify concentration of each constituent, otherwise 1.0
+    # name_sol.append('FeNi_fcc_newl.cif') # if solution phase: specify name for cif, otherwise ''
+    # cryst_size.append(1e-7) # meter (one value per phase)
+    cifs.append(np.array(["Fe.cif"])) # cif file(s) to load for each coexisting phase (each phase needs one cif file, specify two cif files if it is a solution phase)
+    concentration_sol.append(np.array([1.0])) # if solution phase: specify concentration of each constituent, otherwise 1.0
+    name_sol.append('') # if solution phase: specify name for cif, otherwise ''
     cryst_size.append(1e-7) # meter (one value per phase)
 
     # Coexisting phase 1
@@ -27,7 +31,7 @@ def main():
     cryst_size.append(1e-7) # meter (one value per phase)
 
     # specify concentration of coexisting phases, otherwise specify 1.0
-    concentration_coex = np.array([0.7, 0.3])
+    concentration_coex = np.array([0.3, 0.7])
 
     # wavelength
     lambda_used = 1.5406 # Angström
@@ -77,7 +81,11 @@ def main():
         if sol[i] == 0:
             # create material
             for cif_file in cif_files:
-                material = xu.materials.Crystal.fromCIF(os.path.join("cif", cif_file))
+                cif_path = os.path.join("cif", cif_file)
+                if not os.path.exists(cif_path):
+                    raise FileNotFoundError(f"The CIF file '{cif_file}' does not exist in the 'cif' folder.")
+                    
+                material = xu.materials.Crystal.fromCIF(cif_path)
 
             # create pdf file
             powder_cal = xu.simpack.PowderDiffraction(material, enable_simulation=True)
@@ -116,7 +124,11 @@ def main():
 
             # create material
             for cif_file in cif_files:
-                sol_phase.append(xu.materials.Crystal.fromCIF(os.path.join("cif", cif_file)))
+                cif_path = os.path.join("cif", cif_file)
+                if not os.path.exists(cif_path):
+                    raise FileNotFoundError(f"The CIF file '{cif_file}' does not exist in the 'cif' folder.")
+                
+                sol_phase.append(xu.materials.Crystal.fromCIF(cif_path))    
 
             # adapt lattice parameter
             material_sol = copy.deepcopy(sol_phase[0])
