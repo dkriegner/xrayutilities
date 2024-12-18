@@ -1,0 +1,35 @@
+data_global
+_chemical_formula_sum 'Ni0.10 Fe0.90'
+_cell_length_a 3.63751
+_cell_length_b 3.63751
+_cell_length_c 3.63751
+_cell_angle_alpha 90.0000
+_cell_angle_beta 90.0000
+_cell_angle_gamma 90.0000
+_cell_volume 48.130
+_space_group_crystal_system triclinic
+_space_group_IT_number 1
+_space_group_name_H-M_alt 'P1'
+
+loop_
+_space_group_symop_operation_xyz
+'x, y, z'
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_B_iso_or_equiv
+Ni1 Ni 1 a 0.00000 0.00000 0.00000 0.1000 0.0000
+Ni2 Ni 1 a 0.00000 0.50000 0.50000 0.1000 0.0000
+Ni3 Ni 1 a 0.50000 0.00000 0.50000 0.1000 0.0000
+Ni4 Ni 1 a 0.50000 0.50000 0.00000 0.1000 0.0000
+Fe1 Fe 1 a 0.00000 0.00000 0.00000 0.9000 0.0000
+Fe2 Fe 1 a 0.00000 0.50000 0.50000 0.9000 0.0000
+Fe3 Fe 1 a 0.50000 0.00000 0.50000 0.9000 0.0000
+Fe4 Fe 1 a 0.50000 0.50000 0.00000 0.9000 0.0000
