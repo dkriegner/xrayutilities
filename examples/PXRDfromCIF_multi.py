@@ -23,7 +23,7 @@ class Sample:
     Attributes:
     cifs (List[os.PathLike]): cif files each phase is calculated of
     concentration_sol (List[float]): concentration of solution phase components for each phase
-    cryst_size List[float]: average crystal size for each phase
+    cryst_size List[float]: average crystal size in Angström for each phase
     vol_per_atom List[float]: volume per atom of each phase
     concentration_coex (np.ndarray): relative concentrations of each phase in the powder
 
@@ -35,6 +35,7 @@ class Sample:
     def __init__(self):
         """
         Initialises a powder diffraction sample which can have multiple coexisting phases present.
+
         """
         self.cifs = []
         self.concentration_sol = []
@@ -43,6 +44,16 @@ class Sample:
         self.concentration_coex = np.array([], dtype=object)
 
     def add_phase(self, cif: List[os.PathLike], cryst_size: float):
+        """
+        Adds a new phase to an existing sample.
+
+        Args:
+            cif (List[os.PathLike]): cif file name of phase
+            cryst_size (float): average crystal size in Angström for each phase
+
+        Raises:
+            ValueError: for solution phases, a cif file has to be created first using create_sol_phase()
+        """
         self.cifs.append(np.array(cif))
         self.concentration_sol.append(np.array([1.0])) # at%
         self.cryst_size.append(cryst_size) # meter
@@ -51,6 +62,15 @@ class Sample:
             raise ValueError("For creating a solution phase, use create_sol_phase().")
 
     def set_composition(self, concentration_coex: List[float]):
+        """
+        Set the composition of the powder with concentrations of each of the coexisting phases.
+
+        Args:
+            concentration_coex (List[float]): composition of powder
+
+        Raises:
+            ValueError:  a concentration is needed for each phase and all concentrations have to sum up to 1.0
+        """
         self.concentration_coex = np.array(concentration_coex)
 
         # check input
@@ -87,6 +107,7 @@ class Diffractogram:
         Raises:
             ValueError: at least one phase needs to be present in the sample
             ValueError: the composition of coexisting phases has to be set in the sample
+
         """
         self.lambda_used = lambda_used
         self.two_theta = two_theta
@@ -101,7 +122,10 @@ class Diffractogram:
             raise ValueError("Set the phase composition first in order to calculate a diffractogram.")
 
     def compute_intensity(self):
-        
+        """
+        Calculates the intensity of a powder diffractogram for a sample and saves intensity and volume per atom per phase.
+
+        """
         for i, cif_files in enumerate(self.sample.cifs):
             inte_pdf, vol_pdf = cif_to_diffractogram(cif_file=cif_files.item(), lambda_used=self.lambda_used, shape=self.shape, cryst_size=self.sample.cryst_size[i], two_theta=self.two_theta)
             self.intensity.append(inte_pdf)
