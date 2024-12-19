@@ -40,8 +40,8 @@ class Diffractogram:
         if len(self.concentration_coex) != len(self.cifs) or np.sum(self.concentration_coex) != 1.0:
             raise ValueError("Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0.")    
 
-        for i, cif_files in self.cifs:
-            inte_pdf, vol_pdf = cif_to_diffractogram(cif_file = self.cif_file_sol[i], lambda_used=self.lambda_used, shape=self.shape, cryst_size=self.cryst_size[i], two_theta=self.two_theta)
+        for i, cif_files in enumerate(self.cifs):
+            inte_pdf, vol_pdf = cif_to_diffractogram(cif_file =cif_files.item(), lambda_used=self.lambda_used, shape=self.shape, cryst_size=self.cryst_size[i], two_theta=self.two_theta)
             self.intensity.append(inte_pdf)
             self.vol_per_atom.append(vol_pdf)
 
