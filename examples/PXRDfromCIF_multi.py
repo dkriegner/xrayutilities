@@ -36,25 +36,11 @@ class Diffractogram:
     def compute_intensity(self, concentration_coex):
         self.concentration_coex = np.array(concentration_coex)
 
-        # create solution phase cif
-        def needs_solution_phase_cif(lof_cifs):
-            return len(lof_cifs) > 1
-
         # check input
         if len(self.concentration_coex) != len(self.cifs) or np.sum(self.concentration_coex) != 1.0:
             raise ValueError("Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0.")    
 
-        for i, cif_files in enumerate(self.cifs):
-            if needs_solution_phase_cif(self.cifs[i]):
-                if len(self.concentration_sol[i]) != len(self.cifs[i]) or np.sum(self.concentration_sol[i]) != 1.0:
-                    raise ValueError("A concentration [at%] per end member has to be specified. All concentrations have to sum up to 1.0.")
-                if self.name_sol[i] == "":
-                    raise ValueError("Please specify a name to save the solution phase cif file.")
-            else:
-                if len(self.concentration_sol[i]) != 1 or self.concentration_sol[i][0] != 1.0:
-                    raise ValueError("For pure coexisting phases, only one concentration of 1.0 has to be specified.")
-                if self.name_sol[i] != "":
-                    raise ValueError("No need to specify name for pure coexisting phase since no new cif file will be created.")
+        
                 
             # compute
             if needs_solution_phase_cif(self.cifs[i]):
@@ -85,6 +71,12 @@ def create_sol_phase(cif_files_list:List, concentration, name_sol: str = "last.c
     sol_phase = []
     cif_files = np.array(cif_files_list)
     concentration_sol = np.array(concentration)
+
+    # check input
+    if len(cif_files) != len(concentration_sol):
+        raise ValueError("A concentration [at%] per end member has to be specified.")
+    if np.sum(concentration_sol) != 1.0:
+        raise ValueError("All solution phase concentrations have to sum up to 1.0.")
 
     # create material
     for cif_file_comp in cif_files:
