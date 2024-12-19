@@ -197,9 +197,11 @@ if __name__ == "__main__":
     diff_1.plot_diffractogram_matplotlib()
 
     # Example 2
-    # diff_2 = Diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Lorentzian)
+    sample_2 = Sample()
+    sample_2.add_phase(["Ni.cif"], cryst_size=1e-7)
+    sample_2.add_phase(["Fe.cif"], cryst_size=1e-7)
+    sample_2.set_composition(concentration_coex=[0.1, 0.9])
 
-    # diff_2.add_phase(["Fe.cif"], cryst_size=1e-7)
-    # diff_2.add_phase(["Ni.cif"], cryst_size=1e-7)
-    # diff_2.compute_intensity(concentration_coex=[0.5, 0.5])
-    # # diff_2.plot_diffractogram_matplotlib()
+    diff_2 = Diffractogram(sample_2, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
+    diff_2.compute_intensity()
+    diff_2.plot_diffractogram_matplotlib()
