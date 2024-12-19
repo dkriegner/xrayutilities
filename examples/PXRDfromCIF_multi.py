@@ -33,6 +33,9 @@ class Sample:
 
     """
     def __init__(self):
+        """
+        Initialises a powder diffraction sample which can have multiple coexisting phases present.
+        """
         self.cifs = []
         self.concentration_sol = []
         self.cryst_size = []
@@ -72,6 +75,19 @@ class Diffractogram:
 
     """
     def __init__(self, sample: Sample, lambda_used: float, two_theta: np.ndarray, shape: Shape):
+        """
+        Initializes a diffractogram object
+
+        Args:
+            sample (Sample): sample to calculate powder diffractogram for
+            lamda_used (float): wavelength in Angström of diffractometer
+            two_theta (np.ndarray): two_theta range
+            shape (Shape): peak shape
+
+        Raises:
+            ValueError: at least one phase needs to be present in the sample
+            ValueError: the composition of coexisting phases has to be set in the sample
+        """
         self.lambda_used = lambda_used
         self.two_theta = two_theta
         self.shape = shape
