@@ -86,9 +86,11 @@ class Diffractogram:
         plt.title(kwargs.get("title","Calculated Powder Diffraction Pattern"))
         plt.show(block=False)
 
-def create_sol_phase(cif_files: np.ndarray, concentration_sol, name_sol: str = "last.cif"):
+def create_sol_phase(cif_files_list:List, concentration, name_sol: str = "last.cif"):
     # create array for phases in solution phase
     sol_phase = []
+    cif_files = np.array(cif_files_list)
+    concentration_sol = np.array(concentration)
 
     # create material
     for cif_file_comp in cif_files:
@@ -190,7 +192,8 @@ if __name__ == "__main__":
     diff_1 = Diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
 
     diff_1.add_phase(["Fe.cif"], cryst_size=1e-7)
-    diff_1.add_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3,0.7], cryst_size=1e-7, name="FeNi_sol.cif")
+    new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3,0.7], name_sol="FeNi_sol.cif")
+    diff_1.add_sol(new_cif_sol, cryst_size=1e-7)
     diff_1.compute_intensity(concentration_coex=[0.3, 0.7])
     diff_1.plot_diffractogram_matplotlib()
 
