@@ -8,14 +8,32 @@ from enum import Enum
 from typing import List, Tuple, Dict
 
 class Shape(Enum):
+    """
+    Diffraction peak shape selection for Gaussian, Lorentzian or neither peak shape.
+
+    """
     Gaussian = 1
     Lorentzian = 2
     Neither = 3
 
 class Sample:
+    """
+    A sample for powder diffraction containing different (solution) phases.
+
+    Attributes:
+    cifs (List[os.PathLike]): cif files each phase is calculated of
+    concentration_sol (List[float]): concentration of solution phase components for each phase
+    cryst_size List[float]: average crystal size for each phase
+    vol_per_atom List[float]: volume per atom of each phase
+    concentration_coex (np.ndarray): relative concentrations of each phase in the powder
+
+    Functions:
+    add_phase: add a phase to the powder
+    set_composition: set the phase composition of the powder
+
+    """
     def __init__(self):
         self.cifs = []
-        self.name_sol = []
         self.concentration_sol = []
         self.cryst_size = []
         self.vol_per_atom = []
@@ -24,7 +42,6 @@ class Sample:
     def add_phase(self, cif: List[os.PathLike], cryst_size: float):
         self.cifs.append(np.array(cif))
         self.concentration_sol.append(np.array([1.0])) # at%
-        self.name_sol.append('')
         self.cryst_size.append(cryst_size) # meter
 
         if len(cif) != 1:
@@ -38,6 +55,22 @@ class Sample:
             raise ValueError("Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0.")    
 
 class Diffractogram:
+    """
+    A diffractogram from a sample based on selected measuring parameters.
+
+    Attributes:
+    lamda_used (float): wavelength in Angström of diffractometer
+    two_theta (np.ndarray): two_theta range
+    shape (Shape): peak shape
+    intensity List[float]: calculated intensity for each phase for two_theta range
+    intensity (np.ndarray): calculated intensity for powder for two_theta range
+    sample (Sample): sample diffractogram is calculated for
+
+    Functions:
+    compute_intensity: calculate intensity of diffractogram
+    plot_diffractogram_matplotlib: plot intensity over two_theta using matplotlib
+
+    """
     def __init__(self, sample: Sample, lambda_used: float, two_theta: np.ndarray, shape: Shape):
         self.lambda_used = lambda_used
         self.two_theta = two_theta
