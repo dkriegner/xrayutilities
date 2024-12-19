@@ -313,7 +313,7 @@ if __name__ == "__main__":
     # Example case 1
     sample_1 = Sample()
     sample_1.add_phase(["Fe.cif"], cryst_size=1e-7)
-    new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3,0.7])
+    new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3, 0.7])
     sample_1.add_phase(new_cif_sol, cryst_size=1e-7)
     sample_1.set_composition(concentration_coex=[0.3, 0.7])
 
