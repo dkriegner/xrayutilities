@@ -44,6 +44,11 @@ class Diffractogram:
         self.intensity_coex = np.zeros(len(self.two_theta))
         self.sample = sample
 
+        if len(self.sample.cifs) == 0:
+            raise ValueError("At least one layer has to be added to a sample in order to calculate a diffractogram.")
+        if len(self.sample.cifs) == 0:
+            raise ValueError("Set the phase composition first in order to calculate a diffractogram.")
+
     def compute_intensity(self):
         
         for i, cif_files in enumerate(self.cifs):
