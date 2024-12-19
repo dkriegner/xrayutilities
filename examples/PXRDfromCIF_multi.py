@@ -73,7 +73,7 @@ class Diffractogram:
             self.vol_per_atom.append(vol_pdf)
 
         # calculate intensity for coexisting phases
-        self.intensity_coex = combine_diffractograms(self.intensity, self.vol_per_atom, self.concentration_coex)
+        self.intensity_coex = combine_intensities(self.intensity, self.vol_per_atom, self.concentration_coex)
     
     def plot_diffractogram_matplotlib(self, **kwargs):
         import matplotlib.pyplot as plt
@@ -174,7 +174,7 @@ def cif_to_diffractogram(
     return I, V_at
 
 
-def combine_diffractograms(intensity, vol_per_atom, concentration_coex):
+def combine_intensities(intensity, vol_per_atom, concentration_coex):
     vol_tot = np.sum(vol_per_atom * concentration_coex)
 
     # apply weight factor to intensity
