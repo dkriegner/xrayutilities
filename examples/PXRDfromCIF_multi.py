@@ -106,17 +106,41 @@ class Diffractogram:
         plt.show(block=False)
     
 def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]):
+    """
+    Creates a solution phase cif file from two seperate crystals based on concentration.
+
+    Args:
+        cif_files_list (List[os.PathLike]): cif files of input phases
+        concentration (List[float]): concentration of input phases in solution phase
+
+    Raises:
+        ValueError: each input phase has to have a concentration value specified for
+        ValueError: the concentrations of the input phases have to add up to 1.0
+        FileNotFoundError: cif files for input phases have to be saved in "cif" folder
+
+    Returns:
+        (str): name of solution phase cif file saved in "cif" folder
+    """
     # create array for phases in solution phase
     sol_phase = []
     cif_files = np.array(cif_files_list)
     concentration_sol = np.array(concentration)
 
-    def combine_cif_files(input_files: List[os.PathLike]):
+    def combine_cif_names(input_files: List[os.PathLike]):
+        """
+        Combines the names of input cif files to name for solution phase cif file.
+
+        Args:
+            input_files (List[os.PathLike]): cif files of phases in solution phase
+
+        Returns:
+            (str): combined cif file name of solution phase
+        """
         base_names = [os.path.splitext(os.path.basename(file))[0] for file in input_files]
         name_sol = "_".join(base_names) + "_sol.cif"
         return name_sol
 
-    name_sol = combine_cif_files(cif_files)
+    name_sol = combine_cif_names(cif_files)
 
     # check input
     if len(cif_files) != len(concentration_sol):
@@ -166,7 +190,24 @@ def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]
 def cif_to_diffractogram(
     cif_file: str, lambda_used=1.5406, shape=Shape.Gaussian, cryst_size=1e-7, two_theta=np.linspace(10, 135, 500)
 ):
-    # acknoledge processing
+    """
+    Takes a cif file of a material and calculates the powder diffractogram from it.
+
+    Args:
+        cif_file (str): cif file name
+        lambda_used (float, optional): wavelength in Angström of diffractometer, Defaults to 1.5406.
+        shape (Shape, optional): peak shape, Defaults to Shape.Gaussian.
+        cryst_size (float, optional): average crystallite size of phase, Defaults to 1e-7.
+        two_theta (np.ndarray, optional): angular range for diffractogram, Defaults to np.linspace(10, 135, 500).
+
+    Raises:
+        FileNotFoundError: cif file has to be saved in "cif" folder
+
+    Returns:
+        I (np.ndarray): intensity of powder diffraction from input cif file
+        V_at (float): volume per atom of this phase
+    """
+    # acknowledge processing
     print(f"------------------------- Currently processing information from {cif_file} -------------------------")
 
     # create material
@@ -206,7 +247,18 @@ def cif_to_diffractogram(
 
     return I, V_at
 
-def combine_intensities(intensity: np.ndarray, vol_per_atom: np.ndarray, concentration_coex: np.ndarray):
+def combine_intensities(intensity: List[float], vol_per_atom: List[float], concentration_coex: np.ndarray):
+    """
+        Adds the intensities calculated for all coexisting phases based on the powder composition.
+
+    Args:
+        intensity (List[float]): intensity calculated for each phase
+        vol_per_atom (List[float]): volume per atom calculated for each phase
+        concentration_coex (np.ndarray): concentration of coexisting phases in powder
+
+    Returns:
+        _(np.ndarray): intensity of powder
+    """
     vol_tot = np.sum(vol_per_atom * concentration_coex)
 
     # apply weight factor to intensity
