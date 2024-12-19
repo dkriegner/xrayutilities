@@ -32,12 +32,6 @@ class Diffractogram:
         self.concentration_sol.append(np.array([1.0])) # at%
         self.name_sol.append('')
         self.cryst_size.append(cryst_size) # meter
-
-    def add_sol_phase(self, cifs: List[os.PathLike], concentration, cryst_size, name="last.cif"):
-        self.cifs.append(np.array(cifs))
-        self.concentration_sol.append(np.array(concentration)) # at%
-        self.name_sol.append(name)
-        self.cryst_size.append(cryst_size) # meter
     
     def compute_intensity(self, concentration_coex):
         self.concentration_coex = np.array(concentration_coex)
@@ -193,7 +187,7 @@ if __name__ == "__main__":
 
     diff_1.add_phase(["Fe.cif"], cryst_size=1e-7)
     new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3,0.7], name_sol="FeNi_sol.cif")
-    diff_1.add_sol(new_cif_sol, cryst_size=1e-7)
+    diff_1.add_phase(new_cif_sol, cryst_size=1e-7)
     diff_1.compute_intensity(concentration_coex=[0.3, 0.7])
     diff_1.plot_diffractogram_matplotlib()
 
