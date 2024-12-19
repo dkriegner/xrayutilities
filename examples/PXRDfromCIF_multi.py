@@ -46,18 +46,18 @@ class Diffractogram:
 
         if len(self.sample.cifs) == 0:
             raise ValueError("At least one layer has to be added to a sample in order to calculate a diffractogram.")
-        if len(self.sample.cifs) == 0:
+        if len(self.sample.concentration_coex) == 0:
             raise ValueError("Set the phase composition first in order to calculate a diffractogram.")
 
     def compute_intensity(self):
         
-        for i, cif_files in enumerate(self.cifs):
-            inte_pdf, vol_pdf = cif_to_diffractogram(cif_file =cif_files.item(), lambda_used=self.lambda_used, shape=self.shape, cryst_size=self.cryst_size[i], two_theta=self.two_theta)
+        for i, cif_files in enumerate(self.sample.cifs):
+            inte_pdf, vol_pdf = cif_to_diffractogram(cif_file =cif_files.item(), lambda_used=self.lambda_used, shape=self.shape, cryst_size=self.sample.cryst_size[i], two_theta=self.two_theta)
             self.intensity.append(inte_pdf)
-            self.vol_per_atom.append(vol_pdf)
+            self.sample.vol_per_atom.append(vol_pdf)
 
         # calculate intensity for coexisting phases
-        self.intensity_coex = combine_intensities(self.intensity, self.vol_per_atom, self.concentration_coex)
+        self.intensity_coex = combine_intensities(self.intensity, self.sample.vol_per_atom, self.sample.concentration_coex)
     
     def plot_diffractogram_matplotlib(self, **kwargs):
         import matplotlib.pyplot as plt
