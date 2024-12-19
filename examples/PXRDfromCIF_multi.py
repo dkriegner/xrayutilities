@@ -7,7 +7,6 @@ from multiprocessing import freeze_support
 from enum import Enum
 from typing import List, Tuple, Dict
 
-
 class Shape(Enum):
     Gaussian = 1
     Lorentzian = 2
@@ -176,10 +175,10 @@ if __name__ == "__main__":
     diff_1.compute_intensity(concentration_coex=[0.3, 0.7])
     diff_1.plot_diffractogram_matplotlib()
 
-    # Example 2
-    diff_2 = Diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Lorentzian)
+    # # Example 2
+    # diff_2 = Diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Lorentzian)
 
-    diff_2.add_phase(["Fe.cif"], cryst_size=1e-7)
-    diff_2.add_phase(["Ni.cif"], cryst_size=1e-7)
-    diff_2.compute_intensity(concentration_coex=[0.5, 0.5])
-    diff_2.plot_diffractogram_matplotlib()
+    # diff_2.add_phase(["Fe.cif"], cryst_size=1e-7)
+    # diff_2.add_phase(["Ni.cif"], cryst_size=1e-7)
+    # diff_2.compute_intensity(concentration_coex=[0.5, 0.5])
+    # # diff_2.plot_diffractogram_matplotlib()
