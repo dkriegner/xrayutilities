@@ -3,18 +3,20 @@ import numpy as np
 import xrayutilities as xu
 import copy
 from xrayutilities.materials.spacegrouplattice import WyckoffBase
-from multiprocessing import freeze_support
 from enum import Enum
 from typing import List, Tuple, Dict
+
 
 class Shape(Enum):
     """
     Diffraction peak shape selection for Gaussian, Lorentzian or neither peak shape.
 
     """
+
     Gaussian = 1
     Lorentzian = 2
     Neither = 3
+
 
 class Sample:
     """
@@ -32,6 +34,7 @@ class Sample:
     set_composition: set the phase composition of the powder
 
     """
+
     def __init__(self):
         """
         Initialises a powder diffraction sample which can have multiple coexisting phases present.
@@ -55,8 +58,8 @@ class Sample:
             ValueError: for solution phases, a cif file has to be created first using create_sol_phase()
         """
         self.cifs.append(np.array(cif))
-        self.concentration_sol.append(np.array([1.0])) # at%
-        self.cryst_size.append(cryst_size) # meter
+        self.concentration_sol.append(np.array([1.0]))  # at%
+        self.cryst_size.append(cryst_size)  # meter
 
         if len(cif) != 1:
             raise ValueError("For creating a solution phase, use create_sol_phase().")
@@ -74,8 +77,14 @@ class Sample:
         self.concentration_coex = np.array(concentration_coex)
 
         # check input
-        if len(self.concentration_coex) != len(self.cifs) or np.sum(self.concentration_coex) != 1.0:
-            raise ValueError("Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0.")    
+        if (
+            len(self.concentration_coex) != len(self.cifs)
+            or np.sum(self.concentration_coex) != 1.0
+        ):
+            raise ValueError(
+                "Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0."
+            )
+
 
 class Diffractogram:
     """
@@ -94,7 +103,10 @@ class Diffractogram:
     plot_diffractogram_matplotlib: plot intensity over two_theta using matplotlib
 
     """
-    def __init__(self, sample: Sample, lambda_used: float, two_theta: np.ndarray, shape: Shape):
+
+    def __init__(
+        self, sample: Sample, lambda_used: float, two_theta: np.ndarray, shape: Shape
+    ):
         """
         Initializes a diffractogram object
 
@@ -117,9 +129,13 @@ class Diffractogram:
         self.sample = sample
 
         if len(self.sample.cifs) == 0:
-            raise ValueError("At least one layer has to be added to a sample in order to calculate a diffractogram.")
+            raise ValueError(
+                "At least one layer has to be added to a sample in order to calculate a diffractogram."
+            )
         if len(self.sample.concentration_coex) == 0:
-            raise ValueError("Set the phase composition first in order to calculate a diffractogram.")
+            raise ValueError(
+                "Set the phase composition first in order to calculate a diffractogram."
+            )
 
     def compute_intensity(self):
         """
@@ -127,25 +143,35 @@ class Diffractogram:
 
         """
         for i, cif_files in enumerate(self.sample.cifs):
-            inte_pdf, vol_pdf = cif_to_diffractogram(cif_file=cif_files.item(), lambda_used=self.lambda_used, shape=self.shape, cryst_size=self.sample.cryst_size[i], two_theta=self.two_theta)
+            inte_pdf, vol_pdf = cif_to_diffractogram(
+                cif_file=cif_files.item(),
+                lambda_used=self.lambda_used,
+                shape=self.shape,
+                cryst_size=self.sample.cryst_size[i],
+                two_theta=self.two_theta,
+            )
             self.intensity.append(inte_pdf)
             self.sample.vol_per_atom.append(vol_pdf)
 
         # calculate intensity for coexisting phases
-        self.intensity_coex = combine_intensities(self.intensity, self.sample.vol_per_atom, self.sample.concentration_coex)
-    
+        self.intensity_coex = combine_intensities(
+            self.intensity, self.sample.vol_per_atom, self.sample.concentration_coex
+        )
+
     def plot_diffractogram_matplotlib(self, **kwargs):
         import matplotlib.pyplot as plt
+
         plt.figure()
         plt.plot(self.two_theta, self.intensity_coex)
-        plt.xlabel(kwargs.get("xlabel","2θ/degrees"))
-        plt.ylabel(kwargs.get("ylabel","Intensity"))
+        plt.xlabel(kwargs.get("xlabel", "2θ/degrees"))
+        plt.ylabel(kwargs.get("ylabel", "Intensity"))
         plt.gca().axes.yaxis.set_ticks([])
         plt.gca().axes.yaxis.set_ticklabels([])
-        plt.title(kwargs.get("title","Calculated Powder Diffraction Pattern"))
+        plt.title(kwargs.get("title", "Calculated Powder Diffraction Pattern"))
         plt.show(block=False)
-    
-def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]):
+
+
+def create_sol_phase(cif_files_list: List[os.PathLike], concentration: List[float]):
     """
     Creates a solution phase cif file from two seperate crystals based on concentration.
 
@@ -176,7 +202,9 @@ def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]
         Returns:
             (str): combined cif file name of solution phase
         """
-        base_names = [os.path.splitext(os.path.basename(file))[0] for file in input_files]
+        base_names = [
+            os.path.splitext(os.path.basename(file))[0] for file in input_files
+        ]
         name_sol = "_".join(base_names) + "_sol.cif"
         return name_sol
 
@@ -192,7 +220,9 @@ def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]
     for cif_file_comp in cif_files:
         cif_path = os.path.join("cif", cif_file_comp)
         if not os.path.exists(cif_path):
-            raise FileNotFoundError(f"The CIF file '{cif_file_comp}' does not exist in the 'cif' folder.")
+            raise FileNotFoundError(
+                f"The CIF file '{cif_file_comp}' does not exist in the 'cif' folder."
+            )
 
         sol_phase.append(xu.materials.Crystal.fromCIF(cif_path))
 
@@ -211,7 +241,9 @@ def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]
         material_sol.c += concentration_sol[j] * sol_phase[j].c
 
         for atom, wyckoff, occ, b in sol_phase[j].lattice._wbase:
-            new_occ = float(concentration_sol[j])  # Replace occupancy with concentration
+            new_occ = float(
+                concentration_sol[j]
+            )  # Replace occupancy with concentration
             new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
 
     # correct for 1.0
@@ -227,8 +259,13 @@ def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]
 
     return name_sol
 
+
 def cif_to_diffractogram(
-    cif_file: str, lambda_used=1.5406, shape=Shape.Gaussian, cryst_size=1e-7, two_theta=np.linspace(10, 135, 500)
+    cif_file: str,
+    lambda_used=1.5406,
+    shape=Shape.Gaussian,
+    cryst_size=1e-7,
+    two_theta=np.linspace(10, 135, 500),
 ):
     """
     Takes a cif file of a material and calculates the powder diffractogram from it.
@@ -248,12 +285,16 @@ def cif_to_diffractogram(
         V_at (float): volume per atom of this phase
     """
     # acknowledge processing
-    print(f"------------------------- Currently processing information from {cif_file} -------------------------")
+    print(
+        f"------------------------- Currently processing information from {cif_file} -------------------------"
+    )
 
     # create material
     cif_path = os.path.join("cif", cif_file)
     if not os.path.exists(cif_path):
-        raise FileNotFoundError(f"The CIF file '{cif_file}' does not exist in the 'cif' folder.")
+        raise FileNotFoundError(
+            f"The CIF file '{cif_file}' does not exist in the 'cif' folder."
+        )
     material = xu.materials.Crystal.fromCIF(cif_path)
 
     # create pdf file
@@ -287,7 +328,10 @@ def cif_to_diffractogram(
 
     return I, V_at
 
-def combine_intensities(intensity: List[float], vol_per_atom: List[float], concentration_coex: np.ndarray):
+
+def combine_intensities(
+    intensity: List[float], vol_per_atom: List[float], concentration_coex: np.ndarray
+):
     """
         Adds the intensities calculated for all coexisting phases based on the powder composition.
 
@@ -304,9 +348,12 @@ def combine_intensities(intensity: List[float], vol_per_atom: List[float], conce
     # apply weight factor to intensity
     intensity_all = np.zeros(len(intensity[0][:]))
     for i, phase in enumerate(intensity):
-        intensity_all += intensity[i][:] * (concentration_coex[i] * vol_per_atom[i] / vol_tot)
+        intensity_all += intensity[i][:] * (
+            concentration_coex[i] * vol_per_atom[i] / vol_tot
+        )
 
     return intensity_all
+
 
 if __name__ == "__main__":
 
@@ -317,7 +364,12 @@ if __name__ == "__main__":
     sample_1.add_phase(new_cif_sol, cryst_size=1e-7)
     sample_1.set_composition(concentration_coex=[0.3, 0.7])
 
-    diff_1 = Diffractogram(sample_1, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
+    diff_1 = Diffractogram(
+        sample_1,
+        lambda_used=1.5406,
+        two_theta=np.linspace(10, 135, 1000),
+        shape=Shape.Gaussian,
+    )
     diff_1.compute_intensity()
     diff_1.plot_diffractogram_matplotlib()
 
@@ -327,6 +379,11 @@ if __name__ == "__main__":
     sample_2.add_phase(["Fe.cif"], cryst_size=1e-7)
     sample_2.set_composition(concentration_coex=[0.1, 0.9])
 
-    diff_2 = Diffractogram(sample_2, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
+    diff_2 = Diffractogram(
+        sample_2,
+        lambda_used=1.5406,
+        two_theta=np.linspace(10, 135, 1000),
+        shape=Shape.Gaussian,
+    )
     diff_2.compute_intensity()
     diff_2.plot_diffractogram_matplotlib()
