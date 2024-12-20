@@ -142,6 +142,17 @@ class Sample:
 
         return combined
 
+    # More as a hint, but this combine method works for a single sample that is combined with an existing
+    # a more general way to combine n samples would be to use a list of samples and a list of weights
+    # and use a classmethod for this, e.g.
+    @classmethod
+    def combine_many(cls, samples: List[Self], weights: List[float]) -> Self:
+        combined = cls()
+
+        ...  # combine samples here
+
+        return combined
+
 
 def mixed_cifs_sample(
     cif_files_list: List[os.PathLike | str],
