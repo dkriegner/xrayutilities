@@ -59,7 +59,7 @@ class Sample:
         """
 
         if not Path(cif).is_file():
-            raise ValueError("The CIF file does not exist.")
+            raise ValueError(f"The CIF file ({cif}) does not exist.")
 
         # convert to Path object
         cif = Path(cif)
