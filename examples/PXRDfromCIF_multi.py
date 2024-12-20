@@ -96,22 +96,26 @@ class Sample:
 
 
 def create_mixture_cif(
-    cif_files_list: List[os.PathLike | str], concentration: List[float]
-) -> Sample:
+    cif_files_list: List[os.PathLike | str],
+    concentration: List[float],
+    save_generated_cif: bool = False,
+) -> Tuple[Sample, str]:
     """
     Creates a solution phase cif file from two seperate crystals based on concentration.
 
     Args:
         cif_files_list (List[os.PathLike]): cif files of input phases
         concentration (List[float]): concentration of input phases in solution phase
+        save_generated_cif (bool, default=False): save the solution phase cif file
 
     Raises:
         ValueError: each input phase has to have a concentration value specified for
         ValueError: the concentrations of the input phases have to add up to 1.0
-        FileNotFoundError: cif files for input phases have to be saved in "cif" folder
+
 
     Returns:
-        (str): name of solution phase cif file saved in "cif" folder
+        (Sample): object containing the solution phase cif file
+        (str): name of the solution phase cif file (if save_to_cif_file=True, else: empty string)
     """
 
     result = Sample()
@@ -187,7 +191,12 @@ def create_mixture_cif(
 
     result.add_phase(name_sol, cryst_size=1e-7)
 
-    return result
+    if not save_generated_cif:
+        # remove the created cif file
+        os.remove(name_sol)
+        name_sol = ""
+
+    return result, name_sol
 
 
 class Diffractogram:
