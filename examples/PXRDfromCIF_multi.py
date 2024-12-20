@@ -106,6 +106,39 @@ class Sample:
         ]
         return "\n".join(answer)
 
+    def combine(
+        self, other: Self, weights: Tuple[float, float], inplace=False
+    ) -> Self | None:
+        """
+        Combines two samples with a given weight.
+
+        Args:
+            other (Sample): sample to be combined with
+            weights (Tuple[float]): weight of each sample
+            inplace (bool, default=False): combine samples in place
+
+        Returns:
+            (Sample): combined sample
+        """
+
+        combined = Sample()
+
+        combined.cifs = self.cifs + other.cifs
+        combined.concentration_sol = self.concentration_sol + other.concentration_sol
+        combined.cryst_size = self.cryst_size + other.cryst_size
+        combined.vol_per_atom = self.vol_per_atom + other.vol_per_atom
+        combined.concentration_coex = [x for x in weights]
+
+        if inplace:
+            self.cifs = combined.cifs
+            self.concentration_sol = combined.concentration_sol
+            self.cryst_size = combined.cryst_size
+            self.vol_per_atom = combined.vol_per_atom
+            self.concentration_coex = combined.concentration_coex
+            return None
+
+        return combined
+
 
 def mixed_cifs_sample(
     cif_files_list: List[os.PathLike | str],
