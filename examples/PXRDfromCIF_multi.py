@@ -95,6 +95,101 @@ class Sample:
         self.concentration_coex = np.array(concentration_coex)
 
 
+def create_mixture_cif(
+    cif_files_list: List[os.PathLike | str], concentration: List[float]
+) -> Sample:
+    """
+    Creates a solution phase cif file from two seperate crystals based on concentration.
+
+    Args:
+        cif_files_list (List[os.PathLike]): cif files of input phases
+        concentration (List[float]): concentration of input phases in solution phase
+
+    Raises:
+        ValueError: each input phase has to have a concentration value specified for
+        ValueError: the concentrations of the input phases have to add up to 1.0
+        FileNotFoundError: cif files for input phases have to be saved in "cif" folder
+
+    Returns:
+        (str): name of solution phase cif file saved in "cif" folder
+    """
+
+    result = Sample()
+    # create array for phases in solution phase
+    sol_phase = []
+    cif_files = np.array(cif_files_list, dtype=str)
+    concentration_sol = np.array(concentration)
+
+    def combine_cif_names(input_files: List[os.PathLike | str]):
+        """
+        Combines the names of input cif files to name for solution phase cif file.
+
+        Args:
+            input_files (List[os.PathLike]): cif files of phases in solution phase
+
+        Returns:
+            (str): combined cif file name of solution phase
+        """
+        base_names = [
+            os.path.splitext(os.path.basename(file))[0] for file in input_files
+        ]
+        name_sol = "_".join(base_names) + "_sol.cif"
+        return name_sol
+
+    name_sol = combine_cif_names(cif_files)
+
+    # check input
+    if len(cif_files) != len(concentration_sol):
+        raise ValueError("A concentration [at%] per end member has to be specified.")
+    if np.sum(concentration_sol) != 1.0:
+        raise ValueError("All solution phase concentrations have to sum up to 1.0.")
+
+    # create material
+    for cif_file_comp in cif_files:
+        # cif_path = os.path.join("cif", cif_file_comp)
+        if not os.path.exists(cif_file_comp):
+            raise FileNotFoundError(
+                f"The CIF file '{cif_file_comp}' does not exist in the 'cif' folder."
+            )
+
+        sol_phase.append(xu.materials.Crystal.fromCIF(cif_file_comp))
+
+    # adapt lattice parameter
+    material_sol = copy.deepcopy(sol_phase[0])
+    material_sol.a = 1.0
+    material_sol.b = 1.0
+    material_sol.c = 1.0
+
+    # adapt wyckoffBase
+    new_wbase = WyckoffBase()
+
+    for j in range(len(sol_phase)):
+        material_sol.a += concentration_sol[j] * sol_phase[j].a
+        material_sol.b += concentration_sol[j] * sol_phase[j].b
+        material_sol.c += concentration_sol[j] * sol_phase[j].c
+
+        for atom, wyckoff, occ, b in sol_phase[j].lattice._wbase:
+            new_occ = float(
+                concentration_sol[j]
+            )  # Replace occupancy with concentration
+            new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
+
+    # correct for 1.0
+    material_sol.a += -1.0
+    material_sol.b += -1.0
+    material_sol.c += -1.0
+
+    # Assign the new WyckoffBase to the lattice
+    material_sol.lattice._wbase = new_wbase
+
+    # export to cif file
+    material_sol.toCIF(name_sol)
+
+    result.add_phase(name_sol, cryst_size=1e-7)
+
+    return result
+
+
 class Diffractogram:
     """
     A diffractogram from a sample based on selected measuring parameters.
@@ -180,95 +275,6 @@ class Diffractogram:
         plt.gca().axes.yaxis.set_ticklabels([])
         plt.title(kwargs.get("title", "Calculated Powder Diffraction Pattern"))
         plt.show(block=False)
-
-
-def create_sol_phase(cif_files_list: List[os.PathLike], concentration: List[float]):
-    """
-    Creates a solution phase cif file from two seperate crystals based on concentration.
-
-    Args:
-        cif_files_list (List[os.PathLike]): cif files of input phases
-        concentration (List[float]): concentration of input phases in solution phase
-
-    Raises:
-        ValueError: each input phase has to have a concentration value specified for
-        ValueError: the concentrations of the input phases have to add up to 1.0
-        FileNotFoundError: cif files for input phases have to be saved in "cif" folder
-
-    Returns:
-        (str): name of solution phase cif file saved in "cif" folder
-    """
-    # create array for phases in solution phase
-    sol_phase = []
-    cif_files = np.array(cif_files_list)
-    concentration_sol = np.array(concentration)
-
-    def combine_cif_names(input_files: List[os.PathLike]):
-        """
-        Combines the names of input cif files to name for solution phase cif file.
-
-        Args:
-            input_files (List[os.PathLike]): cif files of phases in solution phase
-
-        Returns:
-            (str): combined cif file name of solution phase
-        """
-        base_names = [
-            os.path.splitext(os.path.basename(file))[0] for file in input_files
-        ]
-        name_sol = "_".join(base_names) + "_sol.cif"
-        return name_sol
-
-    name_sol = combine_cif_names(cif_files)
-
-    # check input
-    if len(cif_files) != len(concentration_sol):
-        raise ValueError("A concentration [at%] per end member has to be specified.")
-    if np.sum(concentration_sol) != 1.0:
-        raise ValueError("All solution phase concentrations have to sum up to 1.0.")
-
-    # create material
-    for cif_file_comp in cif_files:
-        cif_path = os.path.join("cif", cif_file_comp)
-        if not os.path.exists(cif_path):
-            raise FileNotFoundError(
-                f"The CIF file '{cif_file_comp}' does not exist in the 'cif' folder."
-            )
-
-        sol_phase.append(xu.materials.Crystal.fromCIF(cif_path))
-
-    # adapt lattice parameter
-    material_sol = copy.deepcopy(sol_phase[0])
-    material_sol.a = 1.0
-    material_sol.b = 1.0
-    material_sol.c = 1.0
-
-    # adapt wyckoffBase
-    new_wbase = WyckoffBase()
-
-    for j in range(len(sol_phase)):
-        material_sol.a += concentration_sol[j] * sol_phase[j].a
-        material_sol.b += concentration_sol[j] * sol_phase[j].b
-        material_sol.c += concentration_sol[j] * sol_phase[j].c
-
-        for atom, wyckoff, occ, b in sol_phase[j].lattice._wbase:
-            new_occ = float(
-                concentration_sol[j]
-            )  # Replace occupancy with concentration
-            new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
-
-    # correct for 1.0
-    material_sol.a += -1.0
-    material_sol.b += -1.0
-    material_sol.c += -1.0
-
-    # Assign the new WyckoffBase to the lattice
-    material_sol.lattice._wbase = new_wbase
-
-    # export to cif file
-    material_sol.toCIF(os.path.join("cif", name_sol))
-
-    return name_sol
 
 
 def cif_to_diffractogram(
