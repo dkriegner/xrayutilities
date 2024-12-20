@@ -46,23 +46,20 @@ class Sample:
         self.vol_per_atom = []
         self.concentration_coex = np.array([], dtype=object)
 
-    def add_phase(self, cif: List[os.PathLike], cryst_size: float):
+    def add_phase(self, cif: os.PathLike | str, cryst_size: float):
         """
         Adds a new phase to an existing sample.
 
         Args:
-            cif (List[os.PathLike]): cif file name of phase
+            cif (os.PathLike | str): cif file name of phase
             cryst_size (float): average crystal size in Angström for each phase
 
         Raises:
             ValueError: for solution phases, a cif file has to be created first using create_sol_phase()
         """
-        self.cifs.append(np.array(cif))
+        self.cifs.append(np.array([cif]))
         self.concentration_sol.append(np.array([1.0]))  # at%
         self.cryst_size.append(cryst_size)  # meter
-
-        if len(cif) != 1:
-            raise ValueError("For creating a solution phase, use create_sol_phase().")
 
     def set_composition(self, concentration_coex: List[float]):
         """
