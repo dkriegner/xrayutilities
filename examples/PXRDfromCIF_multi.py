@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+from numpy.typing import NDArray
 import numpy as np
 import xrayutilities as xu
 import copy
@@ -40,7 +42,7 @@ class Sample:
         Initialises a powder diffraction sample which can have multiple coexisting phases present.
 
         """
-        self.cifs = []
+        self.cifs: List[NDArray] = []
         self.concentration_sol = []
         self.cryst_size = []
         self.vol_per_atom = []
@@ -55,7 +57,14 @@ class Sample:
             cryst_size (float): average crystal size in Angström for each phase
 
         """
-        self.cifs.append(np.array([cif]))
+
+        if not Path(cif).is_file():
+            raise ValueError("The CIF file does not exist.")
+
+        # convert to Path object
+        cif = Path(cif)
+
+        self.cifs.append(np.array([cif], dtype=Path))
         self.concentration_sol.append(np.array([1.0]))  # at%
         self.cryst_size.append(cryst_size)  # meter
 
