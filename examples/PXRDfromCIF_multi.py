@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 import numpy as np
 from numpy.typing import NDArray
 import xrayutilities as xu
@@ -95,11 +96,11 @@ class Sample:
         self.concentration_coex = np.array(concentration_coex)
 
 
-def create_mixture_cif(
+def mixed_cifs_sample(
     cif_files_list: List[os.PathLike | str],
     concentration: List[float],
-    save_generated_cif: bool = False,
-) -> Tuple[Sample, str]:
+    output_file: os.PathLike | None = None,
+) -> Tuple[Sample, os.PathLike]:
     """
     Creates a solution phase cif file from two seperate crystals based on concentration.
 
@@ -139,8 +140,6 @@ def create_mixture_cif(
         ]
         name_sol = "_".join(base_names) + "_sol.cif"
         return name_sol
-
-    name_sol = combine_cif_names(cif_files)
 
     # check input
     if len(cif_files) != len(concentration_sol):
@@ -186,17 +185,22 @@ def create_mixture_cif(
     # Assign the new WyckoffBase to the lattice
     material_sol.lattice._wbase = new_wbase
 
+    if output_file is None:
+        name_sol = NamedTemporaryFile(suffix=".cif", delete=False).name
+    else:
+        name_sol = output_file
+
     # export to cif file
     material_sol.toCIF(name_sol)
 
     result.add_phase(name_sol, cryst_size=1e-7)
 
-    if not save_generated_cif:
+    if output_file is None:
         # remove the created cif file
         os.remove(name_sol)
         name_sol = ""
 
-    return result, name_sol
+    return result, Path(name_sol)
 
 
 class Diffractogram:
