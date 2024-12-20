@@ -231,6 +231,9 @@ def mixed_cifs_sample(
         material_sol.b += concentration_sol[j] * sol_phase[j].b
         material_sol.c += concentration_sol[j] * sol_phase[j].c
 
+        # accessing the lattice._wbase indicates that this is supposed to be a private attribute
+        # so this is likely not the best way to do this. Maybe the .base() function of the lattice provides something a little more robust?
+
         for atom, wyckoff, occ, b in sol_phase[j].lattice._wbase:
             new_occ = float(
                 concentration_sol[j]
