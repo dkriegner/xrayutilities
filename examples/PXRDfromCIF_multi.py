@@ -211,10 +211,14 @@ def mixed_cifs_sample(
         if not os.path.exists(cif_file_comp):
             raise FileNotFoundError(f"The CIF file '{cif_file_comp}' does not exist.")
 
-        sol_phase.append(xu.materials.Crystal.fromCIF(cif_file_comp))
+        # create new crystal sample
+        new_sample = xu.materials.Crystal.fromCIF(cif_file_comp)
+
+        sol_phase.append(new_sample)
 
     # adapt lattice parameter
-    material_sol = copy.deepcopy(sol_phase[0])
+    # i am not sure deepcopy is needed anymore if you are using the new_sample
+    material_sol = copy.deepcopy(new_sample)
     material_sol.a = 1.0
     material_sol.b = 1.0
     material_sol.c = 1.0
