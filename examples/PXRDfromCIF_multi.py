@@ -54,8 +54,6 @@ class Sample:
             cif (os.PathLike | str): cif file name of phase
             cryst_size (float): average crystal size in Angström for each phase
 
-        Raises:
-            ValueError: for solution phases, a cif file has to be created first using create_sol_phase()
         """
         self.cifs.append(np.array([cif]))
         self.concentration_sol.append(np.array([1.0]))  # at%
