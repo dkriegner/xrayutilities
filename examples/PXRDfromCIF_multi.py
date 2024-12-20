@@ -162,9 +162,7 @@ def mixed_cifs_sample(
     for cif_file_comp in cif_files:
         # cif_path = os.path.join("cif", cif_file_comp)
         if not os.path.exists(cif_file_comp):
-            raise FileNotFoundError(
-                f"The CIF file '{cif_file_comp}' does not exist in the 'cif' folder."
-            )
+            raise FileNotFoundError(f"The CIF file '{cif_file_comp}' does not exist.")
 
         sol_phase.append(xu.materials.Crystal.fromCIF(cif_file_comp))
 
