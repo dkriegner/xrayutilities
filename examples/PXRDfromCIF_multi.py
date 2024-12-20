@@ -123,6 +123,9 @@ class Sample:
 
         combined = Sample()
 
+        # TODO I am not convinced this is the correct way to combine these
+        # especially concentration_sol likely needs to be done differently (?)
+
         combined.cifs = self.cifs + other.cifs
         combined.concentration_sol = self.concentration_sol + other.concentration_sol
         combined.cryst_size = self.cryst_size + other.cryst_size
