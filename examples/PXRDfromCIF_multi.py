@@ -69,18 +69,23 @@ class Sample:
             concentration_coex (List[float]): composition of powder
 
         Raises:
-            ValueError:  a concentration is needed for each phase and all concentrations have to sum up to 1.0
+            AssertionError:  number of concentrations has to match the number of phases
+            AssertionError:  concentrations have to sum up to 1.0
         """
-        self.concentration_coex = np.array(concentration_coex)
 
-        # check input
-        if (
-            len(self.concentration_coex) != len(self.cifs)
-            or np.sum(self.concentration_coex) != 1.0
-        ):
-            raise ValueError(
-                "Per coexisting phase a concentration has to be specified. All concentrations have to sum up to 1.0."
-            )
+        assert len(self.concentration_coex) == len(
+            self.cifs
+        ), "The number of concentrations ({}) has to match the number of phases ({})".format(
+            len(self.concentration_coex), len(self.cifs)
+        )
+
+        assert np.testing.assert_approx_equal(
+            np.sum(self.concentration_coex),
+            1.0,
+            err_msg="The sum of all concentrations has to be 1.0",
+        )
+
+        self.concentration_coex = np.array(concentration_coex)
 
 
 class Diffractogram:
