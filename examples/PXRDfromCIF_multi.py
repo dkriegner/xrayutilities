@@ -7,7 +7,7 @@ import xrayutilities as xu
 import copy
 from xrayutilities.materials.spacegrouplattice import WyckoffBase
 from enum import Enum
-from typing import List, Tuple, Dict
+from typing import List, Self, Tuple, Dict
 
 
 class Shape(Enum):
@@ -94,6 +94,17 @@ class Sample:
         )
 
         self.concentration_coex = np.array(concentration_coex)
+
+    def __str__(self) -> str:
+        flist = "\n".join(["    " + str(x[0]) for x in self.cifs])
+        answer = [
+            f"Sample {__class__}:",
+            f"Number of phases: {len(self.cifs)}",
+            f"Phase CIFs: ",
+            f"{flist}",
+            f"Concentration of coexisting phases: {self.concentration_coex}",
+        ]
+        return "\n".join(answer)
 
 
 def mixed_cifs_sample(
