@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
-from numpy.typing import NDArray
 import numpy as np
+from numpy.typing import NDArray
 import xrayutilities as xu
 import copy
 from xrayutilities.materials.spacegrouplattice import WyckoffBase
@@ -142,6 +142,8 @@ class Diffractogram:
                 "At least one layer has to be added to a sample in order to calculate a diffractogram."
             )
         if len(self.sample.concentration_coex) == 0:
+            # I recommend changing this, as there is no clear indication (or function) to set 'phase composition'
+            # in the sample class - or add that function
             raise ValueError(
                 "Set the phase composition first in order to calculate a diffractogram."
             )
