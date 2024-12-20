@@ -202,7 +202,9 @@ def mixed_cifs_sample(
     # check input
     if len(cif_files) != len(concentration_sol):
         raise ValueError("A concentration [at%] per end member has to be specified.")
-    if np.sum(concentration_sol) != 1.0:
+    if (
+        np.sum(concentration_sol) != 1.0
+    ):  # i recommend the numpy.testing.assert_approx_equal approach from above
         raise ValueError("All solution phase concentrations have to sum up to 1.0.")
 
     # create material
