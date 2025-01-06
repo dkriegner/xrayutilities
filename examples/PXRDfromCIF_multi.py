@@ -69,7 +69,7 @@ class Sample:
 
         self.cifs.append(np.array([cif], dtype=Path))
         self.cryst_size.append(cryst_size)  # meter
-        self.mol_amount.append(mol_amount) # mol
+        self.mol_amount.append(mol_amount)  # mol
 
     def set_composition(self):
         """
@@ -82,7 +82,7 @@ class Sample:
         tot_mol_amount = sum(self.mol_amount)
         self.concentration_coex = np.zeros(len(self.mol_amount), dtype=object)
         for i in range(len(self.mol_amount)):
-            self.concentration_coex[i] = self.mol_amount[i]/tot_mol_amount
+            self.concentration_coex[i] = self.mol_amount[i] / tot_mol_amount
 
         assert len(self.concentration_coex) == len(
             self.cifs
@@ -92,7 +92,12 @@ class Sample:
 
         assert np.sum(self.concentration_coex) == 1.0, "The sum of all concentrations has to be 1.0"
 
-    def calculate_diffractogram(self, lambda_used: float=1.5406, two_theta: np.ndarray=np.linspace(10, 135, 1000), shape:Shape=Shape.Gaussian):
+    def calculate_diffractogram(
+        self,
+        lambda_used: float = 1.5406,
+        two_theta: np.ndarray = np.linspace(10, 135, 1000),
+        shape: Shape = Shape.Gaussian,
+    ):
         """Calculates the powder diffractogram of the sample.
 
         Args:
@@ -390,7 +395,9 @@ if __name__ == "__main__":
     sample_1.add_phase("Fe.cif", mol_amount=3, cryst_size=1e-7)
     new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3, 0.7])
     sample_1.add_phase(new_cif_sol, mol_amount=7, cryst_size=1e-7)
-    diff_1 = sample_1.calculate_diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
+    diff_1 = sample_1.calculate_diffractogram(
+        lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian
+    )
     diff_1.plot_diffractogram_matplotlib()
 
     # Example 2
@@ -398,6 +405,7 @@ if __name__ == "__main__":
     sample_2.add_phase("Ni.cif", mol_amount=1, cryst_size=1e-7)
     sample_2.add_phase("Fe.cif", mol_amount=9, cryst_size=1e-7)
     sample_2.set_composition(concentration_coex=[0.1, 0.9])
-    diff_2 = sample_2.calculate_diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
+    diff_2 = sample_2.calculate_diffractogram(
+        lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian
+    )
     diff_2.plot_diffractogram_matplotlib()
-
