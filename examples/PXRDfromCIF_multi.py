@@ -30,6 +30,7 @@ class Sample:
     concentration_sol (List[float]): concentration of solution phase components for each phase
     cryst_size List[float]: average crystal size in Angström for each phase
     vol_per_atom List[float]: volume per atom of each phase
+    mol_amount List[float]: mol amount per phase in sample
     concentration_coex (np.ndarray): relative concentrations of each phase in the powder
 
     Functions:
@@ -47,14 +48,16 @@ class Sample:
         self.concentration_sol = []
         self.cryst_size = []
         self.vol_per_atom = []
+        self.mol_amount = []
         self.concentration_coex = np.array([], dtype=object)
 
-    def add_phase(self, cif: os.PathLike | str, cryst_size: float):
+    def add_phase(self, cif: os.PathLike | str, mol_amount: float, cryst_size: float):
         """
         Adds a new phase to an existing sample.
 
         Args:
             cif (os.PathLike | str): cif file name of phase
+            mol_amount (float): mol amount of phase in sample
             cryst_size (float): average crystal size in Angström for each phase
 
         """
@@ -68,6 +71,7 @@ class Sample:
         self.cifs.append(np.array([cif], dtype=Path))
         self.concentration_sol.append(np.array([1.0]))  # at%
         self.cryst_size.append(cryst_size)  # meter
+        self.mol_amount.append(mol_amount) # mol
 
     def set_composition(self, concentration_coex: List[float]):
         """
