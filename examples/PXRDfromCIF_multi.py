@@ -73,7 +73,7 @@ class Sample:
         self.cryst_size.append(cryst_size)  # meter
         self.mol_amount.append(mol_amount) # mol
 
-    def set_composition(self, concentration_coex: List[float]):
+    def set_composition(self):
         """
         Set the composition of the powder with concentrations of each of the coexisting phases.
 
@@ -84,16 +84,28 @@ class Sample:
             AssertionError:  number of concentrations has to match the number of phases
             AssertionError:  concentrations have to sum up to 1.0
         """
+        tot_mol_amount = sum(self.mol_amount)
+        for i in range(len(self.mol_amount)):
+            self.concentration_coex[i] = self.mol_amount/tot_mol_amount
 
-        assert len(concentration_coex) == len(
+        assert len(self.concentration_coex) == len(
             self.cifs
         ), "The number of concentrations ({}) has to match the number of phases ({})".format(
-            len(concentration_coex), len(self.cifs)
+            len(self.concentration_coex), len(self.cifs)
         )
 
-        assert np.sum(concentration_coex) == 1.0, "The sum of all concentrations has to be 1.0"
+        assert np.sum(self.concentration_coex) == 1.0, "The sum of all concentrations has to be 1.0"
 
-        self.concentration_coex = np.array(concentration_coex)
+    def calculate_diffractogram():
+        sample_1.set_composition()
+
+    diff_1 = Diffractogram(
+        sample_1,
+        lambda_used=1.5406,
+        two_theta=np.linspace(10, 135, 1000),
+        shape=Shape.Gaussian,
+    )
+    diff_1.compute_intensity()
 
     def __str__(self) -> str:
         flist = "\n".join(["    " + str(x[0]) for x in self.cifs])
@@ -374,9 +386,9 @@ if __name__ == "__main__":
 
     # Example case 1
     sample_1 = Sample()
-    sample_1.add_phase("Fe.cif", cryst_size=1e-7)
+    sample_1.add_phase("Fe.cif", mol_amount=3, cryst_size=1e-7)
     new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3, 0.7])
-    sample_1.add_phase(new_cif_sol, cryst_size=1e-7)
+    sample_1.add_phase(new_cif_sol, mol_amount=7, cryst_size=1e-7)
     sample_1.set_composition(concentration_coex=[0.3, 0.7])
 
     diff_1 = Diffractogram(
