@@ -82,8 +82,9 @@ class Sample:
             AssertionError:  concentrations have to sum up to 1.0
         """
         tot_mol_amount = sum(self.mol_amount)
+        self.concentration_coex = np.zeros(len(self.mol_amount), dtype=object)
         for i in range(len(self.mol_amount)):
-            self.concentration_coex[i] = self.mol_amount/tot_mol_amount
+            self.concentration_coex[i] = self.mol_amount[i]/tot_mol_amount
 
         assert len(self.concentration_coex) == len(
             self.cifs
