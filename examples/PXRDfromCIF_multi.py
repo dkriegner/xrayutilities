@@ -77,9 +77,6 @@ class Sample:
         """
         Set the composition of the powder with concentrations of each of the coexisting phases.
 
-        Args:
-            concentration_coex (List[float]): composition of powder
-
         Raises:
             AssertionError:  number of concentrations has to match the number of phases
             AssertionError:  concentrations have to sum up to 1.0
@@ -96,16 +93,11 @@ class Sample:
 
         assert np.sum(self.concentration_coex) == 1.0, "The sum of all concentrations has to be 1.0"
 
-    def calculate_diffractogram():
-        sample_1.set_composition()
-
-    diff_1 = Diffractogram(
-        sample_1,
-        lambda_used=1.5406,
-        two_theta=np.linspace(10, 135, 1000),
-        shape=Shape.Gaussian,
-    )
-    diff_1.compute_intensity()
+    def calculate_diffractogram(self, sample, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian):
+        sample.set_composition()
+        diff = Diffractogram(sample, lambda_used, two_theta, shape)
+        diff.compute_intensity()
+        return diff
 
     def __str__(self) -> str:
         flist = "\n".join(["    " + str(x[0]) for x in self.cifs])
@@ -389,15 +381,7 @@ if __name__ == "__main__":
     sample_1.add_phase("Fe.cif", mol_amount=3, cryst_size=1e-7)
     new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3, 0.7])
     sample_1.add_phase(new_cif_sol, mol_amount=7, cryst_size=1e-7)
-    sample_1.set_composition(concentration_coex=[0.3, 0.7])
-
-    diff_1 = Diffractogram(
-        sample_1,
-        lambda_used=1.5406,
-        two_theta=np.linspace(10, 135, 1000),
-        shape=Shape.Gaussian,
-    )
-    diff_1.compute_intensity()
+    diff_1 = sample_1.calculate_diffractogram(sample_1, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian,)
     diff_1.plot_diffractogram_matplotlib()
 
     # Example 2
