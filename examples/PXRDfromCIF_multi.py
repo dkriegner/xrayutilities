@@ -21,14 +21,6 @@ class Shape(Enum):
     Neither = 3
 
 
-class Phase:
-
-    def __init__(self, cif, cryst_size, mole_amount):
-        self.cif: str = cif
-        self.cryst_size = cryst_size
-        self.vol_per_atom
-        self.mole_amount = mole_amount
-
 class Sample:
     """
     A sample for powder diffraction containing different (solution) phases.
