@@ -94,7 +94,17 @@ class Sample:
 
         assert np.sum(self.concentration_coex) == 1.0, "The sum of all concentrations has to be 1.0"
 
-    def calculate_diffractogram(self, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian):
+    def calculate_diffractogram(self, lambda_used: float=1.5406, two_theta: np.ndarray=np.linspace(10, 135, 1000), shape:Shape=Shape.Gaussian):
+        """Calculates the powder diffractogram of the sample.
+
+        Args:
+            lambda_used (float, optional): wavelength in Angström of diffractometer. Defaults to 1.5406.
+            two_theta (np.ndarray, optional): two_theta range. Defaults to np.linspace(10, 135, 1000).
+            shape (Shape, optional): peak shape. Defaults to Shape.Gaussian.
+
+        Returns:
+            Diffractogram: calculated powder diffractogram
+        """
         self.set_composition()
         diff = Diffractogram(self, lambda_used, two_theta, shape)
         diff.compute_intensity()
