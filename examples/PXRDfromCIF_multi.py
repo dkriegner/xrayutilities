@@ -139,18 +139,14 @@ def create_sol_phase(
         Returns:
             (str): combined cif file name of solution phase
         """
-        base_names = [
-            os.path.splitext(os.path.basename(file))[0] for file in input_files
-        ]
+        base_names = [os.path.splitext(os.path.basename(file))[0] for file in input_files]
         name_sol = "_".join(base_names) + "_sol.cif"
         return name_sol
 
     # check input
     if len(cif_files) != len(concentration_sol):
         raise ValueError("A concentration [at%] per end member has to be specified.")
-    if (
-        np.sum(concentration_sol) != 1.0
-    ):  # i recommend the numpy.testing.assert_approx_equal approach from above
+    if np.sum(concentration_sol) != 1.0:  # i recommend the numpy.testing.assert_approx_equal approach from above
         raise ValueError("All solution phase concentrations have to sum up to 1.0.")
 
     # create material
@@ -180,9 +176,7 @@ def create_sol_phase(
         # so this is likely not the best way to do this. Maybe the .base() function of the lattice provides something a little more robust?
 
         for atom, wyckoff, occ, b in sol_phase[j].lattice._wbase:
-            new_occ = float(
-                concentration_sol[j]
-            )  # Replace occupancy with concentration
+            new_occ = float(concentration_sol[j])  # Replace occupancy with concentration
             new_wbase.append(atom, wyckoff, occ=new_occ, b=b)
 
     # correct for 1.0
@@ -222,9 +216,7 @@ class Diffractogram:
 
     """
 
-    def __init__(
-        self, sample: Sample, lambda_used: float, two_theta: np.ndarray, shape: Shape
-    ):
+    def __init__(self, sample: Sample, lambda_used: float, two_theta: np.ndarray, shape: Shape):
         """
         Initializes a diffractogram object
 
@@ -247,15 +239,11 @@ class Diffractogram:
         self.sample = sample
 
         if len(self.sample.cifs) == 0:
-            raise ValueError(
-                "At least one layer has to be added to a sample in order to calculate a diffractogram."
-            )
+            raise ValueError("At least one layer has to be added to a sample in order to calculate a diffractogram.")
         if len(self.sample.concentration_coex) == 0:
             # I recommend changing this, as there is no clear indication (or function) to set 'phase composition'
             # in the sample class - or add that function
-            raise ValueError(
-                "Set the phase composition first in order to calculate a diffractogram."
-            )
+            raise ValueError("Set the phase composition first in order to calculate a diffractogram.")
 
     def compute_intensity(self):
         """
@@ -316,16 +304,12 @@ def cif_to_diffractogram(
         V_at (float): volume per atom of this phase
     """
     # acknowledge processing
-    print(
-        f"------------------------- Currently processing information from {cif_file} -------------------------"
-    )
+    print(f"------------------------- Currently processing information from {cif_file} -------------------------")
 
     # create material
     cif_path = os.path.join("cif", cif_file)
     if not os.path.exists(cif_path):
-        raise FileNotFoundError(
-            f"The CIF file '{cif_file}' does not exist in the 'cif' folder."
-        )
+        raise FileNotFoundError(f"The CIF file '{cif_file}' does not exist in the 'cif' folder.")
     material = xu.materials.Crystal.fromCIF(cif_path)
 
     # create pdf file
@@ -360,9 +344,7 @@ def cif_to_diffractogram(
     return I, V_at
 
 
-def combine_intensities(
-    intensity: List[float], vol_per_atom: List[float], concentration_coex: np.ndarray
-):
+def combine_intensities(intensity: List[float], vol_per_atom: List[float], concentration_coex: np.ndarray):
     """
         Adds the intensities calculated for all coexisting phases based on the powder composition.
 
@@ -379,9 +361,7 @@ def combine_intensities(
     # apply weight factor to intensity
     intensity_all = np.zeros(len(intensity[0][:]))
     for i, phase in enumerate(intensity):
-        intensity_all += intensity[i][:] * (
-            concentration_coex[i] * vol_per_atom[i] / vol_tot
-        )
+        intensity_all += intensity[i][:] * (concentration_coex[i] * vol_per_atom[i] / vol_tot)
 
     return intensity_all
 
