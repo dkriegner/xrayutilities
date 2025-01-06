@@ -27,7 +27,6 @@ class Sample:
 
     Attributes:
     cifs (List[os.PathLike]): cif files each phase is calculated of
-    concentration_sol (List[float]): concentration of solution phase components for each phase
     cryst_size List[float]: average crystal size in Angström for each phase
     vol_per_atom List[float]: volume per atom of each phase
     mol_amount List[float]: mol amount per phase in sample
@@ -46,7 +45,6 @@ class Sample:
 
         """
         self.cifs: List[NDArray] = []
-        self.concentration_sol = []
         self.cryst_size = []
         self.vol_per_atom = []
         self.mol_amount = []
@@ -70,7 +68,6 @@ class Sample:
         cif = Path(cif)
 
         self.cifs.append(np.array([cif], dtype=Path))
-        self.concentration_sol.append(np.array([1.0]))  # at%
         self.cryst_size.append(cryst_size)  # meter
         self.mol_amount.append(mol_amount) # mol
 
