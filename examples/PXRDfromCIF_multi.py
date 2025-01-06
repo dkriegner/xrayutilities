@@ -225,7 +225,7 @@ def create_sol_phase(cif_files_list:List[os.PathLike], concentration:List[float]
     # export to cif file
     material_sol.toCIF(os.path.join("cif", name_sol))
 
-    return name_sol
+    return [name_sol]
 
 def cif_to_diffractogram(
     cif_file: str, lambda_used=1.5406, shape=Shape.Gaussian, cryst_size=1e-7, two_theta=np.linspace(10, 135, 500)
