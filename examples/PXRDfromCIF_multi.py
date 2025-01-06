@@ -93,9 +93,9 @@ class Sample:
 
         assert np.sum(self.concentration_coex) == 1.0, "The sum of all concentrations has to be 1.0"
 
-    def calculate_diffractogram(self, sample, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian):
-        sample.set_composition()
-        diff = Diffractogram(sample, lambda_used, two_theta, shape)
+    def calculate_diffractogram(self, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian):
+        self.set_composition()
+        diff = Diffractogram(self, lambda_used, two_theta, shape)
         diff.compute_intensity()
         return diff
 
@@ -381,20 +381,14 @@ if __name__ == "__main__":
     sample_1.add_phase("Fe.cif", mol_amount=3, cryst_size=1e-7)
     new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3, 0.7])
     sample_1.add_phase(new_cif_sol, mol_amount=7, cryst_size=1e-7)
-    diff_1 = sample_1.calculate_diffractogram(sample_1, lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian,)
+    diff_1 = sample_1.calculate_diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
     diff_1.plot_diffractogram_matplotlib()
 
     # Example 2
     sample_2 = Sample()
-    sample_2.add_phase("Ni.cif", cryst_size=1e-7)
-    sample_2.add_phase("Fe.cif", cryst_size=1e-7)
+    sample_2.add_phase("Ni.cif", mol_amount=1, cryst_size=1e-7)
+    sample_2.add_phase("Fe.cif", mol_amount=9, cryst_size=1e-7)
     sample_2.set_composition(concentration_coex=[0.1, 0.9])
-
-    diff_2 = Diffractogram(
-        sample_2,
-        lambda_used=1.5406,
-        two_theta=np.linspace(10, 135, 1000),
-        shape=Shape.Gaussian,
-    )
-    diff_2.compute_intensity()
+    diff_2 = sample_2.calculate_diffractogram(lambda_used=1.5406, two_theta=np.linspace(10, 135, 1000), shape=Shape.Gaussian)
     diff_2.plot_diffractogram_matplotlib()
+
