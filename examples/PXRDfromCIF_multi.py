@@ -36,6 +36,7 @@ class Sample:
     Functions:
     add_phase: add a phase to the powder
     set_composition: set the phase composition of the powder
+    calculate_diffractogram: calculated the powder diffractogram of a sample
 
     """
 
