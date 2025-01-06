@@ -58,9 +58,9 @@ class Sample:
             cryst_size (float): average crystal size in Angström for each phase
 
         """
-
-        if not Path(cif).is_file():
-            raise ValueError(f"The CIF file ({cif}) does not exist.")
+        cif_path = os.path.join("cif", cif)
+        if not Path(cif_path).is_file():
+            raise ValueError(f"The CIF file ({cif_path}) does not exist.")
 
         # convert to Path object
         cif = Path(cif)
@@ -81,17 +81,13 @@ class Sample:
             AssertionError:  concentrations have to sum up to 1.0
         """
 
-        assert len(self.concentration_coex) == len(
+        assert len(concentration_coex) == len(
             self.cifs
         ), "The number of concentrations ({}) has to match the number of phases ({})".format(
-            len(self.concentration_coex), len(self.cifs)
+            len(concentration_coex), len(self.cifs)
         )
 
-        assert np.testing.assert_approx_equal(
-            np.sum(self.concentration_coex),
-            1.0,
-            err_msg="The sum of all concentrations has to be 1.0",
-        )
+        assert np.sum(concentration_coex) == 1.0, "The sum of all concentrations has to be 1.0"
 
         self.concentration_coex = np.array(concentration_coex)
 
@@ -106,59 +102,59 @@ class Sample:
         ]
         return "\n".join(answer)
 
-    def combine(
-        self, other: Self, weights: Tuple[float, float], inplace=False
-    ) -> Self | None:
-        """
-        Combines two samples with a given weight.
+    # def combine(
+    #     self, other: Self, weights: Tuple[float, float], inplace=False
+    # ) -> Self | None:
+    #     """
+    #     Combines two samples with a given weight.
 
-        Args:
-            other (Sample): sample to be combined with
-            weights (Tuple[float]): weight of each sample
-            inplace (bool, default=False): combine samples in place
+    #     Args:
+    #         other (Sample): sample to be combined with
+    #         weights (Tuple[float]): weight of each sample
+    #         inplace (bool, default=False): combine samples in place
 
-        Returns:
-            (Sample): combined sample
-        """
+    #     Returns:
+    #         (Sample): combined sample
+    #     """
 
-        combined = Sample()
+    #     combined = Sample()
 
-        # TODO I am not convinced this is the correct way to combine these
-        # especially concentration_sol likely needs to be done differently (?)
+    #     # TODO I am not convinced this is the correct way to combine these
+    #     # especially concentration_sol likely needs to be done differently (?)
 
-        combined.cifs = self.cifs + other.cifs
-        combined.concentration_sol = self.concentration_sol + other.concentration_sol
-        combined.cryst_size = self.cryst_size + other.cryst_size
-        combined.vol_per_atom = self.vol_per_atom + other.vol_per_atom
-        combined.concentration_coex = [x for x in weights]
+    #     combined.cifs = self.cifs + other.cifs
+    #     combined.concentration_sol = self.concentration_sol + other.concentration_sol
+    #     combined.cryst_size = self.cryst_size + other.cryst_size
+    #     combined.vol_per_atom = self.vol_per_atom + other.vol_per_atom
+    #     combined.concentration_coex = [x for x in weights]
 
-        if inplace:
-            self.cifs = combined.cifs
-            self.concentration_sol = combined.concentration_sol
-            self.cryst_size = combined.cryst_size
-            self.vol_per_atom = combined.vol_per_atom
-            self.concentration_coex = combined.concentration_coex
-            return None
+    #     if inplace:
+    #         self.cifs = combined.cifs
+    #         self.concentration_sol = combined.concentration_sol
+    #         self.cryst_size = combined.cryst_size
+    #         self.vol_per_atom = combined.vol_per_atom
+    #         self.concentration_coex = combined.concentration_coex
+    #         return None
 
-        return combined
+    #     return combined
 
-    # More as a hint, but this combine method works for a single sample that is combined with an existing
-    # a more general way to combine n samples would be to use a list of samples and a list of weights
-    # and use a classmethod for this, e.g.
-    @classmethod
-    def combine_many(cls, samples: List[Self], weights: List[float]) -> Self:
-        combined = cls()
+    # # More as a hint, but this combine method works for a single sample that is combined with an existing
+    # # a more general way to combine n samples would be to use a list of samples and a list of weights
+    # # and use a classmethod for this, e.g.
+    # @classmethod
+    # def combine_many(cls, samples: List[Self], weights: List[float]) -> Self:
+    #     combined = cls()
 
-        ...  # combine samples here
+    #     ...  # combine samples here
 
-        return combined
+    #     return combined
 
 
-def mixed_cifs_sample(
+def create_sol_phase(
     cif_files_list: List[os.PathLike | str],
     concentration: List[float],
     output_file: os.PathLike | None = None,
-) -> Tuple[Sample, os.PathLike]:
+) -> os.PathLike:
     """
     Creates a solution phase cif file from two seperate crystals based on concentration.
 
@@ -171,13 +167,10 @@ def mixed_cifs_sample(
         ValueError: each input phase has to have a concentration value specified for
         ValueError: the concentrations of the input phases have to add up to 1.0
 
-
     Returns:
-        (Sample): object containing the solution phase cif file
-        (str): name of the solution phase cif file (if save_to_cif_file=True, else: empty string)
+        (str): name of solution phase cif file saved in "cif" folder
     """
 
-    result = Sample()
     # create array for phases in solution phase
     sol_phase = []
     cif_files = np.array(cif_files_list, dtype=str)
@@ -209,18 +202,15 @@ def mixed_cifs_sample(
 
     # create material
     for cif_file_comp in cif_files:
-        # cif_path = os.path.join("cif", cif_file_comp)
-        if not os.path.exists(cif_file_comp):
+        cif_path = os.path.join("cif", cif_file_comp)
+        if not os.path.exists(cif_path):
             raise FileNotFoundError(f"The CIF file '{cif_file_comp}' does not exist.")
 
-        # create new crystal sample
-        new_sample = xu.materials.Crystal.fromCIF(cif_file_comp)
-
-        sol_phase.append(new_sample)
+        sol_phase.append(xu.materials.Crystal.fromCIF(cif_path))
 
     # adapt lattice parameter
     # i am not sure deepcopy is needed anymore if you are using the new_sample
-    material_sol = copy.deepcopy(new_sample)
+    material_sol = copy.deepcopy(sol_phase[0])
     material_sol.a = 1.0
     material_sol.b = 1.0
     material_sol.c = 1.0
@@ -251,21 +241,14 @@ def mixed_cifs_sample(
     material_sol.lattice._wbase = new_wbase
 
     if output_file is None:
-        name_sol = NamedTemporaryFile(suffix=".cif", delete=False).name
+        name_sol = combine_cif_names(cif_files)
     else:
         name_sol = output_file
 
     # export to cif file
-    material_sol.toCIF(name_sol)
+    material_sol.toCIF(os.path.join("cif", name_sol))
 
-    result.add_phase(name_sol, cryst_size=1e-7)
-
-    if output_file is None:
-        # remove the created cif file
-        os.remove(name_sol)
-        name_sol = ""
-
-    return result, Path(name_sol)
+    return name_sol
 
 
 class Diffractogram:
@@ -454,8 +437,8 @@ if __name__ == "__main__":
 
     # Example case 1
     sample_1 = Sample()
-    sample_1.add_phase("cif/Fe.cif", cryst_size=1e-7)
-    new_cif_sol = mixed_cifs_sample(["cif/Fe.cif", "cif/Ni.cif"], concentration=[0.3, 0.7])
+    sample_1.add_phase("Fe.cif", cryst_size=1e-7)
+    new_cif_sol = create_sol_phase(["Fe.cif", "Ni.cif"], concentration=[0.3, 0.7])
     sample_1.add_phase(new_cif_sol, cryst_size=1e-7)
     sample_1.set_composition(concentration_coex=[0.3, 0.7])
 
@@ -470,8 +453,8 @@ if __name__ == "__main__":
 
     # Example 2
     sample_2 = Sample()
-    sample_2.add_phase(["cif/Ni.cif"], cryst_size=1e-7)
-    sample_2.add_phase(["cif/Fe.cif"], cryst_size=1e-7)
+    sample_2.add_phase("Ni.cif", cryst_size=1e-7)
+    sample_2.add_phase("Fe.cif", cryst_size=1e-7)
     sample_2.set_composition(concentration_coex=[0.1, 0.9])
 
     diff_2 = Diffractogram(
