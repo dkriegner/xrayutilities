@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (c) 2009-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 # Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
 
@@ -856,6 +856,7 @@ class Crystal(Material):
         Nc = max(nc, nac, nbc, nabc)
 
         # determine distance of all atoms w.r.t. the refpos
+        # pylint: disable=no-member
         ucidx = numpy.mgrid[-Na:Na+1, -Nb:Nb+1, -Nc:Nc+1].reshape(3, -1)
         for a, p, o, _ in base:
             ucpos = self.lattice.ai.T @ p
