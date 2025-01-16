@@ -170,7 +170,7 @@ def derivative(func, x0, dx=1.0):
     --------
     >>> def f(x):
     ...     return x**2
-    >>> derivative(f, 3.0):
+    >>> derivative(f, 3.0)
     6.0
     """
     # 3-point central difference weights
