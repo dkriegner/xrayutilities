@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .algebra import solve_quartic
 from .fit import (fit_peak2d, gauss_fit, linregress, multPeakFit, multPeakPlot,
@@ -27,7 +27,7 @@ from .functions import (Debye1, Gauss1d, Gauss1d_der_p, Gauss1d_der_x,
                         PseudoVoigt1dArea, PseudoVoigt1dasym,
                         PseudoVoigt1dasym2, PseudoVoigt2d, TwoGauss2d,
                         heaviside, kill_spike, multPeak1d, multPeak2d, smooth)
-from .misc import center_of_mass, fwhm_exp, gcd
+from .misc import center_of_mass, derivative, fwhm_exp, gcd
 from .transforms import (ArbRotation, AxisToZ, AxisToZ_keepXY,
                          CoordinateTransform, Transform, VecAngle, VecCross,
                          VecDot, VecNorm, VecUnit, XRotation, YRotation,
