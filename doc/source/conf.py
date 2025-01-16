@@ -54,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'xrayutilities'
-copyright = '2024, Dominik Kriegner, Eugen Wintersberger'
+copyright = '2025, Dominik Kriegner, Eugen Wintersberger'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

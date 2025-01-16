@@ -1,3 +1,5 @@
+v1.7.9, 2025-01-16
+
 * avoid use of scipy.misc package. make xrayutilities work with scipy>=1.15 (#202)
 * fix typo in GetStress method of Material/Crystal.
 * improve wording in Experiment class docstrings (#192)
