@@ -12,3 +12,6 @@ dist/
 build/
 MANIFEST
 xrayutilities.egg-info/
+
+# material library created during the installation
+lib/xrayutilities/materials/data/elements.db
