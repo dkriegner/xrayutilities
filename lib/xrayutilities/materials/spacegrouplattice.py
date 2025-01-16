@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2017-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2017-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
 module handling crystal lattice structures. A SGLattice consists of a space
 group number and the position of atoms specified as Wyckoff positions along
@@ -28,6 +28,7 @@ import fractions
 import numbers
 import re
 from collections import OrderedDict
+from itertools import product
 from math import cos, isclose, radians, sin, sqrt
 
 import numpy
@@ -1417,7 +1418,7 @@ class SGLattice:
             if pos in outset:
                 return
             outset.add(pos)
-            g = numpy.mgrid[-1:2, -1:2, -1:2].T.reshape(27, 3).tolist()
+            g = list(product(range(-1, 2), repeat=3))
             g.remove([0, 0, 0])
             for off in g:
                 recurse_cells(numpy.add(fracpos, off), outset)
