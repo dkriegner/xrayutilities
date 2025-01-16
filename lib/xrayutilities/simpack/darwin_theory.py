@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 import abc
 import collections.abc
 import copy
@@ -21,10 +21,9 @@ import warnings
 
 import numpy
 from scipy.constants import physical_constants
-from scipy.misc import derivative
 
 from .. import materials, utilities
-from ..math import heaviside
+from ..math import derivative, heaviside
 from .models import LayerModel
 
 
@@ -384,7 +383,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                             directly!""")
                 while t < T:
                     if 'r' in s:
-                        r = abs(derivative(x, t, dx=1.4, n=1))*s['r']
+                        r = abs(derivative(x, t, dx=1.4))*s['r']
                         dperp, apar = self.get_dperp_apar(x(t), apar, r)
                     else:
                         dperp, apar = self.get_dperp_apar(x(t), s['ai'])

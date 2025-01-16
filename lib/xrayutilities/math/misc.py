@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2016-2019, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2016-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import math
 
@@ -139,3 +139,44 @@ def gcd(lst):
         return numpy.gcd.reduce(lst)
     gcdfunc = numpy.frompyfunc(math.gcd, 2, 1)
     return numpy.ufunc.reduce(gcdfunc, lst)
+
+
+def derivative(func, x0, dx=1.0):
+    """
+    First derivative of a function using a 3-point central difference formula.
+
+    This code is a heavily simplified version of the deprecated
+    scipy.misc.derviative.
+
+    Parameters
+    ----------
+    func : function
+        The function to differentiate.
+    x0 : float
+        The point at which to evaluate the derivative.
+    dx : float, optional
+        The step size for finite differences. Default is 1.0.
+
+    Returns
+    -------
+    float
+        The first derivative of the function at x0.
+
+    Notes
+    -----
+    Uses a 3-point central difference formula for simplicity.
+
+    Examples
+    --------
+    >>> def f(x):
+    ...     return x**2
+    >>> derivative(f, 3.0)
+    6.0
+    """
+    # 3-point central difference weights
+    weights = [-1, 0, 1]
+    points = [x0 - dx, x0, x0 + dx]
+
+    # Compute the weighted sum
+    val = sum(w * func(p) for w, p in zip(weights, points))
+    return val / (2 * dx)
