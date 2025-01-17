@@ -28,8 +28,9 @@ import configparser
 import math
 import os.path
 from ast import literal_eval
+from importlib import resources
 
-from . import __path__, utilities_noconf
+from . import utilities_noconf
 
 # so far parsed config variables are
 #
@@ -55,7 +56,7 @@ def trytomake(obj, key, typefunc):
 
 
 # read global default values for configuration variables
-with open(os.path.join(__path__[0], "xrayutilities_default.conf")) as conffile:
+with resources.open_text("xrayutilities", "xrayutilities_default.conf") as conffile:
     xuParser.read_file(conffile)
 
 # read user configuration and local configuration if available

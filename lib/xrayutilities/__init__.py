@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2009-2022 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2009-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities is a Python package for assisting with x-ray diffraction
@@ -26,10 +26,10 @@ Authors:
  Dominik Kriegner <dominik.kriegner@gmail.com> and
  Eugen Wintersberger <eugen.wintersberger@desy.de>
 """
-import os
+from importlib.metadata import version
 
 # load configuration
-from . import __path__, analysis, config, io, materials, math, simpack
+from . import analysis, config, io, materials, math, simpack
 from .experiment import (GID, GISAXS, HXRD, Experiment, FourC, NonCOP,
                          PowderExperiment, QConversion)
 from .gridder import FuzzyGridder1D, Gridder1D, npyGridder1D
@@ -42,5 +42,4 @@ from .utilities import (en2lam, energy, frac2str, lam2en, makeNaturalName,
                         maplog, wavelength)
 
 # load package version
-with open(os.path.join(__path__[0], 'VERSION')) as version_file:
-    __version__ = version_file.read().strip().replace('\n', '.')
+__version__ = version("xrayutilities")

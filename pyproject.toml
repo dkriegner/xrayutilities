@@ -1,5 +1,6 @@
 [build-system]
 requires = [
+    "meson-python",
     "scipy",
     "h5py",
     "setuptools",
@@ -10,22 +11,56 @@ requires = [
     # for those binary packages.
     "numpy>=2.0.0rc1; python_version >= '3.9'",
     "numpy; python_version < '3.9'",
-
+    # tomli needed by meson.build to load version variable
+    "tomli >= 2.0.1 ; python_version < '3.11'",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "mesonpy"
+
+[project]
+name = "xrayutilities"
+version = "1.7.10"
+description = "Package for x-ray diffraction data evaluation"
+readme = "README.md"
+license = { text = "GPL-2.0-or-later" }
+authors = [
+    { name = "Dominik Kriegner", email = "dominik.kriegner@gmail.com" },
+    { name = "Eugen Wintersberger", email = "eugen.wintersberger@desy.de" },
+]
+maintainers = [
+    { name = "Dominik Kriegner", email = "dominik.kriegner@gmail.com" },
+]
+keywords = ["x-ray", "diffraction", "data analysis"]
+classifiers = [
+    "Programming Language :: C",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+]
+dependencies = ["numpy>=1.9.2", "scipy>=0.18.0", "h5py", "lmfit>=1.0.1"]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.1.0"]
+3D = ["mayavi"]
+
+[project.urls]
+homepage = "https://xrayutilities.sourceforge.io"
+source = "https://github.com/dkriegner/xrayutilities"
+download = "https://pypi.org/project/xrayutilities/#files"
+tracker = "https://github.com/dkriegner/xrayutilities/issues"
 
 [tool.coverage.paths]
-source = [
-    "lib",
-    "*/site-packages"
-]
+source = ["lib", "*/site-packages"]
 
 [tool.coverage.run]
 branch = true
 parallel = true
-source = [
-    "xrayutilities"
-]
+source = ["xrayutilities"]
 
 [tool.pylint]
 disable = ["invalid-name", "R", "C", "W"]
@@ -33,8 +68,6 @@ extension-pkg-allow-list = ["xrayutilities.cxrayutilities"]
 ignored-modules = ["scipy.special"]
 
 [tool.flake8]
-extend-ignore = ["E741", "E203", ]
-per-file-ignores = [
-    "__init__.py:F401",
-]
+extend-ignore = ["E741", "E203"]
+per-file-ignores = ["__init__.py:F401"]
 count = true
