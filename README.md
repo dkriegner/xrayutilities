@@ -55,25 +55,11 @@ Installing xrayutilities from source is an easy process done by executing
 
     pip install .
 
-in the source folder of xrayutilities on the command line/terminal. Directly
-calling *setup.py* by
+By default the installation procedure enables OpenMP support (recommended).
+It fails if no OpenMP support is available. It can be disabled by using the
+the following custom meson option for the installation:
 
-    python setup.py install
-
-or
-
-    python setup.py install --prefix=<install_path>
-
-is possible but you have to manually ensure that the dependencies are all
-installed! The first command installs xrayutilities in the systems default
-directories, whereas in the second command you can manually specify the
-installation path.
-
-By default the installation procedure tries to enable OpenMP support
-(recommended). It is disabled silently if OpenMP is not available. It can also
-be disabled by using the *--without-openmp* option for the installation:
-
-    python setup.py build_ext --without-openmp install
+    pip install . --config-settings=setup-args="-Denable_openmp=false"
 
 Requirements
 ------------
@@ -89,7 +75,7 @@ The following requirements are needed for installing and using *xrayutilities*:
 
 When building from source you also might need:
 
-- C-compiler (preferential with OpenMP support)
+- C-compiler (with OpenMP support)
 - Python dev headers
 - setuptools
 - pytest (optional - only if you want to run the test environment)
