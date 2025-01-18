@@ -3,7 +3,7 @@ xrayutilities unittests
 
 To run ALL the unittests execute in the package root
 
-    python setup.py test
+    pytest
 
 or
 

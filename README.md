@@ -32,10 +32,12 @@ list](https://sourceforge.net/projects/xrayutilities/lists/xrayutilities-users)
 Contents
 --------
 
+* *doc*:                documentation source files
 * *examples*:           directory with example scripts and configurations
 * *lib/xrayutilities*:  directory with the sources for the Python package
+* *src*:                directory with the C extension for improved performance
 * *tests*:              directory with the unittest scripts
-* *setup.py*:           setuptools install script used for the package installation
+* *pyproject.toml, meson\**: packaging configuration and build files
 
 
 Installation (pip)
@@ -77,7 +79,7 @@ When building from source you also might need:
 
 - C-compiler (with OpenMP support)
 - Python dev headers
-- setuptools
+- meson-python
 - pytest (optional - only if you want to run the test environment)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)

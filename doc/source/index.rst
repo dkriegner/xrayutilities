@@ -159,7 +159,7 @@ Source Installation
 Express instructions
 --------------------
 
- * install the dependencies (Windows: `Python(x,y) <https://python-xy.github.io/>`_ or `WinPython <https://winpython.github.io/>`_; Linux/Unix: see below for dependencies).
+ * install the dependencies (Mostly handled by pip, but you will need a C-compiler, see below for details).
  * download *xrayutilities* from `here <https://sourceforge.net/projects/xrayutilities>`_ or use git to check out the `latest <https://github.com/dkriegner/xrayutilities>`_ version.
  * open a command line and navigate to the downloaded sources and execute:
 
@@ -167,14 +167,14 @@ Express instructions
 
  > pip install .
 
-which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in python scripts.
+which will install *xrayutilities* to the default directory. It should be possible to use it (*import xrayutilities*) from now on in Python scripts.
 
 Detailed instructions
 ---------------------
 
-Installing *xrayutilities* is done using Python's setuptools
+Installing *xrayutilities* is done using pip with the meson-python build backend.
 
-The package can be installed on Linux, Mac OS X and Microsoft Windows, however, it is mostly tested on Linux/Unix platforms.
+The package can be installed on Linux, Mac OS X and Microsoft Windows.
 Please inform one of the authors in case the installation fails!
 
 Required third party software
@@ -198,7 +198,7 @@ For several features optional dependencies are needed:
 Additionally, the following Python modules are needed when building *xrayutilities* from source or wanting to test your installation:
  * **C-compiler** Gnu Compiler Collection or any compatible C compiler. On windows you most probably want to use the Microsoft compilers.
  * **Python development headers**
- * **setuptools** build system
+ * **meson-python** build system
  * **pytest** needed for running the pre-configured unittest environment, which in principal can also be achieved only by the unittest package (optional)
 
 For building the documention (which you do not need to do) the requirements are:
@@ -214,7 +214,8 @@ building the C library.
 Building and installing the library and python package
 ------------------------------------------------------
 
-Although the *setup.py* script can be called manually its recommended to always use pip to install *xrayutilities*, which can be done by executing
+The build of the C library as well as of the material properties database is performed using the meson-python build backend.
+The build should be trigger via pip, which from the source directory can be done by executing
 
 .. code-block:: bash
 
@@ -258,14 +259,12 @@ on Windows systems.
 Notes for installing on Windows
 -------------------------------
 
-Since there is no packages manager on Windows the packages need to be installed manual
-(including all the dependecies) or a pre-packed solution needs two be used. We strongly suggest to
-use either `Anaconda <https://www.anaconda.com/distribution/>`_, `Python(x,y) <https://python-xy.github.io/>`_ or
-`WinPython <https://winpython.github.io/>`_ Python distributions,
-which include already all of the needed dependencies for installing *xrayutilities*.
+*xrayutilities* should work with the most common Python distributions. If you use `Anaconda <https://www.anaconda.com/distribution/>`_,
+consider using the `conda-forge *xrayutilities* package <https://anaconda.org/conda-forge/xrayutilities>`_.
+Using `Python(x,y) <https://python-xy.github.io/>`_, `WinPython <https://winpython.github.io/>`_, or Python from `www.python.org <https://www.python.org/>`_
+, the installation is easiest from the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ via `pip install xrayutilities` as described above.
 
-One can proceed with the installation of *xrayutilities* directly!
-The easiest way to do this on windows is to use the binaries distributed on the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_ or using *pip*, otherwise one can follow the general installation instructions. On Anaconda it can also be done using the `conda-forge *xrayutilities* package <https://anaconda.org/conda-forge/xrayutilities>`_.
+For building from source Microsoft Visual C++ (MSVC) or mingw are supported, but you should use the same compiler used by your Python distribution.
 
 .. _expapi:
 
@@ -285,4 +284,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
