@@ -3,7 +3,6 @@ requires = [
     "meson-python",
     "scipy",
     "h5py",
-    "setuptools",
     "wheel",
     # Note for packagers: the numpy version constraint is specific to wheels
     # for PyPI; it is also supported to build against 1.xx still.
