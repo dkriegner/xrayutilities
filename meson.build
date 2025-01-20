@@ -17,7 +17,7 @@ enable_openmp = get_option('enable_openmp')
 cc = meson.get_compiler('c')
 
 # Import Python module
-pyx = import('python').find_installation()
+pyx = import('python').find_installation(pure: false)
 
 # Fetch Numpy include directory
 numpy_include = run_command(pyx, '-c', 'import numpy; print(numpy.get_include())', check: true).stdout().strip()
