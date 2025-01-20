@@ -63,10 +63,17 @@ source = ["xrayutilities"]
 
 [tool.pylint]
 disable = ["invalid-name", "R", "C", "W"]
-extension-pkg-allow-list = ["xrayutilities.cxrayutilities"]
-ignored-modules = ["scipy.special"]
+extension-pkg-allow-list = ["xrayutilities.cxrayutilities", "scipy.special"]
 
 [tool.flake8]
-extend-ignore = ["E741", "E203"]
-per-file-ignores = ["__init__.py:F401"]
+per-file-ignores = [
+    "__init__.py:F401",
+    "lib/xrayutilities/materials/wyckpos.py:E741",
+]
 count = true
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint.extend-per-file-ignores]
+"lib/xrayutilities/materials/wyckpos.py" = ["E741"]
