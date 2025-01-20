@@ -85,6 +85,7 @@ When building from source you also might need:
 - numpydoc (optional - only when you want to build the documentation)
 - rst2pdf (optional - only when you want to build the documentation)
 - sphinx_rtd_theme (optional - only when you want to build the documentation)
+- sphinx-pyproject (optional - only when you want to build the documentation)
 - svglib (optional - only when you want to build the pdf documentation)
 
 refer to your operating system documentation to find out how to install
