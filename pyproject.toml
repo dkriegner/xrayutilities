@@ -48,6 +48,9 @@ dependencies = ["numpy>=1.9.2", "scipy>=0.18.0", "h5py", "lmfit>=1.0.1"]
 plot = ["matplotlib>=3.1.0"]
 3D = ["mayavi"]
 
+[tool.meson-python.args]
+setup = ['--vsenv']
+
 [project.urls]
 homepage = "https://xrayutilities.sourceforge.io"
 source = "https://github.com/dkriegner/xrayutilities"

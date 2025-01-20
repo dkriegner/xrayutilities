@@ -1,5 +1,5 @@
 project('xrayutilities', 'c',
-  version : run_command('python3', '-c',
+  version : run_command('python', '-c',
     '''
     try:
         import tomllib
