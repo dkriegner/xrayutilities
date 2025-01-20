@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2015-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2015-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module containing the Atom class which handles the database access for atomic
@@ -22,13 +22,14 @@ scattering factors and the atomic mass.
 import hashlib
 import os.path
 import re
+from importlib.resources import files
 
 import numpy
 
 from .. import config, utilities
-from . import __path__, database
+from . import database
 
-_db = database.DataBase(os.path.join(__path__[0], "data", config.DBNAME))
+_db = database.DataBase(files("xrayutilities.materials").joinpath("data", config.DBNAME))
 _db.Open()
 
 
