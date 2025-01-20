@@ -14,13 +14,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2017-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
-"""
-module handling crystal lattice structures. A SGLattice consists of a space
-group number and the position of atoms specified as Wyckoff positions along
-with their parameters. Depending on the space group symmetry only certain
-parameters of the resulting instance will be settable! A cubic lattice for
-example allows only to set its 'a' lattice parameter but none of the other unit
-cell shape parameters.
+"""module handling crystal lattice structures.
+
+A SGLattice consists of a space group number and the position of atoms
+specified as Wyckoff positions along with their parameters. Depending on the
+space group symmetry only certain parameters of the resulting instance will be
+settable! A cubic lattice for example allows only to set its 'a' lattice
+parameter but none of the other unit cell shape parameters.
 """
 
 import copy
@@ -1155,7 +1155,7 @@ class SGLattice:
         hklset : set
          set of allowed hkl reflections
         """
-        def recurse_hkl(h, k, l, kstep):
+        def recurse_hkl(h, k, l, kstep):  # noqa: E741
             if (h, k, l) in hkltested:
                 return
             m = self.B
@@ -1166,7 +1166,7 @@ class SGLattice:
                                               returnequivalents=True)
             hkltested.update(eqhkl)
             if not self.iscentrosymmetric:
-                hkltested.update((-h, -k, -l) for (h, k, l) in eqhkl)
+                hkltested.update((-ih, -ik, -il) for (ih, ik, il) in eqhkl)
             if allowed:
                 hklset.update(eqhkl)
                 if not self.iscentrosymmetric:

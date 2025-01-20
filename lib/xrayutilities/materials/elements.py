@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (C) 2010-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from .atom import Atom
 
@@ -33,7 +33,7 @@ B = Atom('B', 5)
 C = Atom('C', 6)
 Cdot = Atom('C.', 6)
 N = Atom('N', 7)
-O = Atom('O', 8)
+O = Atom('O', 8)  # noqa: E741
 O1m = Atom('O1-', 8)
 O2mdot = Atom('O2-.', 8)
 O2m = Atom('O2-.', 8)
@@ -137,7 +137,7 @@ Sb = Atom('Sb', 51)
 Sb3p = Atom('Sb3+', 51)
 Sb5p = Atom('Sb5+', 51)
 Te = Atom('Te', 52)
-I = Atom('I', 53)
+I = Atom('I', 53)  # noqa: E741
 I1m = Atom('I1-', 53)
 Xe = Atom('Xe', 54)
 Cs = Atom('Cs', 55)

@@ -15,19 +15,30 @@
 #
 # Copyright (C) 2011-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-"""
-xrayutilities.analysis is a package for assisting with the analysis of
-x-ray diffraction data, mainly reciprocal space maps
+"""Package for assisting with the analysis of x-ray diffraction data.
 
+Functions here are mainl focussed on reciprocal space maps.
 Routines for obtaining line cuts from gridded reciprocal space maps are
 offered, with the ability to integrate the intensity perpendicular to the
 line cut direction.
 """
 
-from .line_cuts import (get_arbitrary_line, get_omega_scan, get_qx_scan,
-                        get_qy_scan, get_qz_scan, get_radial_scan,
-                        get_ttheta_scan)
-from .misc import coplanar_intensity, getangles, getunitvector
-from .sample_align import (area_detector_calib, area_detector_calib_hkl,
-                           fit_bragg_peak, linear_detector_calib, miscut_calc,
-                           psd_chdeg, psd_refl_align)
+from .line_cuts import (  # noqa: F401
+                        get_arbitrary_line,
+                        get_omega_scan,
+                        get_qx_scan,
+                        get_qy_scan,
+                        get_qz_scan,
+                        get_radial_scan,
+                        get_ttheta_scan,
+)
+from .misc import coplanar_intensity, getangles, getunitvector  # noqa: F401
+from .sample_align import (  # noqa: F401
+                        area_detector_calib,
+                        area_detector_calib_hkl,
+                        fit_bragg_peak,
+                        linear_detector_calib,
+                        miscut_calc,
+                        psd_chdeg,
+                        psd_refl_align,
+)

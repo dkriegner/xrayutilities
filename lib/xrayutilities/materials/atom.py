@@ -15,12 +15,12 @@
 #
 # Copyright (c) 2015-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-"""
-module containing the Atom class which handles the database access for atomic
-scattering factors and the atomic mass.
+"""module handling physical properties of elements.
+
+The Atom class manages the database access for atomic scattering factors and
+the atomic mass.
 """
 import hashlib
-import os.path
 import re
 from importlib.resources import files
 
@@ -29,13 +29,13 @@ import numpy
 from .. import config, utilities
 from . import database
 
-_db = database.DataBase(files("xrayutilities.materials").joinpath("data", config.DBNAME))
+dbfile = files("xrayutilities.materials") / "data" / config.DBNAME
+_db = database.DataBase(dbfile)
 _db.Open()
 
 
 def get_key(*args):
-    """
-    generate a hash key for several possible types of arguments
+    """Generate a hash key for several possible types of arguments
     """
     tup = []
     for a in args:
@@ -65,11 +65,11 @@ class Atom:
         self._dbcache = {prop: [] for prop in ('f0', 'f1', 'f2', 'f')}
 
     def __key__(self):
-        """ key function to return the elements number """
+        """Key function to return the elements number"""
         return self.num
 
     def __lt__(self, other_el):
-        """ make elements sortable by their key """
+        """Make elements sortable by their key"""
         return self.__key__() < other_el.__key__()
 
     @property
@@ -94,8 +94,7 @@ class Atom:
         return self.__radius
 
     def get_cache(self, prop, key):
-        """
-        check if a cached value exists to speed up repeated database requests
+        """Check cached value to speed up repeated database requests.
 
         Returns
         -------
@@ -103,6 +102,7 @@ class Atom:
             True then result contains the cached otherwise False and result is
             None
         result :    database value
+
         """
         history = self._dbcache[prop]
         for idx, (k, result) in enumerate(history):
@@ -112,8 +112,7 @@ class Atom:
         return False, None
 
     def set_cache(self, prop, key, result):
-        """
-        set result to be cached to speed up future calls
+        """Set result to be cached to speed up future calls
         """
         history = self._dbcache[prop]
         if len(history) == self.max_cache_length:
@@ -157,8 +156,7 @@ class Atom:
         return res
 
     def f(self, q, en='config'):
-        """
-        function to calculate the atomic structure factor F
+        """Function to calculate the atomic structure factor F
 
         Parameters
         ----------
@@ -172,6 +170,7 @@ class Atom:
         -------
         float or array-like
             value(s) of the atomic structure factor
+
         """
         key = get_key(q, en)
         f, res = self.get_cache('f', key)

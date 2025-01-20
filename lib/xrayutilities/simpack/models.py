@@ -332,8 +332,8 @@ class KinematicalModel(LayerModel):
         # calculate structure factors
         f = numpy.empty((len(self.lstack), len(qz)), dtype=complex)
         fhkl = numpy.empty(len(self.lstack), dtype=complex)
-        for i, l in enumerate(self.lstack):
-            m = l.material
+        for i, layer in enumerate(self.lstack):
+            m = layer.material
             fhkl[i] = m.StructureFactor(m.Q(*hkl), en=self.energy) /\
                 m.lattice.UnitCellVolume()
             f[i, :] = m.StructureFactorForQ(qv, en0=self.energy) /\
@@ -390,19 +390,19 @@ class KinematicalModel(LayerModel):
         rel, ai, af, _, fhkl, E, t = self._prepare_kincalculation(qz, hkl)
         # calculate interface positions
         z = numpy.zeros(len(self.lstack))
-        for i, l in enumerate(self.lstack[-1:0:-1]):
-            z[-i-2] = z[-i-1] - l.thickness
+        for i, layer in enumerate(self.lstack[-1:0:-1]):
+            z[-i-2] = z[-i-1] - layer.thickness
 
         # perform kinematical calculation
-        for i, l in enumerate(self.lstack):
+        for i, layer in enumerate(self.lstack):
             q = self._get_qz(qz, ai, af, self.chi0[i], absorption, refraction)
-            q -= t(l.material.Q(*hkl))[-1]
+            q -= t(layer.material.Q(*hkl))[-1]
 
-            if l.thickness == numpy.inf:
+            if layer.thickness == numpy.inf:
                 E += fhkl[i] * numpy.exp(-1j * z[i] * q) / (1j * q)
             else:
                 E += fhkl[i] * numpy.exp(-1j * q * z[i]) * \
-                    (1 - numpy.exp(1j * q * l.thickness)) / (1j * q)
+                    (1 - numpy.exp(1j * q * layer.thickness)) / (1j * q)
 
         wf = numpy.sqrt(heaviside(ai) * heaviside(af) * rel**2 /
                         (numpy.sin(ai) * numpy.sin(af))) * E
@@ -478,28 +478,30 @@ class KinematicalMultiBeamModel(KinematicalModel):
 
         # calculate interface positions for integer unit-cell thickness
         z = numpy.zeros(len(self.lstack))
-        for i, l in enumerate(self.lstack[-1:0:-1]):
-            lat = l.material.lattice
+        for i, layer in enumerate(self.lstack[-1:0:-1]):
+            lat = layer.material.lattice
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
-            n3 = l.thickness // a3
+            n3 = layer.thickness // a3
             z[-i-2] = z[-i-1] - a3 * n3
             if config.VERBOSITY >= config.INFO_LOW and \
-                    numpy.abs(l.thickness/a3 - n3) > 0.01:
-                print('XU.KinematicMultiBeamModel: %s thickness changed from'
-                      ' %.2fA to %.2fA (%d UCs)' % (l.name, l.thickness,
-                                                    a3 * n3, n3))
+                    numpy.abs(layer.thickness/a3 - n3) > 0.01:
+                print(
+                    f'XU.KinematicMultiBeamModel: {layer.name} thickness '
+                    f'changed from {layer.thickness:.2f}A to {a3 * n3:.2f}A'
+                    f' ({n3} UCs)'
+                )
 
         # perform kinematical calculation
-        for i, l in enumerate(self.lstack):
+        for i, layer in enumerate(self.lstack):
             q = self._get_qz(qz, ai, af, self.chi0[i], absorption, refraction)
-            lat = l.material.lattice
+            lat = layer.material.lattice
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
 
-            if l.thickness == numpy.inf:
+            if layer.thickness == numpy.inf:
                 E += f[i, :] * a3 * numpy.exp(-1j * z[i] * q) /\
                     (1 - numpy.exp(1j * q * a3))
             else:
-                n3 = l.thickness // a3
+                n3 = layer.thickness // a3
                 E += f[i, :] * a3 * numpy.exp(-1j * z[i] * q) * \
                     (1 - numpy.exp(1j * q * a3 * n3)) /\
                     (1 - numpy.exp(1j * q * a3))
@@ -636,8 +638,8 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
 
         # calculate vertical diffraction vector components and strain
         hz = numpy.zeros(len(self.lstack))
-        for i, (hkl, l) in enumerate(zip(self.hkl, self.lstack)):
-            hz[i] = t(l.material.Q(*hkl))[2]
+        for i, (hkl, layer) in enumerate(zip(self.hkl, self.lstack)):
+            hz[i] = t(layer.material.Q(*hkl))[2]
         return t, hx, hz
 
     def simulate(self, alphai, hkl=None, geometry='hi_lo', idxref=1):
@@ -686,7 +688,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         xs = None  # avoid linting error in code below
         for pol in self.get_polarizations():
             x = numpy.zeros(len(alphai), dtype=complex)
-            for i, l in enumerate(self.lstack):
+            for i, layer in enumerate(self.lstack):
                 beta = (2 * eta * numpy.sin(2 * thetaB) +
                         self.chi0[i] * (1 - gammah / gamma0) -
                         2 * gammah * (gamma0 - gammah) * epsilon[i])
@@ -710,7 +712,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
                     m = pp >= 1
                     x[m] = c2[m]
                 else:  # layers
-                    cphi = numpy.exp(1j * kz2mkz1 * l.thickness)
+                    cphi = numpy.exp(1j * kz2mkz1 * layer.thickness)
                     x = (c1 * c2 * (cphi - 1) + xs * (c1 - cphi * c2)) /\
                         (cphi * c1 - c2 + xs * (1 - cphi))
                 xs = x
@@ -800,7 +802,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
             for j in range(4):
                 M[:, j, j] = numpy.ones(nal)
 
-            for i, l in enumerate(self.lstack[-1::-1]):
+            for i, layer in enumerate(self.lstack[-1::-1]):
                 jL = len(self.lstack) - 1 - i
                 A4 = numpy.ones(nal)
                 A3 = 2 * hz[jL] * numpy.ones(nal)
@@ -821,7 +823,9 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                     self.chimh['S'][jL] / CC[:, numpy.newaxis]
                 if jL > 0:
                     for j in range(4):
-                        phi[:, j, j] = numpy.exp(1j * kz[:, j] * l.thickness)
+                        phi[:, j, j] = numpy.exp(
+                            1j * kz[:, j] * layer.thickness
+                        )
                 else:
                     phi = numpy.tile(numpy.identity(4), (nal, 1, 1))
                 P[:, 0, :] = numpy.ones((nal, 4))
@@ -2062,16 +2066,16 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
         atoms = []
         elements = []
         density = 0
-        for idxl, l in enumerate(layerstack):
+        for idxl, layer in enumerate(layerstack):
             if W[idxl][idxp] > cutoff:
-                for at, occ in l.material.base:
+                for at, occ in layer.material.base:
                     if at in elements:
                         i = elements.index(at)
                         atoms[i] = (at, atoms[i][1] + occ * W[idxl][idxp])
                     else:
                         atoms.append((at, occ * W[idxl][idxp]))
                         elements.append(at)
-                density += W[idxl][idxp] * l.density
+                density += W[idxl][idxp] * layer.density
 
         if density != 0:
             mat = Amorphous(f"slice {idxp}", density, atoms=atoms)

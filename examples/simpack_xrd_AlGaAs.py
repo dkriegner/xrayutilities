@@ -15,11 +15,21 @@
 #
 # Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from numpy import inf, linspace, mean, pi, sqrt
-from matplotlib.pylab import (clf, figure, legend, mpl, semilogy, show,
-                              tight_layout, vlines, xlabel, xlim, ylabel)
-
 import xrayutilities as xu
+from matplotlib.pylab import (
+                              clf,
+                              figure,
+                              legend,
+                              mpl,
+                              semilogy,
+                              show,
+                              tight_layout,
+                              vlines,
+                              xlabel,
+                              xlim,
+                              ylabel,
+)
+from numpy import inf, linspace, mean, pi, sqrt
 
 mpl.rcParams['font.size'] = 16.0
 
@@ -68,7 +78,8 @@ semilogy(qz, Imult, label='multibeam')
 semilogy(xu.simpack.get_qz(qx, ai, en), Idynsub, label='simpl. dynamical(S)')
 semilogy(xu.simpack.get_qz(qx, ai, en), Idynlay, label='simpl. dynamical(L)')
 semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
-vlines([4*2*pi/l.material.a3[-1] for l in pls], 1e-6, 1, linestyles='dashed')
+vlines([4*2*pi/layer.material.a3[-1] for layer in pls],
+       1e-6, 1, linestyles='dashed')
 legend(fontsize='small')
 xlim(qz.min(), qz.max())
 xlabel(r'Qz ($1/\mathrm{\AA}$)')

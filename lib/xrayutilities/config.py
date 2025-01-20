@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2010-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2010-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 module to parse xrayutilities user-specific config file
@@ -28,7 +28,7 @@ import configparser
 import math
 import os.path
 from ast import literal_eval
-from importlib import resources
+from importlib.resources import files
 
 from . import utilities_noconf
 
@@ -56,7 +56,8 @@ def trytomake(obj, key, typefunc):
 
 
 # read global default values for configuration variables
-with resources.open_text("xrayutilities", "xrayutilities_default.conf") as conffile:
+_default_conf = files("xrayutilities") / "xrayutilities_default.conf"
+with open(_default_conf, "r") as conffile:
     xuParser.read_file(conffile)
 
 # read user configuration and local configuration if available
