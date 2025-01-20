@@ -41,6 +41,7 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
 ]
+requires-python = ">=3.7,<4.0"
 dependencies = ["numpy>=1.9.2", "scipy>=0.18.0", "h5py", "lmfit>=1.0.1"]
 
 [project.optional-dependencies]
