@@ -16,9 +16,7 @@
 # Copyright (C) 2009 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-"""
-xrayutilities is a Python package for assisting with x-ray diffraction
-experiments. Its the Python package included in *xrayutilities*.
+"""xrayutilities assisting with x-ray diffraction experiments.
 
 It helps with planning experiments as well as analyzing the data.
 
@@ -29,17 +27,37 @@ Authors:
 from importlib.metadata import version
 
 # load configuration
-from . import analysis, config, io, materials, math, simpack
-from .experiment import (GID, GISAXS, HXRD, Experiment, FourC, NonCOP,
-                         PowderExperiment, QConversion)
-from .gridder import FuzzyGridder1D, Gridder1D, npyGridder1D
-from .gridder2d import FuzzyGridder2D, Gridder2D, Gridder2DList
-from .gridder3d import FuzzyGridder3D, Gridder3D
-from .normalize import (IntensityNormalizer, blockAverage1D, blockAverage2D,
-                        blockAverageCCD, blockAveragePSD)
-from .q2ang_fit import Q2AngFit
-from .utilities import (en2lam, energy, frac2str, lam2en, makeNaturalName,
-                        maplog, wavelength)
+from . import analysis, config, io, materials, math, simpack  # noqa: F401
+from .experiment import (  # noqa: F401
+                         GID,
+                         GISAXS,
+                         HXRD,
+                         Experiment,
+                         FourC,
+                         NonCOP,
+                         PowderExperiment,
+                         QConversion,
+)
+from .gridder import FuzzyGridder1D, Gridder1D, npyGridder1D  # noqa: F401
+from .gridder2d import FuzzyGridder2D, Gridder2D, Gridder2DList  # noqa: F401
+from .gridder3d import FuzzyGridder3D, Gridder3D  # noqa: F401
+from .normalize import (  # noqa: F401
+                         IntensityNormalizer,
+                         blockAverage1D,
+                         blockAverage2D,
+                         blockAverageCCD,
+                         blockAveragePSD,
+)
+from .q2ang_fit import Q2AngFit  # noqa: F401
+from .utilities import (  # noqa: F401
+                         en2lam,
+                         energy,
+                         frac2str,
+                         lam2en,
+                         makeNaturalName,
+                         maplog,
+                         wavelength,
+)
 
 # load package version
 __version__ = version("xrayutilities")

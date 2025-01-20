@@ -16,19 +16,40 @@
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
 # Copyright (C) 2009-2019 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from .cbf import CBFDirectory, CBFFile
-from .desy_tty08 import gettty08_scan, tty08File
-from .edf import EDFDirectory, EDFFile
-from .fastscan import FastScan, FastScanCCD, FastScanSeries
-from .helper import xu_h5open, xu_open
-from .ill_numor import numor_scan, numorFile
-from .imagereader import (ImageReader, PerkinElmer, Pilatus100K, RoperCCD,
-                          TIFFRead, get_tiff)
-from .panalytical_xml import XRDMLFile, getxrdml_map, getxrdml_scan
-from .pdcif import pdCIF, pdESG
-from .rigaku_ras import RASFile, RASScan, getras_scan
+from .cbf import CBFDirectory, CBFFile  # noqa: F401
+from .desy_tty08 import gettty08_scan, tty08File  # noqa: F401
+from .edf import EDFDirectory, EDFFile  # noqa: F401
+from .fastscan import FastScan, FastScanCCD, FastScanSeries  # noqa: F401
+from .helper import xu_h5open, xu_open  # noqa: F401
+from .ill_numor import numor_scan, numorFile  # noqa: F401
+from .imagereader import (  # noqa: F401
+    ImageReader,
+    PerkinElmer,
+    Pilatus100K,
+    RoperCCD,
+    TIFFRead,
+    get_tiff,
+)
+from .panalytical_xml import (  # noqa: F401
+    XRDMLFile,
+    getxrdml_map,
+    getxrdml_scan,
+)
+from .pdcif import pdCIF, pdESG  # noqa: F401
+from .rigaku_ras import RASFile, RASScan, getras_scan  # noqa: F401
+
 # parser for the alignment log file of the rotating anode
-from .rotanode_alignment import RA_Alignment
-from .seifert import SeifertMultiScan, SeifertScan, getSeifert_map
-from .spec import SPECFile, SPECLog, SPECScan, geth5_scan, getspec_scan
-from .spectra import SPECTRAFile, geth5_spectra_map
+from .rotanode_alignment import RA_Alignment  # noqa: F401
+from .seifert import (  # noqa: F401
+    SeifertMultiScan,
+    SeifertScan,
+    getSeifert_map,
+)
+from .spec import (  # noqa: F401
+    SPECFile,
+    SPECLog,
+    SPECScan,
+    geth5_scan,
+    getspec_scan,
+)
+from .spectra import SPECTRAFile, geth5_spectra_map  # noqa: F401

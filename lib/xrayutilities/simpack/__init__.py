@@ -14,8 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2012-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
-"""
-simulation subpackage of xrayutilities.
+"""simulation subpackage of xrayutilities.
 
 This package provides possibilities to simulate X-ray diffraction and
 reflectivity curves of thin film samples. It could be extended for more
@@ -25,20 +24,44 @@ In addition it provides a fitting routine for reflectivity data which is based
 on lmfit.
 """
 
-from .darwin_theory import (DarwinModel, DarwinModelAlGaAs001,
-                            DarwinModelAlloy, DarwinModelGaInAs001,
-                            DarwinModelSiGe001, GradedBuffer)
-from .fit import FitModel
-from .helpers import coplanar_alphaf, coplanar_alphai, get_qz
-from .models import (DiffuseReflectivityModel, DynamicalModel,
-                     DynamicalReflectivityModel, KinematicalModel,
-                     KinematicalMultiBeamModel, LayerModel, Model,
-                     SimpleDynamicalCoplanarModel, SpecularReflectivityModel,
-                     effectiveDensitySlicing)
-from .mosaicity import mosaic_analytic
-from .powder import FP_profile, PowderDiffraction
-from .powdermodel import PowderModel, Rietveld_error_metrics, plot_powder
-from .smaterials import (CrystalStack, GradedLayerStack, Layer, LayerStack,
-                         MaterialList, Powder, PowderList,
-                         PseudomorphicStack001, PseudomorphicStack111,
-                         SMaterial)
+from .darwin_theory import (  # noqa: F401
+                            DarwinModel,
+                            DarwinModelAlGaAs001,
+                            DarwinModelAlloy,
+                            DarwinModelGaInAs001,
+                            DarwinModelSiGe001,
+                            GradedBuffer,
+)
+from .fit import FitModel  # noqa: F401
+from .helpers import coplanar_alphaf, coplanar_alphai, get_qz  # noqa: F401
+from .models import (  # noqa: F401
+                            DiffuseReflectivityModel,
+                            DynamicalModel,
+                            DynamicalReflectivityModel,
+                            KinematicalModel,
+                            KinematicalMultiBeamModel,
+                            LayerModel,
+                            Model,
+                            SimpleDynamicalCoplanarModel,
+                            SpecularReflectivityModel,
+                            effectiveDensitySlicing,
+)
+from .mosaicity import mosaic_analytic  # noqa: F401
+from .powder import FP_profile, PowderDiffraction  # noqa: F401
+from .powdermodel import (  # noqa: F401
+                            PowderModel,
+                            Rietveld_error_metrics,
+                            plot_powder,
+)
+from .smaterials import (  # noqa: F401
+                            CrystalStack,
+                            GradedLayerStack,
+                            Layer,
+                            LayerStack,
+                            MaterialList,
+                            Powder,
+                            PowderList,
+                            PseudomorphicStack001,
+                            PseudomorphicStack111,
+                            SMaterial,
+)
