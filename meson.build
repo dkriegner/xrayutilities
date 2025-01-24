@@ -1,23 +1,12 @@
-project('xrayutilities', 'c',
-  version : run_command('python', '-c',
-    '''
-    try:
-        import tomllib
-    except ImportError:
-        import tomli as tomllib
-    with open("pyproject.toml", "rb") as f:
-        print(tomllib.load(f)["project"]["version"])
-    '''
-  ).stdout().strip()
-)
+project('xrayutilities', 'c', version : '1.7.10')
 
-enable_openmp = get_option('enable_openmp')
+use_openmp = get_option('use_openmp')
 
 # Fetch the C compiler
 cc = meson.get_compiler('c')
 
 # Import Python module
-pyx = import('python').find_installation()
+pyx = import('python').find_installation(pure: false)
 
 # Fetch Numpy include directory
 numpy_include = run_command(pyx, '-c', 'import numpy; print(numpy.get_include())', check: true).stdout().strip()
@@ -26,25 +15,7 @@ numpy_include = run_command(pyx, '-c', 'import numpy; print(numpy.get_include())
 include_dirs = include_directories('src', numpy_include)
 
 # Find OpenMP dependency
-openmp_dep = dependency('openmp', required : enable_openmp)
-
-# Handle OpenMP support based on the option and dependency status
-if enable_openmp
-  if not openmp_dep.found()
-    error('OpenMP was explicitly enabled but could not be found on this system.')
-  else
-    message('OpenMP support enabled')
-    # Add compiler-specific OpenMP flags
-    if cc.get_id() == 'gcc' or cc.get_id() == 'clang' or cc.get_id() == 'mingw'
-      add_project_arguments('-fopenmp', language: 'c')
-      add_project_link_arguments('-lgomp', language: 'c')
-    elif cc.get_id() == 'msvc'
-      add_project_arguments('/openmp', language: 'c')
-    endif
-  endif
-else
-  message('OpenMP support disabled')
-endif
+openmp_dep = dependency('openmp', required : use_openmp)
 
 # Add the Python extension module
 pyx.extension_module(
@@ -62,7 +33,8 @@ pyx.extension_module(
   ),
   include_directories : include_dirs,
   install: true,
-  install_dir: join_paths(pyx.get_install_dir(), 'xrayutilities'),
+  subdir: 'xrayutilities',
+  dependencies: openmp_dep,
 )
 
 # Install the Python extension
