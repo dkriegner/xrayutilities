@@ -118,13 +118,13 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
     outarr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
     cout = (double *) PyArray_DATA(outarr);
 
-    #ifdef __OPENMP__
+#ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #endif
 
     #pragma omp parallel for default(shared) \
      private(i, j, k, l, buf) schedule(static)
+#endif
     for (i = 0; i < Nch2; i = i + Nav2) {
         for (j = 0; j < Nch1; j = j + Nav1) {
             buf = 0.;
@@ -183,14 +183,14 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     outarr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
     cout = (double *) PyArray_DATA(outarr);
 
-    #ifdef __OPENMP__
+#ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #endif
 
     /* c-code following is performing the block averaging */
     #pragma omp parallel for default(shared) private(i, j, k, buf) \
      schedule(static)
+#endif
     for (i = 0; i < Nspec; ++i) {
         for (j = 0; j < Nch; j = j + Nav) {
             buf = 0;
@@ -258,13 +258,13 @@ PyObject* block_average_CCD(PyObject *self, PyObject *args) {
     outarr = (PyArrayObject *) PyArray_SimpleNew(3, nout, NPY_DOUBLE);
     cout = (double *) PyArray_DATA(outarr);
 
-    #ifdef __OPENMP__
+#ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #endif
 
     #pragma omp parallel for default(shared) \
      private(i, j, k, l, n, buf) schedule(static)
+#endif
     for (n = 0; n < Nframes; n++) {
         for (i = 0; i < Nch2; i = i + Nav2) {
             for (j = 0; j < Nch1; j = j + Nav1) {

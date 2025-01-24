@@ -852,9 +852,11 @@ int ang2q_conversion(double *sampleAngles, double *detectorAngles,
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, ki, mtemp, mtemp2, ms, md) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* determine sample rotations */
         ident(mtemp);
@@ -947,9 +949,11 @@ int ang2q_conversion_sd(
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, mtemp, mtemp2, ms, md) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* determine sample rotations */
         ident(mtemp);
@@ -1041,9 +1045,11 @@ int ang2q_conversion_trans(
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, mtemp, mtemp2, ms, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* determine sample rotations */
         ident(mtemp);
@@ -1134,9 +1140,11 @@ int ang2q_conversion_sdtrans(
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, mtemp, mtemp2, ms, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* determine sample rotations */
         ident(mtemp);
@@ -1437,9 +1445,11 @@ int ang2q_conversion_linear(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* length of k */
         f = M_2PI / lambda[i];
@@ -1554,9 +1564,11 @@ int ang2q_conversion_linear_sd(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* length of k */
         f = M_2PI / lambda[i];
@@ -1672,9 +1684,11 @@ int ang2q_conversion_linear_trans(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* length of k */
         f = M_2PI / lambda[i];
@@ -1785,9 +1799,11 @@ int ang2q_conversion_linear_sdtrans(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* length of k */
         f = M_2PI / lambda[i];
@@ -2125,9 +2141,11 @@ int ang2q_conversion_area(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         f = M_2PI / lambda[i];
         /* determine sample rotations */
@@ -2268,9 +2286,11 @@ int ang2q_conversion_area_sd(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* length of k */
         f = M_2PI / lambda[i];
@@ -2412,9 +2432,11 @@ int ang2q_conversion_area_trans(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         f = M_2PI / lambda[i];
         /* determine sample rotations */
@@ -2555,9 +2577,11 @@ int ang2q_conversion_area_sdtrans(
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         f = M_2PI / lambda[i];
         /* determine sample rotations */
@@ -2739,9 +2763,11 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, k, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* calculate momentum transfer for the detector pixel n1[i], n2[i] */
         for (k = 0; k < 3; ++k) {
@@ -2936,9 +2962,11 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, k, mtemp, mtemp2, ms, rd) \
             schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* determine sample rotations */
         ident(mtemp);
@@ -3069,8 +3097,10 @@ PyObject* ang2q_detpos(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, rd) schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         /* determine detector rotations */
         veccopy(rd, ri);
@@ -3196,8 +3226,10 @@ PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, k, rd) schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         for (j = roi[0]; j < roi[1]; ++j) {
             for (k = 0; k < 3; ++k) {
@@ -3350,8 +3382,10 @@ PyObject* ang2q_detpos_area(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
+#ifdef __OPENMP__
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, rd) schedule(static)
+#endif
     for (i = 0; i < Npoints; ++i) {
         for (j1 = roi[0]; j1 < roi[1]; ++j1) {
             for (j2 = roi[2]; j2 < roi[3]; ++j2) {
