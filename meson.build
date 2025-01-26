@@ -22,6 +22,7 @@ pyx.extension_module(
   'cxrayutilities',  # Python extension name
   sources : files(
     'src/cxrayutilities.c',
+    'src/array_utils.c',
     'src/block_average.c',
     'src/file_io.c',
     'src/gridder1d.c',

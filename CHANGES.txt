@@ -1,3 +1,5 @@
+* fix a memory leak in the c-code (not freed memory of function pointers)
+* improved error checking and clean up in c-code
 * convert to meson-python bases build system
 
 v1.7.10, 2025-01-17

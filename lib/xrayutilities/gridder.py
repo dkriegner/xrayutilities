@@ -44,7 +44,8 @@ def delta(min_value, max_value, n):
    n :	 number of steps
     """
     if n != 1:
-        return (float(max_value) - float(min_value)) / float(n - 1)
+        return (numpy.double(max_value) - numpy.double(min_value)) / \
+               numpy.double(n - 1)
     return numpy.inf
 
 
@@ -64,7 +65,7 @@ def axis(min_value, max_value, n):
 
     if n != 1:
         d = delta(min_value, max_value, n)
-        a = min_value + d * numpy.arange(0, n)
+        a = min_value + d * numpy.arange(0, n, dtype=numpy.double)
     else:
         a = (min_value + max_value) / 2.
 
@@ -170,7 +171,7 @@ class Gridder(utilities.ABC):
         """
         if isinstance(a, (list, tuple, float, int)):
             a = numpy.asarray(a)
-        return a.reshape(a.size)
+        return a.reshape(a.size).astype(numpy.double)
 
     def Clear(self):
         """
