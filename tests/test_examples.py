@@ -71,6 +71,7 @@ cleanup_files = [
     'xrrfit.dat',
 ]
 
+
 class TestExampleScripts(unittest.TestCase):
     def test_examples(self):
         """Testrun example scripts."""
