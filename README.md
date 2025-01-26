@@ -46,11 +46,6 @@ Using the python package manager pip you can install xrayutilities by executing
 
     pip install xrayutilities
 
-or for a user installation (without admin access) use
-
-    pip install --user xrayutilities
-
-
 Installation (source)
 =====================
 Installing xrayutilities from source is an easy process done by executing
@@ -61,7 +56,11 @@ By default the installation procedure enables OpenMP support (recommended).
 It fails if no OpenMP support is available. It can be disabled by using the
 the following custom meson option for the installation:
 
-    pip install . --config-settings=setup-args="-Denable_openmp=false"
+    pip install . --config-settings=setup-args="-Duse_openmp=disabled"
+
+To allow to proceed with the installation without OpenMP but use it if available use:
+
+    pip install . --config-settings=setup-args="-Duse_openmp=auto"
 
 Requirements
 ------------

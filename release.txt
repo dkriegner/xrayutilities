@@ -8,8 +8,8 @@ CHECK EVERYTHING
 
 Is everything running fine? perform the tests and run the examples
 
-  # change the version in lib/xrayutilties/VERSION
-  # update copyright notice in doc/source/conf.py and README.md
+  # change the version in meson.build
+  # update copyright notice in README.md
   pycodestyle lib
   # allowed output is:
 lib/xrayutilities/materials/elements.py:36:1: E741 ambiguous variable name 'O'

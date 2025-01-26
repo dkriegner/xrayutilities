@@ -1,1 +1,1 @@
-option('enable_openmp', type: 'boolean', value: true, description: 'Enable OpenMP support')
+option('use_openmp', type: 'feature', value: 'enabled', description: 'Use OpenMP support')
