@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010-2011, 2013 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2010-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
 #include "xrayutilities.h"
 
 PyObject* block_average1d(PyObject *self, PyObject *args) {
-    /*    block average for one-dimensional double array
+    /* block average for one-dimensional double array
      *
      *    Parameters
      *    ----------
@@ -33,29 +33,42 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
      *                  size = ceil(N/Nav)
      *
      */
-
     int i, j, Nav, N;
-    PyArrayObject *input = NULL, *outarr = NULL;
+    PyArrayObject *inputArr = NULL, *outarr = NULL;
+    PyObject *inputObj = NULL;
     double *cin, *cout;
     double buf;
     npy_intp nout;
+    PyObject *result = NULL;
 
     /* Python argument conversion code */
-    if (!PyArg_ParseTuple(args, "O!i", &PyArray_Type, &input, &Nav)) {
+    if (!PyArg_ParseTuple(args, "O!i", &PyArray_Type, &inputObj, &Nav)) {
         return NULL;
     }
 
-    PYARRAY_CHECK(input, 1, NPY_DOUBLE, "input must be a 1D double array!");
-    N = (int) PyArray_SIZE(input);
-    cin = (double *) PyArray_DATA(input);
+    inputArr = check_and_convert_to_contiguous(inputObj, 1, NPY_DOUBLE, "input");
+    if (!inputArr) goto cleanup;
+
+    N = (int) PyArray_SIZE(inputArr);
+    cin = (double *) PyArray_DATA(inputArr);
+
+    /* Check for division by zero */
+    if (Nav <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Nav must be greater than 0");
+        goto cleanup;
+    }
 
     /* create output ndarray */
-    nout = ((int) ceil(N / (float) Nav));
-    outarr = (PyArrayObject *) PyArray_SimpleNew(1, &nout, NPY_DOUBLE);
+    nout = (npy_intp)ceil(N / (double)Nav); // Use double for ceil to avoid int truncation
+    outarr = (PyArrayObject *)PyArray_SimpleNew(1, &nout, NPY_DOUBLE);
+    if (!outarr) {
+        PyErr_NoMemory(); // Set appropriate error
+        goto cleanup;
+    }
     cout = (double *) PyArray_DATA(outarr);
 
     /* c-code following is performing the block averaging */
-    for (i = 0; i < N; i = i + Nav) {
+    for (i = 0; i < N; i += Nav) {
         buf = 0;
         /* perform one block average (j-i serves as counter
            -> last bin is therefore correct) */
@@ -63,14 +76,15 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
             buf += cin[j];
         }
         /* save average to output array */
-        cout[i / Nav] = buf / (float) (j - i);
+        cout[i / Nav] = buf / (double)(j - i);
     }
 
-    /* clean up */
-    Py_DECREF(input);
-
     /* return output array */
-    return PyArray_Return(outarr);
+    result = PyArray_Return(outarr); // Transfers ownership of outarr
+
+cleanup:
+    Py_XDECREF(inputArr); // Decref input only if an error occurred
+    return result;
 }
 
 PyObject* block_average2d(PyObject *self, PyObject *args) {
@@ -91,32 +105,46 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
      *                  size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1))
      *
      */
-
     int i = 0, j = 0, k = 0, l = 0;  /* loop indices */
     int Nch1, Nch2;  /* number of values in input array */
     int Nav1, Nav2;  /* number of items to average */
     unsigned int nthreads;  /* number of threads to use */
-    PyArrayObject *input = NULL, *outarr = NULL;
+    PyArrayObject *inputArr = NULL, *outarr = NULL;
+    PyObject *inputObj = NULL;
     double *cin, *cout;
     double buf;
     npy_intp nout[2];
+    PyObject *result = NULL;
 
     /* Python argument conversion code */
-    if (!PyArg_ParseTuple(args, "O!iiI", &PyArray_Type, &input, &Nav2,
+    if (!PyArg_ParseTuple(args, "O!iiI", &PyArray_Type, &inputObj, &Nav2,
                           &Nav1, &nthreads)) {
         return NULL;
     }
 
-    PYARRAY_CHECK(input, 2, NPY_DOUBLE, "input must be a 2D double array!");
-    Nch2 = (int) PyArray_DIMS(input)[0];
-    Nch1 = (int) PyArray_DIMS(input)[1];
-    cin = (double *) PyArray_DATA(input);
+    inputArr = check_and_convert_to_contiguous(inputObj, 2, NPY_DOUBLE, "input");
+    if (!inputArr) goto cleanup;
+
+    Nch2 = (int)PyArray_DIMS(inputArr)[0];
+    Nch1 = (int)PyArray_DIMS(inputArr)[1];
+    cin = (double *)PyArray_DATA(inputArr);
+
+    /* Check for division by zero */
+    if (Nav1 <= 0 || Nav2 <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Nav1 and Nav2 must be greater than 0");
+        goto cleanup;
+    }
 
     /* create output ndarray */
-    nout[0] = ((int) ceil(Nch2 / (float) Nav2));
-    nout[1] = ((int) ceil(Nch1 / (float) Nav1));
-    outarr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
-    cout = (double *) PyArray_DATA(outarr);
+    nout[0] = (npy_intp)ceil((double)Nch2 / Nav2);
+    nout[1] = (npy_intp)ceil((double)Nch1 / Nav1);
+    outarr = (PyArrayObject *)PyArray_ZEROS(2, nout, NPY_DOUBLE, 0);
+    if (outarr == NULL) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
+
+    cout = (double *)PyArray_DATA(outarr);
 
 #ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
@@ -133,14 +161,17 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
                     buf += cin[(i + k) * Nch1 + (j + l)];
                 }
             }
-            cout[(i / Nav2) * nout[1] + j / Nav1] = buf / (float)(k * l);
+            cout[(i / Nav2) * nout[1] + j / Nav1] = buf / (double)(k * l);
         }
     }
 
-    /* clean up */
-    Py_DECREF(input);
+    result = PyArray_Return(outarr);
 
-    return PyArray_Return(outarr);
+cleanup:
+    Py_XDECREF(inputArr);
+    if (!result && outarr) Py_XDECREF(outarr);
+
+    return result;
 }
 
 PyObject* block_average_PSD(PyObject *self, PyObject *args) {
@@ -162,32 +193,47 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
     int Nspec, Nch;  /* number of items in input */
     int Nav;  /* number of items to average */
     unsigned int nthreads;  /* number of threads to use */
-    PyArrayObject *input = NULL, *outarr = NULL;
+    PyArrayObject *inputArr = NULL, *outarr = NULL;
+    PyObject *inputObj = NULL;
     double *cin, *cout;
     double buf;
     npy_intp nout[2];
+    PyObject *result = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!iI", &PyArray_Type,
-                          &input, &Nav, &nthreads)) {
+                          &inputObj, &Nav, &nthreads)) {
         return NULL;
     }
-    PYARRAY_CHECK(input, 2, NPY_DOUBLE, "input must be a 2D double array!");
-    Nspec = (int) PyArray_DIMS(input)[0];
-    Nch = (int) PyArray_DIMS(input)[1];
-    cin = (double *) PyArray_DATA(input);
+
+    inputArr = check_and_convert_to_contiguous(inputObj, 2, NPY_DOUBLE, "input");
+    if (!inputArr) goto cleanup;
+
+    /* Check for division by zero */
+    if (Nav <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Nav must be greater than 0");
+        goto cleanup;
+    }
+
+    Nspec = (int)PyArray_DIMS(inputArr)[0];
+    Nch = (int)PyArray_DIMS(inputArr)[1];
+    cin = (double *)PyArray_DATA(inputArr);
 
     /* create output ndarray */
     nout[0] = Nspec;
-    nout[1] = ((int) ceil(Nch / (float) Nav));
-    outarr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
-    cout = (double *) PyArray_DATA(outarr);
+    nout[1] = (npy_intp)ceil((double)Nch / Nav);
+    outarr = (PyArrayObject *)PyArray_ZEROS(2, nout, NPY_DOUBLE, 0);
+    if (outarr == NULL) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
+
+    cout = (double *)PyArray_DATA(outarr);
 
 #ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 
-    /* c-code following is performing the block averaging */
     #pragma omp parallel for default(shared) private(i, j, k, buf) \
      schedule(static)
 #endif
@@ -200,15 +246,17 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
                 buf += cin[i * Nch + k];
             }
             /* save average to output array */
-            cout[j / Nav + i * nout[1]] = buf / (float) (k - j);
+            cout[j / Nav + i * nout[1]] = buf / (double)(k - j);
         }
     }
 
-    /* clean up */
-    Py_DECREF(input);
+    result = PyArray_Return(outarr);
 
-    /* return output array */
-    return PyArray_Return(outarr);
+cleanup:
+    Py_XDECREF(inputArr);
+    if (!result && outarr) Py_XDECREF(outarr);
+
+    return result;
 }
 
 PyObject* block_average_CCD(PyObject *self, PyObject *args) {
@@ -234,29 +282,44 @@ PyObject* block_average_CCD(PyObject *self, PyObject *args) {
     int Nframes, Nch1, Nch2;  /* number of values in input array */
     int Nav1, Nav2;  /* number of items to average */
     unsigned int nthreads;  /* number of threads to use */
-    PyArrayObject *input = NULL, *outarr = NULL;
+    PyArrayObject *inputArr = NULL, *outarr = NULL;
+    PyObject *inputObj = NULL;
     double *cin, *cout;
     double buf;
     npy_intp nout[3];
+    PyObject *result = NULL;
 
     /* Python argument conversion code */
-    if (!PyArg_ParseTuple(args, "O!iiI", &PyArray_Type, &input, &Nav2,
+    if (!PyArg_ParseTuple(args, "O!iiI", &PyArray_Type, &inputObj, &Nav2,
                           &Nav1, &nthreads)) {
         return NULL;
     }
 
-    PYARRAY_CHECK(input, 3, NPY_DOUBLE, "input must be a 3D double array!");
-    Nframes = (int) PyArray_DIMS(input)[0];
-    Nch2 = (int) PyArray_DIMS(input)[1];
-    Nch1 = (int) PyArray_DIMS(input)[2];
-    cin = (double *) PyArray_DATA(input);
+    inputArr = check_and_convert_to_contiguous(inputObj, 3, NPY_DOUBLE, "input");
+    if (!inputArr) goto cleanup;
+
+    /* Check for division by zero */
+    if (Nav1 <= 0 || Nav2 <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Nav1 and Nav2 must be greater than 0");
+        goto cleanup;
+    }
+
+    Nframes = (int)PyArray_DIMS(inputArr)[0];
+    Nch2 = (int)PyArray_DIMS(inputArr)[1];
+    Nch1 = (int)PyArray_DIMS(inputArr)[2];
+    cin = (double *)PyArray_DATA(inputArr);
 
     /* create output ndarray */
     nout[0] = Nframes;
-    nout[1] = ((int) ceil(Nch2 / (float) Nav2));
-    nout[2] = ((int) ceil(Nch1 / (float) Nav1));
-    outarr = (PyArrayObject *) PyArray_SimpleNew(3, nout, NPY_DOUBLE);
-    cout = (double *) PyArray_DATA(outarr);
+    nout[1] = (npy_intp)ceil((double)Nch2 / Nav2);
+    nout[2] = (npy_intp)ceil((double)Nch1 / Nav1);
+    outarr = (PyArrayObject *)PyArray_ZEROS(3, nout, NPY_DOUBLE, 0);
+    if (outarr == NULL) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
+
+    cout = (double *)PyArray_DATA(outarr);
 
 #ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
@@ -271,16 +334,19 @@ PyObject* block_average_CCD(PyObject *self, PyObject *args) {
                 buf = 0.;
                 for (k = 0; k < Nav2 && (i + k) < Nch2; ++k) {
                     for (l = 0; l < Nav1 && (j + l) < Nch1; ++l) {
-                        buf += cin[n* Nch1 * Nch2 + (i + k) * Nch1 + (j + l)];
+                        buf += cin[n * Nch1 * Nch2 + (i + k) * Nch1 + (j + l)];
                     }
                 }
-                cout[n * nout[1] * nout[2] + (i / Nav2) * nout[1] + j / Nav1] = buf / (float)(k * l);
+                cout[n * nout[1] * nout[2] + (i / Nav2) * nout[2] + j / Nav1] = buf / (double)(k * l);
             }
         }
     }
 
-    /* clean up */
-    Py_DECREF(input);
+    result = PyArray_Return(outarr);
 
-    return PyArray_Return(outarr);
+cleanup:
+    Py_XDECREF(inputArr);
+    if (!result && outarr) Py_XDECREF(outarr);
+
+    return result;
 }

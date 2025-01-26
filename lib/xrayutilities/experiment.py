@@ -14,7 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2009-2010 Eugen Wintersberger <eugen.wintersberger@desy.de>
-# Copyright (c) 2009-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2009-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 
 """
@@ -472,7 +472,8 @@ class QConversion:
 
         UB = numpy.asarray(kwargs.get('UB', self.UB))
 
-        sd = numpy.asarray(kwargs.get('sampledis', [0, 0, 0]))
+        sd = numpy.asarray(kwargs.get('sampledis', [0, 0, 0]),
+                           dtype=numpy.double)
         if 'sampledis' in kwargs:
             flags |= QConvFlags.HAS_SAMPLEDIS
 

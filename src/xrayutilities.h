@@ -21,42 +21,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <math.h>
-
-/*****************************************************************************
- * NUMPY specific macros and header files
- ****************************************************************************/
-/*
- * need to make some definitions before loading the arrayobject.h
- * header file
- */
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
-#define NO_IMPORT_ARRAY
-#include <numpy/arrayobject.h>
-
-/*
- * set numpy API specific macros
- */
-#if NPY_FEATURE_VERSION < 0x00000007
-    #define NPY_ARRAY_ALIGNED       NPY_ALIGNED
-    #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
-#endif
-
-/*
- * define a macro to check a numpy array. This should mabye go into a
- * function in future.
- */
-#define PYARRAY_CHECK(array, dims, type, msg) \
-    array = (PyArrayObject *) PyArray_FROM_OTF((PyObject *) array, \
-                                               type, \
-                                               NPY_ARRAY_C_CONTIGUOUS | \
-                                               NPY_ARRAY_ALIGNED); \
-    if (PyArray_NDIM(array) != dims ||  \
-        PyArray_TYPE(array) != type) {\
-        PyErr_SetString(PyExc_ValueError, msg); \
-        return NULL; \
-    }
-
+#include "array_utils.h"
 
 /*****************************************************************************
  * Windows build related macros

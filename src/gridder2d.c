@@ -15,7 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2013 Eugen Wintersberger <eugen.wintersberger@desy.de>
- * Copyright (C) 2013, 2015 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2013-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
  *
  ******************************************************************************
  *
@@ -27,66 +27,66 @@
 #include "gridder_utils.h"
 
 
-PyObject* pyfuzzygridder2d(PyObject *self, PyObject *args)
-{
-    PyArrayObject *py_x = NULL, *py_y = NULL, *py_data = NULL,
-                  *py_output = NULL, *py_norm = NULL;
-
+PyObject* pyfuzzygridder2d(PyObject *self, PyObject *args) {
+    PyArrayObject *px = NULL, *py = NULL, *pdata = NULL, *poutput = NULL, *pnorm = NULL;
+    PyObject *xobj = NULL, *yobj = NULL, *dataobj = NULL, *outputobj = NULL, *normobj = NULL;
     double *x = NULL, *y = NULL, *data = NULL, *odata = NULL, *norm = NULL;
     double xmin, xmax, ymin, ymax, wx, wy;
     unsigned int nx, ny;
     int flags;
     int n, result;
+    PyObject *return_value = NULL;
 
     if (!PyArg_ParseTuple(args, "O!O!O!IIddddO!|O!ddi",
-                          &PyArray_Type, &py_x,
-                          &PyArray_Type, &py_y,
-                          &PyArray_Type, &py_data,
-                          &nx, &ny, &xmin, &xmax, &ymin, &ymax,
-                          &PyArray_Type, &py_output,
-                          &PyArray_Type, &py_norm,
-                          &wx, &wy, &flags)) {
-        return NULL;
+                         &PyArray_Type, &xobj,
+                         &PyArray_Type, &yobj,
+                         &PyArray_Type, &dataobj,
+                         &nx, &ny, &xmin, &xmax, &ymin, &ymax,
+                         &PyArray_Type, &outputobj,
+                         &PyArray_Type, &normobj,
+                         &wx, &wy, &flags)) {
+        return NULL; // Return NULL directly on parse error
     }
 
-    /* have to check input variables */
-    PYARRAY_CHECK(py_x, 1, NPY_DOUBLE, "x-axis must be a 1D double array!");
-    PYARRAY_CHECK(py_y, 1, NPY_DOUBLE, "y-axis must be a 1D double array!");
-    PYARRAY_CHECK(py_data, 1, NPY_DOUBLE,
-                  "input data must be a 1D double array!");
-    PYARRAY_CHECK(py_output, 2, NPY_DOUBLE,
-                  "ouput data must be a 2D double array!");
-    if (py_norm != NULL) {
-        PYARRAY_CHECK(py_norm, 2, NPY_DOUBLE,
-                      "norm data must be a 2D double array!");
+    px = check_and_convert_to_contiguous(xobj, 1, NPY_DOUBLE, "x-axis");
+    if (!px) goto cleanup;
+
+    py = check_and_convert_to_contiguous(yobj, 1, NPY_DOUBLE, "y-axis");
+    if (!py) goto cleanup;
+
+    pdata = check_and_convert_to_contiguous(dataobj, 1, NPY_DOUBLE, "input data");
+    if (!pdata) goto cleanup;
+
+    poutput = check_and_convert_to_contiguous(outputobj, 2, NPY_DOUBLE, "output data");
+    if (!poutput) goto cleanup;
+
+    if (normobj != NULL) {
+        pnorm = check_and_convert_to_contiguous(normobj, 2, NPY_DOUBLE, "norm");
+        if (!pnorm) goto cleanup;
     }
 
-    /* get data */
-    x = (double *) PyArray_DATA(py_x);
-    y = (double *) PyArray_DATA(py_y);
-    data = (double *) PyArray_DATA(py_data);
-    odata = (double *) PyArray_DATA(py_output);
-    if (py_norm != NULL) {
-        norm = (double *) PyArray_DATA(py_norm);
+    x = (double *)PyArray_DATA(px);
+    y = (double *)PyArray_DATA(py);
+    data = (double *)PyArray_DATA(pdata);
+    odata = (double *)PyArray_DATA(poutput);
+    if (pnorm != NULL) {
+        norm = (double *)PyArray_DATA(pnorm);
     }
 
-    /* get the total number of points */
-    n = (int) PyArray_SIZE(py_x);
+    n = (int)PyArray_SIZE(px);
 
-    /* call the actual gridder routine */
-    result = fuzzygridder2d(x, y, data, n, nx, ny, xmin, xmax, ymin, ymax, odata,
-                            norm, wx, wy, flags);
+    result = fuzzygridder2d(x, y, data, n, nx, ny, xmin, xmax, ymin, ymax, odata, norm, wx, wy, flags);
 
-    /* clean up */
-    Py_DECREF(py_x);
-    Py_DECREF(py_y);
-    Py_DECREF(py_data);
-    Py_DECREF(py_output);
-    if (py_norm != NULL) {
-        Py_DECREF(py_norm);
-    }
+    return_value = Py_BuildValue("i", result);
 
-    return Py_BuildValue("i", &result);
+cleanup:
+    Py_XDECREF(pnorm);
+    Py_XDECREF(poutput);
+    Py_XDECREF(pdata);
+    Py_XDECREF(py);
+    Py_XDECREF(px);
+
+    return return_value;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -244,64 +244,66 @@ int fuzzygridder2d(double *x, double *y, double *data, unsigned int n,
 /*---------------------------------------------------------------------------*/
 PyObject* pygridder2d(PyObject *self, PyObject *args)
 {
-    PyArrayObject *py_x = NULL, *py_y = NULL, *py_data = NULL,
-                  *py_output = NULL, *py_norm = NULL;
-
+    PyArrayObject *px = NULL, *py = NULL, *pdata = NULL, *poutput = NULL, *pnorm = NULL;
+    PyObject *xobj = NULL, *yobj = NULL, *dataobj = NULL, *outputobj = NULL, *normobj = NULL;
     double *x = NULL, *y = NULL, *data = NULL, *odata = NULL, *norm = NULL;
     double xmin, xmax, ymin, ymax;
     unsigned int nx, ny;
     int flags;
     int n, result;
+    PyObject *return_value = NULL;
 
     if (!PyArg_ParseTuple(args, "O!O!O!IIddddO!|O!i",
-                          &PyArray_Type, &py_x,
-                          &PyArray_Type, &py_y,
-                          &PyArray_Type, &py_data,
-                          &nx, &ny, &xmin, &xmax, &ymin, &ymax,
-                          &PyArray_Type, &py_output,
-                          &PyArray_Type, &py_norm,
-                          &flags)) {
+                         &PyArray_Type, &xobj,
+                         &PyArray_Type, &yobj,
+                         &PyArray_Type, &dataobj,
+                         &nx, &ny, &xmin, &xmax, &ymin, &ymax,
+                         &PyArray_Type, &outputobj,
+                         &PyArray_Type, &normobj,
+                         &flags)) {
         return NULL;
     }
 
-    /* have to check input variables */
-    PYARRAY_CHECK(py_x, 1, NPY_DOUBLE, "x-axis must be a 1D double array!");
-    PYARRAY_CHECK(py_y, 1, NPY_DOUBLE, "y-axis must be a 1D double array!");
-    PYARRAY_CHECK(py_data, 1, NPY_DOUBLE,
-                  "input data must be a 1D double array!");
-    PYARRAY_CHECK(py_output, 2, NPY_DOUBLE,
-                  "ouput data must be a 2D double array!");
-    if (py_norm != NULL) {
-        PYARRAY_CHECK(py_norm, 2, NPY_DOUBLE,
-                      "norm data must be a 2D double array!");
+    px = check_and_convert_to_contiguous(xobj, 1, NPY_DOUBLE, "x-axis");
+    if (!px) goto cleanup;
+
+    py = check_and_convert_to_contiguous(yobj, 1, NPY_DOUBLE, "y-axis");
+    if (!py) goto cleanup;
+
+    pdata = check_and_convert_to_contiguous(dataobj, 1, NPY_DOUBLE, "input data");
+    if (!pdata) goto cleanup;
+
+    poutput = check_and_convert_to_contiguous(outputobj, 2, NPY_DOUBLE, "output data");
+    if (!poutput) goto cleanup;
+
+    if (normobj != NULL) {
+        pnorm = check_and_convert_to_contiguous(normobj, 2, NPY_DOUBLE, "norm");
+        if (!pnorm) goto cleanup;
     }
 
-    /* get data */
-    x = (double *) PyArray_DATA(py_x);
-    y = (double *) PyArray_DATA(py_y);
-    data = (double *) PyArray_DATA(py_data);
-    odata = (double *) PyArray_DATA(py_output);
-    if (py_norm != NULL) {
-        norm = (double *) PyArray_DATA(py_norm);
+    x = (double *)PyArray_DATA(px);
+    y = (double *)PyArray_DATA(py);
+    data = (double *)PyArray_DATA(pdata);
+    odata = (double *)PyArray_DATA(poutput);
+    if (pnorm != NULL) {
+        norm = (double *)PyArray_DATA(pnorm);
     }
 
-    /* get the total number of points */
-    n = (int) PyArray_SIZE(py_x);
+    n = (int)PyArray_SIZE(px);
 
-    /* call the actual gridder routine */
     result = gridder2d(x, y, data, n, nx, ny, xmin, xmax, ymin, ymax, odata,
-                       norm, flags);
+                      norm, flags);
 
-    /* clean up */
-    Py_DECREF(py_x);
-    Py_DECREF(py_y);
-    Py_DECREF(py_data);
-    Py_DECREF(py_output);
-    if (py_norm != NULL) {
-        Py_DECREF(py_norm);
-    }
+    return_value = Py_BuildValue("i", result);
 
-    return Py_BuildValue("i", &result);
+cleanup:
+    Py_XDECREF(pnorm);
+    Py_XDECREF(poutput);
+    Py_XDECREF(pdata);
+    Py_XDECREF(py);
+    Py_XDECREF(px);
+
+    return return_value;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -399,4 +401,3 @@ int gridder2d(double *x, double *y, double *data, unsigned int n,
 
     return 0;
 }
-

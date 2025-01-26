@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2010-2021 Dominik Kriegner <dominik.kriegner@gmail.com>
+ * Copyright (C) 2010-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 
 /* ######################################
@@ -667,92 +667,100 @@ PyObject* py_ang2q_conversion(PyObject *self, PyObject *args)
     int r;  /* for return value checking */
     unsigned int nthreads;  /* number of threads to use */
     char *sampleAxis, *detectorAxis;  /* str with sample and detector axis */
-    double *sampleAngles,*detectorAngles, *ri, *kappadir, *sampledis,
+    double *sampleAngles, *detectorAngles, *ri, *kappadir, *sampledis,
            *UB, *qpos, *lambda;  /* c-arrays for further usage */
     int flags;
     npy_intp nout[2];
 
-    /* numpy arrays */
+    /* Python objects and array objects */
+    PyObject *sampleAnglesObj = NULL, *detectorAnglesObj = NULL,
+             *riObj = NULL, *kappadirObj = NULL, *sampledisObj = NULL,
+             *UBObj = NULL, *lambdaObj = NULL;
     PyArrayObject *sampleAnglesArr = NULL, *detectorAnglesArr = NULL,
                   *riArr = NULL, *kappadirArr = NULL, *sampledisArr = NULL,
                   *UBArr = NULL, *qposArr = NULL, *lambdaArr = NULL;
+    PyObject *result = NULL;
 
-    /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!O!ssO!O!O!O!Ii",
-                          &PyArray_Type, &sampleAnglesArr,
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &riArr,
+                          &PyArray_Type, &sampleAnglesObj,
+                          &PyArray_Type, &detectorAnglesObj,
+                          &PyArray_Type, &riObj,
                           &sampleAxis, &detectorAxis,
-                          &PyArray_Type, &kappadirArr,
-                          &PyArray_Type, &UBArr,
-                          &PyArray_Type, &sampledisArr,
-                          &PyArray_Type, &lambdaArr, &nthreads, &flags)) {
+                          &PyArray_Type, &kappadirObj,
+                          &PyArray_Type, &UBObj,
+                          &PyArray_Type, &sampledisObj,
+                          &PyArray_Type, &lambdaObj, &nthreads, &flags)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(sampleAnglesArr, 2, NPY_DOUBLE,
-                  "sampleAngles must be a 2D double array");
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(lambdaArr, 1, NPY_DOUBLE,
-                  "wavelength must be a 1D double array");
-    PYARRAY_CHECK(riArr, 1, NPY_DOUBLE,
-                  "r_i must be a 1D double array");
-    if (PyArray_SIZE(riArr) != 3) {
+    sampleAnglesArr = check_and_convert_to_contiguous(sampleAnglesObj, 2, NPY_DOUBLE, "sampleAngles");
+    if (!sampleAnglesArr) goto cleanup;
+
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
+
+    lambdaArr = check_and_convert_to_contiguous(lambdaObj, 1, NPY_DOUBLE, "lambda");
+    if (!lambdaArr) goto cleanup;
+
+    riArr = check_and_convert_to_contiguous(riObj, 1, NPY_DOUBLE, "ri");
+    if (!riArr || PyArray_SIZE(riArr) != 3) {
+        if (!riArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "r_i needs to be of length 3");
-        return NULL;
-    }
-    PYARRAY_CHECK(sampledisArr, 1, NPY_DOUBLE,
-                  "sampledis must be a 1D double array");
-    if (PyArray_SIZE(sampledisArr) != 3) {
-        PyErr_SetString(PyExc_ValueError,"sampledis needs to be of length 3");
-        return NULL;
-    }
-    PYARRAY_CHECK(kappadirArr, 1, NPY_DOUBLE,
-                  "kappa_dir must be a 1D double array");
-    if (PyArray_SIZE(kappadirArr) != 3) {
-        PyErr_SetString(PyExc_ValueError, "kappa_dir needs to be of length 3");
-        return NULL;
-    }
-    PYARRAY_CHECK(UBArr, 2, NPY_DOUBLE, "UB must be a 2D double array");
-    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
-        PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
-        return NULL;
+        goto cleanup;
     }
 
-    Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
-    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
-    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
+    sampledisArr = check_and_convert_to_contiguous(sampledisObj, 1, NPY_DOUBLE, "sampledis");
+    if (!sampledisArr || PyArray_SIZE(sampledisArr) != 3) {
+        if (!sampledisArr) goto cleanup;
+        PyErr_SetString(PyExc_ValueError,"sampledis needs to be of length 3");
+        goto cleanup;
+    }
+
+    kappadirArr = check_and_convert_to_contiguous(kappadirObj, 1, NPY_DOUBLE, "kappa_dir");
+    if (!kappadirArr || PyArray_SIZE(kappadirArr) != 3) {
+        if (!kappadirArr) goto cleanup;
+        PyErr_SetString(PyExc_ValueError, "kappa_dir needs to be of length 3");
+        goto cleanup;
+    }
+
+    UBArr = check_and_convert_to_contiguous(UBObj, 2, NPY_DOUBLE, "UB");
+    if (!UBArr || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        if (!UBArr) goto cleanup;
+        PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
+        goto cleanup;
+    }
+
+    Npoints = (int)PyArray_DIMS(sampleAnglesArr)[0];
+    Ns = (int)PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int)PyArray_DIMS(detectorAnglesArr)[1];
     if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) {
-        PyErr_SetString(PyExc_ValueError,
-            "detectorAngles and sampleAngles must have same first dimension");
-        return NULL;
+        PyErr_SetString(PyExc_ValueError, "detectorAngles and sampleAngles must have same first dimension");
+        goto cleanup;
     }
     if (PyArray_SIZE(lambdaArr) != Npoints) {
-        PyErr_SetString(PyExc_ValueError,
-            "size of wavelength array need to fit with angle arrays");
-        return NULL;
+        PyErr_SetString(PyExc_ValueError, "size of wavelength array need to fit with angle arrays");
+        goto cleanup;
     }
 
-    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
-    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-    lambda = (double *) PyArray_DATA(lambdaArr);
-    ri = (double *) PyArray_DATA(riArr);
-    sampledis = (double *) PyArray_DATA(sampledisArr);
-    kappadir = (double *) PyArray_DATA(kappadirArr);
-    UB = (double *) PyArray_DATA(UBArr);
+    sampleAngles = (double *)PyArray_DATA(sampleAnglesArr);
+    detectorAngles = (double *)PyArray_DATA(detectorAnglesArr);
+    lambda = (double *)PyArray_DATA(lambdaArr);
+    ri = (double *)PyArray_DATA(riArr);
+    sampledis = (double *)PyArray_DATA(sampledisArr);
+    kappadir = (double *)PyArray_DATA(kappadirArr);
+    UB = (double *)PyArray_DATA(UBArr);
 
     /* create output ndarray */
     nout[0] = Npoints;
     nout[1] = 3;
-    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
-    qpos = (double *) PyArray_DATA(qposArr);
+    qposArr = (PyArrayObject *)PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if (qposArr == NULL) goto cleanup;
+    qpos = (double *)PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
-    /* set openmp thread numbers dynamically */
-    OMPSETNUMTHREADS(nthreads);
-    #endif
+#ifdef __OPENMP__
+    omp_set_num_threads(nthreads);
+#endif
 
     /* call worker function */
     if (flags & HAS_SAMPLEDIS) {
@@ -761,43 +769,42 @@ PyObject* py_ang2q_conversion(PyObject *self, PyObject *args)
                     sampleAngles, detectorAngles, ri,
                     sampleAxis, detectorAxis, kappadir, UB,
                     sampledis, lambda, Npoints, Ns, Nd, flags, qpos);
-        }
-        else {
+        } else {
             r = ang2q_conversion_sd(
                     sampleAngles, detectorAngles, ri,
                     sampleAxis, detectorAxis, kappadir, UB,
                     sampledis, lambda, Npoints, Ns, Nd, flags, qpos);
         }
-    }
-    else {
+    } else {
         if (flags & HAS_TRANSLATIONS) {
             r = ang2q_conversion_trans(
                     sampleAngles, detectorAngles, ri,
                     sampleAxis, detectorAxis, kappadir, UB,
                     lambda, Npoints, Ns, Nd, flags, qpos);
-        }
-        else {
+        } else {
             r = ang2q_conversion(
                     sampleAngles, detectorAngles, ri,
                     sampleAxis, detectorAxis, kappadir, UB, lambda,
                     Npoints, Ns, Nd, flags, qpos);
         }
     }
+    if (r != 0) goto cleanup;
 
-    /* clean up */
-    Py_DECREF(sampleAnglesArr);
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(riArr);
-    Py_DECREF(kappadirArr);
-    Py_DECREF(UBArr);
-    Py_DECREF(sampledisArr);
-    Py_DECREF(lambdaArr);
-    if (r != 0) {
-        return NULL;
+    result = PyArray_Return(qposArr);
+
+cleanup:
+    Py_XDECREF(sampleAnglesArr);
+    Py_XDECREF(detectorAnglesArr);
+    Py_XDECREF(lambdaArr);
+    Py_XDECREF(riArr);
+    Py_XDECREF(sampledisArr);
+    Py_XDECREF(kappadirArr);
+    Py_XDECREF(UBArr);
+    if (!result && qposArr) {
+        Py_XDECREF(qposArr);
     }
 
-    /* return output array */
-    return PyArray_Return(qposArr);
+    return result;
 }
 
 
@@ -841,9 +848,13 @@ int ang2q_conversion(double *sampleAngles, double *detectorAngles,
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions(detectorRotation, detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -891,6 +902,9 @@ int ang2q_conversion(double *sampleAngles, double *detectorAngles,
         vecmul(ki, M_2PI / lambda[i]); /* scales k_i */
         matvec(ms, ki, &qpos[3 * i]);
     }
+
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -1033,10 +1047,14 @@ int ang2q_conversion_trans(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -1081,6 +1099,9 @@ int ang2q_conversion_trans(
         vecmul(rd, M_2PI / lambda[i]); /* scales by k */
         matvec(ms, rd, &qpos[3 * i]);
     }
+
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -1128,10 +1149,14 @@ int ang2q_conversion_sdtrans(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -1177,6 +1202,9 @@ int ang2q_conversion_sdtrans(
          * calculate the momentum transfer */
         matvec(ms, rd, &qpos[3 * i]);
     }
+
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -1241,72 +1269,81 @@ PyObject* py_ang2q_conversion_linear(PyObject *self, PyObject *args)
                   *rcchArr = NULL, *kappadirArr = NULL, *roiArr = NULL,
                   *sampledisArr = NULL, *UBArr = NULL, *qposArr = NULL,
                   *lambdaArr = NULL;
+    PyObject *sampleAnglesObj = NULL, *detectorAnglesObj = NULL,
+             *rcchObj = NULL, *kappadirObj = NULL, *roiObj = NULL,
+             *sampledisObj = NULL, *UBObj = NULL, *lambdaObj = NULL;
+    PyObject *result = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddO!sdO!O!O!Ii",
-                          &PyArray_Type, &sampleAnglesArr,
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &rcchArr,
+                          &PyArray_Type, &sampleAnglesObj,
+                          &PyArray_Type, &detectorAnglesObj,
+                          &PyArray_Type, &rcchObj,
                           &sampleAxis, &detectorAxis,
-                          &PyArray_Type, &kappadirArr,
-                          &cch, &dpixel, &PyArray_Type, &roiArr,
+                          &PyArray_Type, &kappadirObj,
+                          &cch, &dpixel, &PyArray_Type, &roiObj,
                           &dir, &tilt,
-                          &PyArray_Type, &UBArr,
-                          &PyArray_Type, &sampledisArr,
-                          &PyArray_Type, &lambdaArr, &nthreads, &flags)) {
+                          &PyArray_Type, &UBObj,
+                          &PyArray_Type, &sampledisObj,
+                          &PyArray_Type, &lambdaObj, &nthreads, &flags)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(sampleAnglesArr, 2, NPY_DOUBLE,
-                  "sampleAngles must be a 2D double array");
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(lambdaArr, 1, NPY_DOUBLE,
-                  "wavelength must be a 1D double array");
-    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE,
-                  "rcch must be a 1D double array");
-    if (PyArray_SIZE(rcchArr) != 3) {
+    sampleAnglesArr = check_and_convert_to_contiguous(sampleAnglesObj, 2, NPY_DOUBLE, "sampleAngles");
+    if (!sampleAnglesArr) goto cleanup;
+
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
+
+    lambdaArr = check_and_convert_to_contiguous(lambdaObj, 1, NPY_DOUBLE, "lambda");
+    if (!lambdaArr) goto cleanup;
+
+    rcchArr = check_and_convert_to_contiguous(rcchObj, 1, NPY_DOUBLE, "rcch");
+    if (!rcchArr || PyArray_SIZE(rcchArr) != 3) {
+        if (!rcchArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
-        return NULL;
+        goto cleanup;
     }
 
-    PYARRAY_CHECK(sampledisArr, 1, NPY_DOUBLE,
-                  "sampledis must be a 1D double array");
-    if (PyArray_SIZE(sampledisArr) != 3) {
+    sampledisArr = check_and_convert_to_contiguous(sampledisObj, 1, NPY_DOUBLE, "sampledis");
+    if (!sampledisArr || PyArray_SIZE(sampledisArr) != 3) {
+        if (!sampledisArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "sampledis needs to be of length 3");
-        return NULL;
+        goto cleanup;
     }
 
-    PYARRAY_CHECK(kappadirArr, 1, NPY_DOUBLE,
-                  "kappa_dir must be a 1D double array");
-    if (PyArray_SIZE(kappadirArr) != 3) {
+    kappadirArr = check_and_convert_to_contiguous(kappadirObj, 1, NPY_DOUBLE, "kappa_dir");
+    if (!kappadirArr || PyArray_SIZE(kappadirArr) != 3) {
+        if (!kappadirArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "kappa_dir needs to be of length 3");
-        return NULL;
+        goto cleanup;
     }
-    PYARRAY_CHECK(UBArr, 2, NPY_DOUBLE, "UB must be a 2D double array");
-    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+
+    UBArr = check_and_convert_to_contiguous(UBObj, 2, NPY_DOUBLE, "UB");
+    if (!UBArr || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        if (!UBArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
-        return NULL;
+        goto cleanup;
     }
-    PYARRAY_CHECK(roiArr, 1, NPY_INT32, "roi must be a 1D int array");
-    if (PyArray_SIZE(roiArr) != 2) {
+
+    roiArr = check_and_convert_to_contiguous(roiObj, 1, NPY_INT32, "roi");
+    if (!roiArr || PyArray_SIZE(roiArr) != 2) {
+        if (!roiArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "roi must be of length 2");
-        return NULL;
+        goto cleanup;
     }
 
     Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
     Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
     Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
     if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) {
-        PyErr_SetString(PyExc_ValueError,
-            "detectorAngles and sampleAngles must have same first dimension");
-        return NULL;
+        PyErr_SetString(PyExc_ValueError, "detectorAngles and sampleAngles must have same first dimension");
+        goto cleanup;
     }
     if (PyArray_SIZE(lambdaArr) != Npoints) {
-        PyErr_SetString(PyExc_ValueError,
-            "size of wavelength array need to fit with angle arrays");
-        return NULL;
+        PyErr_SetString(PyExc_ValueError, "size of wavelength array need to fit with angle arrays");
+        goto cleanup;
     }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
@@ -1325,12 +1362,13 @@ PyObject* py_ang2q_conversion_linear(PyObject *self, PyObject *args)
     nout[0] = Npoints * Nch;
     nout[1] = 3;
     qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if(qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
+#ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #endif
+#endif
 
     /* call worker function */
     if (flags & HAS_SAMPLEDIS) {
@@ -1361,22 +1399,23 @@ PyObject* py_ang2q_conversion_linear(PyObject *self, PyObject *args)
                     UB, lambda, Npoints, Ns, Nd, Nch, flags, qpos);
         }
     }
+    if(r != 0) goto cleanup;
 
-    /* clean up */
-    Py_DECREF(sampleAnglesArr);
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(rcchArr);
-    Py_DECREF(kappadirArr);
-    Py_DECREF(roiArr);
-    Py_DECREF(UBArr);
-    Py_DECREF(sampledisArr);
-    Py_DECREF(lambdaArr);
-    if (r != 0) {
-        return NULL;
+    result = PyArray_Return(qposArr);
+
+cleanup:
+    Py_XDECREF(sampleAnglesArr);
+    Py_XDECREF(detectorAnglesArr);
+    Py_XDECREF(lambdaArr);
+    Py_XDECREF(rcchArr);
+    Py_XDECREF(sampledisArr);
+    Py_XDECREF(kappadirArr);
+    Py_XDECREF(UBArr);
+    Py_XDECREF(roiArr);
+    if (!result && qposArr) {
+        Py_XDECREF(qposArr);
     }
-
-    /* return output array */
-    return PyArray_Return(qposArr);
+    return result;
 }
 
 
@@ -1428,9 +1467,13 @@ int ang2q_conversion_linear(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions(detectorRotation, detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -1438,6 +1481,8 @@ int ang2q_conversion_linear(
     normalize(r_i);
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     for (k = 0; k < 3; ++k) {
@@ -1494,6 +1539,8 @@ int ang2q_conversion_linear(
             matvec(ms, rtemp, &qpos[3 * (i * Nch + j - roi[0])]);
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -1547,9 +1594,13 @@ int ang2q_conversion_linear_sd(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions(detectorRotation, detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -1557,6 +1608,8 @@ int ang2q_conversion_linear_sd(
     normalize(r_i);
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     for (k = 0; k < 3; ++k) {
@@ -1616,6 +1669,8 @@ int ang2q_conversion_linear_sd(
             matvec(ms, rtemp, &qpos[3 * (i * Nch + j - roi[0])]);
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -1666,10 +1721,14 @@ int ang2q_conversion_linear_trans(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -1677,6 +1736,8 @@ int ang2q_conversion_linear_trans(
     normalize(r_i);
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     for (k = 0; k < 3; ++k) {
@@ -1729,6 +1790,8 @@ int ang2q_conversion_linear_trans(
             matvec(ms, rd, &qpos[3 * (i * Nch + j - roi[0])]);
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -1781,10 +1844,14 @@ int ang2q_conversion_linear_sdtrans(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -1792,6 +1859,8 @@ int ang2q_conversion_linear_sdtrans(
     normalize(r_i);
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel, dir, dpixel, r_i, tilt) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     for (k = 0; k < 3; ++k) {
@@ -1847,6 +1916,8 @@ int ang2q_conversion_linear_sdtrans(
             matvec(ms, rd, &qpos[3 * (i * Nch + j - roi[0])]);
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -1911,61 +1982,75 @@ PyObject* py_ang2q_conversion_area(PyObject *self, PyObject *args)
            *qpos, *lambda;  /* c-arrays for further usage */
     int *roi;  /* region of interest integer array */
     npy_intp nout[2];
-    /* numpy arrays */
+    PyObject *result = NULL;
+
     PyArrayObject *sampleAnglesArr = NULL, *detectorAnglesArr = NULL,
                   *rcchArr = NULL, *kappadirArr = NULL, *roiArr = NULL,
                   *sampledisArr = NULL, *UBArr = NULL, *qposArr = NULL,
                   *lambdaArr = NULL;
+    PyObject *sampleAnglesObj = NULL, *detectorAnglesObj = NULL,
+             *rcchObj = NULL, *kappadirObj = NULL, *roiObj = NULL,
+             *sampledisObj = NULL, *UBObj = NULL, *lambdaObj = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!O!ssO!ddddO!ssddO!O!O!Ii",
-                          &PyArray_Type, &sampleAnglesArr,
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &rcchArr,
+                          &PyArray_Type, &sampleAnglesObj,
+                          &PyArray_Type, &detectorAnglesObj,
+                          &PyArray_Type, &rcchObj,
                           &sampleAxis, &detectorAxis,
-                          &PyArray_Type, &kappadirArr,
+                          &PyArray_Type, &kappadirObj,
                           &cch1, &cch2, &dpixel1, &dpixel2,
-                          &PyArray_Type, &roiArr,
+                          &PyArray_Type, &roiObj,
                           &dir1, &dir2, &tiltazimuth, &tilt,
-                          &PyArray_Type, &UBArr,
-                          &PyArray_Type, &sampledisArr,
-                          &PyArray_Type, &lambdaArr, &nthreads, &flags)) {
+                          &PyArray_Type, &UBObj,
+                          &PyArray_Type, &sampledisObj,
+                          &PyArray_Type, &lambdaObj, &nthreads, &flags)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(sampleAnglesArr, 2, NPY_DOUBLE,
-                  "sampleAngles must be a 2D double array");
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(lambdaArr, 1, NPY_DOUBLE,
-                  "wavelength must be a 1D double array");
-    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE, "rcch must be a 1D double array");
-    if (PyArray_SIZE(rcchArr) != 3) {
+    sampleAnglesArr = check_and_convert_to_contiguous(sampleAnglesObj, 2, NPY_DOUBLE, "sampleAngles");
+    if (!sampleAnglesArr) goto cleanup;
+
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
+
+    lambdaArr = check_and_convert_to_contiguous(lambdaObj, 1, NPY_DOUBLE, "lambda");
+    if (!lambdaArr) goto cleanup;
+
+    rcchArr = check_and_convert_to_contiguous(rcchObj, 1, NPY_DOUBLE, "rcch");
+    if (!rcchArr || PyArray_SIZE(rcchArr) != 3) {
+        if (!rcchArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
-        return NULL;
+        goto cleanup;
     }
-    PYARRAY_CHECK(kappadirArr, 1, NPY_DOUBLE,
-                  "kappa_dir must be a 1D double array");
-    if (PyArray_SIZE(kappadirArr) != 3) {
-        PyErr_SetString(PyExc_ValueError, "kappa_dir needs to be of length 3");
-        return NULL;
-    }
-    PYARRAY_CHECK(UBArr, 2, NPY_DOUBLE, "UB must be a 2D double array");
-    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
-        PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
-        return NULL;
-    }
-    PYARRAY_CHECK(roiArr, 1, NPY_INT32, "roi must be a 1D int array");
-    if (PyArray_SIZE(roiArr) != 4) {
-        PyErr_SetString(PyExc_ValueError, "roi must be of length 4");
-        return NULL;
-    }
-    PYARRAY_CHECK(sampledisArr, 1, NPY_DOUBLE,
-                  "sampledis must be a 1D double array");
-    if (PyArray_SIZE(sampledisArr) != 3) {
+
+    sampledisArr = check_and_convert_to_contiguous(sampledisObj, 1, NPY_DOUBLE, "sampledis");
+    if (!sampledisArr || PyArray_SIZE(sampledisArr) != 3) {
+        if (!sampledisArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "sampledis needs to be of length 3");
-        return NULL;
+        goto cleanup;
+    }
+
+    kappadirArr = check_and_convert_to_contiguous(kappadirObj, 1, NPY_DOUBLE, "kappa_dir");
+    if (!kappadirArr || PyArray_SIZE(kappadirArr) != 3) {
+        if (!kappadirArr) goto cleanup;
+        PyErr_SetString(PyExc_ValueError, "kappa_dir needs to be of length 3");
+        goto cleanup;
+    }
+
+    UBArr = check_and_convert_to_contiguous(UBObj, 2, NPY_DOUBLE, "UB");
+    if (!UBArr || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        if (!UBArr) goto cleanup;
+        PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
+        goto cleanup;
+    }
+
+    roiArr = check_and_convert_to_contiguous(roiObj, 1, NPY_INT32, "roi");
+    if (!roiArr || PyArray_SIZE(roiArr) != 4) {
+        if (!roiArr) goto cleanup;
+        PyErr_SetString(PyExc_ValueError, "roi must be of length 4");
+        goto cleanup;
     }
 
     Npoints = (int) PyArray_DIMS(sampleAnglesArr)[0];
@@ -1974,12 +2059,12 @@ PyObject* py_ang2q_conversion_area(PyObject *self, PyObject *args)
     if (PyArray_DIMS(detectorAnglesArr)[0] != Npoints) {
         PyErr_SetString(PyExc_ValueError,
             "detectorAngles and sampleAngles must have same first dimension");
-        return NULL;
+        goto cleanup;
     }
     if (PyArray_SIZE(lambdaArr) != Npoints) {
         PyErr_SetString(PyExc_ValueError,
             "size of wavelength array need to fit with angle arrays");
-        return NULL;
+        goto cleanup;
     }
 
     sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
@@ -1995,12 +2080,13 @@ PyObject* py_ang2q_conversion_area(PyObject *self, PyObject *args)
     nout[0] = Npoints * (roi[1] - roi[0]) * (roi[3] - roi[2]);
     nout[1] = 3;
     qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if(qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
+#ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #endif
+#endif
 
     /* call worker function */
     if (flags & HAS_SAMPLEDIS) {
@@ -2035,22 +2121,23 @@ PyObject* py_ang2q_conversion_area(PyObject *self, PyObject *args)
                     flags, qpos);
         }
     }
+    if(r != 0) goto cleanup;
 
-    /* clean up */
-    Py_DECREF(sampleAnglesArr);
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(rcchArr);
-    Py_DECREF(kappadirArr);
-    Py_DECREF(roiArr);
-    Py_DECREF(UBArr);
-    Py_DECREF(sampledisArr);
-    Py_DECREF(lambdaArr);
-    if (r != 0) {
-        return NULL;
+    result = PyArray_Return(qposArr);
+
+cleanup:
+    Py_XDECREF(sampleAnglesArr);
+    Py_XDECREF(detectorAnglesArr);
+    Py_XDECREF(lambdaArr);
+    Py_XDECREF(rcchArr);
+    Py_XDECREF(sampledisArr);
+    Py_XDECREF(kappadirArr);
+    Py_XDECREF(UBArr);
+    Py_XDECREF(roiArr);
+    if (!result && qposArr) {
+        Py_XDECREF(qposArr);
     }
-
-    /* return output array */
-    return PyArray_Return(qposArr);
+    return result;
 }
 
 
@@ -2115,9 +2202,13 @@ int ang2q_conversion_area(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions(detectorRotation, detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2126,9 +2217,13 @@ int ang2q_conversion_area(
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2193,6 +2288,8 @@ int ang2q_conversion_area(
             }
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -2260,9 +2357,13 @@ int ang2q_conversion_area_sd(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions(detectorRotation, detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2271,9 +2372,13 @@ int ang2q_conversion_area_sd(
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2341,6 +2446,8 @@ int ang2q_conversion_area_sd(
             }
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -2405,10 +2512,14 @@ int ang2q_conversion_area_trans(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2417,9 +2528,13 @@ int ang2q_conversion_area_trans(
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2482,6 +2597,8 @@ int ang2q_conversion_area_trans(
             }
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -2550,10 +2667,14 @@ int ang2q_conversion_area_sdtrans(
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2562,9 +2683,13 @@ int ang2q_conversion_area_sdtrans(
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
     if (determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
+        free(sampleRotation);
+        free(detectorRotation);
         return -1;
     }
 
@@ -2628,6 +2753,8 @@ int ang2q_conversion_area_sdtrans(
             }
         }
     }
+    free(sampleRotation);
+    free(detectorRotation);
     return 0;
 }
 
@@ -2678,47 +2805,60 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     char *detectorAxis, *dir1, *dir2;  /* string with detector axis,
                                         * and detector direction */
     double *detectorAngles, *n1, *n2, *rcch, *qpos; /* c-arrays */
-    fp_rot *detectorRotation;
+    fp_rot *detectorRotation = NULL;
     npy_intp nout[2];
+    PyObject *result = NULL;
 
     PyArrayObject *detectorAnglesArr = NULL, *n1Arr = NULL, *n2Arr = NULL,
                   *rcchArr = NULL, *qposArr = NULL;  /* numpy arrays */
+    PyObject *detectorAnglesObj = NULL, *rcchObj = NULL, *n1Obj = NULL, *n2Obj = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!O!O!sddddssdddI",
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &n1Arr,
-                          &PyArray_Type, &n2Arr,
-                          &PyArray_Type, &rcchArr,
-                          &detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2,
-                          &dir1, &dir2, &tiltazimuth, &tilt,
-                          &lambda, &nthreads)) {
+                         &PyArray_Type, &detectorAnglesObj,
+                         &PyArray_Type, &n1Obj,
+                         &PyArray_Type, &n2Obj,
+                         &PyArray_Type, &rcchObj,
+                         &detectorAxis, &cch1, &cch2, &dpixel1, &dpixel2,
+                         &dir1, &dir2, &tiltazimuth, &tilt,
+                         &lambda, &nthreads)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE,
-                  "rcch must be a 1D double array");
-    if (PyArray_SIZE(rcchArr) != 3) {
-        PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
-        return NULL;
-    }
-    PYARRAY_CHECK(n1Arr, 1, NPY_DOUBLE, "n1 must be a 1D double array");
-    PYARRAY_CHECK(n2Arr, 1, NPY_DOUBLE, "n2 must be a 1D double array");
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
 
-    Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
+    rcchArr = check_and_convert_to_contiguous(rcchObj, 1, NPY_DOUBLE, "rcch");
+    if (!rcchArr || PyArray_SIZE(rcchArr) != 3) {
+        PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
+        goto cleanup;
+    }
+
+    n1Arr = check_and_convert_to_contiguous(n1Obj, 1, NPY_DOUBLE, "n1");
+    if (!n1Arr) goto cleanup;
+
+    n2Arr = check_and_convert_to_contiguous(n2Obj, 1, NPY_DOUBLE, "n2");
+    if (!n2Arr) goto cleanup;
+
+    Npoints = (int)PyArray_DIMS(detectorAnglesArr)[0];
     if (PyArray_SIZE(n1Arr) != Npoints || PyArray_SIZE(n2Arr) != Npoints) {
         PyErr_SetString(PyExc_ValueError, "n1, n2 must be of length Npoints");
-        return NULL;
+        goto cleanup;
     }
-    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
+    Nd = (int)PyArray_DIMS(detectorAnglesArr)[1];
 
-    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-    rcch = (double *) PyArray_DATA(rcchArr);
-    n1 = (double *) PyArray_DATA(n1Arr);
-    n2 = (double *) PyArray_DATA(n2Arr);
+    /* arrays with function pointers to rotation matrix functions */
+    detectorRotation = (fp_rot*)PyMem_Malloc(Nd * sizeof(fp_rot));
+    if (!detectorRotation) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
+
+    detectorAngles = (double *)PyArray_DATA(detectorAnglesArr);
+    rcch = (double *)PyArray_DATA(rcchArr);
+    n1 = (double *)PyArray_DATA(n1Arr);
+    n2 = (double *)PyArray_DATA(n2Arr);
 
     /* derived values from input parameters */
     f = M_2PI / lambda;
@@ -2726,21 +2866,17 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     /* create output ndarray */
     nout[0] = Npoints;
     nout[1] = 3;
-    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
-    qpos = (double *) PyArray_DATA(qposArr);
+    qposArr = (PyArrayObject *)PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if (!qposArr) goto cleanup;
+    qpos = (double *)PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
-    /* set openmp thread numbers dynamically */
+#ifdef __OPENMP__
     OMPSETNUMTHREADS(nthreads);
-    #endif
-
-    /* arrays with function pointers to rotation matrix functions */
-    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
+#endif
 
     /* determine axes directions */
-    if (determine_axes_directions_apply(detectorRotation,
-                                        detectorAxis, Nd) != 0) {
-        return NULL;
+    if (determine_axes_directions_apply(detectorRotation, detectorAxis, Nd) != 0) {
+        goto cleanup;
     }
 
     veccopy(r_i, rcch);
@@ -2748,10 +2884,10 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
-        return NULL;
+        goto cleanup;
     }
     if (determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
-        return NULL;
+        goto cleanup;
     }
 
     /* rotate detector pixel vectors according to tilt */
@@ -2764,9 +2900,9 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
 
     /* calculate rotation matices and perform rotations */
 #ifdef __OPENMP__
-    #pragma omp parallel for default(shared) \
-            private(i, j, k, rd) \
-            schedule(static)
+#pragma omp parallel for default(shared) \
+    private(i, j, k, rd) \
+    schedule(static)
 #endif
     for (i = 0; i < Npoints; ++i) {
         /* calculate momentum transfer for the detector pixel n1[i], n2[i] */
@@ -2786,17 +2922,17 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
         /* save momentum transfer to output */
         veccopy(&qpos[3 * i], rd);
     }
+    result = PyArray_Return(qposArr);
 
-    /* clean up */
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(n1Arr);
-    Py_DECREF(n2Arr);
-    Py_DECREF(rcchArr);
-
-    /* return output array */
-    return PyArray_Return(qposArr);
+cleanup:
+    if (detectorRotation) PyMem_Free(detectorRotation);
+    Py_XDECREF(n2Arr);
+    Py_XDECREF(n1Arr);
+    Py_XDECREF(rcchArr);
+    Py_XDECREF(detectorAnglesArr);
+    if (!result && qposArr) Py_XDECREF(qposArr);
+    return result;
 }
-
 
 PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
    /* conversion of Npoints of detector positions to Q
@@ -2854,65 +2990,74 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     char *sampleAxis, *detectorAxis, *dir1, *dir2;
     /* c-arrays */
     double *sampleAngles, *detectorAngles, *n1, *n2, *rcch, *UB, *qpos;
-    fp_rot *sampleRotation;
-    fp_rot *detectorRotation;
+    fp_rot *sampleRotation = NULL;
+    fp_rot *detectorRotation = NULL;
     npy_intp nout[2];
+    PyObject *result = NULL;
 
     PyArrayObject *sampleAnglesArr = NULL, *detectorAnglesArr = NULL,
                   *n1Arr = NULL, *n2Arr = NULL, *rcchArr = NULL,
-                  *UBArr = NULL, *qposArr = NULL;  /* numpy arrays */
+                  *UBArr = NULL, *qposArr = NULL;
+    PyObject *sampleAnglesObj = NULL, *detectorAnglesObj = NULL,
+             *n1Obj = NULL, *n2Obj = NULL, *rcchObj = NULL, *UBObj = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!O!O!O!ssddddssddO!dI",
-                          &PyArray_Type, &sampleAnglesArr,
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &n1Arr, &PyArray_Type, &n2Arr,
-                          &PyArray_Type, &rcchArr,
+                          &PyArray_Type, &sampleAnglesObj,
+                          &PyArray_Type, &detectorAnglesObj,
+                          &PyArray_Type, &n1Obj, &PyArray_Type, &n2Obj,
+                          &PyArray_Type, &rcchObj,
                           &sampleAxis, &detectorAxis, &cch1, &cch2,
                           &dpixel1, &dpixel2, &dir1, &dir2, &tiltazimuth,
-                          &tilt, &PyArray_Type, &UBArr,
+                          &tilt, &PyArray_Type, &UBObj,
                           &lambda, &nthreads)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(sampleAnglesArr, 2, NPY_DOUBLE,
-                  "sampleAngles must be a 2D double array");
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE,
-                  "rcch must be a 1D double array");
-    if (PyArray_SIZE(rcchArr) != 3) {
-        PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
-        return NULL;
-    }
-    PYARRAY_CHECK(UBArr, 2, NPY_DOUBLE, "UB must be a 2D double array");
-    if (PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
-        PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
-        return NULL;
-    }
-    PYARRAY_CHECK(n1Arr, 1, NPY_DOUBLE, "n1 must be a 1D double array");
-    PYARRAY_CHECK(n2Arr, 1, NPY_DOUBLE, "n2 must be a 1D double array");
+    sampleAnglesArr = check_and_convert_to_contiguous(sampleAnglesObj, 2, NPY_DOUBLE, "sampleAngles");
+    if (!sampleAnglesArr) goto cleanup;
 
-    Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
+
+    rcchArr = check_and_convert_to_contiguous(rcchObj, 1, NPY_DOUBLE, "rcch");
+    if (!rcchArr || PyArray_SIZE(rcchArr) != 3) {
+        PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
+        goto cleanup;
+    }
+
+    UBArr = check_and_convert_to_contiguous(UBObj, 2, NPY_DOUBLE, "UB");
+    if (!UBArr || PyArray_DIMS(UBArr)[0] != 3 || PyArray_DIMS(UBArr)[1] != 3) {
+        PyErr_SetString(PyExc_ValueError, "UB must be of shape (3, 3)");
+        goto cleanup;
+    }
+
+    n1Arr = check_and_convert_to_contiguous(n1Obj, 1, NPY_DOUBLE, "n1");
+    if (!n1Arr) goto cleanup;
+
+    n2Arr = check_and_convert_to_contiguous(n2Obj, 1, NPY_DOUBLE, "n2");
+    if (!n2Arr) goto cleanup;
+
+    Npoints = (int)PyArray_DIMS(detectorAnglesArr)[0];
     if (PyArray_SIZE(n1Arr) != Npoints || PyArray_SIZE(n2Arr) != Npoints) {
         PyErr_SetString(PyExc_ValueError, "n1, n2 must be of length Npoints");
-        return NULL;
+        goto cleanup;
     }
-    Nd = (int) PyArray_DIMS(detectorAnglesArr)[1];
-    Ns = (int) PyArray_DIMS(sampleAnglesArr)[1];
+    Nd = (int)PyArray_DIMS(detectorAnglesArr)[1];
+    Ns = (int)PyArray_DIMS(sampleAnglesArr)[1];
     if (PyArray_DIMS(sampleAnglesArr)[0] != Npoints) {
         PyErr_SetString(PyExc_ValueError,
             "detectorAngles and sampleAngles must have same first dimension");
-        return NULL;
+        goto cleanup;
     }
 
-    detectorAngles = (double *) PyArray_DATA(detectorAnglesArr);
-    sampleAngles = (double *) PyArray_DATA(sampleAnglesArr);
-    rcch = (double *) PyArray_DATA(rcchArr);
-    UB = (double *) PyArray_DATA(UBArr);
-    n1 = (double *) PyArray_DATA(n1Arr);
-    n2 = (double *) PyArray_DATA(n2Arr);
+    detectorAngles = (double *)PyArray_DATA(detectorAnglesArr);
+    sampleAngles = (double *)PyArray_DATA(sampleAnglesArr);
+    rcch = (double *)PyArray_DATA(rcchArr);
+    UB = (double *)PyArray_DATA(UBArr);
+    n1 = (double *)PyArray_DATA(n1Arr);
+    n2 = (double *)PyArray_DATA(n2Arr);
 
     /* derived values from input parameters */
     f = M_2PI / lambda;
@@ -2920,26 +3065,29 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     /* create output ndarray */
     nout[0] = Npoints;
     nout[1] = 3;
-    qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
-    qpos = (double *) PyArray_DATA(qposArr);
+    qposArr = (PyArrayObject *)PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if(qposArr == NULL) goto cleanup;
+    qpos = (double *)PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
-    /* set openmp thread numbers dynamically */
+#ifdef __OPENMP__
     OMPSETNUMTHREADS(nthreads);
-    #endif
+#endif
 
     /* arrays with function pointers to rotation matrix functions */
-    sampleRotation = (fp_rot*) malloc(Ns * sizeof(fp_rot));
-    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
-
+    sampleRotation = (fp_rot*)PyMem_Malloc(Ns * sizeof(fp_rot));
+    detectorRotation = (fp_rot*)PyMem_Malloc(Nd * sizeof(fp_rot));
+    if (sampleRotation == NULL || detectorRotation == NULL) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
 
     /* determine axes directions */
     if (determine_axes_directions(sampleRotation, sampleAxis, Ns) != 0) {
-        return NULL;
+        goto cleanup;
     }
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
-        return NULL;
+        goto cleanup;
     }
 
     veccopy(r_i, rcch);
@@ -2947,10 +3095,10 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel1, dir1, dpixel1, r_i, 0.) != 0) {
-        return NULL;
+        goto cleanup;
     }
     if (determine_detector_pixel(rpixel2, dir2, dpixel2, r_i, 0.) != 0) {
-        return NULL;
+        goto cleanup;
     }
 
     /* rotate detector pixel vectors according to tilt */
@@ -2998,16 +3146,19 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
         matvec(ms, rd, &qpos[3 * i]);
     }
 
-    /* clean up */
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(n1Arr);
-    Py_DECREF(n2Arr);
-    Py_DECREF(rcchArr);
-    Py_DECREF(sampleAnglesArr);
-    Py_DECREF(UBArr);
+    result = PyArray_Return(qposArr);
 
-    /* return output array */
-    return PyArray_Return(qposArr);
+cleanup:
+    if (sampleRotation) PyMem_Free(sampleRotation);
+    if (detectorRotation) PyMem_Free(detectorRotation);
+    Py_XDECREF(n2Arr);
+    Py_XDECREF(n1Arr);
+    Py_XDECREF(UBArr);
+    Py_XDECREF(rcchArr);
+    Py_XDECREF(detectorAnglesArr);
+    Py_XDECREF(sampleAnglesArr);
+    if (!result && qposArr) Py_XDECREF(qposArr);
+    return result;
 }
 
 
@@ -3046,28 +3197,30 @@ PyObject* ang2q_detpos(PyObject *self, PyObject *args)
     double *detectorAngles, *ri, *qpos;
     npy_intp nout[2];
     /* arrays with function pointers to rotation matrix functions */
-    fp_rot *detectorRotation;
+    fp_rot *detectorRotation = NULL;
+    PyObject *result = NULL;
 
-    /* numpy arrays */
     PyArrayObject *detectorAnglesArr = NULL, *riArr = NULL, *qposArr = NULL;
+    PyObject *detectorAnglesObj = NULL, *riObj = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!sI",
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &riArr,
+                          &PyArray_Type, &detectorAnglesObj,
+                          &PyArray_Type, &riObj,
                           &detectorAxis,
                           &nthreads)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(riArr, 1, NPY_DOUBLE,
-                  "r_i must be a 1D double array");
-    if (PyArray_SIZE(riArr) != 3) {
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
+
+    riArr = check_and_convert_to_contiguous(riObj, 1, NPY_DOUBLE, "r_i");
+    if (!riArr || PyArray_SIZE(riArr) != 3) {
+        if (!riArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "r_i needs to be of length 3");
-        return NULL;
+        goto cleanup;
     }
 
     Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
@@ -3080,20 +3233,25 @@ PyObject* ang2q_detpos(PyObject *self, PyObject *args)
     nout[0] = Npoints;
     nout[1] = 3;
     qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if (qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
+#ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #endif
+#endif
 
     /* arrays with function pointers to rotation matrix functions */
-    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
+    detectorRotation = (fp_rot*) PyMem_Malloc(Nd * sizeof(fp_rot));
+    if (!detectorRotation) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
 
     /* determine axes directions */
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
-        return NULL;
+        goto cleanup;
     }
 
     /* calculate rotation matices and perform rotations */
@@ -3110,12 +3268,14 @@ PyObject* ang2q_detpos(PyObject *self, PyObject *args)
         veccopy(&qpos[3 * i], rd);
     }
 
-    /* clean up */
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(riArr);
+    result = PyArray_Return(qposArr);
 
-    /* return output array */
-    return PyArray_Return(qposArr);
+cleanup:
+    if (detectorRotation) PyMem_Free(detectorRotation);
+    Py_XDECREF(riArr);
+    Py_XDECREF(detectorAnglesArr);
+    if (!result && qposArr) Py_XDECREF(qposArr);
+    return result;
 }
 
 
@@ -3156,35 +3316,39 @@ PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args)
     double *detectorAngles, *rcch, *qpos;
     int *roi;  /* region of interest integer array */
     npy_intp nout[2];
-    fp_rot *detectorRotation;
+    fp_rot *detectorRotation = NULL;
+    PyObject *result = NULL;
 
-    /* numpy arrays */
     PyArrayObject *detectorAnglesArr = NULL, *rcchArr = NULL,
                   *roiArr = NULL, *qposArr = NULL;
+    PyObject *detectorAnglesObj = NULL, *rcchObj = NULL, *roiObj = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!sddO!sdI",
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &rcchArr,
+                          &PyArray_Type, &detectorAnglesObj,
+                          &PyArray_Type, &rcchObj,
                           &detectorAxis,
-                          &cch, &dpixel, &PyArray_Type, &roiArr,
+                          &cch, &dpixel, &PyArray_Type, &roiObj,
                           &dir, &tilt, &nthreads)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE,
-                  "rcch must be a 1D double array");
-    if (PyArray_SIZE(rcchArr) != 3) {
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
+
+    rcchArr = check_and_convert_to_contiguous(rcchObj, 1, NPY_DOUBLE, "rcch");
+    if (!rcchArr || PyArray_SIZE(rcchArr) != 3) {
+        if (!rcchArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
-        return NULL;
+        goto cleanup;
     }
-    PYARRAY_CHECK(roiArr, 1, NPY_INT32, "roi must be a 1D int array");
-    if (PyArray_SIZE(roiArr) != 2) {
+
+    roiArr = check_and_convert_to_contiguous(roiObj, 1, NPY_INT32, "roi");
+    if (!roiArr || PyArray_SIZE(roiArr) != 2) {
+        if (!roiArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "roi must be of length 2");
-        return NULL;
+        goto cleanup;
     }
 
     Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
@@ -3201,25 +3365,30 @@ PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args)
     nout[0] = Npoints * Nch;
     nout[1] = 3;
     qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if (qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
+#ifdef __OPENMP__
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #endif
+#endif
 
     /* arrays with function pointers to rotation matrix functions */
-    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
+    detectorRotation = (fp_rot*) PyMem_Malloc(Nd * sizeof(fp_rot));
+    if (!detectorRotation) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
 
     /* determine axes directions */
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
-        return NULL;
+        goto cleanup;
     }
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel, dir, dpixel, rcch, tilt) != 0) {
-        return NULL;
+        goto cleanup;
     }
     for (k = 0; k < 3; ++k) {
         rcchp[k] = rpixel[k] * cch;
@@ -3245,13 +3414,15 @@ PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args)
         }
     }
 
-    /* clean up */
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(rcchArr);
-    Py_DECREF(roiArr);
+    result = PyArray_Return(qposArr);
 
-    /* return output array */
-    return PyArray_Return(qposArr);
+cleanup:
+    if (detectorRotation) PyMem_Free(detectorRotation);
+    Py_XDECREF(roiArr);
+    Py_XDECREF(rcchArr);
+    Py_XDECREF(detectorAnglesArr);
+    if (!result && qposArr) Py_XDECREF(qposArr);
+    return result;
 }
 
 
@@ -3300,38 +3471,42 @@ PyObject* ang2q_detpos_area(PyObject *self, PyObject *args)
     char *detectorAxis, *dir1, *dir2;
     double *detectorAngles, *rcch, *qpos;
     int *roi;  /* region of interest integer array */
-    fp_rot *detectorRotation;
+    fp_rot *detectorRotation = NULL;
     npy_intp nout[2];
+    PyObject *result = NULL;
 
-    /* numpy arrays */
     PyArrayObject *detectorAnglesArr = NULL, *rcchArr = NULL,
                   *roiArr = NULL, *qposArr = NULL;
+    PyObject *detectorAnglesObj = NULL, *rcchObj = NULL, *roiObj = NULL;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!O!sddddO!ssddI",
-                          &PyArray_Type, &detectorAnglesArr,
-                          &PyArray_Type, &rcchArr,
+                          &PyArray_Type, &detectorAnglesObj,
+                          &PyArray_Type, &rcchObj,
                           &detectorAxis,
                           &cch1, &cch2, &dpixel1, &dpixel2,
-                          &PyArray_Type, &roiArr,
+                          &PyArray_Type, &roiObj,
                           &dir1, &dir2, &tiltazimuth, &tilt,
                           &nthreads)) {
         return NULL;
     }
 
     /* check Python array dimensions and types */
-    PYARRAY_CHECK(detectorAnglesArr, 2, NPY_DOUBLE,
-                  "detectorAngles must be a 2D double array");
-    PYARRAY_CHECK(rcchArr, 1, NPY_DOUBLE,
-                  "rcch must be a 1D double array");
-    if (PyArray_SIZE(rcchArr) != 3) {
+    detectorAnglesArr = check_and_convert_to_contiguous(detectorAnglesObj, 2, NPY_DOUBLE, "detectorAngles");
+    if (!detectorAnglesArr) goto cleanup;
+
+    rcchArr = check_and_convert_to_contiguous(rcchObj, 1, NPY_DOUBLE, "rcch");
+    if (!rcchArr || PyArray_SIZE(rcchArr) != 3) {
+        if (!rcchArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "rcch needs to be of length 3");
-        return NULL;
+        goto cleanup;
     }
-    PYARRAY_CHECK(roiArr, 1, NPY_INT32, "roi must be a 1D int array");
-    if (PyArray_SIZE(roiArr) != 4) {
+
+    roiArr = check_and_convert_to_contiguous(roiObj, 1, NPY_INT32, "roi");
+    if (!roiArr || PyArray_SIZE(roiArr) != 4) {
+        if (!roiArr) goto cleanup;
         PyErr_SetString(PyExc_ValueError, "roi must be of length 4");
-        return NULL;
+        goto cleanup;
     }
 
     Npoints = (int) PyArray_DIMS(detectorAnglesArr)[0];
@@ -3349,28 +3524,32 @@ PyObject* ang2q_detpos_area(PyObject *self, PyObject *args)
     nout[0] = Npoints * idxh1;
     nout[1] = 3;
     qposArr = (PyArrayObject *) PyArray_SimpleNew(2, nout, NPY_DOUBLE);
+    if (qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-    #ifdef __OPENMP__
-    /* set openmp thread numbers dynamically */
+#ifdef __OPENMP__
     OMPSETNUMTHREADS(nthreads);
-    #endif
+#endif
 
     /* arrays with function pointers to rotation matrix functions */
-    detectorRotation = (fp_rot*) malloc(Nd * sizeof(fp_rot));
+    detectorRotation = (fp_rot*) PyMem_Malloc(Nd * sizeof(fp_rot));
+    if (!detectorRotation) {
+        PyErr_NoMemory();
+        goto cleanup;
+    }
 
     /* determine axes directions */
     if (determine_axes_directions_apply(detectorRotation,
                                         detectorAxis, Nd) != 0) {
-        return NULL;
+        goto cleanup;
     }
 
     /* determine detector pixel vector */
     if (determine_detector_pixel(rpixel1, dir1, dpixel1, rcch, 0.) != 0) {
-        return NULL;
+        goto cleanup;
     }
     if (determine_detector_pixel(rpixel2, dir2, dpixel2, rcch, 0.) != 0) {
-        return NULL;
+        goto cleanup;
     }
 
     /* rotate detector pixel vectors according to tilt */
@@ -3405,11 +3584,13 @@ PyObject* ang2q_detpos_area(PyObject *self, PyObject *args)
         }
     }
 
-    /* clean up */
-    Py_DECREF(detectorAnglesArr);
-    Py_DECREF(rcchArr);
-    Py_DECREF(roiArr);
+    result = PyArray_Return(qposArr);
 
-    /* return output array */
-    return PyArray_Return(qposArr);
+cleanup:
+    if (detectorRotation) PyMem_Free(detectorRotation);
+    Py_XDECREF(roiArr);
+    Py_XDECREF(rcchArr);
+    Py_XDECREF(detectorAnglesArr);
+    if (!result && qposArr) Py_XDECREF(qposArr);
+    return result;
 }
