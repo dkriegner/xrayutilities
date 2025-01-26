@@ -31,5 +31,4 @@
     #define NPY_ARRAY_C_CONTIGUOUS  NPY_C_CONTIGUOUS
 #endif
 
-int check_array(PyArrayObject** arr_ptr, int ndims, int typenum, const char* arr_name);
 PyArrayObject* check_and_convert_to_contiguous(PyObject* obj, int ndims, int typenum, const char* name);
