@@ -170,8 +170,8 @@ class Gridder(utilities.ABC):
         prepare array for passing to c-code
         """
         if isinstance(a, (list, tuple, float, int)):
-            a = numpy.asarray(a, dtype=numpy.double)
-        return a.reshape(a.size)
+            a = numpy.asarray(a)
+        return a.reshape(a.size).astype(numpy.double)
 
     def Clear(self):
         """
