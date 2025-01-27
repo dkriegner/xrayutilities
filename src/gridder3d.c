@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// ... (check_and_convert_to_contiguous function - same as before)
 
 PyObject* pyfuzzygridder3d(PyObject *self, PyObject *args) {
     PyArrayObject *px = NULL, *py = NULL, *pz = NULL, *pdata = NULL, *poutput = NULL, *pnorm = NULL;

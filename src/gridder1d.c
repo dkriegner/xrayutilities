@@ -25,6 +25,7 @@
 #include "gridder.h"
 #include "gridder_utils.h"
 
+
 PyObject* pyfuzzygridder1d(PyObject *self, PyObject *args) {
     PyArrayObject *px = NULL, *pdata = NULL, *poutput = NULL, *pnorm = NULL;
     PyObject *xobj = NULL, *dataobj = NULL, *outputobj = NULL, *normobj = NULL;
@@ -44,8 +45,6 @@ PyObject* pyfuzzygridder1d(PyObject *self, PyObject *args) {
                          &fuzzywidth, &flags)) {
         return NULL; // Return NULL directly if parsing fails
     }
-
-    // No need to decref original objects; they are borrowed!
 
     px = check_and_convert_to_contiguous(xobj, 1, NPY_DOUBLE, "x-axis");
     if (!px) goto cleanup;

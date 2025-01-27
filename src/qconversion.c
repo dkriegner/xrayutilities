@@ -758,7 +758,7 @@ PyObject* py_ang2q_conversion(PyObject *self, PyObject *args)
     if (qposArr == NULL) goto cleanup;
     qpos = (double *)PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     omp_set_num_threads(nthreads);
 #endif
 
@@ -863,7 +863,7 @@ int ang2q_conversion(double *sampleAngles, double *detectorAngles,
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, ki, mtemp, mtemp2, ms, md) \
             schedule(static)
@@ -963,7 +963,7 @@ int ang2q_conversion_sd(
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, mtemp, mtemp2, ms, md) \
             schedule(static)
@@ -1063,7 +1063,7 @@ int ang2q_conversion_trans(
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, mtemp, mtemp2, ms, rd) \
             schedule(static)
@@ -1165,7 +1165,7 @@ int ang2q_conversion_sdtrans(
     normalize(local_ri);
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, mtemp, mtemp2, ms, rd) \
             schedule(static)
@@ -1365,7 +1365,7 @@ PyObject* py_ang2q_conversion_linear(PyObject *self, PyObject *args)
     if(qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 #endif
@@ -1490,7 +1490,7 @@ int ang2q_conversion_linear(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
@@ -1617,7 +1617,7 @@ int ang2q_conversion_linear_sd(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
@@ -1745,7 +1745,7 @@ int ang2q_conversion_linear_trans(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
@@ -1868,7 +1868,7 @@ int ang2q_conversion_linear_sdtrans(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
@@ -2083,7 +2083,7 @@ PyObject* py_ang2q_conversion_area(PyObject *self, PyObject *args)
     if(qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 #endif
@@ -2236,7 +2236,7 @@ int ang2q_conversion_area(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
@@ -2391,7 +2391,7 @@ int ang2q_conversion_area_sd(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, md, rd, rtemp) \
             schedule(static)
@@ -2547,7 +2547,7 @@ int ang2q_conversion_area_trans(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
@@ -2702,7 +2702,7 @@ int ang2q_conversion_area_sdtrans(
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, f, mtemp, mtemp2, ms, rd) \
             schedule(static)
@@ -2870,7 +2870,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     if (!qposArr) goto cleanup;
     qpos = (double *)PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     OMPSETNUMTHREADS(nthreads);
 #endif
 
@@ -2899,7 +2899,7 @@ PyObject* ang2q_conversion_area_pixel(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
 #pragma omp parallel for default(shared) \
     private(i, j, k, rd) \
     schedule(static)
@@ -3069,7 +3069,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     if(qposArr == NULL) goto cleanup;
     qpos = (double *)PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     OMPSETNUMTHREADS(nthreads);
 #endif
 
@@ -3110,7 +3110,7 @@ PyObject* ang2q_conversion_area_pixel2(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, k, mtemp, mtemp2, ms, rd) \
             schedule(static)
@@ -3236,7 +3236,7 @@ PyObject* ang2q_detpos(PyObject *self, PyObject *args)
     if (qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 #endif
@@ -3255,7 +3255,7 @@ PyObject* ang2q_detpos(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, rd) schedule(static)
 #endif
@@ -3368,7 +3368,7 @@ PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args)
     if (qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 #endif
@@ -3395,7 +3395,7 @@ PyObject* ang2q_detpos_linear(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, k, rd) schedule(static)
 #endif
@@ -3527,7 +3527,7 @@ PyObject* ang2q_detpos_area(PyObject *self, PyObject *args)
     if (qposArr == NULL) goto cleanup;
     qpos = (double *) PyArray_DATA(qposArr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     OMPSETNUMTHREADS(nthreads);
 #endif
 
@@ -3561,7 +3561,7 @@ PyObject* ang2q_detpos_area(PyObject *self, PyObject *args)
     }
 
     /* calculate rotation matices and perform rotations */
-#ifdef __OPENMP__
+#ifdef _OPENMP
     #pragma omp parallel for default(shared) \
             private(i, j, j1, j2, k, rd) schedule(static)
 #endif

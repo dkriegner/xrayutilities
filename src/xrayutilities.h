@@ -15,6 +15,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2014 Eugen Wintersberger <eugen.wintersberger@gmail.com>
+ * Copyright (C) 2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 */
 #pragma once
 
@@ -60,10 +61,11 @@
 /*
  * include OpenMP header is required
  */
-#ifdef __OPENMP__
+#ifdef _OPENMP
 #include <omp.h>
-#endif
 
 #define OMPSETNUMTHREADS(nth) \
     if (nth == 0) omp_set_num_threads(omp_get_max_threads());\
     else omp_set_num_threads(nth);
+
+#endif
