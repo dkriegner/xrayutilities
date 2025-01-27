@@ -13,16 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2019-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2019-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import os
 import subprocess
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
-scriptdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
-                         'examples')
+scriptdir = str(Path(__file__).parent.parent / 'examples')
 scriptfiles = [
     'simpack_powdermodel.py',
     'simpack_xrd_AlGaAs.py',
@@ -67,6 +67,10 @@ scriptfiles = [
     'xrayutilities_show_reciprocal_space_plane.py',
 ]
 
+cleanup_files = [
+    'xrrfit.dat',
+]
+
 
 class TestExampleScripts(unittest.TestCase):
     def test_examples(self):
@@ -79,6 +83,15 @@ class TestExampleScripts(unittest.TestCase):
                     cmd = [sys.executable, sf]
                     subprocess.run(cmd, env=env, cwd=scriptdir, stdout=fid,
                                    check=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up any files created during tests."""
+        for f in cleanup_files:
+            try:
+                Path(scriptdir, f).unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 if __name__ == '__main__':
