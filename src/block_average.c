@@ -325,7 +325,7 @@ PyObject* block_average_CCD(PyObject *self, PyObject *args) {
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 
-    #pragma omp parallel for collapse(3) default(shared) \
+    #pragma omp parallel for default(shared) \
          private(n, i, j, ii, jj, k, l, k_end, l_end, sum) schedule(static)
  #endif
     for (n = 0; n < Nframes; ++n) {
