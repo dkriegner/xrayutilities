@@ -57,7 +57,7 @@ INLINE void diffvec(double *RESTRICT v1, double *RESTRICT v2) {
     }
 }
 
-INLINE double norm(double *v) {
+INLINE double vector_norm(double *v) {
     double n = 0;
     unsigned int i;
     for (i = 0; i < 3; ++i) {
@@ -67,7 +67,7 @@ INLINE double norm(double *v) {
 }
 
 INLINE void normalize(double *v) {
-    double n = norm(v);
+    double n = vector_norm(v);
     unsigned int i;
     for (i = 0; i < 3; ++i) {
         v[i] /= n;
@@ -2087,7 +2087,6 @@ PyObject* py_ang2q_conversion_area(PyObject *self, PyObject *args)
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 #endif
-
     /* call worker function */
     if (flags & HAS_SAMPLEDIS) {
         if (flags & HAS_TRANSLATIONS) {
