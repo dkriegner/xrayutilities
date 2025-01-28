@@ -24,6 +24,20 @@
 #define PY_ARRAY_UNIQUE_SYMBOL XU_UNIQUE_SYMBOL
 #include <numpy/arrayobject.h>
 
+#include "xrayutilities.h"
+
+
+// Function to check OpenMP availability and get max threads
+static PyObject* get_max_openmp_threads(PyObject* self, PyObject* args) {
+    int max_threads = -1; // Default: OpenMP not available
+
+    #ifdef _OPENMP  // Check if OpenMP is enabled during compilation
+        max_threads = omp_get_max_threads();
+    #endif
+
+    return PyLong_FromLong(max_threads);
+}
+
 
 /* functions from block_average.c */
 extern PyObject* block_average1d(PyObject *self, PyObject *args);
@@ -61,6 +75,9 @@ extern PyObject* cbfread(PyObject *self, PyObject *args);
 extern PyObject* testhklcond(PyObject *self, PyObject *args);
 
 static PyMethodDef XRU_Methods[] = {
+    {"get_max_openmp_threads", get_max_openmp_threads, METH_NOARGS,
+     "Get max OpenMP threads."
+    },
     {"block_average1d", (PyCFunction)block_average1d, METH_VARARGS,
      "block average for one-dimensional numpy double array\n\n"
      "Parameters \n"
