@@ -20,9 +20,7 @@ import unittest
 
 import numpy as np
 import xrayutilities as xu
-from scipy.stats import linregress, uniform
-import plotly.graph_objects as go
-
+from scipy.stats import uniform
 
 # get maximum number of threads
 # if this is -1 no openmp is available and we skip the test class
