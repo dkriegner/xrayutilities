@@ -43,7 +43,7 @@ INLINE void sumvec(double *RESTRICT v1, double *RESTRICT v2);
 
 INLINE void diffvec(double *RESTRICT v1, double *RESTRICT v2);
 
-INLINE double norm(double *v);
+INLINE double vector_norm(double *v);
 
 INLINE void normalize(double *v);
 

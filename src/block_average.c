@@ -33,11 +33,10 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
      *                  size = ceil(N/Nav)
      *
      */
-    int i, j, Nav, N;
+    int Nav, N;
     PyArrayObject *inputArr = NULL, *outarr = NULL;
     PyObject *inputObj = NULL;
     double *cin, *cout;
-    double buf;
     npy_intp nout;
     PyObject *result = NULL;
 
@@ -68,15 +67,13 @@ PyObject* block_average1d(PyObject *self, PyObject *args) {
     cout = (double *) PyArray_DATA(outarr);
 
     /* c-code following is performing the block averaging */
-    for (i = 0; i < N; i += Nav) {
-        buf = 0;
-        /* perform one block average (j-i serves as counter
-           -> last bin is therefore correct) */
-        for (j = i; j < i + Nav && j < N; ++j) {
-            buf += cin[j];
+    for (int i = 0, k = 0; i < N; i += Nav, ++k) {
+        double sum = 0.0;
+        int j_end = (i + Nav < N) ? i + Nav : N;
+        for (int j = i; j < j_end; ++j) {
+            sum += cin[j];
         }
-        /* save average to output array */
-        cout[i / Nav] = buf / (double)(j - i);
+        cout[k] = sum / (j_end - i); // Directly calculate the average
     }
 
     /* return output array */
@@ -105,16 +102,17 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
      *                  size = (ceil(Nch2/Nav2) , ceil(Nch1/Nav1))
      *
      */
-    int i = 0, j = 0, k = 0, l = 0;  /* loop indices */
     int Nch1, Nch2;  /* number of values in input array */
     int Nav1, Nav2;  /* number of items to average */
     unsigned int nthreads;  /* number of threads to use */
     PyArrayObject *inputArr = NULL, *outarr = NULL;
     PyObject *inputObj = NULL;
     double *cin, *cout;
-    double buf;
     npy_intp nout[2];
     PyObject *result = NULL;
+    int i, ii, j, jj, k, l;
+    int k_end, l_end;
+    double sum;
 
     /* Python argument conversion code */
     if (!PyArg_ParseTuple(args, "O!iiI", &PyArray_Type, &inputObj, &Nav2,
@@ -146,23 +144,27 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
 
     cout = (double *)PyArray_DATA(outarr);
 
-#ifdef __OPENMP__
+    ii = 0;
+#ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-
-    #pragma omp parallel for default(shared) \
-     private(i, j, k, l, buf) schedule(static)
+    #pragma omp parallel for default(shared) private(i,j,k,l,k_end,l_end,sum) schedule(static)
 #endif
-    for (i = 0; i < Nch2; i = i + Nav2) {
-        for (j = 0; j < Nch1; j = j + Nav1) {
-            buf = 0.;
-            for (k = 0; k < Nav2 && (i + k) < Nch2; ++k) {
-                for (l = 0; l < Nav1 && (j + l) < Nch1; ++l) {
-                    buf += cin[(i + k) * Nch1 + (j + l)];
+    for (i = 0; i < Nch2; i += Nav2) {
+        jj = 0;
+        for (j = 0; j < Nch1; j += Nav1) {
+            sum = 0.0;
+            k_end = (i + Nav2 < Nch2) ? i + Nav2 : Nch2;
+            l_end = (j + Nav1 < Nch1) ? j + Nav1 : Nch1;
+            for (k = i; k < k_end; ++k) {
+                for (l = j; l < l_end; ++l) {
+                    sum += cin[k * Nch1 + l];
                 }
             }
-            cout[(i / Nav2) * nout[1] + j / Nav1] = buf / (double)(k * l);
+            cout[ii * nout[1] + jj] = sum / ((k_end - i) * (l_end - j));
+            ++jj;
         }
+        ++ii;
     }
 
     result = PyArray_Return(outarr);
@@ -189,14 +191,14 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
      *    block_av:     block averaged output array
      *                  size = (Nspec , ceil(Nch/Nav)) (out)
      */
-    int i, j, k;  /* loop indices */
     int Nspec, Nch;  /* number of items in input */
     int Nav;  /* number of items to average */
     unsigned int nthreads;  /* number of threads to use */
     PyArrayObject *inputArr = NULL, *outarr = NULL;
     PyObject *inputObj = NULL;
     double *cin, *cout;
-    double buf;
+    int i, j, k, jj, k_end;
+    double sum;
     npy_intp nout[2];
     PyObject *result = NULL;
 
@@ -230,23 +232,22 @@ PyObject* block_average_PSD(PyObject *self, PyObject *args) {
 
     cout = (double *)PyArray_DATA(outarr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 
-    #pragma omp parallel for default(shared) private(i, j, k, buf) \
-     schedule(static)
+    #pragma omp parallel for default(shared) private(i, j, k, jj, k_end, sum) schedule(static)
 #endif
     for (i = 0; i < Nspec; ++i) {
-        for (j = 0; j < Nch; j = j + Nav) {
-            buf = 0;
-            /* perform one block average
-               (j-i serves as counter -> last bin is therefore correct) */
-            for (k = j; k < j + Nav && k < Nch; ++k) {
-                buf += cin[i * Nch + k];
+        jj = 0;
+        for (j = 0; j < Nch; j += Nav) {
+            sum = 0.0;
+            k_end = (j + Nav < Nch) ? j + Nav : Nch;
+            for (k = j; k < k_end; ++k) {
+                sum += cin[i * Nch + k];
             }
-            /* save average to output array */
-            cout[j / Nav + i * nout[1]] = buf / (double)(k - j);
+            cout[i * nout[1] + jj] = sum / (k_end - j);
+            jj++;
         }
     }
 
@@ -277,15 +278,14 @@ PyObject* block_average_CCD(PyObject *self, PyObject *args) {
      *                  size = (Nframes, ceil(Nch2/Nav2) , ceil(Nch1/Nav1))
      *
      */
-
-    int i = 0, j = 0, k = 0, l = 0, n = 0;  /* loop indices */
+    int n, i, j, k, l, ii, jj, k_end, l_end;
     int Nframes, Nch1, Nch2;  /* number of values in input array */
     int Nav1, Nav2;  /* number of items to average */
     unsigned int nthreads;  /* number of threads to use */
     PyArrayObject *inputArr = NULL, *outarr = NULL;
     PyObject *inputObj = NULL;
     double *cin, *cout;
-    double buf;
+    double sum;
     npy_intp nout[3];
     PyObject *result = NULL;
 
@@ -321,24 +321,30 @@ PyObject* block_average_CCD(PyObject *self, PyObject *args) {
 
     cout = (double *)PyArray_DATA(outarr);
 
-#ifdef __OPENMP__
+#ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
 
     #pragma omp parallel for default(shared) \
-     private(i, j, k, l, n, buf) schedule(static)
-#endif
-    for (n = 0; n < Nframes; n++) {
-        for (i = 0; i < Nch2; i = i + Nav2) {
-            for (j = 0; j < Nch1; j = j + Nav1) {
-                buf = 0.;
-                for (k = 0; k < Nav2 && (i + k) < Nch2; ++k) {
-                    for (l = 0; l < Nav1 && (j + l) < Nch1; ++l) {
-                        buf += cin[n * Nch1 * Nch2 + (i + k) * Nch1 + (j + l)];
+         private(n, i, j, ii, jj, k, l, k_end, l_end, sum) schedule(static)
+ #endif
+    for (n = 0; n < Nframes; ++n) {
+        ii = 0;
+        for (i = 0; i < Nch2; i += Nav2) {
+            jj = 0;
+            for (j = 0; j < Nch1; j += Nav1) {
+                sum = 0.0;
+                k_end = (i + Nav2 < Nch2) ? i + Nav2 : Nch2;
+                l_end = (j + Nav1 < Nch1) ? j + Nav1 : Nch1;
+                for (k = i; k < k_end; ++k) {
+                    for (l = j; l < l_end; ++l) {
+                        sum += cin[n * Nch1 * Nch2 + k * Nch1 + l];
                     }
                 }
-                cout[n * nout[1] * nout[2] + (i / Nav2) * nout[2] + j / Nav1] = buf / (double)(k * l);
+                cout[n * nout[1] * nout[2] + ii * nout[2] + jj] = sum / ((k_end - i) * (l_end - j));
+                jj++;
             }
+            ii++;
         }
     }
 
