@@ -144,15 +144,15 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
 
     cout = (double *)PyArray_DATA(outarr);
 
-    ii = 0;
 #ifdef _OPENMP
     /* set openmp thread numbers dynamically */
     OMPSETNUMTHREADS(nthreads);
-    #pragma omp parallel for default(shared) private(i,j,k,l,k_end,l_end,sum) schedule(static)
+    #pragma omp parallel for default(shared) private(i,j,ii,jj,k,l,k_end,l_end,sum) schedule(static)
 #endif
     for (i = 0; i < Nch2; i += Nav2) {
-        jj = 0;
+        ii = i / Nav2;
         for (j = 0; j < Nch1; j += Nav1) {
+            jj = j / Nav1;
             sum = 0.0;
             k_end = (i + Nav2 < Nch2) ? i + Nav2 : Nch2;
             l_end = (j + Nav1 < Nch1) ? j + Nav1 : Nch1;
@@ -162,11 +162,8 @@ PyObject* block_average2d(PyObject *self, PyObject *args) {
                 }
             }
             cout[ii * nout[1] + jj] = sum / ((k_end - i) * (l_end - j));
-            ++jj;
         }
-        ++ii;
     }
-
     result = PyArray_Return(outarr);
 
 cleanup:
