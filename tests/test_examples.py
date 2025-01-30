@@ -15,6 +15,7 @@
 #
 # Copyright (c) 2019-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
+import configparser
 import os
 import subprocess
 import sys
@@ -22,7 +23,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-scriptdir = str(Path(__file__).parent.parent / 'examples')
+scriptdir = Path(__file__).parent.parent / 'examples'
 scriptfiles = [
     'simpack_powdermodel.py',
     'simpack_xrd_AlGaAs.py',
@@ -73,9 +74,23 @@ cleanup_files = [
 
 
 class TestExampleScripts(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        """Create temporary config settings.
+
+        Limit number of used threads during the test run of the examples.
+        """
+        cls.config_file = scriptdir / "xrayutilities.conf"
+        cls.config = configparser.ConfigParser()
+        cls.config["xrayutilities"] = {"nthreads": "2"}
+
+        with open(cls.config_file, "w") as f:
+            cls.config.write(f)
+
     def test_examples(self):
         """Testrun example scripts."""
         for sf in scriptfiles:
+            print(f"starting script {sf}")
             with self.subTest(script=sf):
                 with tempfile.TemporaryFile(mode='w') as fid:
                     env = os.environ.copy()
@@ -87,6 +102,11 @@ class TestExampleScripts(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """Clean up any files created during tests."""
+        try:
+            os.remove(cls.config_file)
+        except FileNotFoundError:
+            print(f"Warning: Config file {cls.config_file} not found during "
+                  "tearDownClass.")
         for f in cleanup_files:
             try:
                 Path(scriptdir, f).unlink(missing_ok=True)

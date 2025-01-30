@@ -134,4 +134,7 @@ def main():
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
+    # define a sane number of threads to be used.
+    # Note that the memory consumption increases with the number of threads!
+    xu.config.NTHREADS = 1
     main()
