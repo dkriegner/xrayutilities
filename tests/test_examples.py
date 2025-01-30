@@ -76,8 +76,8 @@ cleanup_files = [
 class TestExampleScripts(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        """create temporary config settings.
-        
+        """Create temporary config settings.
+
         Limit number of used threads during the test run of the examples.
         """
         cls.config_file = scriptdir / "xrayutilities.conf"
@@ -105,7 +105,8 @@ class TestExampleScripts(unittest.TestCase):
         try:
             os.remove(cls.config_file)
         except FileNotFoundError:
-            print(f"Warning: Config file {cls.config_file} not found during tearDownClass.")
+            print(f"Warning: Config file {cls.config_file} not found during "
+                  "tearDownClass.")
         for f in cleanup_files:
             try:
                 Path(scriptdir, f).unlink(missing_ok=True)
