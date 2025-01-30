@@ -13,16 +13,23 @@
 # serve to show the default.
 
 import re
+from pathlib import Path
 
 import sphinx_rtd_theme
 from sphinx_pyproject import SphinxConfig
+from xrayutilities import __version__ as xu_version
 
 # Load configuration from pyproject.toml
-config = SphinxConfig()
+
+config = SphinxConfig(
+    Path(__file__).parent.parent.parent / "pyproject.toml",
+    config_overrides = {"version": xu_version},
+)
 
 # Project information (auto-extracted from pyproject.toml)
-project = config.project  # Automatically gets the project name
+project = config.name     # Automatically gets the project name
 author = config.author    # Automatically gets the author(s)
+copyright = f"%Y, {config.author}"
 release = config.version  # Full version (e.g., "1.2.3")
 version = config.version.split(".")[0] + "." + config.version.split(".")[1]  # Short version (e.g., "1.2")
 
@@ -33,11 +40,17 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'numpydoc',
     'rst2pdf.pdfbuilder']
 
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'matplotlib': ('https://matplotlib.org/stable', None),
+    'lmfit': ('https://lmfit.github.io/lmfit-py/', None),
+}
 # Paths
 templates_path = ["_templates"]
 source_suffix = ".rst"
@@ -96,7 +109,7 @@ texinfo_documents = [
 pdf_documents = [
     ("index", "xrayutilities", "xrayutilities", author),
 ]
-pdf_stylesheets = ["sphinx", "onecolumn", "twocolumn"]
+pdf_stylesheets = ["sphinx", "onecolumn"]
 pdf_compressed = True
 pdf_default_dpi = 120
 

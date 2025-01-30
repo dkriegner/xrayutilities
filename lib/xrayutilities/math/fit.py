@@ -77,8 +77,9 @@ def linregress(x, y):
 
 def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
              background='constant', plot=False, func_out=False, debug=False):
-    """
-    fit function using odr-pack wrapper in scipy similar to
+    """Fit function using odr-pack wrapper in scipy for peak shaped data.
+
+    This is similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
     for Gauss, Lorentz or Pseudovoigt-functions
 
@@ -88,12 +89,11 @@ def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
         x-coordinates of the data to be fitted
     ydata :     array_like
         y-coordinates of the data which should be fit
-
     iparams :   list, optional
         initial paramters, determined automatically if not specified
-    peaktype :  {'Gauss', 'Lorentz', 'PseudoVoigt',
-                 'PseudoVoigtAsym', 'PseudoVoigtAsym2'}, optional
-        type of peak to fit
+    peaktype : str, optional
+        Type of peak to fit. Choices are: 'Gauss', 'Lorentz', 'PseudoVoigt',
+        'PseudoVoigtAsym', 'PseudoVoigtAsym2'
     maxit :     int, optional
         maximal iteration number of the fit
     background : {'constant', 'linear'}, optional
@@ -104,6 +104,8 @@ def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
     func_out :  bool, optional
         returns the fitted function, which takes the independent variables as
         only argument (f(x))
+    debug :     bool, optional
+        if True, plots initial parameter estimate along with final fit
 
     Returns
     -------
@@ -117,6 +119,7 @@ def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
         flag to tell if the iteration limit was reached, should be False
     fitfunc :   function, optional
         the function used in the fit can be returned (see func_out).
+
     """
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot('XU.math.peak_fit')
@@ -373,9 +376,9 @@ def gauss_fit(xdata, ydata, iparams=None, maxit=300):
 
 
 def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
-    """
-    fit a two dimensional function to a two dimensional data set e.g. a
-    reciprocal space map.
+    """Fit a two dimensional function to a two dimensional data set.
+
+    This is typically used for a signal in a reciprocal space map.
 
     Parameters
     ----------
@@ -394,7 +397,7 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
         fitted, i.e. [xmin, xmax, ymin, ymax]
     fit_function : callable
         function which should be fitted. Call signature must be
-        :func:`fit_function(x, y, *params) -> ndarray`
+        ``fit_function(x, y, *params) -> ndarray``
 
     Returns
     -------
@@ -402,6 +405,7 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
         fitted parameters
     cov : array-like
         covariance matrix
+
     """
     s = time.time()
     if config.VERBOSITY >= config.INFO_ALL:
