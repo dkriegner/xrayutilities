@@ -1,7 +1,7 @@
 .. highlight:: python
    :linenothreshold: 5
 
-.. _examplespage:
+.. _page-examples:
 
 Examples
 ========
@@ -730,4 +730,3 @@ The additional parameters are:
 .. literalinclude:: example_xu_ccd_parameter_hkl.py
     :linenos:
     :language: python
-

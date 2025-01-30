@@ -1,5 +1,5 @@
 .. highlight:: python
-   :linenothreshold: 5
+    :linenothreshold: 5
 
 .. _simulationspage:
 
@@ -52,7 +52,7 @@ The last two lines show two different options of creating a stack of layers. As 
 Pseudomorphic Layers
 ~~~~~~~~~~~~~~~~~~~~
 
-All stacks of layers described above use the materials in the layer as they are supplied. However, epitaxial systems often adopt the inplane lattice parameter of the layers beneath. To mimic this behavior you can either supply the :class:`~xrayutilities.simpack.smaterials.Layer` objects which custom :class:`~xrayutilities.materials.material.Crystal` objects which have the appropriate lattice parameters or use the :class:`~xrayutilities.simpack.PseudomorphicStack*` classes which to the adaption of the lattice parameters automatically. In this respect the 'relaxation' parameter of the :class:`~xrayutilities.simpack.smaterials.Layer` class is important since it allows to create partially/fully relaxed layers.
+All stacks of layers described above use the materials in the layer as they are supplied. However, epitaxial systems often adopt the inplane lattice parameter of the layers beneath. To mimic this behavior you can either supply the :class:`~xrayutilities.simpack.smaterials.Layer` objects which custom :class:`~xrayutilities.materials.material.Crystal` objects which have the appropriate lattice parameters or use the :class:`~xrayutilities.simpack.smaterials.PseudomorphicStack001` and :class:`~xrayutilities.simpack.smaterials.PseudomorphicStack111` classes which to the adaption of the lattice parameters automatically. In this respect the 'relaxation' parameter of the :class:`~xrayutilities.simpack.smaterials.Layer` class is important since it allows to create partially/fully relaxed layers.
 
 .. testcode::
 
@@ -64,7 +64,7 @@ All stacks of layers described above use the materials in the layer as they are 
     # create pseudomorphic superlattice stack
     pls = xu.simpack.PseudomorphicStack001('SL 5/5', sub+buf1+buf2+5*(lay1+lay2))
 
-.. note:: As indicated by the function name the PseudomorphicStack currently only works for (001) surfaces and cubic materials. Implementations for other surface orientations are planned.
+.. note:: As indicated by the function name the PseudomorphicStack currently only works for (001) surfaces and cubic materials. An implementation for the cubic 111 orientation is also available. For other orientations or crystal symmetries the strain conditions have to be (currently) put manually.
 
 If you would like to check the resulting lattice objects of the different layers you could use::
 
@@ -267,10 +267,10 @@ A more appealing kinematical model is represented by the :class:`~xrayutilities.
 It can be employed by
 
 .. testcode::
-   :hide:
+    :hide:
 
-   import xrayutilities as xu
-   xu.config.VERBOSITY = 0
+    import xrayutilities as xu
+    xu.config.VERBOSITY = 0
 
 .. testcode::
 
@@ -300,15 +300,12 @@ A second simplified dynamical model (:class:`~xrayutilities.simpack.models.Simpl
 
 The :class:`~xrayutilities.simpack.models.DynamicalModel` supports the calculation of diffracted signal for 'S' and 'P' polarization geometry. To simulate diffraction data of laboratory sources with Ge(220) monochromator crystal one should use::
 
-
 .. testcode::
 
     import math
     qGe220 = linalg.norm(xu.materials.Ge.Q(2, 2, 0))
     thMono = math.asin(qGe220 * xu.config.WAVELENGTH / (4*math.pi))
-    md = xu.simpack.DynamicalModel(pls,
-                                   Cmono=math.cos(2 * thMono),
-                                   polarization='both')
+    md = xu.simpack.DynamicalModel(pls, Cmono=math.cos(2 * thMono), polarization='both')
     Idyn = md.simulate(ai, hkl=(0, 0, 4))
 
 
@@ -338,7 +335,7 @@ For the SiGe/Si bilayer system bigger differences between the kinematic and dyna
 Fitting of diffraction data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All diffraction models can be embedded into the :class:`~xrayutilities.simpack.fit.FitModel` class, which is suitable to refine the model parameters. Below (and in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory) a runnable script is shown which shows the fitting for a pseudomorphic InMnAs epilayer on InAs(001). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. As one can see below the :func:`~xrayutilities.simpack.FitModel.set_param_hint` function can be used to set up the respective fit parameters including their boundaries and possible correlation with other parameters of the model. It should be equally possible to fit more complex layer structures, however, I expect that one needs to adjust manually the starting parameters to yield something very reasonable. Since this capabilities are rather new please report back any success/problems you have with this via the mailing list.
+All diffraction models can be embedded into the :class:`~xrayutilities.simpack.fit.FitModel` class, which is suitable to refine the model parameters. Below (and in the `examples <https://github.com/dkriegner/xrayutilities/tree/main/examples>`_ directory) a runnable script is shown which shows the fitting for a pseudomorphic InMnAs epilayer on InAs(001). The fitting is performed using the `lmfit <https://lmfit.github.io/lmfit-py/>`_ Python package which needs to be installed when you want to use this fitting function. :class:`~xrayutilities.simpack.fit.FitModel` is derived from :class:`lmfit.model.Model` which provides :meth:`lmfit.model.Model.set_param_hint` function, which can be used to set up the respective fit parameters including their boundaries and possible correlation with other parameters of the model. It should be equally possible to fit more complex layer structures, however, I expect that one needs to adjust manually the starting parameters to yield something very reasonable. Since this capabilities are rather new please report back any success/problems you have with this via the mailing list.
 
 .. testcode:: fitting
 
