@@ -985,7 +985,7 @@ class FP_profile:
         else:
             tth1 = twotheta
 
-        for iidx in range(nsteps):
+        for iidx in range(int(nsteps)):
             beta = beta2 * iidx / float(nsteps)
 
             _, idxmin, idxmax, I2p, I2m = self.full_axdiv_I2(
