@@ -37,7 +37,8 @@ class SqrtAllowNegScale(mscale.ScaleBase):
     The inverse scale function:
       sign(y) * y**2
     """
-    name = 'sqrt'
+
+    name = "sqrt"
 
     def __init__(self, axis, **kwargs):
         """
@@ -106,7 +107,7 @@ class SqrtTickLocator(mticker.Locator):
         self._symmetric = symmetric
 
     def __call__(self):
-        'Return the locations of the ticks'
+        "Return the locations of the ticks"
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 

@@ -51,13 +51,13 @@ def smooth(x, n):
     if n < 2:
         return x
     # avoid boundary effects by adding mirrored signal at the boundaries
-    s = numpy.r_[x[n - 1:0:-1], x, x[-1:-n - 1:-1]]
-    w = numpy.ones(n, 'd')
-    y = numpy.convolve(w / w.sum(), s, mode='same')
-    return y[n:-n + 1]
+    s = numpy.r_[x[n - 1 : 0 : -1], x, x[-1 : -n - 1 : -1]]
+    w = numpy.ones(n, "d")
+    y = numpy.convolve(w / w.sum(), s, mode="same")
+    return y[n : -n + 1]
 
 
-def kill_spike(data, threshold=2., offset=None):
+def kill_spike(data, threshold=2.0, offset=None):
     """
     function to smooth **single** data points which differ from the average of
     the neighboring data points by more than the threshold factor or more than
@@ -85,16 +85,22 @@ def kill_spike(data, threshold=2., offset=None):
 
     dataout = data.copy()
 
-    mean = (data[:-2] + data[2:]) / 2.
+    mean = (data[:-2] + data[2:]) / 2.0
     mask = numpy.zeros_like(data[1:-1], dtype=bool)
     if threshold:
         mask = numpy.logical_or(
-            mask, numpy.logical_or(data[1:-1] * threshold < mean,
-                                   data[1:-1] / threshold > mean))
+            mask,
+            numpy.logical_or(
+                data[1:-1] * threshold < mean, data[1:-1] / threshold > mean
+            ),
+        )
     if offset:
         mask = numpy.logical_or(
-            mask, numpy.logical_or(data[1:-1] + offset < mean,
-                                   data[1:-1] - offset > mean))
+            mask,
+            numpy.logical_or(
+                data[1:-1] + offset < mean, data[1:-1] - offset > mean
+            ),
+        )
     # ensure that only single value are corrected and neighboring are ignored
     for i in range(1, len(mask) - 1):
         if mask[i - 1] and mask[i] and mask[i + 1]:
@@ -136,7 +142,7 @@ def Gauss1d(x, *p):
            8.56996891e+02, 8.56996891e+02, 2.49352209e+02, 2.11096565e+01,
            5.19975743e-01, 3.72665317e-03])
     """
-    g = p[3] + p[2] * numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
+    g = p[3] + p[2] * numpy.exp(-(((p[0] - x) / p[1]) ** 2) / 2.0)
     return g
 
 
@@ -158,7 +164,7 @@ def NormGauss1d(x, *p):
         the value of the normalized Gaussian described by the parameters p at
         position x
     """
-    g = numpy.exp(-((p[0] - x) / p[1]) ** 2 / 2.)
+    g = numpy.exp(-(((p[0] - x) / p[1]) ** 2) / 2.0)
     a = numpy.sqrt(2 * numpy.pi) * p[1]
     return g / a
 
@@ -172,7 +178,7 @@ def Gauss1d_der_x(x, *p):
 
     lp = numpy.copy(p)
     lp[3] = 0
-    return (p[0] - x) / p[1]**2 * Gauss1d(x, *lp)
+    return (p[0] - x) / p[1] ** 2 * Gauss1d(x, *lp)
 
 
 def Gauss1d_der_p(x, *p):
@@ -184,10 +190,14 @@ def Gauss1d_der_p(x, *p):
     """
     lp = numpy.copy(p)
     lp[3] = 0
-    r = numpy.vstack((- (p[0] - x) / p[1]**2 * Gauss1d(x, *lp),
-                      (p[0] - x) ** 2 / (p[1] ** 3) * Gauss1d(x, *lp),
-                      Gauss1d(x, *lp) / p[2],
-                      numpy.ones(x.shape, dtype=float)))
+    r = numpy.vstack(
+        (
+            -(p[0] - x) / p[1] ** 2 * Gauss1d(x, *lp),
+            (p[0] - x) ** 2 / (p[1] ** 3) * Gauss1d(x, *lp),
+            Gauss1d(x, *lp) / p[2],
+            numpy.ones(x.shape, dtype=float),
+        )
+    )
 
     return r
 
@@ -218,8 +228,9 @@ def Gauss2d(x, y, *p):
     xp = x * numpy.cos(p[6]) - y * numpy.sin(p[6])
     yp = x * numpy.sin(p[6]) + y * numpy.cos(p[6])
 
-    g = p[5] + p[4] * numpy.exp(-(((rcen_x - xp) / p[2]) ** 2 +
-                                  ((rcen_y - yp) / p[3]) ** 2) / 2.)
+    g = p[5] + p[4] * numpy.exp(
+        -(((rcen_x - xp) / p[2]) ** 2 + ((rcen_y - yp) / p[3]) ** 2) / 2.0
+    )
     return g
 
 
@@ -244,9 +255,14 @@ def Gauss3d(x, y, z, *p):
         positions (x, y, z)
     """
 
-    g = p[7] + p[6] * numpy.exp(-(((x - p[0]) / p[3]) ** 2 +
-                                  ((y - p[1]) / p[4]) ** 2 +
-                                  ((z - p[2]) / p[5]) ** 2) / 2.)
+    g = p[7] + p[6] * numpy.exp(
+        -(
+            ((x - p[0]) / p[3]) ** 2
+            + ((y - p[1]) / p[4]) ** 2
+            + ((z - p[2]) / p[5]) ** 2
+        )
+        / 2.0
+    )
     return g
 
 
@@ -273,8 +289,24 @@ def TwoGauss2d(x, y, *p):
     """
 
     p = list(p)
-    p1 = p[0:5] + [p[12], ] + [p[5], ]
-    p2 = p[6:11] + [p[12], ] + [p[11], ]
+    p1 = (
+        p[0:5]
+        + [
+            p[12],
+        ]
+        + [
+            p[5],
+        ]
+    )
+    p2 = (
+        p[6:11]
+        + [
+            p[12],
+        ]
+        + [
+            p[11],
+        ]
+    )
 
     g = Gauss2d(x, y, *p1) + Gauss2d(x, y, *p2)
 
@@ -310,7 +342,13 @@ def Lorentz1d_der_x(x, *p):
 
     for parameter description see Lorentz1d
     """
-    return 8 * (p[0]-x) / p[1]**2 * p[2] / (1 + (2 * (x-p[0]) / p[1]) ** 2)**2
+    return (
+        8
+        * (p[0] - x)
+        / p[1] ** 2
+        * p[2]
+        / (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2
+    )
 
 
 def Lorentz1d_der_p(x, *p):
@@ -320,12 +358,22 @@ def Lorentz1d_der_p(x, *p):
 
     for parameter description see Lorentz1d
     """
-    r = numpy.vstack((
-        8 * (x-p[0]) * p[2] / p[1]**2 / (1 + (2 * (x-p[0]) / p[1]) ** 2) ** 2,
-        8 * p[2] * p[1] * (x-p[0])**2 /
-        (4*p[0]**2 - 8*p[0]*x + p[1]**2 + 4*x**2) ** 2,
-        1 / (1 + (2 * (x - p[0]) / p[1]) ** 2),
-        numpy.ones(x.shape, dtype=float)))
+    r = numpy.vstack(
+        (
+            8
+            * (x - p[0])
+            * p[2]
+            / p[1] ** 2
+            / (1 + (2 * (x - p[0]) / p[1]) ** 2) ** 2,
+            8
+            * p[2]
+            * p[1]
+            * (x - p[0]) ** 2
+            / (4 * p[0] ** 2 - 8 * p[0] * x + p[1] ** 2 + 4 * x**2) ** 2,
+            1 / (1 + (2 * (x - p[0]) / p[1]) ** 2),
+            numpy.ones(x.shape, dtype=float),
+        )
+    )
     return r
 
 
@@ -347,7 +395,7 @@ def NormLorentz1d(x, *p):
         at position x
     """
     g = 1.0 / (1 + (2 * (x - p[0]) / p[1]) ** 2)
-    a = numpy.pi / (2. / (p[1]))
+    a = numpy.pi / (2.0 / (p[1]))
     return g / a
 
 
@@ -375,8 +423,9 @@ def Lorentz2d(x, y, *p):
     xp = x * numpy.cos(p[6]) - y * numpy.sin(p[6])
     yp = x * numpy.sin(p[6]) + y * numpy.cos(p[6])
 
-    g = p[5] + p[4] / (1 + (2 * (rcen_x - xp) / p[2]) **
-                       2 + (2 * (rcen_y - yp) / p[3]) ** 2)
+    g = p[5] + p[4] / (
+        1 + (2 * (rcen_x - xp) / p[2]) ** 2 + (2 * (rcen_y - yp) / p[3]) ** 2
+    )
     return g
 
 
@@ -402,14 +451,17 @@ def PseudoVoigt1d(x, *p):
     """
     if p[4] > 1.0:
         pv = 1.0
-    elif p[4] < 0.:
+    elif p[4] < 0.0:
         pv = 0.0
     else:
         pv = p[4]
 
     sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
-    f = p[3] + pv * Lorentz1d(x, p[0], p[1], p[2], 0) + \
-        (1 - pv) * Gauss1d(x, p[0], sigma, p[2], 0)
+    f = (
+        p[3]
+        + pv * Lorentz1d(x, p[0], p[1], p[2], 0)
+        + (1 - pv) * Gauss1d(x, p[0], sigma, p[2], 0)
+    )
     return f
 
 
@@ -421,7 +473,7 @@ def PseudoVoigt1d_der_x(x, *p):
     """
     if p[4] > 1.0:
         pv = 1.0
-    elif p[4] < 0.:
+    elif p[4] < 0.0:
         pv = 0.0
     else:
         pv = p[4]
@@ -444,7 +496,7 @@ def PseudoVoigt1d_der_p(x, *p):
 
     if p[4] > 1.0:
         pv = 1.0
-    elif p[4] < 0.:
+    elif p[4] < 0.0:
         pv = 0.0
     else:
         pv = p[4]
@@ -455,7 +507,7 @@ def PseudoVoigt1d_der_p(x, *p):
     lpg = [p[0], sigma, p[2], 0]
     rl = Lorentz1d_der_p(x, *lpl)
     rg = Gauss1d_der_p(x, *lpg)
-    rg[1] /= (2 * numpy.sqrt(2 * numpy.log(2)))
+    rg[1] /= 2 * numpy.sqrt(2 * numpy.log(2))
     r = pv * rl + (1 - pv) * rg
 
     return numpy.vstack((r, Lorentz1d(x, *lpl) - Gauss1d(x, *lpg)))
@@ -516,22 +568,30 @@ def PseudoVoigt1dasym2(x, *p):
 
     if isinstance(x, numbers.Number):
         if x < p[0]:
-            f = p[4] + pvl * Lorentz1d(x, p[0], p[1], p[3], 0) + \
-                (1 - pvl) * Gauss1d(x, p[0], sigmal, p[3], 0)
+            f = (
+                p[4]
+                + pvl * Lorentz1d(x, p[0], p[1], p[3], 0)
+                + (1 - pvl) * Gauss1d(x, p[0], sigmal, p[3], 0)
+            )
         else:
-            f = p[4] + pvr * Lorentz1d(x, p[0], p[2], p[3], 0) + \
-                (1 - pvr) * Gauss1d(x, p[0], sigmar, p[3], 0)
+            f = (
+                p[4]
+                + pvr * Lorentz1d(x, p[0], p[2], p[3], 0)
+                + (1 - pvr) * Gauss1d(x, p[0], sigmar, p[3], 0)
+            )
     else:
         lx = numpy.asarray(x)
         f = numpy.zeros(lx.shape)
-        f[lx < p[0]] = (p[4] + pvl *
-                        Lorentz1d(lx[x < p[0]], p[0], p[1], p[3], 0) +
-                        (1 - pvl) *
-                        Gauss1d(lx[x < p[0]], p[0], sigmal, p[3], 0))
-        f[lx >= p[0]] = (p[4] + pvr *
-                         Lorentz1d(lx[x >= p[0]], p[0], p[2], p[3], 0) +
-                         (1 - pvr) *
-                         Gauss1d(lx[x >= p[0]], p[0], sigmar, p[3], 0))
+        f[lx < p[0]] = (
+            p[4]
+            + pvl * Lorentz1d(lx[x < p[0]], p[0], p[1], p[3], 0)
+            + (1 - pvl) * Gauss1d(lx[x < p[0]], p[0], sigmal, p[3], 0)
+        )
+        f[lx >= p[0]] = (
+            p[4]
+            + pvr * Lorentz1d(lx[x >= p[0]], p[0], p[2], p[3], 0)
+            + (1 - pvr) * Gauss1d(lx[x >= p[0]], p[0], sigmar, p[3], 0)
+        )
 
     return f
 
@@ -558,14 +618,17 @@ def PseudoVoigt2d(x, y, *p):
     """
     if p[7] > 1.0:
         pv = 1.0
-    elif p[7] < 0.:
+    elif p[7] < 0.0:
         pv = 0.0
     else:
         pv = p[7]
     sigmax = p[2] / (2 * numpy.sqrt(2 * numpy.log(2)))
     sigmay = p[3] / (2 * numpy.sqrt(2 * numpy.log(2)))
-    f = p[5] + pv * Lorentz2d(x, y, p[0], p[1], p[2], p[3], p[4], 0, p[6]) + \
-        (1 - pv) * Gauss2d(x, y, p[0], p[1], sigmax, sigmay, p[4], 0, p[6])
+    f = (
+        p[5]
+        + pv * Lorentz2d(x, y, p[0], p[1], p[2], p[3], p[4], 0, p[6])
+        + (1 - pv) * Gauss2d(x, y, p[0], p[1], sigmax, sigmay, p[4], 0, p[6])
+    )
     return f
 
 
@@ -624,7 +687,7 @@ def Lorentz1dArea(*p):
     float
         the area of the Lorentzian described by the parameters `p`
     """
-    f = p[2] * numpy.pi / (2. / (p[1]))
+    f = p[2] * numpy.pi / (2.0 / (p[1]))
     return f
 
 
@@ -646,8 +709,9 @@ def PseudoVoigt1dArea(*p):
         the area of the PseudoVoigt described by the parameters `p`
     """
     sigma = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))
-    f = p[4] * Lorentz1dArea(*p) + (1. - p[4]) * \
-        Gauss1dArea(p[0], sigma, p[2], p[3])
+    f = p[4] * Lorentz1dArea(*p) + (1.0 - p[4]) * Gauss1dArea(
+        p[0], sigma, p[2], p[3]
+    )
     return f
 
 
@@ -672,7 +736,7 @@ def Debye1(x):
     References
     ----------
     .. [1] http://en.wikipedia.org/wiki/Debye_function
-     """
+    """
 
     def __int_kernel(t):
         """
@@ -681,17 +745,18 @@ def Debye1(x):
         y = t / (numpy.exp(t) - 1)
         return y
 
-    if x > 0.:
+    if x > 0.0:
         integral = scipy.integrate.quad(__int_kernel, 0, x)
         d1 = (1 / float(x)) * integral[0]
     else:
         integral = (0, 0)
-        d1 = 1.
+        d1 = 1.0
 
     if config.VERBOSITY >= config.DEBUG:
         print(
-            "XU.math.Debye1: Debye integral value/error estimate: %g %g" %
-            (integral[0], integral[1]))
+            "XU.math.Debye1: Debye integral value/error estimate: %g %g"
+            % (integral[0], integral[1])
+        )
 
     return d1
 
@@ -722,7 +787,7 @@ def multPeak1d(x, *args):
         value of the sum of functions at position `x`
     """
     if len(args) % 2 != 0:
-        raise ValueError('number of arguments must be even!')
+        raise ValueError("number of arguments must be even!")
 
     if numpy.isscalar(x):
         f = 0
@@ -733,21 +798,21 @@ def multPeak1d(x, *args):
     for i in range(int(len(args) / 2)):
         ftype = str.lower(args[2 * i])
         fparam = args[2 * i + 1]
-        if ftype == 'g':
+        if ftype == "g":
             f += Gauss1d(x, *fparam)
-        elif ftype == 'l':
+        elif ftype == "l":
             f += Lorentz1d(x, *fparam)
-        elif ftype == 'v':
+        elif ftype == "v":
             f += PseudoVoigt1d(x, *fparam)
-        elif ftype == 'a':
+        elif ftype == "a":
             f += PseudoVoigt1dasym(x, *fparam)
-        elif ftype == 'p':
+        elif ftype == "p":
             if isinstance(fparam, (tuple, list, numpy.ndarray)):
                 f += numpy.polyval(fparam, x)
             else:
                 f += numpy.polyval((fparam,), x)
         else:
-            raise ValueError('invalid function type given!')
+            raise ValueError("invalid function type given!")
 
     return f
 
@@ -778,7 +843,7 @@ def multPeak2d(x, y, *args):
         value of the sum of functions at position `(x, y)`
     """
     if len(args) % 2 != 0:
-        raise ValueError('number of arguments must be even!')
+        raise ValueError("number of arguments must be even!")
 
     lx = numpy.array(x)
     ly = numpy.array(y)
@@ -790,16 +855,16 @@ def multPeak2d(x, y, *args):
     for i in range(int(len(args) / 2)):
         ftype = str.lower(args[2 * i])
         fparam = args[2 * i + 1]
-        if ftype == 'g':
+        if ftype == "g":
             f += Gauss2d(lx, ly, *fparam)
-        elif ftype == 'l':
+        elif ftype == "l":
             f += Lorentz2d(lx, ly, *fparam)
-        elif ftype == 'v':
+        elif ftype == "v":
             f += PseudoVoigt2d(lx, ly, *fparam)
-        elif ftype == 'c':
+        elif ftype == "c":
             f += fparam
         else:
-            raise ValueError('invalid function type given!')
+            raise ValueError("invalid function type given!")
 
     return f
 
@@ -819,4 +884,4 @@ def heaviside(x):
         Heaviside step function evaluated for all values of `x` with datatype
         integer
     """
-    return (numpy.sign(x)/2. + 0.5).astype(numpy.int8)
+    return (numpy.sign(x) / 2.0 + 0.5).astype(numpy.int8)

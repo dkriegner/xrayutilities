@@ -21,16 +21,17 @@ import unittest
 import numpy
 import xrayutilities as xu
 
-testfile = 'omega_mm.xrdml'
-testfile2 = 'cecchi_refl_30min.xrdml'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "omega_mm.xrdml"
+testfile2 = "cecchi_refl_30min.xrdml"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 fullfilename2 = os.path.join(datadir, testfile2)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename) or
-                 not os.path.isfile(fullfilename2),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename) or not os.path.isfile(fullfilename2),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_XRDML(unittest.TestCase):
     dshape = (499,)
     dmax = 75052800.0
@@ -44,8 +45,8 @@ class TestIO_XRDML(unittest.TestCase):
     def setUpClass(cls):
         cls.xrdmlfile = xu.io.XRDMLFile(fullfilename)
         cls.xrdmlfile2 = xu.io.XRDMLFile(fullfilename2)
-        cls.data1 = cls.xrdmlfile.scan['detector']
-        cls.motor, _, cls.data2 = xu.io.getxrdml_scan(fullfilename, 'Phi')
+        cls.data1 = cls.xrdmlfile.scan["detector"]
+        cls.motor, _, cls.data2 = xu.io.getxrdml_scan(fullfilename, "Phi")
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.data1.shape)
@@ -63,9 +64,11 @@ class TestIO_XRDML(unittest.TestCase):
         self.assertTrue(numpy.all(self.data1 == self.data2))
 
     def test_version2(self):
-        self.assertEqual(len(self.xrdmlfile2.scan['counts']),
-                         len(self.xrdmlfile2.scan['detector']))
+        self.assertEqual(
+            len(self.xrdmlfile2.scan["counts"]),
+            len(self.xrdmlfile2.scan["detector"]),
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

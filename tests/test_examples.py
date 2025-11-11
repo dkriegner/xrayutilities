@@ -23,53 +23,52 @@ import tempfile
 import unittest
 from pathlib import Path
 
-scriptdir = Path(__file__).parent.parent / 'examples'
+scriptdir = Path(__file__).parent.parent / "examples"
 scriptfiles = [
-    'simpack_powdermodel.py',
-    'simpack_xrd_AlGaAs.py',
-    'simpack_xrd_Darwin_AlGaAs.py',
-    'simpack_xrd_dyn_AlGaAs.py',
-    'simpack_xrd_InAs_fitting.py',
-    'simpack_xrd_SiGe111.py',
-    'simpack_xrd_SiGe_asymmmetric.py',
-    'simpack_xrd_SiGe.py',
-    'simpack_xrd_SiGe_superlattice.py',
-    'simpack_xrr_diffuse.py',
-    'simpack_xrr_matrixmethod.py',
-    'simpack_xrr_SiO2_Ru_CoFe_IrMn_Al2O3.py',
-    'xrayutilities_angular2hkl_conversion.py',
-    # 'xrayutilities_ccd_parameter.py',  # data file not included
-    'xrayutilities_components_of_the_structure_factor.py',
-    'xrayutilities_define_material.py',
-    'xrayutilities_energy_dependent_structure_factor.py',
-    # 'xrayutilities_example_plot_3D_ESRF_ID01.py',  # data file not included
-    'xrayutilities_experiment_angle_calculation.py',
-    'xrayutilities_experiment_kappa.py',
-    'xrayutilities_experiment_Powder_example_Iron.py',
-    # 'xrayutilities_export_data2vtk.py',  # needs vtk + data
-    'xrayutilities_fuzzygridding.py',
-    'xrayutilities_hotpixelkill_variant.py',
-    'xrayutilities_id01_functions.py',
-    'xrayutilities_io_cif_parser_bi2te3.py',
-    'xrayutilities_io_cif_parser.py',
-    # 'xrayutilities_io_pdcif_plot.py',  # data file not included
-    # 'xrayutilities_kmap_example_ESRF.py',  # data file not included
-    # 'xrayutilities_linear_detector_parameters.py',  # data file not included
-    'xrayutilities_materials_Alloy_contentcalc.py',
-    'xrayutilities_math_fitting.py',
-    'xrayutilities_orientation_matrix.py',
-    'xrayutilities_peak_angles_beamtime.py',
-    # 'xrayutilities_polefigure.py',  # basemap needed
-    'xrayutilities_q2ang_general.py',
-    'xrayutilities_read_panalytical.py',
-    # 'xrayutilities_read_seifert.py',  # data file not included
-    'xrayutilities_read_spec.py',
-    'xrayutilities_reflection_strength.py',
-    'xrayutilities_show_reciprocal_space_plane.py',
+    "simpack_powdermodel.py",
+    "simpack_xrd_AlGaAs.py",
+    "simpack_xrd_Darwin_AlGaAs.py",
+    "simpack_xrd_dyn_AlGaAs.py",
+    "simpack_xrd_InAs_fitting.py",
+    "simpack_xrd_SiGe111.py",
+    "simpack_xrd_SiGe_asymmmetric.py",
+    "simpack_xrd_SiGe.py",
+    "simpack_xrd_SiGe_superlattice.py",
+    "simpack_xrr_diffuse.py",
+    "simpack_xrr_matrixmethod.py",
+    "simpack_xrr_SiO2_Ru_CoFe_IrMn_Al2O3.py",
+    "xrayutilities_angular2hkl_conversion.py",
+    # "xrayutilities_ccd_parameter.py",  # data file not included
+    "xrayutilities_components_of_the_structure_factor.py",
+    "xrayutilities_define_material.py",
+    "xrayutilities_energy_dependent_structure_factor.py",
+    # "xrayutilities_example_plot_3D_ESRF_ID01.py",  # data file not included
+    "xrayutilities_experiment_angle_calculation.py",
+    "xrayutilities_experiment_kappa.py",
+    "xrayutilities_experiment_Powder_example_Iron.py",
+    # "xrayutilities_export_data2vtk.py",  # needs vtk + data
+    "xrayutilities_fuzzygridding.py",
+    "xrayutilities_hotpixelkill_variant.py",
+    "xrayutilities_id01_functions.py",
+    "xrayutilities_io_cif_parser_bi2te3.py",
+    "xrayutilities_io_cif_parser.py",
+    # "xrayutilities_io_pdcif_plot.py",  # data file not included
+    # "xrayutilities_kmap_example_ESRF.py",  # data file not included
+    "xrayutilities_materials_Alloy_contentcalc.py",
+    "xrayutilities_math_fitting.py",
+    "xrayutilities_orientation_matrix.py",
+    "xrayutilities_peak_angles_beamtime.py",
+    # "xrayutilities_polefigure.py",  # basemap needed
+    "xrayutilities_q2ang_general.py",
+    "xrayutilities_read_panalytical.py",
+    # "xrayutilities_read_seifert.py",  # data file not included
+    "xrayutilities_read_spec.py",
+    "xrayutilities_reflection_strength.py",
+    "xrayutilities_show_reciprocal_space_plane.py",
 ]
 
 cleanup_files = [
-    'xrrfit.dat',
+    "xrrfit.dat",
 ]
 
 
@@ -92,12 +91,13 @@ class TestExampleScripts(unittest.TestCase):
         for sf in scriptfiles:
             print(f"starting script {sf}")
             with self.subTest(script=sf):
-                with tempfile.TemporaryFile(mode='w') as fid:
+                with tempfile.TemporaryFile(mode="w") as fid:
                     env = os.environ.copy()
-                    env['MPLBACKEND'] = 'agg'
+                    env["MPLBACKEND"] = "agg"
                     cmd = [sys.executable, sf]
-                    subprocess.run(cmd, env=env, cwd=scriptdir, stdout=fid,
-                                   check=True)
+                    subprocess.run(
+                        cmd, env=env, cwd=scriptdir, stdout=fid, check=True
+                    )
 
     @classmethod
     def tearDownClass(cls):
@@ -105,8 +105,10 @@ class TestExampleScripts(unittest.TestCase):
         try:
             os.remove(cls.config_file)
         except FileNotFoundError:
-            print(f"Warning: Config file {cls.config_file} not found during "
-                  "tearDownClass.")
+            print(
+                f"Warning: Config file {cls.config_file} not found during "
+                "tearDownClass."
+            )
         for f in cleanup_files:
             try:
                 Path(scriptdir, f).unlink(missing_ok=True)
@@ -114,5 +116,5 @@ class TestExampleScripts(unittest.TestCase):
                 pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

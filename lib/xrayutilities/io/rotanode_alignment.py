@@ -36,7 +36,6 @@ LOG_num_value = re.compile(r"[+-]*\d*\.*\d*e*[+-]*\d+")
 
 
 class RA_Alignment:
-
     """
     class to parse the data file created by the alignment routine
     (tpalign) at the rotating anode spec installation
@@ -87,12 +86,13 @@ class RA_Alignment:
         iteration = 0
 
         if self.fid is None:
-            raise Exception("RA_Alignment: file was not opened by "
-                            "initialization!")
+            raise Exception(
+                "RA_Alignment: file was not opened by initialization!"
+            )
 
         for line in self.fid.readlines():
             # for loop to read every line in the file
-            line = line.decode('ascii')
+            line = line.decode("ascii")
 
             # check for new tag in the current line
             if LOG_tagline.match(line):
@@ -126,8 +126,10 @@ class RA_Alignment:
                     # check if a peakname is already set
                     if currentpeakname is None:
                         if config.VERBOSITY >= config.INFO_LOW:
-                            print("RA_Alignment: Warning: a peakname should "
-                                  "be given before a motor data line")
+                            print(
+                                "RA_Alignment: Warning: a peakname should "
+                                "be given before a motor data line"
+                            )
                         currentpeakname = "somepeak"
                     currentmotname = currentpeakname + "_" + motname
                     # check if we found a new peak/motor name combination
@@ -158,9 +160,11 @@ class RA_Alignment:
         # convert data to numpy array and combine position and intensity
         self.data = []
         for i, _ in enumerate(self.keys()):
-            self.data.append(numpy.array((self.motorpos[i],
-                                          self.intensities[i],
-                                          self.iterations[i])))
+            self.data.append(
+                numpy.array(
+                    (self.motorpos[i], self.intensities[i], self.iterations[i])
+                )
+            )
 
     def __str__(self):
         """
@@ -204,7 +208,7 @@ class RA_Alignment:
         pname :     str
             peakname for which the alignment should be plotted
         """
-        flag, plt = utilities.import_matplotlib_pyplot('XU.io.RA_ALignment')
+        flag, plt = utilities.import_matplotlib_pyplot("XU.io.RA_ALignment")
         if not flag:
             return
 
@@ -223,11 +227,11 @@ class RA_Alignment:
         for an, axis in zip(axnames, ax):
             d = self.get(an)
             plt.sca(axis)
-            plt.plot(d[2], d[0], '.-k')
+            plt.plot(d[2], d[0], ".-k")
             plt.ylabel(re.sub(pname + "_", "", an))
             axis.twinx()
-            plt.plot(d[2], d[1], '.-r')
-            plt.ylabel("Int (cps)", color='r')
+            plt.plot(d[2], d[1], ".-r")
+            plt.ylabel("Int (cps)", color="r")
             plt.grid()
 
         plt.xlabel("Peak iteration number")

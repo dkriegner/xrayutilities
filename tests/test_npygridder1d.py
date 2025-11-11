@@ -34,7 +34,7 @@ class TestNpyGridder1D(unittest.TestCase):
 
     def test_npygridder1d_axis(self):
         hist, bins = numpy.histogram(self.x, bins=self.num)
-        x = (bins[0:-1] + bins[1:]) / 2.
+        x = (bins[0:-1] + bins[1:]) / 2.0
         # test length of xaxis
         self.assertEqual(len(self.gridder.xaxis), self.num)
         # test values of xaxis
@@ -47,10 +47,9 @@ class TestNpyGridder1D(unittest.TestCase):
         # test values of data
         for i in range(self.num):
             self.assertAlmostEqual(
-                self.gridder.data[i],
-                self.data[i],
-                places=12)
+                self.gridder.data[i], self.data[i], places=12
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

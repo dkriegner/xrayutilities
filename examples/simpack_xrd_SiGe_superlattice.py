@@ -18,37 +18,53 @@
 import time
 
 from numpy import arcsin, cos, inf, linalg, linspace, mean, pi, sqrt
-from matplotlib.pylab import (clf, figure, legend, mpl, semilogy, show,
-                              tight_layout, vlines, xlabel, xlim, ylabel)
+from matplotlib.pylab import (
+    clf,
+    figure,
+    legend,
+    mpl,
+    semilogy,
+    show,
+    tight_layout,
+    vlines,
+    xlabel,
+    xlim,
+    ylabel,
+)
 
 import xrayutilities as xu
 
-mpl.rcParams['font.size'] = 16.0
+mpl.rcParams["font.size"] = 16.0
 
 
-en = 'CuKa1'  # eV
+en = "CuKa1"  # eV
 lam = xu.en2lam(en)
-resol = 2*pi/4998  # resolution in q; to suppress buffer oscillations
+resol = 2 * pi / 4998  # resolution in q; to suppress buffer oscillations
 H, K, L = (0, 0, 4)
 qz = linspace(4.0, 5.0, 3000)
 
 sub = xu.simpack.Layer(xu.materials.Si, inf)
 #                                                   xfrom xto nsteps thickness
-buf1 = xu.simpack.GradedLayerStack(xu.materials.SiGe, 0.2, 0.8, 100, 10000,
-                                   relaxation=1.0)
+buf1 = xu.simpack.GradedLayerStack(
+    xu.materials.SiGe, 0.2, 0.8, 100, 10000, relaxation=1.0
+)
 buf2 = xu.simpack.Layer(xu.materials.SiGe(0.8), 4997.02, relaxation=1.0)
 lay1 = xu.simpack.Layer(xu.materials.SiGe(0.6), 49.73, relaxation=0.0)
 lay2 = xu.simpack.Layer(xu.materials.SiGe(1.0), 45.57, relaxation=0.0)
 # create superlattice stack
 # lattice param. are adjusted to the relaxation parameter of the layers
 # Note that to create a superlattice you can use summation and multiplication
-pls = xu.simpack.PseudomorphicStack001('SL 5/5', sub+buf1+buf2+5*(lay1+lay2))
+pls = xu.simpack.PseudomorphicStack001(
+    "SL 5/5", sub + buf1 + buf2 + 5 * (lay1 + lay2)
+)
 
 # calculate incidence angle for dynamical diffraction models
-qx = sqrt(sub.material.Q(H, K, L)[0]**2 + sub.material.Q(H, K, L)[1]**2)
+qx = sqrt(sub.material.Q(H, K, L)[0] ** 2 + sub.material.Q(H, K, L)[1] ** 2)
 ai = xu.simpack.coplanar_alphai(qx, qz, en)
-resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
-              xu.simpack.coplanar_alphai(qx, mean(qz), en))
+resolai = abs(
+    xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en)
+    - xu.simpack.coplanar_alphai(qx, mean(qz), en)
+)
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
@@ -56,39 +72,48 @@ t0 = time.time()
 mk = xu.simpack.KinematicalModel(pls, energy=en, resolution_width=resol)
 Ikin = mk.simulate(qz, hkl=(0, 0, 4))
 t1 = time.time()
-print("%.3f sec for kinematical calculation" % (t1-t0))
+print("%.3f sec for kinematical calculation" % (t1 - t0))
 
 # kinematical multibeam model
 t0 = time.time()
-mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
-                                          surface_hkl=(0, 0, 1),
-                                          resolution_width=resol)
+mk = xu.simpack.KinematicalMultiBeamModel(
+    pls, energy=en, surface_hkl=(0, 0, 1), resolution_width=resol
+)
 Imult = mk.simulate(qz, hkl=(H, K, L), refraction=True)
 t1 = time.time()
-print("%.3f sec for kinematical multibeam calculation" % (t1-t0))
+print("%.3f sec for kinematical multibeam calculation" % (t1 - t0))
 
 # general 2-beam theory based dynamical diffraction model
 t0 = time.time()
 qGe220 = linalg.norm(xu.materials.Ge.Q(2, 2, 0))
-thMono = arcsin(qGe220 * lam / (4*pi))
-md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai,
-                               Cmono=cos(2 * thMono),
-                               polarization='both')
+thMono = arcsin(qGe220 * lam / (4 * pi))
+md = xu.simpack.DynamicalModel(
+    pls,
+    energy=en,
+    resolution_width=resolai,
+    Cmono=cos(2 * thMono),
+    polarization="both",
+)
 Idyn = md.simulate(ai, hkl=(H, K, L))
 t1 = time.time()
-print("%.3f sec for acurate dynamical calculation" % (t1-t0))
+print("%.3f sec for acurate dynamical calculation" % (t1 - t0))
 
 # plot of calculated intensities
-figure('XU-simpack SiGe SL')
+figure("XU-simpack SiGe SL")
 clf()
-semilogy(qz, Ikin, label='kinematical')
-semilogy(qz, Imult, label='multibeam')
-semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
-vlines([4*2*pi/layer.material.a3[-1] for layer in pls[-2:]], 1e-9, 1,
-       linestyles='dashed', label="kin. peak-pos")
-legend(fontsize='small')
+semilogy(qz, Ikin, label="kinematical")
+semilogy(qz, Imult, label="multibeam")
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label="full dynamical")
+vlines(
+    [4 * 2 * pi / layer.material.a3[-1] for layer in pls[-2:]],
+    1e-9,
+    1,
+    linestyles="dashed",
+    label="kin. peak-pos",
+)
+legend(fontsize="small")
 xlim(qz.min(), qz.max())
-xlabel(r'Qz ($1/\mathrm{\AA}$)')
-ylabel('Intensity (arb. u.)')
+xlabel(r"Qz ($1/\mathrm{\AA}$)")
+ylabel("Intensity (arb. u.)")
 tight_layout()
 show()

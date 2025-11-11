@@ -136,8 +136,11 @@ except ImportError:
 # although my own measurements says it really does fine.  For now, leave
 # all factors available
 ft_factors = [
-    2*2**i*3**j*5**k for i in range(20) for j in range(10) for k in range(8)
-    if 2*2**i*3**j*5**k <= 1000000
+    2 * 2**i * 3**j * 5**k
+    for i in range(20)
+    for j in range(10)
+    for k in range(8)
+    if 2 * 2**i * 3**j * 5**k <= 1000000
 ]
 
 ft_factors.sort()
@@ -218,15 +221,16 @@ class FP_profile:
         results, especially if 'natural' units are not meters.  Typical is
         wavelengths and lattices in nm or angstroms, for example.
     """
+
     max_history_length = 5  # max number of histories for each convolver
     length_scale_m = 1.0
     # class attribute to tell if convolvers in this class
     # contain anisotropic convolvers
     isotropic = True
 
-    def __init__(self, anglemode,
-                 gaussian_smoother_bins_sigma=1.0,
-                 oversampling=10):
+    def __init__(
+        self, anglemode, gaussian_smoother_bins_sigma=1.0, oversampling=10
+    ):
         """
         initialize the instance
 
@@ -244,7 +248,8 @@ class FP_profile:
         """
         if anglemode not in ("d", "twotheta"):
             raise Exception(
-                f"invalid angle mode {anglemode}, must be 'd' or 'twotheta'")
+                f"invalid angle mode {anglemode}, must be 'd' or 'twotheta'"
+            )
         # set to either 'd' for d-spacing based position, or 'twotheta' for
         # angle-based position
         self.anglemode = anglemode
@@ -256,7 +261,8 @@ class FP_profile:
         # List of our convolvers, found by introspection of names beginning
         # with 'conv_'
         self.convolvers = convolvers = [
-            x for x in dir(self) if x.startswith("conv_")]
+            x for x in dir(self) if x.startswith("conv_")
+        ]
         # A dictionary which will store all the parameters local to each
         # convolution
         self.param_dicts = {c: {} for c in convolvers}
@@ -318,8 +324,12 @@ class FP_profile:
         self._clean_on_pickle.add(id(b))
         return b
 
-    def set_window(self, twotheta_window_center_deg,
-                   twotheta_window_fullwidth_deg, twotheta_output_points):
+    def set_window(
+        self,
+        twotheta_window_center_deg,
+        twotheta_window_fullwidth_deg,
+        twotheta_output_points,
+    ):
         """
         move the compute window to a new location and compute grids, without
         resetting all parameters.  Clears convolution history and sets up many
@@ -361,20 +371,25 @@ class FP_profile:
         # a complex-format scratch buffer
         self._cb1 = b(numpy.zeros(nn, complex))
         # a scratch buffer used by the axial helper
-        self._f0buf = b(numpy.zeros(self.oversampling *
-                                    twotheta_output_points, float))
+        self._f0buf = b(
+            numpy.zeros(self.oversampling * twotheta_output_points, float)
+        )
         # a scratch buffer used for axial divergence
-        self._epsb2 = b(numpy.zeros(self.oversampling *
-                                    twotheta_output_points, float))
+        self._epsb2 = b(
+            numpy.zeros(self.oversampling * twotheta_output_points, float)
+        )
         # the I2+ buffer
-        self._I2p = b(numpy.zeros(self.oversampling *
-                                  twotheta_output_points, float))
+        self._I2p = b(
+            numpy.zeros(self.oversampling * twotheta_output_points, float)
+        )
         # the I2- buffer
-        self._I2m = b(numpy.zeros(self.oversampling *
-                                  twotheta_output_points, float))
+        self._I2m = b(
+            numpy.zeros(self.oversampling * twotheta_output_points, float)
+        )
         # another buffer used for axial divergence
-        self._axial = b(numpy.zeros(self.oversampling *
-                                    twotheta_output_points, float))
+        self._axial = b(
+            numpy.zeros(self.oversampling * twotheta_output_points, float)
+        )
         # the largest frequency in Fourier space
         omega_max = self.n_omega_points * 2 * pi / window_fullwidth
         # build the x grid and the complex array that is the convolver
@@ -384,19 +399,31 @@ class FP_profile:
         # where L is a real-space length, and s=2 sin(twotheta/2)/lambda
         # then ds=2*pi*omega*cos(twotheta/2)/lambda (double check this!)
         # The grid in Fourier space, in inverse radians
-        self.omega_vals = b(numpy.linspace(
-            0, omega_max, self.n_omega_points, endpoint=True))
+        self.omega_vals = b(
+            numpy.linspace(0, omega_max, self.n_omega_points, endpoint=True)
+        )
         # The grid in Fourier space, in inverse degrees
         self.omega_inv_deg = b(numpy.radians(self.omega_vals))
         # The grid in real space, in radians, with full oversampling
-        self.twothetasamples = b(numpy.linspace(
-            twotheta - window_fullwidth/2.0, twotheta + window_fullwidth/2.0,
-            self.twotheta_output_points * self.oversampling, endpoint=False))
+        self.twothetasamples = b(
+            numpy.linspace(
+                twotheta - window_fullwidth / 2.0,
+                twotheta + window_fullwidth / 2.0,
+                self.twotheta_output_points * self.oversampling,
+                endpoint=False,
+            )
+        )
         # The grid in real space, in degrees, with full oversampling
-        self.twothetasamples_deg = b(numpy.linspace(
-            twotheta_window_center_deg - twotheta_window_fullwidth_deg/2.0,
-            twotheta_window_center_deg + twotheta_window_fullwidth_deg/2.0,
-            self.twotheta_output_points * self.oversampling, endpoint=False))
+        self.twothetasamples_deg = b(
+            numpy.linspace(
+                twotheta_window_center_deg
+                - twotheta_window_fullwidth_deg / 2.0,
+                twotheta_window_center_deg
+                + twotheta_window_fullwidth_deg / 2.0,
+                self.twotheta_output_points * self.oversampling,
+                endpoint=False,
+            )
+        )
         # Offsets around the center of the window, in radians
         self.epsilon = b(self.twothetasamples - twotheta)
 
@@ -425,9 +452,12 @@ class FP_profile:
         """
         return ft_factors[ft_factors.searchsorted(count)]
 
-    def set_optimized_window(self, twotheta_window_center_deg,
-                             twotheta_approx_window_fullwidth_deg,
-                             twotheta_exact_bin_spacing_deg):
+    def set_optimized_window(
+        self,
+        twotheta_window_center_deg,
+        twotheta_approx_window_fullwidth_deg,
+        twotheta_exact_bin_spacing_deg,
+    ):
         """
         pick a bin count which factors cleanly for FFT, and adjust the window
         width to preserve the exact center and bin spacing
@@ -442,12 +472,18 @@ class FP_profile:
             the exact bin spacing to use
         """
         bins = self.get_good_bin_count(
-            int(1 + twotheta_approx_window_fullwidth_deg /
-                twotheta_exact_bin_spacing_deg))
+            int(
+                1
+                + twotheta_approx_window_fullwidth_deg
+                / twotheta_exact_bin_spacing_deg
+            )
+        )
         window_actwidth = twotheta_exact_bin_spacing_deg * bins
-        self.set_window(twotheta_window_center_deg=twotheta_window_center_deg,
-                        twotheta_window_fullwidth_deg=window_actwidth,
-                        twotheta_output_points=bins)
+        self.set_window(
+            twotheta_window_center_deg=twotheta_window_center_deg,
+            twotheta_window_fullwidth_deg=window_actwidth,
+            twotheta_output_points=bins,
+        )
 
     def set_parameters(self, convolver="global", **kwargs):
         """
@@ -539,8 +575,10 @@ class FP_profile:
             twotheta0_deg=("Bragg center of peak (degrees)", 30.0),
             d=("d spacing (m)", 4.00e-10),
             dominant_wavelength=(
-                "wavelength of most intense line (m)", 1.5e-10)
-        )
+                "wavelength of most intense line (m)",
+                1.5e-10,
+            ),
+        ),
     )
 
     def __str__(self):
@@ -559,7 +597,7 @@ class FP_profile:
         keys = list(self.convolver_funcs)
         keys.sort()  # always return info in the same order
         # global is always first, anyways!
-        keys.insert(0, keys.pop(keys.index('conv_global')))
+        keys.insert(0, keys.pop(keys.index("conv_global")))
         strings = ["", f"***convolver id 0x{id(self):08x}:"]
         for k in keys:
             strfn = "str_" + k[5:]
@@ -569,7 +607,7 @@ class FP_profile:
                 dd = self.param_dicts["conv_" + k[5:]]
                 if dd:
                     strings.append(k[5:] + ": " + str(dd))
-        return '\n'.join(strings)
+        return "\n".join(strings)
 
     def str_global(self):
         """
@@ -582,9 +620,11 @@ class FP_profile:
         """
         # in case it's not initialized
         self.param_dicts["conv_global"].setdefault("d", 0)
-        return "global: peak center=%(twotheta0_deg).4f, d=%(d).8g, eq. "\
-               "div=%(equatorial_divergence_deg).3f" \
-               % self.param_dicts["conv_global"]
+        return (
+            "global: peak center=%(twotheta0_deg).4f, d=%(d).8g, eq. "
+            "div=%(equatorial_divergence_deg).3f"
+            % self.param_dicts["conv_global"]
+        )
 
     def conv_global(self):
         """
@@ -599,8 +639,16 @@ class FP_profile:
         """
         return None
 
-    def axial_helper(self, outerbound, innerbound, epsvals, destination,
-                     peakpos=0, y0=0, k=0):
+    def axial_helper(
+        self,
+        outerbound,
+        innerbound,
+        epsvals,
+        destination,
+        peakpos=0,
+        y0=0,
+        k=0,
+    ):
         """
         the function F0 from the paper.  compute k/sqrt(peakpos-x)+y0 nonzero
         between outer & inner (inner is closer to peak) or k/sqrt(x-peakpos)+y0
@@ -651,12 +699,21 @@ class FP_profile:
         # range.
         exactintegral *= 1 / dx  # normalize so sum is right
         # compute the exact centroid we need for this
-        if abs(delta2-delta1) < 1e-12:
+        if abs(delta2 - delta1) < 1e-12:
             exact_moment1 = 0
         else:
             exact_moment1 = (  # simplified from Mathematica FortranForm
-                (4*k*(delta2**1.5-delta1**1.5) + 3*y0*(delta2**2-delta1**2)) /
-                (6.*(2*k*(sqrt(delta2)-sqrt(delta1)) + y0*(delta2-delta1)))
+                (
+                    4 * k * (delta2**1.5 - delta1**1.5)
+                    + 3 * y0 * (delta2**2 - delta1**2)
+                )
+                / (
+                    6.0
+                    * (
+                        2 * k * (sqrt(delta2) - sqrt(delta1))
+                        + y0 * (delta2 - delta1)
+                    )
+                )
             )
             if not flip:
                 exact_moment1 = -exact_moment1
@@ -671,10 +728,11 @@ class FP_profile:
         # note: searchsorted(side="left") always returns the position of the
         # bin to the right of the match, or exact bin
         idx0, idx1 = epsvals.searchsorted(
-            (outerbound, innerbound), side='left')
+            (outerbound, innerbound), side="left"
+        )
 
         # peak has been squeezed out, nothing to do
-        if abs(outerbound - innerbound) < (2*dx) or abs(idx1 - idx0) < 2:
+        if abs(outerbound - innerbound) < (2 * dx) or abs(idx1 - idx0) < 2:
             # preserve the exact centroid: requires summing into two channels
             # for a peak this narrow, no attempt to preserve the width.
             # note that x1 (1-f1) + (x1+dx) f1 = mu has solution
@@ -688,9 +746,9 @@ class FP_profile:
                 idx0 += 1
             f1 = (exact_moment1 - epsvals[idx0]) / dx
             res = (exactintegral * (1 - f1), exactintegral * f1)
-            destination[idx0:idx0 + 2] += res
+            destination[idx0 : idx0 + 2] += res
             if collect_moment_errors:
-                centroid2 = (res * epsvals[idx0:idx0 + 2]).sum() / sum(res)
+                centroid2 = (res * epsvals[idx0 : idx0 + 2]).sum() / sum(res)
                 moment_list.append((centroid2 - exact_moment1) / dx)
             return [idx0, idx0 + 2]  # return collapsed bounds
 
@@ -732,30 +790,39 @@ class FP_profile:
         intg[0] += y0 * dx0
         intg[-2] += y0 * dx1
 
-#        # intensities are never less than zero!
-#        if min(intg[:-1]) < -1e-10 * max(intg[:-1]):
-#            print("bad parameters:", (5 * "%10.4f") %
-#                  (peakpos, innerbound, outerbound, k, y0))
-#            print(len(intg), intg[:-1])
-#            raise ValueError("Bad axial helper parameters")
+        #        # intensities are never less than zero!
+        #        if min(intg[:-1]) < -1e-10 * max(intg[:-1]):
+        #            print("bad parameters:", (5 * "%10.4f") %
+        #                  (peakpos, innerbound, outerbound, k, y0))
+        #            print(len(intg), intg[:-1])
+        #            raise ValueError("Bad axial helper parameters")
 
         # now, make sure the underlying area is the exactly correct
         # integral, without bumps due to discretizing the grid.
-        intg *= (exactintegral / (intg[:-1].sum()))
+        intg *= exactintegral / (intg[:-1].sum())
 
-        destination[idx0:idx1 - 1] += intg[:-1]
+        destination[idx0 : idx1 - 1] += intg[:-1]
 
         # This is purely for debugging.  If collect_moment_errors is *True*,
         #  compute exact vs. approximate moments.
         if collect_moment_errors:
-            centroid2 = (intg[:-1] * epsvals[idx0:idx1 - 1]
-                         ).sum() / intg[:-1].sum()
+            centroid2 = (intg[:-1] * epsvals[idx0 : idx1 - 1]).sum() / intg[
+                :-1
+            ].sum()
             moment_list.append((centroid2 - exact_moment1) / dx)
 
         return [idx0, idx1 - 1]  # useful info for peak position
 
-    def full_axdiv_I2(self, Lx=None, Ls=None, Lr=None, R=None, twotheta=None,
-                      beta=None, epsvals=None):
+    def full_axdiv_I2(
+        self,
+        Lx=None,
+        Ls=None,
+        Lr=None,
+        R=None,
+        twotheta=None,
+        beta=None,
+        epsvals=None,
+    ):
         """
         return the *I2* function
 
@@ -808,13 +875,13 @@ class FP_profile:
         epsscale = tan(pi / 2 - twotheta) / (2 * R * R)  # =cotan(twotheta)...
 
         # Ch&Co 18a&18b, KM sign correction
-        eps1p = (eps0 - epsscale * ((Lr / 2) - z0p)**2)
-        eps2p = (eps0 - epsscale * ((Lr / 2) - z0m)**2)
+        eps1p = eps0 - epsscale * ((Lr / 2) - z0p) ** 2
+        eps2p = eps0 - epsscale * ((Lr / 2) - z0m) ** 2
         # reversed eps2m and eps1m per KM R
-        eps2m = (eps0 - epsscale * ((Lr / 2) + z0p)**2)
-        eps1m = (eps0 - epsscale * ((Lr / 2) + z0m)**2)  # flip all epsilons
+        eps2m = eps0 - epsscale * ((Lr / 2) + z0p) ** 2
+        eps1m = eps0 - epsscale * ((Lr / 2) + z0m) ** 2  # flip all epsilons
 
-        if twotheta > pi/2:
+        if twotheta > pi / 2:
             # this set of inversions from KM 'R' code, simplified here
             eps1p, eps2p, eps1m, eps2m = eps1m, eps2m, eps1p, eps2p
 
@@ -822,14 +889,17 @@ class FP_profile:
         # note table 1 is full of typos, but the minimized
         # tests from 4.2.2 with redundancies removed seem fine.
         if Lr > z0p - z0m:
-            if z0p <= Lr/2 and z0m > -1*Lr/2:  # beam entirely within slit
+            if (
+                z0p <= Lr / 2 and z0m > -1 * Lr / 2
+            ):  # beam entirely within slit
                 rng = 1
                 ea = eps1p
                 eb = eps2p
                 ec = eps1m
                 ed = eps2m
-            elif (z0p > Lr/2 and z0m < Lr/2) or \
-                    (z0m < -1*Lr/2 and z0p > -1*Lr/2):
+            elif (z0p > Lr / 2 and z0m < Lr / 2) or (
+                z0m < -1 * Lr / 2 and z0p > -1 * Lr / 2
+            ):
                 rng = 2
                 ea = eps2p
                 eb = eps1p
@@ -843,15 +913,16 @@ class FP_profile:
                 ed = eps2m
         else:
             # beam hanging off both ends of slit, peak centered
-            if z0m < -1*Lr/2 and z0p > Lr/2:
+            if z0m < -1 * Lr / 2 and z0p > Lr / 2:
                 rng = 1
                 ea = eps1m
                 eb = eps2p
                 ec = eps1p
                 ed = eps2m
             # one edge of beam within slit
-            elif (-1*Lr/2 < z0m < Lr/2 and z0p > Lr/2) or \
-                    (-1*Lr/2 < z0p < Lr/2 and z0m < -1*Lr/2):
+            elif (-1 * Lr / 2 < z0m < Lr / 2 and z0p > Lr / 2) or (
+                -1 * Lr / 2 < z0p < Lr / 2 and z0m < -1 * Lr / 2
+            ):
                 rng = 2
                 ea = eps2p
                 eb = eps1m
@@ -870,30 +941,49 @@ class FP_profile:
 
         # define them in our namespace so they inherit ea, eb, ec, ed, etc.
         def F1(dst, lower, upper, eea, eeb):
-            return self.axial_helper(destination=dst,
-                                     innerbound=upper, outerbound=lower,
-                                     epsvals=epsvals, peakpos=eps0,
-                                     k=sqrt(abs(eps0-eeb))-sqrt(abs(eps0-eea)),
-                                     y0=0)
+            return self.axial_helper(
+                destination=dst,
+                innerbound=upper,
+                outerbound=lower,
+                epsvals=epsvals,
+                peakpos=eps0,
+                k=sqrt(abs(eps0 - eeb)) - sqrt(abs(eps0 - eea)),
+                y0=0,
+            )
 
         def F2(dst, lower, upper, eea):
-            return self.axial_helper(destination=dst,
-                                     innerbound=upper, outerbound=lower,
-                                     epsvals=epsvals, peakpos=eps0,
-                                     k=sqrt(abs(eps0 - eea)), y0=-1)
+            return self.axial_helper(
+                destination=dst,
+                innerbound=upper,
+                outerbound=lower,
+                epsvals=epsvals,
+                peakpos=eps0,
+                k=sqrt(abs(eps0 - eea)),
+                y0=-1,
+            )
 
         def F3(dst, lower, upper, eea):
-            return self.axial_helper(destination=dst,
-                                     innerbound=upper, outerbound=lower,
-                                     epsvals=epsvals, peakpos=eps0,
-                                     k=sqrt(abs(eps0 - eea)), y0=+1)
+            return self.axial_helper(
+                destination=dst,
+                innerbound=upper,
+                outerbound=lower,
+                epsvals=epsvals,
+                peakpos=eps0,
+                k=sqrt(abs(eps0 - eea)),
+                y0=+1,
+            )
 
         def F4(dst, lower, upper, eea):
             # just like F2 but k and y0 negated
-            return self.axial_helper(destination=dst,
-                                     innerbound=upper, outerbound=lower,
-                                     epsvals=epsvals, peakpos=eps0,
-                                     k=-sqrt(abs(eps0 - eea)), y0=+1)
+            return self.axial_helper(
+                destination=dst,
+                innerbound=upper,
+                outerbound=lower,
+                epsvals=epsvals,
+                peakpos=eps0,
+                k=-sqrt(abs(eps0 - eea)),
+                y0=+1,
+            )
 
         I2p = self._I2p
         I2p[:] = 0
@@ -903,9 +993,9 @@ class FP_profile:
         indices = []
         if rng == 1:
             indices += F1(dst=I2p, lower=ea, upper=eps0, eea=ea, eeb=eb)
-            indices += F2(dst=I2p, lower=eb, upper=ea,   eea=eb)
+            indices += F2(dst=I2p, lower=eb, upper=ea, eea=eb)
             indices += F1(dst=I2m, lower=ec, upper=eps0, eea=ec, eeb=ed)
-            indices += F2(dst=I2m, lower=ed, upper=ec,   eea=ed)
+            indices += F2(dst=I2m, lower=ed, upper=ec, eea=ed)
         elif rng == 2:
             indices += F2(dst=I2p, lower=ea, upper=eps0, eea=ea)
             indices += F3(dst=I2m, lower=eb, upper=eps0, eea=ea)
@@ -921,9 +1011,19 @@ class FP_profile:
 
         return epsvals, idxmin, idxmax, I2p, I2m
 
-    def full_axdiv_I3(self, Lx=None, Ls=None, Lr=None, R=None,
-                      twotheta=None, epsvals=None, sollerIdeg=None,
-                      sollerDdeg=None, nsteps=10, axDiv=""):
+    def full_axdiv_I3(
+        self,
+        Lx=None,
+        Ls=None,
+        Lr=None,
+        R=None,
+        twotheta=None,
+        epsvals=None,
+        sollerIdeg=None,
+        sollerDdeg=None,
+        nsteps=10,
+        axDiv="",
+    ):
         """
         carry out the integral of *I2* over *beta* and the Soller slits.
 
@@ -964,16 +1064,20 @@ class FP_profile:
 
             def solIfunc(x):
                 return numpy.clip(1.0 - abs(x / solIrad), 0, 1)
+
             beta2 = min(beta2, solIrad)  # no point going beyond Soller
         else:
+
             def solIfunc(x):
                 return numpy.ones_like(x)
+
         if sollerDdeg is not None:
             solDrad = math.radians(sollerDdeg) / 2
 
             def solDfunc(x):
                 return numpy.clip(1.0 - abs(x / solDrad), 0, 1)
         else:
+
             def solDfunc(x):
                 return numpy.ones_like(x)
 
@@ -989,8 +1093,14 @@ class FP_profile:
             beta = beta2 * iidx / float(nsteps)
 
             _, idxmin, idxmax, I2p, I2m = self.full_axdiv_I2(
-                Lx=Lx, Lr=Lr, Ls=Ls, beta=beta, R=R,
-                twotheta=twotheta, epsvals=epsvals)
+                Lx=Lx,
+                Lr=Lr,
+                Ls=Ls,
+                beta=beta,
+                R=R,
+                twotheta=twotheta,
+                epsvals=epsvals,
+            )
 
             # after eq. 26 in Ch&Co
             eps0 = beta * beta * tan(twotheta) / 2
@@ -1020,10 +1130,10 @@ class FP_profile:
             # sum into the accumulator only channels which can be non-zero
             # do scaling in-place to save a  lot of slow array copying
             I2p[idxmin:idxmax] *= solDfunc(gamp)
-            I2p[idxmin:idxmax] *= (weight * solIfunc(beta))
+            I2p[idxmin:idxmax] *= weight * solIfunc(beta)
             accum[idxmin:idxmax] += I2p[idxmin:idxmax]
             I2m[idxmin:idxmax] *= solDfunc(gamm)
-            I2m[idxmin:idxmax] *= (weight * solIfunc(beta))
+            I2m[idxmin:idxmax] *= weight * solIfunc(beta)
             accum[idxmin:idxmax] += I2m[idxmin:idxmax]
 
         # keep this normalized
@@ -1067,7 +1177,7 @@ class FP_profile:
             sollerIdeg=kwargs["angI_deg"],
             sollerDdeg=kwargs["angD_deg"],
             R=kwargs["diffractometer_radius"],
-            twotheta=kwargs["twotheta0"]
+            twotheta=kwargs["twotheta0"],
         )
         axfn[:] = best_rfft(axbuf)
 
@@ -1088,8 +1198,9 @@ class FP_profile:
         if not kwargs:
             return None  # no convolver
         # we also need the diffractometer radius from the global space
-        kwargs["diffractometer_radius"] = self.param_dicts[
-            "conv_global"]["diffractometer_radius"]
+        kwargs["diffractometer_radius"] = self.param_dicts["conv_global"][
+            "diffractometer_radius"
+        ]
         flag, tailfn = self.get_conv(me, kwargs, complex)
         if flag:
             return tailfn  # already up to date
@@ -1103,13 +1214,20 @@ class FP_profile:
         # x/(2*diffractometer_radius) since the detector is 2R from the source,
         # but since this is just a fit parameter, we'll defin it as does Topas
 
-        tail_eps = (kwargs["tail_right"] - kwargs["tail_left"]) / \
-            kwargs["diffractometer_radius"]
+        tail_eps = (kwargs["tail_right"] - kwargs["tail_left"]) / kwargs[
+            "diffractometer_radius"
+        ]
         main_eps = kwargs["main_width"] / kwargs["diffractometer_radius"]
-        tail_center = (kwargs["tail_right"] + kwargs["tail_left"]) / \
-            kwargs["diffractometer_radius"] / 2.0
-        tail_area = kwargs["tail_intens"] * \
-            (kwargs["tail_right"] - kwargs["tail_left"]) / kwargs["main_width"]
+        tail_center = (
+            (kwargs["tail_right"] + kwargs["tail_left"])
+            / kwargs["diffractometer_radius"]
+            / 2.0
+        )
+        tail_area = (
+            kwargs["tail_intens"]
+            * (kwargs["tail_right"] - kwargs["tail_left"])
+            / kwargs["main_width"]
+        )
 
         cb1 = self._cb1
         rb1 = self._rb1
@@ -1120,13 +1238,13 @@ class FP_profile:
         numpy.exp(cb1, tailfn)  # shifted center, computed into tailfn
 
         rb1[:] = self.omega_vals
-        rb1 *= (tail_eps / 2 / pi)
+        rb1 *= tail_eps / 2 / pi
         rb1 = numpy.sinc(rb1)
         tailfn *= rb1
         tailfn *= tail_area  # normalize
 
         rb1[:] = self.omega_vals
-        rb1 *= (main_eps / 2 / pi)
+        rb1 *= main_eps / 2 / pi
         rb1 = numpy.sinc(rb1)
         tailfn += rb1  # add central peak
         return tailfn
@@ -1155,7 +1273,7 @@ class FP_profile:
             return conv  # already up to date
         rb1 = self._rb1
         rb1[:] = self.omega_vals
-        rb1 *= (width / 2 / pi)
+        rb1 *= width / 2 / pi
         conv[:] = numpy.sinc(rb1)
         return conv
 
@@ -1171,10 +1289,14 @@ class FP_profile:
             emiss_lor_widths=("Lorenztian emission fwhm (m)", (1e-13,)),
             emiss_gauss_widths=("Gaussian emissions fwhm (m)", (1e-13,)),
             crystallite_size_gauss=(
-                "Gaussian crystallite size fwhm (m)", 1e-6),
+                "Gaussian crystallite size fwhm (m)",
+                1e-6,
+            ),
             crystallite_size_lor=(
-                "Lorentzian crystallite size fwhm (m)", 1e-6),
-        )
+                "Lorentzian crystallite size fwhm (m)",
+                1e-6,
+            ),
+        ),
     )
 
     def str_emission(self):
@@ -1193,9 +1315,14 @@ class FP_profile:
         dd.setdefault("crystallite_size_gauss", 1e10)
         dd.setdefault("strain_lor", 0)
         dd.setdefault("strain_gauss", 0)
-        spect = numpy.array((
-            dd["emiss_wavelengths"], dd["emiss_intensities"],
-            dd["emiss_lor_widths"], dd["emiss_gauss_widths"]))
+        spect = numpy.array(
+            (
+                dd["emiss_wavelengths"],
+                dd["emiss_intensities"],
+                dd["emiss_lor_widths"],
+                dd["emiss_gauss_widths"],
+            )
+        )
         # convert to angstroms, like Topas
         spect[0] *= 1e10 * self.length_scale_m
         spect[2] *= 1e13 * self.length_scale_m  # milli-angstroms
@@ -1203,13 +1330,16 @@ class FP_profile:
         nm = 1e9 * self.length_scale_m
         items = ["emission and broadening:"]
         items.append("spectrum=\n" + str(spect.transpose()))
-        items.append("crystallite_size_lor (nm): "
-                     f"{dd['crystallite_size_lor']*nm:.5g}")
-        items.append("crystallite_size_gauss (nm): "
-                     f"{dd['crystallite_size_gauss']*nm:.5g}")
+        items.append(
+            f"crystallite_size_lor (nm): {dd['crystallite_size_lor'] * nm:.5g}"
+        )
+        items.append(
+            "crystallite_size_gauss (nm): "
+            f"{dd['crystallite_size_gauss'] * nm:.5g}"
+        )
         items.append(f"strain_lor: {dd['strain_lor']:.5g}")
         items.append(f"strain_gauss: {dd['strain_gauss']:.5g}")
-        return '\n'.join(items)
+        return "\n".join(items)
 
     def conv_emission(self):
         """
@@ -1241,7 +1371,7 @@ class FP_profile:
         key = {}
         key.update(kwargs)
         for k, v in key.items():
-            if hasattr(v, 'tolist'):
+            if hasattr(v, "tolist"):
                 key[k] = v.tolist()
 
         flag, emiss = self.get_conv(me, key, complex)
@@ -1249,8 +1379,9 @@ class FP_profile:
             return emiss  # already up to date
 
         epsilon0s = (
-            2 * nasin(asarray(kwargs["emiss_wavelengths"])/(2.0*kwargs["d"])) -
-            kwargs["twotheta0"]
+            2
+            * nasin(asarray(kwargs["emiss_wavelengths"]) / (2.0 * kwargs["d"]))
+            - kwargs["twotheta0"]
         )
         theta = kwargs["twotheta0"] / 2
         # Emission profile FWHM + crystallite broadening (scale factors are
@@ -1258,23 +1389,38 @@ class FP_profile:
         # note: the strain broadenings in Topas are expressed in degrees
         # 2theta, must convert to radians(theta) with pi/360
         widths = (
-            (asarray(kwargs["emiss_lor_widths"]) /
-             asarray(kwargs["emiss_wavelengths"])) *
-            tan(theta) + math.radians(kwargs["strain_lor"]) / 2 * tan(theta) +
-            (asarray(kwargs["emiss_wavelengths"]) /
-             (2*kwargs["crystallite_size_lor"]*cos(theta)))
+            (
+                asarray(kwargs["emiss_lor_widths"])
+                / asarray(kwargs["emiss_wavelengths"])
+            )
+            * tan(theta)
+            + math.radians(kwargs["strain_lor"]) / 2 * tan(theta)
+            + (
+                asarray(kwargs["emiss_wavelengths"])
+                / (2 * kwargs["crystallite_size_lor"] * cos(theta))
+            )
         )
         # save weighted average width for future reference in periodicity fixer
-        self.lor_widths[me] = sum(widths * kwargs["emiss_intensities"]) / \
-            sum(kwargs["emiss_intensities"])
+        self.lor_widths[me] = sum(widths * kwargs["emiss_intensities"]) / sum(
+            kwargs["emiss_intensities"]
+        )
         # gaussian bits add in quadrature
         gfwhm2s = (
-            ((2 * asarray(kwargs["emiss_gauss_widths"]) /
-              asarray(kwargs["emiss_wavelengths"])) *
-             tan(theta))**2 +
-            (math.radians(kwargs["strain_gauss"]) / 2 * tan(theta))**2 +
-            (asarray(kwargs["emiss_wavelengths"]) /
-             (kwargs["crystallite_size_gauss"]*cos(theta)))**2
+            (
+                (
+                    2
+                    * asarray(kwargs["emiss_gauss_widths"])
+                    / asarray(kwargs["emiss_wavelengths"])
+                )
+                * tan(theta)
+            )
+            ** 2
+            + (math.radians(kwargs["strain_gauss"]) / 2 * tan(theta)) ** 2
+            + (
+                asarray(kwargs["emiss_wavelengths"])
+                / (kwargs["crystallite_size_gauss"] * cos(theta))
+            )
+            ** 2
         )
 
         # note that the Fourier transform of a lorentzian with FWHM 2a
@@ -1283,13 +1429,15 @@ class FP_profile:
         # carefully handled to put the lines in the right places.
         # note that the transform of f(x+dx)=exp(i omega dx) f~(x)
         omega_vals = self.omega_vals
-        for wid, gfwhm2, eps, intens in zip(widths, gfwhm2s, epsilon0s,
-                                            kwargs["emiss_intensities"]):
+        for wid, gfwhm2, eps, intens in zip(
+            widths, gfwhm2s, epsilon0s, kwargs["emiss_intensities"]
+        ):
             xvals = numpy.clip(omega_vals * (-wid), -100, 0)
             sig2 = gfwhm2 / (8 * math.log(2.0))  # convert fwhm**2 to sigma**2
             gxv = numpy.clip((sig2 / -2.0) * omega_vals * omega_vals, -100, 0)
-            emiss += numpy.exp(xvals + gxv + complex(0, -eps) *
-                               omega_vals) * intens
+            emiss += (
+                numpy.exp(xvals + gxv + complex(0, -eps) * omega_vals) * intens
+            )
         return emiss
 
     def conv_flat_specimen(self):
@@ -1302,8 +1450,9 @@ class FP_profile:
             the convolver
         """
         me = self.get_function_name()  # the name of the convolver, as a string
-        equatorial_divergence_deg = self.param_dicts[
-            "conv_global"].get("equatorial_divergence_deg", None)
+        equatorial_divergence_deg = self.param_dicts["conv_global"].get(
+            "equatorial_divergence_deg", None
+        )
         if not equatorial_divergence_deg:
             return None
         twotheta0 = self.param_dicts["conv_global"]["twotheta0"]
@@ -1315,16 +1464,22 @@ class FP_profile:
         # Flat-specimen error, from Cheary, Coelho & Cline 2004 NIST eq. 9 & 10
         # compute epsm in radians from eq. divergence in degrees
         # to make it easy to use the axial_helper to compute the function
-        epsm = math.radians(equatorial_divergence_deg)**2 /\
-            tan(twotheta0/2.0) / 2.0
+        epsm = (
+            math.radians(equatorial_divergence_deg) ** 2
+            / tan(twotheta0 / 2.0)
+            / 2.0
+        )
         eqdiv = self._epsb2
         eqdiv[:] = 0
-        dtwoth = (self.twothetasamples[1] - self.twothetasamples[0])
-        self.axial_helper(destination=eqdiv,
-                          outerbound=-epsm,
-                          innerbound=0,
-                          epsvals=self.epsilon,
-                          peakpos=0, k=dtwoth/(2.0*sqrt(epsm)))
+        dtwoth = self.twothetasamples[1] - self.twothetasamples[0]
+        self.axial_helper(
+            destination=eqdiv,
+            outerbound=-epsm,
+            innerbound=0,
+            epsvals=self.epsilon,
+            peakpos=0,
+            k=dtwoth / (2.0 * sqrt(epsm)),
+        )
 
         conv[:] = best_rfft(eqdiv)
         conv[1::2] *= -1  # flip center
@@ -1346,8 +1501,9 @@ class FP_profile:
         if not kwargs:
             return None
         kwargs["twotheta0"] = self.param_dicts["conv_global"]["twotheta0"]
-        kwargs["diffractometer_radius"] = self.param_dicts[
-            "conv_global"]["diffractometer_radius"]
+        kwargs["diffractometer_radius"] = self.param_dicts["conv_global"][
+            "diffractometer_radius"
+        ]
 
         flag, conv = self.get_conv(me, kwargs, complex)
         if flag:
@@ -1357,9 +1513,11 @@ class FP_profile:
         # EXCEPT delta = 1/(2*mu*R) instead of 2/(mu*R)
         # from Mathematica, unnormalized transform is
         # (1-exp(epsmin*(i w + 1/delta)))/(i w + 1/delta)
-        delta = sin(kwargs["twotheta0"]) / \
-            (2 * kwargs["absorption_coefficient"] *
-             kwargs["diffractometer_radius"])
+        delta = sin(kwargs["twotheta0"]) / (
+            2
+            * kwargs["absorption_coefficient"]
+            * kwargs["diffractometer_radius"]
+        )
         # arg=(1/delta)+complex(0,-1)*omega_vals
         cb = self._cb1
         cb.imag = self.omega_vals
@@ -1369,9 +1527,12 @@ class FP_profile:
         conv *= 1.0 / delta  # normalize
         # rest of transform of function with cutoff
         if kwargs.get("sample_thickness", None) is not None:
-            epsmin = -2.0 * kwargs["sample_thickness"] * \
-                cos(kwargs["twotheta0"] / 2.0) / \
-                kwargs["diffractometer_radius"]
+            epsmin = (
+                -2.0
+                * kwargs["sample_thickness"]
+                * cos(kwargs["twotheta0"] / 2.0)
+                / kwargs["diffractometer_radius"]
+            )
             cb *= epsmin
             numpy.expm1(cb, cb)
             cb *= -1
@@ -1391,8 +1552,9 @@ class FP_profile:
         me = self.get_function_name()  # the name of the convolver, as a string
         kwargs = self.param_dicts[me]
         twotheta0 = self.param_dicts["conv_global"]["twotheta0"]
-        diffractometer_radius = self.param_dicts[
-            "conv_global"]["diffractometer_radius"]
+        diffractometer_radius = self.param_dicts["conv_global"][
+            "diffractometer_radius"
+        ]
         specimen_displacement = kwargs.get("specimen_displacement", 0.0)
         if specimen_displacement is None:
             specimen_displacement = 0.0
@@ -1400,21 +1562,34 @@ class FP_profile:
         if zero_error_deg is None:
             zero_error_deg = 0.0
 
-        flag, conv = self.get_conv(me,
-                                   (twotheta0, diffractometer_radius,
-                                    specimen_displacement, zero_error_deg),
-                                   complex)
+        flag, conv = self.get_conv(
+            me,
+            (
+                twotheta0,
+                diffractometer_radius,
+                specimen_displacement,
+                zero_error_deg,
+            ),
+            complex,
+        )
         if flag:
             return conv  # already up to date
 
-        delta = -2 * cos(twotheta0 / 2.0) * \
-            specimen_displacement / diffractometer_radius
+        delta = (
+            -2
+            * cos(twotheta0 / 2.0)
+            * specimen_displacement
+            / diffractometer_radius
+        )
         conv.real = 0
         conv.imag = self.omega_vals
         # convolver *= numpy.exp(complex(0, -delta-zero_error_deg*pi/180.0) *
         #                        omega_vals)
-        conv.imag *= (-delta - math.radians(zero_error_deg) -
-                      (twotheta0 - self.twotheta_window_center))
+        conv.imag *= (
+            -delta
+            - math.radians(zero_error_deg)
+            - (twotheta0 - self.twotheta_window_center)
+        )
         numpy.exp(conv, conv)
         return conv
 
@@ -1436,8 +1611,10 @@ class FP_profile:
         if self.param_dicts[me].get("slit_width", None) is None:
             return None
 
-        epsr = (self.param_dicts["conv_receiver_slit"]["slit_width"] /
-                self.param_dicts["conv_global"]["diffractometer_radius"])
+        epsr = (
+            self.param_dicts["conv_receiver_slit"]["slit_width"]
+            / self.param_dicts["conv_global"]["diffractometer_radius"]
+        )
         return self.general_tophat(me, epsr)
 
     def conv_si_psd(self):
@@ -1466,8 +1643,10 @@ class FP_profile:
         if flag:
             return conv  # already up to date
 
-        if not (kwargs["equatorial_divergence_deg"] and
-                kwargs["si_psd_window_bounds"]):
+        if not (
+            kwargs["equatorial_divergence_deg"]
+            and kwargs["si_psd_window_bounds"]
+        ):
             # if either of these is zero or None, convolution is trivial
             conv[:] = 1
             return conv
@@ -1511,21 +1690,26 @@ class FP_profile:
         me = self.get_function_name()  # the name of the convolver, as a string
         if not self.gaussian_smoother_bins_sigma:
             return None  # no smoothing
-        flag, buf = self.get_conv(me, self.gaussian_smoother_bins_sigma,
-                                  format=float)
+        flag, buf = self.get_conv(
+            me, self.gaussian_smoother_bins_sigma, format=float
+        )
         if flag:
             return buf  # already computed
         buf[:] = self.omega_vals
-        buf *= (self.gaussian_smoother_bins_sigma * (
-            self.twothetasamples[1] - self.twothetasamples[0]))
+        buf *= self.gaussian_smoother_bins_sigma * (
+            self.twothetasamples[1] - self.twothetasamples[0]
+        )
         buf *= buf
         buf *= -0.5
         numpy.exp(buf, buf)
         return buf
 
-    def compute_line_profile(self, convolver_names=None,
-                             compute_derivative=False,
-                             return_convolver=False):
+    def compute_line_profile(
+        self,
+        convolver_names=None,
+        compute_derivative=False,
+        return_convolver=False,
+    ):
         """
         execute all the convolutions; if convolver_names is None, use
         everything we have, otherwise, use named convolutions.
@@ -1553,7 +1737,8 @@ class FP_profile:
         # the rough center of the spectrum, used for things which need it.
         # Copied from global convolver.
         self.dominant_wavelength = dominant_wavelength = self.param_dicts[
-            "conv_global"].get("dominant_wavelength", None)
+            "conv_global"
+        ].get("dominant_wavelength", None)
 
         if anglemode == "twotheta":
             twotheta0_deg = self.param_dicts["conv_global"]["twotheta0_deg"]
@@ -1565,8 +1750,9 @@ class FP_profile:
             twotheta0_deg = math.degrees(twotheta0)
 
         # set these in global namespace
-        self.set_parameters(d=d, twotheta0=twotheta0,
-                            twotheta0_deg=twotheta0_deg)
+        self.set_parameters(
+            d=d, twotheta0=twotheta0, twotheta0_deg=twotheta0_deg
+        )
 
         if convolver_names is None:
             convolver_names = self.convolver_funcs.keys()  # get all names
@@ -1597,41 +1783,46 @@ class FP_profile:
         alpha = correction_width / 2.0  # be consistent with convolver
         mu = (peak * self.twothetasamples).sum() / peak.sum()  # centroid
         dx = self.twothetasamples - mu
-        eps_corr1 = (math.sinh(d2p * alpha) / self.window_fullwidth) / \
-            (math.cosh(d2p * alpha) - ncos(d2p * dx))
+        eps_corr1 = (math.sinh(d2p * alpha) / self.window_fullwidth) / (
+            math.cosh(d2p * alpha) - ncos(d2p * dx)
+        )
         eps_corr2 = (alpha / pi) / (dx * dx + alpha * alpha)
-        corr = (convolver[0].real / numpy.sum(eps_corr2)) * \
-            (eps_corr1 - eps_corr2)
+        corr = (convolver[0].real / numpy.sum(eps_corr2)) * (
+            eps_corr1 - eps_corr2
+        )
         peak -= corr
 
-        peak *= self.window_fullwidth / \
-            (self.twotheta_output_points / self.oversampling)  # scale to area
+        peak *= self.window_fullwidth / (
+            self.twotheta_output_points / self.oversampling
+        )  # scale to area
 
         if compute_derivative:
             # this is useful
             convolver *= self.omega_vals
             convolver *= complex(0, 1)
             deriv = best_irfft(convolver)
-            deriv *= self.window_fullwidth / \
-                (self.twotheta_output_points / self.oversampling)
-            deriv = deriv[::self.oversampling]
+            deriv *= self.window_fullwidth / (
+                self.twotheta_output_points / self.oversampling
+            )
+            deriv = deriv[:: self.oversampling]
         else:
             deriv = None
 
-        result = profile_data(twotheta0_deg=math.degrees(twotheta0),
-                              twotheta=self.twothetasamples[
-                                  ::self.oversampling],
-                              omega_inv_deg=self.omega_inv_deg[
-                                  :self.twotheta_output_points // 2 + 1],
-                              twotheta_deg=self.twothetasamples_deg[
-                                  ::self.oversampling],
-                              peak=peak[::self.oversampling],
-                              derivative=deriv
-                              )
+        result = profile_data(
+            twotheta0_deg=math.degrees(twotheta0),
+            twotheta=self.twothetasamples[:: self.oversampling],
+            omega_inv_deg=self.omega_inv_deg[
+                : self.twotheta_output_points // 2 + 1
+            ],
+            twotheta_deg=self.twothetasamples_deg[:: self.oversampling],
+            peak=peak[:: self.oversampling],
+            derivative=deriv,
+        )
 
         if return_convolver:
             result.add_symbol(
-                convolver=convolver[:self.twotheta_output_points//2+1])
+                convolver=convolver[: self.twotheta_output_points // 2 + 1]
+            )
 
         return result
 
@@ -1649,8 +1840,12 @@ class FP_profile:
                 delattr(self, thing)
         # delete extra attributes cautiously, in case we have already been
         # cleaned
-        for k in ('convolver_funcs', 'convolvers',
-                  'factors', 'convolution_history'):
+        for k in (
+            "convolver_funcs",
+            "convolvers",
+            "factors",
+            "convolution_history",
+        ):
             if pd.pop(k, None) is not None:
                 delattr(self, k)
 
@@ -1676,8 +1871,12 @@ class FP_profile:
                 del pd[thing]
         # delete extra attributes cautiously, in case we have already been
         # cleaned
-        for k in ('convolver_funcs', 'convolvers',
-                  'factors', 'convolution_history'):
+        for k in (
+            "convolver_funcs",
+            "convolvers",
+            "factors",
+            "convolution_history",
+        ):
             pd.pop(k, None)
         return pd
 
@@ -1693,11 +1892,13 @@ class FP_profile:
         setdict :   dict
             dictionary from FP_profile.__getstate__()
         """
-        self.__init__(anglemode=setdict["anglemode"],
-                      gaussian_smoother_bins_sigma=setdict[
-                          "gaussian_smoother_bins_sigma"],
-                      oversampling=setdict["oversampling"]
-                      )
+        self.__init__(
+            anglemode=setdict["anglemode"],
+            gaussian_smoother_bins_sigma=setdict[
+                "gaussian_smoother_bins_sigma"
+            ],
+            oversampling=setdict["oversampling"],
+        )
         for k, v in setdict.items():
             setattr(self, k, v)
         try:
@@ -1705,7 +1906,7 @@ class FP_profile:
             self.set_window(
                 twotheta_window_center_deg=s.twotheta_window_center_deg,
                 twotheta_window_fullwidth_deg=s.twotheta_window_fullwidth_deg,
-                twotheta_output_points=s.twotheta_output_points
+                twotheta_output_points=s.twotheta_output_points,
             )
             # override clearing of this by set_window
             self.lor_widths = setdict["lor_widths"]
@@ -1727,16 +1928,18 @@ class convolver_handler:
     def update_parameters(self, parameters):
         for c in self.convolvers:
             for k, v in parameters.items():
-                if k == 'classoptions':
+                if k == "classoptions":
                     continue
                 c.set_parameters(convolver=k, **v)
 
     def set_windows(self, centers, npoints, flag, width):
         for c, cen, np, f in zip(self.convolvers, centers, npoints, flag):
             if f:
-                c.set_window(twotheta_output_points=np,
-                             twotheta_window_center_deg=cen,
-                             twotheta_window_fullwidth_deg=width)
+                c.set_window(
+                    twotheta_output_points=np,
+                    twotheta_window_center_deg=cen,
+                    twotheta_window_fullwidth_deg=width,
+                )
 
     def calc(self, run, ttpeaks):
         """
@@ -1777,7 +1980,6 @@ class manager(BaseManager):
 
 
 class PowderDiffraction(PowderExperiment):
-
     """
     Experimental class for powder diffraction. This class calculates the
     structure factors of powder diffraction lines and uses instances of
@@ -1788,11 +1990,11 @@ class PowderDiffraction(PowderExperiment):
     """
 
     _valid_init_kwargs = copy.copy(PowderExperiment._valid_init_kwargs)
-    _valid_init_kwargs['tt_cutoff'] = '2Theta cut off value in degree'
-    _valid_init_kwargs['fpclass'] = 'FP_profile derived class'
-    _valid_init_kwargs['fpsettings'] = 'settings dictionaries'
-    _valid_init_kwargs['enable_simulation'] = 'flag to enable simulation mode'
-    del _valid_init_kwargs['sampleor']
+    _valid_init_kwargs["tt_cutoff"] = "2Theta cut off value in degree"
+    _valid_init_kwargs["fpclass"] = "FP_profile derived class"
+    _valid_init_kwargs["fpsettings"] = "settings dictionaries"
+    _valid_init_kwargs["enable_simulation"] = "flag to enable simulation mode"
+    del _valid_init_kwargs["sampleor"]
 
     def __init__(self, mat, **kwargs):
         """
@@ -1830,24 +2032,28 @@ class PowderDiffraction(PowderExperiment):
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
         """
-        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
-                               self.__class__.__name__)
+        utilities.check_kwargs(
+            kwargs, self._valid_init_kwargs, self.__class__.__name__
+        )
         if isinstance(mat, materials.Crystal):
             self.mat = Powder(mat, 1)
         elif isinstance(mat, Powder):
             self.mat = mat
         else:
-            raise TypeError("mat must be an instance of class "
-                            "xrayutilities.materials.Crystal or "
-                            "xrayutilities.simpack.Powder")
+            raise TypeError(
+                "mat must be an instance of class "
+                "xrayutilities.materials.Crystal or "
+                "xrayutilities.simpack.Powder"
+            )
 
         self.data = dict()
-        self._tt_cutoff = kwargs.pop('tt_cutoff', 180)
-        self.fpclass = kwargs.pop('fpclass', FP_profile)
+        self._tt_cutoff = kwargs.pop("tt_cutoff", 180)
+        self.fpclass = kwargs.pop("fpclass", FP_profile)
         self.settings = self.load_settings_from_config(
-            kwargs.pop('fpsettings', {}))
+            kwargs.pop("fpsettings", {})
+        )
         self.set_sample_parameters()  # initialize local settings
-        self._enable_sim = kwargs.pop('enable_simulation', False)
+        self._enable_sim = kwargs.pop("enable_simulation", False)
 
         PowderExperiment.__init__(self, **kwargs)
 
@@ -1862,7 +2068,7 @@ class PowderDiffraction(PowderExperiment):
 
         # initialize FP_profile instances (add field to the data dictionary)
         for h in self.data:
-            self.data[h]['conv'] = self._init_fpprofile(self.fpclass)
+            self.data[h]["conv"] = self._init_fpprofile(self.fpclass)
         # set settings in all convolvers
         self.update_settings(self.settings)
         self.set_sample_parameters()
@@ -1875,15 +2081,17 @@ class PowderDiffraction(PowderExperiment):
         if self._enable_sim:
             self._init_multiprocessing()
         # set wavelength from class constructor
-        if 'wl' in kwargs:
-            self._set_wavelength_pd(kwargs['wl'])
-        if 'en' in kwargs:
-            self._set_energy_pd(kwargs['en'])
+        if "wl" in kwargs:
+            self._set_wavelength_pd(kwargs["wl"])
+        if "en" in kwargs:
+            self._set_energy_pd(kwargs["en"])
 
-        if self.settings['global']['geometry'] != 'symmetric':
-            warnings.warn("PowderDiffraction: geometry '%s' not fully "
-                          "supported, proceed with caution!"
-                          % self.settings['global']['geometry'])
+        if self.settings["global"]["geometry"] != "symmetric":
+            warnings.warn(
+                "PowderDiffraction: geometry '%s' not fully "
+                "supported, proceed with caution!"
+                % self.settings["global"]["geometry"]
+            )
 
     def _init_multiprocessing(self):
         """
@@ -1906,11 +2114,15 @@ class PowderDiffraction(PowderExperiment):
             mg.start()
             m = mg.conv()
             for h in self.chunks[idx]:
-                m.add_convolver(self.data[h]['conv'])
+                m.add_convolver(self.data[h]["conv"])
             self.conv_handlers.append(m)
-            self.threads.append((
-                threading.Thread(target=self._send_work, args=(idx, )),
-                queue.Queue(), self.output_queue))
+            self.threads.append(
+                (
+                    threading.Thread(target=self._send_work, args=(idx,)),
+                    queue.Queue(),
+                    self.output_queue,
+                )
+            )
         self._running = True
         for th, _, _ in self.threads:
             th.daemon = True
@@ -1927,12 +2139,12 @@ class PowderDiffraction(PowderExperiment):
             for th, q1, _ in self.threads:
                 q1.put(None)
                 th.join()
-            delattr(self, 'threads')
+            delattr(self, "threads")
             # end managers which handle the convolvers
-            delattr(self, 'conv_handlers')
+            delattr(self, "conv_handlers")
             for m in self.managers:
                 m.shutdown()
-            delattr(self, 'managers')
+            delattr(self, "managers")
         except AttributeError:
             pass
         atexit.unregister(self.__stop__)
@@ -1970,20 +2182,20 @@ class PowderDiffraction(PowderExperiment):
             instance of fpclass
         """
         classparams = dict()
-        classparams.update(self.settings['classoptions'])
-        classparams.pop('window_width')
+        classparams.update(self.settings["classoptions"])
+        classparams.pop("window_width")
         p = fpclass(**classparams)
         p.debug_cache = False
         return p
 
     def _set_wavelength_pd(self, wl):
         PowderExperiment._set_wavelength(self, wl)
-        s = {'emission': {'emiss_wavelengths': self.wavelength*1e-10}}
+        s = {"emission": {"emiss_wavelengths": self.wavelength * 1e-10}}
         self.update_settings(s)
 
     def _set_energy_pd(self, energy):
         PowderExperiment._set_energy(self, energy)
-        s = {'emission': {'emiss_wavelengths': self.wavelength*1e-10}}
+        s = {"emission": {"emiss_wavelengths": self.wavelength * 1e-10}}
         self.update_settings(s)
 
     energy = property(PowderExperiment._get_energy, _set_energy_pd)
@@ -1995,17 +2207,18 @@ class PowderDiffraction(PowderExperiment):
         the FP_profile classes and also set it in the 'global' part of the
         parameters
         """
-        if 'emission' in self.settings:
-            pem = self.settings['emission']
-            if 'emiss_wavelengths' in pem:
-                wl = pem['emiss_wavelengths'][0]
-                self.settings['global']['dominant_wavelength'] = wl
+        if "emission" in self.settings:
+            pem = self.settings["emission"]
+            if "emiss_wavelengths" in pem:
+                wl = pem["emiss_wavelengths"][0]
+                self.settings["global"]["dominant_wavelength"] = wl
                 for d in self.data.values():
-                    fp = d['conv']
-                    fp.set_parameters(convolver='global',
-                                      **self.settings['global'])
+                    fp = d["conv"]
+                    fp.set_parameters(
+                        convolver="global", **self.settings["global"]
+                    )
                 # set wavelength in base class
-                PowderExperiment._set_wavelength(self, wl*1e10)
+                PowderExperiment._set_wavelength(self, wl * 1e10)
 
     def set_sample_parameters(self):
         """
@@ -2013,18 +2226,20 @@ class PowderDiffraction(PowderExperiment):
         FP_profile instances of this object
         """
         samplesettings = {}
-        for prop, default in (('crystallite_size_lor', 1e10),
-                              ('crystallite_size_gauss', 1e10),
-                              ('strain_lor', 0),
-                              ('strain_gauss', 0),
-                              ('preferred_orientation', (0, 0, 0)),
-                              ('preferred_orientation_factor', 1)):
+        for prop, default in (
+            ("crystallite_size_lor", 1e10),
+            ("crystallite_size_gauss", 1e10),
+            ("strain_lor", 0),
+            ("strain_gauss", 0),
+            ("preferred_orientation", (0, 0, 0)),
+            ("preferred_orientation_factor", 1),
+        ):
             samplesettings[prop] = getattr(self.mat, prop, default)
 
-        self.settings['emission'].update(samplesettings)
+        self.settings["emission"].update(samplesettings)
         for d in self.data.values():
-            fp = d['conv']
-            fp.set_parameters(convolver='emission', **samplesettings)
+            fp = d["conv"]
+            fp.set_parameters(convolver="emission", **samplesettings)
 
     def update_settings(self, newsettings=None):
         """
@@ -2038,22 +2253,28 @@ class PowderDiffraction(PowderExperiment):
         """
         if newsettings is None:
             return
-        if 'global' in newsettings:
-            if 'dominant_wavelength' in newsettings['global']:
-                print('PowderDiffraction: dominant wavelength is a read only'
-                      'setting \n -> use emission: emiss_wavelength instead')
-        if 'emission' in newsettings:
-            nem = newsettings['emission']
-            for k in ('emiss_wavelengths', 'emiss_intensities',
-                      'emiss_gauss_widths', 'emiss_lor_widths'):
+        if "global" in newsettings:
+            if "dominant_wavelength" in newsettings["global"]:
+                print(
+                    "PowderDiffraction: dominant wavelength is a read only"
+                    "setting \n -> use emission: emiss_wavelength instead"
+                )
+        if "emission" in newsettings:
+            nem = newsettings["emission"]
+            for k in (
+                "emiss_wavelengths",
+                "emiss_intensities",
+                "emiss_gauss_widths",
+                "emiss_lor_widths",
+            ):
                 if k in nem:
                     if isinstance(nem[k], numbers.Number):
-                        nem[k] = (nem[k], )
+                        nem[k] = (nem[k],)
         for k in newsettings:
-            if k == 'classoptions':
+            if k == "classoptions":
                 continue
             for d in self.data.values():
-                fp = d['conv']
+                fp = d["conv"]
                 fp.set_parameters(convolver=k, **newsettings[k])
             if k not in self.settings:
                 self.settings[k] = dict()
@@ -2082,8 +2303,8 @@ class PowderDiffraction(PowderExperiment):
     @window_width.setter
     def window_width(self, ww):
         oldww = self.__ww
-        if ww == 'config':
-            self.__ww = config.POWDER['classoptions']['window_width']
+        if ww == "config":
+            self.__ww = config.POWDER["classoptions"]["window_width"]
         else:
             self.__ww = ww
         if oldww != self.__ww:
@@ -2102,33 +2323,40 @@ class PowderDiffraction(PowderExperiment):
         ttmax = tt.max()
         ttmin = tt.min()
         for h, d in self.data.items():
-            ttpeak = 2 * d['ang']
-            if ttpeak - ww/2 > ttmax or ttpeak + ww/2 < ttmin:
+            ttpeak = 2 * d["ang"]
+            if ttpeak - ww / 2 > ttmax or ttpeak + ww / 2 < ttmin:
                 continue
-            idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
-                                                   tt < ttpeak + ww/2))
+            idx = numpy.argwhere(
+                numpy.logical_and(tt > ttpeak - ww / 2, tt < ttpeak + ww / 2)
+            )
             try:
-                np = int(math.ceil(len(idx) /
-                                   (tt[idx[-1, 0]]-tt[idx[0, 0]]) * ww))
+                np = int(
+                    math.ceil(len(idx) / (tt[idx[-1, 0]] - tt[idx[0, 0]]) * ww)
+                )
             except OverflowError:
                 np = 1
             npoints[h] = np
-            if hasattr(d['conv'], 'twotheta_window_center_deg'):
-                fptt = d['conv'].twotheta_window_center_deg
-                if abs(ttpeak-fptt) / ww < 0.25 and not force:
+            if hasattr(d["conv"], "twotheta_window_center_deg"):
+                fptt = d["conv"].twotheta_window_center_deg
+                if abs(ttpeak - fptt) / ww < 0.25 and not force:
                     continue
                 nset[h] = True
             else:
                 nset[h] = True
             # set window in local instances
-            d['conv'].set_window(twotheta_output_points=np,
-                                 twotheta_window_center_deg=ttpeak,
-                                 twotheta_window_fullwidth_deg=ww)
+            d["conv"].set_window(
+                twotheta_output_points=np,
+                twotheta_window_center_deg=ttpeak,
+                twotheta_window_fullwidth_deg=ww,
+            )
         # set multiprocessing instances
         for chunk, handler in zip(self.chunks, self.conv_handlers):
-            handler.set_windows([2 * self.data[h]['ang'] for h in chunk],
-                                [npoints.get(h, 0) for h in chunk],
-                                [nset.get(h, False) for h in chunk], ww)
+            handler.set_windows(
+                [2 * self.data[h]["ang"] for h in chunk],
+                [npoints.get(h, 0) for h in chunk],
+                [nset.get(h, False) for h in chunk],
+                ww,
+            )
 
     def _send_work(self, idx):
         """
@@ -2168,11 +2396,11 @@ class PowderDiffraction(PowderExperiment):
             (q-position), and 'r' (reflection strength) of the Bragg peaks
         """
         mat = self.mat.material
-        pref_or = self.settings['emission']['preferred_orientation']
-        r = self.settings['emission']['preferred_orientation_factor']
-        mode = self.settings['global']['geometry']
-        ai = self.settings['global']['geometry_incidence_angle']
-        qmax = 2 * self.k0 * sin(math.radians(tt_cutoff/2))
+        pref_or = self.settings["emission"]["preferred_orientation"]
+        r = self.settings["emission"]["preferred_orientation_factor"]
+        mode = self.settings["global"]["geometry"]
+        ai = self.settings["global"]["geometry_incidence_angle"]
+        qmax = 2 * self.k0 * sin(math.radians(tt_cutoff / 2))
 
         # get allowed Bragg peaks
         hkl = tuple(mat.lattice.get_allowed_hkl(qmax))
@@ -2185,48 +2413,64 @@ class PowderDiffraction(PowderExperiment):
             alpha[alpha == 0] += config.EPSILON  # alpha = 0 unstable
             alpha[alpha == pi] -= config.EPSILON  # alpha = pi unstable
             r3m1 = r**3 - 1
-            xi0 = -ncos(alpha-delta)/nsqrt(1+(r3m1)*ncos(alpha-delta)**2)
-            xi1 = -ncos(alpha+delta)/nsqrt(1+(r3m1)*ncos(alpha+delta)**2)
-            sad2 = (nsin(alpha) * nsin(delta))**2
+            xi0 = -ncos(alpha - delta) / nsqrt(
+                1 + (r3m1) * ncos(alpha - delta) ** 2
+            )
+            xi1 = -ncos(alpha + delta) / nsqrt(
+                1 + (r3m1) * ncos(alpha + delta) ** 2
+            )
+            sad2 = (nsin(alpha) * nsin(delta)) ** 2
             cad = ncos(alpha) * ncos(delta)
 
             def h(xi):
-                return 1 / nsqrt(sad2 - (cad + xi/nsqrt(1-(r3m1)*xi**2))**2)
+                return 1 / nsqrt(
+                    sad2 - (cad + xi / nsqrt(1 - (r3m1) * xi**2)) ** 2
+                )
 
             def w(j, N):
-                return pi/(2*N)*sin((j+0.5)*pi/N)
+                return pi / (2 * N) * sin((j + 0.5) * pi / N)
 
             def xi(j, N):
-                return (xi1+xi0)/2 + (xi1-xi0)/2*cos((j+0.5)*pi/N)
+                return (xi1 + xi0) / 2 + (xi1 - xi0) / 2 * cos(
+                    (j + 0.5) * pi / N
+                )
 
-            s = numpy.sum([w(j, N)*h(xi(j, N)) for j in range(N)], axis=0)
-            return r**(3/2) / pi * (xi1-xi0) * s
+            s = numpy.sum([w(j, N) * h(xi(j, N)) for j in range(N)], axis=0)
+            return r ** (3 / 2) / pi * (xi1 - xi0) * s
 
         if numpy.all(pref_or == (0, 0, 0)) or r == 1:
             f = 1
         else:
             alpha = VecAngle(q, mat.Q(pref_or))
-            if mode == 'symmetric':
-                f = ((r * ncos(alpha))**2 + nsin(alpha)**2/r)**(-3/2)
-            elif mode == 'capillary':
-                f = fdsum(alpha, pi/2, r)
-            elif mode == 'asymmetric':
+            if mode == "symmetric":
+                f = ((r * ncos(alpha)) ** 2 + nsin(alpha) ** 2 / r) ** (-3 / 2)
+            elif mode == "capillary":
+                f = fdsum(alpha, pi / 2, r)
+            elif mode == "asymmetric":
                 if not isinstance(ai, numbers.Number):
-                    raise ValueError("'geometry_incidence_angle' must be a "
-                                     "number")
+                    raise ValueError(
+                        "'geometry_incidence_angle' must be a number"
+                    )
                 th = self.Q2Ang(qnorm, deg=False)
-                f = fdsum(alpha, nabs(th-math.radians(ai)), r)
+                f = fdsum(alpha, nabs(th - math.radians(ai)), r)
             else:
-                raise ValueError("xu.simpack.PowderDiffraction: invalid "
-                                 "geometry mode (%s)" % mode)
+                raise ValueError(
+                    "xu.simpack.PowderDiffraction: invalid "
+                    "geometry mode (%s)" % mode
+                )
 
         # assemble return value
-        data = numpy.zeros(len(hkl), dtype=[('q', numpy.double),
-                                            ('r', numpy.double),
-                                            ('hkl', numpy.ndarray)])
-        data['q'] = qnorm
-        data['r'] = nabs(mat.StructureFactorForQ(q, self.energy)) ** 2 * f
-        data['hkl'] = hkl
+        data = numpy.zeros(
+            len(hkl),
+            dtype=[
+                ("q", numpy.double),
+                ("r", numpy.double),
+                ("hkl", numpy.ndarray),
+            ],
+        )
+        data["q"] = qnorm
+        data["r"] = nabs(mat.StructureFactorForQ(q, self.energy)) ** 2 * f
+        data["hkl"] = hkl
 
         return data
 
@@ -2248,7 +2492,7 @@ class PowderDiffraction(PowderExperiment):
             Miller indices, q-position, diffraction angle (Theta), and
             reflection strength of the material
         """
-        data.sort(order=['q', 'hkl'])
+        data.sort(order=["q", "hkl"])
         qpos = []
         refstrength = []
         hkl = []
@@ -2266,8 +2510,12 @@ class PowderDiffraction(PowderExperiment):
             if not numpy.isclose(r[0] - currq, 0):
                 add_lines(currq, curref, currhkl)
                 currq = r[0]
-                curref = [r[1], ]
-                currhkl = [r[2], ]
+                curref = [
+                    r[1],
+                ]
+                currhkl = [
+                    r[2],
+                ]
             else:
                 if self.isotropic:
                     curref[-1] += r[1]
@@ -2279,8 +2527,10 @@ class PowderDiffraction(PowderExperiment):
                     for i, m in enumerate(currhkl):
                         if self.mat.material.lattice.isequivalent(m, r[2]):
                             if self.fpclass.isequivalent(
-                                    m, r[2],
-                                    self.mat.material.lattice.crystal_system):
+                                m,
+                                r[2],
+                                self.mat.material.lattice.crystal_system,
+                            ):
                                 curref[i] += r[1]
                                 added = True
                     if not added:
@@ -2289,10 +2539,12 @@ class PowderDiffraction(PowderExperiment):
         # add remaining lines
         add_lines(currq, curref, currhkl)
 
-        return (hkl,
-                numpy.array(qpos, dtype=numpy.double),
-                self.Q2Ang(qpos),
-                numpy.array(refstrength, dtype=numpy.double))
+        return (
+            hkl,
+            numpy.array(qpos, dtype=numpy.double),
+            self.Q2Ang(qpos),
+            numpy.array(refstrength, dtype=numpy.double),
+        )
 
     def correction_factor(self, ang):
         """
@@ -2313,12 +2565,12 @@ class PowderDiffraction(PowderExperiment):
         # correct data for polarization and lorentzfactor and unit cell volume
         # see L.S. Zevin : Quantitative X-Ray Diffractometry
         # page 18ff
-        polarization_factor = (1 +
-                               ncos(numpy.radians(2 * ang)) ** 2) / 2
-        lorentz_factor = 1. / (nsin(numpy.radians(ang)) ** 2 *
-                               ncos(numpy.radians(ang)))
+        polarization_factor = (1 + ncos(numpy.radians(2 * ang)) ** 2) / 2
+        lorentz_factor = 1.0 / (
+            nsin(numpy.radians(ang)) ** 2 * ncos(numpy.radians(ang))
+        )
         unitcellvol = self.mat.material.lattice.UnitCellVolume()
-        return polarization_factor * lorentz_factor / unitcellvol ** 2
+        return polarization_factor * lorentz_factor / unitcellvol**2
 
     def init_powder_lines(self, tt_cutoff):
         """
@@ -2342,9 +2594,8 @@ class PowderDiffraction(PowderExperiment):
         rs *= corrfact
         ids = [tuple(idx) for idx in hkl]
         for i, q, a, r in zip(ids, qpos, ang, rs):
-            active = True if r/rs.max() > config.EPSILON else False
-            self.data[i] = {'qpos': q, 'ang': a, 'r': r,
-                            'active': active}
+            active = True if r / rs.max() > config.EPSILON else False
+            self.data[i] = {"qpos": q, "ang": a, "r": r, "active": active}
 
     def update_powder_lines(self, tt_cutoff):
         """
@@ -2363,21 +2614,26 @@ class PowderDiffraction(PowderExperiment):
         ids = [tuple(idx) for idx in hkl]
         rsmax = rs.max()
         for h, q, a, r in zip(ids, qpos, ang, rs):
-            active = True if r/rsmax > config.EPSILON else False
+            active = True if r / rsmax > config.EPSILON else False
             if h in self.data:
-                self.data[h]['qpos'] = q
-                self.data[h]['ang'] = a
-                self.data[h]['r'] = r
-                self.data[h]['active'] = active
+                self.data[h]["qpos"] = q
+                self.data[h]["ang"] = a
+                self.data[h]["r"] = r
+                self.data[h]["active"] = active
             else:
                 # new peak needs a new convolver
                 fp = self._init_fpprofile(self.fpclass)
                 for k, v in self.settings.items():
-                    if k == 'classoptions':
+                    if k == "classoptions":
                         continue
                     fp.set_parameters(convolver=k, **v)
-                self.data[h] = {'qpos': q, 'ang': a, 'r': r,
-                                'conv': fp, 'active': active}
+                self.data[h] = {
+                    "qpos": q,
+                    "ang": a,
+                    "r": r,
+                    "conv": fp,
+                    "active": active,
+                }
                 if self._enable_sim:
                     self.conv_handlers[self.next_proc].add_convolver(fp)
                     self.chunks[self.next_proc].append(h)
@@ -2385,9 +2641,9 @@ class PowderDiffraction(PowderExperiment):
         for h in self.data:
             if h not in ids:
                 # make entry inactive
-                self.data[h]['active'] = False
+                self.data[h]["active"] = False
 
-    def Convolve(self, twotheta, window_width='config', mode='multi'):
+    def Convolve(self, twotheta, window_width="config", mode="multi"):
         """
         convolute the powder lines with the resolution function and map them
         onto the twotheta positions. This calculates the powder pattern
@@ -2423,39 +2679,47 @@ class PowderDiffraction(PowderExperiment):
 
             # check if twotheta range extends above tt_cutoff
             if ttmax > self._tt_cutoff:
-                warnings.warn('twotheta range is larger then tt_cutoff. '
-                              'Possibly Bragg peaks in the convolution range '
-                              'are not considered!')
+                warnings.warn(
+                    "twotheta range is larger then tt_cutoff. "
+                    "Possibly Bragg peaks in the convolution range "
+                    "are not considered!"
+                )
 
-            if mode == 'local':
+            if mode == "local":
                 for h, d in self.data.items():
-                    if not d['active']:
+                    if not d["active"]:
                         continue
-                    ttpeak = 2 * d['ang']
+                    ttpeak = 2 * d["ang"]
                     # check if peak is in data range to be calculated
-                    if ttpeak - ww/2 > ttmax or ttpeak + ww/2 < ttmin:
+                    if ttpeak - ww / 2 > ttmax or ttpeak + ww / 2 < ttmin:
                         continue
-                    idx = numpy.argwhere(numpy.logical_and(tt > ttpeak - ww/2,
-                                                           tt < ttpeak + ww/2))
-                    d['conv'].set_parameters(twotheta0_deg=ttpeak)
-                    result = d['conv'].compute_line_profile()
-                    out[idx] += numpy.interp(tt[idx], result.twotheta_deg,
-                                             result.peak*d['r'], left=0,
-                                             right=0)
+                    idx = numpy.argwhere(
+                        numpy.logical_and(
+                            tt > ttpeak - ww / 2, tt < ttpeak + ww / 2
+                        )
+                    )
+                    d["conv"].set_parameters(twotheta0_deg=ttpeak)
+                    result = d["conv"].compute_line_profile()
+                    out[idx] += numpy.interp(
+                        tt[idx],
+                        result.twotheta_deg,
+                        result.peak * d["r"],
+                        left=0,
+                        right=0,
+                    )
             else:
                 # prepare multiprocess calculation
                 for idx, chunk in enumerate(self.chunks):
                     run = []
                     ttpeaks = []
                     for h in chunk:
-                        ttpeak = 2 * self.data[h]['ang']
+                        ttpeak = 2 * self.data[h]["ang"]
                         ttpeaks.append(ttpeak)
-                        if (ttpeak - ww/2 > ttmax or
-                                ttpeak + ww/2 < ttmin):
+                        if ttpeak - ww / 2 > ttmax or ttpeak + ww / 2 < ttmin:
                             run.append(False)
                         else:
                             run.append(True)
-                        if not self.data[h]['active']:
+                        if not self.data[h]["active"]:
                             run[-1] = False
                     # start calculation in other processes
                     self.threads[idx][1].put((self.settings, run, ttpeaks))
@@ -2467,14 +2731,20 @@ class PowderDiffraction(PowderExperiment):
                     for h, r in zip(chunk, res):
                         if r is None:
                             continue
-                        ttpeak = 2 * self.data[h]['ang']
+                        ttpeak = 2 * self.data[h]["ang"]
                         mask = numpy.argwhere(
-                            numpy.logical_and(tt > ttpeak - ww/2,
-                                              tt < ttpeak + ww/2))
+                            numpy.logical_and(
+                                tt > ttpeak - ww / 2, tt < ttpeak + ww / 2
+                            )
+                        )
 
-                        out[mask] += numpy.interp(tt[mask], r.twotheta_deg,
-                                                  r.peak*self.data[h]['r'],
-                                                  left=0, right=0)
+                        out[mask] += numpy.interp(
+                            tt[mask],
+                            r.twotheta_deg,
+                            r.peak * self.data[h]["r"],
+                            left=0,
+                            right=0,
+                        )
                     gotit.discard(idx)  # got that result, don't expect more
 
             if config.VERBOSITY >= config.INFO_ALL:
@@ -2525,19 +2795,26 @@ class PowderDiffraction(PowderExperiment):
         ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
         rmax = 0
         for d in self.data.values():
-            if d['r'] > rmax:
-                rmax = d['r']
+            if d["r"] > rmax:
+                rmax = d["r"]
         ostr += "\nReflections:\n"
         ostr += "------------\n"
-        ostr += ("      h k l     |    tth    |    |Q|    |"
-                 "Int     |   Int (%)\n")
-        ostr += ("   ------------------------------------"
-                 "---------------------------\n")
-        for h, d in sorted(self.data.items(), key=lambda t: t[1]['ang']):
-            if d['active']:
-                ostr += ("%15s   %8.4f   %8.3f   %10.2f  %10.2f\n"
-                         % (h.__str__(), 2 * d['ang'],
-                            d['qpos'], d['r'], d['r'] / rmax * 100.))
+        ostr += (
+            "      h k l     |    tth    |    |Q|    |Int     |   Int (%)\n"
+        )
+        ostr += (
+            "   ------------------------------------"
+            "---------------------------\n"
+        )
+        for h, d in sorted(self.data.items(), key=lambda t: t[1]["ang"]):
+            if d["active"]:
+                ostr += "%15s   %8.4f   %8.3f   %10.2f  %10.2f\n" % (
+                    h.__str__(),
+                    2 * d["ang"],
+                    d["qpos"],
+                    d["r"],
+                    d["r"] / rmax * 100.0,
+                )
 
         if self._enable_sim:
             ostr += "Settings: " + str(self.settings)

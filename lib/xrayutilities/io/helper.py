@@ -94,7 +94,7 @@ def generate_filenames(filetemplate, scannrs=None):
     return files
 
 
-def xu_open(filename, mode='rb'):
+def xu_open(filename, mode="rb"):
     """
     function to open a file no matter if zipped or not. Files with extension
     '.gz', '.bz2', and '.xz'  are assumed to be compressed and transparently
@@ -122,11 +122,11 @@ def xu_open(filename, mode='rb'):
         print(f"XU:io: opening file {filename}")
     if isinstance(filename, bytes):
         fid = io.BytesIO(filename)
-    elif filename.endswith('.gz'):
+    elif filename.endswith(".gz"):
         fid = gzip.open(filename, mode)
-    elif filename.endswith('.bz2'):
+    elif filename.endswith(".bz2"):
         fid = bz2.BZ2File(filename, mode)
-    elif filename.endswith('.xz'):
+    elif filename.endswith(".xz"):
         fid = lzma.open(filename, mode)
     else:
         fid = open(filename, mode)
@@ -140,7 +140,7 @@ class xu_h5open:
     using with a 'with' statement.
     """
 
-    def __init__(self, f, mode='r'):
+    def __init__(self, f, mode="r"):
         """
         Parameters
         ----------
@@ -160,8 +160,10 @@ class xu_h5open:
         elif isinstance(f, str):
             self.filename = f
         else:
-            raise InputError("f argument of wrong type was passed, "
-                             "should be string or filename")
+            raise InputError(
+                "f argument of wrong type was passed, "
+                "should be string or filename"
+            )
 
     def __enter__(self):
         if self.fid:

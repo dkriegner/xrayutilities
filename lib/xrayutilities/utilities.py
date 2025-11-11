@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright (c) 2010-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2010-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 """
 xrayutilities utilities contains a conglomeration of useful functions
@@ -26,13 +26,22 @@ import math
 import numpy
 
 from . import config
-from .utilities_noconf import (ABC, check_kwargs, en2lam,  # noqa: F401
-                               energies, energy, exchange_filepath,
-                               exchange_path, is_valid_variable_name, lam2en,
-                               makeNaturalName, wavelength)
+from .utilities_noconf import (  # noqa: F401
+    ABC,
+    check_kwargs,
+    en2lam,
+    energies,
+    energy,
+    exchange_filepath,
+    exchange_path,
+    is_valid_variable_name,
+    lam2en,
+    makeNaturalName,
+    wavelength,
+)
 
 
-def import_matplotlib_pyplot(funcname='XU'):
+def import_matplotlib_pyplot(funcname="XU"):
     """
     lazy import function of matplotlib.pyplot
 
@@ -50,6 +59,7 @@ def import_matplotlib_pyplot(funcname='XU'):
     """
     try:
         from matplotlib import pyplot as plt
+
         return True, plt
     except ImportError:
         if config.VERBOSITY >= config.INFO_LOW:
@@ -57,7 +67,7 @@ def import_matplotlib_pyplot(funcname='XU'):
         return False, None
 
 
-def import_mayavi_mlab(funcname='XU'):
+def import_mayavi_mlab(funcname="XU"):
     """
     lazy import function of mayavi.mlab
 
@@ -75,6 +85,7 @@ def import_mayavi_mlab(funcname='XU'):
     """
     try:
         from mayavi import mlab
+
         return True, mlab
     except ImportError:
         if config.VERBOSITY >= config.INFO_LOW:
@@ -118,15 +129,16 @@ def maplog(inte, dynlow="config", dynhigh="config"):
     inte = numpy.asarray(inte)
     mask = numpy.logical_not(numpy.isnan(inte))
     if inte[mask].max() <= 0.0:
-        raise ValueError("XU.maplog: only negativ or zero values given. "
-                         "Log is not defined!")
-    ma = inte[mask].max() * 10 ** (-1*dynhigh)  # upper bound
-    mi = inte[mask].max() * 10 ** (-1*dynlow)  # lower bound
+        raise ValueError(
+            "XU.maplog: only negativ or zero values given. Log is not defined!"
+        )
+    ma = inte[mask].max() * 10 ** (-1 * dynhigh)  # upper bound
+    mi = inte[mask].max() * 10 ** (-1 * dynlow)  # lower bound
 
     return numpy.log10(numpy.minimum(numpy.maximum(inte, mi), ma))
 
 
-def frac2str(fnumber, denominator_limit=25, fmt='%7.4f'):
+def frac2str(fnumber, denominator_limit=25, fmt="%7.4f"):
     """
     convert a float to a string attempting to represent it as a fraction
 

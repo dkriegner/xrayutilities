@@ -52,7 +52,6 @@ from .spec import SPECFile
 
 
 class FastScan:
-
     """
     class to help parsing and treating fast scan data.  FastScan is the
     aquisition of X-ray data while scanning the sample with piezo stages in
@@ -60,8 +59,9 @@ class FastScan:
     light-source.
     """
 
-    def __init__(self, filename, scannr,
-                 xmotor='adcX', ymotor='adcY', path=""):
+    def __init__(
+        self, filename, scannr, xmotor="adcX", ymotor="adcY", path=""
+    ):
         """
         Constructor routine for the FastScan object. It initializes the object
         and parses the spec-scan for the needed data which are saved in
@@ -88,7 +88,7 @@ class FastScan:
             self.specfile = filename
             self.filename = self.specfile.filename
             self.full_filename = self.specfile.full_filename
-            self.specscan = getattr(self.specfile, 'scan%d' % self.scannr)
+            self.specscan = getattr(self.specfile, "scan%d" % self.scannr)
         else:
             self.filename = filename
             self.full_filename = os.path.join(path, filename)
@@ -107,7 +107,7 @@ class FastScan:
         # parse the file
         if not self.specscan:
             self.specfile = SPECFile(self.full_filename)
-            self.specscan = getattr(self.specfile, 'scan%d' % self.scannr)
+            self.specscan = getattr(self.specfile, "scan%d" % self.scannr)
         self.specscan.ReadData()
 
         self.xvalues = self.specscan.data[self.xmotor]
@@ -140,10 +140,13 @@ class FastScan:
             except ValueError:
                 try:
                     return self.specscan.init_motor_pos[
-                        f"INIT_MOPO_{motorname}"]
+                        f"INIT_MOPO_{motorname}"
+                    ]
                 except KeyError as exc:
-                    raise ValueError(f"given motorname '{motorname}' not "
-                                     "found in the Spec-data") from exc
+                    raise ValueError(
+                        f"given motorname '{motorname}' not "
+                        "found in the Spec-data"
+                    ) from exc
         else:
             return None
 
@@ -157,8 +160,9 @@ class FastScan:
         # set window to determin the slope
         window = [-1, 0, 1]
         # calc the slope of x_motor movement using a window for better acuracy
-        slope = numpy.convolve(self.xvalues, window, mode='same') / \
-            numpy.convolve(numpy.arange(len(self.xvalues)), window, 'same')
+        slope = numpy.convolve(
+            self.xvalues, window, mode="same"
+        ) / numpy.convolve(numpy.arange(len(self.xvalues)), window, "same")
         # select where slope is above the slope mean value
         # this can be modified if data points are missing of the retrace does
         # not clean all points
@@ -188,20 +192,26 @@ class FastScan:
         Gridder2D
             Gridder2D object with X, Y, data on regular x, y-grid
         """
-        self.counter = kwargs.get('counter', 'mpx4int')
-        gridrange = kwargs.get('gridrange', None)
+        self.counter = kwargs.get("counter", "mpx4int")
+        gridrange = kwargs.get("gridrange", None)
 
         # define gridder
         g2d = Gridder2D(nx, ny)
         if gridrange:
-            g2d.dataRange(gridrange[0][0], gridrange[0][1],
-                          gridrange[1][0], gridrange[1][1])
+            g2d.dataRange(
+                gridrange[0][0],
+                gridrange[0][1],
+                gridrange[1][0],
+                gridrange[1][1],
+            )
 
         # check if counter is in data fields
         if self.counter not in self.data.dtype.fields:
-            raise ValueError("field named '%s' not found in data parsed from "
-                             "scan #%d in file %s"
-                             % (self.counter, self.scannr, self.filename))
+            raise ValueError(
+                "field named '%s' not found in data parsed from "
+                "scan #%d in file %s"
+                % (self.counter, self.scannr, self.filename)
+            )
 
         # grid data
         g2d(self.xvalues, self.yvalues, self.data[self.counter])
@@ -211,7 +221,6 @@ class FastScan:
 
 
 class FastScanCCD(FastScan):
-
     """
     class to help parsing and treating fast scan data including CCD frames.
     FastScan is the aquisition of X-ray data while scanning the sample with
@@ -229,7 +238,7 @@ class FastScanCCD(FastScan):
 
         other parameters are passed on to FastScanCCD
         """
-        self.imagefiletype = kwargs.pop('imagefiletype', 'edf')
+        self.imagefiletype = kwargs.pop("imagefiletype", "edf")
         self.imgfile = None
         self.nimages = None
         super().__init__(*args, **kwargs)
@@ -244,14 +253,17 @@ class FastScanCCD(FastScan):
             try:
                 ccdnumbers = self.data[ccdnr]
             except ValueError:
-                raise ValueError("field named '%s' not found in data parsed "
-                                 "from scan #%d in file %s"
-                                 % (ccdnr, self.scannr, self.filename))
+                raise ValueError(
+                    "field named '%s' not found in data parsed "
+                    "from scan #%d in file %s"
+                    % (ccdnr, self.scannr, self.filename)
+                )
         elif isinstance(ccdnr, (list, tuple, numpy.ndarray)):
             ccdnumbers = ccdnr
         else:
-            raise ValueError("xu.FastScanCCD: wrong data type for "
-                             "argument 'ccdnr'")
+            raise ValueError(
+                "xu.FastScanCCD: wrong data type for argument 'ccdnr'"
+            )
         return ccdnumbers
 
     def _gridCCDnumbers(self, nx, ny, ccdnr, gridrange=None):
@@ -277,8 +289,12 @@ class FastScanCCD(FastScan):
         """
         g2l = Gridder2DList(nx, ny)
         if gridrange:
-            g2l.dataRange(gridrange[0][0], gridrange[0][1],
-                          gridrange[1][0], gridrange[1][1])
+            g2l.dataRange(
+                gridrange[0][0],
+                gridrange[0][1],
+                gridrange[1][0],
+                gridrange[1][1],
+            )
 
         ccdnumbers = self._getCCDnumbers(ccdnr)
         # assign ccd frames to grid
@@ -317,8 +333,8 @@ class FastScanCCD(FastScan):
         if roi is None:
             kwdict = {}
         else:
-            kwdict = {'roi': roi}
-        if 'edf' in self.imagefiletype:
+            kwdict = {"roi": roi}
+        if "edf" in self.imagefiletype:
             if not self.imgfile:
                 self.imgfile = EDFFile(filename, keep_open=True)
             else:
@@ -328,9 +344,10 @@ class FastScanCCD(FastScan):
         else:
             fileroot = os.path.splitext(os.path.splitext(filename)[0])[0]
             if not self.imgfile:
-                self.imgfile = h5py.File(fileroot + '.h5', 'r')
+                self.imgfile = h5py.File(fileroot + ".h5", "r")
             ccdfilt = self.imgfile.get(
-                os.path.split(fileroot)[-1] + '_%04d' % imgindex).value
+                os.path.split(fileroot)[-1] + "_%04d" % imgindex
+            ).value
         if filterfunc:
             ccdfilt = filterfunc(ccdfilt)
         if roi is None and nav[0] == 1 and nav[1] == 1:
@@ -353,24 +370,26 @@ class FastScanCCD(FastScan):
         ccdfiletmp :    str
             ccd file template string
         """
-        if 'edf' in self.imagefiletype:
+        if "edf" in self.imagefiletype:
             if not self.imgfile:
                 self.imgfile = EDFFile(ccdfiletmp % fileoffset, keep_open=True)
             if self.nimages is None:
                 self.nimages = self.imgfile.nimages
         else:
-            fileroot = os.path.splitext(os.path.splitext(ccdfiletmp
-                                                         % fileoffset)[0])[0]
+            fileroot = os.path.splitext(
+                os.path.splitext(ccdfiletmp % fileoffset)[0]
+            )[0]
             if not self.imgfile:
-                self.imgfile = h5py.File(fileroot + '.h5', 'r')
+                self.imgfile = h5py.File(fileroot + ".h5", "r")
             if self.nimages is None:
                 self.nimages = len(self.imgfile.items())
         filenumber = int((imgnum - imgoffset) // self.nimages + fileoffset)
         imgindex = int((imgnum - imgoffset) % self.nimages)
         return imgindex, filenumber
 
-    def getccdFileTemplate(self, specscan, datadir=None, keepdir=0,
-                           replacedir=None):
+    def getccdFileTemplate(
+        self, specscan, datadir=None, keepdir=0, replacedir=None
+    ):
         """
         function to extract the CCD file template string from the comment
         in the SPEC-file scan-header.
@@ -403,25 +422,37 @@ class FastScanCCD(FastScan):
         filenr :    int
             starting file number
         """
-        hline = specscan.getheader_element('C imageFile')
-        re_ccdfiles = re.compile(r'dir\[([a-zA-Z0-9_.%/]*)\] '
-                                 r'prefix\[([a-zA-Z0-9_.%/]*)\] '
-                                 r'idxFmt\[([a-zA-Z0-9_.%/]*)\] '
-                                 r'nextNr\[([0-9]*)\] '
-                                 r'suffix\[([a-zA-Z0-9_.%/]*)\]')
+        hline = specscan.getheader_element("C imageFile")
+        re_ccdfiles = re.compile(
+            r"dir\[([a-zA-Z0-9_.%/]*)\] "
+            r"prefix\[([a-zA-Z0-9_.%/]*)\] "
+            r"idxFmt\[([a-zA-Z0-9_.%/]*)\] "
+            r"nextNr\[([0-9]*)\] "
+            r"suffix\[([a-zA-Z0-9_.%/]*)\]"
+        )
         m = re_ccdfiles.match(hline)
         if m:
             path, prefix, idxFmt, num, suffix = m.groups()
         else:
-            raise ValueError('spec-scan does not contain images or the '
-                             'corresponding header line is not detected '
-                             'correctly')
+            raise ValueError(
+                "spec-scan does not contain images or the "
+                "corresponding header line is not detected "
+                "correctly"
+            )
         ccdtmp = os.path.join(path, prefix + idxFmt + suffix)
         r = utilities.exchange_filepath(ccdtmp, datadir, keepdir, replacedir)
         return r, int(num)
 
-    def getCCD(self, ccdnr, roi=None, datadir=None, keepdir=0,
-               replacedir=None, nav=(1, 1), filterfunc=None):
+    def getCCD(
+        self,
+        ccdnr,
+        roi=None,
+        datadir=None,
+        keepdir=0,
+        replacedir=None,
+        nav=(1, 1),
+        filterfunc=None,
+    ):
         """
         function to read the ccd files and return the raw X, Y and DATA values.
         DATA represents a 3D object with first dimension representing the data
@@ -471,28 +502,39 @@ class FastScanCCD(FastScan):
         ccdnumbers = self._getCCDnumbers(ccdnr)
 
         ccdtemplate, nextNr = self.getccdFileTemplate(
-            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
+            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir
+        )
 
         # read ccd shape from first image
         filename = ccdtemplate % nextNr
         ccdshape = self._read_image(filename, 0, nav, roi, filterfunc).shape
         ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
         if config.VERBOSITY >= config.INFO_ALL:
-            print('XU.io.FastScanCCD: allocated ccddata array with %d bytes'
-                  % ccddata.nbytes)
+            print(
+                "XU.io.FastScanCCD: allocated ccddata array with %d bytes"
+                % ccddata.nbytes
+            )
 
         # go through the ccd-frames
         for i, imgnum in enumerate(ccdnumbers):
             # read ccd-frames
-            imgindex, filenumber = self._get_image_number(imgnum, nextNr,
-                                                          nextNr, ccdtemplate)
+            imgindex, filenumber = self._get_image_number(
+                imgnum, nextNr, nextNr, ccdtemplate
+            )
             filename = ccdtemplate % filenumber
             ccd = self._read_image(filename, imgindex, nav, roi, filterfunc)
             ccddata[i, :, :] = ccd
         return self.xvalues, self.yvalues, ccddata
 
-    def processCCD(self, ccdnr, roi, datadir=None, keepdir=0,
-                   replacedir=None, filterfunc=None):
+    def processCCD(
+        self,
+        ccdnr,
+        roi,
+        datadir=None,
+        keepdir=0,
+        replacedir=None,
+        filterfunc=None,
+    ):
         """
         function to read a region of interest (ROI) from the ccd files and
         return the raw X, Y and intensity from ROI.
@@ -534,32 +576,48 @@ class FastScanCCD(FastScan):
         ccdnumbers = self._getCCDnumbers(ccdnr)
 
         ccdtemplate, nextNr = self.getccdFileTemplate(
-            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
+            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir
+        )
 
         if isinstance(roi, list):
             lmask = roi
             lroi = None
         else:
-            lmask = [numpy.ones((roi[1]-roi[0], roi[3]-roi[2])), ]
+            lmask = [
+                numpy.ones((roi[1] - roi[0], roi[3] - roi[2])),
+            ]
             lroi = roi
         ccdroi = numpy.empty((len(lmask), self.xvalues.size))
 
         # go through the ccd-frames
         for i, imgnum in enumerate(ccdnumbers):
             # read ccd-frames
-            imgindex, filenumber = self._get_image_number(imgnum, nextNr,
-                                                          nextNr, ccdtemplate)
+            imgindex, filenumber = self._get_image_number(
+                imgnum, nextNr, nextNr, ccdtemplate
+            )
             filename = ccdtemplate % filenumber
-            ccd = self._read_image(filename, imgindex, [1, 1], lroi,
-                                   filterfunc)
+            ccd = self._read_image(
+                filename, imgindex, [1, 1], lroi, filterfunc
+            )
             for j, m in enumerate(lmask):
                 ccdroi[j, i] = numpy.sum(ccd[m])
         if len(lmask) == 1:
             return self.xvalues, self.yvalues, ccdroi[0]
         return self.xvalues, self.yvalues, ccdroi
 
-    def gridCCD(self, nx, ny, ccdnr, roi=None, datadir=None, keepdir=0,
-                replacedir=None, nav=(1, 1), gridrange=None, filterfunc=None):
+    def gridCCD(
+        self,
+        nx,
+        ny,
+        ccdnr,
+        roi=None,
+        datadir=None,
+        keepdir=0,
+        replacedir=None,
+        nav=(1, 1),
+        gridrange=None,
+        filterfunc=None,
+    ):
         """
         function to grid the internal data and ccd files and return the gridded
         X, Y and DATA values. DATA represents a 4D object with first two
@@ -615,15 +673,18 @@ class FastScanCCD(FastScan):
         gdata = g2l.data
 
         ccdtemplate, nextNr = self.getccdFileTemplate(
-            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
+            self.specscan, datadir, keepdir=keepdir, replacedir=replacedir
+        )
 
         # read ccd shape from first image
         filename = ccdtemplate % nextNr
         ccdshape = self._read_image(filename, 0, nav, roi, filterfunc).shape
         ccddata = numpy.empty((self.xvalues.size, ccdshape[0], ccdshape[1]))
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.io.FastScanCCD: allocated ccddata array with "
-                  f"{ccddata.nbytes} bytes")
+            print(
+                "XU.io.FastScanCCD: allocated ccddata array with "
+                f"{ccddata.nbytes} bytes"
+            )
 
         # go through the gridded data and average the ccd-frames
         for i in range(gdata.shape[0]):
@@ -634,10 +695,12 @@ class FastScanCCD(FastScan):
                 # read ccd-frames and average them
                 for imgnum in gdata[i, j]:
                     imgindex, filenumber = self._get_image_number(
-                        imgnum, nextNr, nextNr, ccdtemplate)
+                        imgnum, nextNr, nextNr, ccdtemplate
+                    )
                     filename = ccdtemplate % filenumber
-                    ccd = self._read_image(filename, imgindex, nav,
-                                           roi, filterfunc)
+                    ccd = self._read_image(
+                        filename, imgindex, nav, roi, filterfunc
+                    )
                     ccddata[i, j, ...] += ccd
                     framecount += 1
                 ccddata[i, j, ...] /= float(framecount)
@@ -646,7 +709,6 @@ class FastScanCCD(FastScan):
 
 
 class FastScanSeries:
-
     """
     class to help parsing and treating a series of fast scan data including CCD
     frames.  FastScan is the aquisition of X-ray data while scanning the sample
@@ -694,23 +756,23 @@ class FastScanSeries:
             path of the FastScan spec file (default: '')
         """
 
-        if 'ccdnr' in kwargs:
-            self.ccdnr = kwargs['ccdnr']
+        if "ccdnr" in kwargs:
+            self.ccdnr = kwargs["ccdnr"]
             kwargs.pop("ccdnr")
         else:
-            self.ccdnr = 'imgnr'
+            self.ccdnr = "imgnr"
 
-        if 'counter' in kwargs:
-            self.counter = kwargs['counter']
+        if "counter" in kwargs:
+            self.counter = kwargs["counter"]
             kwargs.pop("counter")
         else:
-            self.counter = 'mpx4int'
+            self.counter = "mpx4int"
 
-        if 'path' in kwargs:
-            self.path = kwargs['path']
+        if "path" in kwargs:
+            self.path = kwargs["path"]
             kwargs.pop("path")
         else:
-            self.path = ''
+            self.path = ""
 
         self.fastscans = []
         self.nx = nx
@@ -721,8 +783,10 @@ class FastScanSeries:
         # save motor names
         for arg in args:
             if not isinstance(arg, str):
-                raise ValueError("one of the motor name arguments is not of "
-                                 "type 'str' but %s" % str(type(arg)))
+                raise ValueError(
+                    "one of the motor name arguments is not of "
+                    "type 'str' but %s" % str(type(arg))
+                )
             self.gonio_motors.append(arg)
 
         # create list of FastScans
@@ -734,11 +798,13 @@ class FastScanSeries:
                 full_filename = os.path.join(self.path, fname)
                 specfile = SPECFile(full_filename)
                 for snrs in scannrs[filenames.index(fname)]:
-                    self.fastscans.append(FastScanCCD(specfile,
-                                                      snrs, **kwargs))
+                    self.fastscans.append(
+                        FastScanCCD(specfile, snrs, **kwargs)
+                    )
         else:
-            raise ValueError("argument 'filenames' is not of "
-                             "appropriate type!")
+            raise ValueError(
+                "argument 'filenames' is not of appropriate type!"
+            )
 
         self._init_minmax()
         for fs in self.fastscans:
@@ -798,17 +864,28 @@ class FastScanSeries:
         """
         read motor values from the series of fast scans
         """
-        self.motor_pos = numpy.zeros((len(self.fastscans),
-                                      len(self.gonio_motors)))
+        self.motor_pos = numpy.zeros(
+            (len(self.fastscans), len(self.gonio_motors))
+        )
         for i in range(len(self.fastscans)):
             fs = self.fastscans[i]
             for j in range(len(self.gonio_motors)):
                 mname = self.gonio_motors[j]
                 self.motor_pos[i, j] = fs.motorposition(mname)
 
-    def get_average_RSM(self, qnx, qny, qnz, qconv, datadir=None, keepdir=0,
-                        replacedir=None, roi=None, nav=(1, 1),
-                        filterfunc=None):
+    def get_average_RSM(
+        self,
+        qnx,
+        qny,
+        qnz,
+        qconv,
+        datadir=None,
+        keepdir=0,
+        replacedir=None,
+        roi=None,
+        nav=(1, 1),
+        filterfunc=None,
+    ):
         """
         function to return the reciprocal space map data averaged over all x, y
         positions from a series of FastScan measurements. It necessary to give
@@ -861,22 +938,29 @@ class FastScanSeries:
             self.read_motors()
 
         # determine q-coordinates
-        kwargs = {'Nav': nav}
+        kwargs = {"Nav": nav}
         if roi:
-            kwargs['roi'] = roi
+            kwargs["roi"] = roi
         qx, qy, qz = qconv.area(*self.motor_pos.T, **kwargs)
 
         # define gridder with fixed optimized q-range
         g3d = Gridder3D(qnx, qny, qnz)
         g3d.keep_data = True
-        g3d.dataRange(qx.min(), qx.max(), qy.min(),
-                      qy.max(), qz.min(), qz.max(), fixed=True)
+        g3d.dataRange(
+            qx.min(),
+            qx.max(),
+            qy.min(),
+            qy.max(),
+            qz.min(),
+            qz.max(),
+            fixed=True,
+        )
 
         # start parsing the images and grid the data frame by frame
         for fsidx, fsccd in enumerate(self.fastscans):
             ccdtemplate, nextNr = fsccd.getccdFileTemplate(
-                fsccd.specscan, datadir, keepdir=keepdir,
-                replacedir=replacedir)
+                fsccd.specscan, datadir, keepdir=keepdir, replacedir=replacedir
+            )
 
             ccdnumbers = fsccd._getCCDnumbers(self.ccdnr)
             ccdav = numpy.zeros_like(qx[fsidx, ...])
@@ -885,18 +969,28 @@ class FastScanSeries:
             for imgnum in ccdnumbers:
                 # read ccdframes
                 imgindex, filenumber = fsccd._get_image_number(
-                    imgnum, nextNr, nextNr, ccdtemplate)
+                    imgnum, nextNr, nextNr, ccdtemplate
+                )
                 filename = ccdtemplate % filenumber
-                ccd = fsccd._read_image(filename, imgindex, nav, roi,
-                                        filterfunc)
+                ccd = fsccd._read_image(
+                    filename, imgindex, nav, roi, filterfunc
+                )
                 ccdav += ccd
             g3d(qx[fsidx, ...], qy[fsidx, ...], qz[fsidx, ...], ccdav)
 
         return g3d
 
-    def get_sxrd_for_qrange(self, qrange, qconv, datadir=None, keepdir=0,
-                            replacedir=None, roi=None, nav=(1, 1),
-                            filterfunc=None):
+    def get_sxrd_for_qrange(
+        self,
+        qrange,
+        qconv,
+        datadir=None,
+        keepdir=0,
+        replacedir=None,
+        roi=None,
+        nav=(1, 1),
+        filterfunc=None,
+    ):
         """
         function to return the real space data averaged over a certain q-range
         from a series of FastScan measurements. It necessary to give the
@@ -953,23 +1047,32 @@ class FastScanSeries:
             self.read_motors()
 
         # determine q-coordinates
-        kwargs = {'Nav': nav}
+        kwargs = {"Nav": nav}
         if roi:
-            kwargs['roi'] = roi
+            kwargs["roi"] = roi
         qx, qy, qz = qconv.area(*self.motor_pos.T, **kwargs)
         output = numpy.zeros_like(self.fastscans[0].xvalues)
 
         # parse the images only if some q coordinates fall into the ROI
         for fsidx, fsccd in enumerate(self.fastscans):
-            mask = numpy.logical_and.reduce((
-                qx[fsidx] > qrange[0], qx[fsidx] < qrange[1],
-                qy[fsidx] > qrange[2], qy[fsidx] < qrange[3],
-                qz[fsidx] > qrange[4], qz[fsidx] < qrange[5]))
+            mask = numpy.logical_and.reduce(
+                (
+                    qx[fsidx] > qrange[0],
+                    qx[fsidx] < qrange[1],
+                    qy[fsidx] > qrange[2],
+                    qy[fsidx] < qrange[3],
+                    qz[fsidx] > qrange[4],
+                    qz[fsidx] < qrange[5],
+                )
+            )
 
             if numpy.any(mask):
                 ccdtemplate, nextNr = fsccd.getccdFileTemplate(
-                    fsccd.specscan, datadir, keepdir=keepdir,
-                    replacedir=replacedir)
+                    fsccd.specscan,
+                    datadir,
+                    keepdir=keepdir,
+                    replacedir=replacedir,
+                )
 
                 ccdnumbers = fsccd._getCCDnumbers(self.ccdnr)
 
@@ -977,15 +1080,17 @@ class FastScanSeries:
                 for i, imgnum in enumerate(ccdnumbers):
                     # read ccdframes
                     imgindex, filenumber = fsccd._get_image_number(
-                        imgnum, nextNr, nextNr, ccdtemplate)
+                        imgnum, nextNr, nextNr, ccdtemplate
+                    )
                     filename = ccdtemplate % filenumber
-                    ccd = fsccd._read_image(filename, imgindex, nav, roi,
-                                            filterfunc)
+                    ccd = fsccd._read_image(
+                        filename, imgindex, nav, roi, filterfunc
+                    )
                     output[i] += numpy.sum(ccd[mask])
 
         return fsccd.xvalues, fsccd.yvalues, output
 
-    def getCCDFrames(self, posx, posy, typ='real'):
+    def getCCDFrames(self, posx, posy, typ="real"):
         """
         function to determine the list of ccd-frame numbers for a specific real
         space position. The real space position must be within the data limits
@@ -1011,7 +1116,7 @@ class FastScanSeries:
         """
 
         # determine grid point for position x, y
-        if typ == 'real':
+        if typ == "real":
             # grid point calculation
             def gindex(x, min, delt):
                 return numpy.round((x - min) / delt)
@@ -1020,7 +1125,7 @@ class FastScanSeries:
             ydelta = delta(self.ymin, self.ymax, self.ny)
             xidx = gindex(posx, self.xmin, xdelta)
             yidx = gindex(posy, self.ymin, ydelta)
-        elif typ == 'index':
+        elif typ == "index":
             xidx = posx
             yidx = posy
         else:
@@ -1037,8 +1142,11 @@ class FastScanSeries:
             self.glist = []
             for fs in self.fastscans:
                 g2l = fs._gridCCDnumbers(
-                    self.nx, self.ny, self.ccdnr,
-                    gridrange=((self.xmin, self.xmax), (self.ymin, self.ymax)))
+                    self.nx,
+                    self.ny,
+                    self.ccdnr,
+                    gridrange=((self.xmin, self.xmax), (self.ymin, self.ymax)),
+                )
                 self.glist.append(g2l)  # contains the ccdnumbers in g2l.data
 
             self.gridded = True
@@ -1052,9 +1160,20 @@ class FastScanSeries:
 
         return ret
 
-    def rawRSM(self, posx, posy, qconv, roi=None, nav=(1, 1), typ='real',
-               datadir=None, keepdir=0, replacedir=None, filterfunc=None,
-               **kwargs):
+    def rawRSM(
+        self,
+        posx,
+        posy,
+        qconv,
+        roi=None,
+        nav=(1, 1),
+        typ="real",
+        datadir=None,
+        keepdir=0,
+        replacedir=None,
+        filterfunc=None,
+        **kwargs,
+    ):
         """
         function to return the reciprocal space map data at a certain
         x, y-position from a series of FastScan measurements. It necessary to
@@ -1114,21 +1233,24 @@ class FastScanSeries:
             valuelist containing the ccdframe numbers and corresponding motor
             positions
         """
-        U = kwargs.get('UB', numpy.identity(3))
+        U = kwargs.get("UB", numpy.identity(3))
 
         # get CCDframe numbers and motor values
         valuelist = self.getCCDFrames(posx, posy, typ)
         # load ccd frames and convert to reciprocal space
         fsccd = self.fastscans[0]
         ccdtemplate, nextNr = fsccd.getccdFileTemplate(
-            fsccd.specscan, datadir, keepdir=keepdir, replacedir=replacedir)
+            fsccd.specscan, datadir, keepdir=keepdir, replacedir=replacedir
+        )
 
         # read ccd shape from first image
         imgindex, filenumber = fsccd._get_image_number(
-            valuelist[0][1], nextNr, nextNr, ccdtemplate)
+            valuelist[0][1], nextNr, nextNr, ccdtemplate
+        )
         filename = ccdtemplate % filenumber
-        ccdshape = fsccd._read_image(filename, imgindex, nav, roi,
-                                     filterfunc).shape
+        ccdshape = fsccd._read_image(
+            filename, imgindex, nav, roi, filterfunc
+        ).shape
         ccddata = numpy.zeros((len(self.fastscans), ccdshape[0], ccdshape[1]))
         motors = []
 
@@ -1149,10 +1271,12 @@ class FastScanSeries:
             # read ccd-frames and average them
             for imgnum in ccdnrs:
                 imgindex, filenumber = fsccd._get_image_number(
-                    imgnum, nextNr, nextNr, ccdtemplate)
+                    imgnum, nextNr, nextNr, ccdtemplate
+                )
                 filename = ccdtemplate % filenumber
-                ccd = fsccd._read_image(filename, imgindex, nav, roi,
-                                        filterfunc)
+                ccd = fsccd._read_image(
+                    filename, imgindex, nav, roi, filterfunc
+                )
                 ccddata[i, ...] += ccd
                 framecount += 1
             ccddata[i, ...] /= float(framecount)
@@ -1160,8 +1284,20 @@ class FastScanSeries:
         qx, qy, qz = qconv.area(*motors, roi=roi, Nav=nav, UB=U)
         return qx, qy, qz, ccddata, valuelist
 
-    def gridRSM(self, posx, posy, qnx, qny, qnz, qconv, roi=None, nav=(1, 1),
-                typ='real', filterfunc=None, **kwargs):
+    def gridRSM(
+        self,
+        posx,
+        posy,
+        qnx,
+        qny,
+        qnz,
+        qconv,
+        roi=None,
+        nav=(1, 1),
+        typ="real",
+        filterfunc=None,
+        **kwargs,
+    ):
         """
         function to calculate the reciprocal space map at a certain
         x, y-position from a series of FastScan measurements it is necessary to
@@ -1206,8 +1342,15 @@ class FastScanSeries:
             object with gridded reciprocal space map
         """
         qx, qy, qz, ccddata, _ = self.rawRSM(
-            posx, posy, qconv, roi=roi, nav=nav,
-            typ=typ, filterfunc=filterfunc, **kwargs)
+            posx,
+            posy,
+            qconv,
+            roi=roi,
+            nav=nav,
+            typ=typ,
+            filterfunc=filterfunc,
+            **kwargs,
+        )
         # perform 3D gridding and return the data or gridder
         g = Gridder3D(qnx, qny, qnz)
         g(qx, qy, qz, ccddata)
@@ -1233,15 +1376,20 @@ class FastScanSeries:
         Gridder2D
             object with X, Y, data on regular x, y-grid
         """
-        counter = kwargs.get('counter', 'mpx4int')
-        gridrange = kwargs.get('gridrange', ((self.xmin, self.xmax),
-                                             (self.ymin, self.ymax)))
+        counter = kwargs.get("counter", "mpx4int")
+        gridrange = kwargs.get(
+            "gridrange", ((self.xmin, self.xmax), (self.ymin, self.ymax))
+        )
 
         # define gridder
         g2d = Gridder2D(nx, ny)
         if gridrange:
-            g2d.dataRange(gridrange[0][0], gridrange[0][1],
-                          gridrange[1][0], gridrange[1][1])
+            g2d.dataRange(
+                gridrange[0][0],
+                gridrange[0][1],
+                gridrange[1][0],
+                gridrange[1][1],
+            )
         g2d.KeepData(True)
 
         for fs in self.fastscans:
@@ -1249,7 +1397,8 @@ class FastScanSeries:
             if counter not in fs.data.dtype.fields:
                 raise ValueError(
                     f"field named '{counter}' not found in scan #{fs.scannr} "
-                    f"in file {fs.filename}")
+                    f"in file {fs.filename}"
+                )
 
             # grid data
             g2d(fs.xvalues, fs.yvalues, fs.data[counter])

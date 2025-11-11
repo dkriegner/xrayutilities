@@ -53,7 +53,20 @@ def mosaic_analytic(qx, qz, RL, RV, Delta, hx, hz, shape):
     QX = QX.T
     QZ = QZ.T
     DD = numpy.radians(Delta)
-    tmp = 6 + DD**2 * ((hz*RL)**2 + (hx*RV)**2)
-    F = ((DD*RL*RV)**2*(QZ*hz + QX*hx)**2+6*((RL*QX)**2+(RV*QZ)**2)) / 4 / tmp
-    return math.pi * math.sqrt(6) * RL * RV /\
-        math.sqrt(tmp) * numpy.exp(-F**shape)
+    tmp = 6 + DD**2 * ((hz * RL) ** 2 + (hx * RV) ** 2)
+    F = (
+        (
+            (DD * RL * RV) ** 2 * (QZ * hz + QX * hx) ** 2
+            + 6 * ((RL * QX) ** 2 + (RV * QZ) ** 2)
+        )
+        / 4
+        / tmp
+    )
+    return (
+        math.pi
+        * math.sqrt(6)
+        * RL
+        * RV
+        / math.sqrt(tmp)
+        * numpy.exp(-(F**shape))
+    )

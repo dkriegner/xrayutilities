@@ -21,13 +21,15 @@ import unittest
 import numpy
 import xrayutilities as xu
 
-testfile = '413396'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "413396"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_numor(unittest.TestCase):
     dshape = (31,)
     dmax = 32823.0
@@ -36,13 +38,14 @@ class TestIO_numor(unittest.TestCase):
     motmin = 16.26
     tpos = 12
     dtpos = 17480.0
-    motorname = 'omega'
-    countername = 'detector'
+    motorname = "omega"
+    countername = "detector"
 
     @classmethod
     def setUpClass(cls):
-        cls.motor, cls.data = xu.io.numor_scan(testfile, cls.motorname,
-                                               path=datadir)
+        cls.motor, cls.data = xu.io.numor_scan(
+            testfile, cls.motorname, path=datadir
+        )
         cls.inte = cls.data[cls.countername]
 
     def test_datashape(self):
@@ -60,5 +63,5 @@ class TestIO_numor(unittest.TestCase):
         self.assertTrue(numpy.all(self.motor == self.data[self.motorname]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

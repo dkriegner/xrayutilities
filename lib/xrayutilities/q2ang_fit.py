@@ -71,7 +71,7 @@ def _makebounds(boundsin):
                 ub.append(b[1])
             elif len(b) == 1:
                 # upper = lower bound needs equality constraint in scipy<1.8.0
-                if tuple(map(int, scipy.__version__.split('.')[:2])) > (1, 8):
+                if tuple(map(int, scipy.__version__.split(".")[:2])) > (1, 8):
                     lb.append(b[0])
                     ub.append(b[0])
                 else:
@@ -79,30 +79,35 @@ def _makebounds(boundsin):
                     ub.append(numpy.inf)
                     # see scipy/scipy#12433
                     constraints.append(
-                        dict(type='eq',
-                             fun=lambda x, j=j, v=b[0]: x[j] - v,
-                             # lambda j=j to bind var. by value
-                             ))
+                        dict(
+                            type="eq",
+                            fun=lambda x, j=j, v=b[0]: x[j] - v,
+                            # lambda j=j to bind var. by value
+                        )
+                    )
             else:
-                raise InputError('bound values must have two or one elements')
+                raise InputError("bound values must have two or one elements")
         elif isinstance(b, numbers.Number):
             # upper = lower bound needs equality constraint in scipy<1.8.0
-            if tuple(map(int, scipy.__version__.split('.')[:2])) > (1, 8):
+            if tuple(map(int, scipy.__version__.split(".")[:2])) > (1, 8):
                 lb.append(b)
                 ub.append(b)
             else:
                 lb.append(-numpy.inf)
                 ub.append(numpy.inf)
                 # see scipy/scipy#12433
-                constraints.append(dict(type='eq',
-                                        fun=lambda x, j=j, v=b: x[j] - v,
-                                        # lambda j=j to bind var. by value
-                                        ))
+                constraints.append(
+                    dict(
+                        type="eq",
+                        fun=lambda x, j=j, v=b: x[j] - v,
+                        # lambda j=j to bind var. by value
+                    )
+                )
         elif b is None:
             lb.append(-numpy.inf)
             ub.append(numpy.inf)
         else:
-            raise InputError(f'bound value is of invalid type ({type(b)})')
+            raise InputError(f"bound value is of invalid type ({type(b)})")
 
     return scipy.optimize.Bounds(lb, ub), constraints
 
@@ -176,7 +181,7 @@ def exitAngleConst(angles, alphaf, xrd):
     """
     qconv = xrd._A2QConversion
     # calc kf
-    detangles = list(angles[-len(qconv.detectorAxis):])
+    detangles = list(angles[-len(qconv.detectorAxis) :])
     kf = qconv.getDetectorPos(*detangles)
     if numpy.linalg.norm(kf) == 0:
         af = 0
@@ -186,8 +191,14 @@ def exitAngleConst(angles, alphaf, xrd):
     return af
 
 
-def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
-             startvalues=None, constraints=None):
+def Q2AngFit(
+    qvec,
+    expclass,
+    bounds=None,
+    ormat=numpy.identity(3),
+    startvalues=None,
+    constraints=None,
+):
     """
     Functions to convert a q-vector from reciprocal space to angular space.
     This implementation uses scipy optimize routines to perform a fit for a
@@ -241,8 +252,9 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
 
     # check input parameters
     if len(qvec) != 3:
-        raise ValueError("XU.Q2AngFit: length of given q-vector is not 3 "
-                         "-> invalid")
+        raise ValueError(
+            "XU.Q2AngFit: length of given q-vector is not 3 -> invalid"
+        )
     lqvec = numpy.asarray(qvec)
     if constraints is None:
         constraints = []
@@ -258,8 +270,8 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
 
     # check bounds
     if bounds is None:
-        bounds = numpy.zeros(2 * nangles) - 180.
-        bounds[::2] = 180.
+        bounds = numpy.zeros(2 * nangles) - 180.0
+        bounds[::2] = 180.0
         bounds.shape = (nangles, 2)
     elif len(bounds) != nangles:
         raise ValueError("XU.Q2AngFit: number of specified bounds invalid")
@@ -267,33 +279,46 @@ def Q2AngFit(qvec, expclass, bounds=None, ormat=numpy.identity(3),
     sbounds, boundconstraints = _makebounds(bounds)
     sconstraints = list(constraints) + boundconstraints
     # perform optimization
-    res = scipy.optimize.minimize(_errornorm_q2ang, start,
-                                  args=(lqvec, expclass, ormat),
-                                  method='SLSQP', bounds=sbounds,
-                                  constraints=sconstraints,
-                                  options={'maxiter': 1000,
-                                           'eps': config.EPSILON,
-                                           'ftol': config.EPSILON})
+    res = scipy.optimize.minimize(
+        _errornorm_q2ang,
+        start,
+        args=(lqvec, expclass, ormat),
+        method="SLSQP",
+        bounds=sbounds,
+        constraints=sconstraints,
+        options={
+            "maxiter": 1000,
+            "eps": config.EPSILON,
+            "ftol": config.EPSILON,
+        },
+    )
 
     x, errcode, qerror = (res.x, res.status, res.fun)
     if qerror >= 1e-7:
         if config.VERBOSITY >= config.DEBUG:
             print("XU.Q2AngFit: info: need second run")
         # make a second run
-        res = scipy.optimize.minimize(_errornorm_q2ang, res.x,
-                                      args=(lqvec, expclass, ormat),
-                                      method='SLSQP',
-                                      bounds=sbounds,
-                                      constraints=sconstraints,
-                                      options={'maxiter': 1000,
-                                               'eps': config.EPSILON,
-                                               'ftol': config.EPSILON})
+        res = scipy.optimize.minimize(
+            _errornorm_q2ang,
+            res.x,
+            args=(lqvec, expclass, ormat),
+            method="SLSQP",
+            bounds=sbounds,
+            constraints=sconstraints,
+            options={
+                "maxiter": 1000,
+                "eps": config.EPSILON,
+                "ftol": config.EPSILON,
+            },
+        )
         x, errcode, qerror = (res.x, res.status, res.fun)
 
-    if ((config.VERBOSITY >= config.DEBUG) or (qerror > 10*config.EPSILON and
-                                               config.VERBOSITY >=
-                                               config.INFO_LOW)):
-        print(f"XU.Q2AngFit: q-error={qerror:.4g} with error-code {errcode} "
-              f"({res.message})")
+    if (config.VERBOSITY >= config.DEBUG) or (
+        qerror > 10 * config.EPSILON and config.VERBOSITY >= config.INFO_LOW
+    ):
+        print(
+            f"XU.Q2AngFit: q-error={qerror:.4g} with error-code {errcode} "
+            f"({res.message})"
+        )
 
     return x, qerror, errcode

@@ -22,26 +22,32 @@ import xrayutilities as xu
 # config for kappa geometry
 # set it either in the script or include it in on of the config files
 
-xu.config.KAPPA_PLANE = 'zy'
+xu.config.KAPPA_PLANE = "zy"
 xu.config.KAPPA_ANGLE = -60
 
 # kappa goniometer as shown in
 # http://en.wikipedia.org/wiki/File:Kappa_goniometer_animation.ogg
-qconv = xu.experiment.QConversion(['z+', 'k+', 'z+'], ['z+'], (1, 0, 0))
+qconv = xu.experiment.QConversion(["z+", "k+", "z+"], ["z+"], (1, 0, 0))
 
 print(qconv)
 
 print("angles: 0, 0, 0, 90")
 (qx, qy, qz) = qconv(0, 0, 0, 90)
-print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
-      % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz))))
+print(
+    "Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
+    % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz)))
+)
 
 print("angles: 90, 0, 0, 90")
 (qx, qy, qz) = qconv(90, 0, 0, 90)
-print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
-      % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz))))
+print(
+    "Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
+    % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz)))
+)
 
 print("angles: 0, 90, 0, 90")
 (qx, qy, qz) = qconv(0, 90, 0, 90)
-print("Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
-      % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz))))
+print(
+    "Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
+    % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz)))
+)

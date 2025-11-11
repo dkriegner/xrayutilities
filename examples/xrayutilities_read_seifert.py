@@ -26,7 +26,7 @@ hxrd = xu.HXRD((1, 1, 0), (0, 0, 1))
 
 #################################
 # read the data from the Seifert NJA files
-om, tt, psd = xu.io.getSeifert_map(sample + '_%02d.nja', [3, 4], path="data")
+om, tt, psd = xu.io.getSeifert_map(sample + "_%02d.nja", [3, 4], path="data")
 
 # convert angular coordinates to reciprocal space + correct for offsets
 [qx, qy, qz] = hxrd.Ang2Q(om, tt)
@@ -39,8 +39,8 @@ INT = xu.maplog(gridder.data.transpose(), 6, 0)
 # plot the intensity as contour plot
 plt.figure()
 plt.clf()
-cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend='min')
-plt.xlabel(r'$Q_{[110]}$ ($\mathrm{\AA}^{-1}$)')
-plt.ylabel(r'$Q_{[001]}$ ($\mathrm{\AA}^{-1}$)')
+cf = plt.contourf(gridder.xaxis, gridder.yaxis, INT, 100, extend="min")
+plt.xlabel(r"$Q_{[110]}$ ($\mathrm{\AA}^{-1}$)")
+plt.ylabel(r"$Q_{[001]}$ ($\mathrm{\AA}^{-1}$)")
 cb = plt.colorbar(cf)
 cb.set_label(r"$\log($Int$)$ (cps)")

@@ -26,15 +26,16 @@ import xrayutilities as xu
 
 # define root of the local data directory (needed because we assume the data
 # path of detector frames from the specfile are not correct anymore)
-datadir = '/local/data/path'
-repl_n = len(datadir.split('/'))
+datadir = "/local/data/path"
+repl_n = len(datadir.split("/"))
 
 # define intensity normalizer class to normalize for count time and
 # monitor changes: to have comparable absolute intensities set the keyword
 # argument av_mon to a fixed value, otherwise different scans can not be
 # compared!
 xid01_normalizer = xu.IntensityNormalizer(
-    'CCD', time='Seconds', mon='exp1', av_mon=10000.0)
+    "CCD", time="Seconds", mon="exp1", av_mon=10000.0
+)
 
 
 def deadpixelkill(ccdraw, f=1.0):
@@ -42,15 +43,20 @@ def deadpixelkill(ccdraw, f=1.0):
     fill empty "spacer" pixels of the maxipix 2x2 detector
     """
     ccd = ccdraw.astype(float32)
-    ccd[255:258, :] = ccd[255, :]/3*f
-    ccd[258:261, :] = ccd[260, :]/3*f
-    ccd[:, 255:258] = ones((ccd.shape[0], 3)) * (ccd[:, 255])[:, newaxis]/3*f
-    ccd[:, 258:261] = ones((ccd.shape[0], 3)) * (ccd[:, 260])[:, newaxis]/3*f
+    ccd[255:258, :] = ccd[255, :] / 3 * f
+    ccd[258:261, :] = ccd[260, :] / 3 * f
+    ccd[:, 255:258] = (
+        ones((ccd.shape[0], 3)) * (ccd[:, 255])[:, newaxis] / 3 * f
+    )
+    ccd[:, 258:261] = (
+        ones((ccd.shape[0], 3)) * (ccd[:, 260])[:, newaxis] / 3 * f
+    )
     return ccd
 
 
-def getmpx4_filetmp(specscan, replace=repl_n, key='ULIMA_mpx4', ext='.edf.gz',
-                    path=datadir):
+def getmpx4_filetmp(
+    specscan, replace=repl_n, key="ULIMA_mpx4", ext=".edf.gz", path=datadir
+):
     """
     read MaxiPix file template from the scan header.
 
@@ -69,12 +75,12 @@ def getmpx4_filetmp(specscan, replace=repl_n, key='ULIMA_mpx4', ext='.edf.gz',
     """
     ret = specscan.getheader_element(key)
     ret = xu.utilities.exchange_path(ret, path, replace=replace)
-    fn = ret[:-len(ext)]
-    sfn = fn.split('_')
-    return '_'.join(sfn[:-1]) + '_%05d' + ext
+    fn = ret[: -len(ext)]
+    sfn = fn.split("_")
+    return "_".join(sfn[:-1]) + "_%05d" + ext
 
 
-def getmono_energy(specscan, key='UMONO', motor='mononrj'):
+def getmono_energy(specscan, key="UMONO", motor="mononrj"):
     """
     read the monochromator energy from the spec-scan header
 
@@ -89,18 +95,19 @@ def getmono_energy(specscan, key='UMONO', motor='mononrj'):
      energy, float in eV
     """
     ret = specscan.getheader_element(key)
-    motors = ret.split(',')
-    re_val_unit = re.compile(r'([0-9.]*)([a-zA-Z]*)')
+    motors = ret.split(",")
+    re_val_unit = re.compile(r"([0-9.]*)([a-zA-Z]*)")
     for m in motors:
-        mn, mv = m.split('=')
+        mn, mv = m.split("=")
         if mn == motor:
             match = re_val_unit.match(mv)
-            en = float(match.groups()[0])*1e3
+            en = float(match.groups()[0]) * 1e3
     return en
 
 
-def rawmap(specfile, scannr, experiment, angdelta=None, U=identity(3),
-           norm=True):
+def rawmap(
+    specfile, scannr, experiment, angdelta=None, U=identity(3), norm=True
+):
     """
     read ccd frames and and convert them in reciprocal space
     angular coordinates are taken from the spec file. A single
@@ -108,17 +115,28 @@ def rawmap(specfile, scannr, experiment, angdelta=None, U=identity(3),
     """
 
     [mu, eta, phi, nu, delta, ty, tz, ccdn] = xu.io.getspec_scan(
-        specfile, scannr, 'mu', 'eta', 'phi', 'nu',
-        'del', 'mpxy', 'mpxz', 'mpx4inr')
+        specfile,
+        scannr,
+        "mu",
+        "eta",
+        "phi",
+        "nu",
+        "del",
+        "mpxy",
+        "mpxz",
+        "mpx4inr",
+    )
 
     idx = 0
     nav = experiment._A2QConversion._area_nav
     roi = experiment._A2QConversion._area_roi
 
     if not isinstance(scannr, collections.abc.Iterable):
-        scannr = [scannr, ]
+        scannr = [
+            scannr,
+        ]
     for snr in scannr:
-        specscan = getattr(specfile, 'scan%d' % snr)
+        specscan = getattr(specfile, "scan%d" % snr)
         ccdfiletmp = getmpx4_filetmp(specscan)
         en = getmono_energy(specscan)
         experiment.energy = en
@@ -132,13 +150,16 @@ def rawmap(specfile, scannr, experiment, angdelta=None, U=identity(3),
             # normalize ccd-data (optional)
             # create data for normalization
             if norm:
-                d = {'CCD': ccd, 'exp1': specscan.data['exp1'][idx],
-                     'Seconds': specscan.data['Seconds'][idx]}
+                d = {
+                    "CCD": ccd,
+                    "exp1": specscan.data["exp1"][idx],
+                    "Seconds": specscan.data["Seconds"][idx],
+                }
                 ccd = xid01_normalizer(d)
             CCD = xu.blockAverage2D(ccd, nav[0], nav[1], roi=roi)
 
             if idx == 0:
-                intensity = zeros((len(ccdn), ) + CCD.shape)
+                intensity = zeros((len(ccdn),) + CCD.shape)
 
             intensity[idx, :, :] = CCD
             idx += 1
@@ -146,11 +167,13 @@ def rawmap(specfile, scannr, experiment, angdelta=None, U=identity(3),
     # transform scan angles to reciprocal space coordinates for all detector
     # pixels
     if angdelta is None:
-        qx, qy, qz = experiment.Ang2Q.area(mu, eta, phi, nu, delta,
-                                           ty, tz, UB=U)
+        qx, qy, qz = experiment.Ang2Q.area(
+            mu, eta, phi, nu, delta, ty, tz, UB=U
+        )
     else:
-        qx, qy, qz = experiment.Ang2Q.area(mu, eta, phi, nu, delta,
-                                           ty, tz, delta=angdelta, UB=U)
+        qx, qy, qz = experiment.Ang2Q.area(
+            mu, eta, phi, nu, delta, ty, tz, delta=angdelta, UB=U
+        )
 
     return qx, qy, qz, intensity
 

@@ -24,27 +24,28 @@ import numpy
 from .. import config
 from . import xu_open
 
-re_label = re.compile(r'^\s*_')
-re_default = re.compile(r'^\s*_('
-                        'pd_meas_counts_total|'
-                        'pd_meas_intensity_total|'
-                        'pd_proc_intensity_total|'
-                        'pd_proc_intensity_net|'
-                        'pd_calc_intensity_total|'
-                        'pd_calc_intensity_net)')
-re_loop = re.compile(r'^\s*loop_')
-re_nop = re.compile(r'^\s*_(pd_meas_number_of_points|pd_meas_detector_id)')
-re_multiline = re.compile(r';')
+re_label = re.compile(r"^\s*_")
+re_default = re.compile(
+    r"^\s*_("
+    "pd_meas_counts_total|"
+    "pd_meas_intensity_total|"
+    "pd_proc_intensity_total|"
+    "pd_proc_intensity_net|"
+    "pd_calc_intensity_total|"
+    "pd_calc_intensity_net)"
+)
+re_loop = re.compile(r"^\s*loop_")
+re_nop = re.compile(r"^\s*_(pd_meas_number_of_points|pd_meas_detector_id)")
+re_multiline = re.compile(r";")
 
 
-def remove_comments(line, sep='#'):
+def remove_comments(line, sep="#"):
     for s in sep:
         line = line.split(s)[0]
     return line
 
 
 class pdCIF:
-
     """
     the class implements a primitive parser for pdCIF-like files.  It reads
     every entry and collects the information in the header attribute. The first
@@ -112,17 +113,18 @@ class pdCIF:
         label = None
 
         while True:
-            line = fh.readline().decode('ascii')
+            line = fh.readline().decode("ascii")
             if not line:
                 break
 
             line = remove_comments(line)
             if re_loop.match(line):
                 loopStart = True
-                remainingline = re.sub('loop_', '', line).strip()
+                remainingline = re.sub("loop_", "", line).strip()
                 if re_label.match(remainingline):
-                    if ((self.datacolumn is None and re_default.match(line)) or
-                            line.strip() == self.datacolumn):
+                    if (
+                        self.datacolumn is None and re_default.match(line)
+                    ) or line.strip() == self.datacolumn:
                         dataLoop = True
                     loopheader.append(remainingline)
                 continue
@@ -151,7 +153,7 @@ class pdCIF:
                         self.header[label] = val
                 except IndexError:
                     # try if multiline
-                    line2 = fh.readline().decode('ascii')
+                    line2 = fh.readline().decode("ascii")
                     if re_multiline.match(line2):
                         multiline = line2
                     else:  # single value must be in second line
@@ -159,24 +161,28 @@ class pdCIF:
 
             elif re_label.match(line) and loopStart:
                 # read loop entries
-                if ((self.datacolumn is None and re_default.match(line)) or
-                        line.strip() == self.datacolumn):
+                if (
+                    self.datacolumn is None and re_default.match(line)
+                ) or line.strip() == self.datacolumn:
                     dataLoop = True
                 loopheader.append(line.strip())
 
             elif loopStart:
                 fh.seek(fh.tell() - len(line))
                 if numOfEntries != -1 and dataLoop and not dataDone:
-                    self.data = self._parse_loop_numpy(fh, loopheader,
-                                                       numOfEntries)
+                    self.data = self._parse_loop_numpy(
+                        fh, loopheader, numOfEntries
+                    )
                     dataDone = True
                     if breakAfterData:
                         break
                 elif dataLoop and not dataDone:
                     self._parse_loop(fh, loopheader)
                     length = len(self.header[loopheader[0]])
-                    dtypes = [(str(entry), type(self.header[entry][0]))
-                              for entry in loopheader]
+                    dtypes = [
+                        (str(entry), type(self.header[entry][0]))
+                        for entry in loopheader
+                    ]
                     for i in range(len(dtypes)):
                         if dtypes[i][1] is str:
                             dtypes[i] = (str(dtypes[i][0]), numpy.str_, 64)
@@ -191,8 +197,10 @@ class pdCIF:
                         self._parse_loop(fh, loopheader)
                     except ValueError:
                         if config.VERBOSITY >= config.INFO_LOW:
-                            print('XU.io.pdCIF: unable to handle loop at %d'
-                                  % fh.tell())
+                            print(
+                                "XU.io.pdCIF: unable to handle loop at %d"
+                                % fh.tell()
+                            )
                 dataLoop = False
                 loopStart = False
                 loopheader = []
@@ -216,9 +224,10 @@ class pdCIF:
         data :          ndarray
             data read from the file as numpy record array
         """
-        tmp = numpy.fromfile(filehandle, count=nentry * len(fields), sep=' ')
-        data = numpy.rec.fromarrays(tmp.reshape((-1, len(fields))).T,
-                                    names=fields)
+        tmp = numpy.fromfile(filehandle, count=nentry * len(fields), sep=" ")
+        data = numpy.rec.fromarrays(
+            tmp.reshape((-1, len(fields))).T, names=fields
+        )
         return data
 
     def _parse_loop(self, filehandle, fields):
@@ -239,11 +248,11 @@ class pdCIF:
         for f in fields:
             self.header[f] = []
         while True:
-            line = fh.readline().decode('ascii')
+            line = fh.readline().decode("ascii")
             if not line:
                 break
 
-            if re_label.match(line) or line.strip() == '':
+            if re_label.match(line) or line.strip() == "":
                 fh.seek(fh.tell() - len(line))
                 break
             row = shlex.split(line, comments=True)
@@ -253,12 +262,12 @@ class pdCIF:
                 except ValueError:
                     self.header[fields[i]].append(row[i])
                 except IndexError:  # maybe multiline field
-                    line2 = fh.readline().decode('ascii')
+                    line2 = fh.readline().decode("ascii")
                     line2 = remove_comments(line2)
                     if re_multiline.match(line2):
                         multiline = line2
                         while True:
-                            line = fh.readline().decode('ascii')
+                            line = fh.readline().decode("ascii")
                             line = remove_comments(line)
                             if not line:
                                 fh.seek(fh.tell() - len(line))
@@ -270,12 +279,13 @@ class pdCIF:
                                 break
                     else:
                         fh.seek(fh.tell() - len(line2))
-                        raise ValueError('a column is missing for label %s '
-                                         'in a loop' % fields[i])
+                        raise ValueError(
+                            "a column is missing for label %s "
+                            "in a loop" % fields[i]
+                        )
 
 
 class pdESG(pdCIF):
-
     """
     class for parsing multiple pdCIF loops in one file.
     This includes especially ``*.esg`` files which are supposed to
@@ -317,7 +327,9 @@ class pdESG(pdCIF):
                 for key in self.header:
                     if key in self.fileheader:
                         if not isinstance(self.fileheader[key], list):
-                            self.fileheader[key] = [self.fileheader[key], ]
+                            self.fileheader[key] = [
+                                self.fileheader[key],
+                            ]
                         self.fileheader[key].append(self.header[key])
                     else:
                         self.fileheader[key] = self.header[key]

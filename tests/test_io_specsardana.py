@@ -22,13 +22,15 @@ import unittest
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'sardana2.8.spec'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "sardana2.8.spec"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_SPEC_Sardana(unittest.TestCase):
     scannrs = [4, 6, 8, 10]
     s4_init_motor_pos_len = 6
@@ -42,43 +44,48 @@ class TestIO_SPEC_Sardana(unittest.TestCase):
     s8_mot15min = -10.0
     s10_pos = 119
     s10_dpos = 119
-    countername = 'Pt_No'
+    countername = "Pt_No"
 
     @classmethod
     def setUpClass(cls):
         cls.specfile = xu.io.SPECFile(testfile, path=datadir)
         cls.scans = dict()
         for nr in cls.scannrs:
-            cls.scans[nr] = getattr(cls.specfile, 'scan%d' % nr)
+            cls.scans[nr] = getattr(cls.specfile, "scan%d" % nr)
             cls.scans[nr].ReadData()
 
     def test_init_mopo(self):
-        self.assertEqual(self.s4_init_motor_pos_len,
-                         len(self.scans[4].init_motor_pos))
-        self.assertEqual(self.s8_init_motor_pos_len,
-                         len(self.scans[8].init_motor_pos))
+        self.assertEqual(
+            self.s4_init_motor_pos_len, len(self.scans[4].init_motor_pos)
+        )
+        self.assertEqual(
+            self.s8_init_motor_pos_len, len(self.scans[8].init_motor_pos)
+        )
         self.assertAlmostEqual(
             self.s8_init_mopo_mot12,
-            self.scans[8].init_motor_pos['INIT_MOPO_mot12'], places=6)
+            self.scans[8].init_motor_pos["INIT_MOPO_mot12"],
+            places=6,
+        )
         with self.assertRaises(KeyError):
             # test not existing initial motor position
-            self.scans[8].init_motor_pos['INIT_MOPO_offset03']
+            self.scans[8].init_motor_pos["INIT_MOPO_offset03"]
 
     def test_datashape_aborted(self):
         self.assertEqual(self.s8_dshape, self.scans[8].data.shape)
         self.assertEqual(self.s8_ncol, len(self.scans[8].colnames))
 
     def test_datavalues(self):
-        self.assertTrue(math.isnan(self.scans[6].data['ct13'][29]))
+        self.assertTrue(math.isnan(self.scans[6].data["ct13"][29]))
         s8d = self.scans[8].data
-        self.assertAlmostEqual(self.s8_dtmax, s8d['dt'].max(), places=6)
-        self.assertAlmostEqual(self.s8_dtmin, s8d['dt'].min(), places=6)
-        self.assertAlmostEqual(self.s8_mot15max, s8d['mot15'].max(), places=6)
-        self.assertAlmostEqual(self.s8_mot15min, s8d['mot15'].min(), places=6)
+        self.assertAlmostEqual(self.s8_dtmax, s8d["dt"].max(), places=6)
+        self.assertAlmostEqual(self.s8_dtmin, s8d["dt"].min(), places=6)
+        self.assertAlmostEqual(self.s8_mot15max, s8d["mot15"].max(), places=6)
+        self.assertAlmostEqual(self.s8_mot15min, s8d["mot15"].min(), places=6)
         s10d = self.scans[10].data
-        self.assertAlmostEqual(self.s10_dpos,
-                               s10d[self.countername][self.s10_pos], places=6)
+        self.assertAlmostEqual(
+            self.s10_dpos, s10d[self.countername][self.s10_pos], places=6
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

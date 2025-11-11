@@ -82,17 +82,20 @@ class PowderModel:
         if len(args) == 1 and isinstance(args[0], PowderList):
             self.materials = args[0]
         else:
-            self.materials = PowderList(f'{self.__class__.__name__} List',
-                                        *args)
-        self.I0 = kwargs.pop('I0', 1.0)
+            self.materials = PowderList(
+                f"{self.__class__.__name__} List", *args
+            )
+        self.I0 = kwargs.pop("I0", 1.0)
         self.pdiff = []
-        kwargs['enable_simulation'] = True
+        kwargs["enable_simulation"] = True
         for mat in self.materials:
             self.pdiff.append(PowderDiffraction(mat, **kwargs))
 
         # default background
-        self._bckg_type = 'polynomial'
-        self._bckg_pol = [0, ]
+        self._bckg_type = "polynomial"
+        self._bckg_pol = [
+            0,
+        ]
 
     def set_parameters(self, params):
         """
@@ -120,45 +123,47 @@ class PowderModel:
         pv = lmparams.valuesdict()
         settings = dict()
         h = list(self.pdiff[0].data)[0]
-        fp = self.pdiff[0].data[h]['conv'].convolvers
+        fp = self.pdiff[0].data[h]["conv"].convolvers
         for conv in fp:
             name = conv[5:]
             settings[name] = dict()
 
-        self.I0 = pv.pop('primary_beam_intensity', 1)
+        self.I0 = pv.pop("primary_beam_intensity", 1)
         set_splbkg = False
         spliney = {}
         for p in pv:
-            if p.startswith('phase_'):  # sample phase parameters
+            if p.startswith("phase_"):  # sample phase parameters
                 midx = 0
                 for i, name in enumerate(self.materials.namelist):
                     if p.find(name) > 0:
                         midx = i
                 name = self.materials.namelist[midx]
-                attrname = p[p.find(name) + len(name) + 1:]
+                attrname = p[p.find(name) + len(name) + 1 :]
                 setattr(self.materials[midx], attrname, pv[p])
-            elif p.startswith('background_coeff'):
-                self._bckg_pol[int(p.split('_')[-1])] = pv[p]
-            elif p.startswith('background_spl_coeff'):
+            elif p.startswith("background_coeff"):
+                self._bckg_pol[int(p.split("_")[-1])] = pv[p]
+            elif p.startswith("background_spl_coeff"):
                 set_splbkg = True
-                spliney[int(p.split('_')[-1])] = pv[p]
+                spliney[int(p.split("_")[-1])] = pv[p]
             else:  # instrument parameters
                 for k in settings:
                     if p.startswith(k):
-                        slist = p[len(k) + 1:].split('_')
-                        if len(slist) > 2 and slist[-2] == 'item':
-                            name = '_'.join(slist[:-2])
-                            if slist[-1] == '0':
+                        slist = p[len(k) + 1 :].split("_")
+                        if len(slist) > 2 and slist[-2] == "item":
+                            name = "_".join(slist[:-2])
+                            if slist[-1] == "0":
                                 settings[k][name] = []
                             settings[k][name].append(pv[p])
                         else:
-                            name = p[len(k) + 1:]
+                            name = p[len(k) + 1 :]
                             settings[k][name] = pv[p]
                         break
         if set_splbkg:
             self._bckg_spline = interpolate.InterpolatedUnivariateSpline(
                 self._bckg_spline._data[0],
-                [spliney[k] for k in sorted(spliney)], ext=0)
+                [spliney[k] for k in sorted(spliney)],
+                ext=0,
+            )
         self.set_parameters(settings)
 
     def create_fitparameters(self):
@@ -176,33 +181,38 @@ class PowderModel:
             for k in mat.__dict__:
                 attr = getattr(mat, k)
                 if isinstance(attr, numbers.Number):
-                    params.add('_'.join(('phase', name, k)), value=attr,
-                               vary=False)
+                    params.add(
+                        "_".join(("phase", name, k)), value=attr, vary=False
+                    )
 
         # instrument parameters
         settings = self.pdiff[0].settings
         for pg in settings:
             for p in settings[pg]:
                 val = settings[pg][p]
-                if p == 'dominant_wavelength' and pg == 'global':
+                if p == "dominant_wavelength" and pg == "global":
                     # wavelength must be fit using emission_emiss_wavelength
                     continue
                 if isinstance(val, numbers.Number):
-                    params.add('_'.join((pg, p)), value=val, vary=False)
+                    params.add("_".join((pg, p)), value=val, vary=False)
                 elif isinstance(val, (numpy.ndarray, tuple, list)):
                     for j, item in enumerate(val):
-                        params.add('_'.join((pg, p, 'item_%d' % j)),
-                                   value=item, vary=False)
+                        params.add(
+                            "_".join((pg, p, "item_%d" % j)),
+                            value=item,
+                            vary=False,
+                        )
 
         # other global parameters
-        params.add('primary_beam_intensity', value=self.I0, vary=False)
-        if self._bckg_type == 'polynomial':
+        params.add("primary_beam_intensity", value=self.I0, vary=False)
+        if self._bckg_type == "polynomial":
             for i, coeff in enumerate(self._bckg_pol):
-                params.add('background_coeff_%d' % i, value=coeff, vary=False)
-        elif self._bckg_type == 'spline':
+                params.add("background_coeff_%d" % i, value=coeff, vary=False)
+        elif self._bckg_type == "spline":
             for i, coeff in enumerate(self._bckg_spline._data[1]):
-                params.add('background_spl_coeff_%d' % i, value=coeff,
-                           vary=False)
+                params.add(
+                    "background_spl_coeff_%d" % i, value=coeff, vary=False
+                )
         return params
 
     def set_background(self, btype, **kwargs):
@@ -225,11 +235,12 @@ class PowderModel:
             term. len of p decides about the degree of the polynomial (if
             btype='polynomial')
         """
-        if btype == 'spline':
+        if btype == "spline":
             self._bckg_spline = interpolate.InterpolatedUnivariateSpline(
-                kwargs.get('x'), kwargs.get('y'), ext=0)
-        elif btype == 'polynomial':
-            self._bckg_pol = list(kwargs.get('p'))
+                kwargs.get("x"), kwargs.get("y"), ext=0
+            )
+        elif btype == "polynomial":
+            self._bckg_pol = list(kwargs.get("p"))
         else:
             raise ValueError("btype must be either 'spline' or 'polynomial'")
         self._bckg_type = btype
@@ -261,9 +272,9 @@ class PowderModel:
             model
         """
         inte = numpy.zeros_like(twotheta)
-        background = kwargs.pop('background', None)
+        background = kwargs.pop("background", None)
         if background is None:
-            if self._bckg_type == 'spline':
+            if self._bckg_type == "spline":
                 background = self._bckg_spline(twotheta)
             else:
                 background = numpy.polyval(self._bckg_pol, twotheta)
@@ -294,6 +305,7 @@ class PowderModel:
         -------
         lmfit.MinimizerResult
         """
+
         def residual(pars, tt, data, weight):
             """
             residual function for lmfit Minimizer routine
@@ -321,14 +333,24 @@ class PowderModel:
         else:
             weight = numpy.reciprocal(std)
         weight[numpy.isinf(weight)] = 1
-        self.minimizer = lmfit.Minimizer(residual, params,
-                                         fcn_args=(twotheta, data, weight))
+        self.minimizer = lmfit.Minimizer(
+            residual, params, fcn_args=(twotheta, data, weight)
+        )
         fitres = self.minimizer.minimize(max_nfev=maxfev)
         self.set_lmfit_parameters(fitres.params)
         return fitres
 
-    def plot(self, twotheta, showlines=True, label='simulation', color=None,
-             formatspec='-', lcolors=None, ax=None, **kwargs):
+    def plot(
+        self,
+        twotheta,
+        showlines=True,
+        label="simulation",
+        color=None,
+        formatspec="-",
+        lcolors=None,
+        ax=None,
+        **kwargs,
+    ):
         """
         plot the powder diffraction pattern and indicate line positions for all
         components in the model.
@@ -358,7 +380,7 @@ class PowderModel:
         -------
         matplotlib.axes object or None if matplotlib is not available
         """
-        plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
+        plot, plt = utilities.import_matplotlib_pyplot("XU.simpack")
         if not plot:
             return None
 
@@ -373,23 +395,29 @@ class PowderModel:
 
         plotkwargs = dict(label=label)
         if color is not None:
-            plotkwargs['color'] = color
-        iax.plot(twotheta, self.simulate(twotheta, **kwargs), formatspec,
-                 **plotkwargs)
+            plotkwargs["color"] = color
+        iax.plot(
+            twotheta,
+            self.simulate(twotheta, **kwargs),
+            formatspec,
+            **plotkwargs,
+        )
 
         if showlines:
             from matplotlib.colors import is_color_like
             from mpl_toolkits.axes_grid1 import make_axes_locatable
+
             divider = make_axes_locatable(iax)
             taxlist = []
             lineslist = []
             annotlist = []
             settings = self.pdiff[0].settings
-            wavelengths = settings['emission']['emiss_wavelengths']
-            intensities = settings['emission']['emiss_intensities']
+            wavelengths = settings["emission"]["emiss_wavelengths"]
+            intensities = settings["emission"]["emiss_intensities"]
             for i, pd in enumerate(self.pdiff):
-                tax = divider.append_axes("top", size="6%", pad=0.05,
-                                          sharex=iax)
+                tax = divider.append_axes(
+                    "top", size="6%", pad=0.05, sharex=iax
+                )
                 if lcolors:
                     c = lcolors[i % len(lcolors)]
                 elif len(self.pdiff) == 1:
@@ -398,14 +426,14 @@ class PowderModel:
                     elif is_color_like(formatspec[-1]):
                         c = formatspec[-1]
                     else:
-                        c = 'C0'
+                        c = "C0"
                 else:
-                    c = f'C{i}'
+                    c = f"C{i}"
                 lw = 2
                 wllist = []
                 for wl, inte in zip(wavelengths, intensities):
-                    q = [pd.data[h]['qpos'] for h in pd.data]
-                    tt = pd.Q2Ang(q, wl=1e10*wl)*2
+                    q = [pd.data[h]["qpos"] for h in pd.data]
+                    tt = pd.Q2Ang(q, wl=1e10 * wl) * 2
                     lw *= inte
                     lines = tax.vlines(tt, 0, 1, colors=c, linewidth=lw)
                     wllist.append(lines)
@@ -414,9 +442,14 @@ class PowderModel:
                 plt.setp(tax.get_yticklabels(), visible=False)
                 plt.setp(tax.get_yticklines(), visible=False)
                 annot = tax.annotate(
-                    "", xy=(0, 0), xytext=(20, 0), textcoords="offset points",
+                    "",
+                    xy=(0, 0),
+                    xytext=(20, 0),
+                    textcoords="offset points",
                     bbox=dict(boxstyle="round,pad=0.1", fc="w", alpha=0.8),
-                    arrowprops=dict(arrowstyle="->"), fontsize='x-small')
+                    arrowprops=dict(arrowstyle="->"),
+                    fontsize="x-small",
+                )
                 annot.set_visible(False)
                 # next line important to avoid zorder issues
                 tax.figure.texts.append(tax.texts[-1])
@@ -426,7 +459,7 @@ class PowderModel:
 
             def update_annot(pd, annot, lines, ind):
                 h = list(pd.data)[ind]
-                x = 2*pd.data[h]['ang']
+                x = 2 * pd.data[h]["ang"]
                 y = 0.5
                 annot.xy = (x, y)
                 text = f"{pd.mat.name}: {h[0]} {h[1]} {h[2]}"
@@ -435,14 +468,15 @@ class PowderModel:
                 annot.set_zorder(10)
 
             def hover(event):
-                for pd, tax, annot, wllist in zip(self.pdiff, taxlist,
-                                                  annotlist, lineslist):
+                for pd, tax, annot, wllist in zip(
+                    self.pdiff, taxlist, annotlist, lineslist
+                ):
                     vis = annot.get_visible()
                     if event.inaxes == tax:
                         for lines in wllist:
                             cont, ind = lines.contains(event)
                             if cont:
-                                update_annot(pd, annot, lines, ind['ind'][0])
+                                update_annot(pd, annot, lines, ind["ind"][0])
                                 annot.set_visible(True)
                                 fig.canvas.draw_idle()
                                 return
@@ -452,19 +486,23 @@ class PowderModel:
                                 return
 
             def click(event):
-                for pd, tax, _, wllist in zip(self.pdiff, taxlist,
-                                              annotlist, lineslist):
+                for pd, tax, _, wllist in zip(
+                    self.pdiff, taxlist, annotlist, lineslist
+                ):
                     if event.inaxes == tax:
                         for lines in wllist:
                             cont, ind = lines.contains(event)
                             if cont:
-                                h = list(pd.data)[ind['ind'][0]]
-                                text = (f'{pd.mat.name}: {h[0]} {h[1]} {h[2]};'
-                                        f' 2Theta = ')
+                                h = list(pd.data)[ind["ind"][0]]
+                                text = (
+                                    f"{pd.mat.name}: {h[0]} {h[1]} {h[2]};"
+                                    f" 2Theta = "
+                                )
                                 for wl in wavelengths:
-                                    tt = 2 * pd.Q2Ang(pd.data[h]['qpos'],
-                                                      wl=1e10*wl)
-                                    text += f'{tt:.4f}°, '
+                                    tt = 2 * pd.Q2Ang(
+                                        pd.data[h]["qpos"], wl=1e10 * wl
+                                    )
+                                    text += f"{tt:.4f}°, "
                                 print(text[:-2])
                                 return
 
@@ -489,8 +527,9 @@ class PowderModel:
         return ostr
 
 
-def Rietveld_error_metrics(exp, sim, weight=None, std=None,
-                           Nvar=0, disp=False):
+def Rietveld_error_metrics(
+    exp, sim, weight=None, std=None, Nvar=0, disp=False
+):
     """
     calculates common error metrics for Rietveld refinement.
 
@@ -521,8 +560,8 @@ def Rietveld_error_metrics(exp, sim, weight=None, std=None,
     elif weight is None:
         weight = numpy.reciprocal(std**2)
     weight[numpy.isinf(weight)] = 1
-    M = numpy.sum((exp - sim)**2 * weight)
-    Rp = numpy.sum(numpy.abs(exp - sim))/numpy.sum(exp)
+    M = numpy.sum((exp - sim) ** 2 * weight)
+    Rp = numpy.sum(numpy.abs(exp - sim)) / numpy.sum(exp)
     Rwp = sqrt(M / numpy.sum(weight * exp**2))
     chi2 = M / (len(exp) - Nvar)
     Rwpexp = Rwp / sqrt(chi2)
@@ -531,9 +570,20 @@ def Rietveld_error_metrics(exp, sim, weight=None, std=None,
     return M, Rp, Rwp, Rwpexp, chi2
 
 
-def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
-                show_diff=True, show_legend=True, labelexp='experiment',
-                labelsim='simulation', formatexp='.-k', formatsim='-r'):
+def plot_powder(
+    twotheta,
+    exp,
+    sim,
+    mask=None,
+    scale="sqrt",
+    fig="XU:powder",
+    show_diff=True,
+    show_legend=True,
+    labelexp="experiment",
+    labelsim="simulation",
+    formatexp=".-k",
+    formatsim="-r",
+):
     """
     Convenience function to plot the comparison between experimental and
     simulated powder diffraction data
@@ -572,10 +622,10 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
     -------
     List of lines in the plot. Empty list in case matplotlib can't be imported
     """
-    plot, plt = utilities.import_matplotlib_pyplot('XU.simpack')
+    plot, plt = utilities.import_matplotlib_pyplot("XU.simpack")
     if not plot:
         return []
-    if scale == 'sqrt':
+    if scale == "sqrt":
         from ..mpl_helper import SqrtAllowNegScale  # noqa: F401
 
     f = plt.figure(fig, figsize=(10, 7))
@@ -594,15 +644,24 @@ def plot_powder(twotheta, exp, sim, mask=None, scale='sqrt', fig='XU:powder',
 
     if show_diff and exp is not None:
         # plot error between simulation and experiment
-        ax.plot(twotheta[mask], exp[mask]-simdata, '.-', color='0.5',
-                label='difference')
+        ax.plot(
+            twotheta[mask],
+            exp[mask] - simdata,
+            ".-",
+            color="0.5",
+            label="difference",
+        )
 
-    ax.set_xlabel('2Theta (deg)')
-    ax.set_ylabel('Intensity')
+    ax.set_xlabel("2Theta (deg)")
+    ax.set_ylabel("Intensity")
     lines = ax.get_lines()
     if show_legend:
-        plt.figlegend(lines, [line.get_label() for line in lines],
-                      loc='upper right', frameon=True)
+        plt.figlegend(
+            lines,
+            [line.get_label() for line in lines],
+            loc="upper right",
+            frameon=True,
+        )
     ax.set_yscale(scale)
     f.tight_layout()
     return lines

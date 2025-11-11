@@ -29,9 +29,16 @@ class TestMathFunctions(unittest.TestCase):
         amp = numpy.random.rand() + 0.1
         fwhm = numpy.random.rand() * 1.5 + 0.1
         cls.x = numpy.arange(-3, 3, 0.0003)
-        cls.p = [0., fwhm, amp, 0.]
-        cls.p2d = [0., 0., fwhm, fwhm, amp, 0.,
-                   2 * numpy.pi * numpy.random.rand()]
+        cls.p = [0.0, fwhm, amp, 0.0]
+        cls.p2d = [
+            0.0,
+            0.0,
+            fwhm,
+            fwhm,
+            amp,
+            0.0,
+            2 * numpy.pi * numpy.random.rand(),
+        ]
         cls.sigma = fwhm / (2 * numpy.sqrt(2 * numpy.log(2)))
 
     def test_gauss1dwidth(self):
@@ -49,7 +56,9 @@ class TestMathFunctions(unittest.TestCase):
 
     def test_pvoigt1dwidth(self):
         p = list(numpy.copy(self.p))
-        p += [numpy.random.rand(), ]
+        p += [
+            numpy.random.rand(),
+        ]
         f = xu.math.PseudoVoigt1d(self.x, *p)
         fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
@@ -66,7 +75,8 @@ class TestMathFunctions(unittest.TestCase):
         p[1] = self.sigma
         area = xu.math.Gauss1dArea(*p)
         (numarea, err) = quad(
-            xu.math.Gauss1d, -numpy.inf, numpy.inf, args=tuple(p))
+            xu.math.Gauss1d, -numpy.inf, numpy.inf, args=tuple(p)
+        )
         digits = int(numpy.abs(numpy.log10(err))) - 3
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
@@ -75,17 +85,21 @@ class TestMathFunctions(unittest.TestCase):
         p = numpy.copy(self.p)
         area = xu.math.Lorentz1dArea(*p)
         (numarea, err) = quad(
-            xu.math.Lorentz1d, -numpy.inf, numpy.inf, args=tuple(p))
+            xu.math.Lorentz1d, -numpy.inf, numpy.inf, args=tuple(p)
+        )
         digits = int(numpy.abs(numpy.log10(err))) - 3
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
 
     def test_pvoigt1darea(self):
         p = list(numpy.copy(self.p))
-        p += [numpy.random.rand(), ]
+        p += [
+            numpy.random.rand(),
+        ]
         area = xu.math.PseudoVoigt1dArea(*p)
         (numarea, err) = quad(
-            xu.math.PseudoVoigt1d, -numpy.inf, numpy.inf, args=tuple(p))
+            xu.math.PseudoVoigt1d, -numpy.inf, numpy.inf, args=tuple(p)
+        )
         digits = int(numpy.abs(numpy.log10(err))) - 3
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
@@ -95,9 +109,11 @@ class TestMathFunctions(unittest.TestCase):
         p[2] = self.sigma
         p[3] = (numpy.random.rand() + 0.1) * self.sigma
         area = xu.math.Gauss2dArea(*p)
-        (numarea, err) = nquad(xu.math.Gauss2d, [[-numpy.inf, numpy.inf],
-                                                 [-numpy.inf, numpy.inf]],
-                               args=tuple(p))
+        (numarea, err) = nquad(
+            xu.math.Gauss2d,
+            [[-numpy.inf, numpy.inf], [-numpy.inf, numpy.inf]],
+            args=tuple(p),
+        )
         digits = int(numpy.abs(numpy.log10(err))) - 3
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
@@ -109,14 +125,23 @@ class TestMathFunctions(unittest.TestCase):
         p[1] = self.sigma
         p[3] = numpy.random.rand()
         p.append(numpy.random.rand())
-        params = [self.x, ] + p
+        params = [
+            self.x,
+        ] + p
 
-        functions = [(xu.math.Gauss1d, xu.math.Gauss1d_der_x,
-                      xu.math.Gauss1d_der_p),
-                     (xu.math.Lorentz1d, xu.math.Lorentz1d_der_x,
-                      xu.math.Lorentz1d_der_p),
-                     (xu.math.PseudoVoigt1d, xu.math.PseudoVoigt1d_der_x,
-                      xu.math.PseudoVoigt1d_der_p)]
+        functions = [
+            (xu.math.Gauss1d, xu.math.Gauss1d_der_x, xu.math.Gauss1d_der_p),
+            (
+                xu.math.Lorentz1d,
+                xu.math.Lorentz1d_der_x,
+                xu.math.Lorentz1d_der_p,
+            ),
+            (
+                xu.math.PseudoVoigt1d,
+                xu.math.PseudoVoigt1d_der_x,
+                xu.math.PseudoVoigt1d_der_p,
+            ),
+        ]
 
         # test all derivates by benchmarking against a simple finite difference
         # calculation
@@ -129,14 +154,17 @@ class TestMathFunctions(unittest.TestCase):
                 ppeps[argidx] = ppeps[argidx] + eps / 2
                 findiff = (f(*ppeps) - f(*pmeps)) / eps
                 diff = numpy.abs(deriv[argidx] - findiff)
-                errinfo = f'maximum difference, idx/npoints: ' \
-                    f'{numpy.max(diff)}, {numpy.argmax(diff)}/{len(diff)}\n' \
-                    f'parameters: {str(p)}'
-                self.assertTrue(numpy.allclose(deriv[argidx], findiff,
-                                               atol=1e3*eps),
-                                f'{str(f)}, {argidx}, derivatives not close '
-                                f'to numerical approximation ({errinfo})')
+                errinfo = (
+                    f"maximum difference, idx/npoints: "
+                    f"{numpy.max(diff)}, {numpy.argmax(diff)}/{len(diff)}\n"
+                    f"parameters: {str(p)}"
+                )
+                self.assertTrue(
+                    numpy.allclose(deriv[argidx], findiff, atol=1e3 * eps),
+                    f"{str(f)}, {argidx}, derivatives not close "
+                    f"to numerical approximation ({errinfo})",
+                )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

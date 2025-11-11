@@ -18,8 +18,17 @@
 
 import numpy
 import xrayutilities_id01_functions as id01
-from matplotlib.pylab import (axis, figure, mpl, pcolormesh, subplot,
-                              tight_layout, tricontourf, xlabel, ylabel)
+from matplotlib.pylab import (
+    axis,
+    figure,
+    mpl,
+    pcolormesh,
+    subplot,
+    tight_layout,
+    tricontourf,
+    xlabel,
+    ylabel,
+)
 
 import xrayutilities as xu
 from xrayutilities_id01_functions import datadir, deadpixelkill
@@ -39,18 +48,29 @@ from xrayutilities_id01_functions import datadir, deadpixelkill
 # The outer most sample rotation (so the one mounted on the floor) is one
 # which turns left-handed (-) around the z-direction -> z- (mu)
 # The second sample rotation ('eta') is lefthanded (-) around y -> y-
-qconv = xu.experiment.QConversion(['z-', 'y-', 'z-'],
-                                  ['z-', 'y-', 'ty', 'tz'],
-                                  [1, 0, 0])
-hxrd = xu.HXRD([1, 1, 0], [0, 0, 1], qconv=qconv, sampleor='z+')
-hxrd._A2QConversion.init_area('z-', 'y+', cch1=333.94, cch2=235.62, Nch1=516,
-                              Nch2=516, pwidth1=5.5000e-02, pwidth2=5.5000e-02,
-                              distance=0.53588*1000, detrot=-1.495,
-                              tiltazimuth=155.0, tilt=0.745, Nav=(2, 2))
+qconv = xu.experiment.QConversion(
+    ["z-", "y-", "z-"], ["z-", "y-", "ty", "tz"], [1, 0, 0]
+)
+hxrd = xu.HXRD([1, 1, 0], [0, 0, 1], qconv=qconv, sampleor="z+")
+hxrd._A2QConversion.init_area(
+    "z-",
+    "y+",
+    cch1=333.94,
+    cch2=235.62,
+    Nch1=516,
+    Nch2=516,
+    pwidth1=5.5000e-02,
+    pwidth2=5.5000e-02,
+    distance=0.53588 * 1000,
+    detrot=-1.495,
+    tiltazimuth=155.0,
+    tilt=0.745,
+    Nav=(2, 2),
+)
 
 #############################################################
 # load spec-file data
-fnames = ('KMAP_2017_fast_00001.spec',)
+fnames = ("KMAP_2017_fast_00001.spec",)
 
 scannrs = []
 for fn in fnames:
@@ -61,21 +81,44 @@ nx, ny = 150, 150
 
 # specfile, scannumbers, nx,ny, motornames, optional column names (ID01
 # values are default)
-fss = xu.io.FastScanSeries(fnames, scannrs, nx, ny, 'mu', 'eta', 'phi', 'nu',
-                           'del', 'mpxy', 'mpxz', xmotor='adcY', ymotor='adcX',
-                           ccdnr='imgnr', path=datadir)
+fss = xu.io.FastScanSeries(
+    fnames,
+    scannrs,
+    nx,
+    ny,
+    "mu",
+    "eta",
+    "phi",
+    "nu",
+    "del",
+    "mpxy",
+    "mpxz",
+    xmotor="adcY",
+    ymotor="adcX",
+    ccdnr="imgnr",
+    path=datadir,
+)
 
 #############################################################
 # 3D RSM from summing over X,Y
 # now all EDF files are parsed, this will take a while and some memory
 qconv.energy = id01.getmono_energy(sf[0])
 xu.config.VERBOSITY = 2
-g3d = fss.get_average_RSM(81, 82, 83, qconv, datadir=id01.datadir,
-                          replacedir=id01.repl_n, roi=None, nav=(4, 4),
-                          filterfunc=deadpixelkill)
+g3d = fss.get_average_RSM(
+    81,
+    82,
+    83,
+    qconv,
+    datadir=id01.datadir,
+    replacedir=id01.repl_n,
+    roi=None,
+    nav=(4, 4),
+    filterfunc=deadpixelkill,
+)
 xu.config.VERBOSITY = 1
-numpy.savez_compressed('RSM3D.npz', qx=g3d.xaxis, qy=g3d.yaxis, qz=g3d.zaxis,
-                       data=g3d.data)
+numpy.savez_compressed(
+    "RSM3D.npz", qx=g3d.xaxis, qy=g3d.yaxis, qz=g3d.zaxis, data=g3d.data
+)
 qx = g3d.xaxis
 qy = g3d.yaxis
 qz = g3d.zaxis
@@ -84,34 +127,34 @@ data = g3d.data
 figure()
 subplot(221)
 pcolormesh(qx, qy, data.sum(axis=2).T, norm=mpl.colors.LogNorm())
-xlabel(r'Qx ($\mathrm{\AA}^{-1}$)')
-ylabel(r'Qy ($\mathrm{\AA}^{-1}$)')
+xlabel(r"Qx ($\mathrm{\AA}^{-1}$)")
+ylabel(r"Qy ($\mathrm{\AA}^{-1}$)")
 
 subplot(222)
 pcolormesh(qx, qz, data.sum(axis=1).T, norm=mpl.colors.LogNorm())
-xlabel(r'Qx ($\mathrm{\AA}^{-1}$)')
-ylabel(r'Qz ($\mathrm{\AA}^{-1}$)')
+xlabel(r"Qx ($\mathrm{\AA}^{-1}$)")
+ylabel(r"Qz ($\mathrm{\AA}^{-1}$)")
 
 subplot(223)
 pcolormesh(qy, qz, data.sum(axis=0).T, norm=mpl.colors.LogNorm())
-xlabel(r'Qy ($\mathrm{\AA}^{-1}$)')
-ylabel(r'Qz ($\mathrm{\AA}^{-1}$)')
+xlabel(r"Qy ($\mathrm{\AA}^{-1}$)")
+ylabel(r"Qz ($\mathrm{\AA}^{-1}$)")
 tight_layout()
 
 #############################################################
 # 2D real space maps for selected region in Q-space
 qr = [0.57, 0.62, -0.20, -0.16, 3.47, 3.50]  # [xmin, xmax, ymin, ..., zmax]
-x, y, data = fss.get_sxrd_for_qrange(qr, qconv, datadir=id01.datadir,
-                                     replacedir=id01.repl_n)
-numpy.savez_compressed('output_sxrd_map.npz', x=x, y=y, data=data)
+x, y, data = fss.get_sxrd_for_qrange(
+    qr, qconv, datadir=id01.datadir, replacedir=id01.repl_n
+)
+numpy.savez_compressed("output_sxrd_map.npz", x=x, y=y, data=data)
 
 
 figure()
-lev_exp = numpy.linspace(numpy.log10(data.min()),
-                         numpy.log10(data.max()), 100)
+lev_exp = numpy.linspace(numpy.log10(data.min()), numpy.log10(data.max()), 100)
 levs = numpy.power(10, lev_exp)
 tricontourf(y, x, data, levs, norm=mpl.colors.LogNorm())
-axis('scaled')
-ylabel('piy (um)')
-xlabel('pix (um)')
+axis("scaled")
+ylabel("piy (um)")
+xlabel("pix (um)")
 tight_layout()

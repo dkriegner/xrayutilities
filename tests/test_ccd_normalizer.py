@@ -21,13 +21,15 @@ import unittest
 import numpy
 import xrayutilities as xu
 
-testfile = 'pilatus100K.tif'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "pilatus100K.tif"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestCCD_Normalizer(unittest.TestCase):
     dshape = (2, 195, 487)
     dmax = 0.1
@@ -38,12 +40,14 @@ class TestCCD_Normalizer(unittest.TestCase):
     def setUpClass(cls):
         imgreader = xu.io.Pilatus100K()
         cls.img = imgreader.readImage(testfile, path=datadir)
-        cls.ccddata = numpy.asarray((cls.img, 2*cls.img))
-        cls.fakedata = numpy.array([(1.0, 10.0), (2.0, 21.0)],
-                                   dtype=[('time', float),
-                                          ('moni', float)])
-        cls.normalizer = xu.IntensityNormalizer(mon='moni', time='time',
-                                                av_mon=1.0)
+        cls.ccddata = numpy.asarray((cls.img, 2 * cls.img))
+        cls.fakedata = numpy.array(
+            [(1.0, 10.0), (2.0, 21.0)],
+            dtype=[("time", float), ("moni", float)],
+        )
+        cls.normalizer = xu.IntensityNormalizer(
+            mon="moni", time="time", av_mon=1.0
+        )
         cls.normdata = cls.normalizer(cls.fakedata, ccd=cls.ccddata)
 
     def test_datashape(self):
@@ -56,5 +60,5 @@ class TestCCD_Normalizer(unittest.TestCase):
         self.assertEqual(self.nmax, testhist[-1])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

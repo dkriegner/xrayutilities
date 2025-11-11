@@ -32,17 +32,19 @@ STO = xu.materials.SrTiO3
 # Make CTO/STO thin-film.
 STO_sub = xu.simpack.Layer(STO, numpy.inf)
 CTO_layer = xu.simpack.Layer(CTO, 200, roughness=1e-5)
-thin_film = xu.simpack.LayerStack('CTO/STO', STO_sub+CTO_layer)
+thin_film = xu.simpack.LayerStack("CTO/STO", STO_sub + CTO_layer)
 
 # Initiate dynamical reflectivity model
 # Simulating Reflectivity with S,P polarizations @ 1 keV
 energy = 1000
-model_S = xu.simpack.DynamicalReflectivityModel(thin_film, energy=energy,
-                                                polarization='S')
-model_P = xu.simpack.DynamicalReflectivityModel(thin_film, energy=energy,
-                                                polarization='P')
+model_S = xu.simpack.DynamicalReflectivityModel(
+    thin_film, energy=energy, polarization="S"
+)
+model_P = xu.simpack.DynamicalReflectivityModel(
+    thin_film, energy=energy, polarization="P"
+)
 
-alpha = numpy.linspace(0., 90., num=1000)
+alpha = numpy.linspace(0.0, 90.0, num=1000)
 Reflec_S, Trans_S = model_S.simulate(alpha)
 Reflec_P, Trans_P = model_P.simulate(alpha)
 
@@ -50,23 +52,25 @@ Reflec_P, Trans_P = model_P.simulate(alpha)
 fig, (ax_P, ax_S) = plt.subplots(1, 2, figsize=(12, 6))
 
 # Reflectance
-ax_P.plot(alpha, Reflec_P, label='P-polarization')
-ax_P.plot(alpha, Reflec_S, label='S-polarization')
-ax_P.legend(loc='upper right')
-ax_P.set_xlabel(r'$\alpha$ (deg)')
-ax_P.set_ylabel('Reflectivity')
-ax_P.set_yscale('log')
+ax_P.plot(alpha, Reflec_P, label="P-polarization")
+ax_P.plot(alpha, Reflec_S, label="S-polarization")
+ax_P.legend(loc="upper right")
+ax_P.set_xlabel(r"$\alpha$ (deg)")
+ax_P.set_ylabel("Reflectivity")
+ax_P.set_yscale("log")
 
 # Transmittance
-ax_S.plot(alpha, Trans_P, label='P-polarization')
-ax_S.plot(alpha, Trans_S, label='S-polarization')
-ax_S.legend(loc='upper right')
-ax_S.set_xlabel(r'$\alpha$ (deg)')
-ax_S.set_ylabel('Transmittance')
+ax_S.plot(alpha, Trans_P, label="P-polarization")
+ax_S.plot(alpha, Trans_S, label="S-polarization")
+ax_S.legend(loc="upper right")
+ax_S.set_xlabel(r"$\alpha$ (deg)")
+ax_S.set_ylabel("Transmittance")
 # ax_S.set_yscale('log')
 
-suptitle(r'20 nm CaTiO$_3$/SrTiO$_3$, E=%d eV, $\theta_c$=%.2f$^\circ$'
-         % (energy, CTO.critical_angle(en=energy)))
+suptitle(
+    r"20 nm CaTiO$_3$/SrTiO$_3$, E=%d eV, $\theta_c$=%.2f$^\circ$"
+    % (energy, CTO.critical_angle(en=energy))
+)
 tight_layout(rect=(0, 0, 1, 0.94))
 
 # Comparison between Dynamical and Kinematic
@@ -81,12 +85,14 @@ R_kin = xrr_model.simulate(alpha)
 
 # Reflectance
 fig, ax = plt.subplots(1, 1, figsize=(12, 6))
-ax.plot(alpha, Reflec_S, label='TransferMatrix')
-ax.plot(alpha, R_kin, label='SpecularReflectivityModel', linestyle='dashed')
-ax.legend(loc='upper right')
-ax.set_xlabel(r'$\alpha$ (deg)')
-ax.set_ylabel('Reflectance')
-ax.set_yscale('log')
-ax.set_title(r'20 nm CaTiO$_3$/SrTiO$_3$, E=%d eV, $\theta_c$=%.2f$^\circ$'
-             % (energy, STO.critical_angle(en=energy)))
+ax.plot(alpha, Reflec_S, label="TransferMatrix")
+ax.plot(alpha, R_kin, label="SpecularReflectivityModel", linestyle="dashed")
+ax.legend(loc="upper right")
+ax.set_xlabel(r"$\alpha$ (deg)")
+ax.set_ylabel("Reflectance")
+ax.set_yscale("log")
+ax.set_title(
+    r"20 nm CaTiO$_3$/SrTiO$_3$, E=%d eV, $\theta_c$=%.2f$^\circ$"
+    % (energy, STO.critical_angle(en=energy))
+)
 tight_layout()

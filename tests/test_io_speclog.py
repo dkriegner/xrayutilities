@@ -21,17 +21,19 @@ import unittest
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'speclog.log.gz'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "speclog.log.gz"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_SPECLog(unittest.TestCase):
-    prompt = 'PSIC'
+    prompt = "PSIC"
     line_cnt = 2046542
-    testcmd = '84.PSIC>  mvr mu -.075; ct'
+    testcmd = "84.PSIC>  mvr mu -.075; ct"
     testcmdline = 25
 
     def setUp(self):
@@ -42,5 +44,5 @@ class TestIO_SPECLog(unittest.TestCase):
         self.assertEqual(self.testcmd, str(self.logfile[self.testcmdline]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

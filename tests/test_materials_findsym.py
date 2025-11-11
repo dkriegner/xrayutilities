@@ -35,9 +35,12 @@ class Test_findsym(unittest.TestCase):
         """
         for m in self.materials:
             p1 = m.lattice.convert_to_P1()
-            self.assertEqual(m.lattice, p1.findsym(),
-                             msg=f"{m.name} does not use highest symmetry!")
+            self.assertEqual(
+                m.lattice,
+                p1.findsym(),
+                msg=f"{m.name} does not use highest symmetry!",
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

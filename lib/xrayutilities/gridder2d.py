@@ -25,14 +25,14 @@ from .gridder import Gridder, GridderFlags, axis, delta, ones
 
 
 class Gridder2D(Gridder):
-
     def __init__(self, nx, ny):
         Gridder.__init__(self)
 
         # check input
         if nx <= 0 or ny <= 0:
-            raise exception.InputError('Neither nx nor ny can be smaller'
-                                       'than 1!')
+            raise exception.InputError(
+                "Neither nx nor ny can be smallerthan 1!"
+            )
 
         self.xmin = None
         self.ymin = None
@@ -53,7 +53,7 @@ class Gridder2D(Gridder):
         self._gdata = numpy.zeros((self.nx, self.ny), dtype=numpy.double)
         self._gnorm = numpy.zeros((self.nx, self.ny), dtype=numpy.double)
 
-    def savetxt(self, filename, header=''):
+    def savetxt(self, filename, header=""):
         """
         save gridded data to a txt file with two columns. The first two columns
         are the data coordinates and the last one the corresponding data
@@ -66,10 +66,14 @@ class Gridder2D(Gridder):
         header :    str, optional
             optional header for the data file.
         """
-        numpy.savetxt(filename, numpy.vstack((self.xmatrix.flat,
-                                              self.ymatrix.flat,
-                                              self.data.flat)).T,
-                      header=header, fmt='%.6g %.6g %.4g')
+        numpy.savetxt(
+            filename,
+            numpy.vstack(
+                (self.xmatrix.flat, self.ymatrix.flat, self.data.flat)
+            ).T,
+            header=header,
+            fmt="%.6g %.6g %.4g",
+        )
 
     def SetResolution(self, nx, ny):
         """
@@ -143,7 +147,8 @@ class Gridder2D(Gridder):
         if x.size != y.size or y.size != data.size:
             raise exception.InputError(
                 f"XU.{self.__class__.__name__}: size of given datasets "
-                "(x, y, data) is not equal!")
+                "(x, y, data) is not equal!"
+            )
 
         if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the
@@ -169,10 +174,20 @@ class Gridder2D(Gridder):
         x, y, data = self._checktransinput(x, y, data)
         # remove normalize flag for C-code
         flags = self.flags | GridderFlags.NO_NORMALIZATION
-        cxrayutilities.gridder2d(x, y, data, self.nx, self.ny,
-                                 self.xmin, self.xmax,
-                                 self.ymin, self.ymax,
-                                 self._gdata, self._gnorm, flags)
+        cxrayutilities.gridder2d(
+            x,
+            y,
+            data,
+            self.nx,
+            self.ny,
+            self.xmin,
+            self.xmax,
+            self.ymin,
+            self.ymax,
+            self._gdata,
+            self._gnorm,
+            flags,
+        )
 
 
 class FuzzyGridder2D(Gridder2D):
@@ -206,35 +221,45 @@ class FuzzyGridder2D(Gridder2D):
             dimensions, or as sequence of length 2.
         """
 
-        valid_kwargs = {'width': 'specifiying fuzzy data size'}
-        utilities.check_kwargs(kwargs, valid_kwargs,
-                               self.__class__.__name__)
+        valid_kwargs = {"width": "specifiying fuzzy data size"}
+        utilities.check_kwargs(kwargs, valid_kwargs, self.__class__.__name__)
 
         x, y, data = self._checktransinput(x, y, data)
 
-        if 'width' in kwargs:
+        if "width" in kwargs:
             try:
-                length = len(kwargs['width'])
+                length = len(kwargs["width"])
             except TypeError:
                 length = 1
             if length == 2:
-                wx, wy = kwargs['width']
+                wx, wy = kwargs["width"]
             else:
-                wx = kwargs['width']
+                wx = kwargs["width"]
                 wy = wx
         else:
-            wx = delta(self.xmin, self.xmax, self.nx) / 2.
-            wy = delta(self.ymin, self.ymax, self.ny) / 2.
+            wx = delta(self.xmin, self.xmax, self.nx) / 2.0
+            wy = delta(self.ymin, self.ymax, self.ny) / 2.0
         # remove normalize flag for C-code
         flags = self.flags | GridderFlags.NO_NORMALIZATION
-        cxrayutilities.fuzzygridder2d(x, y, data, self.nx, self.ny,
-                                      self.xmin, self.xmax,
-                                      self.ymin, self.ymax,
-                                      self._gdata, self._gnorm, wx, wy, flags)
+        cxrayutilities.fuzzygridder2d(
+            x,
+            y,
+            data,
+            self.nx,
+            self.ny,
+            self.xmin,
+            self.xmax,
+            self.ymin,
+            self.ymax,
+            self._gdata,
+            self._gnorm,
+            wx,
+            wy,
+            flags,
+        )
 
 
 class Gridder2DList(Gridder2D):
-
     """
     special version of a 2D gridder which performs no actual averaging of the
     data in one grid/bin but just collects the data-objects belonging to one

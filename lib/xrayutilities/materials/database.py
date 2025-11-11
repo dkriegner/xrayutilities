@@ -30,7 +30,6 @@ import scipy.constants
 
 
 class DataBase:
-
     def __init__(self, fname):
         self.fname = fname
         self.h5file = None  # HDF5 file object holding the database
@@ -58,29 +57,31 @@ class DataBase:
             a short description of the database
         """
         if self.h5file is not None:
-            print("database already opened - "
-                  "close first to create new database")
+            print(
+                "database already opened - close first to create new database"
+            )
             return
 
         # tryp to open the database file
         try:
-            self.h5file = h5py.File(self.fname, 'w')
+            self.h5file = h5py.File(self.fname, "w")
         except OSError:
-            print(f'cannot create database file {self.fname}!')
+            print(f"cannot create database file {self.fname}!")
             raise
 
         # set attributes to the root group with database name and
         # description
-        self.h5file.attrs['DBName'] = dbname
-        self.h5file.attrs['DBDesc'] = dbdesc
+        self.h5file.attrs["DBName"] = dbname
+        self.h5file.attrs["DBDesc"] = dbdesc
 
-    def Open(self, mode='r'):
+    def Open(self, mode="r"):
         """
         Open an existing database file.
         """
         if self.h5file is not None:
-            print('database already opened - '
-                  'close first to open new database!')
+            print(
+                "database already opened - close first to open new database!"
+            )
             return
 
         try:
@@ -120,7 +121,7 @@ class DataBase:
             print("material node already exists")
         else:
             g = self.h5file.create_group(name)
-            g.attrs['name'] = description
+            g.attrs["name"] = description
 
     def SetWeight(self, weight):
         """
@@ -134,7 +135,7 @@ class DataBase:
         if not isinstance(weight, float):
             raise TypeError("weight parameter must be a float!")
 
-        self.h5group.attrs['atomic_standard_weight'] = weight
+        self.h5group.attrs["atomic_standard_weight"] = weight
         self.h5file.flush()
 
     def SetColor(self, color):
@@ -149,7 +150,7 @@ class DataBase:
         if not isinstance(color, (tuple, str)):
             raise TypeError("color parameter must be a tuple or str!")
 
-        self.h5group.attrs['color'] = color
+        self.h5group.attrs["color"] = color
         self.h5file.flush()
 
     def SetRadius(self, radius):
@@ -164,10 +165,10 @@ class DataBase:
         if not isinstance(radius, (float, int)):
             raise TypeError("radius parameter must be a number!")
 
-        self.h5group.attrs['atomic_radius'] = float(radius)
+        self.h5group.attrs["atomic_radius"] = float(radius)
         self.h5file.flush()
 
-    def SetF0(self, parameters, subset='default'):
+    def SetF0(self, parameters, subset="default"):
         """
         Save f0 fit parameters for the set material. The fit parameters
         are stored in the following order:
@@ -185,18 +186,19 @@ class DataBase:
         elif isinstance(parameters, numpy.ndarray):
             p = parameters.astype(numpy.float32)
         else:
-            raise TypeError("f0 fit parameters must be a "
-                            "list or a numpy array!")
+            raise TypeError(
+                "f0 fit parameters must be a list or a numpy array!"
+            )
 
         if not subset:
-            subset = 'default'
+            subset = "default"
 
         try:
-            del self.h5group[f'f0/{subset}']
+            del self.h5group[f"f0/{subset}"]
         except KeyError:
             pass
 
-        self.h5group.create_dataset(f'f0/{subset}', data=p)
+        self.h5group.create_dataset(f"f0/{subset}", data=p)
         self.h5file.flush()
 
     def SetF1F2(self, en, f1, f2):
@@ -234,23 +236,23 @@ class DataBase:
             raise TypeError("f2 values must be a list or a numpy array!")
 
         try:
-            del self.h5group['en_f12']
+            del self.h5group["en_f12"]
         except KeyError:
             pass
 
         try:
-            del self.h5group['f1']
+            del self.h5group["f1"]
         except KeyError:
             pass
 
         try:
-            del self.h5group['f2']
+            del self.h5group["f2"]
         except KeyError:
             pass
 
-        self.h5group.create_dataset('en_f12', data=end)
-        self.h5group.create_dataset('f1', data=f1d)
-        self.h5group.create_dataset('f2', data=f2d)
+        self.h5group.create_dataset("en_f12", data=end)
+        self.h5group.create_dataset("f1", data=f1d)
+        self.h5group.create_dataset("f2", data=f2d)
         self.h5file.flush()
 
     def SetMaterial(self, name):
@@ -272,36 +274,36 @@ class DataBase:
             print(f"XU.materials.database: material '{name}' not existing!")
 
         try:
-            self.f0_params = self.h5group['f0']
+            self.f0_params = self.h5group["f0"]
         except KeyError:
             self.f0_params = None
         try:
-            self.f1_en = self.h5group['en_f12']
-            self.f1 = self.h5group['f1']
+            self.f1_en = self.h5group["en_f12"]
+            self.f1 = self.h5group["f1"]
         except KeyError:
             self.f1_en = None
             self.f1 = None
         try:
-            self.f2_en = self.h5group['en_f12']
-            self.f2 = self.h5group['f2']
+            self.f2_en = self.h5group["en_f12"]
+            self.f2 = self.h5group["f2"]
         except KeyError:
             self.f2_en = None
             self.f2 = None
         try:
-            self.weight = self.h5group.attrs['atomic_standard_weight']
+            self.weight = self.h5group.attrs["atomic_standard_weight"]
         except KeyError:
             self.weight = None
         try:
-            self.radius = self.h5group.attrs['atomic_radius']
+            self.radius = self.h5group.attrs["atomic_radius"]
         except KeyError:
             self.radius = numpy.nan
         try:
-            self.color = self.h5group.attrs['color']
+            self.color = self.h5group.attrs["color"]
         except KeyError:
             self.color = None
         self.matname = name
 
-    def GetF0(self, q, dset='default'):
+    def GetF0(self, q, dset="default"):
         """
         Obtain the f0 scattering factor component for a particular
         momentum transfer q.
@@ -316,7 +318,7 @@ class DataBase:
         """
         # get parameters from file
         if not dset:
-            dset = 'default'
+            dset = "default"
         f0_params = self.f0_params[dset]
         # calculate f0
         if isinstance(q, (numpy.ndarray, list, tuple)):
@@ -325,12 +327,12 @@ class DataBase:
         else:
             ql = q
             f0 = f0_params[0]
-        k = ql / (4. * numpy.pi)
+        k = ql / (4.0 * numpy.pi)
 
         for i in range(1, len(f0_params) - 1, 2):
             a = f0_params[i]
             b = f0_params[i + 1]
-            f0 += a * numpy.exp(-b * k ** 2)
+            f0 += a * numpy.exp(-b * k**2)
 
         return f0
 
@@ -344,8 +346,9 @@ class DataBase:
         en :    float or array-like
             energy
         """
-        if1 = numpy.interp(en, self.f1_en, self.f1,
-                           left=numpy.nan, right=numpy.nan)
+        if1 = numpy.interp(
+            en, self.f1_en, self.f1, left=numpy.nan, right=numpy.nan
+        )
 
         return if1
 
@@ -359,8 +362,9 @@ class DataBase:
         en :    float or array-like
             energy
         """
-        if2 = numpy.interp(en, self.f2_en, self.f2,
-                           left=numpy.nan, right=numpy.nan)
+        if2 = numpy.interp(
+            en, self.f2_en, self.f2, left=numpy.nan, right=numpy.nan
+        )
 
         return if2
 
@@ -509,12 +513,12 @@ def add_f0_from_intertab(db, itf, verbose=False):
             lb = multiblank.split(lb)
 
             # determine oxidation state and element name
-            elemstate = re.sub('[A-Za-z]', '', lb[2])
-            for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+            elemstate = re.sub("[A-Za-z]", "", lb[2])
+            for r, o in zip(("dot", "p", "m"), (".", "+", "-")):
                 elemstate = elemstate.replace(o, r)
-            if elemstate == 'p2':  # fix wrong name in the source file
-                elemstate = '2p'
-            ename = re.sub('[^A-Za-z]', '', lb[2])
+            if elemstate == "p2":  # fix wrong name in the source file
+                elemstate = "2p"
+            ename = re.sub("[^A-Za-z]", "", lb[2])
 
             if verbose:
                 print(f"{ename + elemstate} = Atom('{lb[2]}', {lb[1]})")
@@ -557,10 +561,10 @@ def add_f0_from_xop(db, xop, verbose=False):
             # found new element
             lb = multiblank.split(lb)
             # determine oxidation state and element name
-            elemstate = re.sub('[A-Za-z]', '', lb[2])
-            for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+            elemstate = re.sub("[A-Za-z]", "", lb[2])
+            for r, o in zip(("dot", "p", "m"), (".", "+", "-")):
                 elemstate = elemstate.replace(o, r)
-            ename = re.sub('[^A-Za-z]', '', lb[2])
+            ename = re.sub("[^A-Za-z]", "", lb[2])
 
             if verbose:
                 print(f"{ename + elemstate} = Atom('{lb[2]}', {lb[1]})")
@@ -633,7 +637,7 @@ def add_f1f2_from_henkedb(db, hf, verbose=False):
                     en_list.append(en)
                     f1_list.append(f1)
                     f2_list.append(f2)
-                    if en == 30000.:
+                    if en == 30000.0:
                         db.SetF1F2(en_list, f1_list, f2_list)
                         break
 
@@ -684,7 +688,7 @@ def add_f1f2_from_kissel(db, kf, verbose=False):
                     en_list.append(en)
                     f1_list.append(f1)
                     f2_list.append(f2)
-                    if en == 10000000.:
+                    if en == 10000000.0:
                         db.SetF1F2(en_list, f1_list, f2_list)
                         break
 
@@ -772,7 +776,7 @@ def add_color_from_JMOL(db, cfile, verbose=False):
         for line in f.readlines():
             s = line.split()
             ename = s[1]
-            color = [float(num)/255. for num in s[2].strip('[]').split(',')]
+            color = [float(num) / 255.0 for num in s[2].strip("[]").split(",")]
             color = tuple(color)
             if verbose:
                 print(f"set element {ename}")
@@ -786,9 +790,9 @@ def add_radius_from_WIKI(db, dfile, verbose=False):
     """
     with open(dfile, "r") as f:
         for line in f.readlines():
-            s = line.split(',')
+            s = line.split(",")
             ename = s[1]
-            radius = float(s[3]) / 100.
+            radius = float(s[3]) / 100.0
             if verbose:
                 print(f"set element {ename}")
             db.SetMaterial(ename)
@@ -810,36 +814,39 @@ def createAndFillDatabase(fname, dpath=None, verbose=False):
         flag to determine the verbosity of the script (default: False)
     """
     if dpath is None:
-        dpath = os.path.join(os.path.dirname(__file__), 'data')
+        dpath = os.path.join(os.path.dirname(__file__), "data")
 
     dbf = DataBase(fname)
-    dbf.Create('elementdata',
-               'Database with elemental data from XOP and Kissel databases')
+    dbf.Create(
+        "elementdata",
+        "Database with elemental data from XOP and Kissel databases",
+    )
 
     init_material_db(dbf)
 
     # add a dummy element, this is useful not only for testing and should be
     # kept in future! It can be used for structure factor calculation tests,
     # and shows how the a database entry can be generated manually
-    dbf.SetMaterial('Dummy')
+    dbf.SetMaterial("Dummy")
     dbf.SetF0([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # atomic structure factors
     dbf.SetF1F2((0, 1e5), (0, 0), (0, 0))  # zero dispersion correction
     dbf.SetWeight(scipy.constants.atomic_mass)
     dbf.SetRadius(1)
 
-    add_mass_from_NIST(dbf, os.path.join(dpath, 'nist_atom.dat'), verbose)
-    add_color_from_JMOL(dbf, os.path.join(dpath, 'colors.dat'), verbose)
-    add_radius_from_WIKI(dbf, os.path.join(dpath, 'atomic_radius.dat'),
-                         verbose)
+    add_mass_from_NIST(dbf, os.path.join(dpath, "nist_atom.dat"), verbose)
+    add_color_from_JMOL(dbf, os.path.join(dpath, "colors.dat"), verbose)
+    add_radius_from_WIKI(
+        dbf, os.path.join(dpath, "atomic_radius.dat"), verbose
+    )
 
     # add F0(Q) for every element
     # with lzma.open(os.path.join('data', 'f0_xop.dat.xz'), 'r') as xop:
     #    add_f0_from_xop(dbf, xop, verbose)
-    with lzma.open(os.path.join(dpath, 'f0_InterTables.dat.xz'), 'r') as itf:
+    with lzma.open(os.path.join(dpath, "f0_InterTables.dat.xz"), "r") as itf:
         add_f0_from_intertab(dbf, itf, verbose)
 
     # add F1 and F2 from database
-    with lzma.open(os.path.join(dpath, 'f1f2_asf_Kissel.dat.xz'), 'r') as kf:
+    with lzma.open(os.path.join(dpath, "f1f2_asf_Kissel.dat.xz"), "r") as kf:
         add_f1f2_from_kissel(dbf, kf, verbose)
     # with lzma.open(os.path.join(dpath, 'f1f2_Henke.dat'), 'r') as hf:
     #    add_f1f2_from_henkedb(dbf, hf, verbose)

@@ -28,8 +28,8 @@ class TestFuzzyGridder2D(unittest.TestCase):
         cls.min = 1
         cls.max = 10
         cls.axis = numpy.linspace(cls.min, cls.max, cls.n)
-        cls.x = int(numpy.random.rand()*10) + 1
-        cls.y = int(numpy.random.rand()*10) + 1
+        cls.x = int(numpy.random.rand() * 10) + 1
+        cls.y = int(numpy.random.rand() * 10) + 1
         cls.data = numpy.random.rand()
         cls.gridder = xu.FuzzyGridder2D(cls.n, cls.n)
         cls.gridder.dataRange(cls.min, cls.max, cls.min, cls.max)
@@ -40,16 +40,18 @@ class TestFuzzyGridder2D(unittest.TestCase):
         self.assertEqual(len(self.gridder.xaxis), self.n)
         # test values of xaxis
         for i in range(self.n):
-            self.assertAlmostEqual(self.gridder.xaxis[i], self.axis[i],
-                                   places=12)
+            self.assertAlmostEqual(
+                self.gridder.xaxis[i], self.axis[i], places=12
+            )
 
     def test_gridder2d_yaxis(self):
         # test length of yaxis
         self.assertEqual(len(self.gridder.yaxis), self.n)
         # test end values of yaxis
         for i in range(self.n):
-            self.assertAlmostEqual(self.gridder.yaxis[i], self.axis[i],
-                                   places=12)
+            self.assertAlmostEqual(
+                self.gridder.yaxis[i], self.axis[i], places=12
+            )
 
     def test_fuzzygridder2d_data(self):
         # test shape of data
@@ -59,15 +61,15 @@ class TestFuzzyGridder2D(unittest.TestCase):
         vg = numpy.zeros((self.gridder.data.shape))
         norm = numpy.copy(vg)
         ix, iy = self.x - 1, self.y - 1
-        for i in range(ix-1, ix+2):
-            for j in range(iy-1, iy+2):
+        for i in range(ix - 1, ix + 2):
+            for j in range(iy - 1, iy + 2):
                 idx1 = i
                 idx2 = j
-                n = 1/4.
+                n = 1 / 4.0
                 if abs(i - ix) > 0:
-                    n /= 2.
+                    n /= 2.0
                 if abs(j - iy) > 0:
-                    n /= 2.
+                    n /= 2.0
                 if i < 0:
                     idx1 = 0
                 elif i >= self.n:
@@ -81,11 +83,13 @@ class TestFuzzyGridder2D(unittest.TestCase):
 
         for i in range(self.n):
             for j in range(self.n):
-                self.assertAlmostEqual(self.gridder.data[i, j], vg[i, j],
-                                       places=12)
-                self.assertAlmostEqual(self.gridder._gnorm[i, j], norm[i, j],
-                                       places=12)
+                self.assertAlmostEqual(
+                    self.gridder.data[i, j], vg[i, j], places=12
+                )
+                self.assertAlmostEqual(
+                    self.gridder._gnorm[i, j], norm[i, j], places=12
+                )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

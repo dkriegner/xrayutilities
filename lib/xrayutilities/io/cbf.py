@@ -30,10 +30,14 @@ cbf_name_start_num = re.compile(r"^\d")
 
 
 class CBFFile:
-
-    def __init__(self, fname, nxkey="X-Binary-Size-Fastest-Dimension",
-                 nykey="X-Binary-Size-Second-Dimension",
-                 dtkey="DataType", path=None):
+    def __init__(
+        self,
+        fname,
+        nxkey="X-Binary-Size-Fastest-Dimension",
+        nykey="X-Binary-Size-Second-Dimension",
+        dtkey="DataType",
+        path=None,
+    ):
         """
         CBF detector image parser
 
@@ -73,14 +77,14 @@ class CBFFile:
         Read the CCD data into the .data object
         this function is called by the initialization
         """
-        with xu_open(self.full_filename, 'rb') as fid:
+        with xu_open(self.full_filename, "rb") as fid:
             tmp = numpy.fromfile(file=fid, dtype="u1").tobytes()
-            tmp2 = tmp.decode('ascii', 'ignore')
+            tmp2 = tmp.decode("ascii", "ignore")
             # read header information
-            pos = tmp2.index(self.nxkey + ':') + len(self.nxkey + ':')
-            self.xdim = int(tmp2[pos:pos + 6].strip())
-            pos = tmp2.index(self.nykey + ':') + len(self.nykey + ':')
-            self.ydim = int(tmp2[pos:pos + 6].strip())
+            pos = tmp2.index(self.nxkey + ":") + len(self.nxkey + ":")
+            self.xdim = int(tmp2[pos : pos + 6].strip())
+            pos = tmp2.index(self.nykey + ":") + len(self.nykey + ":")
+            self.ydim = int(tmp2[pos : pos + 6].strip())
 
             self.data = cxrayutilities.cbfread(tmp, self.xdim, self.ydim)
             self.data.shape = (self.ydim, self.xdim)
@@ -101,7 +105,7 @@ class CBFFile:
         comp :  bool, optional
             activate compression - true by default
         """
-        with xu_h5open(h5f, 'a') as h5:
+        with xu_h5open(h5f, "a") as h5:
             if isinstance(group, str):
                 g = h5.get(group)
             else:
@@ -122,9 +126,9 @@ class CBFFile:
             desc = f"CBF CCD data from file {self.filename} "
 
             # create the dataset for the array
-            kwds = {'fletcher32': True}
+            kwds = {"fletcher32": True}
             if comp:
-                kwds['compression'] = 'gzip'
+                kwds["compression"] = "gzip"
 
             try:
                 ca = g.create_dataset(name, data=self.data, **kwds)
@@ -132,11 +136,10 @@ class CBFFile:
                 del g[name]
                 ca = g.create_dataset(name, data=self.data, **kwds)
 
-            ca.attrs['TITLE'] = desc
+            ca.attrs["TITLE"] = desc
 
 
 class CBFDirectory(FileDirectory):
-
     """
     Parses a directory for CBF files, which can be stored to a HDF5 file for
     further usage

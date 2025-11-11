@@ -33,12 +33,11 @@ from .helper import generate_filenames, xu_open
 
 
 class XRDMLMeasurement:
-
     """
     class to handle scans in a XRDML datafile
     """
 
-    def __init__(self, measurement, namespace=''):
+    def __init__(self, measurement, namespace=""):
         """
         initialization routine for a XRDML measurement which parses are all
         scans within this measurement.
@@ -51,8 +50,13 @@ class XRDMLMeasurement:
         self.hkl = (numpy.nan, numpy.nan, numpy.nan)
         self.material = ""
         self.ddict = {}
-        for field in ["countTime", "detector", "counts",
-                      "beamAttenuationFactors", "hkl"]:
+        for field in [
+            "countTime",
+            "detector",
+            "counts",
+            "beamAttenuationFactors",
+            "hkl",
+        ]:
             self.ddict[field] = []
         is_scalar = 0
 
@@ -62,8 +66,10 @@ class XRDMLMeasurement:
             scanstatus = s.get("status")
             if scanstatus in ("Aborted", "Not finished") and len(slist) > 1:
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.io.XRDMLFile: subscan has been aborted "
-                          "(part of the data unavailable)!")
+                    print(
+                        "XU.io.XRDMLFile: subscan has been aborted "
+                        "(part of the data unavailable)!"
+                    )
             else:
                 self.scanmotname = s.get("scanAxis")
                 reflection = s.find(self.namespace + "reflection")
@@ -80,8 +86,9 @@ class XRDMLMeasurement:
                 points = s.find(self.namespace + "dataPoints")
 
                 # add count time to output data
-                countTime = points.find(self.namespace +
-                                        "commonCountingTime").text
+                countTime = points.find(
+                    self.namespace + "commonCountingTime"
+                ).text
                 self.ddict["countTime"].append(float(countTime))
 
                 # check for intensities first to get number of points in scan
@@ -101,8 +108,9 @@ class XRDMLMeasurement:
                 # if present read beamAttenuationFactors
                 # they are already corrected in the data file, but may be
                 # interesting
-                attfact = points.find(self.namespace +
-                                      "beamAttenuationFactors")
+                attfact = points.find(
+                    self.namespace + "beamAttenuationFactors"
+                )
                 if attfact is not None:
                     atten = numpy.fromstring(attfact.text, sep=" ")
                     atten_list = atten.tolist()
@@ -112,7 +120,7 @@ class XRDMLMeasurement:
                     hasatten = False
 
                 if hascounts and hasatten:
-                    self.ddict["detector"].append((ct_rate*atten).tolist())
+                    self.ddict["detector"].append((ct_rate * atten).tolist())
                 else:
                     self.ddict["detector"].append(ct_rate.tolist())
 
@@ -134,15 +142,16 @@ class XRDMLMeasurement:
                         data_list = data_list.tolist()
                     elif s and e:  # start endPosition
                         data_list = numpy.linspace(
-                            float(s[0].text), float(e[0].text),
-                            nofpoints).tolist()
+                            float(s[0].text), float(e[0].text), nofpoints
+                        ).tolist()
                     elif c is not None:  # commonPosition
                         data_list = numpy.fromstring(c.text, sep=" ")
                         data_list = data_list.tolist()
                         is_scalar = 1
                     else:
                         raise ValueError(
-                            f"no positions for axis {aname} found")
+                            f"no positions for axis {aname} found"
+                        )
 
                     # have to append the data to the data dictionary in case
                     # the scan is complete!
@@ -164,15 +173,15 @@ class XRDMLMeasurement:
                 self.ddict[k] = numpy.ravel(self.ddict[k])
 
         # save scanmot-values and detector counts in special arrays
-        if self.scanmotname in ['2Theta-Omega', 'Gonio']:
-            self.scanmot = self.ddict['2Theta']
-        elif self.scanmotname == 'Omega-2Theta':
-            self.scanmot = self.ddict['Omega']
+        if self.scanmotname in ["2Theta-Omega", "Gonio"]:
+            self.scanmot = self.ddict["2Theta"]
+        elif self.scanmotname == "Omega-2Theta":
+            self.scanmot = self.ddict["Omega"]
         elif self.scanmotname in self.ddict:
             self.scanmot = self.ddict[self.scanmotname]
         else:
-            warnings.warn('XU.io: unknown scan motor name in XRDML-File')
-        self.int = self.ddict['detector']
+            warnings.warn("XU.io: unknown scan motor name in XRDML-File")
+        self.int = self.ddict["detector"]
 
     def __getitem__(self, key):
         return self.ddict[key]
@@ -188,7 +197,6 @@ class XRDMLMeasurement:
 
 
 class XRDMLFile:
-
     """
     class to handle XRDML data files. The class is supplied with a file
     name and uses the XRDMLScan class to parse the xrdMeasurement in the
@@ -219,11 +227,11 @@ class XRDMLFile:
             d = ElementTree.parse(fid)
         root = d.getroot()
         try:
-            namespace = root.tag[:root.tag.index('}')+1]
+            namespace = root.tag[: root.tag.index("}") + 1]
         except ValueError:
-            namespace = ''
+            namespace = ""
 
-        slist = root.findall(namespace+"xrdMeasurement")
+        slist = root.findall(namespace + "xrdMeasurement")
 
         # determine the number of scans in the file
         self.nscans = len(slist)
@@ -275,6 +283,7 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     >>> om, tt, psd = xrayutilities.io.getxrdml_map("samplename_%d.xrdml",
     ... [1, 2], path="data")  # doctest: +SKIP
     """
+
     def getOmPixcel(omraw, ttraw):
         """
         function to reshape the Omega values into a form needed for
@@ -293,29 +302,40 @@ def getxrdml_map(filetemplate, scannrs=None, path=".", roi=None):
     for f in files:
         d = XRDMLFile(os.path.join(path, f))
         s = d.scan
-        if len(s['detector'].shape) == 1:
-            raise TypeError("XU.getxrdml_map: This function can only be used "
-                            "to parse reciprocal space map files")
+        if len(s["detector"].shape) == 1:
+            raise TypeError(
+                "XU.getxrdml_map: This function can only be used "
+                "to parse reciprocal space map files"
+            )
 
         if roi is None:
-            roi = [0, s['detector'].shape[1]]
-        if s['Omega'].size < s['2Theta'].size:
+            roi = [0, s["detector"].shape[1]]
+        if s["Omega"].size < s["2Theta"].size:
             om = numpy.concatenate(
-                (om, getOmPixcel(s['Omega'], s['2Theta'][:, roi[0]:roi[1]])))
+                (om, getOmPixcel(s["Omega"], s["2Theta"][:, roi[0] : roi[1]]))
+            )
             tt = numpy.concatenate(
-                (tt, s['2Theta'][:, roi[0]:roi[1]].flatten()))
-        elif s['Omega'].size > s['2Theta'].size:
-            om = numpy.concatenate((om, s['Omega'].flatten()))
-            tt = numpy.concatenate((
-                tt,
-                numpy.ravel(s['2Theta'][:, numpy.newaxis] *
-                            numpy.ones(s['Omega'].shape))))
+                (tt, s["2Theta"][:, roi[0] : roi[1]].flatten())
+            )
+        elif s["Omega"].size > s["2Theta"].size:
+            om = numpy.concatenate((om, s["Omega"].flatten()))
+            tt = numpy.concatenate(
+                (
+                    tt,
+                    numpy.ravel(
+                        s["2Theta"][:, numpy.newaxis]
+                        * numpy.ones(s["Omega"].shape)
+                    ),
+                )
+            )
         else:
-            om = numpy.concatenate((om, s['Omega'].flatten()))
+            om = numpy.concatenate((om, s["Omega"].flatten()))
             tt = numpy.concatenate(
-                (tt, s['2Theta'][:, roi[0]:roi[1]].flatten()))
+                (tt, s["2Theta"][:, roi[0] : roi[1]].flatten())
+            )
         psd = numpy.concatenate(
-            (psd, s['detector'][:, roi[0]:roi[1]].flatten()))
+            (psd, s["detector"][:, roi[0] : roi[1]].flatten())
+        )
 
     return om, tt, psd
 
@@ -363,26 +383,26 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     """
     flatten = True
     # parse keyword arguments
-    path = kwargs.get('path', '.')
-    scannrs = kwargs.get('scannrs', None)
+    path = kwargs.get("path", ".")
+    scannrs = kwargs.get("scannrs", None)
 
-    validmotors = ['Omega', '2Theta', 'Psi', 'Chi', 'Phi', 'Z', 'X', 'Y']
+    validmotors = ["Omega", "2Theta", "Psi", "Chi", "Phi", "Z", "X", "Y"]
     validmotorslow = [mot.lower() for mot in validmotors]
     # create correct motor names from input values
     motnames = []
     for mot in motors:
         if mot.lower() in validmotorslow:
             motnames.append(validmotors[validmotorslow.index(mot.lower())])
-        elif mot.lower() in ['phi', 'p']:
-            motnames.append('Phi')
-        elif mot.lower() in ['chi', 'c']:
-            motnames.append('Chi')
-        elif mot.lower() in ['psi']:
-            motnames.append('Psi')
-        elif mot.lower() in ['tt', 't']:
-            motnames.append('2Theta')
-        elif mot.lower() in ['om', 'o']:
-            motnames.append('Omega')
+        elif mot.lower() in ["phi", "p"]:
+            motnames.append("Phi")
+        elif mot.lower() in ["chi", "c"]:
+            motnames.append("Chi")
+        elif mot.lower() in ["psi"]:
+            motnames.append("Psi")
+        elif mot.lower() in ["tt", "t"]:
+            motnames.append("2Theta")
+        elif mot.lower() in ["om", "o"]:
+            motnames.append("Omega")
         else:
             raise ValueError("XU: invalid motor name given")
 
@@ -397,27 +417,31 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
     for f in files:
         d = XRDMLFile(os.path.join(path, f))
         s = d.scan
-        detshape = s['detector'].shape
+        detshape = s["detector"].shape
 
         if len(detshape) == 2:
             angles = numpy.ravel(s.scanmot)
             angles.shape = (1, angles.size)
             for mot in motnames:
                 if s[mot].shape != detshape:
-                    angles = numpy.vstack((
-                        angles,
-                        numpy.ravel(s[mot][:, numpy.newaxis] *
-                                    numpy.ones(detshape))))
+                    angles = numpy.vstack(
+                        (
+                            angles,
+                            numpy.ravel(
+                                s[mot][:, numpy.newaxis] * numpy.ones(detshape)
+                            ),
+                        )
+                    )
                 else:
                     angles = numpy.vstack((angles, numpy.ravel(s[mot])))
             motvals = numpy.concatenate((motvals, angles), axis=1)
-            dval = numpy.ravel(s['detector'])
+            dval = numpy.ravel(s["detector"])
             detvals = numpy.concatenate((detvals, dval))
             if not flatten:
                 detvals.shape = detshape
                 motvals.shape = (len(motnames) + 1, detshape[0], detshape[1])
         else:
-            detvals = numpy.concatenate((detvals, s['detector']))
+            detvals = numpy.concatenate((detvals, s["detector"]))
             angles = s.scanmot
             angles.shape = (1, angles.size)
             for mot in motnames:
@@ -425,7 +449,8 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
                     angles = numpy.vstack((angles, s[mot]))
                 except ValueError:  # motor is not array
                     angles = numpy.vstack(
-                        (angles, s[mot] * numpy.ones(detshape)))
+                        (angles, s[mot] * numpy.ones(detshape))
+                    )
             motvals = numpy.concatenate((motvals, angles), axis=1)
 
     # make return value

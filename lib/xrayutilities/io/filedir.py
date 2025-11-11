@@ -23,7 +23,6 @@ from .helper import xu_h5open
 
 
 class FileDirectory:
-
     """
     Parses a directory for files, which can be stored to a HDF5 file for
     further usage. The file parser is given to the constructor and must provide
@@ -51,16 +50,19 @@ class FileDirectory:
         self.parser = parser
 
         # create list of files to read
-        self.files = glob.glob(os.path.join(
-            self.datapath, f'*.{self.extension}'))
+        self.files = glob.glob(
+            os.path.join(self.datapath, f"*.{self.extension}")
+        )
 
         if not self.files:
             print(f"XU.io.FileDirectory: no file found in {self.datapath}")
             return
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.io.FileDirectory: %d files found in %s"
-                  % (len(self.files), self.datapath))
+            print(
+                "XU.io.FileDirectory: %d files found in %s"
+                % (len(self.files), self.datapath)
+            )
 
         self.init_keyargs = keyargs
 
@@ -82,7 +84,7 @@ class FileDirectory:
         comp :  bool, optional
             activate compression - true by default
         """
-        with xu_h5open(h5f, 'a') as h5:
+        with xu_h5open(h5f, "a") as h5:
             if isinstance(group, str):
                 if group == "":
                     group = os.path.split(self.datapath)[1]
@@ -95,6 +97,7 @@ class FileDirectory:
             for infile in self.files:
                 # read EDFFile and save to hdf5
                 filename = os.path.split(infile)[1]
-                e = self.parser(filename, path=self.datapath,
-                                **self.init_keyargs)
+                e = self.parser(
+                    filename, path=self.datapath, **self.init_keyargs
+                )
                 e.Save2HDF5(h5, group=g, comp=comp)

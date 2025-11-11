@@ -31,8 +31,9 @@ P = xu.materials.elements.P
 
 # definition of zincblende InP:
 InP = xu.materials.Crystal(
-    "InP", xu.materials.SGLattice(216, 5.8687, atoms=[In, P],
-                                  pos=['4a', '4c']),)
+    "InP",
+    xu.materials.SGLattice(216, 5.8687, atoms=[In, P], pos=["4a", "4c"]),
+)
 
 # printing of information about the defined material:
 print(InP)

@@ -24,7 +24,6 @@ xu.config.VERBOSITY = 0  # make no output during test
 
 
 class TestMiscutCalc(unittest.TestCase):
-
     def test_miscut4(self):
         phi = numpy.asarray((0, 45, 90, 135))
         miscut = numpy.random.rand()
@@ -56,12 +55,13 @@ class TestMiscutCalc(unittest.TestCase):
         aom0 = numpy.random.rand() * 45
         aom = miscut * numpy.cos(numpy.radians(phi - azimuth)) + aom0
 
-        om0, p0, mc = xu.analysis.miscut_calc(phi, aom, omega0=aom0,
-                                              plot=False)
+        om0, p0, mc = xu.analysis.miscut_calc(
+            phi, aom, omega0=aom0, plot=False
+        )
         self.assertAlmostEqual(om0, aom0, places=5)
         self.assertAlmostEqual(mc, miscut, places=5)
         self.assertAlmostEqual(p0, azimuth, places=5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

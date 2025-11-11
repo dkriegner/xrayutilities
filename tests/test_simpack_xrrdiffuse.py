@@ -24,24 +24,33 @@ import xrayutilities as xu
 class Test_DiffuseReflectivityModel(unittest.TestCase):
     dmax = 2e-6
     # define used layer stack
-    sub = xu.simpack.Layer(xu.materials.Si, numpy.inf, roughness=1,
-                           lat_correl=100)
+    sub = xu.simpack.Layer(
+        xu.materials.Si, numpy.inf, roughness=1, lat_correl=100
+    )
     lay1 = xu.simpack.Layer(xu.materials.Si, 200, roughness=1, lat_correl=200)
     lay2 = xu.simpack.Layer(xu.materials.Ge, 70, roughness=3, lat_correl=50)
 
-    ls = xu.simpack.LayerStack('SL 5', sub+5*(lay2+lay1))
+    ls = xu.simpack.LayerStack("SL 5", sub + 5 * (lay2 + lay1))
 
     # simulation parameters
-    kwargs = dict(sample_width=10, beam_width=1, energy='CuKa1',
-                  vert_correl=1000, vert_nu=0, H=1, method=1, vert_int=0)
+    kwargs = dict(
+        sample_width=10,
+        beam_width=1,
+        energy="CuKa1",
+        vert_correl=1000,
+        vert_nu=0,
+        H=1,
+        method=1,
+        vert_int=0,
+    )
 
     @classmethod
     def setUpClass(cls):
         cls.m1 = xu.simpack.DiffuseReflectivityModel(cls.ls, **cls.kwargs)
-        cls.kwargs['H'] = cls.kwargs['H'] - xu.config.EPSILON
+        cls.kwargs["H"] = cls.kwargs["H"] - xu.config.EPSILON
         cls.m2 = xu.simpack.DiffuseReflectivityModel(cls.ls, **cls.kwargs)
-        cls.kwargs['H'] = 1
-        cls.kwargs['method'] = 2
+        cls.kwargs["H"] = 1
+        cls.kwargs["method"] = 2
         cls.m3 = xu.simpack.DiffuseReflectivityModel(cls.ls, **cls.kwargs)
         cls.ai = numpy.arange(0.3, 2, 0.005)
 
@@ -60,5 +69,5 @@ class Test_DiffuseReflectivityModel(unittest.TestCase):
         self.assertTrue(abs(numpy.mean(sim1) - numpy.mean(sim3)) < self.dmax)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

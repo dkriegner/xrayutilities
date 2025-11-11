@@ -57,8 +57,9 @@ def blockAverage1D(data, Nav):
     """
 
     if not isinstance(data, (numpy.ndarray, list)):
-        raise TypeError("first argument data must be of type list or "
-                        "numpy.ndarray")
+        raise TypeError(
+            "first argument data must be of type list or numpy.ndarray"
+        )
 
     data = numpy.array(data, dtype=numpy.double)
     block_av = cxrayutilities.block_average1d(data, Nav)
@@ -94,19 +95,23 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
     if not isinstance(data2d, (numpy.ndarray)):
         raise TypeError("first argument data2d must be of type numpy.ndarray")
 
-    roi = kwargs.get('roi', [0, data2d.shape[0], 0, data2d.shape[1]])
-    data = numpy.array(data2d[roi[0]:roi[1], roi[2]:roi[3]],
-                       dtype=numpy.double)
+    roi = kwargs.get("roi", [0, data2d.shape[0], 0, data2d.shape[1]])
+    data = numpy.array(
+        data2d[roi[0] : roi[1], roi[2] : roi[3]], dtype=numpy.double
+    )
 
     if config.VERBOSITY >= config.DEBUG:
         N, M = (roi[1] - roi[0], roi[3] - roi[2])
         print(f"xu.normalize.blockAverage2D: roi: {str(roi)}")
         print("xu.normalize.blockAverage2D: Nav1, 2: %d,%d" % (Nav1, Nav2))
-        print("xu.normalize.blockAverage2D: number of points: (%d,%d)"
-              % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2))))
+        print(
+            "xu.normalize.blockAverage2D: number of points: (%d,%d)"
+            % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2)))
+        )
 
-    block_av = cxrayutilities.block_average2d(data, Nav1, Nav2,
-                                              config.NTHREADS)
+    block_av = cxrayutilities.block_average2d(
+        data, Nav1, Nav2, config.NTHREADS
+    )
 
     return block_av
 
@@ -139,8 +144,8 @@ def blockAveragePSD(psddata, Nav, **kwargs):
     if not isinstance(psddata, (numpy.ndarray)):
         raise TypeError("first argument psddata must be of type numpy.ndarray")
 
-    roi = kwargs.get('roi', [0, psddata.shape[1]])
-    data = numpy.array(psddata[:, roi[0]:roi[1]], dtype=numpy.double)
+    roi = kwargs.get("roi", [0, psddata.shape[1]])
+    data = numpy.array(psddata[:, roi[0] : roi[1]], dtype=numpy.double)
 
     block_av = cxrayutilities.block_average_PSD(data, Nav, config.NTHREADS)
 
@@ -175,21 +180,26 @@ def blockAverageCCD(data3d, Nav1, Nav2, **kwargs):
     if not isinstance(data3d, (numpy.ndarray)):
         raise TypeError("first argument data3d must be of type numpy.ndarray")
 
-    roi = kwargs.get('roi', [0, data3d.shape[1], 0, data3d.shape[2]])
-    data = numpy.array(data3d[:, roi[0]:roi[1], roi[2]:roi[3]],
-                       dtype=numpy.double)
+    roi = kwargs.get("roi", [0, data3d.shape[1], 0, data3d.shape[2]])
+    data = numpy.array(
+        data3d[:, roi[0] : roi[1], roi[2] : roi[3]], dtype=numpy.double
+    )
 
     if config.VERBOSITY >= config.DEBUG:
         N, M = (roi[1] - roi[0], roi[3] - roi[2])
         print(f"xu.normalize.blockAverageCCD: roi: {str(roi)}")
         print("xu.normalize.blockAverageCCD: Nav1, 2: %d,%d" % (Nav1, Nav2))
-        print("xu.normalize.blockAverageCCD: number of points: (%d,%d)"
-              % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2))))
+        print(
+            "xu.normalize.blockAverageCCD: number of points: (%d,%d)"
+            % (numpy.ceil(N / float(Nav1)), numpy.ceil(M / float(Nav2)))
+        )
 
-    block_av = cxrayutilities.block_average_CCD(data, Nav1, Nav2,
-                                                config.NTHREADS)
+    block_av = cxrayutilities.block_average_CCD(
+        data, Nav1, Nav2, config.NTHREADS
+    )
 
     return block_av
+
 
 # #####################################
 # #    Intensity correction class    ##
@@ -197,7 +207,6 @@ def blockAverageCCD(data3d, Nav1, Nav2, **kwargs):
 
 
 class IntensityNormalizer:
-
     """
     generic class for correction of intensity (point detector, or MCA,
     single CCD frames) for count time and absorber factors
@@ -206,7 +215,7 @@ class IntensityNormalizer:
     corresponding objects from hdf5 files
     """
 
-    def __init__(self, det='', **keyargs):
+    def __init__(self, det="", **keyargs):
         """
         initialization of the corrector class
 
@@ -238,26 +247,27 @@ class IntensityNormalizer:
         >>> detcorr = IntensityNormalizer("MCA", time="Seconds",
         ... absfun=lambda d: d["PSDCORR"]/d["PSD"].astype(float))
         """
-        valid_kwargs = {'mon': 'monitor field name',
-                        'time': 'count time field/value',
-                        'smoothmon': 'number of monitor values to average',
-                        'av_mon': 'average monitor value',
-                        'absfun': 'absorber correction function',
-                        'flatfield': 'detector flatfield',
-                        'darkfield': 'detector darkfield'}
-        utilities.check_kwargs(keyargs, valid_kwargs,
-                               self.__class__.__name__)
+        valid_kwargs = {
+            "mon": "monitor field name",
+            "time": "count time field/value",
+            "smoothmon": "number of monitor values to average",
+            "av_mon": "average monitor value",
+            "absfun": "absorber correction function",
+            "flatfield": "detector flatfield",
+            "darkfield": "detector darkfield",
+        }
+        utilities.check_kwargs(keyargs, valid_kwargs, self.__class__.__name__)
 
         # check input arguments
         self._setdet(det)
 
-        self._setmon(keyargs.get('mon', None))
-        self._settime(keyargs.get('time', None))
-        self._setavmon(keyargs.get('av_mon', None))
-        self._setabsfun(keyargs.get('absfun', None))
-        self._setflatfield(keyargs.get('flatfield', None))
-        self._setdarkfield(keyargs.get('darkfield', None))
-        self.smoothmon = keyargs.get('smoothmon', 1)
+        self._setmon(keyargs.get("mon", None))
+        self._settime(keyargs.get("time", None))
+        self._setavmon(keyargs.get("av_mon", None))
+        self._setabsfun(keyargs.get("absfun", None))
+        self._setflatfield(keyargs.get("flatfield", None))
+        self._setdarkfield(keyargs.get("darkfield", None))
+        self.smoothmon = keyargs.get("smoothmon", 1)
 
     def _getdet(self):
         """
@@ -360,11 +370,13 @@ class IntensityNormalizer:
 
         sets the costum correction function
         """
-        if hasattr(absfun, '__call__'):
+        if hasattr(absfun, "__call__"):
             self._absfun = absfun
             if self._absfun.__code__.co_argcount != 1:
-                raise TypeError("argument absfun must be a function with one "
-                                "argument (data object)")
+                raise TypeError(
+                    "argument absfun must be a function with one "
+                    "argument (data object)"
+                )
         elif isinstance(absfun, type(None)):
             self._absfun = None
         else:
@@ -387,14 +399,17 @@ class IntensityNormalizer:
         """
         if isinstance(flatf, (list, tuple, numpy.ndarray)):
             self._flatfield = numpy.array(flatf, dtype=float)
-            self._flatfieldav = numpy.mean(self._flatfield[
-                                           self._flatfield.nonzero()])
-            self._flatfield[self.flatfield < 1.e-5] = 1.0
+            self._flatfieldav = numpy.mean(
+                self._flatfield[self._flatfield.nonzero()]
+            )
+            self._flatfield[self.flatfield < 1.0e-5] = 1.0
         elif isinstance(flatf, type(None)):
             self._flatfield = None
         else:
-            raise TypeError("argument flatfield must be of type list, tuple, "
-                            "numpy.ndarray or None")
+            raise TypeError(
+                "argument flatfield must be of type list, tuple, "
+                "numpy.ndarray or None"
+            )
 
     def _getdarkfield(self):
         """
@@ -417,8 +432,10 @@ class IntensityNormalizer:
         elif isinstance(darkf, type(None)):
             self._darkfield = None
         else:
-            raise TypeError("argument flatfield must be of type list, tuple, "
-                            "numpy.ndarray or None")
+            raise TypeError(
+                "argument flatfield must be of type list, tuple, "
+                "numpy.ndarray or None"
+            )
 
     det = property(_getdet, _setdet)
     time = property(_gettime, _settime)
@@ -461,14 +478,14 @@ class IntensityNormalizer:
             else:
                 mon = math.smooth(data[self._mon], self.smoothmon)
         else:
-            mon = 1.
+            mon = 1.0
         # count time
         if isinstance(self._time, str):
             time = data[self._time]
         elif isinstance(self._time, float):
             time = self._time
         else:
-            time = 1.
+            time = 1.0
         # average monitor counts
         if self._avmon:
             avmon = self._avmon
@@ -478,7 +495,7 @@ class IntensityNormalizer:
         if self._absfun:
             abscorr = self._absfun(data)
         else:
-            abscorr = 1.
+            abscorr = 1.0
 
         c = abscorr * avmon / (mon * time)
         # correct the correction factor if it was evaluated to an incorrect
@@ -497,23 +514,30 @@ class IntensityNormalizer:
             # 1D detector c.shape[0] should be rawdata.shape[0]
             if self._darkfield is not None:
                 if self._darkfield.shape[0] != rawdata.shape[1]:
-                    raise InputError("data[det] second dimension must have "
-                                     "the same length as darkfield")
+                    raise InputError(
+                        "data[det] second dimension must have "
+                        "the same length as darkfield"
+                    )
 
                 if isinstance(time, numpy.ndarray):
                     # darkfield correction
-                    corrint = (rawdata -
-                               self._darkfield[numpy.newaxis, :] *
-                               time[:, numpy.newaxis])
+                    corrint = (
+                        rawdata
+                        - self._darkfield[numpy.newaxis, :]
+                        * time[:, numpy.newaxis]
+                    )
                 elif isinstance(time, float):
                     # darkfield correction
-                    corrint = (rawdata -
-                               self._darkfield[numpy.newaxis, :] * time)
+                    corrint = (
+                        rawdata - self._darkfield[numpy.newaxis, :] * time
+                    )
                 else:
-                    print("XU.normalize.IntensityNormalizer: check "
-                          "initialization and your input")
+                    print(
+                        "XU.normalize.IntensityNormalizer: check "
+                        "initialization and your input"
+                    )
                     return None
-                corrint[corrint < 0.] = 0.
+                corrint[corrint < 0.0] = 0.0
 
             else:
                 corrint = rawdata
@@ -522,11 +546,16 @@ class IntensityNormalizer:
 
             if self._flatfield is not None:
                 if self._flatfield.shape[0] != rawdata.shape[1]:
-                    raise InputError("data[det] second dimension must have "
-                                     "the same length as flatfield")
+                    raise InputError(
+                        "data[det] second dimension must have "
+                        "the same length as flatfield"
+                    )
                 # flatfield correction
-                corrint = (corrint / self._flatfield[numpy.newaxis, :] *
-                           self._flatfieldav)
+                corrint = (
+                    corrint
+                    / self._flatfield[numpy.newaxis, :]
+                    * self._flatfieldav
+                )
 
         elif len(rawdata.shape) == 2 and isinstance(c, float):
             # single 2D detector frame
@@ -537,7 +566,8 @@ class IntensityNormalizer:
             corrint = rawdata * c[:, numpy.newaxis, numpy.newaxis]
 
         else:
-            raise InputError("data[det] must be an array of dimension one "
-                             "or two or three")
+            raise InputError(
+                "data[det] must be an array of dimension one or two or three"
+            )
 
         return corrint

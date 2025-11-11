@@ -41,106 +41,279 @@ from .atom import Atom
 from .wyckpos import RangeDict, eqhkl_custom, eqhkl_default, wp
 
 # space group number to symmetry and number of parameters dictionary
-sgrp_sym = RangeDict({range(1, 3): ('triclinic', 6),
-                      range(3, 16): ('monoclinic', 4),
-                      range(16, 75): ('orthorhombic', 3),
-                      range(75, 143): ('tetragonal', 2),
-                      range(143, 168): ('trigonal', 2),
-                      range(168, 195): ('hexagonal', 2),
-                      range(195, 231): ('cubic', 1)})
+sgrp_sym = RangeDict(
+    {
+        range(1, 3): ("triclinic", 6),
+        range(3, 16): ("monoclinic", 4),
+        range(16, 75): ("orthorhombic", 3),
+        range(75, 143): ("tetragonal", 2),
+        range(143, 168): ("trigonal", 2),
+        range(168, 195): ("hexagonal", 2),
+        range(195, 231): ("cubic", 1),
+    }
+)
 
-sgrp_name = {'1': 'P1', '2': 'P-1', '3': 'P2', '4': 'P21', '5': 'C2',
-             '6': 'Pm', '7': 'Pc', '8': 'Cm', '9': 'Cc', '10': 'P2/m',
-             '11': 'P21/m', '12': 'C2/m', '13': 'P2/c', '14': 'P21/c',
-             '15': 'C2/c', '16': 'P222', '17': 'P2221', '18': 'P21212',
-             '19': 'P212121', '20': 'C2221', '21': 'C222', '22': 'F222',
-             '23': 'I222', '24': 'I212121', '25': 'Pmm2', '26': 'Pmc21',
-             '27': 'Pcc2', '28': 'Pma2', '29': 'Pca21', '30': 'Pnc2',
-             '31': 'Pmn21', '32': 'Pba2', '33': 'Pna21', '34': 'Pnn2',
-             '35': 'Cmm2', '36': 'Cmc21', '37': 'Ccc2', '38': 'Amm2',
-             '39': 'Aem2', '40': 'Ama2', '41': 'Aea2', '42': 'Fmm2',
-             '43': 'Fdd2', '44': 'Imm2', '45': 'Iba2', '46': 'Ima2',
-             '47': 'Pmmm', '48': 'Pnnn', '49': 'Pccm', '50': 'Pban',
-             '51': 'Pmma', '52': 'Pnna', '53': 'Pmna', '54': 'Pcca',
-             '55': 'Pbam', '56': 'Pccn', '57': 'Pbcm', '58': 'Pnnm',
-             '59': 'Pmmn', '60': 'Pbcn', '61': 'Pbca', '62': 'Pnma',
-             '63': 'Cmcm', '64': 'Cmce', '65': 'Cmmm', '66': 'Cccm',
-             '67': 'Cmme', '68': 'Ccce', '69': 'Fmmm', '70': 'Fddd',
-             '71': 'Immm', '72': 'Ibam', '73': 'Ibca', '74': 'Imma',
-             '75': 'P4', '76': 'P41', '77': 'P42', '78': 'P43',
-             '79': 'I4', '80': 'I41', '81': 'P-4', '82': 'I-4',
-             '83': 'P4/m', '84': 'P42/m', '85': 'P4/n', '86': 'P42/n',
-             '87': 'I4/m', '88': 'I41/a', '89': 'P422', '90': 'P4212',
-             '91': 'P4122', '92': 'P41212', '93': 'P4222', '94': 'P42212',
-             '95': 'P4322', '96': 'P43212', '97': 'I422', '98': 'I4122',
-             '99': 'P4mm', '100': 'P4bm', '101': 'P42cm', '102': 'P42nm',
-             '103': 'P4cc', '104': 'P4nc', '105': 'P42mc', '106': 'P42bc',
-             '107': 'I4mm', '108': 'I4cm', '109': 'I41md', '110': 'I41cd',
-             '111': 'P-42m', '112': 'P-42c', '113': 'P-421m',
-             '114': 'P-421c', '115': 'P-4m2', '116': 'P-4c2',
-             '117': 'P-4b2', '118': 'P-4n2', '119': 'I-4m2',
-             '120': 'I-4c2', '121': 'I-42m', '122': 'I-42d',
-             '123': 'P4/mmm', '124': 'P4/mcc', '125': 'P4/nbm',
-             '126': 'P4/nnc', '127': 'P4/mbm', '128': 'P4/mnc',
-             '129': 'P4/nmm', '130': 'P4/ncc', '131': 'P42/mmc',
-             '132': 'P42/mcm', '133': 'P42/nbc', '134': 'P42/nnm',
-             '135': 'P42/mbc', '136': 'P42/mnm', '137': 'P42/nmc',
-             '138': 'P42/ncm', '139': 'I4/mmm', '140': 'I4/mcm',
-             '141': 'I41/amd', '142': 'I41/acd', '143': 'P3',
-             '144': 'P31', '145': 'P32', '146': 'R3', '147': 'P-3',
-             '148': 'R-3', '149': 'P312', '150': 'P321', '151': 'P3112',
-             '152': 'P3121', '153': 'P3212', '154': 'P3221', '155': 'R32',
-             '156': 'P3m1', '157': 'P31m', '158': 'P3c1', '159': 'P31c',
-             '160': 'R3m', '161': 'R3c', '162': 'P-31m', '163': 'P-31c',
-             '164': 'P-3m1', '165': 'P-3c1', '166': 'R-3m', '167': 'R-3c',
-             '168': 'P6', '169': 'P61', '170': 'P65', '171': 'P62',
-             '172': 'P64', '173': 'P63', '174': 'P-6', '175': 'P6/m',
-             '176': 'P63/m', '177': 'P622', '178': 'P6122',
-             '179': 'P6522', '180': 'P6222', '181': 'P6422',
-             '182': 'P6322', '183': 'P6mm', '184': 'P6cc', '185': 'P63cm',
-             '186': 'P63mc', '187': 'P-6m2', '188': 'P-6c2',
-             '189': 'P-62m', '190': 'P-62c', '191': 'P6/mmm',
-             '192': 'P6/mcc', '193': 'P63/mcm', '194': 'P63/mmc',
-             '195': 'P23', '196': 'F23', '197': 'I23', '198': 'P213',
-             '199': 'I213', '200': 'Pm-3', '201': 'Pn-3', '202': 'Fm-3',
-             '203': 'Fd-3', '204': 'Im-3', '205': 'Pa-3', '206': 'Ia-3',
-             '207': 'P432', '208': 'P4232', '209': 'F432',
-             '210': 'F4132', '211': 'I432', '212': 'P4332',
-             '213': 'P4132', '214': 'I4132', '215': 'P-43m',
-             '216': 'F-43m', '217': 'I-43m', '218': 'P-43n',
-             '219': 'F-43c', '220': 'I-43d', '221': 'Pm-3m',
-             '222': 'Pn-3n', '223': 'Pm-3n', '224': 'Pn-3m',
-             '225': 'Fm-3m', '226': 'Fm-3c', '227': 'Fd-3m',
-             '228': 'Fd-3c', '229': 'Im-3m', '230': 'Ia-3d'}
+sgrp_name = {
+    "1": "P1",
+    "2": "P-1",
+    "3": "P2",
+    "4": "P21",
+    "5": "C2",
+    "6": "Pm",
+    "7": "Pc",
+    "8": "Cm",
+    "9": "Cc",
+    "10": "P2/m",
+    "11": "P21/m",
+    "12": "C2/m",
+    "13": "P2/c",
+    "14": "P21/c",
+    "15": "C2/c",
+    "16": "P222",
+    "17": "P2221",
+    "18": "P21212",
+    "19": "P212121",
+    "20": "C2221",
+    "21": "C222",
+    "22": "F222",
+    "23": "I222",
+    "24": "I212121",
+    "25": "Pmm2",
+    "26": "Pmc21",
+    "27": "Pcc2",
+    "28": "Pma2",
+    "29": "Pca21",
+    "30": "Pnc2",
+    "31": "Pmn21",
+    "32": "Pba2",
+    "33": "Pna21",
+    "34": "Pnn2",
+    "35": "Cmm2",
+    "36": "Cmc21",
+    "37": "Ccc2",
+    "38": "Amm2",
+    "39": "Aem2",
+    "40": "Ama2",
+    "41": "Aea2",
+    "42": "Fmm2",
+    "43": "Fdd2",
+    "44": "Imm2",
+    "45": "Iba2",
+    "46": "Ima2",
+    "47": "Pmmm",
+    "48": "Pnnn",
+    "49": "Pccm",
+    "50": "Pban",
+    "51": "Pmma",
+    "52": "Pnna",
+    "53": "Pmna",
+    "54": "Pcca",
+    "55": "Pbam",
+    "56": "Pccn",
+    "57": "Pbcm",
+    "58": "Pnnm",
+    "59": "Pmmn",
+    "60": "Pbcn",
+    "61": "Pbca",
+    "62": "Pnma",
+    "63": "Cmcm",
+    "64": "Cmce",
+    "65": "Cmmm",
+    "66": "Cccm",
+    "67": "Cmme",
+    "68": "Ccce",
+    "69": "Fmmm",
+    "70": "Fddd",
+    "71": "Immm",
+    "72": "Ibam",
+    "73": "Ibca",
+    "74": "Imma",
+    "75": "P4",
+    "76": "P41",
+    "77": "P42",
+    "78": "P43",
+    "79": "I4",
+    "80": "I41",
+    "81": "P-4",
+    "82": "I-4",
+    "83": "P4/m",
+    "84": "P42/m",
+    "85": "P4/n",
+    "86": "P42/n",
+    "87": "I4/m",
+    "88": "I41/a",
+    "89": "P422",
+    "90": "P4212",
+    "91": "P4122",
+    "92": "P41212",
+    "93": "P4222",
+    "94": "P42212",
+    "95": "P4322",
+    "96": "P43212",
+    "97": "I422",
+    "98": "I4122",
+    "99": "P4mm",
+    "100": "P4bm",
+    "101": "P42cm",
+    "102": "P42nm",
+    "103": "P4cc",
+    "104": "P4nc",
+    "105": "P42mc",
+    "106": "P42bc",
+    "107": "I4mm",
+    "108": "I4cm",
+    "109": "I41md",
+    "110": "I41cd",
+    "111": "P-42m",
+    "112": "P-42c",
+    "113": "P-421m",
+    "114": "P-421c",
+    "115": "P-4m2",
+    "116": "P-4c2",
+    "117": "P-4b2",
+    "118": "P-4n2",
+    "119": "I-4m2",
+    "120": "I-4c2",
+    "121": "I-42m",
+    "122": "I-42d",
+    "123": "P4/mmm",
+    "124": "P4/mcc",
+    "125": "P4/nbm",
+    "126": "P4/nnc",
+    "127": "P4/mbm",
+    "128": "P4/mnc",
+    "129": "P4/nmm",
+    "130": "P4/ncc",
+    "131": "P42/mmc",
+    "132": "P42/mcm",
+    "133": "P42/nbc",
+    "134": "P42/nnm",
+    "135": "P42/mbc",
+    "136": "P42/mnm",
+    "137": "P42/nmc",
+    "138": "P42/ncm",
+    "139": "I4/mmm",
+    "140": "I4/mcm",
+    "141": "I41/amd",
+    "142": "I41/acd",
+    "143": "P3",
+    "144": "P31",
+    "145": "P32",
+    "146": "R3",
+    "147": "P-3",
+    "148": "R-3",
+    "149": "P312",
+    "150": "P321",
+    "151": "P3112",
+    "152": "P3121",
+    "153": "P3212",
+    "154": "P3221",
+    "155": "R32",
+    "156": "P3m1",
+    "157": "P31m",
+    "158": "P3c1",
+    "159": "P31c",
+    "160": "R3m",
+    "161": "R3c",
+    "162": "P-31m",
+    "163": "P-31c",
+    "164": "P-3m1",
+    "165": "P-3c1",
+    "166": "R-3m",
+    "167": "R-3c",
+    "168": "P6",
+    "169": "P61",
+    "170": "P65",
+    "171": "P62",
+    "172": "P64",
+    "173": "P63",
+    "174": "P-6",
+    "175": "P6/m",
+    "176": "P63/m",
+    "177": "P622",
+    "178": "P6122",
+    "179": "P6522",
+    "180": "P6222",
+    "181": "P6422",
+    "182": "P6322",
+    "183": "P6mm",
+    "184": "P6cc",
+    "185": "P63cm",
+    "186": "P63mc",
+    "187": "P-6m2",
+    "188": "P-6c2",
+    "189": "P-62m",
+    "190": "P-62c",
+    "191": "P6/mmm",
+    "192": "P6/mcc",
+    "193": "P63/mcm",
+    "194": "P63/mmc",
+    "195": "P23",
+    "196": "F23",
+    "197": "I23",
+    "198": "P213",
+    "199": "I213",
+    "200": "Pm-3",
+    "201": "Pn-3",
+    "202": "Fm-3",
+    "203": "Fd-3",
+    "204": "Im-3",
+    "205": "Pa-3",
+    "206": "Ia-3",
+    "207": "P432",
+    "208": "P4232",
+    "209": "F432",
+    "210": "F4132",
+    "211": "I432",
+    "212": "P4332",
+    "213": "P4132",
+    "214": "I4132",
+    "215": "P-43m",
+    "216": "F-43m",
+    "217": "I-43m",
+    "218": "P-43n",
+    "219": "F-43c",
+    "220": "I-43d",
+    "221": "Pm-3m",
+    "222": "Pn-3n",
+    "223": "Pm-3n",
+    "224": "Pn-3m",
+    "225": "Fm-3m",
+    "226": "Fm-3c",
+    "227": "Fd-3m",
+    "228": "Fd-3c",
+    "229": "Im-3m",
+    "230": "Ia-3d",
+}
 
-sgrp_params = {'cubic:1': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
-               'cubic:2': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
-               'cubic': (('a', ), ('a', 'a', 'a', 90, 90, 90)),
-               'hexagonal': (('a', 'c'), ('a', 'a', 'c', 90, 90, 120)),
-               'trigonal:R': (('a', 'alpha'), ('a', 'a', 'a', 'alpha',
-                                               'alpha', 'alpha')),
-               'trigonal:H': (('a', 'c'), ('a', 'a', 'c', 90, 90, 120)),
-               'trigonal': (('a', 'c'), ('a', 'a', 'c', 90, 90, 120)),
-               'tetragonal:1': (('a', 'c'), ('a', 'a', 'c', 90, 90, 90)),
-               'tetragonal:2': (('a', 'c'), ('a', 'a', 'c', 90, 90, 90)),
-               'tetragonal': (('a', 'c'), ('a', 'a', 'c', 90, 90, 90)),
-               'orthorhombic:1': (('a', 'b', 'c'),
-                                  ('a', 'b', 'c', 90, 90, 90)),
-               'orthorhombic:2': (('a', 'b', 'c'),
-                                  ('a', 'b', 'c', 90, 90, 90)),
-               'orthorhombic': (('a', 'b', 'c'),
-                                ('a', 'b', 'c', 90, 90, 90)),
-               'monoclinic:b': (('a', 'b', 'c', 'beta'),
-                                ('a', 'b', 'c', 90, 'beta', 90)),
-               'monoclinic:c': (('a', 'b', 'c', 'gamma'),
-                                ('a', 'b', 'c', 90, 90, 'gamma')),
-               'monoclinic': (('a', 'b', 'c', 'beta'),
-                              ('a', 'b', 'c', 90, 'beta', 90)),
-               'triclinic': (('a', 'b', 'c', 'alpha', 'beta', 'gamma'),
-                             ('a', 'b', 'c', 'alpha', 'beta', 'gamma'))}
+sgrp_params = {
+    "cubic:1": (("a",), ("a", "a", "a", 90, 90, 90)),
+    "cubic:2": (("a",), ("a", "a", "a", 90, 90, 90)),
+    "cubic": (("a",), ("a", "a", "a", 90, 90, 90)),
+    "hexagonal": (("a", "c"), ("a", "a", "c", 90, 90, 120)),
+    "trigonal:R": (("a", "alpha"), ("a", "a", "a", "alpha", "alpha", "alpha")),
+    "trigonal:H": (("a", "c"), ("a", "a", "c", 90, 90, 120)),
+    "trigonal": (("a", "c"), ("a", "a", "c", 90, 90, 120)),
+    "tetragonal:1": (("a", "c"), ("a", "a", "c", 90, 90, 90)),
+    "tetragonal:2": (("a", "c"), ("a", "a", "c", 90, 90, 90)),
+    "tetragonal": (("a", "c"), ("a", "a", "c", 90, 90, 90)),
+    "orthorhombic:1": (("a", "b", "c"), ("a", "b", "c", 90, 90, 90)),
+    "orthorhombic:2": (("a", "b", "c"), ("a", "b", "c", 90, 90, 90)),
+    "orthorhombic": (("a", "b", "c"), ("a", "b", "c", 90, 90, 90)),
+    "monoclinic:b": (("a", "b", "c", "beta"), ("a", "b", "c", 90, "beta", 90)),
+    "monoclinic:c": (
+        ("a", "b", "c", "gamma"),
+        ("a", "b", "c", 90, 90, "gamma"),
+    ),
+    "monoclinic": (("a", "b", "c", "beta"), ("a", "b", "c", 90, "beta", 90)),
+    "triclinic": (
+        ("a", "b", "c", "alpha", "beta", "gamma"),
+        ("a", "b", "c", "alpha", "beta", "gamma"),
+    ),
+}
 
 # regular expression for splitting multiple reflection conditions
-hklcond_group = re.compile(r'([-hkil0-9\(\)]+): ([-+hklnor1-8=\s,]+)(?:, |$)')
+hklcond_group = re.compile(r"([-hkil0-9\(\)]+): ([-+hklnor1-8=\s,]+)(?:, |$)")
 
 
 def get_possible_sgrp_suf(sgrp_nr):
@@ -159,15 +332,38 @@ def get_possible_sgrp_suf(sgrp_nr):
     str or list
         either an empty string or a list of possible valid suffix strings
     """
-    sgrp_suf = ''
+    sgrp_suf = ""
     if sgrp_nr in [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
-        sgrp_suf = [':b', ':c']
-    elif sgrp_nr in [48, 50, 59, 68, 70, 85, 86, 88, 125, 126,
-                     129, 130, 133, 134, 137, 138, 141, 142,
-                     201, 203, 222, 224, 227, 228]:
-        sgrp_suf = [':1', ':2']
+        sgrp_suf = [":b", ":c"]
+    elif sgrp_nr in [
+        48,
+        50,
+        59,
+        68,
+        70,
+        85,
+        86,
+        88,
+        125,
+        126,
+        129,
+        130,
+        133,
+        134,
+        137,
+        138,
+        141,
+        142,
+        201,
+        203,
+        222,
+        224,
+        227,
+        228,
+    ]:
+        sgrp_suf = [":1", ":2"]
     elif sgrp_nr in [146, 148, 155, 160, 161, 166, 167]:
-        sgrp_suf = [':H', ':R']
+        sgrp_suf = [":H", ":R"]
     return sgrp_suf
 
 
@@ -178,7 +374,7 @@ def get_default_sgrp_suf(sgrp_nr):
     possibilities = get_possible_sgrp_suf(sgrp_nr)
     if possibilities:
         return possibilities[0]
-    return ''
+    return ""
 
 
 def _get_pardict(parint, x):
@@ -201,13 +397,13 @@ def _get_pardict(parint, x):
     i = 0
     pardict = {}
     if parint & 1:
-        pardict['x'] = x[i]
+        pardict["x"] = x[i]
         i += 1
     if parint & 2:
-        pardict['y'] = x[i]
+        pardict["y"] = x[i]
         i += 1
     if parint & 4:
-        pardict['z'] = x[i]
+        pardict["z"] = x[i]
     return pardict
 
 
@@ -235,6 +431,7 @@ def testwp(parint, wyckpos, cifpos, digits=config.DIGITS):
         parameters associated with the position or None if no parameters are
         needed
     """
+
     def check_positions_match(p1, p2, digits):
         p1 = p1 - numpy.round(p1, digits) // 1
         p2 = p2 - numpy.round(p2, digits) // 1
@@ -242,12 +439,12 @@ def testwp(parint, wyckpos, cifpos, digits=config.DIGITS):
             return True
         return False
 
-    wyckp = wyckpos.strip('()').split(',')
+    wyckp = wyckpos.strip("()").split(",")
     # test agreement in positions witout variables
     match = [False, False, False]
     variables = []
     for i in range(3):
-        v = re.findall(r'[xyz]', wyckp[i])
+        v = re.findall(r"[xyz]", wyckp[i])
         if v == []:
             pos = eval(wyckp[i])
             match[i] = check_positions_match(pos, cifpos[i], digits)
@@ -273,11 +470,11 @@ def testwp(parint, wyckpos, cifpos, digits=config.DIGITS):
         return numpy.linalg.norm(numpy.subtract(wpos, cifp))
 
     x0 = []
-    if 'x' in variables:
+    if "x" in variables:
         x0.append(cifpos[0])
-    if 'y' in variables:
+    if "y" in variables:
         x0.append(cifpos[1])
-    if 'z' in variables:
+    if "z" in variables:
         x0.append(cifpos[2])
 
     opt = scipy.optimize.minimize(fmin, x0, args=(parint, wyckp, cifpos))
@@ -315,11 +512,11 @@ def get_wyckpos(sgrp, atompos):
             if foundwp:
                 return k if par is None else (k, list(par))
     raise ValueError(
-        f"Wyckoff could not be identified for SG {sgrp} and pos {atompos}")
+        f"Wyckoff could not be identified for SG {sgrp} and pos {atompos}"
+    )
 
 
 class WyckoffBase(list):
-
     """
     The WyckoffBase class implements a container for a set of Wyckoff positions
     that form the base of a crystal lattice. An instance of this class can be
@@ -334,8 +531,10 @@ class WyckoffBase(list):
         if isinstance(atom, str):
             atom = getattr(elements, atom)
         elif not isinstance(atom, Atom):
-            raise TypeError("atom must be an instance of class "
-                            "xrayutilities.materials.Atom")
+            raise TypeError(
+                "atom must be an instance of class "
+                "xrayutilities.materials.Atom"
+            )
         return atom
 
     @staticmethod
@@ -347,7 +546,7 @@ class WyckoffBase(list):
                 pos = (pos[0], None)
             elif len(pos) == 2:
                 if isinstance(pos[1], numbers.Number):
-                    pos = (pos[0], (pos[1], ))
+                    pos = (pos[0], (pos[1],))
                 elif pos[1] is None:
                     pos = (pos[0], None)
                 else:
@@ -357,7 +556,7 @@ class WyckoffBase(list):
                     pos = (pos[0], tuple(pos[1:]))
         return pos
 
-    def append(self, atom, pos, occ=1.0, b=0.):
+    def append(self, atom, pos, occ=1.0, b=0.0):
         """
         add new Atom to the lattice base
 
@@ -405,7 +604,7 @@ class WyckoffBase(list):
         return new
 
     def __str__(self):
-        ostr = ''
+        ostr = ""
         for i, (atom, p, occ, b) in enumerate(self):
             ostr += f"{i}: {str(atom)} {p[0]} "
             if p[1] is not None:
@@ -429,8 +628,11 @@ class WyckoffBase(list):
         bool
         """
         for atom, p, _, b in self:
-            if (atom == item[0] and self.pos_eq(p, item[1]) and
-                    isclose(b, item[3], abs_tol=1e-4)):
+            if (
+                atom == item[0]
+                and self.pos_eq(p, item[1])
+                and isclose(b, item[3], abs_tol=1e-4)
+            ):
                 return True
         return False
 
@@ -445,8 +647,11 @@ class WyckoffBase(list):
             tuples with length 4 containing the entries of WyckoffBase which
             should be compared
         """
-        if (e1[0] == e2[0] and WyckoffBase.pos_eq(e1[1], e2[1]) and
-                numpy.allclose(e1[2:], e2[2:], atol=1e-4)):
+        if (
+            e1[0] == e2[0]
+            and WyckoffBase.pos_eq(e1[1], e2[1])
+            and numpy.allclose(e1[2:], e2[2:], atol=1e-4)
+        ):
             return True
         return False
 
@@ -485,8 +690,11 @@ class WyckoffBase(list):
         int
         """
         for i, (atom, p, _, b) in enumerate(self):
-            if (atom == item[0] and self.pos_eq(p, item[1]) and
-                    isclose(b, item[3], abs_tol=1e-4)):
+            if (
+                atom == item[0]
+                and self.pos_eq(p, item[1])
+                and isclose(b, item[3], abs_tol=1e-4)
+            ):
                 return i
         raise ValueError(f"{str(item)} is not in list")
 
@@ -530,42 +738,42 @@ class SymOp:
             string describing the symmetry operation (e.g. '-y, -x, z')
         """
         D = numpy.zeros((3, 3))
-        t = numpy.array(eval(xyz, {'x': 0, 'y': 0, 'z': 0})[:3])
+        t = numpy.array(eval(xyz, {"x": 0, "y": 0, "z": 0})[:3])
         m = 1
-        for i, expr in enumerate(xyz.strip('()').split(',')):
+        for i, expr in enumerate(xyz.strip("()").split(",")):
             if i == 3:  # time reversal property
                 m = int(expr)
                 continue
-            if 'x' in expr:
-                D[i, 0] = -1 if '-x' in expr else 1
-            if 'y' in expr:
-                D[i, 1] = -1 if '-y' in expr else 1
-            if 'z' in expr:
-                D[i, 2] = -1 if '-z' in expr else 1
+            if "x" in expr:
+                D[i, 0] = -1 if "-x" in expr else 1
+            if "y" in expr:
+                D[i, 1] = -1 if "-y" in expr else 1
+            if "z" in expr:
+                D[i, 2] = -1 if "-z" in expr else 1
         return SymOp(D, t, m)
 
     def xyz(self, showtimerev=False):
         """
         return the symmetry operation in xyz notation
         """
-        ret = ''
+        ret = ""
         t = self.t
         for i in range(3):
-            expr = ''
+            expr = ""
             if abs(self._W[i, 0]) == 1:
-                expr += '+x' if self._W[i, 0] == 1 else '-x'
+                expr += "+x" if self._W[i, 0] == 1 else "-x"
             if abs(self._W[i, 1]) == 1:
-                expr += '+y' if self._W[i, 1] == 1 else '-y'
+                expr += "+y" if self._W[i, 1] == 1 else "-y"
             if abs(self._W[i, 2]) == 1:
-                expr += '+z' if self._W[i, 2] == 1 else '-z'
+                expr += "+z" if self._W[i, 2] == 1 else "-z"
             if t[i] != 0:
-                expr += '+' if t[i] > 0 else ''
+                expr += "+" if t[i] > 0 else ""
                 expr += str(fractions.Fraction(t[i]).limit_denominator(100))
-            expr = expr.strip('+')
-            ret += expr + ', '
+            expr = expr.strip("+")
+            ret += expr + ", "
         if showtimerev:
-            ret += f'{self._m:+d}'
-        return ret.strip(', ')
+            ret += f"{self._m:+d}"
+        return ret.strip(", ")
 
     @property
     def D(self):
@@ -590,7 +798,12 @@ class SymOp:
         return self.D @ vec
 
     def apply(self, vec, foldback=True):
-        lv = numpy.asarray(list(vec) + [1, ])
+        lv = numpy.asarray(
+            list(vec)
+            + [
+                1,
+            ]
+        )
         result = (self._W @ lv)[:3]
         if foldback:
             return self.foldback(result)
@@ -603,10 +816,10 @@ class SymOp:
         if not isinstance(other, SymOp):
             return NotImplemented
         W = self._W @ other._W
-        return SymOp(W[:3, :3], self.foldback(W[:3, 3]), self._m*other._m)
+        return SymOp(W[:3, :3], self.foldback(W[:3, 3]), self._m * other._m)
 
     def __str__(self):
-        return f'({self.xyz(showtimerev=True)})'
+        return f"({self.xyz(showtimerev=True)})"
 
     def __repr__(self):
         return self.__str__()
@@ -655,19 +868,21 @@ class SGLattice:
             intensity of this atom (only used in case of temp=0 in
             StructureFactor and chi calculation)
         """
-        valid_kwargs = {'atoms': 'list of elements',
-                        'pos': 'list of Wyckoff positions',
-                        'occ': 'site occupations',
-                        'b': 'Debye Waller exponents'}
+        valid_kwargs = {
+            "atoms": "list of elements",
+            "pos": "list of Wyckoff positions",
+            "occ": "site occupations",
+            "b": "Debye Waller exponents",
+        }
         utilities.check_kwargs(kwargs, valid_kwargs, self.__class__.__name__)
         self.space_group = str(sgrp)
-        self.space_group_nr = int(self.space_group.split(':')[0])
+        self.space_group_nr = int(self.space_group.split(":")[0])
         try:
-            self.space_group_suf = ':' + self.space_group.split(':')[1]
+            self.space_group_suf = ":" + self.space_group.split(":")[1]
         except IndexError:
             self.space_group_suf = get_default_sgrp_suf(self.space_group_nr)
 
-        if self.space_group_suf != '':
+        if self.space_group_suf != "":
             self.space_group = str(self.space_group_nr) + self.space_group_suf
         self.name = sgrp_name[str(self.space_group_nr)] + self.space_group_suf
         self.crystal_system, nargs = sgrp_sym[self.space_group_nr]
@@ -682,7 +897,7 @@ class SGLattice:
             self.free_parameters[par] = a
 
         self._parameters = OrderedDict()
-        for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
+        for i, p in enumerate(("a", "b", "c", "alpha", "beta", "gamma")):
             key = sgrp_params[self.crystal_system][1][i]
             if isinstance(key, str):
                 self._parameters[p] = self.free_parameters[key]
@@ -694,39 +909,62 @@ class SGLattice:
         self._bi = numpy.empty((3, 3))
         a, b, _, alpha, beta, gamma = self._parameters.values()
         ra = radians(alpha)
-        self._paramhelp = [cos(ra), cos(radians(beta)),
-                           cos(radians(gamma)), sin(ra), 0]
+        self._paramhelp = [
+            cos(ra),
+            cos(radians(beta)),
+            cos(radians(gamma)),
+            sin(ra),
+            0,
+        ]
         self._setlat()
         # save general Wyckoff position
-        self._gplabel = sorted(wp[self.space_group],
-                               key=lambda s: int(s[:-1]))[-1]
+        self._gplabel = sorted(
+            wp[self.space_group], key=lambda s: int(s[:-1])
+        )[-1]
         self._gp = wp[self.space_group][self._gplabel]
 
         # set atom positions in the lattice base
         self._wbase = WyckoffBase()
-        atoms = kwargs.get('atoms', None)
-        wps = kwargs.get('pos', None)
+        atoms = kwargs.get("atoms", None)
+        wps = kwargs.get("pos", None)
         if atoms:
-            occs = kwargs.get('occ', [1.0, ] * len(atoms))
-            bs = kwargs.get('b', [0.0, ] * len(atoms))
+            occs = kwargs.get(
+                "occ",
+                [
+                    1.0,
+                ]
+                * len(atoms),
+            )
+            bs = kwargs.get(
+                "b",
+                [
+                    0.0,
+                ]
+                * len(atoms),
+            )
             for at, wpos, o, b in zip(atoms, wps, occs, bs):
-                if (not isinstance(wpos, (tuple, list, numpy.ndarray)) or
-                        len(wpos) < 3):
+                if (
+                    not isinstance(wpos, (tuple, list, numpy.ndarray))
+                    or len(wpos) < 3
+                ):
                     self._wbase.append(at, wpos, o, b)
                 else:
                     # atomic position given -> identify Wyckoff position
                     # find all equivalent positions
                     gplist = set()
                     for p in self._gp[1]:
-                        pos = eval(p,
-                                   {'x': wpos[0], 'y': wpos[1], 'z': wpos[2]})
+                        pos = eval(
+                            p, {"x": wpos[0], "y": wpos[1], "z": wpos[2]}
+                        )
                         pos = SymOp.foldback(pos)
                         gplist.add(tuple(pos))
 
                     wyckpos = get_wyckpos(self.space_group, gplist)
                     if config.VERBOSITY >= config.INFO_LOW:
-                        print(f"XU.materials.SGLattice: position {wpos} "
-                              f"identified as {wyckpos}")
+                        print(
+                            f"XU.materials.SGLattice: position {wpos} "
+                            f"identified as {wyckpos}"
+                        )
 
                     self._wbase.append(at, wyckpos, o, b)
         self.nsites = len(self._wbase)
@@ -753,11 +991,16 @@ class SGLattice:
     def _hklsym(self):
         if self._hklmat == []:
             for s in self.symops:
-                self._hklmat.append(numpy.round(self._qtransform.imatrix @
-                                                self._transform.matrix @ s.D @
-                                                self._transform.imatrix @
-                                                self._qtransform.matrix,
-                                                config.DIGITS))
+                self._hklmat.append(
+                    numpy.round(
+                        self._qtransform.imatrix
+                        @ self._transform.matrix
+                        @ s.D
+                        @ self._transform.imatrix
+                        @ self._qtransform.matrix,
+                        config.DIGITS,
+                    )
+                )
         return self._hklmat
 
     def base(self):
@@ -767,7 +1010,7 @@ class SGLattice:
         if not self._wbase:
             return
         sgwp = wp[self.space_group]
-        for (atom, w, occ, b) in self._wbase:
+        for atom, w, occ, b in self._wbase:
             x, y, z = None, None, None
             parint, poslist, dummy = sgwp[w[0]]
             i = 0
@@ -775,46 +1018,54 @@ class SGLattice:
                 try:
                     x = w[1][i]
                 except TypeError:
-                    print('XU.materials: Wyckoff position %s of %s needs '
-                          'parameters (%d) -> wrong material definition'
-                          % (w[0], str(self.space_group), parint))
+                    print(
+                        "XU.materials: Wyckoff position %s of %s needs "
+                        "parameters (%d) -> wrong material definition"
+                        % (w[0], str(self.space_group), parint)
+                    )
                     raise
                 i += 1
             if parint & 2:
                 try:
                     y = w[1][i]
                 except TypeError:
-                    print('XU.materials: Wyckoff position %s of %s needs '
-                          'parameters (%d) -> wrong material definition'
-                          % (w[0], str(self.space_group), parint))
+                    print(
+                        "XU.materials: Wyckoff position %s of %s needs "
+                        "parameters (%d) -> wrong material definition"
+                        % (w[0], str(self.space_group), parint)
+                    )
                     raise
                 i += 1
             if parint & 4:
                 try:
                     z = w[1][i]
                 except TypeError:
-                    print('XU.materials: Wyckoff position %s of %s needs '
-                          'parameters (%d) -> wrong material definition'
-                          % (w[0], str(self.space_group), parint))
+                    print(
+                        "XU.materials: Wyckoff position %s of %s needs "
+                        "parameters (%d) -> wrong material definition"
+                        % (w[0], str(self.space_group), parint)
+                    )
                     raise
                 i += 1
             if w[1]:
                 if i != len(w[1]):
-                    raise TypeError('XU.materials: too many parameters for '
-                                    'Wyckoff position')
+                    raise TypeError(
+                        "XU.materials: too many parameters for "
+                        "Wyckoff position"
+                    )
 
             for p in poslist:
-                pos = eval(p, {'x': x, 'y': y, 'z': z})
+                pos = eval(p, {"x": x, "y": y, "z": z})
                 pos = SymOp.foldback(pos)
                 yield atom, pos, occ, b
 
     def _setlat(self):
         a, b, c, _, _, _ = self._parameters.values()
         ca, cb, cg, sa, vh = self._paramhelp
-        vh = sqrt(1 - ca**2-cb**2-cg**2 + 2*ca*cb*cg)
+        vh = sqrt(1 - ca**2 - cb**2 - cg**2 + 2 * ca * cb * cg)
         self._paramhelp[4] = vh
         self._ai[0, 0] = a * vh / sa
-        self._ai[0, 1] = a * (cg-cb*ca) / sa
+        self._ai[0, 1] = a * (cg - cb * ca) / sa
         self._ai[0, 2] = a * cb
         self._ai[1, 1] = b * sa
         self._ai[1, 2] = b * ca
@@ -824,14 +1075,14 @@ class SGLattice:
 
     def _setb(self):
         V = self.UnitCellVolume()
-        p = 2. * numpy.pi / V
-        math.VecCross(p*self._ai[1, :], self._ai[2, :], out=self._bi[0, :])
-        math.VecCross(p*self._ai[2, :], self._ai[0, :], out=self._bi[1, :])
-        math.VecCross(p*self._ai[0, :], self._ai[1, :], out=self._bi[2, :])
+        p = 2.0 * numpy.pi / V
+        math.VecCross(p * self._ai[1, :], self._ai[2, :], out=self._bi[0, :])
+        math.VecCross(p * self._ai[2, :], self._ai[0, :], out=self._bi[1, :])
+        math.VecCross(p * self._ai[0, :], self._ai[1, :], out=self._bi[2, :])
         self._qtransform = math.Transform(self._bi.T)
 
     def _set_params_from_sym(self):
-        for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
+        for i, p in enumerate(("a", "b", "c", "alpha", "beta", "gamma")):
             key = sgrp_params[self.crystal_system][1][i]
             if isinstance(key, str):
                 if p not in self.free_parameters:
@@ -847,53 +1098,53 @@ class SGLattice:
 
     @property
     def a(self):
-        return self._parameters['a']
+        return self._parameters["a"]
 
     @a.setter
     def a(self, value):
-        if 'a' not in self.free_parameters:
+        if "a" not in self.free_parameters:
             raise RuntimeError("a can not be set, its not a free parameter!")
-        self._parameters['a'] = value
-        self.free_parameters['a'] = value
+        self._parameters["a"] = value
+        self.free_parameters["a"] = value
         self._set_params_from_sym()
         self._setlat()
 
     @property
     def b(self):
-        return self._parameters['b']
+        return self._parameters["b"]
 
     @b.setter
     def b(self, value):
-        if 'b' not in self.free_parameters:
+        if "b" not in self.free_parameters:
             raise RuntimeError("b can not be set, its not a free parameter!")
-        self._parameters['b'] = value
-        self.free_parameters['b'] = value
+        self._parameters["b"] = value
+        self.free_parameters["b"] = value
         self._set_params_from_sym()
         self._setlat()
 
     @property
     def c(self):
-        return self._parameters['c']
+        return self._parameters["c"]
 
     @c.setter
     def c(self, value):
-        if 'c' not in self.free_parameters:
+        if "c" not in self.free_parameters:
             raise RuntimeError("c can not be set, its not a free parameter!")
-        self._parameters['c'] = value
-        self.free_parameters['c'] = value
+        self._parameters["c"] = value
+        self.free_parameters["c"] = value
         self._set_params_from_sym()
         self._setlat()
 
     @property
     def alpha(self):
-        return self._parameters['alpha']
+        return self._parameters["alpha"]
 
     @alpha.setter
     def alpha(self, value):
-        if 'alpha' not in self.free_parameters:
+        if "alpha" not in self.free_parameters:
             raise RuntimeError("alpha can not be set for this space group!")
-        self._parameters['alpha'] = value
-        self.free_parameters['alpha'] = value
+        self._parameters["alpha"] = value
+        self.free_parameters["alpha"] = value
         self._set_params_from_sym()
         ra = radians(value)
         self._paramhelp[0] = cos(ra)
@@ -902,28 +1153,28 @@ class SGLattice:
 
     @property
     def beta(self):
-        return self._parameters['beta']
+        return self._parameters["beta"]
 
     @beta.setter
     def beta(self, value):
-        if 'beta' not in self.free_parameters:
+        if "beta" not in self.free_parameters:
             raise RuntimeError("beta can not be set for this space group!")
-        self._parameters['beta'] = value
-        self.free_parameters['beta'] = value
+        self._parameters["beta"] = value
+        self.free_parameters["beta"] = value
         self._set_params_from_sym()
         self._paramhelp[1] = cos(radians(value))
         self._setlat()
 
     @property
     def gamma(self):
-        return self._parameters['gamma']
+        return self._parameters["gamma"]
 
     @gamma.setter
     def gamma(self, value):
-        if 'gamma' not in self.free_parameters:
+        if "gamma" not in self.free_parameters:
             raise RuntimeError("gamma can not be set for this space group!")
-        self._parameters['gamma'] = value
-        self.free_parameters['gamma'] = value
+        self._parameters["gamma"] = value
+        self.free_parameters["gamma"] = value
         self._set_params_from_sym()
         self._paramhelp[2] = cos(radians(value))
         self._setlat()
@@ -1015,21 +1266,22 @@ class SGLattice:
         if isinstance(eps, (list, tuple)):
             eps = numpy.asarray(eps, dtype=numpy.double)
         if eps.shape != (3, 3):
-            raise InputError("ApplyStrain needs a 3x3 matrix "
-                             "with strain values")
+            raise InputError(
+                "ApplyStrain needs a 3x3 matrix with strain values"
+            )
 
         ai = self._ai + numpy.dot(eps, self._ai.T).T
-        self._parameters['a'] = math.VecNorm(ai[0, :])
-        self._parameters['b'] = math.VecNorm(ai[1, :])
-        self._parameters['c'] = math.VecNorm(ai[2, :])
-        self._parameters['alpha'] = math.VecAngle(ai[1, :], ai[2, :], deg=True)
-        self._parameters['beta'] = math.VecAngle(ai[0, :], ai[2, :], deg=True)
-        self._parameters['gamma'] = math.VecAngle(ai[0, :], ai[1, :], deg=True)
+        self._parameters["a"] = math.VecNorm(ai[0, :])
+        self._parameters["b"] = math.VecNorm(ai[1, :])
+        self._parameters["c"] = math.VecNorm(ai[2, :])
+        self._parameters["alpha"] = math.VecAngle(ai[1, :], ai[2, :], deg=True)
+        self._parameters["beta"] = math.VecAngle(ai[0, :], ai[2, :], deg=True)
+        self._parameters["gamma"] = math.VecAngle(ai[0, :], ai[1, :], deg=True)
         # update helper parameters
-        ra = radians(self._parameters['alpha'])
+        ra = radians(self._parameters["alpha"])
         self._paramhelp[0] = cos(ra)
-        self._paramhelp[1] = cos(radians(self._parameters['beta']))
-        self._paramhelp[2] = cos(radians(self._parameters['gamma']))
+        self._paramhelp[1] = cos(radians(self._parameters["beta"]))
+        self._paramhelp[2] = cos(radians(self._parameters["gamma"]))
         self._paramhelp[3] = sin(ra)
         # set new transformations
         self._setlat()
@@ -1037,7 +1289,7 @@ class SGLattice:
         for p in self.free_parameters:
             self.free_parameters[p] = self._parameters[p]
         # artificially reduce symmetry if needed
-        for i, p in enumerate(('a', 'b', 'c', 'alpha', 'beta', 'gamma')):
+        for i, p in enumerate(("a", "b", "c", "alpha", "beta", "gamma")):
             key = sgrp_params[self.crystal_system][1][i]
             if isinstance(key, str):
                 if self._parameters[p] != self.free_parameters[key]:
@@ -1087,8 +1339,9 @@ class SGLattice:
         elif suf in get_possible_sgrp_suf(nr):
             ehkl = set(eqhkl_custom[nr](hkl[0], hkl[1], hkl[2]))
         else:  # fallback calculation with symmetry operations
-            ehkl = numpy.unique(numpy.einsum('...ij,j', self._hklsym, hkl),
-                                axis=0)
+            ehkl = numpy.unique(
+                numpy.einsum("...ij,j", self._hklsym, hkl), axis=0
+            )
             ehkl = set(tuple(e) for e in ehkl)
         return ehkl
 
@@ -1122,7 +1375,7 @@ class SGLattice:
             return allowed
 
         # load reflection conditions if needed
-        if self._gp[2] == 'n/a':
+        if self._gp[2] == "n/a":
             return build_return(True)
         if self._hklcond == [] and self._gp[2] is not None:
             self._hklcond = hklcond_group.findall(self._gp[2])
@@ -1133,8 +1386,9 @@ class SGLattice:
                 elif wp[self.space_group][lab][2] is None:
                     self._hklcond_wp.append(None)
                 else:
-                    self._hklcond_wp.append(hklcond_group.findall(
-                        wp[self.space_group][lab][2]))
+                    self._hklcond_wp.append(
+                        hklcond_group.findall(wp[self.space_group][lab][2])
+                    )
 
         # call C-code to (efficiently) test the conditions
         ret = cxrayutilities.testhklcond(hkls, self._hklcond, self._hklcond_wp)
@@ -1155,15 +1409,17 @@ class SGLattice:
         hklset : set
          set of allowed hkl reflections
         """
+
         def recurse_hkl(h, k, l, kstep):  # noqa: E741
             if (h, k, l) in hkltested:
                 return
             m = self.B
-            q = m[:, 0]*h + m[:, 1]*k + m[:, 2]*l  # efficient matmul
-            if sqrt(q[0]**2 + q[1]**2 + q[2]**2) >= qmax:
+            q = m[:, 0] * h + m[:, 1] * k + m[:, 2] * l  # efficient matmul
+            if sqrt(q[0] ** 2 + q[1] ** 2 + q[2] ** 2) >= qmax:
                 return
-            allowed, eqhkl = self.hkl_allowed((h, k, l),
-                                              returnequivalents=True)
+            allowed, eqhkl = self.hkl_allowed(
+                (h, k, l), returnequivalents=True
+            )
             hkltested.update(eqhkl)
             if not self.iscentrosymmetric:
                 hkltested.update((-ih, -ik, -il) for (ih, ik, il) in eqhkl)
@@ -1172,10 +1428,10 @@ class SGLattice:
                 if not self.iscentrosymmetric:
                     eqhkl = self.equivalent_hkls((-h, -k, -l))
                     hklset.update(eqhkl)
-            recurse_hkl(h+1, k, l, kstep)
-            recurse_hkl(h, k+kstep, l, kstep)
-            recurse_hkl(h, k, l+1, kstep)
-            recurse_hkl(h, k, l-1, kstep)
+            recurse_hkl(h + 1, k, l, kstep)
+            recurse_hkl(h, k + kstep, l, kstep)
+            recurse_hkl(h, k, l + 1, kstep)
+            recurse_hkl(h, k, l - 1, kstep)
 
         hklset = set()
         hkltested = set()
@@ -1196,10 +1452,16 @@ class SGLattice:
         return ostr
 
     def __str__(self):
-        ostr = "{sg} {cs} {n}: a = {a:.4f}, b = {b:.4f} c= {c:.4f}\n" +\
-               "alpha = {alpha:.3f}, beta = {beta:.3f}, gamma = {gamma:.3f}\n"
-        ostr = ostr.format(sg=self.space_group, cs=self.crystal_system,
-                           n=self.name, **self._parameters)
+        ostr = (
+            "{sg} {cs} {n}: a = {a:.4f}, b = {b:.4f} c= {c:.4f}\n"
+            + "alpha = {alpha:.3f}, beta = {beta:.3f}, gamma = {gamma:.3f}\n"
+        )
+        ostr = ostr.format(
+            sg=self.space_group,
+            cs=self.crystal_system,
+            n=self.name,
+            **self._parameters,
+        )
         if self._wbase:
             ostr += "Lattice base:\n"
             ostr += str(self._wbase)
@@ -1216,19 +1478,36 @@ class SGLattice:
             instance with the same properties as the present lattice, however,
             in the P1 setting.
         """
-        a, b, c, alpha, beta, gamma = (self.a, self.b, self.c, self.alpha,
-                                       self.beta, self.gamma)
+        a, b, c, alpha, beta, gamma = (
+            self.a,
+            self.b,
+            self.c,
+            self.alpha,
+            self.beta,
+            self.gamma,
+        )
         atoms = []
         pos = []
         occ = []
         biso = []
         for at, p, o, bf in self.base():
             atoms.append(at)
-            pos.append(('1a', p))
+            pos.append(("1a", p))
             occ.append(o)
             biso.append(bf)
-        return type(self)(1, a, b, c, alpha, beta, gamma, atoms=atoms, pos=pos,
-                          occ=occ, b=biso)
+        return type(self)(
+            1,
+            a,
+            b,
+            c,
+            alpha,
+            beta,
+            gamma,
+            atoms=atoms,
+            pos=pos,
+            occ=occ,
+            b=biso,
+        )
 
     def findsym(self):
         """
@@ -1246,6 +1525,7 @@ class SGLattice:
 
         [1] https://stokes.byu.edu/iso/findsym.php
         """
+
         def identify_wyckpos(sgrp, atoms):
             """
             try to determine suitable Wyckoff positions
@@ -1267,7 +1547,7 @@ class SGLattice:
                 specify the unit cell. If success==False atomdict is None.
             """
             # get all Wyckpos for this spacegroup
-            atomdict = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
+            atomdict = {"atoms": [], "pos": [], "occ": [], "b": []}
             success = True
 
             # check all atomic species seperately
@@ -1277,7 +1557,7 @@ class SGLattice:
                 # see if atomic positions fit to Wyckoff positions
                 for k, wyckpos in wp[sgrp].items():
                     num = int(k[:-1])
-                    if num > len(catoms)-sum(found):
+                    if num > len(catoms) - sum(found):
                         break
                     parint, poslist, _ = wyckpos
                     for f, (dummy, xyz, occ, biso) in zip(found, catoms):
@@ -1304,14 +1584,14 @@ class SGLattice:
                                 return False, None
                             # add Wyckoff position to output
                             if pospar is None:
-                                atomdict['pos'].append(k)
+                                atomdict["pos"].append(k)
                             else:
-                                atomdict['pos'].append((k, list(pospar)))
-                            atomdict['atoms'].append(el)
-                            atomdict['occ'].append(occ)
-                            atomdict['b'].append(biso)
+                                atomdict["pos"].append((k, list(pospar)))
+                            atomdict["atoms"].append(el)
+                            atomdict["occ"].append(occ)
+                            atomdict["b"].append(biso)
 
-                    if num > len(catoms)-sum(found):
+                    if num > len(catoms) - sum(found):
                         break
                 if len(catoms) != sum(found):
                     success = False
@@ -1325,9 +1605,17 @@ class SGLattice:
         possible_sg = []
 
         # determine possible lattice systems
-        for sys in ('cubic', 'hexagonal', 'trigonal:R', 'trigonal:H',
-                    'tetragonal', 'orthorhombic', 'monoclinic:b',
-                    'monoclinic:c', 'triclinic'):
+        for sys in (
+            "cubic",
+            "hexagonal",
+            "trigonal:R",
+            "trigonal:H",
+            "tetragonal",
+            "orthorhombic",
+            "monoclinic:b",
+            "monoclinic:c",
+            "triclinic",
+        ):
             freepar, ucpar = sgrp_params[sys]
             ucsys = []
             for par in ucpar:
@@ -1342,10 +1630,10 @@ class SGLattice:
         # determine suitable space group numbers and names for these families
         for sys in systems:
             freepar, ucpar = sgrp_params[sys]
-            splitsys = sys.split(':')
+            splitsys = sys.split(":")
             suf = None
             if len(splitsys) > 1:
-                suf = ':' + splitsys[1]
+                suf = ":" + splitsys[1]
             for sgrange, v in sgrp_sym.items():
                 if v[0] == splitsys[0]:
                     for nr in reversed(sgrange):
@@ -1364,8 +1652,10 @@ class SGLattice:
 
         # test space groups starting with the highest symmetric one
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.materials.SGLattice.findsym: possible space groups: ",
-                  possible_sg)
+            print(
+                "XU.materials.SGLattice.findsym: possible space groups: ",
+                possible_sg,
+            )
 
         for sgrp, ucpar in possible_sg:
             success, atoms = identify_wyckpos(sgrp, list(self.base()))
@@ -1397,9 +1687,10 @@ class SGLattice:
         # transform unit cell dimensions
         ait = numpy.transpose(mat @ self._ai.T)
         a, b, c = [math.VecNorm(ait[i, :]) for i in range(3)]
-        al, be, ga = [math.VecAngle(ait[(i+1) % 3, :],
-                                    ait[(i+2) % 3, :],
-                                    deg=True) for i in range(3)]
+        al, be, ga = [
+            math.VecAngle(ait[(i + 1) % 3, :], ait[(i + 2) % 3, :], deg=True)
+            for i in range(3)
+        ]
         param = (a, b, c, al, be, ga)
 
         # transform atomic positions and also search neighboring cells to find
@@ -1423,7 +1714,7 @@ class SGLattice:
             for off in g:
                 recurse_cells(numpy.add(fracpos, off), outset)
 
-        allatoms = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
+        allatoms = {"atoms": [], "pos": [], "occ": [], "b": []}
         invmat = numpy.linalg.inv(mat)
         # check all atomic species seperately
         for el in set(at[0] for at in self.base()):
@@ -1435,10 +1726,10 @@ class SGLattice:
                 for pos in eqpos:
                     if (pos, at[2], at[3]) not in elset:
                         elset.add((pos, at[2], at[3]))
-                        allatoms['pos'].append(('1a', pos))
-                        allatoms['atoms'].append(el)
-                        allatoms['occ'].append(at[2])
-                        allatoms['b'].append(at[3])
+                        allatoms["pos"].append(("1a", pos))
+                        allatoms["atoms"].append(el)
+                        allatoms["occ"].append(at[2])
+                        allatoms["b"].append(at[3])
 
         p1 = type(self)(1, *param, **allatoms)
         if config.VERBOSITY >= config.DEBUG:

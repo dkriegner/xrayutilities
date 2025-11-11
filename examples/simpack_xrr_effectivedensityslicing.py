@@ -26,9 +26,9 @@ import xrayutilities as xu
 
 # create a fictitious LayerStack with thin, rough Layers to illustrate the
 # difference between the slicing approach and the usual layered approach
-Si = xu.materials.Amorphous('Si', 2285)
-SiO2 = xu.materials.Amorphous('SiO2', 1000)
-C = xu.materials.Amorphous('C', 800)
+Si = xu.materials.Amorphous("Si", 2285)
+SiO2 = xu.materials.Amorphous("SiO2", 1000)
+C = xu.materials.Amorphous("C", 800)
 
 s = xu.simpack.Layer(Si, np.inf, roughness=20)
 l1 = xu.simpack.Layer(SiO2, 35, roughness=15)
@@ -48,24 +48,24 @@ ms = xu.simpack.SpecularReflectivityModel(sls)
 spos, seldens = ms.densityprofile(500)
 
 # perform simulation and plot simulation and density profile
-alpha = np.linspace(0., 5., num=500)
+alpha = np.linspace(0.0, 5.0, num=500)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.semilogy(alpha, m.simulate(alpha), label='conventional XRR')
-ax.semilogy(alpha, ms.simulate(alpha), label='sliced XRR')
-ax.set_xlabel(r'incidence angle')
-ax.set_ylabel(r'reflectivity')
+ax.semilogy(alpha, m.simulate(alpha), label="conventional XRR")
+ax.semilogy(alpha, ms.simulate(alpha), label="sliced XRR")
+ax.set_xlabel(r"incidence angle")
+ax.set_ylabel(r"reflectivity")
 ax.legend()
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.plot(pos, eldens, '.-', label='conventional')
+ax.plot(pos, eldens, ".-", label="conventional")
 for i in range(len(layer_eldens)):
-    ax.plot(pos, layer_eldens[i], ':')
-ax.plot(spos, seldens, '.-', label='sliced')  # arbitrary shift for vis.
+    ax.plot(pos, layer_eldens[i], ":")
+ax.plot(spos, seldens, ".-", label="sliced")  # arbitrary shift for vis.
 ax.legend()
-ax.set_xlabel(r'z-position')
-ax.set_ylabel(r'electron density')
+ax.set_xlabel(r"z-position")
+ax.set_ylabel(r"electron density")
 
 plt.show()

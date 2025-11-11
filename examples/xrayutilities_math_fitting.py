@@ -22,10 +22,11 @@ import xrayutilities as xu
 xu.config.VERBOSITY = 3
 
 x = numpy.linspace(10, 20, 250)
-y = (xu.math.PseudoVoigt1d(x, 12, 0.2, 0.1, 10, numpy.random.rand()) +
-     0.01 * (numpy.random.rand(len(x))-0.5))
+y = xu.math.PseudoVoigt1d(x, 12, 0.2, 0.1, 10, numpy.random.rand()) + 0.01 * (
+    numpy.random.rand(len(x)) - 0.5
+)
 
 # peaktype can be 'PseudoVoigt', 'Lorentz' or 'Gauss'
 # furthermore a constant background (optional also linear with the option
 # background='linear') can be added
-xu.math.peak_fit(x, y, peaktype='PseudoVoigt', plot=True)
+xu.math.peak_fit(x, y, peaktype="PseudoVoigt", plot=True)

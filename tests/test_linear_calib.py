@@ -22,12 +22,14 @@ import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, "detalign.xrdml.bz2")
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestLinear_calib(unittest.TestCase):
     pw0 = 1.4813e-04
     cch0 = 633.90
@@ -40,12 +42,13 @@ class TestLinear_calib(unittest.TestCase):
         cls.spectra = det
 
     def test_linear_calib(self):
-        pwidth, cch, tilt = xu.analysis.linear_detector_calib(self.ang,
-                                                              self.spectra)
+        pwidth, cch, tilt = xu.analysis.linear_detector_calib(
+            self.ang, self.spectra
+        )
         self.assertAlmostEqual(numpy.abs(pwidth), self.pw0, places=7)
         self.assertAlmostEqual(cch, self.cch0, places=1)
         self.assertAlmostEqual(tilt, self.tilt0, places=2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

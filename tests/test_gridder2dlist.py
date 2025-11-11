@@ -47,11 +47,14 @@ class TestGridder2DList(unittest.TestCase):
             if k == 2 * j:
                 self.assertAlmostEqual(
                     self.gridder.data[j, 2 * j],
-                    [self.data[j], ],
-                    places=12)
+                    [
+                        self.data[j],
+                    ],
+                    places=12,
+                )
             else:
                 self.assertEqual(self.gridder.data[j, k], [])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

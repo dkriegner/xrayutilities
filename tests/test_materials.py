@@ -31,9 +31,12 @@ class TestMaterialsTransform(unittest.TestCase):
         cls.alpha, cls.beta, cls.gamma = numpy.random.rand(3) * 60 + 60
         cls.c11, cls.c12, cls.c44 = numpy.random.rand(3) * 1e10
         cls.p1mat = xu.materials.Crystal(
-            'P1', xu.materials.SGLattice(1, cls.a, cls.b, cls.c,
-                                         cls.alpha, cls.beta, cls.gamma),
-            xu.materials.CubicElasticTensor(cls.c11, cls.c12, cls.c44))
+            "P1",
+            xu.materials.SGLattice(
+                1, cls.a, cls.b, cls.c, cls.alpha, cls.beta, cls.gamma
+            ),
+            xu.materials.CubicElasticTensor(cls.c11, cls.c12, cls.c44),
+        )
 
     def test_q2hkl_hkl2q(self):
         for i in range(3):
@@ -54,12 +57,16 @@ class TestMaterialsTransform(unittest.TestCase):
         sa = sin(radians(self.alpha))
         sb = sin(radians(self.beta))
         sg = sin(radians(self.gamma))
-        vh = sqrt(1 - ca**2-cb**2-cg**2 + 2*ca*cb*cg)
+        vh = sqrt(1 - ca**2 - cb**2 - cg**2 + 2 * ca * cb * cg)
         pi2 = numpy.pi * 2
-        ra, rb, rc = pi2*sa/(self.a*vh), pi2*sb/(self.b*vh), pi2*sg/(self.c*vh)
+        ra, rb, rc = (
+            pi2 * sa / (self.a * vh),
+            pi2 * sb / (self.b * vh),
+            pi2 * sg / (self.c * vh),
+        )
         # cralpha = (cb*cg - ca)/(sb*sg)
-        crbeta = (ca*cg - cb)/(sa*sg)
-        crgamma = (ca*cb - cg)/(sa*sb)
+        crbeta = (ca * cg - cb) / (sa * sg)
+        crgamma = (ca * cb - cg) / (sa * sb)
 
         b = numpy.zeros((3, 3))
         b[0, 0] = ra
@@ -98,8 +105,9 @@ class TestMaterialsTransform(unittest.TestCase):
         maxdist = max(self.a, self.b, self.c) + 0.01
         e = self.p1mat.environment((0, 0, 0), maxdist=maxdist)
 
-        self.assertTrue(len(e) >= 4,
-                        f"Length of environment must be >= 4, is {len(e)}")
+        self.assertTrue(
+            len(e) >= 4, f"Length of environment must be >= 4, is {len(e)}"
+        )
         for dis in (0.0, self.a, self.b, self.c):
             found = False
             for d, at, mult in e:
@@ -111,18 +119,20 @@ class TestMaterialsTransform(unittest.TestCase):
         a = xu.materials.Si.a
         e = xu.materials.Si.environment(0.125, 0.125, 0.125)
 
-        self.assertAlmostEqual(e[0][0], a*math.sqrt(3)/8, places=10)
+        self.assertAlmostEqual(e[0][0], a * math.sqrt(3) / 8, places=10)
         self.assertEqual(e[0][1], xu.materials.elements.Si)
         self.assertAlmostEqual(e[0][2], 2.0)
 
     def test_isequivalent(self):
         hkl1 = (1, 2, 3)
-        materials = ['C', 'C_HOPG', 'TiO2', 'GeTe', 'Ag2Se']
-        hkl2lst = [((2, 1, -3), (2, 2, 3)),
-                   ((1, -3, 3), (1, -2, 3)),
-                   ((-2, 1, 3), (3, 2, 1)),
-                   ((1, 3, 2), (1, 3, -2)),
-                   ((1, -2, -3), (1, 3, 2))]
+        materials = ["C", "C_HOPG", "TiO2", "GeTe", "Ag2Se"]
+        hkl2lst = [
+            ((2, 1, -3), (2, 2, 3)),
+            ((1, -3, 3), (1, -2, 3)),
+            ((-2, 1, 3), (3, 2, 1)),
+            ((1, 3, 2), (1, 3, -2)),
+            ((1, -2, -3), (1, 3, 2)),
+        ]
         for mname, hkl2s in zip(materials, hkl2lst):
             mat = getattr(xu.materials, mname)
             self.assertTrue(mat.lattice.isequivalent(hkl1, hkl2s[0]))
@@ -153,5 +163,5 @@ class TestMaterialsTransform(unittest.TestCase):
         numpy.testing.assert_almost_equal(stress, stress_rev)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

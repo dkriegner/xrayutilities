@@ -16,34 +16,48 @@
 # Copyright (c) 2018-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from numpy import inf, linspace, mean, sqrt
-from matplotlib.pylab import (clf, figure, legend, mpl, semilogy, show,
-                              tight_layout, xlabel, xlim, ylabel)
+from matplotlib.pylab import (
+    clf,
+    figure,
+    legend,
+    mpl,
+    semilogy,
+    show,
+    tight_layout,
+    xlabel,
+    xlim,
+    ylabel,
+)
 
 import xrayutilities as xu
 
-mpl.rcParams['font.size'] = 16.0
+mpl.rcParams["font.size"] = 16.0
 
-en = 'CuKa1'  # eV
+en = "CuKa1"  # eV
 resol = 0.0004  # resolution in q
 
 sub = xu.simpack.Layer(xu.materials.Si, inf)
 lay = xu.simpack.Layer(xu.materials.SiGe(0.6), 145.87, relaxation=0.0)
 # pseudomorphic stack -> adjusts lattice parameters!
-pls = xu.simpack.PseudomorphicStack001('pseudo', sub, lay)
+pls = xu.simpack.PseudomorphicStack001("pseudo", sub, lay)
 
 H, K, L = (0, 0, 4)
 qz = linspace(4.0, 7.0, 3000)
 
 # calculate incidence angle for dynamical diffraction models
-qx = sqrt(pls[0].material.Q(H, K, L)[0]**2 + pls[0].material.Q(H, K, L)[1]**2)
+qx = sqrt(
+    pls[0].material.Q(H, K, L)[0] ** 2 + pls[0].material.Q(H, K, L)[1] ** 2
+)
 ai = xu.simpack.coplanar_alphai(qx, qz, en)
-resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
-              xu.simpack.coplanar_alphai(qx, mean(qz), en))
+resolai = abs(
+    xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en)
+    - xu.simpack.coplanar_alphai(qx, mean(qz), en)
+)
 
 # kinematic multibeam diffraction model
-mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
-                                          surface_hkl=(0, 0, 1),
-                                          resolution_width=resol)
+mk = xu.simpack.KinematicalMultiBeamModel(
+    pls, energy=en, surface_hkl=(0, 0, 1), resolution_width=resol
+)
 Imult = mk.simulate(qz, hkl=(H, K, L), refraction=True)
 
 # general 2-beam theory based dynamical diffraction model
@@ -51,14 +65,14 @@ md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai)
 Idyn = md.simulate(ai, hkl=(H, K, L))
 
 # plot of calculated intensities
-figure('XU-simpack SiGe 004')
+figure("XU-simpack SiGe 004")
 clf()
-semilogy(qz, Imult, label='multibeam')
-semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
-legend(fontsize='small')
+semilogy(qz, Imult, label="multibeam")
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label="full dynamical")
+legend(fontsize="small")
 xlim(qz.min(), qz.max())
-xlabel(r'Qz ($1/\mathrm{\AA}$)')
-ylabel('Intensity (arb. u.)')
+xlabel(r"Qz ($1/\mathrm{\AA}$)")
+ylabel("Intensity (arb. u.)")
 tight_layout()
 show()
 
@@ -66,15 +80,19 @@ H, K, L = (2, 2, 4)
 qz = linspace(4.0, 7.0, 3000)
 
 # calculate incidence angle for dynamical diffraction models
-qx = sqrt(pls[0].material.Q(H, K, L)[0]**2 + pls[0].material.Q(H, K, L)[1]**2)
+qx = sqrt(
+    pls[0].material.Q(H, K, L)[0] ** 2 + pls[0].material.Q(H, K, L)[1] ** 2
+)
 ai = xu.simpack.coplanar_alphai(qx, qz, en)
-resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
-              xu.simpack.coplanar_alphai(qx, mean(qz), en))
+resolai = abs(
+    xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en)
+    - xu.simpack.coplanar_alphai(qx, mean(qz), en)
+)
 
 # kinematic multibeam diffraction model
-mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
-                                          surface_hkl=(0, 0, 1),
-                                          resolution_width=resol)
+mk = xu.simpack.KinematicalMultiBeamModel(
+    pls, energy=en, surface_hkl=(0, 0, 1), resolution_width=resol
+)
 Imult = mk.simulate(qz, hkl=(H, K, L), refraction=True)
 
 # general 2-beam theory based dynamical diffraction model
@@ -82,14 +100,14 @@ md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai)
 Idyn = md.simulate(ai, hkl=(H, K, L))
 
 # plot of calculated intensities
-figure('XU-simpack SiGe 224')
+figure("XU-simpack SiGe 224")
 clf()
-semilogy(qz, Imult, label='multibeam')
-semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
-legend(fontsize='small')
+semilogy(qz, Imult, label="multibeam")
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label="full dynamical")
+legend(fontsize="small")
 xlim(qz.min(), qz.max())
-xlabel(r'Qz ($1/\mathrm{\AA}$)')
-ylabel('Intensity (arb. u.)')
+xlabel(r"Qz ($1/\mathrm{\AA}$)")
+ylabel("Intensity (arb. u.)")
 tight_layout()
 show()
 
@@ -97,15 +115,19 @@ H, K, L = (1, 1, 5)
 qz = linspace(4.0, 7.0, 3000)
 
 # calculate incidence angle for dynamical diffraction models
-qx = sqrt(pls[0].material.Q(H, K, L)[0]**2 + pls[0].material.Q(H, K, L)[1]**2)
+qx = sqrt(
+    pls[0].material.Q(H, K, L)[0] ** 2 + pls[0].material.Q(H, K, L)[1] ** 2
+)
 ai = xu.simpack.coplanar_alphai(qx, qz, en)
-resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
-              xu.simpack.coplanar_alphai(qx, mean(qz), en))
+resolai = abs(
+    xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en)
+    - xu.simpack.coplanar_alphai(qx, mean(qz), en)
+)
 
 # kinematic multibeam diffraction model
-mk = xu.simpack.KinematicalMultiBeamModel(pls, energy=en,
-                                          surface_hkl=(0, 0, 1),
-                                          resolution_width=resol)
+mk = xu.simpack.KinematicalMultiBeamModel(
+    pls, energy=en, surface_hkl=(0, 0, 1), resolution_width=resol
+)
 Imult = mk.simulate(qz, hkl=(H, K, L), refraction=True)
 
 # general 2-beam theory based dynamical diffraction model
@@ -113,13 +135,13 @@ md = xu.simpack.DynamicalModel(pls, energy=en, resolution_width=resolai)
 Idyn = md.simulate(ai, hkl=(H, K, L))
 
 # plot of calculated intensities
-figure('XU-simpack SiGe 115')
+figure("XU-simpack SiGe 115")
 clf()
-semilogy(qz, Imult, label='multibeam')
-semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
-legend(fontsize='small')
+semilogy(qz, Imult, label="multibeam")
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label="full dynamical")
+legend(fontsize="small")
 xlim(qz.min(), qz.max())
-xlabel(r'Qz ($1/\mathrm{\AA}$)')
-ylabel('Intensity (arb. u.)')
+xlabel(r"Qz ($1/\mathrm{\AA}$)")
+ylabel("Intensity (arb. u.)")
 tight_layout()
 show()

@@ -26,14 +26,17 @@ class TestMathVector(unittest.TestCase):
         vec = (3, 1, 1)
         point = (-4, -5, -1)
         x, y, z = (-6, 1, 21)
-        d = xu.math.distance(numpy.array((x, x)),
-                             numpy.array((y, y)),
-                             numpy.array((z, z)),
-                             point, vec)
+        d = xu.math.distance(
+            numpy.array((x, x)),
+            numpy.array((y, y)),
+            numpy.array((z, z)),
+            point,
+            vec,
+        )
         self.assertEqual(d.size, 2)
-        self.assertAlmostEqual(d[0], 4*numpy.sqrt(30), places=10)
-        self.assertAlmostEqual(d[1], 4*numpy.sqrt(30), places=10)
+        self.assertAlmostEqual(d[0], 4 * numpy.sqrt(30), places=10)
+        self.assertAlmostEqual(d[1], 4 * numpy.sqrt(30), places=10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

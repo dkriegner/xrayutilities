@@ -29,41 +29,46 @@ datadir = "data"
 
 eps = 0.01
 # plot settings
-mpl.rcParams['font.size'] = 18.0
-mpl.rcParams['axes.labelsize'] = 'large'
-mpl.rcParams['legend.fancybox'] = True
-mpl.rcParams['legend.handletextpad'] = 0.5
-mpl.rcParams['legend.fontsize'] = 'medium'
-mpl.rcParams['figure.subplot.bottom'] = 0.13
-mpl.rcParams['figure.subplot.top'] = 0.93
-mpl.rcParams['figure.subplot.left'] = 0.14
-mpl.rcParams['figure.subplot.right'] = 0.915
-mpl.rcParams['savefig.dpi'] = 300
-mpl.rcParams['axes.grid'] = False
+mpl.rcParams["font.size"] = 18.0
+mpl.rcParams["axes.labelsize"] = "large"
+mpl.rcParams["legend.fancybox"] = True
+mpl.rcParams["legend.handletextpad"] = 0.5
+mpl.rcParams["legend.fontsize"] = "medium"
+mpl.rcParams["figure.subplot.bottom"] = 0.13
+mpl.rcParams["figure.subplot.top"] = 0.93
+mpl.rcParams["figure.subplot.left"] = 0.14
+mpl.rcParams["figure.subplot.right"] = 0.915
+mpl.rcParams["savefig.dpi"] = 300
+mpl.rcParams["axes.grid"] = False
 
 # substrate
 Ge = xu.materials.Ge
 
-hkls = list(permutations([1, 1, 3])) + list(permutations([-1, 1, 3])) +\
-       list(permutations([-1, -1, 3])) + list(permutations([1, 1, -3])) +\
-       list(permutations([-1, 1, -3])) + list(permutations([-1, -1, -3]))
+hkls = (
+    list(permutations([1, 1, 3]))
+    + list(permutations([-1, 1, 3]))
+    + list(permutations([-1, -1, 3]))
+    + list(permutations([1, 1, -3]))
+    + list(permutations([-1, 1, -3]))
+    + list(permutations([-1, -1, -3]))
+)
 
 tup = []
 label = []
 for ind in hkls:
     tup.append(Ge.Q(*ind))
-    lab = r'$('
+    lab = r"$("
     for index in ind:
-        lab += '%s' % (r'\bar' if index < 0 else '') + str(abs(index))
-    lab += ')$'
+        lab += "%s" % (r"\bar" if index < 0 else "") + str(abs(index))
+    lab += ")$"
     label.append(lab)
 
 df = xu.io.XRDMLFile(os.path.join(datadir, "polefig_Ge113.xrdml.bz2"))
 s = df.scan
 
-chi = 90 - s['Psi']
-phi = s['Phi']
-INT = s['detector']
+chi = 90 - s["Psi"]
+phi = s["Phi"]
+INT = s["detector"]
 
 # create 2D arrays for the angles
 CHI = chi[:, numpy.newaxis] * numpy.ones(INT.shape)
@@ -74,16 +79,23 @@ INT = xu.maplog(INT, 6, 0)
 fig = plt.figure()
 plt.clf()
 # plt.title("(113) pole figure")
-m = Basemap(boundinglat=-1., lon_0=180.0, resolution=None,
-            projection='npstere')
+m = Basemap(
+    boundinglat=-1.0, lon_0=180.0, resolution=None, projection="npstere"
+)
 X, Y = m(PHI, CHI)
 ax = plt.subplot(111)
 ax.set_frame_on(False)
 CS = m.contourf(X, Y, INT, 50)
-m.drawparallels(numpy.arange(0, 91, 10), labels=[1, 1, 1, 1],
-                color='gray', dashes=[2, 2])
-m.drawmeridians(numpy.arange(0, 360, 60), labels=[1, 1, 1, 1],
-                color='gray', labelstyle='+/-', dashes=[2, 2])
+m.drawparallels(
+    numpy.arange(0, 91, 10), labels=[1, 1, 1, 1], color="gray", dashes=[2, 2]
+)
+m.drawmeridians(
+    numpy.arange(0, 360, 60),
+    labels=[1, 1, 1, 1],
+    color="gray",
+    labelstyle="+/-",
+    dashes=[2, 2],
+)
 
 dphi = 62
 dchi = -32
@@ -96,10 +108,16 @@ ndir = xu.math.rotarb(Ge.Q(0, 0, 1), inpdir, dchi)
 chi = 90 - chi
 phi = phi - dphi
 # if direction is visible plot in polefig
-if (chi >= -eps):
+if chi >= -eps:
     x, y = m(phi, chi)
-    m.plot(numpy.array([x]), numpy.array([y]), ls='None', marker='s',
-           color='k', ms=12.)
+    m.plot(
+        numpy.array([x]),
+        numpy.array([y]),
+        ls="None",
+        marker="s",
+        color="k",
+        ms=12.0,
+    )
 
 # plot Ge {113} Bragg peaks
 for i in range(len(tup)):
@@ -110,8 +128,16 @@ for i in range(len(tup)):
     chi = 90 - chi
     phi = phi - dphi
     # if direction is visible plot in polefig
-    if (chi >= -eps):
+    if chi >= -eps:
         x, y = m(phi, chi)
-        m.plot(numpy.array([x]), numpy.array([y]), ls='None', marker='o',
-               color='k', ms=8., mfc='None', mew=2.)
-        plt.text(x + 400000, y, label[i], ha='left', va='bottom')
+        m.plot(
+            numpy.array([x]),
+            numpy.array([y]),
+            ls="None",
+            marker="o",
+            color="k",
+            ms=8.0,
+            mfc="None",
+            mew=2.0,
+        )
+        plt.text(x + 400000, y, label[i], ha="left", va="bottom")

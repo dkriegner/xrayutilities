@@ -54,7 +54,6 @@ class QConvFlags(enum.IntFlag):
 
 
 class QConversion:
-
     """
     Class for the conversion of angular coordinates to momentum space for
     arbitrary goniometer geometries and X-ray energy.  Both angular scans
@@ -73,17 +72,23 @@ class QConversion:
     or init_area() routines were called
     """
 
-    _valid_init_kwargs = {'en': 'x-ray energy',
-                          'wl': 'x-ray wavelength',
-                          'UB': 'orientation/orthonormalization matrix'}
-    _valid_call_kwargs = {'delta': 'angle offsets',
-                          'wl': 'x-ray wavelength',
-                          'en': 'x-ray energy',
-                          'UB': 'orientation/orthonormalization matrix',
-                          'deg': 'True if angles are in degrees',
-                          'sampledis': 'sample displacement vector'}
-    _valid_linear_kwargs = {'Nav': 'number of channels for block-average',
-                            'roi': 'region of interest'}
+    _valid_init_kwargs = {
+        "en": "x-ray energy",
+        "wl": "x-ray wavelength",
+        "UB": "orientation/orthonormalization matrix",
+    }
+    _valid_call_kwargs = {
+        "delta": "angle offsets",
+        "wl": "x-ray wavelength",
+        "en": "x-ray energy",
+        "UB": "orientation/orthonormalization matrix",
+        "deg": "True if angles are in degrees",
+        "sampledis": "sample displacement vector",
+    }
+    _valid_linear_kwargs = {
+        "Nav": "number of channels for block-average",
+        "roi": "region of interest",
+    }
 
     def __init__(self, sampleAxis, detectorAxis, r_i, **kwargs):
         """
@@ -119,8 +124,9 @@ class QConversion:
             determine not Q but (hkl) (default: identity matrix)
         """
 
-        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
-                               self.__class__.__name__)
+        utilities.check_kwargs(
+            kwargs, self._valid_init_kwargs, self.__class__.__name__
+        )
 
         # initialize some needed variables
         self._kappa_dir = numpy.array((numpy.nan, numpy.nan, numpy.nan))
@@ -133,20 +139,24 @@ class QConversion:
         if isinstance(r_i, (list, tuple, numpy.ndarray)):
             self.r_i = numpy.array(r_i, dtype=numpy.double)
             if self.r_i.size != 3:
-                print("XU.QConversion: warning invalid primary beam "
-                      "direction given -> using [0, 1, 0]")
+                print(
+                    "XU.QConversion: warning invalid primary beam "
+                    "direction given -> using [0, 1, 0]"
+                )
                 self.r_i = numpy.array([0, 1, 0], dtype=numpy.double)
         else:
-            raise TypeError("QConversion: invalid type of primary beam "
-                            "direction r_i, must be tuple, list or "
-                            "numpy.ndarray")
+            raise TypeError(
+                "QConversion: invalid type of primary beam "
+                "direction r_i, must be tuple, list or "
+                "numpy.ndarray"
+            )
 
         # kwargs
         self._set_wavelength(kwargs.get("wl", config.WAVELENGTH))
         if "en" in kwargs:
             self._set_energy(kwargs["en"])
 
-        self._set_UB(kwargs.get('UB', numpy.identity(3)))
+        self._set_UB(kwargs.get("UB", numpy.identity(3)))
 
         self._linear_init = False
         self._area_init = False
@@ -184,22 +194,30 @@ class QConversion:
                 sAxis = list(sampleAxis)
             for circ in sAxis:
                 if not isinstance(circ, str) or len(circ) != 2:
-                    raise InputError("QConversion: incorrect sample circle "
-                                     "type or syntax (%s)" % repr(circ))
+                    raise InputError(
+                        "QConversion: incorrect sample circle "
+                        "type or syntax (%s)" % repr(circ)
+                    )
                 if not circleSyntaxSample.search(circ):
-                    raise InputError("QConversion: incorrect sample circle "
-                                     "syntax (%s)" % circ)
-                if circ[0] == 'k':  # determine kappa rotation axis
+                    raise InputError(
+                        "QConversion: incorrect sample circle "
+                        "syntax (%s)" % circ
+                    )
+                if circ[0] == "k":  # determine kappa rotation axis
                     self._kappa_dir = math.getVector(circ)
                     if config.VERBOSITY >= config.DEBUG:
-                        print("XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)"
-                              % tuple(self._kappa_dir))
+                        print(
+                            "XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)"
+                            % tuple(self._kappa_dir)
+                        )
 
         else:
-            raise TypeError("Qconversion error: invalid type for sampleAxis, "
-                            "must be str, list, or tuple")
+            raise TypeError(
+                "Qconversion error: invalid type for sampleAxis, "
+                "must be str, list, or tuple"
+            )
         self._sampleAxis = sAxis
-        self._sampleAxis_str = ''
+        self._sampleAxis_str = ""
         for circ in self._sampleAxis:
             self._sampleAxis_str += circ
 
@@ -235,18 +253,24 @@ class QConversion:
                 dAxis = list(detectorAxis)
             for circ in dAxis:
                 if not isinstance(circ, str) or len(circ) != 2:
-                    raise InputError("QConversion: incorrect detector circle "
-                                     "type or syntax (%s)" % repr(circ))
+                    raise InputError(
+                        "QConversion: incorrect detector circle "
+                        "type or syntax (%s)" % repr(circ)
+                    )
                 if not circleSyntaxDetector.search(circ):
-                    raise InputError("QConversion: incorrect detector circle "
-                                     "syntax (%s)" % circ)
-                if circ[0] == 't':
+                    raise InputError(
+                        "QConversion: incorrect detector circle "
+                        "syntax (%s)" % circ
+                    )
+                if circ[0] == "t":
                     has_translations = True
         else:
-            raise TypeError("Qconversion error: invalid type for "
-                            "detectorAxis, must be str, list or tuple")
+            raise TypeError(
+                "Qconversion error: invalid type for "
+                "detectorAxis, must be str, list or tuple"
+            )
         self._detectorAxis = dAxis
-        self._detectorAxis_str = ''
+        self._detectorAxis_str = ""
         self._has_translations = has_translations
         for circ in self._detectorAxis:
             self._detectorAxis_str += circ
@@ -275,8 +299,10 @@ class QConversion:
         """
         tmp = numpy.array(UB)
         if tmp.shape != (3, 3) and tmp.size != 9:
-            raise InputError("QConversion: incorrect shape of UB matrix "
-                             "(shape: %s)" % str(tmp.shape))
+            raise InputError(
+                "QConversion: incorrect shape of UB matrix "
+                "(shape: %s)" % str(tmp.shape)
+            )
         self._UB = tmp.reshape((3, 3))
 
     energy = property(_get_energy, _set_energy)
@@ -286,47 +312,87 @@ class QConversion:
     UB = property(_get_UB, _set_UB)
 
     def __str__(self):
-        pstr = 'QConversion geometry \n'
-        pstr += '---------------------------\n'
-        pstr += f'sample geometry({len(self._sampleAxis)}): ' + \
-            self._sampleAxis_str + '\n'
-        if self._sampleAxis_str.find('k') != -1:
-            pstr += ('kappa rotation axis (%5.3f %5.3f %5.3f)\n'
-                     % tuple(self._kappa_dir))
-        pstr += f'detector geometry({len(self._detectorAxis)}): ' + \
-            self._detectorAxis_str + '\n'
-        pstr += ('primary beam direction: (%5.2f %5.2f %5.2f) \n'
-                 % (self.r_i[0], self.r_i[1], self.r_i[2]))
+        pstr = "QConversion geometry \n"
+        pstr += "---------------------------\n"
+        pstr += (
+            f"sample geometry({len(self._sampleAxis)}): "
+            + self._sampleAxis_str
+            + "\n"
+        )
+        if self._sampleAxis_str.find("k") != -1:
+            pstr += "kappa rotation axis (%5.3f %5.3f %5.3f)\n" % tuple(
+                self._kappa_dir
+            )
+        pstr += (
+            f"detector geometry({len(self._detectorAxis)}): "
+            + self._detectorAxis_str
+            + "\n"
+        )
+        pstr += "primary beam direction: (%5.2f %5.2f %5.2f) \n" % (
+            self.r_i[0],
+            self.r_i[1],
+            self.r_i[2],
+        )
 
         if self._linear_init:
-            pstr += '\n linear detector initialized:\n'
-            pstr += 'linear detector mount direction: ' + \
-                self._linear_detdir + '\n'
-            pstr += ('number of channels/center channel: %d/%d\n'
-                     % (self._linear_Nch, self._linear_cch))
-            pstr += ('distance to center of rotation/pixel width: '
-                     '%10.4g/%10.4g\n'
-                     % (self._linear_distance, self._linear_pixwidth))
-            chpdeg = 2 * self._linear_distance / \
-                self._linear_pixwidth * numpy.tan(numpy.radians(0.5))
-            pstr += f'corresponds to channel per degree: {chpdeg:8.2f}\n'
+            pstr += "\n linear detector initialized:\n"
+            pstr += (
+                "linear detector mount direction: "
+                + self._linear_detdir
+                + "\n"
+            )
+            pstr += "number of channels/center channel: %d/%d\n" % (
+                self._linear_Nch,
+                self._linear_cch,
+            )
+            pstr += (
+                "distance to center of rotation/pixel width: "
+                "%10.4g/%10.4g\n"
+                % (self._linear_distance, self._linear_pixwidth)
+            )
+            chpdeg = (
+                2
+                * self._linear_distance
+                / self._linear_pixwidth
+                * numpy.tan(numpy.radians(0.5))
+            )
+            pstr += f"corresponds to channel per degree: {chpdeg:8.2f}\n"
         if self._area_init:
-            pstr += '\n area detector initialized:\n'
-            pstr += 'area detector mount directions: %s/%s\n' % (
-                self._area_detdir1, self._area_detdir2)
-            pstr += ('number of channels/center channels: (%d,%d) / (%d,%d)\n'
-                     % (self._area_Nch1, self._area_Nch2,
-                        self._area_cch1, self._area_cch2))
-            pstr += ('distance to center of rotation/pixel width: '
-                     '%10.4g/ (%10.4g,%10.4g) \n'
-                     % (self._area_distance, self._area_pwidth1,
-                        self._area_pwidth2))
-            chpdeg1 = 2 * self._area_distance / \
-                self._area_pwidth1 * numpy.tan(numpy.radians(0.5))
-            chpdeg2 = 2 * self._area_distance / \
-                self._area_pwidth2 * numpy.tan(numpy.radians(0.5))
-            pstr += 'corresponds to channel per degree: (%8.2f,%8.2f)\n' % (
-                chpdeg1, chpdeg2)
+            pstr += "\n area detector initialized:\n"
+            pstr += "area detector mount directions: %s/%s\n" % (
+                self._area_detdir1,
+                self._area_detdir2,
+            )
+            pstr += (
+                "number of channels/center channels: (%d,%d) / (%d,%d)\n"
+                % (
+                    self._area_Nch1,
+                    self._area_Nch2,
+                    self._area_cch1,
+                    self._area_cch2,
+                )
+            )
+            pstr += (
+                "distance to center of rotation/pixel width: "
+                "%10.4g/ (%10.4g,%10.4g) \n"
+                % (self._area_distance, self._area_pwidth1, self._area_pwidth2)
+            )
+            chpdeg1 = (
+                2
+                * self._area_distance
+                / self._area_pwidth1
+                * numpy.tan(numpy.radians(0.5))
+            )
+            chpdeg2 = (
+                2
+                * self._area_distance
+                / self._area_pwidth2
+                * numpy.tan(numpy.radians(0.5))
+            )
+            pstr += "corresponds to channel per degree: (%8.2f,%8.2f)\n" % (
+                chpdeg1,
+                chpdeg2,
+            )
 
         return pstr
 
@@ -357,14 +423,18 @@ class QConversion:
             elif isinstance(a, numbers.Number):
                 anp = 1
             else:
-                raise TypeError('QConversion: Input argument #%d has an '
-                                'invalid type.' % args.index(a))
+                raise TypeError(
+                    "QConversion: Input argument #%d has an "
+                    "invalid type." % args.index(a)
+                )
             # check if the input field is valid
             if anp > 1 and np == 1:
                 np = anp
             elif anp > 1 and np != anp:
-                raise InputError('QConversion: Several input-arrays arguments '
-                                 'with different shape are an invalid input!')
+                raise InputError(
+                    "QConversion: Several input-arrays arguments "
+                    "with different shape are an invalid input!"
+                )
 
         return np
 
@@ -399,15 +469,18 @@ class QConversion:
 
         inarr = numpy.empty((len(args), npoints), dtype=numpy.double)
         retshape = (npoints,)  # default value
-        deg2rad = kwargs.get('deg', True)
+        deg2rad = kwargs.get("deg", True)
 
         for i in range(len(args)):
             arg = args[i]
-            if not isinstance(arg,
-                              (numbers.Number, list, tuple, numpy.ndarray)):
-                raise TypeError("QConversion: invalid type for one of the "
-                                "sample coordinates, must be scalar, list or "
-                                "array")
+            if not isinstance(
+                arg, (numbers.Number, list, tuple, numpy.ndarray)
+            ):
+                raise TypeError(
+                    "QConversion: invalid type for one of the "
+                    "sample coordinates, must be scalar, list or "
+                    "array"
+                )
             if isinstance(arg, numbers.Number):
                 arg = numpy.ones(npoints, dtype=numpy.double) * arg
             elif isinstance(arg, (list, tuple)):
@@ -459,23 +532,27 @@ class QConversion:
         Ncirc = Ns + Nd
 
         # kwargs
-        wl = utilities.wavelength(kwargs.get('wl', self._wl))
-        if 'en' in kwargs:
-            wl = utilities.lam2en(utilities.energy(kwargs['en']))
+        wl = utilities.wavelength(kwargs.get("wl", self._wl))
+        if "en" in kwargs:
+            wl = utilities.lam2en(utilities.energy(kwargs["en"]))
 
-        deg = kwargs.get('deg', True)
+        deg = kwargs.get("deg", True)
 
-        delta = numpy.asarray(kwargs.get('delta', numpy.zeros(Ncirc)),
-                              dtype=numpy.double)
+        delta = numpy.asarray(
+            kwargs.get("delta", numpy.zeros(Ncirc)), dtype=numpy.double
+        )
         if delta.size != Ncirc:
-            raise InputError("QConversion: keyword argument delta does "
-                             "not have an appropriate shape")
+            raise InputError(
+                "QConversion: keyword argument delta does "
+                "not have an appropriate shape"
+            )
 
-        UB = numpy.asarray(kwargs.get('UB', self.UB))
+        UB = numpy.asarray(kwargs.get("UB", self.UB))
 
-        sd = numpy.asarray(kwargs.get('sampledis', [0, 0, 0]),
-                           dtype=numpy.double)
-        if 'sampledis' in kwargs:
+        sd = numpy.asarray(
+            kwargs.get("sampledis", [0, 0, 0]), dtype=numpy.double
+        )
+        if "sampledis" in kwargs:
             flags |= QConvFlags.HAS_SAMPLEDIS
 
         return Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags
@@ -536,31 +613,34 @@ class QConversion:
             where `N` corresponds to the number of points given in the input
         """
 
-        utilities.check_kwargs(kwargs, self._valid_call_kwargs, 'Ang2Q/point')
+        utilities.check_kwargs(kwargs, self._valid_call_kwargs, "Ang2Q/point")
 
-        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
+        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = (
             self._parse_common_kwargs(**kwargs)
+        )
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
-            raise InputError("QConversion: wrong amount (%d) of arguments "
-                             "given, number of arguments should be %d"
-                             % (len(args), Ncirc))
+            raise InputError(
+                "QConversion: wrong amount (%d) of arguments "
+                "given, number of arguments should be %d" % (len(args), Ncirc)
+            )
 
         # determine the number of points
         a = args + (wl,)
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles, retshape = self._reshapeInput(Npoints, delta[:Ns],
-                                               self.sampleAxis, *args[:Ns],
-                                               deg=deg)
-        dAngles = self._reshapeInput(Npoints, delta[Ns:],
-                                     self.detectorAxis, *args[Ns:],
-                                     deg=deg)[0]
-        wl = numpy.ravel(self._reshapeInput(Npoints, (0, ), 'a',
-                                            wl, deg=False)[0])
+        sAngles, retshape = self._reshapeInput(
+            Npoints, delta[:Ns], self.sampleAxis, *args[:Ns], deg=deg
+        )
+        dAngles = self._reshapeInput(
+            Npoints, delta[Ns:], self.detectorAxis, *args[Ns:], deg=deg
+        )[0]
+        wl = numpy.ravel(
+            self._reshapeInput(Npoints, (0,), "a", wl, deg=False)[0]
+        )
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -576,21 +656,44 @@ class QConversion:
 
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns, Nd))
-            print(f"XU.QConversion: sAngles / dAngles {str(sAngles)} / "
-                  f"{str(dAngles)}")
+            print(
+                f"XU.QConversion: sAngles / dAngles {str(sAngles)} / "
+                f"{str(dAngles)}"
+            )
 
         qpos = cxrayutilities.ang2q_conversion(
-            sAngles, dAngles, self.r_i, sAxis, dAxis,
-            self._kappa_dir, UB, sd, wl, config.NTHREADS, flags)
+            sAngles,
+            dAngles,
+            self.r_i,
+            sAxis,
+            dAxis,
+            self._kappa_dir,
+            UB,
+            sd,
+            wl,
+            config.NTHREADS,
+            flags,
+        )
 
         if Npoints == 1:
             return (qpos[0, 0], qpos[0, 1], qpos[0, 2])
-        return numpy.reshape(qpos[:, 0], retshape), \
-            numpy.reshape(qpos[:, 1], retshape), \
-            numpy.reshape(qpos[:, 2], retshape)
+        return (
+            numpy.reshape(qpos[:, 0], retshape),
+            numpy.reshape(qpos[:, 1], retshape),
+            numpy.reshape(qpos[:, 2], retshape),
+        )
 
-    def init_linear(self, detectorDir, cch, Nchannel, distance=None,
-                    pixelwidth=None, chpdeg=None, tilt=0, **kwargs):
+    def init_linear(
+        self,
+        detectorDir,
+        cch,
+        Nchannel,
+        distance=None,
+        pixelwidth=None,
+        chpdeg=None,
+        tilt=0,
+        **kwargs,
+    ):
         """
         initialization routine for linear detectors
         detector direction as well as distance and pixel size or
@@ -628,16 +731,21 @@ class QConversion:
 
         """
 
-        utilities.check_kwargs(kwargs, self._valid_linear_kwargs,
-                               'init_linear')
+        utilities.check_kwargs(
+            kwargs, self._valid_linear_kwargs, "init_linear"
+        )
 
         # detectorDir
         if not isinstance(detectorDir, str) or len(detectorDir) != 2:
-            raise InputError("QConversion: incorrect detector direction type "
-                             "or syntax (%s)" % repr(detectorDir))
+            raise InputError(
+                "QConversion: incorrect detector direction type "
+                "or syntax (%s)" % repr(detectorDir)
+            )
         if not directionSyntax.search(detectorDir):
-            raise InputError("QConversion: incorrect detector direction "
-                             "syntax (%s)" % detectorDir)
+            raise InputError(
+                "QConversion: incorrect detector direction "
+                "syntax (%s)" % detectorDir
+            )
         self._linear_detdir = detectorDir
 
         self._linear_Nch = int(Nchannel)
@@ -649,17 +757,23 @@ class QConversion:
             self._linear_pixwidth = float(pixelwidth)
         elif chpdeg is not None:
             self._linear_distance = 1.0
-            self._linear_pixwidth = 2 * self._linear_distance / \
-                numpy.abs(float(chpdeg)) * numpy.tan(numpy.radians(0.5))
+            self._linear_pixwidth = (
+                2
+                * self._linear_distance
+                / numpy.abs(float(chpdeg))
+                * numpy.tan(numpy.radians(0.5))
+            )
         else:
             # not all needed values were given
-            raise InputError("QConversion: not all mandatory arguments were "
-                             "given -> read API doc, need distance and "
-                             "pixelwidth or chpdeg")
+            raise InputError(
+                "QConversion: not all mandatory arguments were "
+                "given -> read API doc, need distance and "
+                "pixelwidth or chpdeg"
+            )
 
         # kwargs
-        self._linear_roi = kwargs.get('roi', [0, self._linear_Nch])
-        self._linear_nav = kwargs.get('Nav', 1)
+        self._linear_roi = kwargs.get("roi", [0, self._linear_Nch])
+        self._linear_nav = kwargs.get("Nav", 1)
 
         # rescale r_i
         self.r_i = math.VecUnit(self.r_i) * self._linear_distance
@@ -739,38 +853,45 @@ class QConversion:
         """
 
         if not self._linear_init:
-            raise UsageError("QConversion: linear detector not initialized -> "
-                             "call Ang2Q.init_linear(...)")
+            raise UsageError(
+                "QConversion: linear detector not initialized -> "
+                "call Ang2Q.init_linear(...)"
+            )
 
         valid_kwargs = copy.copy(self._valid_call_kwargs)
         valid_kwargs.update(self._valid_linear_kwargs)
-        utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2Q/linear')
+        utilities.check_kwargs(kwargs, valid_kwargs, "Ang2Q/linear")
 
-        Ns, _, Ncirc, wl, deg, delta, UB, sd, flags = \
+        Ns, _, Ncirc, wl, deg, delta, UB, sd, flags = (
             self._parse_common_kwargs(**kwargs)
+        )
 
         # extra keyword arguments
-        nav = kwargs.get('Nav', self._linear_nav)
-        oroi = kwargs.get('roi', self._linear_roi)
+        nav = kwargs.get("Nav", self._linear_nav)
+        oroi = kwargs.get("roi", self._linear_roi)
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
-            raise InputError("QConversion: wrong amount (%d) of arguments "
-                             "given, number of arguments should be %d"
-                             % (len(args), Ncirc))
+            raise InputError(
+                "QConversion: wrong amount (%d) of arguments "
+                "given, number of arguments should be %d" % (len(args), Ncirc)
+            )
 
         # determine the number of points
         a = args + (wl,)
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles = self._reshapeInput(Npoints, delta[:Ns],
-                                     self.sampleAxis, *args[:Ns], deg=deg)[0]
-        dAngles = self._reshapeInput(Npoints, delta[Ns:],
-                                     self.detectorAxis, *args[Ns:], deg=deg)[0]
+        sAngles = self._reshapeInput(
+            Npoints, delta[:Ns], self.sampleAxis, *args[:Ns], deg=deg
+        )[0]
+        dAngles = self._reshapeInput(
+            Npoints, delta[Ns:], self.detectorAxis, *args[Ns:], deg=deg
+        )[0]
         wl = numpy.ravel(
-            self._reshapeInput(Npoints, (0, ), 'a', wl, deg=False)[0])
+            self._reshapeInput(Npoints, (0,), "a", wl, deg=False)[0]
+        )
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -780,9 +901,23 @@ class QConversion:
         dAxis = self._detectorAxis_str
 
         qpos = cxrayutilities.ang2q_conversion_linear(
-            sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
-            cch, pwidth, roi, self._linear_detdir, self._linear_tilt,
-            UB, sd, wl, config.NTHREADS, flags)
+            sAngles,
+            dAngles,
+            self.r_i,
+            sAxis,
+            dAxis,
+            self._kappa_dir,
+            cch,
+            pwidth,
+            roi,
+            self._linear_detdir,
+            self._linear_tilt,
+            UB,
+            sd,
+            wl,
+            config.NTHREADS,
+            flags,
+        )
 
         # reshape output
         if Npoints == 1:
@@ -791,9 +926,24 @@ class QConversion:
         qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
         return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
 
-    def init_area(self, detectorDir1, detectorDir2, cch1, cch2, Nch1, Nch2,
-                  distance=None, pwidth1=None, pwidth2=None, chpdeg1=None,
-                  chpdeg2=None, detrot=0, tiltazimuth=0, tilt=0, **kwargs):
+    def init_area(
+        self,
+        detectorDir1,
+        detectorDir2,
+        cch1,
+        cch2,
+        Nch1,
+        Nch2,
+        distance=None,
+        pwidth1=None,
+        pwidth2=None,
+        chpdeg1=None,
+        chpdeg2=None,
+        detrot=0,
+        tiltazimuth=0,
+        tilt=0,
+        **kwargs,
+    ):
         """
         initialization routine for area detectors
         detector direction as well as distance and pixel size or
@@ -843,22 +993,30 @@ class QConversion:
                 the channel numbers run from 0 .. NchX-1
         """
 
-        utilities.check_kwargs(kwargs, self._valid_linear_kwargs, 'init_area')
+        utilities.check_kwargs(kwargs, self._valid_linear_kwargs, "init_area")
 
         # detectorDir
         if not isinstance(detectorDir1, str) or len(detectorDir1) != 2:
-            raise InputError("QConversion: incorrect detector direction1 type "
-                             "or syntax (%s)" % repr(detectorDir1))
+            raise InputError(
+                "QConversion: incorrect detector direction1 type "
+                "or syntax (%s)" % repr(detectorDir1)
+            )
         if not directionSyntax.search(detectorDir1):
-            raise InputError("QConversion: incorrect detector direction1 "
-                             "syntax (%s)" % detectorDir1)
+            raise InputError(
+                "QConversion: incorrect detector direction1 "
+                "syntax (%s)" % detectorDir1
+            )
         self._area_detdir1 = detectorDir1
         if not isinstance(detectorDir2, str) or len(detectorDir2) != 2:
-            raise InputError("QConversion: incorrect detector direction2 type "
-                             "or syntax (%s)" % repr(detectorDir2))
+            raise InputError(
+                "QConversion: incorrect detector direction2 type "
+                "or syntax (%s)" % repr(detectorDir2)
+            )
         if not directionSyntax.search(detectorDir2):
-            raise InputError("QConversion: incorrect detector direction2 "
-                             "syntax (%s)" % detectorDir2)
+            raise InputError(
+                "QConversion: incorrect detector direction2 "
+                "syntax (%s)" % detectorDir2
+            )
         self._area_detdir2 = detectorDir2
 
         # other none keyword arguments
@@ -870,40 +1028,56 @@ class QConversion:
         # if detector rotation is present add new motor to consider it in
         # conversion
         self._area_detrot = numpy.radians(detrot)
-        if self._area_detrot != 0.:
+        if self._area_detrot != 0.0:
             if self._area_detrotaxis_set:
                 self._set_detectorAxis(
                     self._get_detectorAxis()[:-1] + [math.getSyntax(self.r_i)],
-                    detrot=True)
+                    detrot=True,
+                )
             else:
                 self._set_detectorAxis(
                     self._get_detectorAxis() + [math.getSyntax(self.r_i)],
-                    detrot=True)
+                    detrot=True,
+                )
 
         self._area_tiltazimuth = numpy.radians(tiltazimuth)
         self._area_tilt = numpy.radians(tilt)
 
         # mandatory keyword arguments
-        if (distance is not None and pwidth1 is not None and
-                pwidth2 is not None):
+        if (
+            distance is not None
+            and pwidth1 is not None
+            and pwidth2 is not None
+        ):
             self._area_distance = float(distance)
             self._area_pwidth1 = float(pwidth1)
             self._area_pwidth2 = float(pwidth2)
         elif chpdeg1 is not None and chpdeg2 is not None:
             self._area_distance = 1.0
-            self._area_pwidth1 = 2 * self._area_distance / \
-                numpy.abs(float(chpdeg1)) * numpy.tan(numpy.radians(0.5))
-            self._area_pwidth2 = 2 * self._area_distance / \
-                numpy.abs(float(chpdeg2)) * numpy.tan(numpy.radians(0.5))
+            self._area_pwidth1 = (
+                2
+                * self._area_distance
+                / numpy.abs(float(chpdeg1))
+                * numpy.tan(numpy.radians(0.5))
+            )
+            self._area_pwidth2 = (
+                2
+                * self._area_distance
+                / numpy.abs(float(chpdeg2))
+                * numpy.tan(numpy.radians(0.5))
+            )
         else:
             # not all needed values were given
-            raise InputError("Qconversion error: not all mandatory arguments "
-                             "were given -> read API doc")
+            raise InputError(
+                "Qconversion error: not all mandatory arguments "
+                "were given -> read API doc"
+            )
 
         # kwargs
-        self._area_roi = kwargs.get('roi', [0, self._area_Nch1,
-                                            0, self._area_Nch2])
-        self._area_nav = kwargs.get('Nav', [1, 1])
+        self._area_roi = kwargs.get(
+            "roi", [0, self._area_Nch1, 0, self._area_Nch2]
+        )
+        self._area_nav = kwargs.get("Nav", [1, 1])
 
         # rescale r_i
         self.r_i = math.VecUnit(self.r_i) * self._area_distance
@@ -989,36 +1163,42 @@ class QConversion:
         """
 
         if not self._area_init:
-            raise UsageError("QConversion: area detector not initialized -> "
-                             "call Ang2Q.init_area(...)")
+            raise UsageError(
+                "QConversion: area detector not initialized -> "
+                "call Ang2Q.init_area(...)"
+            )
 
         valid_kwargs = copy.copy(self._valid_call_kwargs)
         valid_kwargs.update(self._valid_linear_kwargs)
-        utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2Q/area')
+        utilities.check_kwargs(kwargs, valid_kwargs, "Ang2Q/area")
 
-        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = \
+        Ns, Nd, Ncirc, wl, deg, delta, UB, sd, flags = (
             self._parse_common_kwargs(**kwargs)
+        )
 
         # extra keyword arguments
-        nav = kwargs.get('Nav', self._area_nav)
-        oroi = kwargs.get('roi', self._area_roi)
+        nav = kwargs.get("Nav", self._area_nav)
+        oroi = kwargs.get("roi", self._area_roi)
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Ncirc:
-            raise InputError("QConversion: wrong amount (%d) of arguments "
-                             "given, number of arguments should be %d"
-                             % (len(args), Ncirc))
+            raise InputError(
+                "QConversion: wrong amount (%d) of arguments "
+                "given, number of arguments should be %d" % (len(args), Ncirc)
+            )
 
         # determine the number of points
         a = args + (wl,)
         Npoints = self._checkInput(*a)
 
         # reshape/recast input arguments for sample and detector angles
-        sAngles = self._reshapeInput(Npoints, delta[:Ns],
-                                     self.sampleAxis, *args[:Ns], deg=deg)[0]
+        sAngles = self._reshapeInput(
+            Npoints, delta[:Ns], self.sampleAxis, *args[:Ns], deg=deg
+        )[0]
         wl = numpy.ravel(
-            self._reshapeInput(Npoints, (0, ), 'a', wl, deg=False)[0])
+            self._reshapeInput(Npoints, (0,), "a", wl, deg=False)[0]
+        )
 
         if self._area_detrotaxis_set:
             Nd = Nd + 1
@@ -1027,12 +1207,16 @@ class QConversion:
             else:
                 a = args[Ns:] + (self._area_detrot,)
             dAngles = self._reshapeInput(
-                Npoints, numpy.append(delta[Ns:], 0),
-                self.detectorAxis, *a, deg=deg)[0]
+                Npoints,
+                numpy.append(delta[Ns:], 0),
+                self.detectorAxis,
+                *a,
+                deg=deg,
+            )[0]
         else:
-            dAngles = self._reshapeInput(Npoints, delta[Ns:],
-                                         self.detectorAxis, *args[Ns:],
-                                         deg=deg)[0]
+            dAngles = self._reshapeInput(
+                Npoints, delta[Ns:], self.detectorAxis, *args[Ns:], deg=deg
+            )[0]
 
         sAngles = sAngles.transpose()
         dAngles = dAngles.transpose()
@@ -1040,18 +1224,37 @@ class QConversion:
         cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(oroi, nav)
 
         if config.VERBOSITY >= config.DEBUG:
-            print("QConversion.area: roi, number of points per frame: %s, %d"
-                  % (str(roi), (roi[1] - roi[0]) * (roi[3] - roi[2])))
+            print(
+                "QConversion.area: roi, number of points per frame: %s, %d"
+                % (str(roi), (roi[1] - roi[0]) * (roi[3] - roi[2]))
+            )
             print(f"QConversion.area: cch1, cch2: {cch1:5.2f} {cch2:5.2f}")
 
         sAxis = self._sampleAxis_str
         dAxis = self._detectorAxis_str
 
         qpos = cxrayutilities.ang2q_conversion_area(
-            sAngles, dAngles, self.r_i, sAxis, dAxis, self._kappa_dir,
-            cch1, cch2, pwidth1, pwidth2, roi, self._area_detdir1,
-            self._area_detdir2, self._area_tiltazimuth, self._area_tilt,
-            UB, sd, wl, config.NTHREADS, flags)
+            sAngles,
+            dAngles,
+            self.r_i,
+            sAxis,
+            dAxis,
+            self._kappa_dir,
+            cch1,
+            cch2,
+            pwidth1,
+            pwidth2,
+            roi,
+            self._area_detdir1,
+            self._area_detdir2,
+            self._area_tiltazimuth,
+            self._area_tilt,
+            UB,
+            sd,
+            wl,
+            config.NTHREADS,
+            flags,
+        )
 
         # reshape output
         if Npoints == 1:
@@ -1081,7 +1284,7 @@ class QConversion:
             rotated vector as numpy.array
         """
         rotvec = vector
-        for i in range(len(self.sampleAxis)-1, -1, -1):
+        for i in range(len(self.sampleAxis) - 1, -1, -1):
             a = args[i]
             axis = self.sampleAxis[i]
             rota = math.getVector(axis)
@@ -1116,38 +1319,44 @@ class QConversion:
         -------
         ndarray
             numpy array of length 3 with vector components of the detector
-            direction. The length of the vector corresponds to the distance from
-            the center of rotation. The length unit is the same as the one of
-            the r_i.
+            direction. The length of the vector corresponds to the distance
+            from the center of rotation. The length unit is the same as the one
+            of the r_i.
         """
 
         valid_kwargs = copy.copy(self._valid_linear_kwargs)
-        valid_kwargs['dim'] = 'dimensionality of the detector'
-        valid_kwargs['deg'] = 'True if angles are in degrees'
-        utilities.check_kwargs(kwargs, valid_kwargs, 'get_detector_pos')
+        valid_kwargs["dim"] = "dimensionality of the detector"
+        valid_kwargs["deg"] = "True if angles are in degrees"
+        utilities.check_kwargs(kwargs, valid_kwargs, "get_detector_pos")
 
-        dim = kwargs.get('dim', 0)
+        dim = kwargs.get("dim", 0)
 
         if dim == 1 and not self._linear_init:
-            raise UsageError("QConversion: linear detector not initialized -> "
-                             "call Ang2Q.init_linear(...)")
+            raise UsageError(
+                "QConversion: linear detector not initialized -> "
+                "call Ang2Q.init_linear(...)"
+            )
         if dim == 2 and not self._area_init:
-            raise UsageError("QConversion: area detector not initialized -> "
-                             "call Ang2Q.init_area(...)")
+            raise UsageError(
+                "QConversion: area detector not initialized -> "
+                "call Ang2Q.init_area(...)"
+            )
 
         Nd = len(self.detectorAxis)
         if self._area_detrotaxis_set:
             Nd = Nd - 1
 
         # kwargs
-        deg = kwargs.get('deg', True)
+        deg = kwargs.get("deg", True)
 
         # prepare angular arrays from *args
         # need one sample angle and one detector angle array
         if len(args) != Nd:
-            raise InputError(f"QConversion: wrong amount ({len(args)}) of "
-                             "arguments given, number of arguments should be "
-                             f"{Nd}")
+            raise InputError(
+                f"QConversion: wrong amount ({len(args)}) of "
+                "arguments given, number of arguments should be "
+                f"{Nd}"
+            )
 
         # determine the number of points and reshape input arguments
         Npoints = self._checkInput(*args)
@@ -1159,26 +1368,42 @@ class QConversion:
             else:
                 a = args + (self._area_detrot,)
             dAngles, retshape = self._reshapeInput(
-                Npoints, numpy.append(numpy.zeros(Nd), 0),
-                self.detectorAxis, *a, deg=deg)
+                Npoints,
+                numpy.append(numpy.zeros(Nd), 0),
+                self.detectorAxis,
+                *a,
+                deg=deg,
+            )
         else:
-            dAngles, retshape = self._reshapeInput(Npoints, numpy.zeros(Nd),
-                                                   self.detectorAxis, *args,
-                                                   deg=deg)
+            dAngles, retshape = self._reshapeInput(
+                Npoints, numpy.zeros(Nd), self.detectorAxis, *args, deg=deg
+            )
 
         dAngles = dAngles.transpose()
         dAxis = self._detectorAxis_str
 
         if dim == 2:
-            oroi = kwargs.get('roi', self._area_roi)
-            nav = kwargs.get('Nav', self._area_nav)
-            cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(oroi,
-                                                                        nav)
+            oroi = kwargs.get("roi", self._area_roi)
+            nav = kwargs.get("Nav", self._area_nav)
+            cch1, cch2, pwidth1, pwidth2, roi = self._get_detparam_area(
+                oroi, nav
+            )
             cfunc = cxrayutilities.ang2q_detpos_area
-            dpos = cfunc(dAngles, self.r_i, dAxis, cch1, cch2, pwidth1,
-                         pwidth2, roi, self._area_detdir1, self._area_detdir2,
-                         self._area_tiltazimuth, self._area_tilt,
-                         config.NTHREADS)
+            dpos = cfunc(
+                dAngles,
+                self.r_i,
+                dAxis,
+                cch1,
+                cch2,
+                pwidth1,
+                pwidth2,
+                roi,
+                self._area_detdir1,
+                self._area_detdir2,
+                self._area_tiltazimuth,
+                self._area_tilt,
+                config.NTHREADS,
+            )
 
             # reshape output
             if Npoints == 1:
@@ -1188,13 +1413,21 @@ class QConversion:
             return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
 
         if dim == 1:
-            oroi = kwargs.get('roi', self._linear_roi)
-            nav = kwargs.get('Nav', self._linear_nav)
+            oroi = kwargs.get("roi", self._linear_roi)
+            nav = kwargs.get("Nav", self._linear_nav)
             cch, pwidth, roi = self._get_detparam_linear(oroi, nav)
             cfunc = cxrayutilities.ang2q_detpos_linear
-            dpos = cfunc(dAngles, self.r_i, dAxis, cch, pwidth, roi,
-                         self._linear_detdir, self._linear_tilt,
-                         config.NTHREADS)
+            dpos = cfunc(
+                dAngles,
+                self.r_i,
+                dAxis,
+                cch,
+                pwidth,
+                roi,
+                self._linear_detdir,
+                self._linear_tilt,
+                config.NTHREADS,
+            )
 
             # reshape output
             if Npoints == 1:
@@ -1208,9 +1441,11 @@ class QConversion:
 
         if Npoints == 1:
             return (dpos[0, 0], dpos[0, 1], dpos[0, 2])
-        return numpy.reshape(dpos[:, 0], retshape), \
-            numpy.reshape(dpos[:, 1], retshape), \
-            numpy.reshape(dpos[:, 2], retshape)
+        return (
+            numpy.reshape(dpos[:, 0], retshape),
+            numpy.reshape(dpos[:, 1], retshape),
+            numpy.reshape(dpos[:, 2], retshape),
+        )
 
     def getDetectorDistance(self, *args, **kwargs):
         """
@@ -1248,16 +1483,17 @@ class QConversion:
 
 
 class Experiment:
-
     """
     base class for describing experiments
     users should use the derived classes: HXRD, GID, PowderExperiment
     """
 
-    _valid_init_kwargs = {'en': 'x-ray energy',
-                          'wl': 'x-ray wavelength',
-                          'qconv': 'reciprocal space conversion',
-                          'sampleor': 'sample orientation'}
+    _valid_init_kwargs = {
+        "en": "x-ray energy",
+        "wl": "x-ray wavelength",
+        "qconv": "reciprocal space conversion",
+        "sampleor": "sample orientation",
+    }
 
     def __init__(self, ipdir, ndir, **keyargs):
         """
@@ -1311,8 +1547,9 @@ class Experiment:
                 for arbitrary goniometers with some restrictions.
         """
 
-        utilities.check_kwargs(keyargs, self._valid_init_kwargs,
-                               self.__class__.__name__)
+        utilities.check_kwargs(
+            keyargs, self._valid_init_kwargs, self.__class__.__name__
+        )
 
         if isinstance(ipdir, (list, tuple, numpy.ndarray)):
             self.idir = math.VecUnit(ipdir)
@@ -1327,54 +1564,65 @@ class Experiment:
         # test the given direction to be not parallel and warn if not
         # perpendicular
         if numpy.isclose(norm(numpy.cross(self.idir, self.ndir)), 0):
-            raise InputError("given inplane direction is parallel to normal "
-                             "direction, they must be linear independent!")
+            raise InputError(
+                "given inplane direction is parallel to normal "
+                "direction, they must be linear independent!"
+            )
         if not numpy.isclose(numpy.abs(numpy.dot(self.idir, self.ndir)), 0):
             self.idir = numpy.cross(
-                numpy.cross(self.ndir, self.idir),
-                self.ndir)
+                numpy.cross(self.ndir, self.idir), self.ndir
+            )
             self.idir = self.idir / norm(self.idir)
-            warnings.warn("Experiment: given inplane direction is not "
-                          "perpendicular to normal direction\n -> Experiment "
-                          "class uses the following direction with the same "
-                          "azimuth:\n %s" % (' '.join(map(
-                                             str, numpy.round(self.idir, 3)))))
+            warnings.warn(
+                "Experiment: given inplane direction is not "
+                "perpendicular to normal direction\n -> Experiment "
+                "class uses the following direction with the same "
+                "azimuth:\n %s"
+                % (" ".join(map(str, numpy.round(self.idir, 3))))
+            )
 
         # initialize Ang2Q conversion
         self._A2QConversion = keyargs.get(
-            'qconv', QConversion('x+', 'x+', [0, 1, 0]))
+            "qconv", QConversion("x+", "x+", [0, 1, 0])
+        )
         self.Ang2Q = self._A2QConversion
 
-        self._sampleor = keyargs.get('sampleor', 'det')
+        self._sampleor = keyargs.get("sampleor", "det")
 
         # set the coordinate transform for the azimuth used in the experiment
         self.scatplane = math.VecUnit(numpy.cross(self.idir, self.ndir))
-        self._set_transform(self.scatplane, self.idir,
-                            self.ndir, self._sampleor)
+        self._set_transform(
+            self.scatplane, self.idir, self.ndir, self._sampleor
+        )
 
         # calculate the energy from the wavelength
-        self._set_wavelength(keyargs.get('wl', config.WAVELENGTH))
+        self._set_wavelength(keyargs.get("wl", config.WAVELENGTH))
         if "en" in keyargs:
             self._set_energy(keyargs["en"])
 
     def __str__(self):
-
-        ostr = "scattering plane normal: (%f %f %f)\n" % (self.scatplane[0],
-                                                          self.scatplane[1],
-                                                          self.scatplane[2])
-        ostr += "inplane azimuth: (%f %f %f)\n" % (self.idir[0],
-                                                   self.idir[1],
-                                                   self.idir[2])
-        ostr += "second refercence direction: (%f %f %f)\n" % (self.ndir[0],
-                                                               self.ndir[1],
-                                                               self.ndir[2])
+        ostr = "scattering plane normal: (%f %f %f)\n" % (
+            self.scatplane[0],
+            self.scatplane[1],
+            self.scatplane[2],
+        )
+        ostr += "inplane azimuth: (%f %f %f)\n" % (
+            self.idir[0],
+            self.idir[1],
+            self.idir[2],
+        )
+        ostr += "second refercence direction: (%f %f %f)\n" % (
+            self.ndir[0],
+            self.ndir[1],
+            self.ndir[2],
+        )
         ostr += f"energy: {self._en:f} (eV)\n"
         ostr += f"wavelength: {self._wl:f} (angstrom)\n"
         ostr += self._A2QConversion.__str__()
 
         return ostr
 
-    def _set_transform(self, v1, v2, v3, sampleor='det'):
+    def _set_transform(self, v1, v2, v3, sampleor="det"):
         """
         set new transformation of the coordinate system to use in the
         experimental class.
@@ -1399,7 +1647,7 @@ class Experiment:
         # turn idir to Y and ndir to Z
         self._t1 = math.CoordinateTransform(v1, v2, v3)
 
-        if sampleor == 'det':
+        if sampleor == "det":
             yi = self._A2QConversion.r_i
             idc = self._A2QConversion.detectorAxis[-1]
             xi = math.getVector(idc)
@@ -1409,47 +1657,54 @@ class Experiment:
                 idc = self._A2QConversion.detectorAxis[-2]
                 xi = math.getVector(idc)
             zi = math.VecUnit(numpy.cross(xi, yi))
-        elif sampleor == 'sam':
+        elif sampleor == "sam":
             yi = self._A2QConversion.r_i
             isc = self._A2QConversion.sampleAxis[-1]
             zi = numpy.abs(math.getVector(isc))
             if numpy.all(numpy.abs(yi) == numpy.abs(zi)):
                 zi = numpy.roll(zi, 1)
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.Experiment: Warning, sample orientation "
-                          "convention failed. Using (%.3f %.3f %.3f) "
-                          "as internal z-axis" % (zi[0], zi[1], zi[2]))
+                    print(
+                        "XU.Experiment: Warning, sample orientation "
+                        "convention failed. Using (%.3f %.3f %.3f) "
+                        "as internal z-axis" % (zi[0], zi[1], zi[2])
+                    )
             xi = math.VecUnit(numpy.cross(yi, zi))
         else:
             yi = self._A2QConversion.r_i
             try:
                 zi = math.getVector(sampleor)
             except InputError:
-                raise InputError('invalid value of sample orientation, use '
-                                 'either [xyz][+-] syntax or det/sam!')
+                raise InputError(
+                    "invalid value of sample orientation, use "
+                    "either [xyz][+-] syntax or det/sam!"
+                )
             if numpy.all(numpy.abs(yi) == numpy.abs(zi)):
                 zi = numpy.roll(zi, 1)
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.Experiment: Warning, sample orientation "
-                          "convention failed. Using (%.3f %.3f %.3f) "
-                          "as internal z-axis" % (zi[0], zi[1], zi[2]))
+                    print(
+                        "XU.Experiment: Warning, sample orientation "
+                        "convention failed. Using (%.3f %.3f %.3f) "
+                        "as internal z-axis" % (zi[0], zi[1], zi[2])
+                    )
             xi = math.VecUnit(numpy.cross(yi, zi))
         # turn r_i to Y and Z defined by detector rotation plane
         self._t2 = math.CoordinateTransform(xi, yi, zi)
 
         self._transform = math.Transform(
-            numpy.dot(numpy.linalg.inv(self._t2.matrix), self._t1.matrix))
+            numpy.dot(numpy.linalg.inv(self._t2.matrix), self._t1.matrix)
+        )
 
     def _set_energy(self, energy):
         self._en = utilities.energy(energy)
         self._wl = utilities.en2lam(self._en)
-        self.k0 = numpy.pi * 2. / self._wl
+        self.k0 = numpy.pi * 2.0 / self._wl
         self._A2QConversion.wavelength = self._wl
 
     def _set_wavelength(self, wl):
         self._wl = utilities.wavelength(wl)
         self._en = utilities.lam2en(self._wl)
-        self.k0 = numpy.pi * 2. / self._wl
+        self.k0 = numpy.pi * 2.0 / self._wl
         self._A2QConversion.wavelength = self._wl
 
     def _get_energy(self):
@@ -1526,44 +1781,48 @@ class Experiment:
             corresponds to the number of points given in the input (args)
         """
 
-        valid_kwargs = {'B': 'orthonormalization matrix',
-                        'U': 'orientation matrix',
-                        'mat': 'material object',
-                        'dettype': 'string with detector type'}
+        valid_kwargs = {
+            "B": "orthonormalization matrix",
+            "U": "orientation matrix",
+            "mat": "material object",
+            "dettype": "string with detector type",
+        }
         valid_kwargs.update(QConversion._valid_call_kwargs)
-        del valid_kwargs['UB']
-        utilities.check_kwargs(kwargs, valid_kwargs, 'Ang2HKL')
+        del valid_kwargs["UB"]
+        utilities.check_kwargs(kwargs, valid_kwargs, "Ang2HKL")
 
         if "B" in kwargs:
-            B = numpy.array(kwargs['B'])
+            B = numpy.array(kwargs["B"])
             kwargs.pop("B")
         elif "mat" in kwargs:
-            mat = kwargs['mat']
+            mat = kwargs["mat"]
             B = mat.B
             kwargs.pop("mat")
         else:
             B = numpy.identity(3)
 
         if "U" in kwargs:
-            U = numpy.array(kwargs['U'])
+            U = numpy.array(kwargs["U"])
             kwargs.pop("U")
         else:
             U = self._transform.matrix
 
-        kwargs['UB'] = numpy.dot(U, B)
+        kwargs["UB"] = numpy.dot(U, B)
 
         if "dettype" in kwargs:
-            typ = kwargs['dettype']
-            if typ not in ('point', 'linear', 'area'):
-                raise InputError("wrong dettype given: needs to be one of "
-                                 "'point', 'linear', 'area'")
+            typ = kwargs["dettype"]
+            if typ not in ("point", "linear", "area"):
+                raise InputError(
+                    "wrong dettype given: needs to be one of "
+                    "'point', 'linear', 'area'"
+                )
             kwargs.pop("dettype")
         else:
-            typ = 'point'
+            typ = "point"
 
-        if typ == 'linear':
+        if typ == "linear":
             return self.Ang2Q.linear(*args, **kwargs)
-        if typ == 'area':
+        if typ == "area":
             return self.Ang2Q.area(*args, **kwargs)
         return self.Ang2Q(*args, **kwargs)
 
@@ -1629,7 +1888,6 @@ class Experiment:
 
 
 class HXRD(Experiment):
-
     """
     class describing high angle x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -1641,7 +1899,7 @@ class HXRD(Experiment):
     see "help(HXRDInstance.Ang2Q)"
     """
 
-    def __init__(self, idir, ndir, geometry='hi_lo', **keyargs):
+    def __init__(self, idir, ndir, geometry="hi_lo", **keyargs):
         """
         initialization routine for the HXRD Experiment class
 
@@ -1660,21 +1918,22 @@ class HXRD(Experiment):
 
         """
         if "qconv" not in keyargs:
-            keyargs['qconv'] = QConversion('x+', 'x+', [0, 1, 0])
+            keyargs["qconv"] = QConversion("x+", "x+", [0, 1, 0])
 
         if geometry in ["hi_lo", "lo_hi", "real"]:
             self.geometry = geometry
         else:
-            raise InputError("HXRD: invalid value for the geometry "
-                             "argument given")
+            raise InputError(
+                "HXRD: invalid value for the geometry argument given"
+            )
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
         if config.VERBOSITY >= config.DEBUG:
             print(
-                "XU.HXRD.__init__: \nEnergy: %s \nGeometry: %s \n%s---" %
-                (self._en, self.geometry, str(
-                    self.Ang2Q)))
+                "XU.HXRD.__init__: \nEnergy: %s \nGeometry: %s \n%s---"
+                % (self._en, self.geometry, str(self.Ang2Q))
+            )
 
     # pylint: disable-next=method-hidden
     def Ang2Q(self, om, tt, **kwargs):
@@ -1786,34 +2045,38 @@ class HXRD(Experiment):
                        due to refraction
         """
 
-        valid_kwargs = {'trans': 'flag, perform coordinate transformation',
-                        'deg': 'flag, return degrees',
-                        'geometry': 'geometry string',
-                        'refrac': 'flag',
-                        'mat': 'Crystal instance',
-                        'fi': 'incidence facet',
-                        'fd': 'exit facet',
-                        'full_output': 'see docstring for details'}
-        utilities.check_kwargs(keyargs, valid_kwargs, 'Q2Ang')
+        valid_kwargs = {
+            "trans": "flag, perform coordinate transformation",
+            "deg": "flag, return degrees",
+            "geometry": "geometry string",
+            "refrac": "flag",
+            "mat": "Crystal instance",
+            "fi": "incidence facet",
+            "fd": "exit facet",
+            "full_output": "see docstring for details",
+        }
+        utilities.check_kwargs(keyargs, valid_kwargs, "Q2Ang")
 
         q = self._prepare_qvec(Q)
 
         # parse keyword arguments
-        geom = keyargs.get('geometry', self.geometry)
-        trans = keyargs.get('trans', True)
-        deg = keyargs.get('deg', True)
-        mat = keyargs.get('mat', None)  # material for optical properties
+        geom = keyargs.get("geometry", self.geometry)
+        trans = keyargs.get("trans", True)
+        deg = keyargs.get("deg", True)
+        mat = keyargs.get("mat", None)  # material for optical properties
 
-        refrac = keyargs.get('refrac', False)
+        refrac = keyargs.get("refrac", False)
         if refrac and mat is None:  # check if material is available
-            raise InputError("keyword argument 'mat' must be set when "
-                             "'refrac' is set to True!")
+            raise InputError(
+                "keyword argument 'mat' must be set when "
+                "'refrac' is set to True!"
+            )
 
-        foutp = keyargs.get('full_output', False)
-        fi = keyargs.get('fi', self.ndir)  # incidence facet
+        foutp = keyargs.get("full_output", False)
+        fi = keyargs.get("fi", self.ndir)  # incidence facet
         fi = math.VecUnit(self.Transform(fi))
 
-        fd = keyargs.get('fd', self.ndir)  # exit facet
+        fd = keyargs.get("fd", self.ndir)  # exit facet
         fd = math.VecUnit(self.Transform(fd))
 
         # set parameters for the calculation
@@ -1822,8 +2085,8 @@ class HXRD(Experiment):
         x = self.Transform(self.scatplane)  # x
         if refrac:
             n = numpy.real(
-                mat.idx_refraction(
-                    self.energy))  # index of refraction
+                mat.idx_refraction(self.energy)
+            )  # index of refraction
             k = self.k0 * n
         else:
             k = self.k0
@@ -1841,7 +2104,7 @@ class HXRD(Experiment):
             print(f"XU.HXRD.Q2Ang: q= {repr(q)}")
 
         qa = math.VecNorm(q)
-        tth = 2. * numpy.arcsin(qa / 2. / k)
+        tth = 2.0 * numpy.arcsin(qa / 2.0 / k)
 
         # calculation of the sample azimuth phi (scattering plane
         # spanned by qvec[1] and qvec[2] directions)
@@ -1849,37 +2112,44 @@ class HXRD(Experiment):
         chi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, z))
         if numpy.any(numpy.isclose(numpy.abs(math.VecDot(q, z)), 0)):
             if config.VERBOSITY >= config.INFO_LOW:
-                print("XU.HXRD: some position is perpendicular to ndir-"
-                      "reference direction (might be inplane or "
-                      "unreachable)")
+                print(
+                    "XU.HXRD: some position is perpendicular to ndir-"
+                    "reference direction (might be inplane or "
+                    "unreachable)"
+                )
 
-        if geom == 'hi_lo':
+        if geom == "hi_lo":
             # +: high incidence geometry
-            om = tth / 2. + math.VecAngle(q, z)
+            om = tth / 2.0 + math.VecAngle(q, z)
             phi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
-        elif geom == 'lo_hi':
+        elif geom == "lo_hi":
             # -: low incidence geometry
-            om = tth / 2. - math.VecAngle(q, z)
-            phi = -numpy.arctan2(-1 * math.VecDot(q, x),
-                                 -1 * math.VecDot(q, y))
-        elif geom == 'real':
+            om = tth / 2.0 - math.VecAngle(q, z)
+            phi = -numpy.arctan2(
+                -1 * math.VecDot(q, x), -1 * math.VecDot(q, y)
+            )
+        elif geom == "real":
             phi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
             sign = numpy.ones(q.shape[0])
-            m = numpy.abs(phi) > numpy.pi / 2.
+            m = numpy.abs(phi) > numpy.pi / 2.0
             phi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
             sign[m] = -1
-            phi[m] = -numpy.arctan2(-1 * math.VecDot(q[m], x),
-                                    -1 * math.VecDot(q[m], y))
+            phi[m] = -numpy.arctan2(
+                -1 * math.VecDot(q[m], x), -1 * math.VecDot(q[m], y)
+            )
             om = tth / 2 + sign * math.VecAngle(q, z)
-        elif geom == 'realTilt':
-            phi = 0.
+        elif geom == "realTilt":
+            phi = 0.0
             om = tth / 2 + numpy.arctan2(
                 math.VecDot(q, y),
-                numpy.sqrt(math.VecDot(q, z) ** 2 + math.VecDot(q, x) ** 2))
+                numpy.sqrt(math.VecDot(q, z) ** 2 + math.VecDot(q, x) ** 2),
+            )
         else:
-            raise ValueError("HXRD: invalid value for the geometry argument "
-                             "given\n valid entries are: hi_lo, lo_hi, real, "
-                             "realTilt")
+            raise ValueError(
+                "HXRD: invalid value for the geometry argument "
+                "given\n valid entries are: hi_lo, lo_hi, real, "
+                "realTilt"
+            )
 
         # refraction correction at incidence and exit facet
         psi_i = numpy.zeros_like(tth)
@@ -1887,26 +2157,35 @@ class HXRD(Experiment):
         if refrac:
             beta = tth - om
 
-            ki = k * (numpy.cos(om)[:, numpy.newaxis] * y[numpy.newaxis, :] -
-                      numpy.sin(om)[:, numpy.newaxis] * z[numpy.newaxis, :])
-            kd = k * (numpy.cos(beta)[:, numpy.newaxis] * y[numpy.newaxis, :] +
-                      numpy.sin(beta)[:, numpy.newaxis] * z[numpy.newaxis, :])
+            ki = k * (
+                numpy.cos(om)[:, numpy.newaxis] * y[numpy.newaxis, :]
+                - numpy.sin(om)[:, numpy.newaxis] * z[numpy.newaxis, :]
+            )
+            kd = k * (
+                numpy.cos(beta)[:, numpy.newaxis] * y[numpy.newaxis, :]
+                + numpy.sin(beta)[:, numpy.newaxis] * z[numpy.newaxis, :]
+            )
 
             # refraction at incidence facet
             m = math.VecDot(ki, fi) > 0
             if numpy.any(m):
-                print("XU.HXRD: Warning, incidence facet not hit by "
-                      "primary beam for all positions! check your input!")
+                print(
+                    "XU.HXRD: Warning, incidence facet not hit by "
+                    "primary beam for all positions! check your input!"
+                )
                 om[m] = numpy.nan
                 tth[m] = numpy.nan
             mnot = numpy.logical_not(m)
             cosbi = numpy.abs(math.VecDot(ki, fi) / math.VecNorm(ki))
-            cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbi ** 2))
+            cosb0 = numpy.sqrt(1 - n**2 * (1 - cosbi**2))
 
-            ki0 = self.k0 * (n * math.VecUnit(ki) -
-                             (numpy.sign(math.VecDot(ki, fi)) *
-                             (n * cosbi - cosb0))[:, numpy.newaxis] *
-                             fi[numpy.newaxis, :])
+            ki0 = self.k0 * (
+                n * math.VecUnit(ki)
+                - (numpy.sign(math.VecDot(ki, fi)) * (n * cosbi - cosb0))[
+                    :, numpy.newaxis
+                ]
+                * fi[numpy.newaxis, :]
+            )
             om[mnot] = math.VecAngle(ki0, y)
             psi_i[mnot] = numpy.arcsin(math.VecDot(ki0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
@@ -1915,24 +2194,29 @@ class HXRD(Experiment):
             # refraction at exit facet
             m = math.VecDot(kd, fd) < 0
             if numpy.any(m):
-                print("XU.HXRD: Warning, exit facet not hit by "
-                      "diffracted beam! check your input!")
+                print(
+                    "XU.HXRD: Warning, exit facet not hit by "
+                    "diffracted beam! check your input!"
+                )
                 om[m] = numpy.nan
                 tth[m] = numpy.nan
 
             cosbd = numpy.abs(math.VecDot(kd, fd) / math.VecNorm(kd))
-            cosb0 = numpy.sqrt(1 - n ** 2 * (1 - cosbd ** 2))
+            cosb0 = numpy.sqrt(1 - n**2 * (1 - cosbd**2))
 
-            kd0 = self.k0 * (n * math.VecUnit(kd) -
-                             (numpy.sign(math.VecDot(kd, fd)) *
-                             (n * cosbd - cosb0))[:, numpy.newaxis] *
-                             fd[numpy.newaxis, :])
+            kd0 = self.k0 * (
+                n * math.VecUnit(kd)
+                - (numpy.sign(math.VecDot(kd, fd)) * (n * cosbd - cosb0))[
+                    :, numpy.newaxis
+                ]
+                * fd[numpy.newaxis, :]
+            )
             tth[mnot] = math.VecAngle(ki0, kd0)
             psi_d[mnot] = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
                 print(f"XU.HXRD.Q2Ang: kd, kd0 = {repr(kd)} {repr(kd0)}")
 
-        if geom == 'realTilt':
+        if geom == "realTilt":
             angle[0, :] = om
             angle[1, :] = chi
             angle[3, :] = tth
@@ -1947,8 +2231,10 @@ class HXRD(Experiment):
         if q.shape[0] == 1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
-                print("XU.HXRD.Q2Ang: om, chi, phi, tth,[psi_i, psi_d] = %s"
-                      % repr(angle))
+                print(
+                    "XU.HXRD.Q2Ang: om, chi, phi, tth,[psi_i, psi_d] = %s"
+                    % repr(angle)
+                )
 
         if deg:
             return numpy.degrees(angle)
@@ -1956,7 +2242,6 @@ class HXRD(Experiment):
 
 
 class FourC(HXRD):
-
     """
     class describing high angle x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -1989,14 +2274,12 @@ class FourC(HXRD):
         if "qconv" not in keyargs:
             # 3S+1D goniometer (standard four-circle goniometer,
             # omega, chi, phi, theta)
-            keyargs['qconv'] = QConversion(['x+', 'y+', 'z-'],
-                                           'x+', [0, 1, 0])
+            keyargs["qconv"] = QConversion(["x+", "y+", "z-"], "x+", [0, 1, 0])
 
         HXRD.__init__(self, idir, ndir, **keyargs)
 
 
 class NonCOP(Experiment):
-
     """
     class describing high angle x-ray diffraction experiments.  The class helps
     with calculating the angles of Bragg reflections as well as helps with
@@ -2021,8 +2304,7 @@ class NonCOP(Experiment):
         if "qconv" not in keyargs:
             # 3S+1D goniometer (standard four-circle goniometer,
             # omega, chi, phi, theta)
-            keyargs['qconv'] = QConversion(['x+', 'y+', 'z-'],
-                                           'x+', [0, 1, 0])
+            keyargs["qconv"] = QConversion(["x+", "y+", "z-"], "x+", [0, 1, 0])
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
@@ -2098,14 +2380,16 @@ class NonCOP(Experiment):
              - twotheta :   scattering angle/detector angle
         """
 
-        valid_kwargs = {'trans': 'coordinate transformation flag',
-                        'deg': 'degree-flag'}
-        utilities.check_kwargs(keyargs, valid_kwargs, 'Q2Ang')
+        valid_kwargs = {
+            "trans": "coordinate transformation flag",
+            "deg": "degree-flag",
+        }
+        utilities.check_kwargs(keyargs, valid_kwargs, "Q2Ang")
 
         q = self._prepare_qvec(Q)
 
-        trans = keyargs.get('trans', True)
-        deg = keyargs.get('deg', True)
+        trans = keyargs.get("trans", True)
+        deg = keyargs.get("deg", True)
 
         angle = numpy.zeros((4, q.shape[0]))
         # set parameters for the calculation
@@ -2120,16 +2404,17 @@ class NonCOP(Experiment):
             print(f"XU.NonCOP.Q2Ang: q= {repr(q)}")
 
         qa = math.VecNorm(q)
-        tth = 2. * numpy.arcsin(qa / 2. / self.k0)
-        om = tth / 2.
+        tth = 2.0 * numpy.arcsin(qa / 2.0 / self.k0)
+        om = tth / 2.0
 
         # calculation of the sample azimuth
         # the sign depends on the phi movement direction
-        phi = -1 * numpy.arctan2(
-            math.VecDot(q, x),
-            math.VecDot(q, y)) - numpy.pi / 2.
+        phi = (
+            -1 * numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
+            - numpy.pi / 2.0
+        )
 
-        chi = (math.VecAngle(q, z))
+        chi = math.VecAngle(q, z)
 
         angle[0, :] = om
         angle[1, :] = chi
@@ -2147,7 +2432,6 @@ class NonCOP(Experiment):
 
 
 class GID(Experiment):
-
     """
     class describing grazing incidence x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -2176,13 +2460,14 @@ class GID(Experiment):
         idir, ndir, keyargs :
             same as for the Experiment base class
         """
-        if 'sampleor' not in keyargs:
-            keyargs['sampleor'] = 'sam'
+        if "sampleor" not in keyargs:
+            keyargs["sampleor"] = "sam"
 
         if "qconv" not in keyargs:
             # 2S+2D goniometer
-            keyargs['qconv'] = QConversion(['z-', 'x+'], ['x+', 'z-'],
-                                           [0, 1, 0])
+            keyargs["qconv"] = QConversion(
+                ["z-", "x+"], ["x+", "z-"], [0, 1, 0]
+            )
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 
@@ -2223,9 +2508,11 @@ class GID(Experiment):
 
         """
 
-        valid_kwargs = {'trans': 'coordinate transformation flag',
-                        'deg': 'degree-flag'}
-        utilities.check_kwargs(kwargs, valid_kwargs, 'Q2Ang')
+        valid_kwargs = {
+            "trans": "coordinate transformation flag",
+            "deg": "degree-flag",
+        }
+        utilities.check_kwargs(kwargs, valid_kwargs, "Q2Ang")
 
         if isinstance(qvec, list):
             q = numpy.array(qvec, dtype=numpy.double)
@@ -2248,15 +2535,16 @@ class GID(Experiment):
         # check if reflection is inplane
         if numpy.abs(math.VecDot(q, z)) >= 0.001:
             raise InputError(
-                f"Reflection not reachable in GID geometry (Q: {str(q)})")
+                f"Reflection not reachable in GID geometry (Q: {str(q)})"
+            )
 
         # calculate angle to inplane reference direction
         aref = numpy.arctan2(math.VecDot(q, x), math.VecDot(q, y))
 
         # calculate scattering angle
         qa = math.VecNorm(q)
-        tth = 2. * numpy.arcsin(qa / 2. / self.k0)
-        azimuth = numpy.pi / 2 + aref + tth / 2.
+        tth = 2.0 * numpy.arcsin(qa / 2.0 / self.k0)
+        azimuth = numpy.pi / 2 + aref + tth / 2.0
 
         if deg:
             ang = [0, numpy.degrees(azimuth), numpy.degrees(tth), 0]
@@ -2264,8 +2552,10 @@ class GID(Experiment):
             ang = [0, azimuth, tth, 0]
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print(f"XU.GID.Q2Ang: [ai, azimuth, tth, beta] = {str(ang)}\n"
-                  f"difference to inplane reference which is {aref:5.2f}")
+            print(
+                f"XU.GID.Q2Ang: [ai, azimuth, tth, beta] = {str(ang)}\n"
+                f"difference to inplane reference which is {aref:5.2f}"
+            )
 
         return ang
 
@@ -2308,7 +2598,6 @@ class GID(Experiment):
 
 
 class GISAXS(Experiment):
-
     """
     class describing grazing incidence x-ray diffraction experiments
     the class helps with calculating the angles of Bragg reflections
@@ -2334,8 +2623,7 @@ class GISAXS(Experiment):
         """
         if "qconv" not in keyargs:
             # 1S+2D goniometer
-            keyargs['qconv'] = QConversion(['x+'], ['x+', 'z-'],
-                                           [0, 1, 0])
+            keyargs["qconv"] = QConversion(["x+"], ["x+", "z-"], [0, 1, 0])
 
         Experiment.__init__(self, idir, ndir, **keyargs)
 

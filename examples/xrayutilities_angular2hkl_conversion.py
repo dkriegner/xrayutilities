@@ -55,7 +55,7 @@ print(hxrd.Ang2HKL(om, tt, mat=mat))
 
 print("--------------")
 # example with custom qconv
-qconv = xu.experiment.QConversion(['z+', 'x+', 'y-'], 'z+', [1, 0, 0])
+qconv = xu.experiment.QConversion(["z+", "x+", "y-"], "z+", [1, 0, 0])
 
 # material used in this example
 mat = xu.materials.Si

@@ -22,7 +22,7 @@ import numpy
 from .. import config
 
 
-def center_of_mass(pos, data, background='none', full_output=False):
+def center_of_mass(pos, data, background="none", full_output=False):
     """
     function to determine the center of mass of an array
 
@@ -45,14 +45,13 @@ def center_of_mass(pos, data, background='none', full_output=False):
     # subtract background
     slope = 0
     back = 0
-    if background == 'linear':
+    if background == "linear":
         dx = float(pos[-1] - pos[0])
         if abs(dx) > 0:
             slope = (float(data[-1]) - float(data[0])) / dx
-        back = (data[0] - slope * pos[0] +
-                data[-1] - slope * pos[-1]) / 2.0
+        back = (data[0] - slope * pos[0] + data[-1] - slope * pos[-1]) / 2.0
         ld = data - (slope * pos + back)
-    elif background == 'constant':
+    elif background == "constant":
         back = numpy.median(data)
         ld = data - numpy.min(data)
     else:
@@ -85,39 +84,43 @@ def fwhm_exp(pos, data):
 
     m = data.max()
     p0 = numpy.argmax(data)
-    datal = data[:p0+1]
+    datal = data[: p0 + 1]
     datar = data[p0:]
 
     # determine left side half value position
     try:
-        pls = pos[:p0+1][datal < m / 2.][-1]
-        pll = pos[:p0+1][datal > m / 2.][0]
+        pls = pos[: p0 + 1][datal < m / 2.0][-1]
+        pll = pos[: p0 + 1][datal > m / 2.0][0]
         ds = data[pos == pls][0]
         dl = data[pos == pll][0]
-        pl = pls + (pll - pls) * (m / 2. - ds) / (dl - ds)
+        pl = pls + (pll - pls) * (m / 2.0 - ds) / (dl - ds)
     except IndexError:
         if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.math.fwhm_exp: warning: left side half value could"
-                  " not be determined -> returns 2*hwhm")
+            print(
+                "XU.math.fwhm_exp: warning: left side half value could"
+                " not be determined -> returns 2*hwhm"
+            )
         pl = None
 
     # determine right side half value position
     try:
-        prs = pos[p0:][datar < m / 2.][0]
-        prl = pos[p0:][datar > m / 2.][-1]
+        prs = pos[p0:][datar < m / 2.0][0]
+        prl = pos[p0:][datar > m / 2.0][-1]
         ds = data[pos == prs][0]
         dl = data[pos == prl][0]
-        pr = prs + (prl - prs) * (m / 2. - ds) / (dl - ds)
+        pr = prs + (prl - prs) * (m / 2.0 - ds) / (dl - ds)
     except IndexError:
         if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.math.fwhm_exp: warning: right side half value could"
-                  " not be determined -> returns 2*hwhm")
+            print(
+                "XU.math.fwhm_exp: warning: right side half value could"
+                " not be determined -> returns 2*hwhm"
+            )
         pr = None
 
     if pl is None:
-        return numpy.abs(pr - p0)*2
+        return numpy.abs(pr - p0) * 2
     if pr is None:
-        return numpy.abs(pl - p0)*2
+        return numpy.abs(pl - p0) * 2
     return numpy.abs(pr - pl)
 
 
@@ -135,7 +138,7 @@ def gcd(lst):
     -------
     gcd:    int
     """
-    if numpy.version.version >= '1.15.0':
+    if numpy.version.version >= "1.15.0":
         return numpy.gcd.reduce(lst)
     gcdfunc = numpy.frompyfunc(math.gcd, 2, 1)
     return numpy.ufunc.reduce(gcdfunc, lst)

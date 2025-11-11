@@ -23,36 +23,38 @@ import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'specmca.spec.gz'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "specmca.spec.gz"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_SPEC(unittest.TestCase):
     dshape = (4001,)
     dmax = 2567926.8
     dmin = 1.0
     motmax = 95.40775
     motmin = 15.40775
-    date = 'Mon Nov 04 21:18:05 2013'
+    date = "Mon Nov 04 21:18:05 2013"
     tpos = 2400
     dtpos = 6.0
     scannr = 43
-    motorname = 'Nu'
-    countername = 'PSDCORR'
+    motorname = "Nu"
+    countername = "PSDCORR"
 
     @classmethod
     def setUpClass(cls):
         cls.specfile = xu.io.SPECFile(testfile, path=datadir)
         cls.specfile.Update()  # this should be a noop
-        cls.specscan = getattr(cls.specfile, 'scan%d' % cls.scannr)
+        cls.specscan = getattr(cls.specfile, "scan%d" % cls.scannr)
         cls.specscan.ReadData()
         cls.sdata = cls.specscan.data
-        cls.motor, cls.inte = xu.io.getspec_scan(cls.specfile, cls.scannr,
-                                                 cls.motorname,
-                                                 cls.countername)
+        cls.motor, cls.inte = xu.io.getspec_scan(
+            cls.specfile, cls.scannr, cls.motorname, cls.countername
+        )
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.sdata.shape)
@@ -60,7 +62,7 @@ class TestIO_SPEC(unittest.TestCase):
         self.assertEqual(self.dshape, self.motor.shape)
 
     def test_getheader(self):
-        self.assertEqual(self.date, self.specscan.getheader_element('D'))
+        self.assertEqual(self.date, self.specscan.getheader_element("D"))
 
     def test_datavalues(self):
         self.assertAlmostEqual(self.motmax, self.motor.max(), places=6)
@@ -74,11 +76,11 @@ class TestIO_SPEC(unittest.TestCase):
 
     def test_hdf5file(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            fname = os.path.join(tmpdir, 'tmp.h5')
+            fname = os.path.join(tmpdir, "tmp.h5")
             self.specfile.Save2HDF5(fname)
             h5d = xu.io.geth5_scan(fname, self.scannr)
             self.assertTrue(numpy.all(self.inte == h5d[self.countername]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

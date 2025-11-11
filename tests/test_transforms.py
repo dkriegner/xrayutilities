@@ -62,20 +62,20 @@ class TestTransforms(unittest.TestCase):
         a[2] = 2  # ensure non-zero vector
         r = xu.math.AxisToZ(a)
         for i in range(3):
-            self.assertAlmostEqual(r(a)[i],
-                                   self.z[i] * numpy.linalg.norm(a),
-                                   places=10)
+            self.assertAlmostEqual(
+                r(a)[i], self.z[i] * numpy.linalg.norm(a), places=10
+            )
         r = xu.math.AxisToZ_keepXY(a)
         for i in range(3):
-            self.assertAlmostEqual(r(a)[i],
-                                   self.z[i] * numpy.linalg.norm(a),
-                                   places=10)
+            self.assertAlmostEqual(
+                r(a)[i], self.z[i] * numpy.linalg.norm(a), places=10
+            )
         # test inverse
         for i in range(3):
-            self.assertAlmostEqual(r.inverse(self.z)[i],
-                                   a[i] / numpy.linalg.norm(a),
-                                   places=10)
+            self.assertAlmostEqual(
+                r.inverse(self.z)[i], a[i] / numpy.linalg.norm(a), places=10
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

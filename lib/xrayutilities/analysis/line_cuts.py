@@ -114,8 +114,8 @@ def get_qz_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     >>> qzcut, qzcut_int, mask = get_qz_scan([qy, qz], inten, 3.0, 200,\
     ... intrange=0.3)  # doctest: +SKIP
     """
-    intdir = kwargs.get('intdir', 'q')
-    lam = kwargs.get('wl', config.WAVELENGTH)
+    intdir = kwargs.get("intdir", "q")
+    lam = kwargs.get("wl", config.WAVELENGTH)
     hxrd = HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # make all data 3D
@@ -127,22 +127,29 @@ def get_qz_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    if intdir == 'q':
-        qperp = numpy.sqrt((lqpos[0]-lcut[0])**2 + (lqpos[1]-lcut[1])**2)
-        ret = _get_cut(lqpos[2], qperp, intensity, intrange/2., npoints)
-    elif intdir == 'omega':
-        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt/2))
-        ocut = numpy.degrees(numpy.arcsin(lcut[1]/q)) + tt / 2
-        qzpos = q * numpy.cos(numpy.radians(ocut - tt/2))
-        ret = _get_cut(qzpos, om-ocut, intensity, intrange/2., npoints)
-    elif intdir == '2theta':
-        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt/2))
-        ttcut = 2 * (om - numpy.degrees(numpy.arcsin(lcut[1]/q)))
-        qzpos = 4 * numpy.pi / lam * numpy.sin(numpy.radians(ttcut/2)) *\
-            numpy.cos(numpy.radians(om - ttcut/2))
-        ret = _get_cut(qzpos, tt-ttcut, intensity, intrange/2., npoints)
+    if intdir == "q":
+        qperp = numpy.sqrt(
+            (lqpos[0] - lcut[0]) ** 2 + (lqpos[1] - lcut[1]) ** 2
+        )
+        ret = _get_cut(lqpos[2], qperp, intensity, intrange / 2.0, npoints)
+    elif intdir == "omega":
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry="realTilt")
+        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt / 2))
+        ocut = numpy.degrees(numpy.arcsin(lcut[1] / q)) + tt / 2
+        qzpos = q * numpy.cos(numpy.radians(ocut - tt / 2))
+        ret = _get_cut(qzpos, om - ocut, intensity, intrange / 2.0, npoints)
+    elif intdir == "2theta":
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry="realTilt")
+        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt / 2))
+        ttcut = 2 * (om - numpy.degrees(numpy.arcsin(lcut[1] / q)))
+        qzpos = (
+            4
+            * numpy.pi
+            / lam
+            * numpy.sin(numpy.radians(ttcut / 2))
+            * numpy.cos(numpy.radians(om - ttcut / 2))
+        )
+        ret = _get_cut(qzpos, tt - ttcut, intensity, intrange / 2.0, npoints)
     else:
         raise ValueError("invalid option for argument 'intdir'")
 
@@ -202,8 +209,8 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     >>> qycut, qycut_int, mask = get_qy_scan([qy, qz], inten, 5.0, 250, \
     ... intrange=0.02, intdir='2theta')  # doctest: +SKIP
     """
-    intdir = kwargs.get('intdir', 'q')
-    lam = kwargs.get('wl', config.WAVELENGTH)
+    intdir = kwargs.get("intdir", "q")
+    lam = kwargs.get("wl", config.WAVELENGTH)
     hxrd = HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # make all data 3D
@@ -215,29 +222,46 @@ def get_qy_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    if intdir == 'q':
-        qperp = numpy.sqrt((lqpos[0]-lcut[0])**2 + (lqpos[2]-lcut[1])**2)
-        ret = _get_cut(lqpos[1], qperp, intensity, intrange/2., npoints)
-    elif intdir == 'omega':
-        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
-        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt/2))
-        ocut = tt / 2 + (numpy.sign(lqpos[1].ravel()) *
-                         numpy.degrees(numpy.arccos(lcut[1]/q)))
-        qypos = q * numpy.sin(numpy.radians(ocut - tt/2))
-        ret = _get_cut(qypos, om-ocut, intensity, intrange/2., npoints)
-    elif intdir == '2theta':
-        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='real')
-        ttcut = (om - numpy.degrees(numpy.arcsin(numpy.sin(numpy.radians(om)) -
-                                    lcut[1]*lam/(2*numpy.pi)))) % 360
-        ttcut2 = (om +
-                  numpy.degrees(numpy.arcsin(numpy.sin(numpy.radians(om)) -
-                                lcut[1]*lam/(2*numpy.pi))) +
-                  180) % 360
+    if intdir == "q":
+        qperp = numpy.sqrt(
+            (lqpos[0] - lcut[0]) ** 2 + (lqpos[2] - lcut[1]) ** 2
+        )
+        ret = _get_cut(lqpos[1], qperp, intensity, intrange / 2.0, npoints)
+    elif intdir == "omega":
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry="real")
+        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(tt / 2))
+        ocut = tt / 2 + (
+            numpy.sign(lqpos[1].ravel())
+            * numpy.degrees(numpy.arccos(lcut[1] / q))
+        )
+        qypos = q * numpy.sin(numpy.radians(ocut - tt / 2))
+        ret = _get_cut(qypos, om - ocut, intensity, intrange / 2.0, npoints)
+    elif intdir == "2theta":
+        om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry="real")
+        ttcut = (
+            om
+            - numpy.degrees(
+                numpy.arcsin(
+                    numpy.sin(numpy.radians(om))
+                    - lcut[1] * lam / (2 * numpy.pi)
+                )
+            )
+        ) % 360
+        ttcut2 = (
+            om
+            + numpy.degrees(
+                numpy.arcsin(
+                    numpy.sin(numpy.radians(om))
+                    - lcut[1] * lam / (2 * numpy.pi)
+                )
+            )
+            + 180
+        ) % 360
         mask = numpy.abs(tt - om) > 90
         ttcut[mask] = ttcut2[mask]
-        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(ttcut/2))
-        qypos = q * numpy.sin(numpy.radians(om - ttcut/2))
-        ret = _get_cut(qypos, tt-ttcut, intensity, intrange/2., npoints)
+        q = 4 * numpy.pi / lam * numpy.sin(numpy.radians(ttcut / 2))
+        qypos = q * numpy.sin(numpy.radians(om - ttcut / 2))
+        ret = _get_cut(qypos, tt - ttcut, intensity, intrange / 2.0, npoints)
     else:
         raise ValueError("invalid option for argument 'intdir'")
 
@@ -294,26 +318,30 @@ def get_qx_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     >>> qxcut, qxcut_int, mask = get_qx_scan([qx, qy, qz], inten, [0, 2.0], \
     ... 250, intrange=0.01)  # doctest: +SKIP
     """
-    intdir = kwargs.get('intdir', 'q')
-    lam = kwargs.get('wl', config.WAVELENGTH)
+    intdir = kwargs.get("intdir", "q")
+    lam = kwargs.get("wl", config.WAVELENGTH)
     hxrd = HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # make line cuts with selected integration direction
-    if intdir == 'q':
-        qperp = numpy.sqrt((qpos[1]-cutpos[0])**2 + (qpos[2]-cutpos[1])**2)
-        ret = _get_cut(qpos[0], qperp, intensity, intrange/2., npoints)
-    elif intdir == 'omega':
+    if intdir == "q":
+        qperp = numpy.sqrt(
+            (qpos[1] - cutpos[0]) ** 2 + (qpos[2] - cutpos[1]) ** 2
+        )
+        ret = _get_cut(qpos[0], qperp, intensity, intrange / 2.0, npoints)
+    elif intdir == "omega":
         # needs testing
-        om, _, _, tt = hxrd.Q2Ang(*qpos, trans=False, geometry='realTilt')
-        ocut, _, _, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
-                                       trans=False, geometry='realTilt')
-        ret = _get_cut(qpos[0], om-ocut, intensity, intrange/2., npoints)
-    elif intdir == '2theta':
+        om, _, _, tt = hxrd.Q2Ang(*qpos, trans=False, geometry="realTilt")
+        ocut, _, _, ttcut = hxrd.Q2Ang(
+            qpos[0], cutpos[0], cutpos[1], trans=False, geometry="realTilt"
+        )
+        ret = _get_cut(qpos[0], om - ocut, intensity, intrange / 2.0, npoints)
+    elif intdir == "2theta":
         # needs testing
-        om, _, _, tt = hxrd.Q2Ang(*qpos, trans=False, geometry='realTilt')
-        ocut, _, _, ttcut = hxrd.Q2Ang(qpos[0], cutpos[0], cutpos[1],
-                                       trans=False, geometry='realTilt')
-        ret = _get_cut(qpos[0], tt-ttcut, intensity, intrange/2., npoints)
+        om, _, _, tt = hxrd.Q2Ang(*qpos, trans=False, geometry="realTilt")
+        ocut, _, _, ttcut = hxrd.Q2Ang(
+            qpos[0], cutpos[0], cutpos[1], trans=False, geometry="realTilt"
+        )
+        ret = _get_cut(qpos[0], tt - ttcut, intensity, intrange / 2.0, npoints)
     else:
         raise ValueError("invalid option for argument 'intdir'")
 
@@ -371,8 +399,8 @@ def get_omega_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     >>> omcut, omcut_int, mask = get_omega_scan([qy, qz], inten, [2.0, 5.0], \
     ... 250, intrange=0.1)  # doctest: +SKIP
     """
-    intdir = kwargs.get('intdir', '2theta')
-    lam = kwargs.get('wl', config.WAVELENGTH)
+    intdir = kwargs.get("intdir", "2theta")
+    lam = kwargs.get("wl", config.WAVELENGTH)
     hxrd = HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # make all data 3D
@@ -384,13 +412,18 @@ def get_omega_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-    _, _, _, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
-    if intdir == '2theta':
-        ret = _get_cut(om, tt-ttcut, intensity, intrange/2., npoints)
-    elif intdir == 'radial':
-        ret = _get_cut(om-(tt-ttcut)/2, tt-ttcut, intensity, intrange/2.,
-                       npoints)
+    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry="realTilt")
+    _, _, _, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry="realTilt")
+    if intdir == "2theta":
+        ret = _get_cut(om, tt - ttcut, intensity, intrange / 2.0, npoints)
+    elif intdir == "radial":
+        ret = _get_cut(
+            om - (tt - ttcut) / 2,
+            tt - ttcut,
+            intensity,
+            intrange / 2.0,
+            npoints,
+        )
     else:
         raise ValueError("invalid option for argument 'intdir'")
 
@@ -448,8 +481,8 @@ def get_radial_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     >>> ttcut, omtt_int, mask = get_radial_scan([qy, qz], inten, [2.0, 5.0], \
     ... 250, intrange=0.1)  # doctest: +SKIP
     """
-    intdir = kwargs.get('intdir', 'omega')
-    lam = kwargs.get('wl', config.WAVELENGTH)
+    intdir = kwargs.get("intdir", "omega")
+    lam = kwargs.get("wl", config.WAVELENGTH)
     hxrd = HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # make all data 3D
@@ -461,15 +494,25 @@ def get_radial_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-    ocut, _, _, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
-    if intdir == 'omega':
-        ret = _get_cut(tt, om-((tt-ttcut)/2+ocut), intensity, intrange/2.,
-                       npoints)
-    elif intdir == '2theta':
-        offcut = ttcut/2 - ocut
-        ret = _get_cut(tt-2*(tt/2-om-offcut), 2*(tt/2-om-offcut), intensity,
-                       intrange/2., npoints)
+    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry="realTilt")
+    ocut, _, _, ttcut = hxrd.Q2Ang(*lcut, trans=False, geometry="realTilt")
+    if intdir == "omega":
+        ret = _get_cut(
+            tt,
+            om - ((tt - ttcut) / 2 + ocut),
+            intensity,
+            intrange / 2.0,
+            npoints,
+        )
+    elif intdir == "2theta":
+        offcut = ttcut / 2 - ocut
+        ret = _get_cut(
+            tt - 2 * (tt / 2 - om - offcut),
+            2 * (tt / 2 - om - offcut),
+            intensity,
+            intrange / 2.0,
+            npoints,
+        )
     else:
         raise ValueError("invalid option for argument 'intdir'")
 
@@ -527,8 +570,8 @@ def get_ttheta_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
     >>> ttcut, tt_int, mask = get_ttheta_scan([qy, qz], inten, [2.0, 5.0], \
     ... 250, intrange=0.1)  # doctest: +SKIP
     """
-    intdir = kwargs.get('intdir', 'omega')
-    lam = kwargs.get('wl', config.WAVELENGTH)
+    intdir = kwargs.get("intdir", "omega")
+    lam = kwargs.get("wl", config.WAVELENGTH)
     hxrd = HXRD([1, 0, 0], [0, 0, 1], wl=lam)
 
     # make all data 3D
@@ -540,13 +583,18 @@ def get_ttheta_scan(qpos, intensity, cutpos, npoints, intrange, **kwargs):
         lcut = cutpos
 
     # make line cuts with selected integration direction
-    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry='realTilt')
-    ocut, _, _, _ = hxrd.Q2Ang(*lcut, trans=False, geometry='realTilt')
-    if intdir == 'omega':
-        ret = _get_cut(tt, om-ocut, intensity, intrange/2., npoints)
-    elif intdir == 'radial':
-        ret = _get_cut(tt-2*(om-ocut), 2*(om-ocut), intensity,
-                       intrange/2., npoints)
+    om, _, _, tt = hxrd.Q2Ang(*lqpos, trans=False, geometry="realTilt")
+    ocut, _, _, _ = hxrd.Q2Ang(*lcut, trans=False, geometry="realTilt")
+    if intdir == "omega":
+        ret = _get_cut(tt, om - ocut, intensity, intrange / 2.0, npoints)
+    elif intdir == "radial":
+        ret = _get_cut(
+            tt - 2 * (om - ocut),
+            2 * (om - ocut),
+            intensity,
+            intrange / 2.0,
+            npoints,
+        )
     else:
         raise ValueError("invalid option for argument 'intdir'")
 
@@ -602,9 +650,14 @@ def get_arbitrary_line(qpos, intensity, point, vec, npoints, intrange):
         lvec = vec
 
     # make line cut
-    lqpos = numpy.reshape(numpy.asarray([lqpos[0].ravel(), lqpos[1].ravel(),
-                                         lqpos[2].ravel()]).T, (-1, 3))
+    lqpos = numpy.reshape(
+        numpy.asarray(
+            [lqpos[0].ravel(), lqpos[1].ravel(), lqpos[2].ravel()]
+        ).T,
+        (-1, 3),
+    )
     qalong = math.VecDot(lqpos, math.VecUnit(lvec))
-    qdistance = math.distance(lqpos[:, 0], lqpos[:, 1], lqpos[:, 2], lpoint,
-                              lvec)
+    qdistance = math.distance(
+        lqpos[:, 0], lqpos[:, 1], lqpos[:, 2], lpoint, lvec
+    )
     return _get_cut(qalong, qdistance, intensity, intrange, npoints)

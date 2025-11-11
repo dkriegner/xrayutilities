@@ -30,13 +30,13 @@ qinp, qout = (3.02829203, 4.28265165)
 
 # draw two relaxation triangles for the given Alloy in the substrate
 [qxt0, qzt0] = alloy.RelaxationTriangle([2, 2, 4], substrate, hxrd001)
-alloy.x = 1.
+alloy.x = 1.0
 [qxt1, qzt1] = alloy.RelaxationTriangle([2, 2, 4], substrate, hxrd001)
 
 plt.figure()
-plt.plot(qxt0, qzt0, '-r')
-plt.plot(qxt1, qzt1, '-b')
-plt.plot(qinp, qout, 'ok')
+plt.plot(qxt0, qzt0, "-r")
+plt.plot(qxt1, qzt1, "-b")
+plt.plot(qinp, qout, "ok")
 
 # print concentration of alloy B calculated from a reciprocal space point
 print(alloy.ContentBasym(qinp, qout, [2, 2, 4], [0, 0, 1]))

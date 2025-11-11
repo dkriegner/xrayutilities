@@ -24,10 +24,12 @@ digits = 10
 
 
 class TestSolveQuartic(unittest.TestCase):
-    z = [(-2.1120821587966274-2.945550430762482j),
-         (-2.1120821587966274+2.945550430762482j),
-         0.6655848599174902,
-         2.0585794576757652]
+    z = [
+        (-2.1120821587966274 - 2.945550430762482j),
+        (-2.1120821587966274 + 2.945550430762482j),
+        0.6655848599174902,
+        2.0585794576757652,
+    ]
 
     def test_solver(self):
         roots = xu.math.solve_quartic(2, 3, 6, -60, 36)
@@ -37,5 +39,5 @@ class TestSolveQuartic(unittest.TestCase):
             self.assertAlmostEqual(root, self.z[i], places=digits)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -69,11 +69,11 @@ def GradedBuffer(xfrom, xto, nsteps, thickness, relaxation=1):
     list
         layer list needed for the Darwin model simulation
     """
-    subthickness = thickness/nsteps
+    subthickness = thickness / nsteps
     gradedx = numpy.linspace(xfrom, xto, nsteps)
     layerlist = []
     for x in gradedx:
-        layerlist.append({'t': subthickness, 'x': x, 'r': relaxation})
+        layerlist.append({"t": subthickness, "x": x, "r": relaxation})
     return layerlist
 
 
@@ -86,6 +86,7 @@ class DarwinModel(LayerModel, utilities.ABC):
     To make the class functional the user needs to implement the
     init_structurefactors() and _calc_mono() methods
     """
+
     ncalls = 0
 
     def __init__(self, qz, qx=0, qy=0, **kwargs):
@@ -115,17 +116,19 @@ class DarwinModel(LayerModel, utilities.ABC):
         energy :    float or str, optional
             x-ray energy in eV
         """
-        self.polarization = kwargs.pop('polarization', 'S')
-        exp = kwargs.pop('experiment', None)
-        self.Cmono = kwargs.pop('Cmono', 1)
+        self.polarization = kwargs.pop("polarization", "S")
+        exp = kwargs.pop("experiment", None)
+        self.Cmono = kwargs.pop("Cmono", 1)
         super().__init__(exp, **kwargs)
 
         self.npoints = len(qz)
         self.qz = numpy.asarray(qz)
         self.qinp = (qx, qy)
         if self.qinp != (0, 0):
-            raise NotImplementedError('asymmetric CTR simulation is not yet '
-                                      'supported -> approach the authors')
+            raise NotImplementedError(
+                "asymmetric CTR simulation is not yet "
+                "supported -> approach the authors"
+            )
         self.init_structurefactors()
         # initialize coplanar geometry
         k = self.exp.k0
@@ -135,8 +138,10 @@ class DarwinModel(LayerModel, utilities.ABC):
         domega = numpy.arctan2(numpy.sqrt(qx**2 + qy**2), self.qz)
         self.alphai, self.alphaf = (theta + domega, theta - domega)
         # polarization factor
-        self.C = {'S': numpy.ones(len(self.qz)),
-                  'P': numpy.abs(numpy.cos(self.alphai + self.alphaf))}
+        self.C = {
+            "S": numpy.ones(len(self.qz)),
+            "P": numpy.abs(numpy.cos(self.alphai + self.alphaf)),
+        }
 
     def init_structurefactors(self):
         """
@@ -184,12 +189,12 @@ class DarwinModel(LayerModel, utilities.ABC):
             reflection, backside reflection, and tranmission coefficients
         """
         self.ncalls += 1
-        e = numpy.exp(-1j*self.qz*d)
-        eh = numpy.exp(-1j*self.qz*d/2)
+        e = numpy.exp(-1j * self.qz * d)
+        eh = numpy.exp(-1j * self.qz * d / 2)
         denom = 1 - rabar * rb * e
-        rab = ra + rb*(ta*ta*e)/denom
-        rabbar = rbbar + rabar*(tb*tb*e)/(1-rbbar*ra*e)
-        tab = ta*tb*eh/denom
+        rab = ra + rb * (ta * ta * e) / denom
+        rabbar = rbbar + rabar * (tb * tb * e) / (1 - rbbar * ra * e)
+        tab = ta * tb * eh / denom
         return rab, rabbar, tab
 
     def simulate(self, ml):
@@ -204,18 +209,20 @@ class DarwinModel(LayerModel, utilities.ABC):
             function make_monolayer(). see its documentation for details
         """
         self.ncalls = 0
-        Ih = {'S': numpy.zeros(len(self.qz)), 'P': numpy.zeros(len(self.qz))}
+        Ih = {"S": numpy.zeros(len(self.qz)), "P": numpy.zeros(len(self.qz))}
         geomfact = heaviside(self.alphai) * heaviside(self.alphaf)
         for pol in self.get_polarizations():
-            r, rbar, t = (numpy.zeros(self.npoints, dtype=complex),
-                          numpy.zeros(self.npoints, dtype=complex),
-                          numpy.ones(self.npoints, dtype=complex))
+            r, rbar, t = (
+                numpy.zeros(self.npoints, dtype=complex),
+                numpy.zeros(self.npoints, dtype=complex),
+                numpy.ones(self.npoints, dtype=complex),
+            )
             for nrep, subml in ml:
                 r, rbar, t = self._recur_sim(nrep, subml, r, rbar, t, pol)
             self.r, self.rbar, self.t = r, rbar, t
-            Ih[pol] = numpy.abs(self.r)**2 * geomfact
+            Ih[pol] = numpy.abs(self.r) ** 2 * geomfact
 
-        ret = self.join_polarizations(Ih['S'], Ih['P'])
+        ret = self.join_polarizations(Ih["S"], Ih["P"])
         return self._create_return(self.qz, numpy.sqrt(ret))
 
     def _recur_sim(self, nrep, ml, r, rbar, t, pol):
@@ -247,12 +254,13 @@ class DarwinModel(LayerModel, utilities.ABC):
         if isinstance(ml, list):
             rm, rmbar, tm = (None, None, None)
             for nsub, subml in ml:
-                rm, rmbar, tm = self._recur_sim(nsub, subml, rm,
-                                                rmbar, tm, pol)
-            d = getfirst(ml, 'd')
+                rm, rmbar, tm = self._recur_sim(
+                    nsub, subml, rm, rmbar, tm, pol
+                )
+            d = getfirst(ml, "d")
         else:
             rm, rmbar, tm = self._calc_mono(ml, pol)
-            d = ml['d']
+            d = ml["d"]
 
         Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
         for i in range(Nmax):
@@ -274,6 +282,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
     get_dperp_apar() method and define the substrate lattice parameter (asub).
     See the DarwinModelSiGe001 class for an implementation example.
     """
+
     asub = None  # needs to be defined by subclasses
 
     @abc.abstractmethod
@@ -359,8 +368,10 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
         if isinstance(s, tuple):
             nrep, sd = s
             if isinstance(sd, dict):
-                sd = [sd, ]
-            if any([r > 0 for r in getit(sd, 'r')]):  # if relaxation
+                sd = [
+                    sd,
+                ]
+            if any([r > 0 for r in getit(sd, "r")]):  # if relaxation
                 for _ in range(nrep):
                     for subsd in sd:
                         ml, apar = self._recur_makeml(subsd, ml, apar=apar)
@@ -370,39 +381,41 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                     subl, apar = self._recur_makeml(subsd, subl, apar=apar)
                 ml.insert(0, (nrep, subl))
         elif isinstance(s, dict):
-            x = s.pop('x')
+            x = s.pop("x")
             if callable(x):  # composition profile in layer
                 t = 0
-                T = s.pop('t')
-                if 'r' in s:
-                    if s['r'] > 0:
+                T = s.pop("t")
+                if "r" in s:
+                    if s["r"] > 0:
                         warnings.warn(
                             """relaxation for composition gradient may yield
                             weird lattice parameter variation! Consider
                             supplying the inplane lattice parameter 'ai'
-                            directly!""")
+                            directly!"""
+                        )
                 while t < T:
-                    if 'r' in s:
-                        r = abs(derivative(x, t, dx=1.4))*s['r']
+                    if "r" in s:
+                        r = abs(derivative(x, t, dx=1.4)) * s["r"]
                         dperp, apar = self.get_dperp_apar(x(t), apar, r)
                     else:
-                        dperp, apar = self.get_dperp_apar(x(t), s['ai'])
+                        dperp, apar = self.get_dperp_apar(x(t), s["ai"])
                     t += dperp
                     d = copy.copy(s)
-                    d.pop('r')
-                    d.update({'d': dperp, 'x': x(t), 'ai': apar})
+                    d.pop("r")
+                    d.update({"d": dperp, "x": x(t), "ai": apar})
                     ml.insert(0, (1, d))
             else:  # constant composition layer
-                if 'r' in s:
-                    dperp, apar = self.get_dperp_apar(x, apar, s.pop('r'))
+                if "r" in s:
+                    dperp, apar = self.get_dperp_apar(x, apar, s.pop("r"))
                 else:
-                    dperp, apar = self.get_dperp_apar(x, s.pop('ai'))
-                nmono = int(numpy.ceil(s['t']/dperp))
-                s.update({'d': dperp, 'x': x, 'ai': apar})
+                    dperp, apar = self.get_dperp_apar(x, s.pop("ai"))
+                nmono = int(numpy.ceil(s["t"] / dperp))
+                s.update({"d": dperp, "x": x, "ai": apar})
                 ml.insert(0, (nmono, s))
         else:
             raise Exception(
-                f"wrong type ({type(s)}) of sublayer, must be tuple or dict")
+                f"wrong type ({type(s)}) of sublayer, must be tuple or dict"
+            )
         return ml, apar
 
     def prop_profile(self, ml, prop):
@@ -433,7 +446,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                 for nreps, subml in ml:
                     lzp, lprop = _recur_prop(nreps, subml, lzp, lprop, propn)
             else:
-                lzp = -ml['d']
+                lzp = -ml["d"]
                 lprop = ml[propn]
 
             Nmax = int(numpy.log(nrep) / numpy.log(2)) + 1
@@ -443,13 +456,13 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                         curzp = zp[-1]
                     except IndexError:
                         curzp = 0.0
-                    zp = numpy.append(zp, lzp+curzp)
+                    zp = numpy.append(zp, lzp + curzp)
                     propx = numpy.append(propx, lprop)
                 try:
                     curlzp = lzp[-1]
                 except (IndexError, TypeError):
                     curlzp = lzp
-                lzp = numpy.append(lzp, lzp+curlzp)
+                lzp = numpy.append(lzp, lzp + curlzp)
                 lprop = numpy.append(lprop, lprop)
             return zp, propx
 
@@ -467,20 +480,21 @@ class DarwinModelSiGe001(DarwinModelAlloy):
     blocks of atomic planes from which a multibeam dynamical model is
     calculated.
     """
+
     Si = materials.Si
     Ge = materials.Ge
     eSi = materials.elements.Si
     eGe = materials.elements.Ge
     aSi = materials.Si.a
     asub = aSi  # needed for the make_monolayer function
-    re = physical_constants['classical electron radius'][0] * 1e10
+    re = physical_constants["classical electron radius"][0] * 1e10
 
     @classmethod
     def abulk(cls, x):
         """
         calculate the bulk (relaxed) lattice parameter of the alloy
         """
-        return cls.aSi + (0.2 * x + 0.027 * x ** 2)
+        return cls.aSi + (0.2 * x + 0.027 * x**2)
 
     @staticmethod
     def _deformation_ratio(x):
@@ -488,7 +502,7 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         calculate the deformation ratio of the alloy for biaxial strain. This
         corresponds to 2*c12/c11.
         """
-        return 2 * (63.9-15.6*x) / (165.8-37.3*x)  # according to IOFFE
+        return 2 * (63.9 - 15.6 * x) / (165.8 - 37.3 * x)  # according to IOFFE
 
     @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
@@ -516,7 +530,9 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
+        dperp = (
+            abulk * (1 + cls._deformation_ratio(x) * (1 - aparl / abulk)) / 4.0
+        )
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
@@ -529,7 +545,7 @@ class DarwinModelSiGe001(DarwinModelAlloy):
             temperature used for the Debye model
         """
         en = self.exp.energy
-        q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
+        q = numpy.sqrt(self.qinp[0] ** 2 + self.qinp[1] ** 2 + self.qz**2)
         self.fSi = self.eSi.f(q, en) * self.Si._debyewallerfactor(temp, q)
         self.fGe = self.eGe.f(q, en) * self.Ge._debyewallerfactor(temp, q)
         self.fSi0 = self.eSi.f(0, en)
@@ -554,23 +570,29 @@ class DarwinModelSiGe001(DarwinModelAlloy):
         r, rbar, t : float or array-like
             reflection, backside reflection, and tranmission coefficients
         """
-        ainp = pdict.get('ai')
-        xGe = pdict.get('x')
+        ainp = pdict.get("ai")
+        xGe = pdict.get("x")
         # pre-factor for reflection: contains footprint correction
-        gamma = 4*numpy.pi*self.re/(self.qz*ainp**2)
-#        ltype = pdict.get('l', 0)
-#        if ltype == 0: # for asymmetric peaks (not yet implemented)
-#            p1, p2 = (0, 0), (0.5, 0.5)
-#        elif ltype == 1:
-#            p1, p2 = (0.25, 0.25), (0.75, 0.75)
-#        elif ltype == 2:
-#            p1, p2 = (0.5, 0.), (0., 0.5)
-#        elif ltype == 3:
-#            p1, p2 = (0.75, 0.25), (0.25, 0.75)
+        gamma = 4 * numpy.pi * self.re / (self.qz * ainp**2)
+        #        ltype = pdict.get('l', 0)
+        #        if ltype == 0: # for asymmetric peaks (not yet implemented)
+        #            p1, p2 = (0, 0), (0.5, 0.5)
+        #        elif ltype == 1:
+        #            p1, p2 = (0.25, 0.25), (0.75, 0.75)
+        #        elif ltype == 2:
+        #            p1, p2 = (0.5, 0.), (0., 0.5)
+        #        elif ltype == 3:
+        #            p1, p2 = (0.75, 0.25), (0.25, 0.75)
 
-        r = -1j*gamma * self.C[pol] * (self.fSi+(self.fGe-self.fSi)*xGe) * 2
+        r = (
+            -1j
+            * gamma
+            * self.C[pol]
+            * (self.fSi + (self.fGe - self.fSi) * xGe)
+            * 2
+        )
         # * (exp(1j*(h*p1[0]+k*p1[1])) + exp(1j*(h*p1[0]+k*p1[1])))
-        t = 1 + 1j*gamma * (self.fSi0+(self.fGe0-self.fSi0)*xGe) * 2
+        t = 1 + 1j * gamma * (self.fSi0 + (self.fGe0 - self.fSi0) * xGe) * 2
         return r, numpy.copy(r), t
 
 
@@ -581,6 +603,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
     blocks of atomic planes from which a multibeam dynamical model is
     calculated.
     """
+
     GaAs = materials.GaAs
     InAs = materials.InAs
     eGa = materials.elements.Ga
@@ -588,7 +611,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
     eAs = materials.elements.As
     aGaAs = materials.GaAs.a
     asub = aGaAs  # needed for the make_monolayer function
-    re = physical_constants['classical electron radius'][0] * 1e10
+    re = physical_constants["classical electron radius"][0] * 1e10
 
     @classmethod
     def abulk(cls, x):
@@ -596,7 +619,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         calculate the bulk (relaxed) lattice parameter of the Ga_{1-x}In_{x}As
         alloy
         """
-        return cls.aGaAs + 0.40505*x
+        return cls.aGaAs + 0.40505 * x
 
     @staticmethod
     def _deformation_ratio(x):
@@ -604,7 +627,7 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         calculate the deformation ratio of the alloy for biaxial strain. This
         corresponds to 2*c12/c11.
         """
-        return 2 * (5.38 - 0.84*x) / (11.88 - 3.54*x)  # according to IOFFE
+        return 2 * (5.38 - 0.84 * x) / (11.88 - 3.54 * x)  # according to IOFFE
 
     @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
@@ -632,7 +655,9 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
+        dperp = (
+            abulk * (1 + cls._deformation_ratio(x) * (1 - aparl / abulk)) / 4.0
+        )
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
@@ -645,12 +670,14 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
             temperature used for the Debye model
         """
         en = self.exp.energy
-        q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
+        q = numpy.sqrt(self.qinp[0] ** 2 + self.qinp[1] ** 2 + self.qz**2)
         fAs = self.eAs.f(q, en)
-        self.fGaAs = (self.eGa.f(q, en) + fAs) \
-            * self.GaAs._debyewallerfactor(temp, q)
-        self.fInAs = (self.eIn.f(q, en) + fAs) \
-            * self.InAs._debyewallerfactor(temp, q)
+        self.fGaAs = (self.eGa.f(q, en) + fAs) * self.GaAs._debyewallerfactor(
+            temp, q
+        )
+        self.fInAs = (self.eIn.f(q, en) + fAs) * self.InAs._debyewallerfactor(
+            temp, q
+        )
         self.fGaAs0 = self.eGa.f(0, en) + self.eAs.f(0, en)
         self.fInAs0 = self.eIn.f(0, en) + self.eAs.f(0, en)
 
@@ -671,12 +698,19 @@ class DarwinModelGaInAs001(DarwinModelAlloy):
         r, rbar, t : float or array-like
             reflection, backside reflection, and tranmission coefficients
         """
-        ainp = pdict.get('ai')
-        xInAs = pdict.get('x')
+        ainp = pdict.get("ai")
+        xInAs = pdict.get("x")
         # pre-factor for reflection: contains footprint correction
-        gamma = 4*numpy.pi * self.re/(self.qz*ainp**2)
-        r = -1j*gamma*self.C[pol]*(self.fGaAs+(self.fInAs-self.fGaAs)*xInAs)
-        t = 1 + 1j*gamma * (self.fGaAs0+(self.fInAs0-self.fGaAs0)*xInAs)
+        gamma = 4 * numpy.pi * self.re / (self.qz * ainp**2)
+        r = (
+            -1j
+            * gamma
+            * self.C[pol]
+            * (self.fGaAs + (self.fInAs - self.fGaAs) * xInAs)
+        )
+        t = 1 + 1j * gamma * (
+            self.fGaAs0 + (self.fInAs0 - self.fGaAs0) * xInAs
+        )
         return r, numpy.copy(r), t
 
 
@@ -687,6 +721,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
     blocks of atomic planes from which a multibeam dynamical model is
     calculated.
     """
+
     GaAs = materials.GaAs
     AlAs = materials.AlAs
     eGa = materials.elements.Ga
@@ -694,7 +729,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
     eAs = materials.elements.As
     aGaAs = materials.GaAs.a
     asub = aGaAs  # needed for the make_monolayer function
-    re = physical_constants['classical electron radius'][0] * 1e10
+    re = physical_constants["classical electron radius"][0] * 1e10
 
     @classmethod
     def abulk(cls, x):
@@ -702,7 +737,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         calculate the bulk (relaxed) lattice parameter of the Al_{x}Ga_{1-x}As
         alloy
         """
-        return cls.aGaAs + 0.0078*x
+        return cls.aGaAs + 0.0078 * x
 
     @staticmethod
     def _deformation_ratio(x):
@@ -710,7 +745,7 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         calculate the deformation ratio of the alloy for biaxial strain. This
         corresponds to 2*c12/c11.
         """
-        return 2 * (5.38+0.32*x) / (11.88+0.14*x)  # according to IOFFE
+        return 2 * (5.38 + 0.32 * x) / (11.88 + 0.14 * x)  # according to IOFFE
 
     @classmethod
     def get_dperp_apar(cls, x, apar, r=1):
@@ -738,7 +773,9 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         """
         abulk = cls.abulk(x)
         aparl = apar + (abulk - apar) * r
-        dperp = abulk*(1+cls._deformation_ratio(x)*(1-aparl/abulk))/4.
+        dperp = (
+            abulk * (1 + cls._deformation_ratio(x) * (1 - aparl / abulk)) / 4.0
+        )
         return dperp, aparl
 
     def init_structurefactors(self, temp=300):
@@ -751,12 +788,14 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
             temperature used for the Debye model
         """
         en = self.exp.energy
-        q = numpy.sqrt(self.qinp[0]**2 + self.qinp[1]**2 + self.qz**2)
+        q = numpy.sqrt(self.qinp[0] ** 2 + self.qinp[1] ** 2 + self.qz**2)
         fAs = self.eAs.f(q, en)
-        self.fGaAs = (self.eGa.f(q, en) + fAs) \
-            * self.GaAs._debyewallerfactor(temp, q)
-        self.fAlAs = (self.eAl.f(q, en) + fAs) \
-            * self.AlAs._debyewallerfactor(temp, q)
+        self.fGaAs = (self.eGa.f(q, en) + fAs) * self.GaAs._debyewallerfactor(
+            temp, q
+        )
+        self.fAlAs = (self.eAl.f(q, en) + fAs) * self.AlAs._debyewallerfactor(
+            temp, q
+        )
         self.fGaAs0 = self.eGa.f(0, en) + self.eAs.f(0, en)
         self.fAlAs0 = self.eAl.f(0, en) + self.eAs.f(0, en)
 
@@ -777,10 +816,17 @@ class DarwinModelAlGaAs001(DarwinModelAlloy):
         r, rbar, t : float or array-like
             reflection, backside reflection, and tranmission coefficients
         """
-        ainp = pdict.get('ai')
-        xAlAs = pdict.get('x')
+        ainp = pdict.get("ai")
+        xAlAs = pdict.get("x")
         # pre-factor for reflection: contains footprint correction
-        gamma = 4*numpy.pi * self.re/(self.qz*ainp**2)
-        r = -1j*gamma*self.C[pol]*(self.fGaAs+(self.fAlAs-self.fGaAs)*xAlAs)
-        t = 1 + 1j*gamma * (self.fGaAs0+(self.fAlAs0-self.fGaAs0)*xAlAs)
+        gamma = 4 * numpy.pi * self.re / (self.qz * ainp**2)
+        r = (
+            -1j
+            * gamma
+            * self.C[pol]
+            * (self.fGaAs + (self.fAlAs - self.fGaAs) * xAlAs)
+        )
+        t = 1 + 1j * gamma * (
+            self.fGaAs0 + (self.fAlAs0 - self.fGaAs0) * xAlAs
+        )
         return r, numpy.copy(r), t

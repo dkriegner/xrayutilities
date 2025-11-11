@@ -33,6 +33,7 @@ import numpy
 import numpy.lib.recfunctions
 
 from ..exception import InputError
+
 # relative imports from xrayutilities
 from .helper import xu_open
 
@@ -45,7 +46,6 @@ re_initmopo = re.compile(r"^/\*M")
 
 
 class tty08File:
-
     """
     Represents a tty08 data file. The file is read during the
     Constructor call. This class should work for data stored at
@@ -70,16 +70,18 @@ class tty08File:
 
         if mcadir is not None:
             self.mca_directory = mcadir
-            self.mca_files = sorted(glob.glob(
-                os.path.join(self.mca_directory, '*')))
+            self.mca_files = sorted(
+                glob.glob(os.path.join(self.mca_directory, "*"))
+            )
 
             if self.mca_files:
                 self.ReadMCA()
 
     def ReadMCA(self):
-        self.mca = numpy.empty((len(self.mca_files),
-                                numpy.loadtxt(self.mca_files[0]).shape[0]),
-                               dtype=float)
+        self.mca = numpy.empty(
+            (len(self.mca_files), numpy.loadtxt(self.mca_files[0]).shape[0]),
+            dtype=float,
+        )
         for i in range(len(self.mca_files)):
             mcadata = numpy.loadtxt(self.mca_files[i])
 
@@ -91,10 +93,10 @@ class tty08File:
                 else:
                     self.mca_channels = numpy.arange(0, mcadata.shape[0])
 
-        mcatemp = self.mca.view([('MCA',
-                                  (self.mca.dtype, self.mca.shape[1]))])
-        self.data = numpy.lib.recfunctions.merge_arrays([self.data, mcatemp],
-                                                        flatten=True)
+        mcatemp = self.mca.view([("MCA", (self.mca.dtype, self.mca.shape[1]))])
+        self.data = numpy.lib.recfunctions.merge_arrays(
+            [self.data, mcatemp], flatten=True
+        )
 
     def Read(self):
         """
@@ -105,22 +107,22 @@ class tty08File:
             # read header
             self.init_mopo = {}
             for line in fid:
-                line = line.decode('ascii')
+                line = line.decode("ascii")
 
                 if re_command.match(line):
-                    m = line.split(':')
+                    m = line.split(":")
                     self.scan_command = m[1].strip()
                 if re_date.match(line):
-                    m = line.split(':', 1)
+                    m = line.split(":", 1)
                     self.scan_date = m[1].strip()
                 if re_epoch.match(line):
-                    m = line.split(':', 1)
+                    m = line.split(":", 1)
                     self.epoch = float(m[1])
                 if re_initmopo.match(line):
                     m = line[3:]
-                    m = m.split(';')
+                    m = m.split(";")
                     for e in m:
-                        e = e.split('=')
+                        e = e.split("=")
                         self.init_mopo[e[0].strip()] = float(e[1])
 
                 if re_columns.match(line):

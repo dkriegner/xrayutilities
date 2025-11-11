@@ -26,6 +26,7 @@ import re
 import numpy
 
 from ..exception import InputError
+
 # relative imports from xrayutilities
 from .helper import xu_open
 
@@ -48,10 +49,12 @@ class numorFile:
         a string with the name of the data file
     """
 
-    columns = {0: ('detector', 'monitor', 'time', 'gamma', 'omega', 'psi'),
-               1: ('detector', 'monitor', 'time', 'gamma'),
-               2: ('detector', 'monitor', 'time', 'omega'),
-               5: ('detector', 'monitor', 'time', 'psi')}
+    columns = {
+        0: ("detector", "monitor", "time", "gamma", "omega", "psi"),
+        1: ("detector", "monitor", "time", "gamma"),
+        2: ("detector", "monitor", "time", "omega"),
+        5: ("detector", "monitor", "time", "psi"),
+    }
 
     def __init__(self, filename, path=None):
         """
@@ -73,14 +76,14 @@ class numorFile:
         self.Read()
 
     def getline(self, fid):
-        return fid.readline().decode('ascii')
+        return fid.readline().decode("ascii")
 
     def ssplit(self, string):
         """
         multispace split. splits string at two or more spaces after stripping
         it.
         """
-        return re.split(r'\s\s+', string.strip())
+        return re.split(r"\s\s+", string.strip())
 
     def Read(self):
         """
@@ -112,10 +115,10 @@ class numorFile:
                     self.runnumber = int(info[0])
 
                     if int(info[1]) > 0:
-                        headerdesc = ''
+                        headerdesc = ""
                         for _ in range(int(info[1])):
-                            headerdesc += self.getline(fid) + '\n'
-                        self.comments.append((['Fileheader'], [headerdesc]))
+                            headerdesc += self.getline(fid) + "\n"
+                        self.comments.append((["Fileheader"], [headerdesc]))
 
                 if re_header.match(line):
                     # read IIII section: integer header values
@@ -125,8 +128,9 @@ class numorFile:
 
                     for j in range(int(info[1])):
                         names += self.getline(fid).split()
-                    values = numpy.fromfile(fid, dtype=int,
-                                            count=int(info[0]), sep=' ')
+                    values = numpy.fromfile(
+                        fid, dtype=int, count=int(info[0]), sep=" "
+                    )
                     self.header = dict(zip(names, values))
 
                 if re_values.match(line):
@@ -137,8 +141,9 @@ class numorFile:
 
                     for j in range(int(info[1])):
                         names += self.ssplit(self.getline(fid))
-                    values = numpy.fromfile(fid, dtype=float,
-                                            count=int(info[0]), sep=' ')
+                    values = numpy.fromfile(
+                        fid, dtype=float, count=int(info[0]), sep=" "
+                    )
                     self.init_mopo = dict(zip(names, values))
 
                 if re_spectrum.match(line):
@@ -150,21 +155,28 @@ class numorFile:
                         # read FFFF section: subspectrum data
                         nval = int(self.getline(fid))
                         # check if nval is multiple of npdone
-                        if nval % self.header['npdone'] != 0:
-                            raise InputError("File corrupted, wrong number of "
-                                             "data values (%d) found." % nval)
+                        if nval % self.header["npdone"] != 0:
+                            raise InputError(
+                                "File corrupted, wrong number of "
+                                "data values (%d) found." % nval
+                            )
 
-                        self._data.append(numpy.fromfile(fid, dtype=float,
-                                                         count=nval, sep=' '))
+                        self._data.append(
+                            numpy.fromfile(
+                                fid, dtype=float, count=nval, sep=" "
+                            )
+                        )
 
                     if int(info[1]) == 0:
                         break
             # make data columns accessible by names
-            data = numpy.reshape(self._data[0],
-                                 (self.header['npdone'],
-                                  nval // self.header['npdone']))
+            data = numpy.reshape(
+                self._data[0],
+                (self.header["npdone"], nval // self.header["npdone"]),
+            )
             self.data = numpy.rec.fromrecords(
-                data, names=self.columns[self.header['manip']])
+                data, names=self.columns[self.header["manip"]]
+            )
 
     def __str__(self):
         ostr = f"Numor: {self.runnumber:d} ({self.filename:s})\n"
@@ -236,8 +248,7 @@ def numor_scan(scannumbers, *args, **kwargs):
             try:
                 buf = sdata[motname]
             except ValueError:
-                mv = [v for k, v in scan.init_mopo.items()
-                      if motname in k][0]
+                mv = [v for k, v in scan.init_mopo.items() if motname in k][0]
                 buf = mv * numpy.ones(scanlength)
             angles[motname] = numpy.concatenate((angles[motname], buf))
 

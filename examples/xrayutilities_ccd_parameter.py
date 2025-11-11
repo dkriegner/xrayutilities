@@ -33,8 +33,8 @@ en = id01.getmono_energy(specscan)
 filetmp = id01.getmpx4_filetmp(specscan)
 
 images = []
-ang1 = specscan.data['nu']
-ang2 = specscan.data['del']
+ang1 = specscan.data["nu"]
+ang2 = specscan.data["del"]
 
 # read images and angular positions from the data file
 for imgnr in [100, 101, 102]:  # put your imagenrs here
@@ -45,7 +45,12 @@ for imgnr in [100, 101, 102]:  # put your imagenrs here
 # call the fit for the detector parameters
 # detector arm rotations and primary beam direction need to be given
 param, eps = xu.analysis.sample_align.area_detector_calib(
-    ang1, ang2, images, ['z-', 'y-'], 'x+',
+    ang1,
+    ang2,
+    images,
+    ["z-", "y-"],
+    "x+",
     start=(55e-6, 55e-6, 0.5, 45, 0, -0.7, 0),
     fix=(True, True, False, False, False, False, True),
-    wl=xu.en2lam(en))
+    wl=xu.en2lam(en),
+)
