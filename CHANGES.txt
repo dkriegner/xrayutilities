@@ -1,3 +1,4 @@
+* fix powder simulation with lmfit 1.3.4
 * PowderModel: add some hints on higher memory consumption with more threads
 * correct use of OPENMP in c-code and performance optimization
 * fix a memory leak in the c-code (not freed memory of function pointers)
