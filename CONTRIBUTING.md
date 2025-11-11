@@ -19,15 +19,14 @@ name in the copyright statement at the beginning of the file.
 Styleguide
 ----------
 
-In order to keep the code readable we try to follow the [PEP8 Style Guide][3]
+In order to keep the code readable we follow the [PEP8 Style Guide][3].
+We use [ruff][4] to automatically format and check code style.
+Consider checking your contribution by running `ruff format` and `ruff check` in the root directory of the package.
 
-Consider checking your contribution with the [PEP8 style checker][4]
-
-Noteable exceptions are docstrings which sometimes would get misformated when
-PEP8 is followed strictly. For docstrings we follow the [numpydoc style][5].
+Notable exceptions are docstrings for which we follow the [numpydoc style][5].
 
 [1]: https://sourceforge.net/p/xrayutilities/mailman/xrayutilities-users
 [2]: https://github.com/dkriegner/xrayutilities/issues
 [3]: https://www.python.org/dev/peps/pep-0008/
-[4]: https://pypi.org/project/pycodestyle/
+[4]: https://docs.astral.sh/ruff/
 [5]: http://numpydoc.readthedocs.io
