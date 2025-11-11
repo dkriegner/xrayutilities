@@ -43,6 +43,7 @@ install_subdir('lib/xrayutilities', install_dir : pyx.get_install_dir())
 
 db_build = custom_target(
   'build_database',
+  env: ['HDF5_USE_FILE_LOCKING=FALSE'],
   input : 'lib/xrayutilities/materials/_create_database.py',
   output : 'elements.db',
   command : [pyx, '@INPUT@', '@OUTPUT@'],
