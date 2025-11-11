@@ -28,11 +28,11 @@ maintainers = [
 keywords = ["x-ray", "diffraction", "data analysis"]
 classifiers = [
     "Programming Language :: C",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Physics",
     "Intended Audience :: Science/Research",
     "Development Status :: 5 - Production/Stable",
@@ -45,6 +45,14 @@ dependencies = ["numpy>=1.9.2", "scipy>=0.18.0", "h5py", "lmfit>=1.0.1"]
 [project.optional-dependencies]
 plot = ["matplotlib>=3.1.0"]
 3D = ["mayavi"]
+dev = [
+    "pytest",
+    "pytest-subtests",
+    "pytest-cov",
+    "coverage[toml]",
+    "pytest-azurepipelines",
+    "ruff",
+]
 
 [project.urls]
 homepage = "https://xrayutilities.sourceforge.io"
