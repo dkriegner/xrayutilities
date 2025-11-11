@@ -30,9 +30,18 @@ def main():
     # this is already predefined as xu.materials.Fe we will repeat here for
     # educational purposes
     FeBCC = xu.materials.Crystal(
-        "Fe", xu.materials.SGLattice(229, 2.87,
-                                     atoms=[xu.materials.elements.Fe, ],
-                                     pos=['2a', ]))
+        "Fe",
+        xu.materials.SGLattice(
+            229,
+            2.87,
+            atoms=[
+                xu.materials.elements.Fe,
+            ],
+            pos=[
+                "2a",
+            ],
+        ),
+    )
 
     print("Creating Fe powder ...")
     Fe_powder = xu.simpack.Powder(FeBCC, 1, crystallite_size_gauss=cryst_size)
@@ -55,6 +64,6 @@ def main():
     return inte
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     freeze_support()
     main()

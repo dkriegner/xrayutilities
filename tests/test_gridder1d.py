@@ -45,10 +45,9 @@ class TestGridder1D(unittest.TestCase):
         # test values of data
         for i in range(self.num):
             self.assertAlmostEqual(
-                self.gridder.data[i],
-                self.data[i],
-                places=12)
+                self.gridder.data[i], self.data[i], places=12
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

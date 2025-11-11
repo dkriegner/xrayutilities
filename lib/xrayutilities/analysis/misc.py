@@ -74,26 +74,32 @@ def getangles(peak, sur, inp):
         print("XU.analyis.getangles: peaks inplane direction: ", pinp)
 
     # calculate angles
-    r2d = 180. / numpy.pi
+    r2d = 180.0 / numpy.pi
     chi = numpy.arccos(numpy.dot(sur, peak)) * r2d
     if numpy.isclose(numpy.dot(sur, peak), 1):
-        chi = 0.
-        phi = 0.
-    elif numpy.isclose(numpy.dot(sur, peak), -1.):
-        chi = 180.
-        phi = 0.
+        chi = 0.0
+        phi = 0.0
+    elif numpy.isclose(numpy.dot(sur, peak), -1.0):
+        chi = 180.0
+        phi = 0.0
     elif numpy.isclose(numpy.dot(sur, numpy.cross(inplane, pinp)), 0):
         if numpy.dot(pinp, inplane) >= 1.0:
-            phi = 0.
+            phi = 0.0
         elif numpy.dot(pinp, inplane) <= -1.0:
-            phi = 180.
+            phi = 180.0
         else:
-            phi = numpy.sign(numpy.dot(sur, numpy.cross(inplane, pinp))) *\
-                numpy.arccos(numpy.dot(pinp, inplane)) * r2d
+            phi = (
+                numpy.sign(numpy.dot(sur, numpy.cross(inplane, pinp)))
+                * numpy.arccos(numpy.dot(pinp, inplane))
+                * r2d
+            )
     else:
-        phi = numpy.sign(numpy.dot(sur, numpy.cross(inplane, pinp))) * \
-            numpy.arccos(numpy.dot(pinp, inplane)) * r2d
-    phi = phi - round(phi / 360.) * 360
+        phi = (
+            numpy.sign(numpy.dot(sur, numpy.cross(inplane, pinp)))
+            * numpy.arccos(numpy.dot(pinp, inplane))
+            * r2d
+        )
+    phi = phi - round(phi / 360.0) * 360
 
     return (chi, phi)
 
@@ -118,8 +124,9 @@ def getunitvector(chi, phi, ndir=(0, 0, 1), idir=(1, 0, 0)):
     return v / numpy.linalg.norm(v)
 
 
-def coplanar_intensity(mat, exp, hkl, thickness, thMono, sample_width=10,
-                       beam_width=1):
+def coplanar_intensity(
+    mat, exp, hkl, thickness, thMono, sample_width=10, beam_width=1
+):
     """
     Calculates the expected intensity of a Bragg peak from an epitaxial thin
     film measured in coplanar geometry (integration over omega and 2theta in
@@ -151,11 +158,11 @@ def coplanar_intensity(mat, exp, hkl, thickness, thMono, sample_width=10,
     om, _, _, tt = exp.Q2Ang(mat.Q(hkl))
 
     # structure factor calculation
-    r = abs(mat.StructureFactor(mat.Q(hkl)))**2
+    r = abs(mat.StructureFactor(mat.Q(hkl))) ** 2
 
     # polarization factor
     Cmono = numpy.cos(2 * numpy.radians(thMono))
-    P = (1 + Cmono * numpy.cos(numpy.radians(tt))**2) / ((1 + Cmono))
+    P = (1 + Cmono * numpy.cos(numpy.radians(tt)) ** 2) / (1 + Cmono)
     # Lorentz factor to be used when integrating in angular space
     L = 1 / numpy.sin(numpy.radians(tt))
     # shape factor: changing illumination with the incidence angle
@@ -165,8 +172,10 @@ def coplanar_intensity(mat, exp, hkl, thickness, thMono, sample_width=10,
 
     # absorption correction
     mu = 1 / (mat.absorption_length() * 1e3)
-    mu_eff = mu * (abs(1 / numpy.sin(numpy.radians(om))) +
-                   abs(1 / numpy.sin(numpy.radians(tt - om))))
+    mu_eff = mu * (
+        abs(1 / numpy.sin(numpy.radians(om)))
+        + abs(1 / numpy.sin(numpy.radians(tt - om)))
+    )
     Nblocks = (1 - numpy.exp(-mu_eff * thickness)) / mu_eff
 
     return r * P * L * shapef * Nblocks

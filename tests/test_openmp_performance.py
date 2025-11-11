@@ -49,7 +49,7 @@ class TestParallelPerformance(unittest.TestCase):
             self.skipTest("OpenMP available, but not enough allowed threads")
             return
         times = {}
-        n_threads_tested = list(range(1, min(13, max_threads+1)))
+        n_threads_tested = list(range(1, min(13, max_threads + 1)))
         for nthreads in n_threads_tested:
             xu.config.NTHREADS = nthreads
             start_time = time.time()
@@ -65,8 +65,10 @@ class TestParallelPerformance(unittest.TestCase):
             speedup = time_1 / times[nthreads]
             efficiency = speedup / nthreads
             efficiencies[nthreads] = efficiency
-            print(f"Nthreads: {nthreads}, Speedup: {speedup:.2f}, "
-                  f"Efficiency: {efficiency:.2f}")
+            print(
+                f"Nthreads: {nthreads}, Speedup: {speedup:.2f}, "
+                f"Efficiency: {efficiency:.2f}"
+            )
 
         # Average Efficiency (excluding 1 thread, as efficiency=1.0)
         avg_efficiency = np.mean(list(efficiencies.values())[1:])
@@ -74,10 +76,12 @@ class TestParallelPerformance(unittest.TestCase):
 
         # Assertions based on the average efficiency
         self.assertGreater(
-            avg_efficiency, 0.25, "Average efficiency should be reasonable")
+            avg_efficiency, 0.25, "Average efficiency should be reasonable"
+        )
         self.assertGreater(
-            efficiencies[2], 0.5, "Efficiency at 2 threads should be high.")
+            efficiencies[2], 0.5, "Efficiency at 2 threads should be high."
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

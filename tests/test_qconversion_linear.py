@@ -28,14 +28,15 @@ class TestQConversion(unittest.TestCase):
         cls.hxrd = xu.HXRD(cls.mat.Q(1, 1, 0), cls.mat.Q(0, 0, 1))
         cls.nch = 9
         cls.ncch = 4
-        cls.hxrd.Ang2Q.init_linear('z+', cls.ncch, cls.nch, 1.0, 50e-6, 0.)
+        cls.hxrd.Ang2Q.init_linear("z+", cls.ncch, cls.nch, 1.0, 50e-6, 0.0)
         cls.hklsym = (0, 0, 4)
         cls.hklasym = (2, 2, 4)
 
     def test_qconversion_linear(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))
-        qout = self.hxrd.Ang2HKL(ang[0], ang[3], mat=self.mat,
-                                 dettype='linear')
+        qout = self.hxrd.Ang2HKL(
+            ang[0], ang[3], mat=self.mat, dettype="linear"
+        )
         self.assertEqual(qout[0].size, self.nch)
         for i in range(3):
             q = qout[i]
@@ -43,8 +44,9 @@ class TestQConversion(unittest.TestCase):
 
     def test_qconversion_linear_asym(self):
         ang = self.hxrd.Q2Ang(self.mat.Q(self.hklasym))
-        qout = self.hxrd.Ang2HKL(ang[0], ang[3], mat=self.mat,
-                                 dettype='linear')
+        qout = self.hxrd.Ang2HKL(
+            ang[0], ang[3], mat=self.mat, dettype="linear"
+        )
         self.assertEqual(qout[0].size, self.nch)
         for i in range(3):
             q = qout[i]
@@ -52,10 +54,14 @@ class TestQConversion(unittest.TestCase):
 
     def test_qconversion_linear_energy(self):
         ang1 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))
-        ang2 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym) / 2.)
-        qout = self.hxrd.Ang2HKL((ang1[0], ang2[0]), (ang1[3], ang2[3]),
-                                 en=(self.hxrd.energy, 2 * self.hxrd.energy),
-                                 mat=self.mat, dettype='linear')
+        ang2 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym) / 2.0)
+        qout = self.hxrd.Ang2HKL(
+            (ang1[0], ang2[0]),
+            (ang1[3], ang2[3]),
+            en=(self.hxrd.energy, 2 * self.hxrd.energy),
+            mat=self.mat,
+            dettype="linear",
+        )
         for i in range(3):
             q = qout[i]
             self.assertAlmostEqual(q[0, self.ncch], self.hklsym[i], places=10)
@@ -64,15 +70,18 @@ class TestQConversion(unittest.TestCase):
     def test_qconversion_linear_detpos(self):
         tt = numpy.random.rand() * 90
         dpos = self.hxrd.Ang2Q.getDetectorPos(tt, dim=1)
-        ki = self.hxrd._A2QConversion.r_i / \
-            numpy.linalg.norm(self.hxrd._A2QConversion.r_i) * self.hxrd.k0
+        ki = (
+            self.hxrd._A2QConversion.r_i
+            / numpy.linalg.norm(self.hxrd._A2QConversion.r_i)
+            * self.hxrd.k0
+        )
         qout = self.hxrd.Ang2Q.linear(0, tt)
         for j, x, y, z in zip(range(self.nch), dpos[0], dpos[1], dpos[2]):
             vpos = numpy.asarray((x, y, z))
             kf = vpos / numpy.linalg.norm(vpos) * self.hxrd.k0
             for i in range(3):
-                self.assertAlmostEqual(qout[i][j], kf[i]-ki[i], places=10)
+                self.assertAlmostEqual(qout[i][j], kf[i] - ki[i], places=10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

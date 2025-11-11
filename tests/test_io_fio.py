@@ -22,13 +22,15 @@ import unittest
 import numpy
 import xrayutilities as xu
 
-testfile = 'p08_00019.FIO'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "p08_00019.FIO"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_FIO(unittest.TestCase):
     dshape = (601,)
     dmax = 2272108.0
@@ -39,27 +41,29 @@ class TestIO_FIO(unittest.TestCase):
     motmin = 0.0
     tpos = 300
     dtpos = 1278952.0
-    motorname = 'Motor_TT'
-    countername = 'MythenIntegral'
+    motorname = "Motor_TT"
+    countername = "MythenIntegral"
     P08_normalizer = xu.IntensityNormalizer(
         "MCA",
-        time='CountingTime',
-        mon='MonitorEnergyWindow',
-        absfun=lambda d: d['AttenuationFactor'])
+        time="CountingTime",
+        mon="MonitorEnergyWindow",
+        absfun=lambda d: d["AttenuationFactor"],
+    )
 
     @classmethod
     def setUpClass(cls):
         scanname = os.path.splitext(testfile)[0]
-        mcatmp = os.path.join(datadir, scanname, scanname+"_mythen_%i.raw")
+        mcatmp = os.path.join(datadir, scanname, scanname + "_mythen_%i.raw")
         cls.fiofile = xu.io.SPECTRAFile(fullfilename, mcatmp=mcatmp)
         cls.sdata = cls.fiofile.data
         cls.motor = cls.sdata[cls.motorname]
         cls.inte = cls.sdata[cls.countername]
         with tempfile.TemporaryDirectory() as tmpdir:
-            fname = os.path.join(tmpdir, 'tmp.h5')
+            fname = os.path.join(tmpdir, "tmp.h5")
             cls.fiofile.Save2HDF5(fname, scanname)
             [cls.h5tt, _, cls.h5int], cls.h5data = xu.io.geth5_spectra_map(
-                fname, [19], cls.motorname, 'ZS', cls.countername)
+                fname, [19], cls.motorname, "ZS", cls.countername
+            )
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.sdata[self.motorname].shape)
@@ -82,5 +86,5 @@ class TestIO_FIO(unittest.TestCase):
         self.assertAlmostEqual(self.dmincorr, mcac.min(), places=6)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

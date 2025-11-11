@@ -61,9 +61,12 @@ with open(_default_conf, "r") as conffile:
     xuParser.read_file(conffile)
 
 # read user configuration and local configuration if available
-cfiles = xuParser.read([
-    os.path.expanduser(os.path.join("~", ".xrayutilities.conf")),
-    "xrayutilities.conf"])
+cfiles = xuParser.read(
+    [
+        os.path.expanduser(os.path.join("~", ".xrayutilities.conf")),
+        "xrayutilities.conf",
+    ]
+)
 
 # set global variables according to configuration
 sect = "xrayutilities"
@@ -108,59 +111,73 @@ KAPPA_ANGLE = xuParser.getfloat(sect, "kappa_angle")
 # parser Powder profile related variables
 POWDER = dict()
 
-subsec = 'classoptions'
+subsec = "classoptions"
 POWDER[subsec] = dict(xuParser.items("powder"))
-trytomake(POWDER[subsec], 'oversampling', int)
-for k in ('gaussian_smoother_bins_sigma', 'window_width'):
+trytomake(POWDER[subsec], "oversampling", int)
+for k in ("gaussian_smoother_bins_sigma", "window_width"):
     trytomake(POWDER[subsec], k, float)
 
-subsec = 'global'
+subsec = "global"
 POWDER[subsec] = dict(xuParser.items("powder.global"))
-for k in ('diffractometer_radius', 'equatorial_divergence_deg'):
+for k in ("diffractometer_radius", "equatorial_divergence_deg"):
     trytomake(POWDER[subsec], k, float)
-trytomake(POWDER[subsec], 'geometry_incidence_angle', literal_eval)
+trytomake(POWDER[subsec], "geometry_incidence_angle", literal_eval)
 
-subsec = 'emission'
+subsec = "emission"
 POWDER[subsec] = dict(xuParser.items("powder.emission"))
-for k in ('crystallite_size_gauss', 'crystallite_size_lor',
-          'strain_lor', 'strain_gauss'):
+for k in (
+    "crystallite_size_gauss",
+    "crystallite_size_lor",
+    "strain_lor",
+    "strain_gauss",
+):
     trytomake(POWDER[subsec], k, float)
-for k in ('emiss_wavelengths', 'emiss_intensities',
-          'emiss_gauss_widths', 'emiss_lor_widths'):
+for k in (
+    "emiss_wavelengths",
+    "emiss_intensities",
+    "emiss_gauss_widths",
+    "emiss_lor_widths",
+):
     trytomake(POWDER[subsec], k, literal_eval)
-if 'emiss_wavelengths' in POWDER[subsec]:
-    POWDER[subsec]['emiss_wavelengths'] = tuple(
+if "emiss_wavelengths" in POWDER[subsec]:
+    POWDER[subsec]["emiss_wavelengths"] = tuple(
         utilities_noconf.wavelength(wl) * 1e-10
-        for wl in POWDER[subsec]['emiss_wavelengths'])
+        for wl in POWDER[subsec]["emiss_wavelengths"]
+    )
 
-subsec = 'axial'
+subsec = "axial"
 POWDER[subsec] = dict(xuParser.items("powder.axial"))
-trytomake(POWDER[subsec], 'n_integral_points', int)
-for k in ('slit_length_source', 'slit_length_target', 'length_sample',
-          'angI_deg', 'angD_deg'):
+trytomake(POWDER[subsec], "n_integral_points", int)
+for k in (
+    "slit_length_source",
+    "slit_length_target",
+    "length_sample",
+    "angI_deg",
+    "angD_deg",
+):
     trytomake(POWDER[subsec], k, float)
 
-subsec = 'absorption'
+subsec = "absorption"
 POWDER[subsec] = dict(xuParser.items("powder.absorption"))
-for k in ('absorption_coefficient', 'sample_thickness'):
+for k in ("absorption_coefficient", "sample_thickness"):
     trytomake(POWDER[subsec], k, float)
 
-subsec = 'si_psd'
+subsec = "si_psd"
 POWDER[subsec] = dict(xuParser.items("powder.si_psd"))
-trytomake(POWDER[subsec], 'si_psd_window_bounds', literal_eval)
+trytomake(POWDER[subsec], "si_psd_window_bounds", literal_eval)
 
-subsec = 'receiver_slit'
+subsec = "receiver_slit"
 POWDER[subsec] = dict(xuParser.items("powder.receiver_slit"))
-trytomake(POWDER[subsec], 'slit_width', float)
+trytomake(POWDER[subsec], "slit_width", float)
 
-subsec = 'tube_tails'
+subsec = "tube_tails"
 POWDER[subsec] = dict(xuParser.items("powder.tube_tails"))
-for k in ('main_width', 'tail_left', 'tail_right', 'tail_intens'):
+for k in ("main_width", "tail_left", "tail_right", "tail_intens"):
     trytomake(POWDER[subsec], k, float)
 
 if VERBOSITY >= DEBUG:
     print(f"XU.config: xrayutilities configuration files: {repr(cfiles)}")
     print("xrayutilities configuration:")
-    for (name, value) in xuParser.items("xrayutilities"):
+    for name, value in xuParser.items("xrayutilities"):
         print(f"{name}: {value}")
     print("---")

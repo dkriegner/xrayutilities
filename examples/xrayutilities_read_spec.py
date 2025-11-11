@@ -32,13 +32,13 @@ import matplotlib.pyplot as plt
 import xrayutilities as xu
 
 # plot settings for matplotlib
-mpl.rcParams['font.family'] = 'serif'
-mpl.rcParams['font.size'] = 20.0
-mpl.rcParams['axes.labelsize'] = 'large'
-mpl.rcParams['figure.subplot.bottom'] = 0.16
-mpl.rcParams['figure.subplot.left'] = 0.17
-mpl.rcParams['savefig.dpi'] = 200
-mpl.rcParams['axes.grid'] = False
+mpl.rcParams["font.family"] = "serif"
+mpl.rcParams["font.size"] = 20.0
+mpl.rcParams["axes.labelsize"] = "large"
+mpl.rcParams["figure.subplot.bottom"] = 0.16
+mpl.rcParams["figure.subplot.left"] = 0.17
+mpl.rcParams["savefig.dpi"] = 200
+mpl.rcParams["axes.grid"] = False
 
 
 # global setting for the experiment
@@ -54,8 +54,11 @@ roi = [100, 1340]  # region of interest of the detector
 # intensity normalizer function responsible for count time and absorber
 # correction
 normalizer_detcorr = xu.IntensityNormalizer(
-    "MCA", mon="Monitor", time="Seconds",
-    absfun=lambda d: d["detcorr"] / d["psd2"].astype(float))
+    "MCA",
+    mon="Monitor",
+    time="Seconds",
+    absfun=lambda d: d["detcorr"] / d["psd2"].astype(float),
+)
 
 # substrate material used for Bragg peak calculation to correct for
 # experimental offsets
@@ -64,7 +67,7 @@ InP = xu.materials.InP
 hxrd = xu.HXRD(InP.Q(1, 1, -2), InP.Q(1, 1, 1), en=en)
 
 # configure linear detector
-hxrd.Ang2Q.init_linear('z-', center_ch, 1500., chpdeg=chpdeg, roi=roi)
+hxrd.Ang2Q.init_linear("z-", center_ch, 1500.0, chpdeg=chpdeg, roi=roi)
 
 # read spec file and save to HDF5-file
 # since reading is much faster from HDF5 once the data are transformed
@@ -88,7 +91,7 @@ ttalign = 86.0733
 
 # read the data from the HDF5 file (scan number:36, names of motors in
 # spec file: omega= sample rocking, gamma = twotheta)
-[om, tt], MAP = xu.io.geth5_scan(h5file, 36, 'omega', 'gamma')
+[om, tt], MAP = xu.io.geth5_scan(h5file, 36, "omega", "gamma")
 # normalize the intensity values (absorber and count time corrections)
 psdraw = normalizer_detcorr(MAP)
 # remove unusable detector channels/regions (no averaging of detector channels)
@@ -96,11 +99,13 @@ psd = xu.blockAveragePSD(psdraw, 1, roi=roi)
 
 # determine offset of substrate peak from experimental values (optional)
 omalign, ttalign, p, cov = xu.analysis.fit_bragg_peak(
-    om, tt, psd, omalign, ttalign, hxrd, plot=False)
+    om, tt, psd, omalign, ttalign, hxrd, plot=False
+)
 
 # convert angular coordinates to reciprocal space + correct for offsets
-[qx, qy, qz] = hxrd.Ang2Q.linear(om, tt, delta=[omalign - omnominal,
-                                                ttalign - ttnominal])
+[qx, qy, qz] = hxrd.Ang2Q.linear(
+    om, tt, delta=[omalign - omnominal, ttalign - ttnominal]
+)
 
 # calculate data on a regular grid of 200x201 points
 gridder = xu.Gridder2D(200, 201)
@@ -110,10 +115,11 @@ gridder(qy, qz, psd)
 plt.figure()
 plt.clf()
 cf = plt.pcolormesh(
-    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=mpl.colors.LogNorm())
-plt.xlabel(r'$Q_{[11\bar2]}$ ($\mathrm{\AA}^{-1}$)')
-plt.ylabel(r'$Q_{[\bar1\bar1\bar1]}$ ($\mathrm{\AA}^{-1}$)')
-cb = plt.colorbar(cf, extend='min')
+    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=mpl.colors.LogNorm()
+)
+plt.xlabel(r"$Q_{[11\bar2]}$ ($\mathrm{\AA}^{-1}$)")
+plt.ylabel(r"$Q_{[\bar1\bar1\bar1]}$ ($\mathrm{\AA}^{-1}$)")
+cb = plt.colorbar(cf, extend="min")
 cb.set_label(r"$\log($Int$)$ (cps)")
 plt.tight_layout()
 
@@ -128,7 +134,7 @@ ttalign = 80.099
 
 # read the data from the HDF5 file (scan number:36, names of motors in
 # spec file: omega= sample rocking, gamma = twotheta)
-[om, tt], MAP = xu.io.geth5_scan(h5file, (33, 34, 35), 'omega', 'gamma')
+[om, tt], MAP = xu.io.geth5_scan(h5file, (33, 34, 35), "omega", "gamma")
 # normalize the intensity values (absorber and count time corrections)
 psdraw = normalizer_detcorr(MAP)
 # remove unusable detector channels/regions (no averaging of detector channels)
@@ -136,11 +142,13 @@ psd = xu.blockAveragePSD(psdraw, 1, roi=roi)
 
 # determine offset of substrate peak from experimental values (optional)
 omalign, ttalign, p, cov = xu.analysis.fit_bragg_peak(
-    om, tt, psd, omalign, ttalign, hxrd, plot=False)
+    om, tt, psd, omalign, ttalign, hxrd, plot=False
+)
 
 # convert angular coordinates to reciprocal space + correct for offsets
-[qx, qy, qz] = hxrd.Ang2Q.linear(om, tt, delta=[omalign - omnominal,
-                                                ttalign - ttnominal])
+[qx, qy, qz] = hxrd.Ang2Q.linear(
+    om, tt, delta=[omalign - omnominal, ttalign - ttnominal]
+)
 
 # calculate data on a regular grid of 400x600 points
 gridder = xu.Gridder2D(400, 600)
@@ -153,10 +161,11 @@ INT = gridder.data.transpose()
 plt.figure()
 plt.clf()
 cf = plt.pcolormesh(
-    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=mpl.colors.LogNorm())
-plt.xlabel(r'$Q_{[11\bar2]}$ ($\mathrm{\AA}^{-1}$)')
-plt.ylabel(r'$Q_{[\bar1\bar1\bar1]}$ ($\mathrm{\AA}^{-1}$)')
-cb = plt.colorbar(cf, extend='min')
+    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=mpl.colors.LogNorm()
+)
+plt.xlabel(r"$Q_{[11\bar2]}$ ($\mathrm{\AA}^{-1}$)")
+plt.ylabel(r"$Q_{[\bar1\bar1\bar1]}$ ($\mathrm{\AA}^{-1}$)")
+cb = plt.colorbar(cf, extend="min")
 cb.set_label(r"$\log($Int$)$ (cps)")
 plt.tight_layout()
 

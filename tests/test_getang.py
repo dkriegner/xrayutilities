@@ -29,9 +29,16 @@ class TestGetAngles(unittest.TestCase):
         amp = numpy.random.rand()
         fwhm = numpy.random.rand() * 1.5 + 0.1
         cls.x = numpy.arange(-3, 3, 0.0003)
-        cls.p = [0., fwhm, amp, 0.]
-        cls.p2d = [0., 0., fwhm, fwhm, amp, 0.,
-                   2 * numpy.pi * numpy.random.rand()]
+        cls.p = [0.0, fwhm, amp, 0.0]
+        cls.p2d = [
+            0.0,
+            0.0,
+            fwhm,
+            fwhm,
+            amp,
+            0.0,
+            2 * numpy.pi * numpy.random.rand(),
+        ]
         cls.sigma = fwhm / (2 * numpy.sqrt(2 * numpy.log(2)))
 
     def test_getang111(self):
@@ -54,9 +61,8 @@ class TestGetAngles(unittest.TestCase):
         chi, phi = xu.analysis.getangles(hkl, [1, 1, 1], [1, -1, 0])
         hklvec = xu.analysis.getunitvector(chi, phi, [1, 1, 1], [1, -1, 0])
         for i in range(3):
-            self.assertAlmostEqual(hkl[i] / numpy.linalg.norm(hkl),
-                                   hklvec[i])
+            self.assertAlmostEqual(hkl[i] / numpy.linalg.norm(hkl), hklvec[i])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -23,9 +23,19 @@ from .. import utilities
 
 
 def show_reciprocal_space_plane(
-        mat, exp, ttmax=None, maxqout=0.01, scalef=100, ax=None, color=None,
-        show_Laue=True, show_legend=True, projection='perpendicular',
-        label=None, **kwargs):
+    mat,
+    exp,
+    ttmax=None,
+    maxqout=0.01,
+    scalef=100,
+    ax=None,
+    color=None,
+    show_Laue=True,
+    show_legend=True,
+    projection="perpendicular",
+    label=None,
+    **kwargs,
+):
     """
     show a plot of the coplanar diffraction plane with peak positions for the
     respective material. the size of the spots is scaled with the strength of
@@ -72,6 +82,7 @@ def show_reciprocal_space_plane(
     -------
     Axes, plot_handle
     """
+
     def get_peaks(mat, exp, ttmax):
         """
         Parameters
@@ -89,30 +100,35 @@ def show_reciprocal_space_plane(
             data array with columns for 'q', 'qvec', 'hkl', 'r' for the Bragg
             peaks
         """
-        qmax = 2 * exp.k0 * math.sin(math.radians(ttmax/2.))
+        qmax = 2 * exp.k0 * math.sin(math.radians(ttmax / 2.0))
         hkls = tuple(mat.lattice.get_allowed_hkl(qmax))
 
         q = mat.Q(hkls)
-        data = numpy.zeros(len(hkls), dtype=[('qx', numpy.double),
-                                             ('qy', numpy.double),
-                                             ('qz', numpy.double),
-                                             ('r', numpy.double),
-                                             ('hkl', numpy.ndarray)])
+        data = numpy.zeros(
+            len(hkls),
+            dtype=[
+                ("qx", numpy.double),
+                ("qy", numpy.double),
+                ("qz", numpy.double),
+                ("r", numpy.double),
+                ("hkl", numpy.ndarray),
+            ],
+        )
         qvec = exp.Transform(q)
-        data['qx'] = qvec[:, 0]
-        data['qy'] = qvec[:, 1]
-        data['qz'] = qvec[:, 2]
+        data["qx"] = qvec[:, 0]
+        data["qy"] = qvec[:, 1]
+        data["qz"] = qvec[:, 2]
         rref = abs(mat.StructureFactor((0, 0, 0), exp.energy)) ** 2
-        data['r'] = numpy.abs(mat.StructureFactorForQ(q, exp.energy)) ** 2
-        data['r'] /= rref
-        data['hkl'] = hkls
+        data["r"] = numpy.abs(mat.StructureFactorForQ(q, exp.energy)) ** 2
+        data["r"] /= rref
+        data["hkl"] = hkls
 
         return data
 
-    plot, plt = utilities.import_matplotlib_pyplot('XU.materials')
+    plot, plt = utilities.import_matplotlib_pyplot("XU.materials")
 
     if not plot:
-        print('matplotlib needed for show_reciprocal_space_plane')
+        print("matplotlib needed for show_reciprocal_space_plane")
         return None, None  # return values for consistency with signature below
 
     if ttmax is None:
@@ -128,46 +144,53 @@ def show_reciprocal_space_plane(
         fig = ax.get_figure()
         plt.sca(ax)
 
-    plt.axis('scaled')
+    plt.axis("scaled")
     ax.set_autoscaley_on(False)
     ax.set_autoscalex_on(False)
-    plt.xlim(-2.05*k0, 2.05*k0)
-    plt.ylim(-0.05*k0, 2.05*k0)
+    plt.xlim(-2.05 * k0, 2.05 * k0)
+    plt.ylim(-0.05 * k0, 2.05 * k0)
 
     if show_Laue:
-        c = plt.matplotlib.patches.Circle((0, 0), 2*k0, facecolor='#FF9180',
-                                          edgecolor='none')
+        c = plt.matplotlib.patches.Circle(
+            (0, 0), 2 * k0, facecolor="#FF9180", edgecolor="none"
+        )
         ax.add_patch(c)
-        qmax = 2 * k0 * math.sin(math.radians(ttmax/2.))
-        c = plt.matplotlib.patches.Circle((0, 0), qmax, facecolor='#FFFFFF',
-                                          edgecolor='none')
+        qmax = 2 * k0 * math.sin(math.radians(ttmax / 2.0))
+        c = plt.matplotlib.patches.Circle(
+            (0, 0), qmax, facecolor="#FFFFFF", edgecolor="none"
+        )
         ax.add_patch(c)
 
-        c = plt.matplotlib.patches.Circle((0, 0), 2*k0, facecolor='none',
-                                          edgecolor='0.5')
+        c = plt.matplotlib.patches.Circle(
+            (0, 0), 2 * k0, facecolor="none", edgecolor="0.5"
+        )
         ax.add_patch(c)
-        c = plt.matplotlib.patches.Circle((k0, 0), k0, facecolor='none',
-                                          edgecolor='0.5')
+        c = plt.matplotlib.patches.Circle(
+            (k0, 0), k0, facecolor="none", edgecolor="0.5"
+        )
         ax.add_patch(c)
-        c = plt.matplotlib.patches.Circle((-k0, 0), k0, facecolor='none',
-                                          edgecolor='0.5')
+        c = plt.matplotlib.patches.Circle(
+            (-k0, 0), k0, facecolor="none", edgecolor="0.5"
+        )
         ax.add_patch(c)
-        plt.hlines(0, -2*k0, 2*k0, color='0.5', lw=0.5)
-        plt.vlines(0, -2*k0, 2*k0, color='0.5', lw=0.5)
+        plt.hlines(0, -2 * k0, 2 * k0, color="0.5", lw=0.5)
+        plt.vlines(0, -2 * k0, 2 * k0, color="0.5", lw=0.5)
 
     # mask for plotting
-    m = numpy.abs(d['qx']) < maxqout*k0
+    m = numpy.abs(d["qx"]) < maxqout * k0
 
-    if projection == 'perpendicular':
-        x = d['qy'][m]
+    if projection == "perpendicular":
+        x = d["qy"][m]
     else:
-        x = numpy.sign(d['qy'][m])*numpy.sqrt(d['qx'][m]**2 + d['qy'][m]**2)
-    y = d['qz'][m]
-    s = numpy.empty_like(d['r'][m])
+        x = numpy.sign(d["qy"][m]) * numpy.sqrt(
+            d["qx"][m] ** 2 + d["qy"][m] ** 2
+        )
+    y = d["qz"][m]
+    s = numpy.empty_like(d["r"][m])
     if callable(scalef):
-        s[...] = [scalef(r) for r in d['r'][m]]
+        s[...] = [scalef(r) for r in d["r"][m]]
     else:
-        s = d['r'][m]*scalef
+        s = d["r"][m] * scalef
 
     kwargs.setdefault("label", label if label else mat.name)
     kwargs.setdefault("zorder", 2)
@@ -175,19 +198,23 @@ def show_reciprocal_space_plane(
     kwargs.setdefault("c", color)
     h = plt.scatter(x, y, **kwargs)
 
-    plt.xlabel(r'$Q$ inplane ($\mathrm{\AA^{-1}}$)')
-    plt.ylabel(r'$Q$ out of plane ($\mathrm{\AA^{-1}}$)')
+    plt.xlabel(r"$Q$ inplane ($\mathrm{\AA^{-1}}$)")
+    plt.ylabel(r"$Q$ out of plane ($\mathrm{\AA^{-1}}$)")
 
     if show_legend:
         if len(fig.legends) == 1:
             fig.legends[0].remove()
-        fig.legend(*ax.get_legend_handles_labels(), loc='upper right')
+        fig.legend(*ax.get_legend_handles_labels(), loc="upper right")
     plt.tight_layout()
 
-    annot = ax.annotate("", xy=(0, 0), xytext=(20, 20),
-                        textcoords="offset points",
-                        bbox=dict(boxstyle="round", fc="w"),
-                        arrowprops=dict(arrowstyle="->"))
+    annot = ax.annotate(
+        "",
+        xy=(0, 0),
+        xytext=(20, 20),
+        textcoords="offset points",
+        bbox=dict(boxstyle="round", fc="w"),
+        arrowprops=dict(arrowstyle="->"),
+    )
     annot.set_visible(False)
 
     def update_annot(ind):
@@ -200,7 +227,7 @@ def show_reciprocal_space_plane(
         elif h.get_edgecolor().size > 0:
             color = h.get_edgecolor()[0]
         else:
-            color = 'w'
+            color = "w"
         annot.get_bbox_patch().set_facecolor(color)
         annot.get_bbox_patch().set_alpha(0.2)
 
@@ -223,11 +250,14 @@ def show_reciprocal_space_plane(
             if cont:
                 popts = numpy.get_printoptions()
                 numpy.set_printoptions(precision=4, suppress=True)
-                q = (d['qx'][m][ind['ind'][0]], d['qy'][m][ind['ind'][0]],
-                     d['qz'][m][ind['ind'][0]])
-                angles = exp.Q2Ang(q, trans=False, geometry='real')
+                q = (
+                    d["qx"][m][ind["ind"][0]],
+                    d["qy"][m][ind["ind"][0]],
+                    d["qz"][m][ind["ind"][0]],
+                )
+                angles = exp.Q2Ang(q, trans=False, geometry="real")
                 text = f"""{mat.name}
-hkl: {d['hkl'][m][ind['ind'][0]]}
+hkl: {d["hkl"][m][ind["ind"][0]]}
 exp.Q2Ang angles (om, tilt, azimuth, 2th): {angles}"""
                 numpy.set_printoptions(**popts)
                 print(text)

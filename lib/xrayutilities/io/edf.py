@@ -39,16 +39,18 @@ edf_float_e_value = re.compile(r"[+-]*\d+\.\d*e[+-]*\d*")
 edf_name_start_num = re.compile(r"^\d")
 
 # dictionary mapping EDF data type keywords onto struct data types
-DataTypeDict = {"SignedByte": "b",
-                "SignedShort": "h",
-                "SignedInteger": "i",
-                "SignedLong": "i",
-                "FloatValue": "f",
-                "DoubleValue": "d",
-                "UnsignedByte": "B",
-                "UnsignedShort": "H",
-                "UnsignedInt": "I",
-                "UnsignedLong": "L"}
+DataTypeDict = {
+    "SignedByte": "b",
+    "SignedShort": "h",
+    "SignedInteger": "i",
+    "SignedLong": "i",
+    "FloatValue": "f",
+    "DoubleValue": "d",
+    "UnsignedByte": "B",
+    "UnsignedShort": "H",
+    "UnsignedInt": "I",
+    "UnsignedLong": "L",
+}
 # SignedLong is only 4byte, on my 64bit machine using SignedLong:"l" caused
 # troubles
 # UnsignedLong is only 4byte, on my 64bit machine using UnsignedLong:"L"
@@ -56,9 +58,16 @@ DataTypeDict = {"SignedByte": "b",
 
 
 class EDFFile:
-
-    def __init__(self, fname, nxkey="Dim_1", nykey="Dim_2",
-                 dtkey="DataType", path="", header=True, keep_open=False):
+    def __init__(
+        self,
+        fname,
+        nxkey="Dim_1",
+        nykey="Dim_2",
+        dtkey="DataType",
+        path="",
+        header=True,
+        keep_open=False,
+    ):
         """
         Parameters
         ----------
@@ -104,7 +113,7 @@ class EDFFile:
 
         self.Parse()
         if keep_open:
-            self.fid = xu_open(self.full_filename, 'rb')
+            self.fid = xu_open(self.full_filename, "rb")
         else:
             self.fid = None
 
@@ -119,7 +128,7 @@ class EDFFile:
         header = {}
         offset = 0
 
-        with xu_open(self.full_filename, 'rb') as fid:
+        with xu_open(self.full_filename, "rb") as fid:
             if config.VERBOSITY >= config.INFO_ALL:
                 print(f"XU.io.EDFFile.Parse: file: {self.full_filename}")
 
@@ -130,7 +139,7 @@ class EDFFile:
                     for line in fid:  # until end of header
                         linelength = len(line)
                         offset += linelength
-                        line = line.decode('ascii', 'ignore')
+                        line = line.decode("ascii", "ignore")
                         if config.VERBOSITY >= config.DEBUG:
                             print(line)
                         if line == "":
@@ -200,35 +209,41 @@ class EDFFile:
                     offset += dsize
 
             else:  # in case of no header also save one set of defaults
-                self._byte_order.append('LowByteFirst')
-                self._fmt_str.append(DataTypeDict['UnsignedShort'])
+                self._byte_order.append("LowByteFirst")
+                self._fmt_str.append(DataTypeDict["UnsignedShort"])
                 self._dimx.append(516)
                 self._dimy.append(516)
-                self._dtype.append('UnsignedShort')
+                self._dtype.append("UnsignedShort")
                 self._headers.append(header)
                 self._data_offsets.append(offset)
 
         # try to parse motor positions and counters from last found header
         # into separate dictionary
-        if 'motor_mne' in header:
-            tkeys = header['motor_mne'].split()
+        if "motor_mne" in header:
+            tkeys = header["motor_mne"].split()
             try:
-                tval = numpy.array(header['motor_pos'].split(),
-                                   dtype=numpy.double)
+                tval = numpy.array(
+                    header["motor_pos"].split(), dtype=numpy.double
+                )
                 self.motors = dict(zip(tkeys, tval))
             except ValueError:
-                print("XU.io.EDFFile.ReadData: Warning: header conversion "
-                      "of motor positions failed")
+                print(
+                    "XU.io.EDFFile.ReadData: Warning: header conversion "
+                    "of motor positions failed"
+                )
 
-        if 'counter_mne' in header:
-            tkeys = header['counter_mne'].split()
+        if "counter_mne" in header:
+            tkeys = header["counter_mne"].split()
             try:
-                tval = numpy.array(header['counter_pos'].split(),
-                                   dtype=numpy.double)
+                tval = numpy.array(
+                    header["counter_pos"].split(), dtype=numpy.double
+                )
                 self.counters = dict(zip(tkeys, tval))
             except ValueError:
-                print("XU.io.EDFFile.ReadData: Warning: header conversion "
-                      "of counter values failed")
+                print(
+                    "XU.io.EDFFile.ReadData: Warning: header conversion "
+                    "of counter values failed"
+                )
 
     def ReadData(self, nimg=0):
         """
@@ -251,7 +266,7 @@ class EDFFile:
             fmt_str = self._fmt_str[nimg]
             bindata = binfid.read(tot_nofp * struct.calcsize(fmt_str))
         else:
-            with xu_open(self.full_filename, 'rb') as binfid:
+            with xu_open(self.full_filename, "rb") as binfid:
                 # move to the data section - jump over the header
                 binfid.seek(self._data_offsets[nimg], 0)
                 # read the data
@@ -259,34 +274,41 @@ class EDFFile:
                 fmt_str = self._fmt_str[nimg]
                 bindata = binfid.read(tot_nofp * struct.calcsize(fmt_str))
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.io.EDFFile: read binary data: nofp: %d len: %d"
-                  % (tot_nofp, len(bindata)))
+            print(
+                "XU.io.EDFFile: read binary data: nofp: %d len: %d"
+                % (tot_nofp, len(bindata))
+            )
             print(f"XU.io.EDFFile: format: {fmt_str}")
 
         try:
             data = numpy.frombuffer(bindata, count=tot_nofp, dtype=fmt_str)
         except ValueError:
-            if fmt_str == 'L':
-                fmt_str = 'I'
+            if fmt_str == "L":
+                fmt_str = "I"
                 try:
-                    data = numpy.frombuffer(bindata, count=tot_nofp,
-                                            dtype=fmt_str)
+                    data = numpy.frombuffer(
+                        bindata, count=tot_nofp, dtype=fmt_str
+                    )
                 except ValueError:
-                    raise IOError("XU.io.EDFFile: data format (%s) has "
-                                  "different byte-length, from amount of data "
-                                  "one expects %d bytes per entry"
-                                  % (fmt_str, len(bindata) / tot_nofp))
+                    raise IOError(
+                        "XU.io.EDFFile: data format (%s) has "
+                        "different byte-length, from amount of data "
+                        "one expects %d bytes per entry"
+                        % (fmt_str, len(bindata) / tot_nofp)
+                    )
             else:
-                raise IOError("XU.io.EDFFile: data format (%s) has different "
-                              "byte-length, from amount of data one expects "
-                              "%d bytes per entry"
-                              % (fmt_str, len(bindata) / tot_nofp))
+                raise IOError(
+                    "XU.io.EDFFile: data format (%s) has different "
+                    "byte-length, from amount of data one expects "
+                    "%d bytes per entry" % (fmt_str, len(bindata) / tot_nofp)
+                )
 
         data.shape = (self._dimy[nimg], self._dimx[nimg])
 
         if self._byte_order[nimg] != "LowByteFirst":  # data = data.byteswap()
-            print("XU.io.EDFFile.ReadData: check byte order - "
-                  "not low byte first")
+            print(
+                "XU.io.EDFFile.ReadData: check byte order - not low byte first"
+            )
 
         return data
 
@@ -316,9 +338,9 @@ class EDFFile:
         comp :	    bool, optional
             activate compression - true by default
         """
-        with xu_h5open(h5f, 'a') as h5:
+        with xu_h5open(h5f, "a") as h5:
             if isinstance(group, str):
-                if group == '/':
+                if group == "/":
                     g = h5
                 else:
                     if group in h5:
@@ -340,12 +362,12 @@ class EDFFile:
 
             # create the array description
             ca_desc = f"EDF CCD data from file {self.filename} "
-            kwds = {'fletcher32': True}
+            kwds = {"fletcher32": True}
             if comp:
-                kwds['compression'] = 'gzip'
+                kwds["compression"] = "gzip"
 
             if self.nimages != 1:
-                ca_name += '_{n:04d}'
+                ca_name += "_{n:04d}"
 
             for n in range(self.nimages):
                 d = self.ReadData(n)
@@ -356,7 +378,7 @@ class EDFFile:
                     del g[name]
                     ca = g.create_dataset(name, data=d, **kwds)
 
-                ca.attrs['TITLE'] = ca_desc
+                ca.attrs["TITLE"] = ca_desc
 
                 # finally we have to append the attributes
                 for k in self.header:
@@ -364,7 +386,6 @@ class EDFFile:
 
 
 class EDFDirectory(FileDirectory):
-
     """
     Parses a directory for EDF files, which can be stored to a HDF5 file for
     further usage

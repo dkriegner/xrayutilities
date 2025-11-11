@@ -32,9 +32,12 @@ from . import wyckpos
 
 re_data = re.compile(r"^data_", re.IGNORECASE)
 re_loop = re.compile(r"^loop_", re.IGNORECASE)
-re_symop = re.compile(r"^\s*("
-                      "_space_group_symop_operation_xyz|"
-                      "_symmetry_equiv_pos_as_xyz)", re.IGNORECASE)
+re_symop = re.compile(
+    r"^\s*("
+    "_space_group_symop_operation_xyz|"
+    "_symmetry_equiv_pos_as_xyz)",
+    re.IGNORECASE,
+)
 re_name = re.compile(r"^\s*_chemical_formula_sum", re.IGNORECASE)
 re_atom = re.compile(r"^\s*_atom_site_label\s*$", re.IGNORECASE)
 re_atomtyp = re.compile(r"^\s*_atom_site_type_symbol\s*$", re.IGNORECASE)
@@ -47,11 +50,16 @@ re_atomocc = re.compile(r"^\s*_atom_site_occupancy", re.IGNORECASE)
 re_labelline = re.compile(r"^\s*_")
 re_emptyline = re.compile(r"^\s*$")
 re_quote = re.compile(r"'")
-re_spacegroupnr = re.compile(r"^\s*(_space_group_IT_number|"
-                             "_symmetry_Int_Tables_number)", re.IGNORECASE)
-re_spacegroupname = re.compile(r"^\s*(_symmetry_space_group_name_H-M|"
-                               "_space_group_name_H-M_alt)",
-                               re.IGNORECASE)
+re_spacegroupnr = re.compile(
+    r"^\s*(_space_group_IT_number|"
+    "_symmetry_Int_Tables_number)",
+    re.IGNORECASE,
+)
+re_spacegroupname = re.compile(
+    r"^\s*(_symmetry_space_group_name_H-M|"
+    "_space_group_name_H-M_alt)",
+    re.IGNORECASE,
+)
 re_spacegroupsetting = re.compile(r"^\s*_symmetry_cell_setting", re.IGNORECASE)
 re_cell_a = re.compile(r"^\s*_cell_length_a", re.IGNORECASE)
 re_cell_b = re.compile(r"^\s*_cell_length_b", re.IGNORECASE)
@@ -94,19 +102,21 @@ class CIFFile:
             except OSError as exc:
                 raise IOError(f"cannot open CIF file {self.filename}") from exc
         else:
-            if filestr.count('\n') == 0:
-                print('XU.materials.CIFFile: "filestr" contains only one line '
-                      'but a file with that name does not exist! Continuing '
-                      'with the assumption this one line string is the '
-                      'content of a CIF file!')
-            self.filename = '__from_str__'
+            if filestr.count("\n") == 0:
+                print(
+                    'XU.materials.CIFFile: "filestr" contains only one line '
+                    "but a file with that name does not exist! Continuing "
+                    "with the assumption this one line string is the "
+                    "content of a CIF file!"
+                )
+            self.filename = "__from_str__"
             if isinstance(filestr, bytes):
                 fid = io.BytesIO(filestr)
             else:
-                fid = io.BytesIO(bytes(filestr.encode('ascii')))
+                fid = io.BytesIO(bytes(filestr.encode("ascii")))
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print(f'XU.materials: parsing CIF file {self.filename}')
+            print(f"XU.materials: parsing CIF file {self.filename}")
         self.default_dataset = None
         self.data = {}
         self.Parse(fid)
@@ -124,11 +134,11 @@ class CIFFile:
             if not line:
                 break
             fidpos = fid.tell()
-            line = line.decode('ascii', 'ignore')
+            line = line.decode("ascii", "ignore")
             m = re_data.match(line)
             if m:
                 fid.seek(fidpos)
-                name = line[m.end():].strip()
+                name = line[m.end() :].strip()
                 self.data[name] = CIFDataset(fid, name, self.digits)
                 if self.data[name].has_atoms and not self.default_dataset:
                     self.default_dataset = name
@@ -190,7 +200,7 @@ class CIFDataset:
         self.has_atoms = False
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print(f'XU.materials: parsing cif dataset {self.name}')
+            print(f"XU.materials: parsing cif dataset {self.name}")
         self.Parse(fid)
         self.SymStruct()
 
@@ -212,15 +222,15 @@ class CIFDataset:
 
         def get_element(cifstring):
             el = re.sub(r"['\"]", r"", cifstring)
-            if '+' in el or '-' in el:
+            if "+" in el or "-" in el:
                 # add oxidation number if not present
-                for sign in ('+', '-'):
+                for sign in ("+", "-"):
                     if sign in el:
-                        if not el[el.index(sign)-1].isdigit():
+                        if not el[el.index(sign) - 1].isdigit():
                             signidx = el.index(sign)
-                            el = el[:signidx] + '1' + el[signidx:]
+                            el = el[:signidx] + "1" + el[signidx:]
                 # replace special characters
-                for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+                for r, o in zip(("dot", "p", "m"), (".", "+", "-")):
                     el = el.replace(o, r)
             else:
                 el = re.sub(r"([0-9])", r"", el)
@@ -228,27 +238,33 @@ class CIFDataset:
             try:
                 element = getattr(elements, el)
             except AttributeError:  # el not found, typ. due to oxidation state
-                f = re.search('[0-9]', el)
-                if not f and el == '?':
+                f = re.search("[0-9]", el)
+                if not f and el == "?":
                     element = elements.Dummy
                 elif f is None:
-                    raise ValueError("XU.materials: element ('%s') could not"
-                                     " be identified as chemical element. Only"
-                                     " abbreviations of element names are "
-                                     "supported." % (cifstring))
+                    raise ValueError(
+                        "XU.materials: element ('%s') could not"
+                        " be identified as chemical element. Only"
+                        " abbreviations of element names are "
+                        "supported." % (cifstring)
+                    )
                 else:
-                    elname = el[:f.start()]
+                    elname = el[: f.start()]
                     if hasattr(elements, elname):
                         # here one might want to find a closer alternative than
                         # the neutral atom, but the effect this has should be
                         # minimal, currently simply the neutral atom is used
                         if config.VERBOSITY >= config.INFO_LOW:
-                            print(f'XU.materials: Warning: element {elname} '
-                                  f'used instead of {cifstring}')
+                            print(
+                                f"XU.materials: Warning: element {elname} "
+                                f"used instead of {cifstring}"
+                            )
                         element = getattr(elements, elname)
                     else:
-                        raise ValueError("XU.materials: element ('%s') could "
-                                         "not be found" % (cifstring))
+                        raise ValueError(
+                            "XU.materials: element ('%s') could "
+                            "not be found" % (cifstring)
+                        )
             return element
 
         def floatconv(string):
@@ -275,7 +291,7 @@ class CIFDataset:
         fidpos = fid.tell()
         for line in fid.readlines():
             linelen = len(line)
-            line = line.decode('ascii', 'ignore')
+            line = line.decode("ascii", "ignore")
             if config.VERBOSITY >= config.DEBUG:
                 print(line)
                 print(fid.tell(), fidpos)
@@ -291,7 +307,7 @@ class CIFDataset:
 
             if re_loop.match(line):  # start of loop
                 if config.VERBOSITY >= config.DEBUG:
-                    print('XU.materials: loop start found')
+                    print("XU.materials: loop start found")
                 loop_start = True
                 loop_labels = []
                 symop_loop = False
@@ -322,7 +338,7 @@ class CIFDataset:
                     if i:
                         self.sgrp_nr = i
                 elif re_spacegroupname.match(line):
-                    self.sgrp_name = ''.join(line.split()[1:]).strip("'")
+                    self.sgrp_name = "".join(line.split()[1:]).strip("'")
                 elif re_spacegroupsetting.match(line):
                     i = intconv(line.split()[1])
                     if i:
@@ -336,13 +352,13 @@ class CIFDataset:
                     loop_labels.append(line.strip())
                     if re_symop.match(line):  # start of symmetry op. loop
                         if config.VERBOSITY >= config.DEBUG:
-                            print('XU.materials: symop-loop identified')
+                            print("XU.materials: symop-loop identified")
                         symop_loop = True
                         symop_idx = len(loop_labels) - 1
                     elif re_atom.match(line) or re_atomtyp.match(line):
                         # start of atom position loop
                         if config.VERBOSITY >= config.DEBUG:
-                            print('XU.materials: atom position-loop found')
+                            print("XU.materials: atom position-loop found")
                         atom_loop = True
                         if re_atomtyp.match(line):
                             alab_idx = len(loop_labels) - 1
@@ -352,8 +368,9 @@ class CIFDataset:
                     elif re_atomx.match(line):
                         ax_idx = len(loop_labels) - 1
                         if config.VERBOSITY >= config.DEBUG:
-                            print('XU.materials: atom position x: col%d'
-                                  % ax_idx)
+                            print(
+                                "XU.materials: atom position x: col%d" % ax_idx
+                            )
                     elif re_atomy.match(line):
                         ay_idx = len(loop_labels) - 1
                     elif re_atomz.match(line):
@@ -385,9 +402,11 @@ class CIFDataset:
                 asplit = line.split()
                 try:
                     atom = get_element(asplit[alab_idx])
-                    apos = (floatconv(asplit[ax_idx]),
-                            floatconv(asplit[ay_idx]),
-                            floatconv(asplit[az_idx]))
+                    apos = (
+                        floatconv(asplit[ax_idx]),
+                        floatconv(asplit[ay_idx]),
+                        floatconv(asplit[az_idx]),
+                    )
                     occ = floatconv(asplit[occ_idx]) if occ_idx else 1
                     if numpy.isnan(occ):
                         occ = 1
@@ -402,8 +421,10 @@ class CIFDataset:
                     self.atoms.append((atom, apos, occ, biso))
                 except IndexError:
                     if config.VERBOSITY >= config.INFO_LOW:
-                        print('XU.materials: could not parse atom line: "%s"'
-                              % line.strip())
+                        print(
+                            'XU.materials: could not parse atom line: "%s"'
+                            % line.strip()
+                        )
         if self.atoms:
             self.has_atoms = True
 
@@ -416,54 +437,59 @@ class CIFDataset:
         """
 
         def rem_white(string):
-            return string.replace(' ', '')
+            return string.replace(" ", "")
 
-        if hasattr(self, 'sgrp_name'):
+        if hasattr(self, "sgrp_name"):
             # determine spacegroup
-            cifsgn = rem_white(self.sgrp_name).split(':')[0]
+            cifsgn = rem_white(self.sgrp_name).split(":")[0]
             for nr, name in sgl.sgrp_name.items():
                 if cifsgn == rem_white(name):
                     self.sgrp_nr = int(nr)
-            if not hasattr(self, 'sgrp_nr'):
+            if not hasattr(self, "sgrp_nr"):
                 # try ignoring the minuses
                 for nr, name in sgl.sgrp_name.items():
-                    if cifsgn == rem_white(name.replace('-', '')):
+                    if cifsgn == rem_white(name.replace("-", "")):
                         self.sgrp_nr = int(nr)
-            if len(self.sgrp_name.split(':')) > 1:
-                self.sgrp_suf = ':' + self.sgrp_name.split(':')[1]
-            elif hasattr(self, 'sgrp_setting'):
-                self.sgrp_suf = ':%d' % self.sgrp_setting
+            if len(self.sgrp_name.split(":")) > 1:
+                self.sgrp_suf = ":" + self.sgrp_name.split(":")[1]
+            elif hasattr(self, "sgrp_setting"):
+                self.sgrp_suf = ":%d" % self.sgrp_setting
 
-        if not hasattr(self, 'sgrp_suf'):
-            if hasattr(self, 'sgrp_nr'):
+        if not hasattr(self, "sgrp_suf"):
+            if hasattr(self, "sgrp_nr"):
                 self.sgrp_suf = sgl.get_possible_sgrp_suf(self.sgrp_nr)
             else:
-                self.sgrp_suf = ''
+                self.sgrp_suf = ""
         if isinstance(self.sgrp_suf, str):
-            suffixes = [self.sgrp_suf, ]
+            suffixes = [
+                self.sgrp_suf,
+            ]
         else:
             suffixes = copy.copy(self.sgrp_suf)
         for sgrp_suf in suffixes:
             self.sgrp_suf = sgrp_suf
-            if hasattr(self, 'sgrp_nr'):
+            if hasattr(self, "sgrp_nr"):
                 self.sgrp = str(self.sgrp_nr) + self.sgrp_suf
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print(f'XU.materials: trying space group {self.sgrp}')
+                    print(f"XU.materials: trying space group {self.sgrp}")
 
             # determine all unique positions for definition of a P1 space group
             symops = self.symops
-            if not symops and hasattr(self, 'sgrp') and self.atoms:
-                label = sorted(wyckpos.wp[self.sgrp],
-                               key=lambda s: int(s[:-1]))
+            if not symops and hasattr(self, "sgrp") and self.atoms:
+                label = sorted(
+                    wyckpos.wp[self.sgrp], key=lambda s: int(s[:-1])
+                )
                 symops = wyckpos.wp[self.sgrp][label[-1]][1]
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print('XU.materials: no symmetry operations in CIF-Dataset'
-                          '; using built in general positions.')
+                    print(
+                        "XU.materials: no symmetry operations in CIF-Dataset"
+                        "; using built in general positions."
+                    )
             self.unique_positions = []
             for el, (x, y, z), occ, biso in self.atoms:
                 unique_pos = set()
                 for symop in symops:
-                    pos = eval(symop, {'x': x, 'y': y, 'z': z})
+                    pos = eval(symop, {"x": x, "y": y, "z": z})
                     pos = numpy.asarray(pos)
                     # check that position is within unit cell
                     pos = pos - numpy.round(pos, self.digits) // 1
@@ -471,7 +497,7 @@ class CIFDataset:
                 self.unique_positions.append((el, unique_pos, occ, biso))
 
             # determine Wyckoff positions and free parameters of unit cell
-            if hasattr(self, 'sgrp'):
+            if hasattr(self, "sgrp"):
                 self.wp = []
                 self.occ = []
                 self.elements = []
@@ -484,14 +510,17 @@ class CIFDataset:
                     wpcand = []
                     for j, n in enumerate(wpn):
                         if n == natoms:
-                            wpcand.append((keys[j],
-                                           wyckpos.wp[self.sgrp][keys[j]]))
+                            wpcand.append(
+                                (keys[j], wyckpos.wp[self.sgrp][keys[j]])
+                            )
                     for j, (k, wp) in enumerate(
-                            sorted(wpcand, key=operator.itemgetter(1))):
+                        sorted(wpcand, key=operator.itemgetter(1))
+                    ):
                         parint, poslist, _ = wp
                         for positem in poslist:
-                            foundwp, xyz = sgl.testwp(parint, positem,
-                                                      (x, y, z), self.digits)
+                            foundwp, xyz = sgl.testwp(
+                                parint, positem, (x, y, z), self.digits
+                            )
                             if foundwp:
                                 if xyz is None:
                                     self.wp.append(k)
@@ -504,28 +533,40 @@ class CIFDataset:
                         if foundwp:
                             break
                 if config.VERBOSITY >= config.INFO_ALL:
-                    print(f"XU.materials: {len(self.wp):d} of "
-                          f"{len(self.atoms):d} Wyckoff positions identified")
+                    print(
+                        f"XU.materials: {len(self.wp):d} of "
+                        f"{len(self.atoms):d} Wyckoff positions identified"
+                    )
                     if len(self.wp) < len(self.atoms):
-                        print(f"XU.materials: space group {self.sgrp} seems "
-                              "not to fit")
+                        print(
+                            f"XU.materials: space group {self.sgrp} seems "
+                            "not to fit"
+                        )
 
                 # free unit cell parameters
                 self.crystal_system, _ = sgl.sgrp_sym[self.sgrp_nr]
                 self.crystal_system += self.sgrp_suf
                 self.uc_params = []
-                p2i = {'a': 0, 'b': 1, 'c': 2,
-                       'alpha': 0, 'beta': 1, 'gamma': 2}
+                p2i = {
+                    "a": 0,
+                    "b": 1,
+                    "c": 2,
+                    "alpha": 0,
+                    "beta": 1,
+                    "gamma": 2,
+                }
                 for pname in sgl.sgrp_params[self.crystal_system][0]:
-                    if pname in ('a', 'b', 'c'):
+                    if pname in ("a", "b", "c"):
                         self.uc_params.append(self.lattice_const[p2i[pname]])
-                    if pname in ('alpha', 'beta', 'gamma'):
+                    if pname in ("alpha", "beta", "gamma"):
                         self.uc_params.append(self.lattice_angles[p2i[pname]])
 
                 if len(self.wp) == len(self.atoms):
                     if config.VERBOSITY >= config.INFO_ALL:
-                        print("XU.materials: identified space group as "
-                              f"{self.sgrp}")
+                        print(
+                            "XU.materials: identified space group as "
+                            f"{self.sgrp}"
+                        )
                     break
 
     def SGLattice(self, use_p1=False):
@@ -533,30 +574,37 @@ class CIFDataset:
         create a SGLattice object with the structure from the CIF file
         """
         if not use_p1:
-            if hasattr(self, 'sgrp'):
+            if hasattr(self, "sgrp"):
                 if len(self.wp) == len(self.atoms):
-                    return sgl.SGLattice(self.sgrp, *self.uc_params,
-                                         atoms=self.elements, pos=self.wp,
-                                         occ=self.occ, b=self.biso)
+                    return sgl.SGLattice(
+                        self.sgrp,
+                        *self.uc_params,
+                        atoms=self.elements,
+                        pos=self.wp,
+                        occ=self.occ,
+                        b=self.biso,
+                    )
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print('XU.materials: Wyckoff positions missing, '
-                          'using P1')
+                    print("XU.materials: Wyckoff positions missing, using P1")
             else:
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print('XU.materials: space-group detection failed, '
-                          'using P1')
+                    print(
+                        "XU.materials: space-group detection failed, using P1"
+                    )
 
-        atomdict = {'atoms': [], 'pos': [], 'occ': [], 'b': []}
+        atomdict = {"atoms": [], "pos": [], "occ": [], "b": []}
         for element, positions, o, b in self.unique_positions:
             for p in positions:
-                atomdict['atoms'].append(element)
-                atomdict['pos'].append(('1a', p))
-                atomdict['occ'].append(o)
-                atomdict['b'].append(b)
+                atomdict["atoms"].append(element)
+                atomdict["pos"].append(("1a", p))
+                atomdict["occ"].append(o)
+                atomdict["b"].append(b)
 
-        return sgl.SGLattice(1, *itertools.chain(self.lattice_const,
-                                                 self.lattice_angles),
-                             **atomdict)
+        return sgl.SGLattice(
+            1,
+            *itertools.chain(self.lattice_const, self.lattice_angles),
+            **atomdict,
+        )
 
     def __str__(self):
         """
@@ -564,14 +612,18 @@ class CIFDataset:
         """
         ostr = ""
         ostr += "unit cell structure:"
-        if hasattr(self, 'sgrp'):
-            ostr += " %s %s %s\n" % (self.sgrp, self.crystal_system,
-                                     getattr(self, 'sgrp_name', ''))
+        if hasattr(self, "sgrp"):
+            ostr += " %s %s %s\n" % (
+                self.sgrp,
+                self.crystal_system,
+                getattr(self, "sgrp_name", ""),
+            )
         else:
             ostr += "\n"
         ostr += "a: %8.4f b: %8.4f c: %8.4f\n" % tuple(self.lattice_const)
         ostr += "alpha: %6.2f beta: %6.2f gamma: %6.2f\n" % tuple(
-            self.lattice_angles)
+            self.lattice_angles
+        )
         if self.unique_positions:
             ostr += "Unique atom positions in unit cell\n"
         for atom in self.unique_positions:
@@ -590,10 +642,10 @@ def cifexport(filename, mat):
 
     def unique_label(basename, names):
         num = 1
-        name = f'{basename}{num:d}'
+        name = f"{basename}{num:d}"
         while name in names:
             num += 1
-            name = f'{basename}{num:d}'
+            name = f"{basename}{num:d}"
         return name
 
     general = """data_global
@@ -612,19 +664,25 @@ _space_group_name_H-M_alt '{hmsymb}'
 
     csystem = mat.lattice.crystal_system
     if len(mat.lattice.space_group_suf) > 0:
-        csystem = csystem[:-len(mat.lattice.space_group_suf)]
+        csystem = csystem[: -len(mat.lattice.space_group_suf)]
 
-    ctxt = general.format(chemsum=mat.chemical_composition(with_spaces=True),
-                          a=mat.a, b=mat.b, c=mat.c,
-                          alpha=mat.alpha, beta=mat.beta, gamma=mat.gamma,
-                          vol=mat.lattice.UnitCellVolume(),
-                          csystem=csystem,
-                          sgrpnr=mat.lattice.space_group_nr,
-                          hmsymb=mat.lattice.name)
+    ctxt = general.format(
+        chemsum=mat.chemical_composition(with_spaces=True),
+        a=mat.a,
+        b=mat.b,
+        c=mat.c,
+        alpha=mat.alpha,
+        beta=mat.beta,
+        gamma=mat.gamma,
+        vol=mat.lattice.UnitCellVolume(),
+        csystem=csystem,
+        sgrpnr=mat.lattice.space_group_nr,
+        hmsymb=mat.lattice.name,
+    )
 
     sgrpsuf = mat.lattice.space_group_suf[1:]
     if sgrpsuf:
-        ctxt += f'_symmetry_cell_setting {sgrpsuf}\n'
+        ctxt += f"_symmetry_cell_setting {sgrpsuf}\n"
 
     symloop = """
 loop_
@@ -650,15 +708,24 @@ _atom_site_B_iso_or_equiv
     allatoms = list(mat.lattice.base())
     names = []
     for at, pos, occ, b in mat.lattice._wbase:
-        wm, wl, _ = re.split('([a-z])', pos[0])
+        wm, wl, _ = re.split("([a-z])", pos[0])
         nsite = int(wm)
         x, y, z = allatoms[nidx][1]
         names.append(unique_label(at.name, names))
-        atomloop += '%s %s %d %c %.5f %.5f %.5f %.4f %.4f\n' % (
-            names[-1], at.name, nsite, wl, x, y, z, occ, b)
+        atomloop += "%s %s %d %c %.5f %.5f %.5f %.4f %.4f\n" % (
+            names[-1],
+            at.name,
+            nsite,
+            wl,
+            x,
+            y,
+            z,
+            occ,
+            b,
+        )
         nidx += nsite
 
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         f.write(ctxt)
         f.write(symloop)
         f.write(atomloop)

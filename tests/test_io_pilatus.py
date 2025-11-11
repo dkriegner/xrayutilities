@@ -20,13 +20,15 @@ import unittest
 
 import xrayutilities as xu
 
-testfile = 'pilatus100K.tif'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "pilatus100K.tif"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_Pilatus(unittest.TestCase):
     dshape = (195, 487)
     dmax = 1.0
@@ -44,10 +46,10 @@ class TestIO_Pilatus(unittest.TestCase):
     def test_datavalues(self):
         self.assertAlmostEqual(self.dmax, self.data.max(), places=10)
         self.assertAlmostEqual(self.dmin, self.data.min(), places=10)
-        self.assertAlmostEqual(self.dtpos,
-                               self.data[self.tpos[0], self.tpos[1]],
-                               places=10)
+        self.assertAlmostEqual(
+            self.dtpos, self.data[self.tpos[0], self.tpos[1]], places=10
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -55,8 +55,9 @@ def VecNorm(v):
             return numpy.linalg.norm(v, axis=-1)
     if len(v) != 3:
         raise ValueError(
-            f"Vector must be of length 3, but has length {len(v)}!")
-    return math.sqrt(v[0]**2 + v[1]**2 + v[2]**2)
+            f"Vector must be of length 3, but has length {len(v)}!"
+        )
+    return math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
 
 
 def VecUnit(v):
@@ -97,10 +98,12 @@ def VecDot(v1, v2):
     """
     if isinstance(v1, numpy.ndarray):
         if len(v1.shape) >= 2:
-            return numpy.einsum('...i, ...i', v1, v2)
+            return numpy.einsum("...i, ...i", v1, v2)
     if len(v1) != 3 or len(v2) != 3:
-        raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
-                         % (len(v1), len(v2)))
+        raise ValueError(
+            "Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
+            % (len(v1), len(v2))
+        )
 
     return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
 
@@ -126,8 +129,10 @@ def VecCross(v1, v2, out=None):
         if len(v1.shape) >= 2 or len(v2.shape) >= 2:
             return numpy.cross(v1, v2)
     if len(v1) != 3 or len(v2) != 3:
-        raise ValueError("Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
-                         % (len(v1), len(v2)))
+        raise ValueError(
+            "Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
+            % (len(v1), len(v2))
+        )
     if out is None:
         out = numpy.empty(3)
     out[0] = v1[1] * v2[2] - v1[2] * v2[1]
@@ -168,7 +173,7 @@ def VecAngle(v1, v2, deg=False):
         if deg:
             alpha = numpy.degrees(alpha)
     else:
-        alpha = math.acos(max(min(1., VecDot(v1, v2) / u1 / u2), -1.))
+        alpha = math.acos(max(min(1.0, VecDot(v1, v2) / u1 / u2), -1.0))
         if deg:
             alpha = math.degrees(alpha)
 
@@ -193,10 +198,14 @@ def distance(x, y, z, point, vec):
     vec :   tuple, list or ndarray
         3D vector defining the propergation direction of the line
     """
-    coords = numpy.vstack((numpy.ravel(x) - point[0],
-                           numpy.ravel(y) - point[1],
-                           numpy.ravel(z) - point[2])).T
-    ret = VecNorm(VecCross(coords, numpy.asarray(vec)))/VecNorm(vec)
+    coords = numpy.vstack(
+        (
+            numpy.ravel(x) - point[0],
+            numpy.ravel(y) - point[1],
+            numpy.ravel(z) - point[2],
+        )
+    ).T
+    ret = VecNorm(VecCross(coords, numpy.asarray(vec))) / VecNorm(vec)
     if isinstance(x, numpy.ndarray):
         ret = ret.reshape(x.shape)
     else:
@@ -225,54 +234,57 @@ def getVector(string):
     if not circleSyntax.search(string):
         raise InputError(f"getVector: incorrect string syntax ({string})")
 
-    if string[0] == 'x':
-        v = [1., 0, 0]
-    elif string[0] == 'y':
-        v = [0, 1., 0]
-    elif string[0] == 'z':
-        v = [0, 0, 1.]
-    elif string[0] == 'k':
+    if string[0] == "x":
+        v = [1.0, 0, 0]
+    elif string[0] == "y":
+        v = [0, 1.0, 0]
+    elif string[0] == "z":
+        v = [0, 0, 1.0]
+    elif string[0] == "k":
         # determine reference direction
-        if config.KAPPA_PLANE[0] == 'x':
-            v = numpy.array((1., 0, 0))
+        if config.KAPPA_PLANE[0] == "x":
+            v = numpy.array((1.0, 0, 0))
             # turn reference direction
-            if config.KAPPA_PLANE[1] == 'y':
+            if config.KAPPA_PLANE[1] == "y":
                 v = ZRotation(config.KAPPA_ANGLE)(v)
-            elif config.KAPPA_PLANE[1] == 'z':
+            elif config.KAPPA_PLANE[1] == "z":
                 v = YRotation(-1 * config.KAPPA_ANGLE)(v)
             else:
                 raise TypeError("getVector: invalid kappa_plane in config!")
-        elif config.KAPPA_PLANE[0] == 'y':
-            v = numpy.array((0, 1., 0))
+        elif config.KAPPA_PLANE[0] == "y":
+            v = numpy.array((0, 1.0, 0))
             # turn reference direction
-            if config.KAPPA_PLANE[1] == 'z':
+            if config.KAPPA_PLANE[1] == "z":
                 v = XRotation(config.KAPPA_ANGLE)(v)
-            elif config.KAPPA_PLANE[1] == 'x':
+            elif config.KAPPA_PLANE[1] == "x":
                 v = ZRotation(-1 * config.KAPPA_ANGLE)(v)
             else:
                 raise TypeError("getVector: invalid kappa_plane in config!")
-        elif config.KAPPA_PLANE[0] == 'z':
-            v = numpy.array((0, 0, 1.))
+        elif config.KAPPA_PLANE[0] == "z":
+            v = numpy.array((0, 0, 1.0))
             # turn reference direction
-            if config.KAPPA_PLANE[1] == 'x':
+            if config.KAPPA_PLANE[1] == "x":
                 v = YRotation(config.KAPPA_ANGLE)(v)
-            elif config.KAPPA_PLANE[1] == 'y':
+            elif config.KAPPA_PLANE[1] == "y":
                 v = XRotation(-1 * config.KAPPA_ANGLE)(v)
             else:
                 raise TypeError("getVector: invalid kappa_plane in config!")
         else:
             raise TypeError("getVector: invalid kappa_plane in config!")
     else:
-        raise InputError("wrong first character of string given "
-                         "(needs to be one of x, y, z, or k)")
+        raise InputError(
+            "wrong first character of string given "
+            "(needs to be one of x, y, z, or k)"
+        )
 
-    if string[1] == '+':
+    if string[1] == "+":
         v = numpy.asarray(v) * (+1)
-    elif string[1] == '-':
+    elif string[1] == "-":
         v = numpy.asarray(v) * (-1)
     else:
-        raise InputError("wrong second character of string given "
-                         "(needs to be + or -)")
+        raise InputError(
+            "wrong second character of string given (needs to be + or -)"
+        )
 
     return v
 
@@ -304,19 +316,19 @@ def getSyntax(vec):
 
     if numpy.isclose(VecNorm(numpy.cross(numpy.cross(x, y), v)), 0):
         if v[2] >= 0:
-            string = 'z+'
+            string = "z+"
         else:
-            string = 'z-'
+            string = "z-"
     elif numpy.isclose(VecNorm(numpy.cross(numpy.cross(x, z), v)), 0):
         if v[1] >= 0:
-            string = 'y+'
+            string = "y+"
         else:
-            string = 'y-'
+            string = "y-"
     elif numpy.isclose(VecNorm(numpy.cross(numpy.cross(y, z), v)), 0):
         if v[0] >= 0:
-            string = 'x+'
+            string = "x+"
         else:
-            string = 'x-'
+            string = "x-"
     else:
         raise InputError("no valid 3D vector given")
 
@@ -324,7 +336,6 @@ def getSyntax(vec):
 
 
 class Transform:
-
     def __init__(self, matrix):
         self.matrix = matrix
         self._imatrix = None
@@ -335,8 +346,10 @@ class Transform:
             try:
                 self._imatrix = numpy.linalg.inv(self.matrix)
             except numpy.linalg.LinAlgError:
-                raise Exception("XU.math.Transform: matrix cannot be inverted"
-                                " - seems to be singular")
+                raise Exception(
+                    "XU.math.Transform: matrix cannot be inverted"
+                    " - seems to be singular"
+                )
         return self._imatrix
 
     def inverse(self, args, rank=1):
@@ -373,13 +386,13 @@ class Transform:
         m = self.matrix
         if rank == 1:  # argument is a vector
             # out_i = m_ij * args_j
-            out = numpy.einsum('ij,...j', m, args)
+            out = numpy.einsum("ij,...j", m, args)
         elif rank == 2:  # argument is a matrix
             # out_ij = m_ik * m_jl * args_kl
-            out = numpy.einsum('ik, jl,...kl', m, m, args)
+            out = numpy.einsum("ik, jl,...kl", m, m, args)
         elif rank == 4:
             # cp_ijkl = m_in * m_jo * m_kp * m_lq * args_nopq
-            out = numpy.einsum('in, jo, kp, lq,...nopq', m, m, m, m, args)
+            out = numpy.einsum("in, jo, kp, lq,...nopq", m, m, m, m, args)
         else:
             raise ValueError("rank must be either 1, 2, or 4")
 
@@ -392,7 +405,6 @@ class Transform:
 
 
 class CoordinateTransform(Transform):
-
     """
     Create a Transformation object which transforms a point into a new
     coordinate frame. The new frame is determined by the three vectors
@@ -430,12 +442,23 @@ class CoordinateTransform(Transform):
             raise ValueError("given basis vectors need to be orthogonal!")
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print("XU.math.CoordinateTransform: new basis set: \n"
-                  " x: (%5.2f %5.2f %5.2f) \n"
-                  " y: (%5.2f %5.2f %5.2f) \n"
-                  " z: (%5.2f %5.2f %5.2f)"
-                  % (e1[0], e1[1], e1[2], e2[0], e2[1],
-                     e2[2], e3[0], e3[1], e3[2]))
+            print(
+                "XU.math.CoordinateTransform: new basis set: \n"
+                " x: (%5.2f %5.2f %5.2f) \n"
+                " y: (%5.2f %5.2f %5.2f) \n"
+                " z: (%5.2f %5.2f %5.2f)"
+                % (
+                    e1[0],
+                    e1[1],
+                    e1[2],
+                    e2[0],
+                    e2[1],
+                    e2[2],
+                    e3[0],
+                    e3[1],
+                    e3[2],
+                )
+            )
 
         # assemble the transformation matrix
         m = numpy.array([e1, e2, e3])
@@ -444,7 +467,6 @@ class CoordinateTransform(Transform):
 
 
 class AxisToZ(CoordinateTransform):
-
     """
     Creates a coordinate transformation to move a certain axis to the z-axis.
     The rotation is done along the great circle.  The x-axis of the new
@@ -481,7 +503,6 @@ class AxisToZ(CoordinateTransform):
 
 
 class AxisToZ_keepXY(CoordinateTransform):
-
     """
     Creates a coordinate transformation to move a certain axis to the z-axis.
     The rotation is done along the great circle.  The x-axis/y-axis of the new
@@ -537,7 +558,8 @@ def XRotation(alpha, deg=True):
     """
     sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
-        [[1, 0, 0], [0, cosa, -sina], [0, sina, cosa]], dtype=numpy.double)
+        [[1, 0, 0], [0, cosa, -sina], [0, sina, cosa]], dtype=numpy.double
+    )
     return Transform(m)
 
 
@@ -549,7 +571,8 @@ def YRotation(alpha, deg=True):
     """
     sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
-        [[cosa, 0, sina], [0, 1, 0], [-sina, 0, cosa]], dtype=numpy.double)
+        [[cosa, 0, sina], [0, 1, 0], [-sina, 0, cosa]], dtype=numpy.double
+    )
     return Transform(m)
 
 
@@ -561,7 +584,8 @@ def ZRotation(alpha, deg=True):
     """
     sina, cosa = _sincos(alpha, deg)
     m = numpy.array(
-        [[cosa, -sina, 0], [sina, cosa, 0], [0, 0, 1]], dtype=numpy.double)
+        [[cosa, -sina, 0], [sina, cosa, 0], [0, 0, 1]], dtype=numpy.double
+    )
     return Transform(m)
 
 
@@ -610,8 +634,11 @@ def ArbRotation(axis, alpha, deg=True):
     else:
         rad = alpha
     get = tensorprod(e, e)
-    rot = get + numpy.cos(rad) * (numpy.identity(3) - get) + \
-        numpy.sin(rad) * mycross(e, numpy.identity(3))
+    rot = (
+        get
+        + numpy.cos(rad) * (numpy.identity(3) - get)
+        + numpy.sin(rad) * mycross(e, numpy.identity(3))
+    )
     return Transform(rot)
 
 

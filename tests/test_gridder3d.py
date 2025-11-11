@@ -53,7 +53,8 @@ class TestGridder3D(unittest.TestCase):
         self.assertAlmostEqual(
             self.gridder.yaxis[1] - self.gridder.yaxis[0],
             (self.xmax - self.xmin) / float(self.ny - 1),
-            places=12)
+            places=12,
+        )
 
     def test_gridder3d_zaxis(self):
         # test length of yaxis
@@ -64,7 +65,8 @@ class TestGridder3D(unittest.TestCase):
         self.assertAlmostEqual(
             self.gridder.zaxis[1] - self.gridder.zaxis[0],
             (self.xmax - self.xmin) / float(self.nz - 1),
-            places=12)
+            places=12,
+        )
 
     def test_gridder3d_data(self):
         # test shape of data
@@ -77,12 +79,11 @@ class TestGridder3D(unittest.TestCase):
             j, k, m = (aj[i], ak[i], al[i])
             if k == 2 * j and m == j:
                 self.assertAlmostEqual(
-                    self.gridder.data[j, k, m],
-                    self.data[j],
-                    places=12)
+                    self.gridder.data[j, k, m], self.data[j], places=12
+                )
             else:
-                self.assertEqual(self.gridder.data[j, k, m], 0.)
+                self.assertEqual(self.gridder.data[j, k, m], 0.0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

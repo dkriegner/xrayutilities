@@ -27,7 +27,7 @@ def getimage(fname, hotpixelmap, roi=None):
     ccdr = removehotpixel(cbf.data, hotpixelmap)
     ccd = xu.blockAverage2D(ccdr, 1, 1, roi=roi)
     if ccd.max() / ccd.mean() < 1e2:
-        print('no clear maximum in %s?' % fname)
+        print("no clear maximum in %s?" % fname)
     ccd[ccd < 2 * ccd.mean()] = 0  # make center of mass position easier
     return ccd
 
@@ -75,25 +75,33 @@ def removehotpixel(ccd, hotpixelmap):
     return ccd
 
 
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+datadir = os.path.join(os.path.dirname(__file__), "data")
 name = "align"
 datfile = os.path.join(datadir, name, name + "_%05d.dat")
-ccdfile = os.path.join(datadir, name, name + "_%05d_eiger",
-                       name + "_%05d_eiger_%05d.cbf")
+ccdfile = os.path.join(
+    datadir, name, name + "_%05d_eiger", name + "_%05d_eiger_%05d.cbf"
+)
 fullfilename = ccdfile % (2, 2, 104)
 
 
-@unittest.skipIf('CI' in os.environ or not os.path.isfile(fullfilename),
-                 "this test is not running on CI or additional test "
-                 "data are needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    "CI" in os.environ or not os.path.isfile(fullfilename),
+    "this test is not running on CI or additional test "
+    "data are needed (http://xrayutilities.sf.io)",
+)
 class TestArea_calib(unittest.TestCase):
     en = 10000.0  # x-ray energy in eV
     roi = (551, 1065, 0, 1030)  # get data of the good part of the detector
     hkls = ((0, 0, 0), (0, 0, 0), (0, 0, 4), (0, 0, 4), (0, 0, 2), (0, 0, 2))
     step = 8  # take only every 8'th point
-    slices = (numpy.s_[108::step], numpy.s_[::step],
-              numpy.s_[57::step], numpy.s_[::step],
-              numpy.s_[56:95:step], numpy.s_[::step])
+    slices = (
+        numpy.s_[108::step],
+        numpy.s_[::step],
+        numpy.s_[57::step],
+        numpy.s_[::step],
+        numpy.s_[56:95:step],
+        numpy.s_[::step],
+    )
 
     @classmethod
     def setUpClass(cls):
@@ -102,17 +110,21 @@ class TestArea_calib(unittest.TestCase):
 
     def test_area_calib(self):
         scannrs = (2, 4)
-        ang1, ang2 = [numpy.empty(0), ] * 2
+        ang1, ang2 = [
+            numpy.empty(0),
+        ] * 2
         r = self.roi
         detdata = numpy.empty((0, r[1] - r[0], r[3] - r[2]))
 
         for scannr, scanhkl, sl in zip(scannrs, self.hkls, self.slices):
-            (tth, tt), angles = xu.io.gettty08_scan(datfile, scannr,
-                                                    'tth', 'tt')
-            intensity = numpy.zeros((len(angles[sl]),
-                                     r[1] - r[0], r[3] - r[2]))
+            (tth, tt), angles = xu.io.gettty08_scan(
+                datfile, scannr, "tth", "tt"
+            )
+            intensity = numpy.zeros(
+                (len(angles[sl]), r[1] - r[0], r[3] - r[2])
+            )
             # read images
-            for i, nr in enumerate(angles[sl]['Number']):
+            for i, nr in enumerate(angles[sl]["Number"]):
                 fname = ccdfile % (scannr, scannr, nr)
                 intensity[i] = getimage(fname, self.hotpixelmap, roi=self.roi)
 
@@ -122,52 +134,67 @@ class TestArea_calib(unittest.TestCase):
 
         # start calibration
         param, eps = xu.analysis.sample_align.area_detector_calib(
-            ang1, ang2, detdata, ['z+', 'y-'], 'x+',
-            debug=False, plot=False)
+            ang1, ang2, detdata, ["z+", "y-"], "x+", debug=False, plot=False
+        )
 
         self.assertTrue(True)
 
     def test_area_calib_hkl(self):
         scannrs = (2, 4, 43, 44, 46, 47)
-        sang, ang1, ang2 = [numpy.empty(0), ]*3
+        sang, ang1, ang2 = [
+            numpy.empty(0),
+        ] * 3
         imghkl = numpy.empty((0, 3))
         r = self.roi
         detdata = numpy.empty((0, r[1] - r[0], r[3] - r[2]))
 
         for scannr, scanhkl, sl in zip(scannrs, self.hkls, self.slices):
-            (om, tth, tt), angles = xu.io.gettty08_scan(datfile, scannr,
-                                                        'om', 'tth', 'tt')
-            intensity = numpy.zeros((len(angles[sl]),
-                                     r[1] - r[0], r[3] - r[2]))
+            (om, tth, tt), angles = xu.io.gettty08_scan(
+                datfile, scannr, "om", "tth", "tt"
+            )
+            intensity = numpy.zeros(
+                (len(angles[sl]), r[1] - r[0], r[3] - r[2])
+            )
             # read images
-            for i, nr in enumerate(angles[sl]['Number']):
+            for i, nr in enumerate(angles[sl]["Number"]):
                 fname = ccdfile % (scannr, scannr, nr)
                 intensity[i] = getimage(fname, self.hotpixelmap, roi=self.roi)
 
             if scanhkl == (0, 0, 0):
-                sang = numpy.concatenate((sang, (0,)*len(angles[sl])))
+                sang = numpy.concatenate((sang, (0,) * len(angles[sl])))
             else:
                 sang = numpy.concatenate((sang, om[sl]))
             ang1 = numpy.concatenate((ang1, tth[sl]))
             ang2 = numpy.concatenate((ang2, tt[sl]))
             detdata = numpy.concatenate((detdata, intensity))
-            imghkl = numpy.concatenate((imghkl, (scanhkl,)*len(angles[sl])))
+            imghkl = numpy.concatenate((imghkl, (scanhkl,) * len(angles[sl])))
 
         # start calibration
         GaAs = xu.materials.GaAs
-        qconv = xu.experiment.QConversion(['z+', 'y-', 'x+', 'z-'],
-                                          ['z+', 'y-'], [1, 0, 0])
-        hxrd = xu.HXRD(GaAs.Q(1, 1, 0), GaAs.Q(0, 0, 1),
-                       en=self.en, qconv=qconv)
+        qconv = xu.experiment.QConversion(
+            ["z+", "y-", "x+", "z-"], ["z+", "y-"], [1, 0, 0]
+        )
+        hxrd = xu.HXRD(
+            GaAs.Q(1, 1, 0), GaAs.Q(0, 0, 1), en=self.en, qconv=qconv
+        )
 
         param, eps = xu.analysis.sample_align.area_detector_calib_hkl(
-            sang, ang1, ang2, detdata, imghkl, hxrd, GaAs,
-            ['z+', 'y-'], 'x+',
-            start=(None, None, 1., 0, 0, 0, 0, 0, 0, xu.en2lam(self.en)),
-            debug=False, plot=False)
+            sang,
+            ang1,
+            ang2,
+            detdata,
+            imghkl,
+            hxrd,
+            GaAs,
+            ["z+", "y-"],
+            "x+",
+            start=(None, None, 1.0, 0, 0, 0, 0, 0, 0, xu.en2lam(self.en)),
+            debug=False,
+            plot=False,
+        )
 
         self.assertTrue(True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

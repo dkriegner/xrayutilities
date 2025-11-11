@@ -33,7 +33,7 @@ class Test_KinematicalModel(unittest.TestCase):
     # define used layer stack
     sub = xu.simpack.Layer(xu.materials.GaAs, numpy.inf)
     lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 995.64, relaxation=0.0)
-    pls = xu.simpack.PseudomorphicStack001('AlGaAs on GaAs', sub, lay)
+    pls = xu.simpack.PseudomorphicStack001("AlGaAs on GaAs", sub, lay)
     hkl = (0, 0, 4)
 
     # simulation parameters
@@ -42,8 +42,9 @@ class Test_KinematicalModel(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.kinmod = xu.simpack.KinematicalModel(cls.pls, **cls.kwargs)
-        cls.kinmul = xu.simpack.KinematicalMultiBeamModel(cls.pls,
-                                                          **cls.kwargs)
+        cls.kinmul = xu.simpack.KinematicalMultiBeamModel(
+            cls.pls, **cls.kwargs
+        )
         cls.fm = xu.simpack.FitModel(cls.kinmod)
         cls.fmm = xu.simpack.FitModel(cls.kinmul)
         cls.qz = numpy.linspace(4.40, 4.50, 2000)
@@ -51,7 +52,7 @@ class Test_KinematicalModel(unittest.TestCase):
     def test_Calculation(self):
         sim = self.kinmod.simulate(self.qz, hkl=self.hkl, refraction=True)
         self.assertEqual(len(sim), len(self.qz))
-        self.assertTrue(numpy.all(sim >= self.kwargs['background']))
+        self.assertTrue(numpy.all(sim >= self.kwargs["background"]))
         # Next line is actually not True for the kinematic model!
         # self.assertTrue(numpy.all(sim <= self.kwargs['I0']))
 
@@ -74,11 +75,15 @@ class Test_KinematicalModel(unittest.TestCase):
         sim2 = self.kinmul.simulate(self.qz, hkl=self.hkl, refraction=True)
         self.assertEqual(len(sim1), len(sim2))
         self.assertEqual(numpy.argmax(sim1), numpy.argmax(sim2))
-        self.assertAlmostEqual(xu.math.fwhm_exp(self.qz, sim1),
-                               xu.math.fwhm_exp(self.qz, sim2), places=6)
-        self.assertTrue(xu.math.fwhm_exp(self.qz, sim1) >=
-                        self.kwargs['resolution_width'])
+        self.assertAlmostEqual(
+            xu.math.fwhm_exp(self.qz, sim1),
+            xu.math.fwhm_exp(self.qz, sim2),
+            places=6,
+        )
+        self.assertTrue(
+            xu.math.fwhm_exp(self.qz, sim1) >= self.kwargs["resolution_width"]
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

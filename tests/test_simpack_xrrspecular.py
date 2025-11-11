@@ -31,27 +31,28 @@ class Test_SpecularReflectivityModel(unittest.TestCase):
     # define used layer stack
     lSiO2 = xu.simpack.Layer(xu.materials.SiO2, numpy.inf, roughness=3.0)
     lRu = xu.simpack.Layer(xu.materials.Ru, 50, roughness=2.5)
-    rho_cf = 0.5*8900 + 0.5*7874
-    mat_cf = xu.materials.Amorphous('CoFe', rho_cf)
+    rho_cf = 0.5 * 8900 + 0.5 * 7874
+    mat_cf = xu.materials.Amorphous("CoFe", rho_cf)
     lCoFe = xu.simpack.Layer(mat_cf, 30, roughness=5.2)
 
     # simulation parameters
-    kwargs = dict(I0=1e6, background=2, sample_width=10, beam_width=0.2,
-                  energy='MoKa1')
+    kwargs = dict(
+        I0=1e6, background=2, sample_width=10, beam_width=0.2, energy="MoKa1"
+    )
 
     @classmethod
     def setUpClass(cls):
-        cls.model = xu.simpack.SpecularReflectivityModel(cls.lSiO2, cls.lRu,
-                                                         cls.lCoFe,
-                                                         **cls.kwargs)
+        cls.model = xu.simpack.SpecularReflectivityModel(
+            cls.lSiO2, cls.lRu, cls.lCoFe, **cls.kwargs
+        )
         cls.fm = xu.simpack.FitModel(cls.model)
         cls.ai = numpy.arange(0.1, 3, 0.005)
 
     def test_Calculation(self):
         sim = self.model.simulate(self.ai)
         self.assertEqual(len(sim), len(self.ai))
-        self.assertTrue(numpy.all(sim >= self.kwargs['background']))
-        self.assertTrue(numpy.all(sim <= self.kwargs['I0']))
+        self.assertTrue(numpy.all(sim >= self.kwargs["background"]))
+        self.assertTrue(numpy.all(sim <= self.kwargs["I0"]))
 
     def test_FitModel_eval(self):
         sim1 = self.model.simulate(self.ai)
@@ -67,5 +68,5 @@ class Test_SpecularReflectivityModel(unittest.TestCase):
         self.assertEqual(len(d), N)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

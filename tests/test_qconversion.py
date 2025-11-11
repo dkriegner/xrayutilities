@@ -43,10 +43,13 @@ class TestQConversion(unittest.TestCase):
 
     def test_qconversion_energy(self):
         ang1 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym))
-        ang2 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym)/2.)
-        qout = self.hxrd.Ang2HKL((ang1[0], ang2[0]), (ang1[3], ang2[3]),
-                                 en=(self.hxrd.energy, 2 * self.hxrd.energy),
-                                 mat=self.mat)
+        ang2 = self.hxrd.Q2Ang(self.mat.Q(self.hklsym) / 2.0)
+        qout = self.hxrd.Ang2HKL(
+            (ang1[0], ang2[0]),
+            (ang1[3], ang2[3]),
+            en=(self.hxrd.energy, 2 * self.hxrd.energy),
+            mat=self.mat,
+        )
         for i in range(3):
             self.assertAlmostEqual(qout[i][0], self.hklsym[i], places=10)
             self.assertAlmostEqual(qout[i][1], self.hklsym[i], places=10)
@@ -56,12 +59,15 @@ class TestQConversion(unittest.TestCase):
         dpos = self.hxrd.Ang2Q.getDetectorPos(tt, dim=0)
         dpos = numpy.asarray(dpos)
         kf = dpos / numpy.linalg.norm(dpos) * self.hxrd.k0
-        ki = self.hxrd._A2QConversion.r_i / \
-            numpy.linalg.norm(self.hxrd._A2QConversion.r_i) * self.hxrd.k0
+        ki = (
+            self.hxrd._A2QConversion.r_i
+            / numpy.linalg.norm(self.hxrd._A2QConversion.r_i)
+            * self.hxrd.k0
+        )
         qout = self.hxrd.Ang2Q(0, tt)
         for i in range(3):
-            self.assertAlmostEqual(qout[i], kf[i]-ki[i], places=10)
+            self.assertAlmostEqual(qout[i], kf[i] - ki[i], places=10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -51,7 +51,8 @@ class TestGridder2D(unittest.TestCase):
         self.assertAlmostEqual(
             self.gridder.yaxis[1] - self.gridder.yaxis[0],
             (self.xmax - self.xmin) / float(self.ny - 1),
-            places=12)
+            places=12,
+        )
 
     def test_gridder2d_data(self):
         # test shape of data
@@ -64,12 +65,11 @@ class TestGridder2D(unittest.TestCase):
             j, k = (aj[i], ak[i])
             if k == 2 * j:
                 self.assertAlmostEqual(
-                    self.gridder.data[j, 2 * j],
-                    self.data[j],
-                    places=12)
+                    self.gridder.data[j, 2 * j], self.data[j], places=12
+                )
             else:
-                self.assertEqual(self.gridder.data[j, k], 0.)
+                self.assertEqual(self.gridder.data[j, k], 0.0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

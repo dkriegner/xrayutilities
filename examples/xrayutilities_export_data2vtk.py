@@ -50,8 +50,9 @@ h5file = os.path.join(specdir, sample + ".h5")
 nx, ny, nz = 100, 101, 102
 
 # read and grid data with helper function
-qx, qy, qz, gint, gridder = id01.gridmap(h5file, SCANNR, ccdfiletmp,
-                                         nx, ny, nz)
+qx, qy, qz, gint, gridder = id01.gridmap(
+    h5file, SCANNR, ccdfiletmp, nx, ny, nz
+)
 
 # prepare data for export to VTK image file
 INT = xu.maplog(gint, 3.0, 0)

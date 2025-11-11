@@ -32,6 +32,7 @@ import numpy.lib.recfunctions
 
 from .. import config
 from ..exception import InputError
+
 # relative imports from xrayutilities
 from .helper import generate_filenames, xu_open
 
@@ -53,7 +54,6 @@ re_measstep = re.compile(r"^\*MEAS_SCAN_STEP ")
 
 
 class RASFile:
-
     """
     Represents a RAS data file. The file is read during the
     constructor call
@@ -84,7 +84,7 @@ class RASFile:
             while True:
                 t = fid.tell()
                 line = fid.readline()
-                line = line.decode('ascii', 'ignore')
+                line = line.decode("ascii", "ignore")
                 if config.VERBOSITY >= config.DEBUG:
                     print(f"XU.io.RASFile: {t}: '{line}'")
                 if re_measstart.match(line):
@@ -93,7 +93,7 @@ class RASFile:
                     s = RASScan(self.full_filename, t)
                     self.scans.append(s)
                     fid.seek(s.fidend)  # set handle to after scan
-                elif re_measend.match(line) or line in (None, ''):
+                elif re_measend.match(line) or line in (None, ""):
                     break
                 else:
                     continue
@@ -102,7 +102,6 @@ class RASFile:
 
 
 class RASScan:
-
     """
     Represents a single Scan portion of a RAS data file. The scan is parsed
     during the constructor call
@@ -136,39 +135,39 @@ class RASScan:
         offset = self.fid.tell()
         for line in self.fid:
             offset += len(line)
-            line = line.decode('ascii', 'ignore')
+            line = line.decode("ascii", "ignore")
             self.header.append(line)
             if config.VERBOSITY >= config.DEBUG:
                 print(f"XU.io.RASScan: {offset}: '{line}'")
 
             if re_datestart.match(line):
-                m = line.split(' ', 1)[-1].strip()
+                m = line.split(" ", 1)[-1].strip()
                 self.scan_start = m.strip('"')
             elif re_datestop.match(line):
-                m = line.split(' ', 1)[-1].strip()
+                m = line.split(" ", 1)[-1].strip()
                 self.scan_stop = m.strip('"')
             elif re_initmoponame.match(line):
-                idx = int(line.split('-', 1)[-1].split()[0])
-                moname = line.split(' ', 1)[-1].strip().strip('"')
+                idx = int(line.split("-", 1)[-1].split()[0])
+                moname = line.split(" ", 1)[-1].strip().strip('"')
                 keys[idx] = moname
             elif re_initmopovalue.match(line):
-                idx = int(line.split('-', 1)[-1].split()[0])
-                mopos = line.split(' ', 1)[-1].strip().strip('"')
+                idx = int(line.split("-", 1)[-1].split()[0])
+                mopos = line.split(" ", 1)[-1].strip().strip('"')
                 try:
                     mopos = float(mopos)
                 except ValueError:
                     pass
                 position[idx] = mopos
             elif re_scanaxis.match(line):
-                self.scan_axis = line.split(' ', 1)[-1].strip().strip('"')
+                self.scan_axis = line.split(" ", 1)[-1].strip().strip('"')
             elif re_datacount.match(line):
-                length = line.split(' ', 1)[-1].strip().strip('"')
+                length = line.split(" ", 1)[-1].strip().strip('"')
                 self.length = int(float(length))
             elif re_measspeed.match(line):
-                speed = line.split(' ', 1)[-1].strip().strip('"')
+                speed = line.split(" ", 1)[-1].strip().strip('"')
                 self.meas_speed = float(speed)
             elif re_measstep.match(line):
-                step = line.split(' ', 1)[-1].strip().strip('"')
+                step = line.split(" ", 1)[-1].strip().strip('"')
                 self.meas_step = float(step)
             elif re_headerend.match(line):
                 break
@@ -184,15 +183,14 @@ class RASScan:
         self.fid.seek(offset)
 
     def _parse_data(self):
-        line = self.fid.readline().decode('ascii', 'ignore')
+        line = self.fid.readline().decode("ascii", "ignore")
         offset = self.fid.tell()
         if re_datastart.match(line):
             lines = islice(self.fid, self.length)
             self.data = numpy.genfromtxt(lines)
-            self.data = numpy.rec.fromrecords(self.data,
-                                              names=[self.scan_axis,
-                                                     'int',
-                                                     'att'])
+            self.data = numpy.rec.fromrecords(
+                self.data, names=[self.scan_axis, "int", "att"]
+            )
             self.fid.seek(offset)
             lines = islice(self.fid, self.length)
             dlength = sum(len(line) for line in lines)
@@ -200,7 +198,7 @@ class RASScan:
                 print(f"XU.io.RASScan: offset {offset}; data-length {dlength}")
             self.fid.seek(offset + dlength)
         else:
-            raise IOError('File handle at wrong position to read data!')
+            raise IOError("File handle at wrong position to read data!")
 
 
 def getras_scan(scanname, scannumbers, *args, **kwargs):

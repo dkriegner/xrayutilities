@@ -22,13 +22,15 @@ import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'seifert.nja.bz2'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "seifert.nja.bz2"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_NJA(unittest.TestCase):
     dshape = (501, 2)
     dmax = 1344706.25
@@ -36,7 +38,7 @@ class TestIO_NJA(unittest.TestCase):
     motmin = -0.05
     motmax = 0.15
     axisT = 1.5
-    dtpos = [5.00000000e-02, 5.64250000e+03]
+    dtpos = [5.00000000e-02, 5.64250000e03]
     tpos = 250
 
     @classmethod
@@ -47,8 +49,9 @@ class TestIO_NJA(unittest.TestCase):
         self.assertEqual(self.dshape, self.njafile.data.shape)
 
     def test_headervalue(self):
-        self.assertAlmostEqual(self.axisT,
-                               self.njafile.axispos['T'][0], places=6)
+        self.assertAlmostEqual(
+            self.axisT, self.njafile.axispos["T"][0], places=6
+        )
 
     def test_datavalues(self):
         motor = self.njafile.data[:, 0]
@@ -60,5 +63,5 @@ class TestIO_NJA(unittest.TestCase):
         self.assertTrue(numpy.all(self.dtpos == self.njafile.data[self.tpos]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

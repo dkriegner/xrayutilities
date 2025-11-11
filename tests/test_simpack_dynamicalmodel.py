@@ -31,7 +31,7 @@ class Test_DynamicalModel(unittest.TestCase):
     # define used layer stack
     sub = xu.simpack.Layer(xu.materials.GaAs, numpy.inf)
     lay = xu.simpack.Layer(xu.materials.AlGaAs(0.75), 995.64, relaxation=0.0)
-    pls = xu.simpack.PseudomorphicStack001('AlGaAs on GaAs', sub, lay)
+    pls = xu.simpack.PseudomorphicStack001("AlGaAs on GaAs", sub, lay)
     hkl = (0, 0, 4)
 
     # simulation parameters
@@ -39,8 +39,9 @@ class Test_DynamicalModel(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.sdyn = xu.simpack.SimpleDynamicalCoplanarModel(cls.pls,
-                                                           **cls.kwargs)
+        cls.sdyn = xu.simpack.SimpleDynamicalCoplanarModel(
+            cls.pls, **cls.kwargs
+        )
         cls.dyn = xu.simpack.DynamicalModel(cls.pls, **cls.kwargs)
         cls.fms = xu.simpack.FitModel(cls.sdyn)
         cls.fmd = xu.simpack.FitModel(cls.dyn)
@@ -50,8 +51,8 @@ class Test_DynamicalModel(unittest.TestCase):
     def test_Calculation(self):
         sim = self.dyn.simulate(self.ai, hkl=self.hkl)
         self.assertEqual(len(sim), len(self.ai))
-        self.assertTrue(numpy.all(sim >= self.kwargs['background']))
-        self.assertTrue(numpy.all(sim <= self.kwargs['I0']))
+        self.assertTrue(numpy.all(sim >= self.kwargs["background"]))
+        self.assertTrue(numpy.all(sim <= self.kwargs["I0"]))
 
     def test_FitModel_eval(self):
         sim1 = self.sdyn.simulate(self.ai, hkl=self.hkl)
@@ -72,11 +73,15 @@ class Test_DynamicalModel(unittest.TestCase):
         sim2 = self.dyn.simulate(self.ai, hkl=self.hkl)
         self.assertEqual(len(sim1), len(sim2))
         self.assertEqual(numpy.argmax(sim1), numpy.argmax(sim2))
-        self.assertAlmostEqual(xu.math.fwhm_exp(self.ai, sim1),
-                               xu.math.fwhm_exp(self.ai, sim2), places=4)
-        self.assertTrue(xu.math.fwhm_exp(self.ai, sim1) >=
-                        self.kwargs['resolution_width'])
+        self.assertAlmostEqual(
+            xu.math.fwhm_exp(self.ai, sim1),
+            xu.math.fwhm_exp(self.ai, sim2),
+            places=4,
+        )
+        self.assertTrue(
+            xu.math.fwhm_exp(self.ai, sim1) >= self.kwargs["resolution_width"]
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

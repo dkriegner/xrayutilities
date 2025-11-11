@@ -25,14 +25,14 @@ from .gridder import Gridder, GridderFlags, axis, delta, ones
 
 
 class Gridder3D(Gridder):
-
     def __init__(self, nx, ny, nz):
         Gridder.__init__(self)
 
         # check input
         if nx <= 0 or ny <= 0 or nz <= 0:
-            raise exception.InputError('None of nx, ny and nz can be smaller '
-                                       'than 1!')
+            raise exception.InputError(
+                "None of nx, ny and nz can be smaller than 1!"
+            )
 
         self.xmin = 0
         self.xmax = 0
@@ -52,10 +52,12 @@ class Gridder3D(Gridder):
         Class method to allocate memory for the gridder based on the nx, ny
         class attributes.
         """
-        self._gdata = numpy.zeros((self.nx, self.ny, self.nz),
-                                  dtype=numpy.double)
-        self._gnorm = numpy.zeros((self.nx, self.ny, self.nz),
-                                  dtype=numpy.double)
+        self._gdata = numpy.zeros(
+            (self.nx, self.ny, self.nz), dtype=numpy.double
+        )
+        self._gnorm = numpy.zeros(
+            (self.nx, self.ny, self.nz), dtype=numpy.double
+        )
 
     def SetResolution(self, nx, ny, nz):
         self.nx = nx
@@ -74,16 +76,22 @@ class Gridder3D(Gridder):
         return axis(self.zmin, self.zmax, self.nz)
 
     def __get_xmatrix(self):
-        return ones(self.nx, self.ny, self.nz) *\
-            self.xaxis[:, numpy.newaxis, numpy.newaxis]
+        return (
+            ones(self.nx, self.ny, self.nz)
+            * self.xaxis[:, numpy.newaxis, numpy.newaxis]
+        )
 
     def __get_ymatrix(self):
-        return ones(self.nx, self.ny, self.nz) *\
-            self.yaxis[numpy.newaxis, :, numpy.newaxis]
+        return (
+            ones(self.nx, self.ny, self.nz)
+            * self.yaxis[numpy.newaxis, :, numpy.newaxis]
+        )
 
     def __get_zmatrix(self):
-        return ones(self.nx, self.ny, self.nz) *\
-            self.zaxis[numpy.newaxis, numpy.newaxis, :]
+        return (
+            ones(self.nx, self.ny, self.nz)
+            * self.zaxis[numpy.newaxis, numpy.newaxis, :]
+        )
 
     zaxis = property(__get_zaxis)
     zmatrix = property(__get_zmatrix)
@@ -133,15 +141,21 @@ class Gridder3D(Gridder):
         if x.size != y.size or y.size != z.size or z.size != data.size:
             raise exception.InputError(
                 f"XU.{self.__class__.__name__}: size of given datasets "
-                "(x, y, z, data) is not equal!")
+                "(x, y, z, data) is not equal!"
+            )
 
         if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the
             # gridder more often and obtain a reasonable result
-            self.dataRange(x.min(), x.max(),
-                           y.min(), y.max(),
-                           z.min(), z.max(),
-                           self.keep_data)
+            self.dataRange(
+                x.min(),
+                x.max(),
+                y.min(),
+                y.max(),
+                z.min(),
+                z.max(),
+                self.keep_data,
+            )
 
         return x, y, z, data
 
@@ -166,11 +180,24 @@ class Gridder3D(Gridder):
 
         # remove normalize flag for C-code
         flags = self.flags | GridderFlags.NO_NORMALIZATION
-        cxrayutilities.gridder3d(x, y, z, data, self.nx, self.ny, self.nz,
-                                 self.xmin, self.xmax,
-                                 self.ymin, self.ymax,
-                                 self.zmin, self.zmax,
-                                 self._gdata, self._gnorm, flags)
+        cxrayutilities.gridder3d(
+            x,
+            y,
+            z,
+            data,
+            self.nx,
+            self.ny,
+            self.nz,
+            self.xmin,
+            self.xmax,
+            self.ymin,
+            self.ymax,
+            self.zmin,
+            self.zmax,
+            self._gdata,
+            self._gnorm,
+            flags,
+        )
 
 
 class FuzzyGridder3D(Gridder3D):
@@ -205,33 +232,47 @@ class FuzzyGridder3D(Gridder3D):
             dimensions, or as sequence of length 3.
         """
 
-        valid_kwargs = {'width': 'specifiying fuzzy data size'}
-        utilities.check_kwargs(kwargs, valid_kwargs,
-                               self.__class__.__name__)
+        valid_kwargs = {"width": "specifiying fuzzy data size"}
+        utilities.check_kwargs(kwargs, valid_kwargs, self.__class__.__name__)
 
         x, y, z, data = self._checktransinput(x, y, z, data)
 
-        if 'width' in kwargs:
+        if "width" in kwargs:
             try:
-                length = len(kwargs['width'])
+                length = len(kwargs["width"])
             except TypeError:
                 length = 1
             if length == 3:
-                wx, wy, wz = kwargs['width']
+                wx, wy, wz = kwargs["width"]
             else:
-                wx = kwargs['width']
+                wx = kwargs["width"]
                 wy = wx
                 wz = wx
         else:
-            wx = delta(self.xmin, self.xmax, self.nx) / 2.
-            wy = delta(self.ymin, self.ymax, self.ny) / 2.
-            wz = delta(self.zmin, self.zmax, self.nz) / 2.
+            wx = delta(self.xmin, self.xmax, self.nx) / 2.0
+            wy = delta(self.ymin, self.ymax, self.ny) / 2.0
+            wz = delta(self.zmin, self.zmax, self.nz) / 2.0
 
         # remove normalize flag for C-code
         flags = self.flags | GridderFlags.NO_NORMALIZATION
-        cxrayutilities.fuzzygridder3d(x, y, z, data, self.nx, self.ny, self.nz,
-                                      self.xmin, self.xmax,
-                                      self.ymin, self.ymax,
-                                      self.zmin, self.zmax,
-                                      self._gdata, self._gnorm,
-                                      wx, wy, wz, flags)
+        cxrayutilities.fuzzygridder3d(
+            x,
+            y,
+            z,
+            data,
+            self.nx,
+            self.ny,
+            self.nz,
+            self.xmin,
+            self.xmax,
+            self.ymin,
+            self.ymax,
+            self.zmin,
+            self.zmax,
+            self._gdata,
+            self._gnorm,
+            wx,
+            wy,
+            wz,
+            flags,
+        )

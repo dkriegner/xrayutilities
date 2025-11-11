@@ -65,28 +65,29 @@ class Model:
         resolution_type :   {'Gauss', 'Lorentz'}, optional
             type of resolution function, default: Gauss
         """
-        local_fit_params = {'resolution_width': 'width of the resolution',
-                            'I0': 'primary beam intensity',
-                            'background': 'background intensity',
-                            'energy': 'x-ray energy in eV'}
-        if not hasattr(self, 'fit_paramnames'):
+        local_fit_params = {
+            "resolution_width": "width of the resolution",
+            "I0": "primary beam intensity",
+            "background": "background intensity",
+            "energy": "x-ray energy in eV",
+        }
+        if not hasattr(self, "fit_paramnames"):
             self.fit_paramnames = []
         self.fit_paramnames += local_fit_params
         valid_kwargs = copy.copy(local_fit_params)
-        valid_kwargs['resolution_type'] = 'resolution function typ'
-        utilities.check_kwargs(kwargs, valid_kwargs,
-                               self.__class__.__name__)
+        valid_kwargs["resolution_type"] = "resolution function typ"
+        utilities.check_kwargs(kwargs, valid_kwargs, self.__class__.__name__)
 
         if experiment:
             self.exp = experiment
         else:
             self.exp = Experiment([1, 0, 0], [0, 0, 1])
-        self.resolution_width = kwargs.get('resolution_width', 0)
-        self.resolution_type = kwargs.get('resolution_type', 'Gauss')
-        self.I0 = kwargs.get('I0', 1)
-        self.background = kwargs.get('background', 0)
-        if 'energy' in kwargs:
-            self.energy = kwargs['energy']
+        self.resolution_width = kwargs.get("resolution_width", 0)
+        self.resolution_type = kwargs.get("resolution_type", "Gauss")
+        self.I0 = kwargs.get("I0", 1)
+        self.background = kwargs.get("background", 0)
+        if "energy" in kwargs:
+            self.energy = kwargs["energy"]
 
     @property
     def energy(self):
@@ -117,9 +118,9 @@ class Model:
             return y
         dx = numpy.mean(numpy.gradient(x))
         nres = int(20 * numpy.abs(self.resolution_width / dx))
-        xres = startdelta(-10*self.resolution_width, dx, nres + 1)
+        xres = startdelta(-10 * self.resolution_width, dx, nres + 1)
         # the following works only exactly for equally spaced data points
-        if self.resolution_type == 'Gauss':
+        if self.resolution_type == "Gauss":
             fres = NormGauss1d
         else:
             fres = NormLorentz1d
@@ -127,14 +128,17 @@ class Model:
         resf /= numpy.sum(resf)  # proper normalization for discrete conv.
         # pad y to avoid edge effects
         interp = interpolate.InterpolatedUnivariateSpline(x, y, k=1)
-        nextmin = numpy.ceil(nres/2.)
-        nextpos = numpy.floor(nres/2.)
+        nextmin = numpy.ceil(nres / 2.0)
+        nextpos = numpy.floor(nres / 2.0)
         xext = numpy.concatenate(
-            (startdelta(x[0]-dx, -dx, nextmin)[-1::-1],
-             x,
-             startdelta(x[-1]+dx, dx, nextpos)))
+            (
+                startdelta(x[0] - dx, -dx, nextmin)[-1::-1],
+                x,
+                startdelta(x[-1] + dx, dx, nextpos),
+            )
+        )
         ypad = numpy.asarray(interp(xext))
-        return numpy.convolve(ypad, resf, mode='valid')
+        return numpy.convolve(ypad, resf, mode="valid")
 
     def scale_simulation(self, y):
         """
@@ -180,22 +184,24 @@ class LayerModel(Model, utilities.ABC):
         Cmono :     float, optional
             polarization factor of the monochromator
         """
-        exp = kwargs.pop('experiment', None)
-        self.polarization = kwargs.pop('polarization', 'S')
-        self.Cmono = kwargs.pop('Cmono', 1)
+        exp = kwargs.pop("experiment", None)
+        self.polarization = kwargs.pop("polarization", "S")
+        self.Cmono = kwargs.pop("Cmono", 1)
         super().__init__(exp, **kwargs)
         self.lstack_params = []
         self.lstack_structural_params = False
-        self.xlabelstr = 'x (1)'
+        self.xlabelstr = "x (1)"
         if len(args) == 1:
             if isinstance(args[0], Layer):
                 self.lstack = LayerStack(
-                    f"Stack for {self.__class__.__name__}", *args)
+                    f"Stack for {self.__class__.__name__}", *args
+                )
             else:
                 self.lstack = args[0]
         else:
             self.lstack = LayerStack(
-                f"Stack for {self.__class__.__name__}", *args)
+                f"Stack for {self.__class__.__name__}", *args
+            )
 
     @abc.abstractmethod
     def simulate(self):
@@ -204,8 +210,9 @@ class LayerModel(Model, utilities.ABC):
         override.
         """
 
-    def _create_return(self, x, E, ai=None, af=None, Ir=None,
-                       rettype='intensity'):
+    def _create_return(
+        self, x, E, ai=None, af=None, Ir=None, rettype="intensity"
+    ):
         """
         function to create the return value of a simulation. by default only
         the diffracted intensity is returned. However, optionally also the
@@ -234,32 +241,33 @@ class LayerModel(Model, utilities.ABC):
         -------
         return value depends on value of rettype.
         """
-        if rettype == 'field':
+        if rettype == "field":
             ret = E
-        elif rettype == 'all':
+        elif rettype == "all":
             ret = (E, numpy.degrees(ai), numpy.degrees(af), Ir)
         else:  # default: rettype == 'intensity'
             ret = self.scale_simulation(
-                self.convolute_resolution(x, numpy.abs(E)**2))
+                self.convolute_resolution(x, numpy.abs(E) ** 2)
+            )
         return ret
 
     def get_polarizations(self):
         """
         return list of polarizations which should be calculated
         """
-        if self.polarization == 'both':
-            return ('S', 'P')
-        return (self.polarization, )
+        if self.polarization == "both":
+            return ("S", "P")
+        return (self.polarization,)
 
     def join_polarizations(self, Is, Ip):
         """
         method to calculate the total diffracted intensity from the intensities
         of S and P-polarization.
         """
-        if self.polarization == 'both':
+        if self.polarization == "both":
             ret = (Is + self.Cmono * Ip) / (1 + self.Cmono)
         else:
-            if self.polarization == 'S':
+            if self.polarization == "S":
                 ret = Is
             else:
                 ret = Ip
@@ -291,9 +299,11 @@ class KinematicalModel(LayerModel):
             Experiment class containing geometry and energy of the experiment.
         """
         super().__init__(*args, **kwargs)
-        self.lstack_params += ['thickness', ]
+        self.lstack_params += [
+            "thickness",
+        ]
         self.lstack_structural_params = True
-        self.xlabelstr = r'momentum transfer $Q_z$ ($\mathrm{\AA^{-1}}$)'
+        self.xlabelstr = r"momentum transfer $Q_z$ ($\mathrm{\AA^{-1}}$)"
         # precalc optical properties
         self._init_en = 0
         self.init_chi0()
@@ -306,22 +316,23 @@ class KinematicalModel(LayerModel):
         thickness does NOT require this!)
         """
         if self._init_en != self.energy:  # recalc properties if energy changed
-            self.chi0 = numpy.asarray([layer.material.chi0(en=self.energy)
-                                       for layer in self.lstack])
+            self.chi0 = numpy.asarray(
+                [layer.material.chi0(en=self.energy) for layer in self.lstack]
+            )
             self._init_en = self.energy
 
     def _prepare_kincalculation(self, qz, hkl):
         """
         prepare kinematic calculation by calculating some helper values
         """
-        rel = constants.physical_constants['classical electron radius'][0]
+        rel = constants.physical_constants["classical electron radius"][0]
         rel *= 1e10
         k = self.exp.k0
 
         # determine q-inplane
         t = self.exp._transform
         ql0 = t(self.lstack[0].material.Q(*hkl))
-        qinp = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
+        qinp = numpy.sqrt(ql0[0] ** 2 + ql0[1] ** 2)
 
         # calculate needed angles
         qv = numpy.asarray([t.inverse((ql0[0], ql0[1], q)) for q in qz])
@@ -334,10 +345,14 @@ class KinematicalModel(LayerModel):
         fhkl = numpy.empty(len(self.lstack), dtype=complex)
         for i, layer in enumerate(self.lstack):
             m = layer.material
-            fhkl[i] = m.StructureFactor(m.Q(*hkl), en=self.energy) /\
-                m.lattice.UnitCellVolume()
-            f[i, :] = m.StructureFactorForQ(qv, en0=self.energy) /\
-                m.lattice.UnitCellVolume()
+            fhkl[i] = (
+                m.StructureFactor(m.Q(*hkl), en=self.energy)
+                / m.lattice.UnitCellVolume()
+            )
+            f[i, :] = (
+                m.StructureFactorForQ(qv, en0=self.energy)
+                / m.lattice.UnitCellVolume()
+            )
 
         E = numpy.zeros(len(qz), dtype=complex)
         return rel, alphai, alphaf, f, fhkl, E, t
@@ -346,15 +361,17 @@ class KinematicalModel(LayerModel):
         k = self.exp.k0
         q = qz.astype(complex)
         if absorption and not refraction:
-            q += 1j * k * numpy.imag(chi0) / \
-                numpy.sin((alphai + alphaf) / 2)
+            q += 1j * k * numpy.imag(chi0) / numpy.sin((alphai + alphaf) / 2)
         if refraction:
-            q = k * (numpy.sqrt(numpy.sin(alphai)**2 + chi0) +
-                     numpy.sqrt(numpy.sin(alphaf)**2 + chi0))
+            q = k * (
+                numpy.sqrt(numpy.sin(alphai) ** 2 + chi0)
+                + numpy.sqrt(numpy.sin(alphaf) ** 2 + chi0)
+            )
         return q
 
-    def simulate(self, qz, hkl, absorption=False, refraction=False,
-                 rettype='intensity'):
+    def simulate(
+        self, qz, hkl, absorption=False, refraction=False, rettype="intensity"
+    ):
         """
         performs the actual kinematical diffraction calculation on the Qz
         positions specified considering the contribution from a single Bragg
@@ -391,7 +408,7 @@ class KinematicalModel(LayerModel):
         # calculate interface positions
         z = numpy.zeros(len(self.lstack))
         for i, layer in enumerate(self.lstack[-1:0:-1]):
-            z[-i-2] = z[-i-1] - layer.thickness
+            z[-i - 2] = z[-i - 1] - layer.thickness
 
         # perform kinematical calculation
         for i, layer in enumerate(self.lstack):
@@ -401,11 +418,22 @@ class KinematicalModel(LayerModel):
             if layer.thickness == numpy.inf:
                 E += fhkl[i] * numpy.exp(-1j * z[i] * q) / (1j * q)
             else:
-                E += fhkl[i] * numpy.exp(-1j * q * z[i]) * \
-                    (1 - numpy.exp(1j * q * layer.thickness)) / (1j * q)
+                E += (
+                    fhkl[i]
+                    * numpy.exp(-1j * q * z[i])
+                    * (1 - numpy.exp(1j * q * layer.thickness))
+                    / (1j * q)
+                )
 
-        wf = numpy.sqrt(heaviside(ai) * heaviside(af) * rel**2 /
-                        (numpy.sin(ai) * numpy.sin(af))) * E
+        wf = (
+            numpy.sqrt(
+                heaviside(ai)
+                * heaviside(af)
+                * rel**2
+                / (numpy.sin(ai) * numpy.sin(af))
+            )
+            * E
+        )
         return self._create_return(qz, wf, ai, af, rettype=rettype)
 
 
@@ -437,11 +465,12 @@ class KinematicalMultiBeamModel(KinematicalModel):
         surface_hkl : list or tuple
             Miller indices of the surface (default: (0, 0, 1))
         """
-        self.surface_hkl = kwargs.pop('surface_hkl', (0, 0, 1))
+        self.surface_hkl = kwargs.pop("surface_hkl", (0, 0, 1))
         super().__init__(*args, **kwargs)
 
-    def simulate(self, qz, hkl, absorption=False, refraction=True,
-                 rettype='intensity'):
+    def simulate(
+        self, qz, hkl, absorption=False, refraction=True, rettype="intensity"
+    ):
         """
         performs the actual kinematical diffraction calculation on the Qz
         positions specified considering the contribution from a full
@@ -482,13 +511,15 @@ class KinematicalMultiBeamModel(KinematicalModel):
             lat = layer.material.lattice
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
             n3 = layer.thickness // a3
-            z[-i-2] = z[-i-1] - a3 * n3
-            if config.VERBOSITY >= config.INFO_LOW and \
-                    numpy.abs(layer.thickness/a3 - n3) > 0.01:
+            z[-i - 2] = z[-i - 1] - a3 * n3
+            if (
+                config.VERBOSITY >= config.INFO_LOW
+                and numpy.abs(layer.thickness / a3 - n3) > 0.01
+            ):
                 print(
-                    f'XU.KinematicMultiBeamModel: {layer.name} thickness '
-                    f'changed from {layer.thickness:.2f}A to {a3 * n3:.2f}A'
-                    f' ({n3} UCs)'
+                    f"XU.KinematicMultiBeamModel: {layer.name} thickness "
+                    f"changed from {layer.thickness:.2f}A to {a3 * n3:.2f}A"
+                    f" ({n3} UCs)"
                 )
 
         # perform kinematical calculation
@@ -498,16 +529,31 @@ class KinematicalMultiBeamModel(KinematicalModel):
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
 
             if layer.thickness == numpy.inf:
-                E += f[i, :] * a3 * numpy.exp(-1j * z[i] * q) /\
-                    (1 - numpy.exp(1j * q * a3))
+                E += (
+                    f[i, :]
+                    * a3
+                    * numpy.exp(-1j * z[i] * q)
+                    / (1 - numpy.exp(1j * q * a3))
+                )
             else:
                 n3 = layer.thickness // a3
-                E += f[i, :] * a3 * numpy.exp(-1j * z[i] * q) * \
-                    (1 - numpy.exp(1j * q * a3 * n3)) /\
-                    (1 - numpy.exp(1j * q * a3))
+                E += (
+                    f[i, :]
+                    * a3
+                    * numpy.exp(-1j * z[i] * q)
+                    * (1 - numpy.exp(1j * q * a3 * n3))
+                    / (1 - numpy.exp(1j * q * a3))
+                )
 
-        wf = numpy.sqrt(heaviside(ai) * heaviside(af) * rel**2 /
-                        (numpy.sin(ai) * numpy.sin(af))) * E
+        wf = (
+            numpy.sqrt(
+                heaviside(ai)
+                * heaviside(af)
+                * rel**2
+                / (numpy.sin(ai) * numpy.sin(af))
+            )
+            * E
+        )
         return self._create_return(qz, wf, ai, af, rettype=rettype)
 
 
@@ -559,11 +605,13 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             Experiment class containing geometry of the sample; surface
             orientation!
         """
-        if not hasattr(self, 'fit_paramnames'):
+        if not hasattr(self, "fit_paramnames"):
             self.fit_paramnames = []
-        self.fit_paramnames += ['Cmono', ]
+        self.fit_paramnames += [
+            "Cmono",
+        ]
         super().__init__(*args, **kwargs)
-        self.xlabelstr = 'incidence angle (deg)'
+        self.xlabelstr = "incidence angle (deg)"
         self.hkl = None
         self.chih = None
         self.chimh = None
@@ -578,7 +626,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         hkl :       list or tuple
             Miller indices of the Bragg peak for the calculation
         """
-        if hkl != (None, ):
+        if hkl != (None,):
             newhkl = []
             if len(hkl[0]) == len(self.lstack):
                 # assume one hkl is given for each layer
@@ -595,7 +643,9 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
                     hkl = hkl[0]
                 if len(hkl) < 3:
                     raise InputError("need 3 Miller indices")
-                newhkl = [hkl,] * len(self.lstack)
+                newhkl = [
+                    hkl,
+                ] * len(self.lstack)
             newhkl = numpy.asarray(newhkl)
         else:
             newhkl = self.hkl
@@ -605,23 +655,26 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             self._init_en = self.energy
 
             # calculate chih
-            self.chih = {'S': [], 'P': []}
-            self.chimh = {'S': [], 'P': []}
+            self.chih = {"S": [], "P": []}
+            self.chimh = {"S": [], "P": []}
             for hkl, lay in zip(self.hkl, self.lstack):
                 q = lay.material.Q(hkl)
                 thetaB = numpy.arcsin(numpy.linalg.norm(q) / 2 / self.exp.k0)
-                ch = lay.material.chih(q, en=self.energy, polarization='S')
-                self.chih['S'].append(-ch[0] + 1j*ch[1])
-                self.chih['P'].append((-ch[0] + 1j*ch[1]) *
-                                      numpy.abs(numpy.cos(2*thetaB)))
+                ch = lay.material.chih(q, en=self.energy, polarization="S")
+                self.chih["S"].append(-ch[0] + 1j * ch[1])
+                self.chih["P"].append(
+                    (-ch[0] + 1j * ch[1]) * numpy.abs(numpy.cos(2 * thetaB))
+                )
                 if not lay.material.lattice.iscentrosymmetric:
-                    ch = lay.material.chih(-q, en=self.energy,
-                                           polarization='S')
-                self.chimh['S'].append(-ch[0] + 1j*ch[1])
-                self.chimh['P'].append((-ch[0] + 1j*ch[1]) *
-                                       numpy.abs(numpy.cos(2*thetaB)))
+                    ch = lay.material.chih(
+                        -q, en=self.energy, polarization="S"
+                    )
+                self.chimh["S"].append(-ch[0] + 1j * ch[1])
+                self.chimh["P"].append(
+                    (-ch[0] + 1j * ch[1]) * numpy.abs(numpy.cos(2 * thetaB))
+                )
 
-            for pol in ('S', 'P'):
+            for pol in ("S", "P"):
                 self.chih[pol] = numpy.asarray(self.chih[pol])
                 self.chimh[pol] = numpy.asarray(self.chimh[pol])
 
@@ -632,8 +685,8 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         t = self.exp._transform
         # use hkl of substrate
         ql0 = t(self.lstack[0].material.Q(*self.hkl[0]))
-        hx = numpy.sqrt(ql0[0]**2 + ql0[1]**2)
-        if geometry == 'lo_hi':
+        hx = numpy.sqrt(ql0[0] ** 2 + ql0[1] ** 2)
+        if geometry == "lo_hi":
             hx = -hx
 
         # calculate vertical diffraction vector components and strain
@@ -642,7 +695,7 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
             hz[i] = t(layer.material.Q(*hkl))[2]
         return t, hx, hz
 
-    def simulate(self, alphai, hkl=None, geometry='hi_lo', idxref=1):
+    def simulate(self, alphai, hkl=None, geometry="hi_lo", idxref=1):
         """
         performs the actual diffraction calculation for the specified
         incidence angles.
@@ -670,13 +723,13 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         self.set_hkl(hkl)
 
         # return values
-        Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
+        Ih = {"S": numpy.zeros(len(alphai)), "P": numpy.zeros(len(alphai))}
 
         _, hx, hz = self._prepare_dyncalculation(geometry)
         epsilon = (hz[idxref] - hz) / hz
 
         k = self.exp.k0
-        thetaB = numpy.arcsin(numpy.sqrt(hx**2 + hz[idxref]**2) / 2 / k)
+        thetaB = numpy.arcsin(numpy.sqrt(hx**2 + hz[idxref] ** 2) / 2 / k)
         # asymmetry angle
         asym = numpy.arctan2(hx, hz[idxref])
         gamma0 = numpy.sin(asym + thetaB)
@@ -689,36 +742,54 @@ class SimpleDynamicalCoplanarModel(KinematicalModel):
         for pol in self.get_polarizations():
             x = numpy.zeros(len(alphai), dtype=complex)
             for i, layer in enumerate(self.lstack):
-                beta = (2 * eta * numpy.sin(2 * thetaB) +
-                        self.chi0[i] * (1 - gammah / gamma0) -
-                        2 * gammah * (gamma0 - gammah) * epsilon[i])
-                y = beta / 2 / numpy.sqrt(self.chih[pol][i] *
-                                          self.chimh[pol][i]) /\
-                    numpy.sqrt(numpy.abs(gammah) / gamma0)
-                c1 = -numpy.sqrt(self.chih[pol][i] / self.chih[pol][i] *
-                                 gamma0 / numpy.abs(gammah)) *\
-                    (y + numpy.sqrt(y**2 - 1))
-                c2 = -numpy.sqrt(self.chih[pol][i] / self.chimh[pol][i] *
-                                 gamma0 / numpy.abs(gammah)) *\
-                    (y - numpy.sqrt(y**2 - 1))
-                kz2mkz1 = k * numpy.sqrt(self.chih[pol][i] *
-                                         self.chimh[pol][i] / gamma0 /
-                                         numpy.abs(gammah)) *\
-                    numpy.sqrt(y**2 - 1)
+                beta = (
+                    2 * eta * numpy.sin(2 * thetaB)
+                    + self.chi0[i] * (1 - gammah / gamma0)
+                    - 2 * gammah * (gamma0 - gammah) * epsilon[i]
+                )
+                y = (
+                    beta
+                    / 2
+                    / numpy.sqrt(self.chih[pol][i] * self.chimh[pol][i])
+                    / numpy.sqrt(numpy.abs(gammah) / gamma0)
+                )
+                c1 = -numpy.sqrt(
+                    self.chih[pol][i]
+                    / self.chih[pol][i]
+                    * gamma0
+                    / numpy.abs(gammah)
+                ) * (y + numpy.sqrt(y**2 - 1))
+                c2 = -numpy.sqrt(
+                    self.chih[pol][i]
+                    / self.chimh[pol][i]
+                    * gamma0
+                    / numpy.abs(gammah)
+                ) * (y - numpy.sqrt(y**2 - 1))
+                kz2mkz1 = (
+                    k
+                    * numpy.sqrt(
+                        self.chih[pol][i]
+                        * self.chimh[pol][i]
+                        / gamma0
+                        / numpy.abs(gammah)
+                    )
+                    * numpy.sqrt(y**2 - 1)
+                )
                 if i == 0:  # substrate
-                    pp = numpy.abs(gammah) / gamma0 * numpy.abs(c1)**2
+                    pp = numpy.abs(gammah) / gamma0 * numpy.abs(c1) ** 2
                     m = pp < 1
                     x[m] = c1[m]
                     m = pp >= 1
                     x[m] = c2[m]
                 else:  # layers
                     cphi = numpy.exp(1j * kz2mkz1 * layer.thickness)
-                    x = (c1 * c2 * (cphi - 1) + xs * (c1 - cphi * c2)) /\
-                        (cphi * c1 - c2 + xs * (1 - cphi))
+                    x = (c1 * c2 * (cphi - 1) + xs * (c1 - cphi * c2)) / (
+                        cphi * c1 - c2 + xs * (1 - cphi)
+                    )
                 xs = x
-            Ih[pol] = numpy.abs(x)**2 * numpy.abs(gammah) / gamma0
+            Ih[pol] = numpy.abs(x) ** 2 * numpy.abs(gammah) / gamma0
 
-        ret = self.join_polarizations(Ih['S'], Ih['P'])
+        ret = self.join_polarizations(Ih["S"], Ih["P"])
         return self.scale_simulation(self.convolute_resolution(alphai, ret))
 
 
@@ -734,8 +805,9 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
     substrate indepentent of its given thickness
     """
 
-    def simulate(self, alphai, hkl=None, geometry='hi_lo',
-                 rettype='intensity'):
+    def simulate(
+        self, alphai, hkl=None, geometry="hi_lo", rettype="intensity"
+    ):
         """
         performs the actual diffraction calculation for the specified
         incidence angles and uses an analytic solution for the quartic
@@ -765,14 +837,16 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
             return value due the rettype setting!
         """
         if len(self.get_polarizations()) > 1 and rettype != "intensity":
-            raise ValueError('XU:DynamicalModel: return type (%s) not '
-                             'supported with multiple polarizations!')
-            rettype = 'intensity'
+            raise ValueError(
+                "XU:DynamicalModel: return type (%s) not "
+                "supported with multiple polarizations!"
+            )
+            rettype = "intensity"
         self.set_hkl(hkl)
 
         # return values
-        Ih = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
-        Ir = {'S': numpy.zeros(len(alphai)), 'P': numpy.zeros(len(alphai))}
+        Ih = {"S": numpy.zeros(len(alphai)), "P": numpy.zeros(len(alphai))}
+        Ir = {"S": numpy.zeros(len(alphai)), "P": numpy.zeros(len(alphai))}
 
         _, hx, hz = self._prepare_dyncalculation(geometry)
 
@@ -781,7 +855,7 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         ai = numpy.radians(alphai)
         Kix = k * numpy.cos(ai)
         Kiz = -k * numpy.sin(ai)
-        Khz = numpy.sqrt(k**2 - (Kix + hx)**2)
+        Khz = numpy.sqrt(k**2 - (Kix + hx) ** 2)
         pp = Khz / k
         mask = numpy.logical_and(pp > 0, pp < 1)
         ah = numpy.zeros(len(ai))  # exit angles
@@ -790,13 +864,13 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
         nal = len(ai)
         Ps = None  # make linter happy
         for pol in self.get_polarizations():
-            if pol == 'S':
+            if pol == "S":
                 CC = numpy.ones(nal)
             else:
-                CC = abs(numpy.cos(ai+ah))
-            pom = k**4 * self.chih['S'] * self.chimh['S']
+                CC = abs(numpy.cos(ai + ah))
+            pom = k**4 * self.chih["S"] * self.chimh["S"]
             if config.VERBOSITY >= config.INFO_ALL:
-                print(f'XU.DynamicalModel: calc. {pol}-polarization...')
+                print(f"XU.DynamicalModel: calc. {pol}-polarization...")
 
             M = numpy.zeros((nal, 4, 4), dtype=complex)
             for j in range(4):
@@ -806,10 +880,11 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                 jL = len(self.lstack) - 1 - i
                 A4 = numpy.ones(nal)
                 A3 = 2 * hz[jL] * numpy.ones(nal)
-                A2 = (Kix + hx)**2 + hz[jL]**2 + Kix**2 - 2 * kc[jL]**2
-                A1 = 2 * hz[jL] * (Kix**2 - kc[jL]**2)
-                A0 = (Kix**2 - kc[jL]**2) *\
-                     ((Kix + hx)**2 + hz[jL]**2 - kc[jL]**2) - pom[jL] * CC**2
+                A2 = (Kix + hx) ** 2 + hz[jL] ** 2 + Kix**2 - 2 * kc[jL] ** 2
+                A1 = 2 * hz[jL] * (Kix**2 - kc[jL] ** 2)
+                A0 = (Kix**2 - kc[jL] ** 2) * (
+                    (Kix + hx) ** 2 + hz[jL] ** 2 - kc[jL] ** 2
+                ) - pom[jL] * CC**2
                 X = solve_quartic(A4, A3, A2, A1, A0)
                 X = numpy.asarray(X).T
 
@@ -819,8 +894,12 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
 
                 P = numpy.zeros((nal, 4, 4), dtype=complex)
                 phi = numpy.zeros((nal, 4, 4), dtype=complex)
-                c = ((Kix**2)[:, numpy.newaxis] + kz**2 - kc[jL]**2) / k**2 /\
-                    self.chimh['S'][jL] / CC[:, numpy.newaxis]
+                c = (
+                    ((Kix**2)[:, numpy.newaxis] + kz**2 - kc[jL] ** 2)
+                    / k**2
+                    / self.chimh["S"][jL]
+                    / CC[:, numpy.newaxis]
+                )
                 if jL > 0:
                     for j in range(4):
                         phi[:, j, j] = numpy.exp(
@@ -840,12 +919,13 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
                     try:
                         R = numpy.matmul(temp, P)
                     except AttributeError:
-                        R = numpy.einsum('...ij,...jk', temp, P)
+                        R = numpy.einsum("...ij,...jk", temp, P)
                 try:
                     M = numpy.matmul(numpy.matmul(M, R), phi)
                 except AttributeError:
-                    M = numpy.einsum('...ij,...jk',
-                                     numpy.einsum('...ij,...jk', M, R), phi)
+                    M = numpy.einsum(
+                        "...ij,...jk", numpy.einsum("...ij,...jk", M, R), phi
+                    )
                 Ps = numpy.copy(P)
 
             B = numpy.zeros((nal, 4, 4), dtype=complex)
@@ -858,12 +938,12 @@ class DynamicalModel(SimpleDynamicalCoplanarModel):
             C[:, 0] = numpy.ones(nal)
             C[:, 2] = Kiz
 
-            E = numpy.einsum('...ij,...j', numpy.linalg.inv(B), C)
-            Ir[pol] = numpy.abs(E[:, 2])**2  # reflected intensity
-            Ih[pol] = numpy.abs(E[:, 3])**2 * numpy.abs(Khz / Kiz) * mask
+            E = numpy.einsum("...ij,...j", numpy.linalg.inv(B), C)
+            Ir[pol] = numpy.abs(E[:, 2]) ** 2  # reflected intensity
+            Ih[pol] = numpy.abs(E[:, 3]) ** 2 * numpy.abs(Khz / Kiz) * mask
 
         if len(self.get_polarizations()) > 1 and rettype == "intensity":
-            ret = numpy.sqrt(self.join_polarizations(Ih['S'], Ih['P']))
+            ret = numpy.sqrt(self.join_polarizations(Ih["S"], Ih["P"]))
         else:
             ret = E[:, 3] * numpy.sqrt(numpy.abs(Khz / Kiz) * mask)
 
@@ -906,19 +986,21 @@ class SpecularReflectivityModel(LayerModel):
         energy :    float or str
             x-ray energy  in eV
         """
-        if not hasattr(self, 'fit_paramnames'):
+        if not hasattr(self, "fit_paramnames"):
             self.fit_paramnames = []
-        self.fit_paramnames += ['sample_width', 'beam_width', 'offset']
-        self.sample_width = kwargs.pop('sample_width', numpy.inf)
-        self.beam_width = kwargs.pop('beam_width', 0)
-        self.beam_shape = kwargs.pop('beam_shape', 'hat')
-        if self.beam_shape not in ['hat', 'gaussian']:
-            raise ValueError("invalid value for keyword argument beam_shape:"
-                             "valid are 'hat' and 'gaussian'")
-        self.offset = kwargs.pop('offset', 0)
+        self.fit_paramnames += ["sample_width", "beam_width", "offset"]
+        self.sample_width = kwargs.pop("sample_width", numpy.inf)
+        self.beam_width = kwargs.pop("beam_width", 0)
+        self.beam_shape = kwargs.pop("beam_shape", "hat")
+        if self.beam_shape not in ["hat", "gaussian"]:
+            raise ValueError(
+                "invalid value for keyword argument beam_shape:"
+                "valid are 'hat' and 'gaussian'"
+            )
+        self.offset = kwargs.pop("offset", 0)
         super().__init__(*args, **kwargs)
-        self.lstack_params += ['thickness', 'roughness', 'density']
-        self.xlabelstr = 'incidence angle (deg)'
+        self.lstack_params += ["thickness", "roughness", "density"]
+        self.xlabelstr = "incidence angle (deg)"
         # precalc optical properties
         self._init_en = 0
         self.init_cd()
@@ -931,8 +1013,12 @@ class SpecularReflectivityModel(LayerModel):
         thickness and roughness do NOT require this!)
         """
         if self._init_en != self.energy:
-            self.cd = numpy.asarray([-layer.material.chi0(en=self.energy)/2
-                                     for layer in self.lstack])
+            self.cd = numpy.asarray(
+                [
+                    -layer.material.chi0(en=self.energy) / 2
+                    for layer in self.lstack
+                ]
+            )
             self._init_en = self.energy
 
     def simulate(self, alphai):
@@ -956,18 +1042,24 @@ class SpecularReflectivityModel(LayerModel):
         # get layer properties
         t = numpy.asarray([layer.thickness for layer in self.lstack])
         sig = numpy.asarray([layer.roughness for layer in self.lstack])
-        rho = numpy.asarray([layer.density/layer.material.density
-                             for layer in self.lstack])
+        rho = numpy.asarray(
+            [layer.density / layer.material.density for layer in self.lstack]
+        )
 
         sai = numpy.sin(numpy.radians(lai))
 
         if self.beam_width > 0:
-            if self.beam_shape == 'hat':
+            if self.beam_shape == "hat":
                 shape = self.sample_width * sai / self.beam_width
                 shape[shape > 1] = 1
             else:
-                shape = erf(self.sample_width * sai / 2 / pymath.sqrt(2) /
-                            self.beam_width)
+                shape = erf(
+                    self.sample_width
+                    * sai
+                    / 2
+                    / pymath.sqrt(2)
+                    / self.beam_width
+                )
         else:
             shape = numpy.ones(np)
 
@@ -976,21 +1068,22 @@ class SpecularReflectivityModel(LayerModel):
         ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * self.cd[0] * rho[0])
 
         for i in range(ns):
-            if i < ns-1:
-                k = -self.exp.k0 * numpy.sqrt(sai**2 - 2 *
-                                              self.cd[i+1] * rho[i+1])
-                phi = numpy.exp(1j * k * t[i+1])
+            if i < ns - 1:
+                k = -self.exp.k0 * numpy.sqrt(
+                    sai**2 - 2 * self.cd[i + 1] * rho[i + 1]
+                )
+                phi = numpy.exp(1j * k * t[i + 1])
             else:
                 k = -self.exp.k0 * sai
                 phi = numpy.ones(np)
-            r = (k - ks) / (k + ks) * numpy.exp(-2 * sig[i]**2 * k * ks)
+            r = (k - ks) / (k + ks) * numpy.exp(-2 * sig[i] ** 2 * k * ks)
             ET = phi * (ETs + r * ERs)
             ER = (r * ETs + ERs) / phi
             ETs = ET
             ERs = ER
             ks = k
 
-        R = shape * abs(ER / ET)**2
+        R = shape * abs(ER / ET) ** 2
         return self.scale_simulation(self.convolute_resolution(lai, R))
 
     def densityprofile(self, nz, plot=False, individual_layers=False):
@@ -1024,18 +1117,20 @@ class SpecularReflectivityModel(LayerModel):
             except ImportError:
                 plot = False
                 if config.VERBOSITY >= config.INFO_LOW:
-                    print("XU.simpack: Warning: plot "
-                          "functionality not available")
+                    print(
+                        "XU.simpack: Warning: plot functionality not available"
+                    )
 
-        rel = constants.physical_constants['classical electron radius'][0]
+        rel = constants.physical_constants["classical electron radius"][0]
         rel *= 1e10
         nl = len(self.lstack)
 
         # get layer properties
         t = numpy.asarray([layer.thickness for layer in self.lstack])
         sig = numpy.asarray([layer.roughness for layer in self.lstack])
-        rho = numpy.asarray([layer.density/layer.material.density
-                             for layer in self.lstack])
+        rho = numpy.asarray(
+            [layer.density / layer.material.density for layer in self.lstack]
+        )
         delta = numpy.real(self.cd)
 
         totT = numpy.sum(t[1:])
@@ -1049,9 +1144,9 @@ class SpecularReflectivityModel(LayerModel):
         zz = numpy.zeros(nl)
         dr = numpy.zeros(nl)
         dr[-1] = delta[-1] * rho[-1] * pre_factor
-        for i in range(nl-1, 0, -1):
-            zz[i-1] = zz[i] - t[i]
-            dr[i-1] = delta[i-1] * rho[i-1] * pre_factor
+        for i in range(nl - 1, 0, -1):
+            zz[i - 1] = zz[i] - t[i]
+            dr[i - 1] = delta[i - 1] * rho[i - 1] * pre_factor
 
         # calculate profile from contribution of all layers
         w = numpy.zeros((nl, nz))
@@ -1066,8 +1161,8 @@ class SpecularReflectivityModel(LayerModel):
                 zdownint = zz[0] - t[0]
                 sigint = 0
             else:
-                zdownint = zz[i-1]
-                sigint = sig[i-1]
+                zdownint = zz[i - 1]
+                sigint = sig[i - 1]
             if pymath.isclose(sigint, 0):
                 sdown = numpy.heaviside(zdownint - z, 0.5)
             else:
@@ -1078,12 +1173,12 @@ class SpecularReflectivityModel(LayerModel):
         prof = numpy.sum(layer_prof, axis=0)
 
         if plot:
-            plt.figure('XU:density_profile', figsize=(5, 3))
+            plt.figure("XU:density_profile", figsize=(5, 3))
             for i, layer in enumerate(self.lstack):
-                plt.plot(z, layer_prof[i, :], ':r', lw=1, label=layer.name)
-            plt.plot(z, prof, '-k', lw=2, label='electron density')
-            plt.xlabel(r'z ($\mathrm{\AA}$)')
-            plt.ylabel(r'electron density (e$^-$ cm$^{-3}$)')
+                plt.plot(z, layer_prof[i, :], ":r", lw=1, label=layer.name)
+            plt.plot(z, prof, "-k", lw=2, label="electron density")
+            plt.xlabel(r"z ($\mathrm{\AA}$)")
+            plt.ylabel(r"electron density (e$^-$ cm$^{-3}$)")
             plt.tight_layout()
 
         if individual_layers:
@@ -1125,7 +1220,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         polarization:   ['P', 'S']
             x-ray polarization
         """
-        kwargs.setdefault('polarization', 'P')
+        kwargs.setdefault("polarization", "P")
         super().__init__(*args, **kwargs)
         self._init_en_opt = 0
         self._setOpticalConstants()
@@ -1133,8 +1228,11 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
     def _setOpticalConstants(self):
         if self._init_en_opt != self.energy:
             self.n_indices = numpy.asarray(
-                [layer.material.idx_refraction(en=self.energy)
-                 for layer in self.lstack])
+                [
+                    layer.material.idx_refraction(en=self.energy)
+                    for layer in self.lstack
+                ]
+            )
             # append n = 1 for vacuum
             self.n_indices = numpy.append(self.n_indices, 1)[::-1]
             self._init_en_opt = self.energy
@@ -1146,66 +1244,125 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         # Set heights for each layer
         heights = numpy.asarray([layer.thickness for layer in self.lstack[1:]])
         heights = numpy.cumsum(heights)[::-1]
-        heights = numpy.insert(heights, 0, 0.)  # first interface is at z=0
+        heights = numpy.insert(heights, 0, 0.0)  # first interface is at z=0
 
         # set K-vector in each layer
-        kz_angles = -self.exp.k0 * numpy.sqrt(numpy.asarray(
-            [n**2 - numpy.cos(numpy.radians(alphai))**2
-             for n in self.n_indices]).T)
+        kz_angles = -self.exp.k0 * numpy.sqrt(
+            numpy.asarray(
+                [
+                    n**2 - numpy.cos(numpy.radians(alphai)) ** 2
+                    for n in self.n_indices
+                ]
+            ).T
+        )
 
         # set Roughness for each layer
-        roughness = numpy.asarray([layer.roughness
-                                   for layer in self.lstack[1:]])[::-1]
-        roughness = numpy.insert(roughness, 0, 0.)  # first interface is at z=0
+        roughness = numpy.asarray(
+            [layer.roughness for layer in self.lstack[1:]]
+        )[::-1]
+        roughness = numpy.insert(
+            roughness, 0, 0.0
+        )  # first interface is at z=0
 
         # Roughness is approximated by a Gaussian Statistics model modification
         # of the transfer matrix elements using Groce-Nevot factors (GNF).
 
         GNF_factor_P = numpy.asarray(
-            [[numpy.exp(-(kz_next - kz)**2 * (rough**2) / 2)
-              for (kz, kz_next, rough) in zip(kz_1angle, kz_1angle[1:],
-                                              roughness[1:])]
-             for kz_1angle in kz_angles])
+            [
+                [
+                    numpy.exp(-((kz_next - kz) ** 2) * (rough**2) / 2)
+                    for (kz, kz_next, rough) in zip(
+                        kz_1angle, kz_1angle[1:], roughness[1:]
+                    )
+                ]
+                for kz_1angle in kz_angles
+            ]
+        )
 
         GNF_factor_M = numpy.asarray(
-            [[numpy.exp(-(kz_next + kz) ** 2 * (rough ** 2) / 2)
-              for (kz, kz_next, rough) in zip(kz_1angle, kz_1angle[1:],
-                                              roughness[1:])]
-             for kz_1angle in kz_angles])
+            [
+                [
+                    numpy.exp(-((kz_next + kz) ** 2) * (rough**2) / 2)
+                    for (kz, kz_next, rough) in zip(
+                        kz_1angle, kz_1angle[1:], roughness[1:]
+                    )
+                ]
+                for kz_1angle in kz_angles
+            ]
+        )
 
-        if self.polarization == 'S':
+        if self.polarization == "S":
             p_factor_angles = numpy.asarray(
-                [[(kz + kz_next) / (2 * kz)
-                  for kz, kz_next in zip(kz_1angle, kz_1angle[1:])]
-                 for kz_1angle in kz_angles])
+                [
+                    [
+                        (kz + kz_next) / (2 * kz)
+                        for kz, kz_next in zip(kz_1angle, kz_1angle[1:])
+                    ]
+                    for kz_1angle in kz_angles
+                ]
+            )
 
             m_factor_angles = numpy.asarray(
-                [[(kz - kz_next) / (2 * kz)
-                  for kz, kz_next in zip(kz_1angle, kz_1angle[1:])]
-                 for kz_1angle in kz_angles])
+                [
+                    [
+                        (kz - kz_next) / (2 * kz)
+                        for kz, kz_next in zip(kz_1angle, kz_1angle[1:])
+                    ]
+                    for kz_1angle in kz_angles
+                ]
+            )
         else:
             p_factor_angles = numpy.asarray(
-                [[(n_next**2*kz + n**2*kz_next) / (2*n_next**2*kz)
-                  for (kz, kz_next, n, n_next) in zip(kz_1angle, kz_1angle[1:],
-                                                      self.n_indices,
-                                                      self.n_indices[1:])]
-                 for kz_1angle in kz_angles])
+                [
+                    [
+                        (n_next**2 * kz + n**2 * kz_next)
+                        / (2 * n_next**2 * kz)
+                        for (kz, kz_next, n, n_next) in zip(
+                            kz_1angle,
+                            kz_1angle[1:],
+                            self.n_indices,
+                            self.n_indices[1:],
+                        )
+                    ]
+                    for kz_1angle in kz_angles
+                ]
+            )
             m_factor_angles = numpy.asarray(
-                [[(n_next**2*kz - n**2*kz_next) / (2*n_next**2*kz)
-                  for (kz, kz_next, n, n_next) in zip(kz_1angle, kz_1angle[1:],
-                                                      self.n_indices,
-                                                      self.n_indices[1:])]
-                 for kz_1angle in kz_angles])
+                [
+                    [
+                        (n_next**2 * kz - n**2 * kz_next)
+                        / (2 * n_next**2 * kz)
+                        for (kz, kz_next, n, n_next) in zip(
+                            kz_1angle,
+                            kz_1angle[1:],
+                            self.n_indices,
+                            self.n_indices[1:],
+                        )
+                    ]
+                    for kz_1angle in kz_angles
+                ]
+            )
 
         # Translation Matrices dim = (angle, layer, 2, 2)
         T_matrices = numpy.asarray(
-            [[([numpy.exp(-1.j*kz*height), 0], [0, numpy.exp(1.j*kz*height)])
-              for kz, height in zip(kz_1angle, heights)]
-             for kz_1angle in kz_angles])
+            [
+                [
+                    (
+                        [numpy.exp(-1.0j * kz * height), 0],
+                        [0, numpy.exp(1.0j * kz * height)],
+                    )
+                    for kz, height in zip(kz_1angle, heights)
+                ]
+                for kz_1angle in kz_angles
+            ]
+        )
 
         R_matrices = numpy.asarray(
-            [[([p, m], [m, p]) for p, m in zip(P_fact, M_fact)]
-             for (P_fact, M_fact) in zip(p_factor_angles, m_factor_angles)])
+            [
+                [([p, m], [m, p]) for p, m in zip(P_fact, M_fact)]
+                for (P_fact, M_fact) in zip(p_factor_angles, m_factor_angles)
+            ]
+        )
 
         for R_mat, GNF_P, GNF_M in zip(R_matrices, GNF_factor_P, GNF_factor_M):
             R_mat[0, 0] = R_mat[0, 0] * GNF_P
@@ -1235,8 +1392,8 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         self._setOpticalConstants()
         lai = alphai - self.offset
         # Get Refraction and Translation Matrices for each angle of incidence
-        if lai[0] < 1.e-5:
-            lai[0] = 1.e-5  # cutoff
+        if lai[0] < 1.0e-5:
+            lai[0] = 1.0e-5  # cutoff
 
         T_matrices, R_matrices = self._getTransferMatrices(lai)
 
@@ -1250,8 +1407,10 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
             M_angles[angle] = M
 
         # Reflectance and Transmittance
-        R = numpy.array([numpy.abs((M[0, 1] / M[1, 1]))**2 for M in M_angles])
-        T = numpy.array([numpy.abs((1. / M[1, 1]))**2 for M in M_angles])
+        R = numpy.array(
+            [numpy.abs((M[0, 1] / M[1, 1])) ** 2 for M in M_angles]
+        )
+        T = numpy.array([numpy.abs((1.0 / M[1, 1])) ** 2 for M in M_angles])
 
         return R, T
 
@@ -1288,7 +1447,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
             for pair in pairwiseRT:
                 M = numpy.dot(M, pair)
             R = numpy.abs(M[0, 1] / M[1, 1]) ** 2
-            T = numpy.abs(1. / M[1, 1]) ** 2
+            T = numpy.abs(1.0 / M[1, 1]) ** 2
             R_energies = numpy.append(R_energies, R)
             T_energies = numpy.append(T_energies, T)
         return R_energies, T_energies
@@ -1351,19 +1510,30 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         # get layer properties
         t = numpy.asarray([layer.thickness for layer in self.lstack])
         sig = numpy.asarray([layer.roughness for layer in self.lstack])
-        rho = numpy.asarray([layer.density/layer.material.density
-                             for layer in self.lstack])
+        rho = numpy.asarray(
+            [layer.density / layer.material.density for layer in self.lstack]
+        )
         cd = self.cd
-        qzvec = 4 * numpy.pi * numpy.sin(numpy.radians(lai)) /\
-            utilities.en2lam(self.energy)
-        qvec = numpy.array([[0., 0., qz] for qz in qzvec])
+        qzvec = (
+            4
+            * numpy.pi
+            * numpy.sin(numpy.radians(lai))
+            / utilities.en2lam(self.energy)
+        )
+        qvec = numpy.array([[0.0, 0.0, qz] for qz in qzvec])
         chihP = numpy.array(
-            [[layer.material.chih(q, en=self.energy,
-                                  polarization=self.polarization)
-              for q in qvec]
-             for layer in self.lstack])
+            [
+                [
+                    layer.material.chih(
+                        q, en=self.energy, polarization=self.polarization
+                    )
+                    for q in qvec
+                ]
+                for layer in self.lstack
+            ]
+        )
 
-        if self.polarization in ['S', 'P']:
+        if self.polarization in ["S", "P"]:
             cd = cd + chihP
         else:
             cd = cd
@@ -1381,20 +1551,22 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
         ks = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[0] * rho[0])
 
         for i in range(ns):
-            if i < ns-1:
-                k = -self.exp.k0 * numpy.sqrt(sai**2 - 2 * cd[i+1] * rho[i+1])
-                phi = numpy.exp(1j * k * t[i+1])
+            if i < ns - 1:
+                k = -self.exp.k0 * numpy.sqrt(
+                    sai**2 - 2 * cd[i + 1] * rho[i + 1]
+                )
+                phi = numpy.exp(1j * k * t[i + 1])
             else:
                 k = -self.exp.k0 * sai
                 phi = numpy.ones(np)
-            r = (k - ks) / (k + ks) * numpy.exp(-2 * sig[i]**2 * k * ks)
+            r = (k - ks) / (k + ks) * numpy.exp(-2 * sig[i] ** 2 * k * ks)
             ET = phi * (ETs + r * ERs)
             ER = (r * ETs + ERs) / phi
             ETs = ET
             ERs = ER
             ks = k
 
-        R = shape * abs(ER / ET)**2
+        R = shape * abs(ER / ET) ** 2
         return self.scale_simulation(self.convolute_resolution(lai, R))
 
 
@@ -1452,17 +1624,19 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             method 2 it is important to avoid exact 0 and this value will be
             used instead
         """
-        if not hasattr(self, 'fit_paramnames'):
+        if not hasattr(self, "fit_paramnames"):
             self.fit_paramnames = []
-        self.fit_paramnames += ['H', 'vert_correl', 'vert_nu']
-        self.H = kwargs.pop('H', 1)
-        self.vert_correl = kwargs.pop('vert_correl', 0)
-        self.vert_nu = kwargs.pop('vert_nu', 0)
-        self.method = kwargs.pop('method', 1)
-        self.vert = kwargs.pop('vert_int', 0)
-        self.qL_zero = kwargs.pop('qL_zero', 5e-5)
+        self.fit_paramnames += ["H", "vert_correl", "vert_nu"]
+        self.H = kwargs.pop("H", 1)
+        self.vert_correl = kwargs.pop("vert_correl", 0)
+        self.vert_nu = kwargs.pop("vert_nu", 0)
+        self.method = kwargs.pop("method", 1)
+        self.vert = kwargs.pop("vert_int", 0)
+        self.qL_zero = kwargs.pop("qL_zero", 5e-5)
         super().__init__(*args, **kwargs)
-        self.lstack_params += ['lat_correl', ]
+        self.lstack_params += [
+            "lat_correl",
+        ]
 
     def _get_layer_prop(self):
         """
@@ -1472,11 +1646,14 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         nl = len(self.lstack)
         self.init_cd()
 
-        t = numpy.asarray([float(layer.thickness)
-                           for layer in self.lstack[nl:0:-1]])
+        t = numpy.asarray(
+            [float(layer.thickness) for layer in self.lstack[nl:0:-1]]
+        )
         sig = [float(layer.roughness) for layer in self.lstack[nl::-1]]
-        rho = [layer.density/layer.material.density
-               for layer in self.lstack[nl::-1]]
+        rho = [
+            layer.density / layer.material.density
+            for layer in self.lstack[nl::-1]
+        ]
         delta = self.cd * numpy.asarray(rho)
         xiL = [float(layer.lat_correl) for layer in self.lstack[nl::-1]]
 
@@ -1502,17 +1679,36 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         # get layer properties
         t, sig, _, delta, xiL = self._get_layer_prop()
 
-        deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
+        deltaA = numpy.sum(delta[:-1] * t) / numpy.sum(t)
         lam = utilities.en2lam(self.energy)
         if self.method == 2:
             qL = [-abs(self.qL_zero), abs(self.qL_zero)]
         else:
-            qL = [0, ]
+            qL = [
+                0,
+            ]
         qz = 4 * numpy.pi / lam * numpy.sin(numpy.radians(lai))
-        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.vert_correl,
-                            self.vert_nu, None, qL, qz, self.sample_width,
-                            self.beam_width, 1e-4, 1000, deltaA, self.method,
-                            1, self.vert)
+        R = self._xrrdiffv2(
+            lam,
+            delta,
+            t,
+            sig,
+            xiL,
+            self.H,
+            self.vert_correl,
+            self.vert_nu,
+            None,
+            qL,
+            qz,
+            self.sample_width,
+            self.beam_width,
+            1e-4,
+            1000,
+            deltaA,
+            self.method,
+            1,
+            self.vert,
+        )
         R = R.mean(axis=0)
         return self.scale_simulation(self.convolute_resolution(lai, R))
 
@@ -1539,21 +1735,57 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         # get layer properties
         t, sig, _, delta, xiL = self._get_layer_prop()
 
-        deltaA = numpy.sum(delta[:-1]*t)/numpy.sum(t)
+        deltaA = numpy.sum(delta[:-1] * t) / numpy.sum(t)
         lam = utilities.en2lam(self.energy)
         localqL = numpy.copy(qL)
         if self.method == 2:
             localqL[qL == 0] = self.qL_zero
 
-        R = self._xrrdiffv2(lam, delta, t, sig, xiL, self.H, self.vert_correl,
-                            self.vert_nu, None, localqL, qz, self.sample_width,
-                            self.beam_width, 1e-4, 1000, deltaA, self.method,
-                            1, self.vert)
+        R = self._xrrdiffv2(
+            lam,
+            delta,
+            t,
+            sig,
+            xiL,
+            self.H,
+            self.vert_correl,
+            self.vert_nu,
+            None,
+            localqL,
+            qz,
+            self.sample_width,
+            self.beam_width,
+            1e-4,
+            1000,
+            deltaA,
+            self.method,
+            1,
+            self.vert,
+        )
         return self.scale_simulation(R)
 
-    def _xrrdiffv2(self, lam, delta, thick, sigma, xiL, H, xiV, nu, alphai, qL,
-                   qz, samplewidth, beamwidth, eps, nmax, deltaA, method, scan,
-                   vert):
+    def _xrrdiffv2(
+        self,
+        lam,
+        delta,
+        thick,
+        sigma,
+        xiL,
+        H,
+        xiV,
+        nu,
+        alphai,
+        qL,
+        qz,
+        samplewidth,
+        beamwidth,
+        eps,
+        nmax,
+        deltaA,
+        method,
+        scan,
+        vert,
+    ):
         """
         simulation of diffuse reflectivity from a rough multilayer. Exact or
         simplified DWBA, fractal roughness model, Ming model of the vertical
@@ -1617,6 +1849,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         diffint :   array-like
             diffuse reflectivity intensity matrix
         """
+
         # worker function definitions
         def coherent(alphai, K, delta, thick, N, NqL, Nqz):
             """
@@ -1648,22 +1881,25 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 k-vector, z-component of k-vector in the material.
             """
             k0 = -K * numpy.sin(alphai)
-            kz = numpy.zeros((N+1, NqL, Nqz), dtype=complex)
-            T = numpy.zeros((N+1, NqL, Nqz), dtype=complex)
-            R = numpy.zeros((N+1, NqL, Nqz), dtype=complex)
-            for jn in range(N+1):
-                kz[jn, ...] = -K * numpy.sqrt(numpy.sin(alphai)**2 -
-                                              2 * delta[jn])
+            kz = numpy.zeros((N + 1, NqL, Nqz), dtype=complex)
+            T = numpy.zeros((N + 1, NqL, Nqz), dtype=complex)
+            R = numpy.zeros((N + 1, NqL, Nqz), dtype=complex)
+            for jn in range(N + 1):
+                kz[jn, ...] = -K * numpy.sqrt(
+                    numpy.sin(alphai) ** 2 - 2 * delta[jn]
+                )
 
             T[N, ...] = numpy.ones((NqL, Nqz), dtype=complex)
             kzs = kz[N, ...]  # kz in substrate
-            for jn in range(N-1, -1, -1):
+            for jn in range(N - 1, -1, -1):
                 kzn = kz[jn, ...]
                 tF = 2 * kzn / (kzn + kzs)
                 rF = (kzn - kzs) / (kzn + kzs)
                 phi = numpy.exp(1j * kzn * thick[jn])
-                T[jn, ...] = phi / tF * (T[jn+1, ...] + rF * R[jn+1, ...])
-                R[jn, ...] = 1 / phi / tF * (rF * T[jn+1, ...] + R[jn+1, ...])
+                T[jn, ...] = phi / tF * (T[jn + 1, ...] + rF * R[jn + 1, ...])
+                R[jn, ...] = (
+                    1 / phi / tF * (rF * T[jn + 1, ...] + R[jn + 1, ...])
+                )
                 kzs = numpy.copy(kzn)
 
             tF = 2 * k0 / (k0 + kzn)
@@ -1722,24 +1958,30 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 s = numpy.copy(b)
                 errm = numpy.inf
                 if H == 1 and vert == 0:
+
                     def f(a, n):
-                        return numpy.exp(-a**2/4/n) / 2 / n**2
+                        return numpy.exp(-(a**2) / 4 / n) / 2 / n**2
                 elif H == 0.5 and vert == 0:
+
                     def f(a, n):
-                        return 1. / (n**2 + a**2)**(3/2.)
+                        return 1.0 / (n**2 + a**2) ** (3 / 2.0)
                 elif H == 1 and vert == 1:
+
                     def f(a, n):
-                        return numpy.sqrt(numpy.pi/n**3) * numpy.exp(-a**2/4/n)
+                        return numpy.sqrt(numpy.pi / n**3) * numpy.exp(
+                            -(a**2) / 4 / n
+                        )
                 elif H == 0.5 and vert == 1:
+
                     def f(a, n):
-                        return 2. / (n**2 + a**2)
+                        return 2.0 / (n**2 + a**2)
 
                 while errm > eps and n < nmax:
                     dpsi[m] = s[m] * f(a[m], n)
                     if n > 1:
                         errm = abs(numpy.max(dpsi[m] / psi[m]))
                     psi[m] += dpsi[m]
-                    s[m] *= b[m]/float(n)
+                    s[m] *= b[m] / float(n)
                     n += 1
             else:
                 if vert == 0:
@@ -1749,14 +1991,21 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                 for jL in range(NqL):
                     for jz in range(Nqz):
                         if isurf[jL, jz] == 1:
-                            xmax = (-numpy.log(eps / b[jL, jz]))**(1/(2*H))
-                            psi[jL, jz] = cquad(kern, 0.0, numpy.real(xmax),
-                                                epsrel=eps, epsabs=0,
-                                                limit=nmax, args=(a[jL, jz],
-                                                b[jL, jz], H))
+                            xmax = (-numpy.log(eps / b[jL, jz])) ** (
+                                1 / (2 * H)
+                            )
+                            psi[jL, jz] = cquad(
+                                kern,
+                                0.0,
+                                numpy.real(xmax),
+                                epsrel=eps,
+                                epsabs=0,
+                                limit=nmax,
+                                args=(a[jL, jz], b[jL, jz], H),
+                            )
 
             if vert == 0:
-                psi *= 2 * numpy.pi * L ** 2
+                psi *= 2 * numpy.pi * L**2
             else:
                 psi *= 2 * numpy.pi * L / K
             return psi
@@ -1780,8 +2029,8 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             -------
             float or arraylike
             """
-            w = numpy.exp(b * numpy.exp(-x**(2*H))) - 1
-            F = 2 * numpy.cos(a*x) * w
+            w = numpy.exp(b * numpy.exp(-(x ** (2 * H)))) - 1
+            F = 2 * numpy.cos(a * x) * w
             return F
 
         def kernel(x, a, b, H):
@@ -1803,22 +2052,24 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             -------
             float or arraylike
             """
-            w = numpy.exp(b * numpy.exp(-x**(2*H))) - 1
-            F = x * j0(a*x) * w
+            w = numpy.exp(b * numpy.exp(-(x ** (2 * H)))) - 1
+            F = x * j0(a * x) * w
             return F
 
         def cquad(func, a, b, **kwargs):
             """
             complex quadrature by spliting real and imaginary part using scipy
             """
+
             def real_func(*args):
                 return numpy.real(func(*args))
 
             def imag_func(*args):
                 return numpy.imag(func(*args))
+
             real_integral = integrate.quad(real_func, a, b, **kwargs)
             imag_integral = integrate.quad(imag_func, a, b, **kwargs)
-            return real_integral[0] + 1j*imag_integral[0]
+            return real_integral[0] + 1j * imag_integral[0]
 
         # begin of _xrrdiffv2
         K = 2 * numpy.pi / lam
@@ -1841,16 +2092,20 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             ALPHAI = numpy.radians(alphai) * numpy.ones((NqL, Nqz))
             ALPHAF = numpy.arcsin(QZ / K - numpy.sin(numpy.radians(alphai)))
             PHI = numpy.arcsin(QL / K / numpy.cos(ALPHAF))
-            QP = K * numpy.sqrt(numpy.cos(ALPHAF)**2 + numpy.cos(ALPHAI)**2 -
-                                2*numpy.cos(ALPHAF) * numpy.cos(ALPHAI) *
-                                numpy.cos(PHI))
+            QP = K * numpy.sqrt(
+                numpy.cos(ALPHAF) ** 2
+                + numpy.cos(ALPHAI) ** 2
+                - 2 * numpy.cos(ALPHAF) * numpy.cos(ALPHAI) * numpy.cos(PHI)
+            )
         elif scan == 3:  # with quasi omega/2theta scan in GISAXS geometry
             ALPHAI = numpy.arcsin(QZ * (K - numpy.sqrt(K**2 - QL**2)) / QL**2)
             ALPHAF = numpy.arcsin(QZ / K - numpy.sin(ALPHAI))
             PHI = numpy.arcsin(QL / K / numpy.cos(ALPHAF))
-            QP = K * numpy.sqrt(numpy.cos(ALPHAF)**2 + numpy.cos(ALPHAI)**2 -
-                                2*numpy.cos(ALPHAF) * numpy.cos(ALPHAI) *
-                                numpy.cos(PHI))
+            QP = K * numpy.sqrt(
+                numpy.cos(ALPHAF) ** 2
+                + numpy.cos(ALPHAI) ** 2
+                - 2 * numpy.cos(ALPHAF) * numpy.cos(ALPHAI) * numpy.cos(PHI)
+            )
         else:
             raise ValueError("Invalid value of parameter 'scan'")
 
@@ -1860,21 +2115,23 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         # non-disturbed states:
         if method == 1:
             k01 = -K * numpy.sin(ALPHAI)
-            kz1 = -K * numpy.sqrt(numpy.sin(ALPHAI)**2 - 2*deltaA)
+            kz1 = -K * numpy.sqrt(numpy.sin(ALPHAI) ** 2 - 2 * deltaA)
             k02 = -K * numpy.sin(ALPHAF)
-            kz2 = -K * numpy.sqrt(numpy.sin(ALPHAF)**2 - 2*deltaA)
+            kz2 = -K * numpy.sqrt(numpy.sin(ALPHAF) ** 2 - 2 * deltaA)
             T1 = 2 * k01 / (k01 + kz1)
             T2 = 2 * k02 / (k02 + kz2)
             R01 = (k01 - kz1) / (k01 + kz1)
-            R02 = (k02 - kz2) / (k02+kz2)
+            R02 = (k02 - kz2) / (k02 + kz2)
             R1 = numpy.zeros((NqL, Nqz), dtype=complex)
             R2 = numpy.copy(R1)
             nproc = 1
         else:  # method == 2
-            T1, R1, R01, k01, kz1 = coherent(ALPHAI, K, delta, thick, N,
-                                             NqL, Nqz)
-            T2, R2, R02, k02, kz2 = coherent(ALPHAF, K, delta, thick, N,
-                                             NqL, Nqz)
+            T1, R1, R01, k01, kz1 = coherent(
+                ALPHAI, K, delta, thick, N, NqL, Nqz
+            )
+            T2, R2, R02, k02, kz2 = coherent(
+                ALPHAF, K, delta, thick, N, NqL, Nqz
+            )
             nproc = 4
 
         # sample surface
@@ -1885,33 +2142,34 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             S = 1
 
         # z-coordinates
-        z = numpy.zeros(N+1)
-        for jn in range(1, N+1):
-            z[jn] = z[jn-1] - thick[jn-1]
+        z = numpy.zeros(N + 1)
+        for jn in range(1, N + 1):
+            z[jn] = z[jn - 1] - thick[jn - 1]
 
         # calculation of the deltas
-        delt = numpy.zeros(N+1, dtype=complex)
-        for jn in range(N+1):
+        delt = numpy.zeros(N + 1, dtype=complex)
+        for jn in range(N + 1):
             if jn == 0:
                 delt[jn] = delta[jn]
             if jn > 0:
-                delt[jn] = delta[jn] - delta[jn-1]
+                delt[jn] = delta[jn] - delta[jn - 1]
 
         # double sum over interfaces
         result = numpy.zeros((NqL, Nqz))
-        for jn in range(N+1):
+        for jn in range(N + 1):
             # if method == 1 and (H == 1 or H == 0.5):
             #     print(jn)
             if nu != 0 or xiV == 0:
                 jmdol = 1
             else:
-                jmdol = numpy.argmin(numpy.abs(z - (z[jn] -
-                                               xiV * numpy.log(eps))))
+                jmdol = numpy.argmin(
+                    numpy.abs(z - (z[jn] - xiV * numpy.log(eps)))
+                )
 
             for ja in range(nproc):
                 if method == 1:
                     Qn = -kz1 - kz2
-                    An = T1 * T2 * numpy.exp(-1j*Qn*z[jn])
+                    An = T1 * T2 * numpy.exp(-1j * Qn * z[jn])
                 else:  # method == 2
                     if ja == 0:
                         An = T1[jn, ...] * T2[jn, ...]
@@ -1927,7 +2185,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                         Qn = kz1[jn, ...] + kz2[jn, ...]
                     else:
                         raise ValueError("ja must be in range(4)")
-                for jm in range(jmdol, jn+1):
+                for jm in range(jmdol, jn + 1):
                     if jm == jn:
                         weight = 1
                     else:
@@ -1936,14 +2194,22 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                     #     print(jn, jm)
                     # vertical correlation function:
                     if xiV > 0:
-                        CV = numpy.exp(-abs(z[jn] - z[jm]) *
-                                       (QP/numpy.max(QP))**nu / xiV)
+                        CV = numpy.exp(
+                            -abs(z[jn] - z[jm])
+                            * (QP / numpy.max(QP)) ** nu
+                            / xiV
+                        )
                     else:
                         CV = 1
                     # effective values of sigma and lateral correl. length:
                     try:
-                        LP = ((float(xiL[jn])**(-2*H) +
-                               float(xiL[jm])**(-2*H)) / 2) ** (-1 / 2 / H)
+                        LP = (
+                            (
+                                float(xiL[jn]) ** (-2 * H)
+                                + float(xiL[jm]) ** (-2 * H)
+                            )
+                            / 2
+                        ) ** (-1 / 2 / H)
                     except ZeroDivisionError:
                         LP = 0
                     sig = pymath.sqrt(sigma[jn] * sigma[jm])
@@ -1969,22 +2235,43 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
                             else:
                                 raise ValueError("ja must be in range(4)")
                         # lateral correlation function:
-                        Psi = correl(QP*LP, Qn*numpy.conj(Qm)*sig**2, LP, H,
-                                     eps, nmax, vert, K, NqL, Nqz, isurf)
-                        result += numpy.real(CV * delt[jn] *
-                                             numpy.exp(-Qn**2 *
-                                                       sigma[jn]**2/2) /
-                                             Qn * An *
-                                             numpy.conj(delt[jm] *
-                                             numpy.exp(-Qm**2*sigma[jm]**2/2) /
-                                             Qm * Am) * Psi) * weight
+                        Psi = correl(
+                            QP * LP,
+                            Qn * numpy.conj(Qm) * sig**2,
+                            LP,
+                            H,
+                            eps,
+                            nmax,
+                            vert,
+                            K,
+                            NqL,
+                            Nqz,
+                            isurf,
+                        )
+                        result += (
+                            numpy.real(
+                                CV
+                                * delt[jn]
+                                * numpy.exp(-(Qn**2) * sigma[jn] ** 2 / 2)
+                                / Qn
+                                * An
+                                * numpy.conj(
+                                    delt[jm]
+                                    * numpy.exp(-(Qm**2) * sigma[jm] ** 2 / 2)
+                                    / Qm
+                                    * Am
+                                )
+                                * Psi
+                            )
+                            * weight
+                        )
 
         result[isurf == 0] = 0
         self._smap_R01 = R01 * isurf
         self._smap_R02 = R02 * isurf
-        self._smap_alphai = numpy.degrees(ALPHAI*isurf)
-        self._smap_alphaf = numpy.degrees(ALPHAF*isurf)
-        return result * S * K**4 / (16*numpy.pi**2)
+        self._smap_alphai = numpy.degrees(ALPHAI * isurf)
+        self._smap_alphaf = numpy.degrees(ALPHAF * isurf)
+        return result * S * K**4 / (16 * numpy.pi**2)
 
 
 def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
@@ -2014,41 +2301,69 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
         thickness_all_layers = numpy.sum(thickness[1:])
     else:
         thickness_all_layers = numpy.sum(thickness)
-    margin = max(numpy.sum([lay.roughness for lay in layerstack]),
-                 5 * layerstack[0].roughness,
-                 5 * layerstack[-1].roughness)
+    margin = max(
+        numpy.sum([lay.roughness for lay in layerstack]),
+        5 * layerstack[0].roughness,
+        5 * layerstack[-1].roughness,
+    )
 
     pos_inter = numpy.zeros(len(layerstack))
-    for i in range(len(layerstack)-1, 0, -1):
-        pos_inter[i-1] = pos_inter[i] - thickness[i]
+    for i in range(len(layerstack) - 1, 0, -1):
+        pos_inter[i - 1] = pos_inter[i] - thickness[i]
 
     # calculate the weight for every sublayer + vacuum above
     z = numpy.arange(-(thickness_all_layers + margin), margin, step)
     W = {}
     zeta = {}
-    for i in range(len(layerstack)+1):
+    for i in range(len(layerstack) + 1):
         W[i] = numpy.zeros_like(z)
         if i < (len(layerstack) - 1):
-            zeta[i] = (sigmas[i+1] * pos_inter[i] + sigmas[i] *
-                       pos_inter[i+1]) / (sigmas[i] + sigmas[i+1])
+            zeta[i] = (
+                sigmas[i + 1] * pos_inter[i] + sigmas[i] * pos_inter[i + 1]
+            ) / (sigmas[i] + sigmas[i + 1])
 
     # first and last Weight-functions will be treated seperately
-    W[0][:] = 1 / 2 * (1 - erf(
-        (z - pos_inter[0]) / (pymath.sqrt(2) * sigmas[0])))
-    W[len(layerstack)][:] = 1 / 2 * (1 + erf(
-        (z - pos_inter[len(layerstack) - 1]) / (pymath.sqrt(2) *
-                                                sigmas[len(layerstack) - 1])))
+    W[0][:] = (
+        1 / 2 * (1 - erf((z - pos_inter[0]) / (pymath.sqrt(2) * sigmas[0])))
+    )
+    W[len(layerstack)][:] = (
+        1
+        / 2
+        * (
+            1
+            + erf(
+                (z - pos_inter[len(layerstack) - 1])
+                / (pymath.sqrt(2) * sigmas[len(layerstack) - 1])
+            )
+        )
+    )
 
     # Weight-functions in between
     for idxl in range(1, len(layerstack)):
-        maskz = (z <= zeta[idxl - 1])
-        W[idxl][maskz] = 1 / 2 * \
-            (1 + erf((z[maskz] - pos_inter[idxl - 1]) /
-                     (pymath.sqrt(2) * sigmas[idxl - 1])))
+        maskz = z <= zeta[idxl - 1]
+        W[idxl][maskz] = (
+            1
+            / 2
+            * (
+                1
+                + erf(
+                    (z[maskz] - pos_inter[idxl - 1])
+                    / (pymath.sqrt(2) * sigmas[idxl - 1])
+                )
+            )
+        )
         imaskz = numpy.logical_not(maskz)
-        W[idxl][imaskz] = 1 / 2 * \
-            (1 - erf((z[imaskz] - pos_inter[idxl]) /
-                     (pymath.sqrt(2) * sigmas[idxl])))
+        W[idxl][imaskz] = (
+            1
+            / 2
+            * (
+                1
+                - erf(
+                    (z[imaskz] - pos_inter[idxl])
+                    / (pymath.sqrt(2) * sigmas[idxl])
+                )
+            )
+        )
 
     # normalize weight functions
     wsum = numpy.add.reduce(list(W.values()))
@@ -2056,10 +2371,11 @@ def effectiveDensitySlicing(layerstack, step, roughness=0, cutoff=1e-5):
         W[k] /= wsum
 
     # generate new sliced layerstack
-    sls = LayerStack(f'sliced LayerStack (step={step:.2f}Ang)')
+    sls = LayerStack(f"sliced LayerStack (step={step:.2f}Ang)")
     if thickness[0] == pymath.inf:
-        sls.append(Layer(layerstack[0].material, pymath.inf,
-                         roughness=roughness))
+        sls.append(
+            Layer(layerstack[0].material, pymath.inf, roughness=roughness)
+        )
 
     for idxp in range(len(z)):
         # create compound material for all contributing layers

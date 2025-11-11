@@ -20,18 +20,20 @@ import unittest
 
 import xrayutilities as xu
 
-testfile = 'sc.esg'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "sc.esg"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_ESG(unittest.TestCase):
     dshape = (602, 4096)
     dmax = 69282.0
     dmin = 0.0
-    motorname = '_pd_meas_angle_omega'
+    motorname = "_pd_meas_angle_omega"
     motmin = 2.0
     motmax = 20.0
     dtpos = 9.0
@@ -54,5 +56,5 @@ class TestIO_ESG(unittest.TestCase):
         self.assertAlmostEqual(counter[self.tpos[0], self.tpos[1]], self.dtpos)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

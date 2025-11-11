@@ -34,14 +34,18 @@ class Test_CIF_export(unittest.TestCase):
 
     def test_export(self):
         for m in self.materials:
-            with tempfile.NamedTemporaryFile(mode='w', delete=False) as fid:
+            with tempfile.NamedTemporaryFile(mode="w", delete=False) as fid:
                 filename = fid.name
             m.toCIF(filename)
             c = xu.materials.Crystal.fromCIF(filename)
-            self.assertEqual(m, c, msg=f"Crystal {m.name} different after "
-                             "toCIF/fromCIF conversion")
+            self.assertEqual(
+                m,
+                c,
+                msg=f"Crystal {m.name} different after "
+                "toCIF/fromCIF conversion",
+            )
             os.remove(filename)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

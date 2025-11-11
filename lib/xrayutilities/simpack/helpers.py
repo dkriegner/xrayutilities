@@ -20,7 +20,7 @@ import numpy
 from .. import config, utilities
 
 
-def coplanar_alphai(qx, qz, en='config', nan_Laue=False):
+def coplanar_alphai(qx, qz, en="config", nan_Laue=False):
     """
     calculate coplanar incidence angle from knowledge of the qx (inplane) and
     qz (out of plane) coordinates
@@ -41,7 +41,7 @@ def coplanar_alphai(qx, qz, en='config', nan_Laue=False):
     alphai : array-like
         the incidence angle in degree
     """
-    if isinstance(en, str) and en == 'config':
+    if isinstance(en, str) and en == "config":
         en = utilities.energy(config.ENERGY)
     k = 2 * numpy.pi / utilities.en2lam(en)
     th = numpy.arcsin(numpy.sqrt(qx**2 + qz**2) / (2 * k))
@@ -55,7 +55,7 @@ def coplanar_alphai(qx, qz, en='config', nan_Laue=False):
     return numpy.degrees(ai)
 
 
-def coplanar_alphaf(qx, qz, en='config', nan_Laue=False):
+def coplanar_alphaf(qx, qz, en="config", nan_Laue=False):
     """
     calculate coplanar exit angle from knowledge of the qx (inplane) and qz
     (out of plane) coordinates
@@ -77,7 +77,7 @@ def coplanar_alphaf(qx, qz, en='config', nan_Laue=False):
         the exit angle in degree. points in the Laue zone are set to
         'nan'.
     """
-    if isinstance(en, str) and en == 'config':
+    if isinstance(en, str) and en == "config":
         en = utilities.energy(config.ENERGY)
     k = 2 * numpy.pi / utilities.en2lam(en)
     th = numpy.arcsin(numpy.sqrt(qx**2 + qz**2) / (2 * k))
@@ -91,7 +91,7 @@ def coplanar_alphaf(qx, qz, en='config', nan_Laue=False):
     return numpy.degrees(af)
 
 
-def get_qz(qx, alphai, en='config'):
+def get_qz(qx, alphai, en="config"):
     """
     calculate the qz position from the qx position and the incidence angle for
     a coplanar diffraction geometry
@@ -111,9 +111,9 @@ def get_qz(qx, alphai, en='config'):
         the qz position for the given incidence angle. The output is nan in
         case the inplane momentum transfer can not be reached.
     """
-    if isinstance(en, str) and en == 'config':
+    if isinstance(en, str) and en == "config":
         en = utilities.energy(config.ENERGY)
     k = 2 * numpy.pi / utilities.en2lam(en)
     ai = numpy.radians(alphai)
-    qz = numpy.sqrt(k**2 - (qx + k * numpy.cos(ai))**2) + k * numpy.sin(ai)
+    qz = numpy.sqrt(k**2 - (qx + k * numpy.cos(ai)) ** 2) + k * numpy.sin(ai)
     return qz

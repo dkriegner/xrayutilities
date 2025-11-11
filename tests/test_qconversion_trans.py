@@ -30,16 +30,25 @@ class TestQConversionTrans(unittest.TestCase):
         cls.ncch1 = 4
         cls.ncch2 = 6
         # standard 1S+1D goniometer
-        qconv = xu.QConversion('x+', 'x+', (0, 1, 0))
-        cls.hxrd = xu.HXRD((1., 1., 0.), (0., 0., 1.), qconv=qconv)
+        qconv = xu.QConversion("x+", "x+", (0, 1, 0))
+        cls.hxrd = xu.HXRD((1.0, 1.0, 0.0), (0.0, 0.0, 1.0), qconv=qconv)
         # comparable goniometer with translations
-        qconv = xu.QConversion('x+', ['ty', 'tz'], (0, 1e-15, 0))
-        cls.hxrdtrans = xu.HXRD((1., 1., 0.), (0., 0., 1.), qconv=qconv,
-                                sampleor='z+')
-        cls.hxrdtrans.Ang2Q.init_linear('z+', cls.ncch, cls.nch, 1e-15, 50e-6)
-        cls.hxrdtrans.Ang2Q.init_area('z+', 'x+', cls.ncch1, cls.ncch2,
-                                      cls.nch2d[0], cls.nch2d[1],
-                                      1e-15, 50e-6, 50e-6)
+        qconv = xu.QConversion("x+", ["ty", "tz"], (0, 1e-15, 0))
+        cls.hxrdtrans = xu.HXRD(
+            (1.0, 1.0, 0.0), (0.0, 0.0, 1.0), qconv=qconv, sampleor="z+"
+        )
+        cls.hxrdtrans.Ang2Q.init_linear("z+", cls.ncch, cls.nch, 1e-15, 50e-6)
+        cls.hxrdtrans.Ang2Q.init_area(
+            "z+",
+            "x+",
+            cls.ncch1,
+            cls.ncch2,
+            cls.nch2d[0],
+            cls.nch2d[1],
+            1e-15,
+            50e-6,
+            50e-6,
+        )
 
         cls.angle = numpy.random.rand() * 45
 
@@ -86,30 +95,36 @@ class TestQConversionTrans(unittest.TestCase):
     def test_qtrans0_area(self):
         qvec1 = self.hxrd.Ang2Q(self.angle, 0)
         qx, qy, qz = self.hxrdtrans.Ang2Q.area(self.angle, 1, 0)
-        qvec2 = (qx[self.ncch1, self.ncch2],
-                 qy[self.ncch1, self.ncch2],
-                 qz[self.ncch1, self.ncch2])
+        qvec2 = (
+            qx[self.ncch1, self.ncch2],
+            qy[self.ncch1, self.ncch2],
+            qz[self.ncch1, self.ncch2],
+        )
         for i in range(3):
             self.assertAlmostEqual(qvec1[i], qvec2[i], places=10)
 
     def test_qtrans45_area(self):
         qvec1 = self.hxrd.Ang2Q(self.angle, 45)
         qx, qy, qz = self.hxrdtrans.Ang2Q.area(self.angle, 1, 1)
-        qvec2 = (qx[self.ncch1, self.ncch2],
-                 qy[self.ncch1, self.ncch2],
-                 qz[self.ncch1, self.ncch2])
+        qvec2 = (
+            qx[self.ncch1, self.ncch2],
+            qy[self.ncch1, self.ncch2],
+            qz[self.ncch1, self.ncch2],
+        )
         for i in range(3):
             self.assertAlmostEqual(qvec1[i], qvec2[i], places=10)
 
     def test_qtrans90_area(self):
         qvec1 = self.hxrd.Ang2Q(self.angle, 90)
         qx, qy, qz = self.hxrdtrans.Ang2Q.area(self.angle, 0, 1)
-        qvec2 = (qx[self.ncch1, self.ncch2],
-                 qy[self.ncch1, self.ncch2],
-                 qz[self.ncch1, self.ncch2])
+        qvec2 = (
+            qx[self.ncch1, self.ncch2],
+            qy[self.ncch1, self.ncch2],
+            qz[self.ncch1, self.ncch2],
+        )
         for i in range(3):
             self.assertAlmostEqual(qvec1[i], qvec2[i], places=10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

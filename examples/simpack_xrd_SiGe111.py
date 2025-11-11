@@ -16,12 +16,23 @@
 # Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 from numpy import inf, linspace, mean
-from matplotlib.pylab import (clf, figure, legend, mpl, semilogy, show,
-                              tight_layout, vlines, xlabel, xlim, ylabel)
+from matplotlib.pylab import (
+    clf,
+    figure,
+    legend,
+    mpl,
+    semilogy,
+    show,
+    tight_layout,
+    vlines,
+    xlabel,
+    xlim,
+    ylabel,
+)
 
 import xrayutilities as xu
 
-mpl.rcParams['font.size'] = 16.0
+mpl.rcParams["font.size"] = 16.0
 
 
 en = 8500  # eV
@@ -33,13 +44,15 @@ hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), en=en)
 
 sub = xu.simpack.Layer(Si, inf)
 lay = xu.simpack.Layer(xu.materials.SiGe(0.6), 150, relaxation=0.5)
-pls = xu.simpack.PseudomorphicStack111('pseudo', sub, lay)
+pls = xu.simpack.PseudomorphicStack111("pseudo", sub, lay)
 
 # calculate incidence angle for dynamical diffraction models
 qx = hxrd.Transform(Si.Q(H, K, L))[1]
 ai = xu.simpack.coplanar_alphai(qx, qz, en)
-resolai = abs(xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en) -
-              xu.simpack.coplanar_alphai(qx, mean(qz), en))
+resolai = abs(
+    xu.simpack.coplanar_alphai(qx, mean(qz) + resol, en)
+    - xu.simpack.coplanar_alphai(qx, mean(qz), en)
+)
 
 # comparison of different diffraction models
 # simplest kinematical diffraction model
@@ -47,8 +60,9 @@ mk = xu.simpack.KinematicalModel(pls, experiment=hxrd, resolution_width=resol)
 Ikin = mk.simulate(qz, hkl=(H, K, L), refraction=True)
 
 # simplified dynamical diffraction model
-mds = xu.simpack.SimpleDynamicalCoplanarModel(pls, experiment=hxrd,
-                                              resolution_width=resolai)
+mds = xu.simpack.SimpleDynamicalCoplanarModel(
+    pls, experiment=hxrd, resolution_width=resolai
+)
 Idynsub = mds.simulate(ai, hkl=(H, K, L), idxref=0)
 Idynlay = mds.simulate(ai, hkl=(H, K, L), idxref=1)
 
@@ -57,17 +71,21 @@ md = xu.simpack.DynamicalModel(pls, experiment=hxrd, resolution_width=resolai)
 Idyn = md.simulate(ai, hkl=(H, K, L))
 
 # plot of calculated intensities
-figure('XU-simpack SiGe(111)')
+figure("XU-simpack SiGe(111)")
 clf()
-semilogy(qz, Ikin, label='kinematical')
-semilogy(xu.simpack.get_qz(qx, ai, en), Idynsub, label='simpl. dynamical(S)')
-semilogy(xu.simpack.get_qz(qx, ai, en), Idynlay, label='simpl. dynamical(L)')
-semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label='full dynamical')
-vlines([xu.math.VecNorm(lay.material.Q(H, K, L)) for lay in pls], 1e-9, 1,
-       linestyles='dashed')
-legend(fontsize='small')
+semilogy(qz, Ikin, label="kinematical")
+semilogy(xu.simpack.get_qz(qx, ai, en), Idynsub, label="simpl. dynamical(S)")
+semilogy(xu.simpack.get_qz(qx, ai, en), Idynlay, label="simpl. dynamical(L)")
+semilogy(xu.simpack.get_qz(qx, ai, en), Idyn, label="full dynamical")
+vlines(
+    [xu.math.VecNorm(lay.material.Q(H, K, L)) for lay in pls],
+    1e-9,
+    1,
+    linestyles="dashed",
+)
+legend(fontsize="small")
 xlim(qz.min(), qz.max())
-xlabel(r'Qz ($1/\mathrm{\AA}$)')
-ylabel('Intensity (arb. u.)')
+xlabel(r"Qz ($1/\mathrm{\AA}$)")
+ylabel("Intensity (arb. u.)")
 tight_layout()
 show()

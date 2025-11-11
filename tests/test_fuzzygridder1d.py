@@ -44,12 +44,15 @@ class TestFuzzyGridder1D(unittest.TestCase):
         self.assertEqual(len(self.gridder.data), self.num)
         # test values of data
         for i in [0, -1]:
-            v = 0.75 * self.data[i] + 0.25 * self.data[i+2*i+1]
+            v = 0.75 * self.data[i] + 0.25 * self.data[i + 2 * i + 1]
             self.assertAlmostEqual(self.gridder.data[i], v, places=12)
-        for i in range(1, self.num-1):
-            v = 0.25 * (self.data[i-1] + self.data[i+1]) + 0.5 * self.data[i]
+        for i in range(1, self.num - 1):
+            v = (
+                0.25 * (self.data[i - 1] + self.data[i + 1])
+                + 0.5 * self.data[i]
+            )
             self.assertAlmostEqual(self.gridder.data[i], v, places=12)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

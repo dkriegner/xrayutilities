@@ -22,13 +22,15 @@ import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'seifert_tsk.nja.gz'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "seifert_tsk.nja.gz"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_task_NJA(unittest.TestCase):
     dshape = (4001, 1280)
     dmax = 143563.531
@@ -40,9 +42,9 @@ class TestIO_task_NJA(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.mot, cls.mot2, cls.data = xu.io.getSeifert_map(testfile,
-                                                           path=datadir,
-                                                           scantype='tsk')
+        cls.mot, cls.mot2, cls.data = xu.io.getSeifert_map(
+            testfile, path=datadir, scantype="tsk"
+        )
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.data.shape)
@@ -52,9 +54,10 @@ class TestIO_task_NJA(unittest.TestCase):
         self.assertAlmostEqual(self.motmin, self.mot.min(), places=6)
         self.assertAlmostEqual(self.dmax, self.data.max(), places=6)
         self.assertAlmostEqual(self.dmin, self.data.min(), places=6)
-        self.assertTrue(numpy.all(self.dtpos == self.data[self.tpos[0],
-                                                          self.tpos[1]]))
+        self.assertTrue(
+            numpy.all(self.dtpos == self.data[self.tpos[0], self.tpos[1]])
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

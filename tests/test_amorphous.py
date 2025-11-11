@@ -23,7 +23,7 @@ import xrayutilities as xu
 class Test_maplog(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.a = xu.materials.Amorphous('Ir0.2Mn0.8', 10130)
+        cls.a = xu.materials.Amorphous("Ir0.2Mn0.8", 10130)
 
     def test_elements(self):
         self.assertEqual(self.a.base[0][0], xu.materials.elements.Ir)
@@ -34,5 +34,5 @@ class Test_maplog(unittest.TestCase):
         self.assertAlmostEqual(self.a.base[1][1], 0.8, places=10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

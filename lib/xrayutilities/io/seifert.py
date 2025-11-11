@@ -147,7 +147,7 @@ class SeifertMultiScan:
         header_complete = False
 
         for line in self.fid:
-            lb = line.decode('iso-8859-1').strip()
+            lb = line.decode("iso-8859-1").strip()
 
             # the first thing needed is the number of scans in the file (in
             # file header)
@@ -216,15 +216,18 @@ class SeifertScan:
             self.parse()
 
         if self.hdr.NumScans != 1:
-            self.data.shape = (int(self.data.shape[0] / self.hdr.NoValues),
-                               int(self.hdr.NoValues), 2)
+            self.data.shape = (
+                int(self.data.shape[0] / self.hdr.NoValues),
+                int(self.hdr.NoValues),
+                2,
+            )
 
     def parse(self):
         if config.VERBOSITY >= config.INFO_ALL:
             print("XU.io.SeifertScan.parse: starting the parser")
         self.data = []
         for line in self.fid:
-            lb = line.decode('iso-8859-1')
+            lb = line.decode("iso-8859-1")
             # remove leading and trailing whitespace and newline characeters
             lb = lb.strip()
 
@@ -255,7 +258,9 @@ class SeifertScan:
                         if value not in self.axispos:
                             self.axispos[value] = []
                     elif key == "Pos":
-                        self.axispos[axes] += [value, ]
+                        self.axispos[axes] += [
+                            value,
+                        ]
 
                     setattr(self.hdr, key, value)
                 else:
@@ -273,8 +278,9 @@ class SeifertScan:
             self.axispos[key] = numpy.array(self.axispos[key])
 
 
-def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
-                   Nchannels=1280):
+def getSeifert_map(
+    filetemplate, scannrs=None, path=".", scantype="map", Nchannels=1280
+):
     """
     parses multiple Seifert ``*.nja`` files and concatenates the results.  for
     parsing the xrayutilities.io.SeifertMultiScan class is used. The function
@@ -323,7 +329,7 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
     # parse files
     for f in files:
         if scantype == "map":
-            d = SeifertMultiScan(os.path.join(path, f), 'T', 'O')
+            d = SeifertMultiScan(os.path.join(path, f), "T", "O")
 
             om = numpy.concatenate((om, d.m2_pos.flatten()))
             tt = numpy.concatenate((tt, d.sm_pos.flatten()))
@@ -331,10 +337,10 @@ def getSeifert_map(filetemplate, scannrs=None, path=".", scantype="map",
         elif scantype == "tsk":
             d = SeifertScan(os.path.join(path, f))
 
-            om = numpy.concatenate((om, d.axispos['O'].flatten()))
-            tt = numpy.concatenate((tt, d.axispos['T'].flatten()))
+            om = numpy.concatenate((om, d.axispos["O"].flatten()))
+            tt = numpy.concatenate((tt, d.axispos["T"].flatten()))
             psd = numpy.concatenate((psd, d.data[:, :, 1]))
-        elif scantype == 'O2T':
+        elif scantype == "O2T":
             d = SeifertScan(os.path.join(path, f))
             if getattr(d.hdr, "RSMmode") != scantype:
                 raise ValueError(f"Scan {scantype} incompatible with RSMmode")

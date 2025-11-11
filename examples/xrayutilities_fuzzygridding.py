@@ -40,12 +40,12 @@ ttalign = 69.1446
 [omnominal, _, _, ttnominal] = hxrd.Q2Ang(Si.Q(0, 0, 4))
 
 # read the data from the xrdml files
-om, tt, psd = xu.io.getxrdml_map(sample + '_%d.xrdml.bz2', 1,
-                                 path='data')
+om, tt, psd = xu.io.getxrdml_map(sample + "_%d.xrdml.bz2", 1, path="data")
 
 # convert angular coordinates to reciprocal space + correct for offsets
-[qx, qy, qz] = hxrd.Ang2Q(om, tt, delta=[omalign - omnominal,
-                                         ttalign - ttnominal])
+[qx, qy, qz] = hxrd.Ang2Q(
+    om, tt, delta=[omalign - omnominal, ttalign - ttnominal]
+)
 
 #############################################
 # three different visualization possibilities
@@ -58,34 +58,36 @@ for i in range(1, 4):
 MIN = 1
 MAX = 3e5
 plt.sca(ax[0])
-plt.title('Gridder2D')
+plt.title("Gridder2D")
 # data on a regular grid of 200x800 points
 gridder = xu.Gridder2D(200, 300)
 gridder(qy, qz, psd)
-cf = plt.pcolormesh(gridder.xaxis, gridder.yaxis, gridder.data.T,
-                    norm=LogNorm(MIN, MAX))
+cf = plt.pcolormesh(
+    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=LogNorm(MIN, MAX)
+)
 
 plt.sca(ax[1])
-plt.title('FuzzyGridder2D')
+plt.title("FuzzyGridder2D")
 # data on a regular grid with FuzzyGridding
 gridder = xu.FuzzyGridder2D(200, 300)
 gridder(qy, qz, psd, width=(0.0008, 0.0003))
-cf = plt.pcolormesh(gridder.xaxis, gridder.yaxis, gridder.data.T,
-                    norm=LogNorm(MIN, MAX))
+cf = plt.pcolormesh(
+    gridder.xaxis, gridder.yaxis, gridder.data.T, norm=LogNorm(MIN, MAX)
+)
 
 plt.sca(ax[2])
-plt.title('pcolormesh')
+plt.title("pcolormesh")
 # using pcolor-variants
 npixel = 255
-qy.shape = (qy.size//npixel, npixel)
+qy.shape = (qy.size // npixel, npixel)
 qz.shape = qy.shape
 psd.shape = qy.shape
 plt.pcolormesh(qy, qz, psd, norm=LogNorm(MIN, MAX))
 
 for a in ax:
     plt.sca(a)
-    plt.xlabel(r'$Q_{[110]}$ ($\mathrm{\AA}^{-1}$)')
-    plt.ylabel(r'$Q_{[001]}$ ($\mathrm{\AA}^{-1}$)')
+    plt.xlabel(r"$Q_{[110]}$ ($\mathrm{\AA}^{-1}$)")
+    plt.ylabel(r"$Q_{[001]}$ ($\mathrm{\AA}^{-1}$)")
     plt.xlim(-0.13, 0.13)
     plt.ylim(4.538, 4.654)
     plt.xticks((-0.1, 0.0, 0.1))

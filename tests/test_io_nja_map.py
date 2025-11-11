@@ -21,13 +21,15 @@ import unittest
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'seifert_map.nja.bz2'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "seifert_map.nja.bz2"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_map_NJA(unittest.TestCase):
     dshape = (601601,)
     dmax = 12.8161590
@@ -39,8 +41,9 @@ class TestIO_map_NJA(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.mot, cls.mot2, cls.data = xu.io.getSeifert_map(testfile,
-                                                           path=datadir)
+        cls.mot, cls.mot2, cls.data = xu.io.getSeifert_map(
+            testfile, path=datadir
+        )
 
     def test_datashape(self):
         self.assertEqual(self.dshape, self.data.shape)
@@ -53,5 +56,5 @@ class TestIO_map_NJA(unittest.TestCase):
         self.assertAlmostEqual(self.dtpos, self.data[self.tpos], places=6)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

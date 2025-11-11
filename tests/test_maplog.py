@@ -36,31 +36,35 @@ class Test_maplog(unittest.TestCase):
         dl = 3
         dm = xu.maplog(d, dl, -numpy.inf)
         dl = min(dl, self.dmin)
-        self.assertAlmostEqual(d.max(), 10.0**dm.max(), places=10)
-        self.assertAlmostEqual(d.max()/10.0**dl, 10**dm.min(), places=10)
+        self.assertAlmostEqual(d.max(), 10.0 ** dm.max(), places=10)
+        self.assertAlmostEqual(d.max() / 10.0**dl, 10 ** dm.min(), places=10)
         # cut top
         dt = 2
         dm = xu.maplog(d, numpy.inf, dt)
         dt = max(dt, self.dmax)
-        self.assertAlmostEqual(d.min(), 10.0**dm.min(), places=10)
-        self.assertAlmostEqual(d.max()/10.0**dt, 10.0**dm.max(), places=10)
+        self.assertAlmostEqual(d.min(), 10.0 ** dm.min(), places=10)
+        self.assertAlmostEqual(d.max() / 10.0**dt, 10.0 ** dm.max(), places=10)
 
     def test_maplogzero(self):
         d = numpy.array((0, 1))
         # make function call with a zero and negative number
         dm = xu.maplog(d)
-        self.assertAlmostEqual(d.max()/10.0**self.dmax,
-                               10.0**dm.max(), places=10)
-        self.assertAlmostEqual(d.max()/10.0**self.dmin,
-                               10**dm.min(), places=10)
+        self.assertAlmostEqual(
+            d.max() / 10.0**self.dmax, 10.0 ** dm.max(), places=10
+        )
+        self.assertAlmostEqual(
+            d.max() / 10.0**self.dmin, 10 ** dm.min(), places=10
+        )
         # call with negative number
         d[0] = -1
         dm = xu.maplog(d)
-        self.assertAlmostEqual(d.max()/10.0**self.dmax,
-                               10.0**dm.max(), places=10)
-        self.assertAlmostEqual(d.max()/10.0**self.dmin,
-                               10**dm.min(), places=10)
+        self.assertAlmostEqual(
+            d.max() / 10.0**self.dmax, 10.0 ** dm.max(), places=10
+        )
+        self.assertAlmostEqual(
+            d.max() / 10.0**self.dmin, 10 ** dm.min(), places=10
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

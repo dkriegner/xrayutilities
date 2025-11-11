@@ -29,10 +29,19 @@ from scipy import odr
 
 from .. import config, utilities
 from ..exception import InputError
-from .functions import (Gauss1d, Gauss1d_der_p, Gauss1d_der_x, Lorentz1d,
-                        Lorentz1d_der_p, Lorentz1d_der_x, PseudoVoigt1d,
-                        PseudoVoigt1d_der_p, PseudoVoigt1d_der_x,
-                        PseudoVoigt1dasym, PseudoVoigt1dasym2)
+from .functions import (
+    Gauss1d,
+    Gauss1d_der_p,
+    Gauss1d_der_x,
+    Lorentz1d,
+    Lorentz1d_der_p,
+    Lorentz1d_der_x,
+    PseudoVoigt1d,
+    PseudoVoigt1d_der_p,
+    PseudoVoigt1d_der_x,
+    PseudoVoigt1dasym,
+    PseudoVoigt1dasym2,
+)
 from .misc import center_of_mass, fwhm_exp
 
 
@@ -61,22 +70,31 @@ def linregress(x, y):
     y = numpy.asarray(y)
     mask = numpy.logical_not(numpy.isnan(y))
     lx, ly = (x[mask], y[mask])
-    if numpy.all(numpy.isclose(lx-lx[0], numpy.zeros_like(lx))):
+    if numpy.all(numpy.isclose(lx - lx[0], numpy.zeros_like(lx))):
         return (0, numpy.mean(ly)), 0
     p = numpy.polyfit(lx, ly, 1)
 
     # calculation of r-squared
     f = numpy.polyval(p, lx)
     fbar = numpy.sum(ly) / len(ly)
-    ssreg = numpy.sum((f-fbar)**2)
-    sstot = numpy.sum((ly - fbar)**2)
+    ssreg = numpy.sum((f - fbar) ** 2)
+    sstot = numpy.sum((ly - fbar) ** 2)
     rsq = ssreg / sstot
 
     return p, rsq
 
 
-def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
-             background='constant', plot=False, func_out=False, debug=False):
+def peak_fit(
+    xdata,
+    ydata,
+    iparams=None,
+    peaktype="Gauss",
+    maxit=300,
+    background="constant",
+    plot=False,
+    func_out=False,
+    debug=False,
+):
     """Fit function using odr-pack wrapper in scipy for peak shaped data.
 
     This is similar to
@@ -122,7 +140,7 @@ def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
 
     """
     if plot:
-        plot, plt = utilities.import_matplotlib_pyplot('XU.math.peak_fit')
+        plot, plt = utilities.import_matplotlib_pyplot("XU.math.peak_fit")
 
     gfunc, gfunc_dx, gfunc_dp = _getfit_func(peaktype, background)
 
@@ -145,40 +163,50 @@ def peak_fit(xdata, ydata, iparams=None, peaktype='Gauss', maxit=300,
 
     fit = myodr.run()
     if config.VERBOSITY >= config.DEBUG:
-        print('XU.math.peak_fit:')
+        print("XU.math.peak_fit:")
         fit.pprint()  # prints final message from odrpack
 
     fparam = fit.beta
     etaidx = []
-    if peaktype in ('PseudoVoigt', 'PseudoVoigtAsym'):
-        if background == 'linear':
-            etaidx = [-2, ]
+    if peaktype in ("PseudoVoigt", "PseudoVoigtAsym"):
+        if background == "linear":
+            etaidx = [
+                -2,
+            ]
         else:
-            etaidx = [-1, ]
-    elif peaktype == 'PseudoVoigtAsym2':
+            etaidx = [
+                -1,
+            ]
+    elif peaktype == "PseudoVoigtAsym2":
         etaidx = [5, 6]
     for e in etaidx:
         fparam[e] = 0 if fparam[e] < 0 else fparam[e]
         fparam[e] = 1 if fparam[e] > 1 else fparam[e]
 
     itlim = False
-    if fit.stopreason[0] == 'Iteration limit reached':
+    if fit.stopreason[0] == "Iteration limit reached":
         itlim = True
         if config.VERBOSITY >= config.INFO_LOW:
-            print("XU.math.peak_fit: Iteration limit reached, "
-                  "do not trust the result!")
+            print(
+                "XU.math.peak_fit: Iteration limit reached, "
+                "do not trust the result!"
+            )
 
     if plot:
         if isinstance(plot, str):
             plt.figure(plot)
         else:
-            plt.figure('XU:peak_fit')
-        plt.plot(xdata, ydata, 'ok', label='data', mew=2)
+            plt.figure("XU:peak_fit")
+        plt.plot(xdata, ydata, "ok", label="data", mew=2)
         if debug:
-            plt.plot(xdata, gfunc(iparams, xdata), '-', color='0.5',
-                     label='estimate')
-        plt.plot(xdata, gfunc(fparam, xdata), '-r',
-                 label=f'{peaktype}-fit')
+            plt.plot(
+                xdata,
+                gfunc(iparams, xdata),
+                "-",
+                color="0.5",
+                label="estimate",
+            )
+        plt.plot(xdata, gfunc(fparam, xdata), "-r", label=f"{peaktype}-fit")
         plt.legend()
 
     if func_out:
@@ -207,40 +235,44 @@ def _getfit_func(peaktype, background):
     """
     fdx = None
     fdp = None
-    if peaktype == 'Gauss':
+    if peaktype == "Gauss":
         f = Gauss1d
         fdx = Gauss1d_der_x
         fdp = Gauss1d_der_p
-    elif peaktype == 'Lorentz':
+    elif peaktype == "Lorentz":
         f = Lorentz1d
         fdx = Lorentz1d_der_x
         fdp = Lorentz1d_der_p
-    elif peaktype == 'PseudoVoigt':
+    elif peaktype == "PseudoVoigt":
         f = PseudoVoigt1d
         fdx = PseudoVoigt1d_der_x
         fdp = PseudoVoigt1d_der_p
-    elif peaktype == 'PseudoVoigtAsym':
+    elif peaktype == "PseudoVoigtAsym":
         f = PseudoVoigt1dasym
-    elif peaktype == 'PseudoVoigtAsym2':
+    elif peaktype == "PseudoVoigtAsym2":
         f = PseudoVoigt1dasym2
     else:
         raise InputError("keyword argument peaktype takes invalid value!")
 
-    if background == 'linear':
+    if background == "linear":
+
         def gfunc(param, x):
             return f(x, *param) + x * param[-1]
     else:
+
         def gfunc(param, x):
             return f(x, *param)
 
-    if peaktype in ('Gauss', 'Lorentz', 'PseudoVoigt'):
-        if background == 'linear':
+    if peaktype in ("Gauss", "Lorentz", "PseudoVoigt"):
+        if background == "linear":
+
             def gfunc_dx(param, x):
                 return fdx(x, *param) + param[-1]
 
             def gfunc_dp(param, x):
                 return numpy.vstack((fdp(x, *param), x))
         else:
+
             def gfunc_dx(param, x):
                 return fdx(x, *param)
 
@@ -272,25 +304,35 @@ def _check_iparams(iparams, peaktype, background):
     """
     if iparams is None:
         return
-    ptypes = {('Gauss', 'constant'): 4, ('Lorentz', 'constant'): 4,
-              ('Gauss', 'linear'): 5, ('Lorentz', 'linear'): 5,
-              ('PseudoVoigt', 'constant'): 5, ('PseudoVoigt', 'linear'): 6,
-              ('PseudoVoigtAsym', 'constant'): 6,
-              ('PseudoVoigtAsym', 'linear'): 7,
-              ('PseudoVoigtAsym2', 'constant'): 7,
-              ('PseudoVoigtAsym2', 'linear'): 8}
+    ptypes = {
+        ("Gauss", "constant"): 4,
+        ("Lorentz", "constant"): 4,
+        ("Gauss", "linear"): 5,
+        ("Lorentz", "linear"): 5,
+        ("PseudoVoigt", "constant"): 5,
+        ("PseudoVoigt", "linear"): 6,
+        ("PseudoVoigtAsym", "constant"): 6,
+        ("PseudoVoigtAsym", "linear"): 7,
+        ("PseudoVoigtAsym2", "constant"): 7,
+        ("PseudoVoigtAsym2", "linear"): 8,
+    }
     if not all(numpy.isreal(iparams)):
-        raise InputError("XU.math.peak_fit: all initial parameters need to"
-                         "be real!")
+        raise InputError(
+            "XU.math.peak_fit: all initial parameters need tobe real!"
+        )
     if (peaktype, background) in ptypes:
         nparams = ptypes[(peaktype, background)]
         if len(iparams) != nparams:
-            raise InputError(f"XU.math.peak_fit: {nparams} initial parameters "
-                             f"are needed for {peaktype}-peak with "
-                             f"{background} background.")
+            raise InputError(
+                f"XU.math.peak_fit: {nparams} initial parameters "
+                f"are needed for {peaktype}-peak with "
+                f"{background} background."
+            )
     else:
-        raise InputError(f"XU.math.peak_fit: invalid peak ({peaktype}) or "
-                         f"background ({background})")
+        raise InputError(
+            f"XU.math.peak_fit: invalid peak ({peaktype}) or "
+            f"background ({background})"
+        )
 
 
 def _guess_iparams(xdata, ydata, peaktype, background):
@@ -316,32 +358,35 @@ def _guess_iparams(xdata, ydata, peaktype, background):
     """
     ld = numpy.empty(len(ydata))
     # estimate peak position
-    ipos, ld, back, slope = center_of_mass(xdata, ydata, background,
-                                           full_output=True)
+    ipos, ld, back, slope = center_of_mass(
+        xdata, ydata, background, full_output=True
+    )
     maxpos = xdata[numpy.argmax(ld)]
     avx = numpy.average(xdata)
-    if numpy.abs(ipos - avx) < numpy.abs(maxpos-avx):
+    if numpy.abs(ipos - avx) < numpy.abs(maxpos - avx):
         ipos = maxpos  # use the estimate which is further from the center
 
     # estimate peak width
-    sigma1 = numpy.sqrt(numpy.sum(numpy.abs((xdata - ipos) ** 2 * ld)) /
-                        numpy.abs(numpy.sum(ld)))
-    sigma2 = fwhm_exp(xdata, ld)/(2 * numpy.sqrt(2 * numpy.log(2)))
+    sigma1 = numpy.sqrt(
+        numpy.sum(numpy.abs((xdata - ipos) ** 2 * ld))
+        / numpy.abs(numpy.sum(ld))
+    )
+    sigma2 = fwhm_exp(xdata, ld) / (2 * numpy.sqrt(2 * numpy.log(2)))
     sigma = sigma1 if sigma1 < sigma2 else sigma2
 
     # build initial parameters
     iparams = [ipos, sigma, numpy.max(ld), back]
-    if peaktype in ['Lorentz', 'PseudoVoigt']:
+    if peaktype in ["Lorentz", "PseudoVoigt"]:
         iparams[1] *= 2 * numpy.sqrt(2 * numpy.log(2))
-    if peaktype in ['PseudoVoigtAsym', 'PseudoVoigtAsym2']:
+    if peaktype in ["PseudoVoigtAsym", "PseudoVoigtAsym2"]:
         iparams.insert(1, iparams[1])
-    if peaktype in ['PseudoVoigt', 'PseudoVoigtAsym']:
+    if peaktype in ["PseudoVoigt", "PseudoVoigtAsym"]:
         # set ETA parameter to be between Gauss and Lorentz shape
         iparams.append(0.5)
-    if peaktype == 'PseudoVoigtAsym2':
+    if peaktype == "PseudoVoigtAsym2":
         iparams.append(0.5)
         iparams.append(0.5)
-    if background == 'linear':
+    if background == "linear":
         iparams.append(slope)
     return iparams
 
@@ -371,8 +416,9 @@ def gauss_fit(xdata, ydata, iparams=None, maxit=300):
     itlim :     bool
         flag to tell if the iteration limit was reached, should be False
     """
-    return peak_fit(xdata, ydata, iparams=iparams,
-                    peaktype='Gauss', maxit=maxit)
+    return peak_fit(
+        xdata, ydata, iparams=iparams, peaktype="Gauss", maxit=maxit
+    )
 
 
 def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
@@ -409,13 +455,17 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     """
     s = time.time()
     if config.VERBOSITY >= config.INFO_ALL:
-        print("XU.math.fit: Fitting started... ", end='')
+        print("XU.math.fit: Fitting started... ", end="")
 
     start = numpy.array(start)
     lx = x.flatten()
     ly = y.flatten()
-    mask = (lx > drange[0]) * (lx < drange[1]) * \
-        (ly > drange[2]) * (ly < drange[3])
+    mask = (
+        (lx > drange[0])
+        * (lx < drange[1])
+        * (ly > drange[2])
+        * (ly < drange[3])
+    )
     ly = ly[mask]
     lx = lx[mask]
     ldata = data.flatten()[mask]
@@ -424,7 +474,8 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
         return fit_function(x, z, *p) - data
 
     p, cov, _, errmsg, success = optimize.leastsq(
-        errfunc, start, args=(lx, ly, ldata), full_output=1, maxfev=maxfev)
+        errfunc, start, args=(lx, ly, ldata), full_output=1, maxfev=maxfev
+    )
 
     s = time.time() - s
     if config.VERBOSITY >= config.INFO_ALL:
@@ -433,8 +484,9 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
 
     # calculate correct variance covariance matrix
     if cov is not None:
-        s_sq = (errfunc(p, lx, ly, ldata) ** 2).sum() / \
-            (len(ldata) - len(start))
+        s_sq = (errfunc(p, lx, ly, ldata) ** 2).sum() / (
+            len(ldata) - len(start)
+        )
         pcov = cov * s_sq
     else:
         pcov = numpy.zeros((len(start), len(start)))
@@ -444,8 +496,15 @@ def fit_peak2d(x, y, data, start, drange, fit_function, maxfev=2000):
     return p, pcov
 
 
-def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
-                peaktype='Gaussian', returnerror=False):
+def multPeakFit(
+    x,
+    data,
+    peakpos,
+    peakwidth,
+    dranges=None,
+    peaktype="Gaussian",
+    returnerror=False,
+):
     """
     function to fit multiple Gaussian/Lorentzian peaks with linear background
     to a set of data
@@ -487,16 +546,18 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
      sd_amp :   list
         standard error of the peak amplitude
     """
-    warnings.warn("deprecated function -> use the lmfit Python packge instead",
-                  DeprecationWarning)
-    if peaktype == 'Gaussian':
+    warnings.warn(
+        "deprecated function -> use the lmfit Python packge instead",
+        DeprecationWarning,
+    )
+    if peaktype == "Gaussian":
         pfunc = Gauss1d
         pfunc_derx = Gauss1d_der_x
-    elif peaktype == 'Lorentzian':
+    elif peaktype == "Lorentzian":
         pfunc = Lorentz1d
         pfunc_derx = Lorentz1d_der_x
     else:
-        raise ValueError('wrong value for parameter peaktype was given')
+        raise ValueError("wrong value for parameter peaktype was given")
 
     def deriv_x(p, x):
         """
@@ -546,19 +607,32 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         # peak functions contributions
         for i in range(len(p) // 3):
             lp = (p[3 * i], p[3 * i + 1], p[3 * i + 2], 0)
-            if peaktype == 'Gaussian':
+            if peaktype == "Gaussian":
                 derp = numpy.append(derp, -2 * (lp[0] - x) * pfunc(x, *lp))
                 derp = numpy.append(
-                    derp, (lp[0] - x) ** 2 / (2 * lp[1] ** 3) * pfunc(x, *lp))
+                    derp, (lp[0] - x) ** 2 / (2 * lp[1] ** 3) * pfunc(x, *lp)
+                )
                 derp = numpy.append(derp, pfunc(x, *lp) / lp[2])
             else:  # Lorentzian
-                derp = numpy.append(derp, 4 * (x - lp[0]) * lp[2] / lp[1] /
-                                    (1 + (2 * (x - lp[0]) / lp[1]) ** 2) ** 2)
-                derp = numpy.append(derp, 4 * (lp[0] - x) * lp[2] /
-                                    lp[1] ** 2 / (1 + (2 * (x - lp[0]) /
-                                                       lp[1]) ** 2) ** 2)
-                derp = numpy.append(derp,
-                                    1 / (1 + (2 * (x - p[0]) / p[1]) ** 2))
+                derp = numpy.append(
+                    derp,
+                    4
+                    * (x - lp[0])
+                    * lp[2]
+                    / lp[1]
+                    / (1 + (2 * (x - lp[0]) / lp[1]) ** 2) ** 2,
+                )
+                derp = numpy.append(
+                    derp,
+                    4
+                    * (lp[0] - x)
+                    * lp[2]
+                    / lp[1] ** 2
+                    / (1 + (2 * (x - lp[0]) / lp[1]) ** 2) ** 2,
+                )
+                derp = numpy.append(
+                    derp, 1 / (1 + (2 * (x - p[0]) / p[1]) ** 2)
+                )
 
         # background contributions
         derp = numpy.append(derp, x)
@@ -616,8 +690,9 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     # exclude +/-2 peakwidth around the peaks
     bmask = numpy.ones_like(lx, dtype=bool)
     for pp, pw in zip(peakpos, peakwidth):
-        bmask = numpy.logical_and(bmask, numpy.logical_or(lx < (pp-2*pw),
-                                                          lx > (pp+2*pw)))
+        bmask = numpy.logical_and(
+            bmask, numpy.logical_or(lx < (pp - 2 * pw), lx > (pp + 2 * pw))
+        )
     if numpy.any(bmask):
         k, d = numpy.polyfit(lx[bmask], ldata[bmask], 1)
     else:
@@ -627,8 +702,10 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
 
     # peak parameters
     for i in range(len(peakpos)):
-        amp = ldata[(lx - peakpos[i]) >= 0][0] - \
-            numpy.polyval((k, d), lx)[(lx - peakpos[i]) >= 0][0]
+        amp = (
+            ldata[(lx - peakpos[i]) >= 0][0]
+            - numpy.polyval((k, d), lx)[(lx - peakpos[i]) >= 0][0]
+        )
         p += [peakpos[i], peakwidth[i], amp]
 
     # background parameters
@@ -651,13 +728,16 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
         print("XU.math.multPeakFit: fitted parameters")
         print(fit.beta)
     try:
-        if fit.stopreason[0] not in ['Sum of squares convergence']:
-            print("XU.math.multPeakFit: fit NOT converged "
-                  f"({fit.stopreason[0]})")
+        if fit.stopreason[0] not in ["Sum of squares convergence"]:
+            print(
+                f"XU.math.multPeakFit: fit NOT converged ({fit.stopreason[0]})"
+            )
             return None, None, None, None
     except IndexError:
-        print("XU.math.multPeakFit: fit most probably NOT converged (%s)"
-              % str(fit.stopreason))
+        print(
+            "XU.math.multPeakFit: fit most probably NOT converged (%s)"
+            % str(fit.stopreason)
+        )
         return None, None, None, None
     # prepare return values
     fpos = fit.beta[:-2:3]
@@ -672,8 +752,18 @@ def multPeakFit(x, data, peakpos, peakwidth, dranges=None,
     return fpos, fwidth, famp, background
 
 
-def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
-                 peaktype='Gaussian', fig="xu_plot", ax=None, fact=1.):
+def multPeakPlot(
+    x,
+    fpos,
+    fwidth,
+    famp,
+    background,
+    dranges=None,
+    peaktype="Gaussian",
+    fig="xu_plot",
+    ax=None,
+    fact=1.0,
+):
     """
     function to plot multiple Gaussian/Lorentz peaks with background values
     given by an array
@@ -702,9 +792,11 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
     fact :      float
         factor to use as multiplicator in the plot
     """
-    warnings.warn("deprecated function -> use the lmfit Python packge instead",
-                  DeprecationWarning)
-    success, plt = utilities.import_matplotlib_pyplot('XU.math.multPeakPlot')
+    warnings.warn(
+        "deprecated function -> use the lmfit Python packge instead",
+        DeprecationWarning,
+    )
+    success, plt = utilities.import_matplotlib_pyplot("XU.math.multPeakPlot")
     if not success:
         return
 
@@ -727,14 +819,14 @@ def multPeakPlot(x, fpos, fwidth, famp, background, dranges=None,
 
     f = numpy.zeros(lx.size)
     for i in range(len(fpos)):
-        if peaktype == 'Gaussian':
+        if peaktype == "Gaussian":
             lf = Gauss1d(lx, fpos[i], fwidth[i], famp[i], 0)
-        elif peaktype == 'Lorentzian':
+        elif peaktype == "Lorentzian":
             lf = Lorentz1d(lx, fpos[i], fwidth[i], famp[i], 0)
         else:
-            raise ValueError('wrong value for parameter peaktype was given')
+            raise ValueError("wrong value for parameter peaktype was given")
         f += lf
-        plt.plot(lx, (lf + lb) * fact, ':k')
+        plt.plot(lx, (lf + lb) * fact, ":k")
 
     # plot summed signal
-    plt.plot(lx, (f + lb) * fact, '-r', lw=1.5)
+    plt.plot(lx, (f + lb) * fact, "-r", lw=1.5)

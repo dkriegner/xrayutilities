@@ -28,7 +28,7 @@ class TestDatabase(unittest.TestCase):
     def setUpClass(cls):
         cls.el = xu.materials.elements.Dummy
         # test creation of database
-        fid, cls.dbfilename = tempfile.mkstemp(suffix='.db')
+        fid, cls.dbfilename = tempfile.mkstemp(suffix=".db")
         os.close(fid)
         xu.materials.database.createAndFillDatabase(cls.dbfilename)
         cls.db = xu.materials.DataBase(cls.dbfilename)
@@ -85,5 +85,5 @@ class TestDatabase(unittest.TestCase):
         self.assertAlmostEqual(f2, 0.0, places=10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

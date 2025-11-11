@@ -25,12 +25,12 @@ import xrayutilities as xu
 xu.config.VERBOSITY = 0
 
 
-@unittest.skipIf('CI' in os.environ, "slow test not running on CI")
+@unittest.skipIf("CI" in os.environ, "slow test not running on CI")
 class Test_Materials_reflection_condition(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.p = xu.PowderExperiment(en=10000)
-        cls.ksinmax = cls.p.k0 * math.sin(math.radians(179.9)/2)
+        cls.ksinmax = cls.p.k0 * math.sin(math.radians(179.9) / 2)
         cls.materials = []
         for name, obj in xu.materials.predefined_materials.__dict__.items():
             if isinstance(obj, xu.materials.Crystal):
@@ -62,9 +62,13 @@ class Test_Materials_reflection_condition(unittest.TestCase):
 
         # calculate structure factors
         qmax = 2 * self.ksinmax
-        hkl = numpy.mgrid[hma:hmi-1:-1,
-                          kma:kmi-1:-1,
-                          lma:lmi-1:-1].reshape(3, -1).T
+        hkl = (
+            numpy.mgrid[
+                hma : hmi - 1 : -1, kma : kmi - 1 : -1, lma : lmi - 1 : -1
+            ]
+            .reshape(3, -1)
+            .T
+        )
 
         q = m.Q(hkl)
         qnorm = numpy.linalg.norm(q, axis=1)
@@ -73,12 +77,15 @@ class Test_Materials_reflection_condition(unittest.TestCase):
         allowed = numpy.asarray([m.lattice.hkl_allowed(b) for b in hkl[mask]])
         # all forbidden peaks must have structure factor close to zero
         s = numpy.abs(
-            m.StructureFactorForQ(q[mask][numpy.logical_not(allowed)],
-                                  self.p.energy))
+            m.StructureFactorForQ(
+                q[mask][numpy.logical_not(allowed)], self.p.energy
+            )
+        )
         mviolate = numpy.logical_not(numpy.isclose(s, 0))
         if numpy.any(mviolate):
-            for h, sf in zip(hkl[mask][numpy.logical_not(allowed)][mviolate],
-                             s[mviolate]):
+            for h, sf in zip(
+                hkl[mask][numpy.logical_not(allowed)][mviolate], s[mviolate]
+            ):
                 errorinfo += "%s\t%s\n" % (h, sf)
         self.assertTrue(numpy.allclose(s, 0), msg=errorinfo)
         # check if atoms are too near (reduce chance of accidental extinction)
@@ -88,16 +95,19 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                 if len(env) > 1 or env[0][-1] != 1:
                     test_allowed = False
                     break
-        if test_allowed and 'n/a' not in m.lattice.reflection_conditions():
+        if test_allowed and "n/a" not in m.lattice.reflection_conditions():
             # all allowed peaks must have non-zero structure factor
             s = numpy.abs(
-                m.StructureFactorForQ(q[mask][allowed], self.p.energy))
+                m.StructureFactorForQ(q[mask][allowed], self.p.energy)
+            )
             mviolate = numpy.isclose(s, 0)
             if numpy.any(mviolate):
                 for h, sf in zip(hkl[mask][allowed][mviolate], s[mviolate]):
                     errorinfo += "%s\t%s\n" % (h, sf)
-            self.assertTrue(numpy.all(numpy.logical_not(numpy.isclose(s, 0))),
-                            msg=errorinfo)
+            self.assertTrue(
+                numpy.all(numpy.logical_not(numpy.isclose(s, 0))),
+                msg=errorinfo,
+            )
 
     def test_hklcond_predefined(self):
         for m in self.materials:
@@ -108,12 +118,12 @@ class Test_Materials_reflection_condition(unittest.TestCase):
         x, y, z = numpy.random.rand(3)
         a, b, c = numpy.random.rand(3) * 2 + 4
         al, be, gam = numpy.random.rand(3) * 60 + 60
-        pdict = {'a': a, 'b': b, 'c': c, 'alpha': al, 'beta': be, 'gamma': gam}
+        pdict = {"a": a, "b": b, "c": c, "alpha": al, "beta": be, "gamma": gam}
         wp = xu.materials.spacegrouplattice.wp
 
         for sg in wp.keys():
             # determine parameters for this space group
-            sgnr = int(sg.split(':')[0])
+            sgnr = int(sg.split(":")[0])
             csys, nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
             params = xu.materials.spacegrouplattice.sgrp_params[csys][0]
             p = [eval(par, pdict) for par in params]
@@ -127,8 +137,14 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                     wppar.append(y)
                 if wpentry[0] & 4:
                     wppar.append(z)
-                kwdict = {'atoms': [xu.materials.elements.Dummy, ], 'pos':
-                          [(wplabel, wppar), ]}
+                kwdict = {
+                    "atoms": [
+                        xu.materials.elements.Dummy,
+                    ],
+                    "pos": [
+                        (wplabel, wppar),
+                    ],
+                }
                 # generate test lattice
                 lat = xu.materials.SGLattice(sg, *p, **kwdict)
                 self._test_material(xu.materials.Crystal("SG%s" % sg, lat))
@@ -142,7 +158,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
         qmax = 2 * self.ksinmax
         N = 5
         for m in self.materials:
-            if 'n/a' in m.lattice.reflection_conditions():
+            if "n/a" in m.lattice.reflection_conditions():
                 continue
             hkls = m.lattice.get_allowed_hkl(qmax)
             hma = int(math.ceil(m.a / math.pi * self.ksinmax))
@@ -152,15 +168,23 @@ class Test_Materials_reflection_condition(unittest.TestCase):
             lma = int(math.ceil(m.c / math.pi * self.ksinmax))
             lmi = -lma
             errorinfo = str(m)
-            errorinfo += "HKL min/max: %d %d %d / %d %d %d" % (hmi, kmi, lmi,
-                                                               hma, kma, lma)
-            for h, k, l in zip(numpy.random.randint(hmi, hma, N),
-                               numpy.random.randint(kmi, kma, N),
-                               numpy.random.randint(lmi, lma, N)):
+            errorinfo += "HKL min/max: %d %d %d / %d %d %d" % (
+                hmi,
+                kmi,
+                lmi,
+                hma,
+                kma,
+                lma,
+            )
+            for h, k, l in zip(  # noqa: E741
+                numpy.random.randint(hmi, hma, N),
+                numpy.random.randint(kmi, kma, N),
+                numpy.random.randint(lmi, lma, N),
+            ):
                 qnorm = numpy.linalg.norm(m.Q(h, k, l))
                 if qnorm > qmax or qnorm == 0:
                     continue
-                r = abs(m.StructureFactor(m.Q(h, k, l)))**2
+                r = abs(m.StructureFactor(m.Q(h, k, l))) ** 2
                 # test that a peak with non-zero structure factor is indeed
                 # allowed
                 # Note: the opposite test is not possible because of accidental
@@ -169,5 +193,5 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                     self.assertIn((h, k, l), hkls, msg=errorinfo)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

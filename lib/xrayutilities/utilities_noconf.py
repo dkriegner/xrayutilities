@@ -33,21 +33,32 @@ from .exception import InputError
 try:  # works in Python >3.4
     ABC = abc.ABC
 except AttributeError:  # Python 2.7
-    ABC = abc.ABCMeta('ABC', (object, ), {'__slots__': ()})
+    ABC = abc.ABCMeta("ABC", (object,), {"__slots__": ()})
 
 
-__all__ = ['ABC', 'check_kwargs', 'en2lam', 'energies', 'energy',
-           'exchange_filepath', 'exchange_path', 'is_valid_variable_name',
-           'lam2en', 'makeNaturalName', 'wavelength']
+__all__ = [
+    "ABC",
+    "check_kwargs",
+    "en2lam",
+    "energies",
+    "energy",
+    "exchange_filepath",
+    "exchange_path",
+    "is_valid_variable_name",
+    "lam2en",
+    "makeNaturalName",
+    "wavelength",
+]
 
 energies = {
-    'CuKa1': 8047.82310,
-    'CuKa2': 8027.9117,
-    'CuKa12': 8041.18,
-    'CuKb': 8905.337,
-    'MoKa1': 17479.374,
-    'CoKa1': 6930.32,
-    'CoKa2': 6915.30}
+    "CuKa1": 8047.82310,
+    "CuKa2": 8027.9117,
+    "CuKa12": 8041.18,
+    "CuKb": 8905.337,
+    "MoKa1": 17479.374,
+    "CoKa1": 6930.32,
+    "CoKa2": 6915.30,
+}
 # wavelength values from International Tables of Crystallography:
 # Vol C, 2nd Ed. page 203
 # CuKa1: 1.54059292(45) the value in bracket is the uncertainty
@@ -260,13 +271,13 @@ def exchange_filepath(orig, new, keep=0, replace=None):
     """
     if new:
         if replace is None:
-            return exchange_path(orig, new, keep+1)
+            return exchange_path(orig, new, keep + 1)
         return exchange_path(orig, new, replace=replace)
     return orig
 
 
 def makeNaturalName(name, check=False):
-    ret = re.sub('[^0-9a-zA-Z]', '_', name.strip())
+    ret = re.sub("[^0-9a-zA-Z]", "_", name.strip())
     isvalid = is_valid_variable_name(ret)
     if not check or isvalid:
         return ret
@@ -290,8 +301,10 @@ def check_kwargs(kwargs, valid_kwargs, identifier):
     identifier :    str
         string to identifier the caller of this function
     """
-    desc = ', '.join([f"'{k}': {d}" for k, d in valid_kwargs.items()])
+    desc = ", ".join([f"'{k}': {d}" for k, d in valid_kwargs.items()])
     for k in kwargs:
         if k not in valid_kwargs:
-            raise TypeError("%s: unknown keyword argument ('%s') given; "
-                            "allowed are %s" % (identifier, k, desc))
+            raise TypeError(
+                "%s: unknown keyword argument ('%s') given; "
+                "allowed are %s" % (identifier, k, desc)
+            )

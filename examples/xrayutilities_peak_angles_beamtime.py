@@ -33,40 +33,66 @@ InPWZ = xu.materials.InPWZ
 ainp = InP.a
 InP4H = xu.materials.Crystal(
     "InP(4H)",
-    xu.materials.SGLattice(186, ainp / sqrt(2), 2 * sqrt(4/3.) * ainp,
-                           atoms=[In, In, P, P],
-                           pos=[('2a', 0), ('2b', 1/4.),
-                                ('2a', 3/16.), ('2b', 7/16.)]))
+    xu.materials.SGLattice(
+        186,
+        ainp / sqrt(2),
+        2 * sqrt(4 / 3.0) * ainp,
+        atoms=[In, In, P, P],
+        pos=[("2a", 0), ("2b", 1 / 4.0), ("2a", 3 / 16.0), ("2b", 7 / 16.0)],
+    ),
+)
 
 for energy in [8041]:  # eV
-
     lam = xu.en2lam(energy)  # e in eV -> lam in angstrom
-    print('         %d eV = %8.4f A' % (energy, lam))
-    print('------------------------------------------------------------------'
-          '-----------------')
-    print('material |         peak    |   omega  |  2theta  |    phi   |   '
-          'tt-om  |     |F|   ')
-    print('------------------------------------------------------------------'
-          '-----------------')
+    print("         %d eV = %8.4f A" % (energy, lam))
+    print(
+        "------------------------------------------------------------------"
+        "-----------------"
+    )
+    print(
+        "material |         peak    |   omega  |  2theta  |    phi   |   "
+        "tt-om  |     |F|   "
+    )
+    print(
+        "------------------------------------------------------------------"
+        "-----------------"
+    )
 
     exp111 = xu.HXRD(InP.Q(1, 1, -2), InP.Q(1, 1, 1), en=energy)
     exphex = xu.HXRD(InPWZ.Q(1, -1, 0), InPWZ.Q(0, 0, 1), en=energy)
 
     # InP ZB reflections
-    reflections = [[1, 1, 1], [2, 2, 2], [3, 3, 3],
-                   [3, 3, 1], [2, 2, 4], [1, 1, 5]]
+    reflections = [
+        [1, 1, 1],
+        [2, 2, 2],
+        [3, 3, 3],
+        [3, 3, 1],
+        [2, 2, 4],
+        [1, 1, 5],
+    ]
     mat = InP
     for hkl in reflections:
         qvec = mat.Q(hkl)
         [om, chi, phi, tt] = exp111.Q2Ang(qvec, trans=True)
         F = mat.StructureFactor(qvec, exp111._en)
         F /= mat.lattice.UnitCellVolume()
-        print('%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f '
-              % (mat.name, ' '.join(map(str, numpy.round(hkl, 2))), om, tt,
-                 phi, tt - om, numpy.abs(F)))
+        print(
+            "%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f "
+            % (
+                mat.name,
+                " ".join(map(str, numpy.round(hkl, 2))),
+                om,
+                tt,
+                phi,
+                tt - om,
+                numpy.abs(F),
+            )
+        )
 
-    print('------------------------------------------------------------------'
-          '-----------------')
+    print(
+        "------------------------------------------------------------------"
+        "-----------------"
+    )
     # InP WZ reflections
     reflections = [[0, 0, 2], [0, 0, 4], [1, -1, 4], [1, -1, 5], [1, -1, 6]]
     mat = InPWZ
@@ -75,12 +101,23 @@ for energy in [8041]:  # eV
         [om, chi, phi, tt] = exphex.Q2Ang(qvec, trans=True)
         F = mat.StructureFactor(qvec, exphex._en)
         F /= mat.lattice.UnitCellVolume()
-        print('%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f '
-              % (mat.name, ' '.join(map(str, numpy.round(hkl, 2))), om, tt,
-                 phi, tt - om, numpy.abs(F)))
+        print(
+            "%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f "
+            % (
+                mat.name,
+                " ".join(map(str, numpy.round(hkl, 2))),
+                om,
+                tt,
+                phi,
+                tt - om,
+                numpy.abs(F),
+            )
+        )
 
-    print('------------------------------------------------------------------'
-          '-----------------')
+    print(
+        "------------------------------------------------------------------"
+        "-----------------"
+    )
     # InP 4H
     reflections = [[0, 0, 4], [0, 0, 8], [1, -1, 9], [1, -1, 10], [1, -1, 11]]
     mat = InP4H
@@ -89,9 +126,20 @@ for energy in [8041]:  # eV
         [om, chi, phi, tt] = exphex.Q2Ang(qvec, trans=True)
         F = mat.StructureFactor(qvec, exphex._en)
         F /= mat.lattice.UnitCellVolume()
-        print('%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f '
-              % (mat.name, ' '.join(map(str, numpy.round(hkl, 2))), om, tt,
-                 phi, tt - om, numpy.abs(F)))
+        print(
+            "%8s | %15s | %8.4f | %8.4f | %8.4f | %8.4f | %8.2f "
+            % (
+                mat.name,
+                " ".join(map(str, numpy.round(hkl, 2))),
+                om,
+                tt,
+                phi,
+                tt - om,
+                numpy.abs(F),
+            )
+        )
 
-    print('------------------------------------------------------------------'
-          '-----------------')
+    print(
+        "------------------------------------------------------------------"
+        "-----------------"
+    )

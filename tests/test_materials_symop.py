@@ -30,13 +30,13 @@ class TestMaterialsSymOp(unittest.TestCase):
         cls.x, cls.y, cls.z = numpy.random.rand(3)
         a, b, c = numpy.random.rand(3) * 2 + 4
         al, be, gam = numpy.random.rand(3) * 60 + 60
-        pdict = {'a': a, 'b': b, 'c': c, 'alpha': al, 'beta': be, 'gamma': gam}
+        pdict = {"a": a, "b": b, "c": c, "alpha": al, "beta": be, "gamma": gam}
 
         cls.lats = []
         cls.gps = []
         for sg in xu.materials.spacegrouplattice.wp.keys():
             # determine parameters for this space group
-            sgnr = int(sg.split(':')[0])
+            sgnr = int(sg.split(":")[0])
             csys, nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
             params = xu.materials.spacegrouplattice.sgrp_params[csys][0]
             p = [eval(par, pdict) for par in params]
@@ -53,23 +53,34 @@ class TestMaterialsSymOp(unittest.TestCase):
         of the Wyckoff positions is reproducible/reversable
         """
         for lat, gp in zip(self.lats, self.gps):
-            symopsxyz = map(lambda s: '({})'.format(s.xyz()), lat.symops)
+            symopsxyz = map(lambda s: "({})".format(s.xyz()), lat.symops)
             self.assertCountEqual(symopsxyz, gp)
 
     def test_equivalent_hkl(self):
         hkl = numpy.random.randint(-11, 12, 3)
         for lat in self.lats:
-            ehkl = numpy.unique(numpy.einsum('...ij,j', lat._hklsym, hkl),
-                                axis=0)
+            ehkl = numpy.unique(
+                numpy.einsum("...ij,j", lat._hklsym, hkl), axis=0
+            )
             ehkl = set(tuple(e) for e in ehkl)
             self.assertEqual(lat.equivalent_hkls(hkl), ehkl)
 
     def test_iscentrosymmetric(self):
-        centrosym = list(itertools.chain([2], range(10, 16), range(47, 75),
-                                         range(83, 89), range(123, 143),
-                                         [147, 148], range(162, 168),
-                                         [175, 176], range(191, 195),
-                                         range(200, 207), range(221, 231)))
+        centrosym = list(
+            itertools.chain(
+                [2],
+                range(10, 16),
+                range(47, 75),
+                range(83, 89),
+                range(123, 143),
+                [147, 148],
+                range(162, 168),
+                [175, 176],
+                range(191, 195),
+                range(200, 207),
+                range(221, 231),
+            )
+        )
         for lat in self.lats:
             if lat.space_group_nr in centrosym:
                 self.assertTrue(lat.iscentrosymmetric)
@@ -81,8 +92,8 @@ class TestMaterialsSymOp(unittest.TestCase):
         tests that all Wyckoff positions are consistent with the symmetry
         operations
         """
-        reint = re.compile('[0-9]+')
-        pardict = {'x': self.x, 'y': self.y, 'z': self.z}
+        reint = re.compile("[0-9]+")
+        pardict = {"x": self.x, "y": self.y, "z": self.z}
         wp = xu.materials.spacegrouplattice.wp
         for lat, gp in zip(self.lats, self.gps):
             # check every Wyckoff position
@@ -90,11 +101,16 @@ class TestMaterialsSymOp(unittest.TestCase):
                 uniquepos = []
                 poscount = int(reint.match(wpkey).group())
                 thispositions = list(
-                    map(lambda p: SymOp.foldback(eval(p, pardict)),
-                        wp[lat.space_group][wpkey][1]))
+                    map(
+                        lambda p: SymOp.foldback(eval(p, pardict)),
+                        wp[lat.space_group][wpkey][1],
+                    )
+                )
                 pos0 = SymOp.foldback(thispositions[0])
                 genpos = [s.apply(pos0) for s in lat.symops]
-                uniquepos = [genpos[0], ]
+                uniquepos = [
+                    genpos[0],
+                ]
                 for p in genpos:
                     considered = False
                     for u in uniquepos:
@@ -102,8 +118,12 @@ class TestMaterialsSymOp(unittest.TestCase):
                             considered = True
                     if not considered:
                         uniquepos.append(p)
-                comparepos = [(t, g) for t in thispositions for g in uniquepos
-                              if numpy.allclose(t, g)]
+                comparepos = [
+                    (t, g)
+                    for t in thispositions
+                    for g in uniquepos
+                    if numpy.allclose(t, g)
+                ]
                 # check that number of Wyckoff position entries are correct
                 self.assertEqual(poscount, len(thispositions))
                 # check that an equal number of unique positions is produced
@@ -112,5 +132,5 @@ class TestMaterialsSymOp(unittest.TestCase):
                 self.assertEqual(poscount, len(comparepos))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

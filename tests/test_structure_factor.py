@@ -25,8 +25,18 @@ class TestStructureFactor(unittest.TestCase):
     def setUpClass(cls):
         cls.at = xu.materials.elements.Dummy
         cls.mat = xu.materials.Crystal(
-            'test', xu.materials.SGLattice('227:1', 4, atoms=[cls.at, ],
-                                           pos=['8a', ]))
+            "test",
+            xu.materials.SGLattice(
+                "227:1",
+                4,
+                atoms=[
+                    cls.at,
+                ],
+                pos=[
+                    "8a",
+                ],
+            ),
+        )
 
     def test_StructureFactor(self):
         f = self.mat.StructureFactor(self.mat.Q(1, 3, 1))
@@ -49,5 +59,5 @@ class TestStructureFactor(unittest.TestCase):
             self.assertAlmostEqual(f[i], 4 + 4j, places=10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

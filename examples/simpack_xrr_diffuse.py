@@ -18,8 +18,14 @@
 import time
 
 from numpy import arange, inf
-from matplotlib.pylab import (figure, legend, semilogy, tight_layout, xlabel,
-                              ylabel)
+from matplotlib.pylab import (
+    figure,
+    legend,
+    semilogy,
+    tight_layout,
+    xlabel,
+    ylabel,
+)
 
 import xrayutilities as xu
 
@@ -27,32 +33,48 @@ sub = xu.simpack.Layer(xu.materials.Si, inf, roughness=1, lat_correl=100)
 lay1 = xu.simpack.Layer(xu.materials.Si, 200, roughness=1, lat_correl=200)
 lay2 = xu.simpack.Layer(xu.materials.Ge, 70, roughness=3, lat_correl=50)
 
-ls = xu.simpack.LayerStack('SL 5', sub+5*(lay2+lay1))
+ls = xu.simpack.LayerStack("SL 5", sub + 5 * (lay2 + lay1))
 
 alphai = arange(0.17, 2, 0.001)
 
 print("calculate method=1, H=1, vert=0")
 start = time.time()
-m = xu.simpack.DiffuseReflectivityModel(ls, sample_width=10, beam_width=1,
-                                        energy='CuKa1', vert_correl=1000,
-                                        vert_nu=0, H=1, method=1, vert_int=0)
+m = xu.simpack.DiffuseReflectivityModel(
+    ls,
+    sample_width=10,
+    beam_width=1,
+    energy="CuKa1",
+    vert_correl=1000,
+    vert_nu=0,
+    H=1,
+    method=1,
+    vert_int=0,
+)
 d1 = m.simulate(alphai)
 print(f"elapsed time: {time.time() - start:.4f}")
 
 
 print("calculate method=2, H=1, vert=0")
 start = time.time()
-m = xu.simpack.DiffuseReflectivityModel(ls, sample_width=10, beam_width=1,
-                                        energy='CuKa1', vert_correl=1000,
-                                        vert_nu=0, H=1, method=2, vert_int=0)
+m = xu.simpack.DiffuseReflectivityModel(
+    ls,
+    sample_width=10,
+    beam_width=1,
+    energy="CuKa1",
+    vert_correl=1000,
+    vert_nu=0,
+    H=1,
+    method=2,
+    vert_int=0,
+)
 d2 = m.simulate(alphai)
 print("elapsed time: %.4f" % (time.time() - start))
 
 figure()
-semilogy(alphai, d1, label='method=1')
-semilogy(alphai, d2, label='method=2')
+semilogy(alphai, d1, label="method=1")
+semilogy(alphai, d2, label="method=2")
 
 legend()
-xlabel('incidence angle (deg)')
-ylabel('intensity (arb. u.)')
+xlabel("incidence angle (deg)")
+ylabel("intensity (arb. u.)")
 tight_layout()

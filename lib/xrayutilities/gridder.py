@@ -35,17 +35,18 @@ class GridderFlags(enum.IntFlag):
 
 def delta(min_value, max_value, n):
     """
-    Compute the stepsize along an axis of a grid.
+     Compute the stepsize along an axis of a grid.
 
-    Parameters
-    ----------
-   min_value :	 axis minimum value
-   max_value :	 axis maximum value
-   n :	 number of steps
+     Parameters
+     ----------
+    min_value :	 axis minimum value
+    max_value :	 axis maximum value
+    n :	 number of steps
     """
     if n != 1:
-        return (numpy.double(max_value) - numpy.double(min_value)) / \
-               numpy.double(n - 1)
+        return (
+            numpy.double(max_value) - numpy.double(min_value)
+        ) / numpy.double(n - 1)
     return numpy.inf
 
 
@@ -67,7 +68,7 @@ def axis(min_value, max_value, n):
         d = delta(min_value, max_value, n)
         a = min_value + d * numpy.arange(0, n, dtype=numpy.double)
     else:
-        a = (min_value + max_value) / 2.
+        a = (min_value + max_value) / 2.0
 
     return a
 
@@ -115,9 +116,9 @@ class Gridder(utilities.ABC):
         # flag to allow for sequential gridding with fixed data range
         self.fixed_range = False
 
-        if not hasattr(self, '_gdata'):
+        if not hasattr(self, "_gdata"):
             self._gdata = numpy.empty(0)
-        if not hasattr(self, '_gnorm'):
+        if not hasattr(self, "_gnorm"):
             self._gnorm = numpy.empty(0)
 
         if config.VERBOSITY >= config.INFO_ALL:
@@ -137,8 +138,9 @@ class Gridder(utilities.ABC):
         when sequential gridding is performed
         """
         if bool not in [False, True]:
-            raise TypeError("Normalize flag must be a boolan value "
-                            "(True/False)!")
+            raise TypeError(
+                "Normalize flag must be a boolan value (True/False)!"
+            )
         self.normalize = bool
         if bool:  # Note this is usually done in Python anyways!
             self.flags &= ~GridderFlags.NO_NORMALIZATION
@@ -147,8 +149,9 @@ class Gridder(utilities.ABC):
 
     def KeepData(self, bool):
         if bool not in [False, True]:
-            raise TypeError("Keep Data flag must be a boolan value"
-                            "(True/False)!")
+            raise TypeError(
+                "Keep Data flag must be a boolan value(True/False)!"
+            )
 
         self.keep_data = bool
 
@@ -158,7 +161,7 @@ class Gridder(utilities.ABC):
         """
         if self.normalize:
             tmp = numpy.copy(self._gdata)
-            mask = (self._gnorm != 0)
+            mask = self._gnorm != 0
             tmp[mask] /= self._gnorm[mask].astype(numpy.double)
             return tmp
         return self._gdata.copy()
@@ -182,11 +185,10 @@ class Gridder(utilities.ABC):
 
 
 class Gridder1D(Gridder):
-
     def __init__(self, nx):
         Gridder.__init__(self)
         if nx <= 0:
-            raise InputError('nx must be a positiv integer!')
+            raise InputError("nx must be a positiv integer!")
 
         self.nx = nx
         self.xmin = 0
@@ -194,7 +196,7 @@ class Gridder1D(Gridder):
         self._gdata = numpy.zeros(nx, dtype=numpy.double)
         self._gnorm = numpy.zeros(nx, dtype=numpy.double)
 
-    def savetxt(self, filename, header=''):
+    def savetxt(self, filename, header=""):
         """
         save gridded data to a txt file with two columns. The first column is
         the data coordinate and the second the corresponding data value
@@ -206,8 +208,12 @@ class Gridder1D(Gridder):
         header :    str, optional
             optional header for the data file.
         """
-        numpy.savetxt(filename, numpy.vstack((self.xaxis, self.data)).T,
-                      header=header, fmt='%.6g %.4g')
+        numpy.savetxt(
+            filename,
+            numpy.vstack((self.xaxis, self.data)).T,
+            header=header,
+            fmt="%.6g %.4g",
+        )
 
     def __get_xaxis(self):
         """
@@ -252,8 +258,10 @@ class Gridder1D(Gridder):
         data = self._prepare_array(data)
 
         if x.size != data.size:
-            raise InputError(f"XU.{self.__class__.__name__}: size of given "
-                             "datasets (x, data) is not equal!")
+            raise InputError(
+                f"XU.{self.__class__.__name__}: size of given "
+                "datasets (x, data) is not equal!"
+            )
 
         if not self.fixed_range:
             # assume that with setting keep_data the user wants to call the
@@ -278,8 +286,16 @@ class Gridder1D(Gridder):
         # remove normalize flag for C-code, normalization is always performed
         # in python
         flags = self.flags | GridderFlags.NO_NORMALIZATION
-        cxrayutilities.gridder1d(x, data, self.nx, self.xmin, self.xmax,
-                                 self._gdata, self._gnorm, flags)
+        cxrayutilities.gridder1d(
+            x,
+            data,
+            self.nx,
+            self.xmin,
+            self.xmax,
+            self._gdata,
+            self._gnorm,
+            flags,
+        )
 
 
 class FuzzyGridder1D(Gridder1D):
@@ -309,17 +325,25 @@ class FuzzyGridder1D(Gridder1D):
         x, data = self._checktransinput(x, data)
 
         if not width:
-            width = delta(self.xmin, self.xmax, self.nx) / 2.
+            width = delta(self.xmin, self.xmax, self.nx) / 2.0
 
         # remove normalize flag for C-code, normalization is always performed
         # in python
         flags = self.flags | GridderFlags.NO_NORMALIZATION
-        cxrayutilities.fuzzygridder1d(x, data, self.nx, self.xmin, self.xmax,
-                                      self._gdata, self._gnorm, width, flags)
+        cxrayutilities.fuzzygridder1d(
+            x,
+            data,
+            self.nx,
+            self.xmin,
+            self.xmax,
+            self._gdata,
+            self._gnorm,
+            width,
+            flags,
+        )
 
 
 class npyGridder1D(Gridder1D):
-
     def __get_xaxis(self):
         """
         Returns the xaxis of the gridder
@@ -328,7 +352,7 @@ class npyGridder1D(Gridder1D):
         """
         # no -1 here to be consistent with numpy.histogram
         dx = (float(self.xmax - self.xmin)) / float(self.nx)
-        ax = self.xmin + dx * numpy.arange(0, self.nx) + dx / 2.
+        ax = self.xmin + dx * numpy.arange(0, self.nx) + dx / 2.0
         return ax
 
     xaxis = property(__get_xaxis)
@@ -359,10 +383,12 @@ class npyGridder1D(Gridder1D):
             self.dataRange(lx.min(), lx.max(), self.keep_data)
 
         # grid the data using numpy histogram
-        tmpgdata, _ = numpy.histogram(lx, weights=ldata, bins=self.nx,
-                                      range=(self.xmin, self.xmax))
-        tmpgnorm, _ = numpy.histogram(lx, bins=self.nx,
-                                      range=(self.xmin, self.xmax))
+        tmpgdata, _ = numpy.histogram(
+            lx, weights=ldata, bins=self.nx, range=(self.xmin, self.xmax)
+        )
+        tmpgnorm, _ = numpy.histogram(
+            lx, bins=self.nx, range=(self.xmin, self.xmax)
+        )
         if self.keep_data:
             self._gnorm += tmpgnorm
             self._gdata += tmpgdata

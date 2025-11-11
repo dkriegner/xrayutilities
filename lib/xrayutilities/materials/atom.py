@@ -20,6 +20,7 @@
 The Atom class manages the database access for atomic scattering factors and
 the atomic mass.
 """
+
 import hashlib
 import re
 from importlib.resources import files
@@ -35,8 +36,7 @@ _db.Open()
 
 
 def get_key(*args):
-    """Generate a hash key for several possible types of arguments
-    """
+    """Generate a hash key for several possible types of arguments"""
     tup = []
     for a in args:
         if isinstance(a, numpy.ndarray):
@@ -53,16 +53,16 @@ class Atom:
 
     def __init__(self, name, num):
         self.name = name
-        self.ostate = re.sub('[A-Za-z]', '', name)
-        for r, o in zip(('dot', 'p', 'm'), ('.', '+', '-')):
+        self.ostate = re.sub("[A-Za-z]", "", name)
+        for r, o in zip(("dot", "p", "m"), (".", "+", "-")):
             self.ostate = self.ostate.replace(o, r)
 
-        self.basename = re.sub('[^A-Za-z]', '', name)
+        self.basename = re.sub("[^A-Za-z]", "", name)
         self.num = num
         self.__weight = None
         self.__color = None
         self.__radius = numpy.nan
-        self._dbcache = {prop: [] for prop in ('f0', 'f1', 'f2', 'f')}
+        self._dbcache = {prop: [] for prop in ("f0", "f1", "f2", "f")}
 
     def __key__(self):
         """Key function to return the elements number"""
@@ -112,8 +112,7 @@ class Atom:
         return False, None
 
     def set_cache(self, prop, key, result):
-        """Set result to be cached to speed up future calls
-        """
+        """Set result to be cached to speed up future calls"""
         history = self._dbcache[prop]
         if len(history) == self.max_cache_length:
             history.pop(-1)
@@ -121,41 +120,41 @@ class Atom:
 
     def f0(self, q):
         key = get_key(q)
-        f, res = self.get_cache('f0', key)
+        f, res = self.get_cache("f0", key)
         if f:
             return res
         _db.SetMaterial(self.basename)
         res = _db.GetF0(q, self.ostate)
-        self.set_cache('f0', key, res)
+        self.set_cache("f0", key, res)
         return res
 
-    def f1(self, en='config'):
+    def f1(self, en="config"):
         key = get_key(en)
-        f, res = self.get_cache('f1', key)
+        f, res = self.get_cache("f1", key)
         if f:
             return res
-        if isinstance(en, str) and en == 'config':
+        if isinstance(en, str) and en == "config":
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)
         res = _db.GetF1(utilities.energy(en))
-        self.set_cache('f1', key, res)
+        self.set_cache("f1", key, res)
         return res
 
-    def f2(self, en='config'):
+    def f2(self, en="config"):
         key = get_key(en)
-        f, res = self.get_cache('f2', key)
+        f, res = self.get_cache("f2", key)
         if f:
             return res
-        if isinstance(en, str) and en == 'config':
+        if isinstance(en, str) and en == "config":
             en = utilities.energy(config.ENERGY)
 
         _db.SetMaterial(self.basename)
         res = _db.GetF2(utilities.energy(en))
-        self.set_cache('f2', key, res)
+        self.set_cache("f2", key, res)
         return res
 
-    def f(self, q, en='config'):
+    def f(self, q, en="config"):
         """Function to calculate the atomic structure factor F
 
         Parameters
@@ -173,12 +172,12 @@ class Atom:
 
         """
         key = get_key(q, en)
-        f, res = self.get_cache('f', key)
+        f, res = self.get_cache("f", key)
         if f:
             return res
 
-        res = self.f0(q) + self.f1(en) + 1.j * self.f2(en)
-        self.set_cache('f', key, res)
+        res = self.f0(q) + self.f1(en) + 1.0j * self.f2(en)
+        self.set_cache("f", key, res)
         return res
 
     def __str__(self):

@@ -21,14 +21,16 @@ import unittest
 import numpy
 import xrayutilities as xu
 
-testfiletmp = 'p08tty_%05d.dat'
+testfiletmp = "p08tty_%05d.dat"
 testfile = testfiletmp % 29
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_TTY(unittest.TestCase):
     dshape = (102,)
     dmax = 1444999.0
@@ -37,13 +39,14 @@ class TestIO_TTY(unittest.TestCase):
     motmin = 13.0
     tpos = 53
     dtpos = 342586.0
-    motorname = 'om'
-    countername = 'EigerInt'
+    motorname = "om"
+    countername = "EigerInt"
 
     @classmethod
     def setUpClass(cls):
         (cls.motor, _), cls.data = xu.io.gettty08_scan(
-            testfiletmp, (29, 30), cls.motorname, 'chi', path=datadir)
+            testfiletmp, (29, 30), cls.motorname, "chi", path=datadir
+        )
         cls.inte = cls.data[cls.countername]
 
     def test_datashape(self):
@@ -61,5 +64,5 @@ class TestIO_TTY(unittest.TestCase):
         self.assertTrue(numpy.all(self.motor == self.data[self.motorname]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

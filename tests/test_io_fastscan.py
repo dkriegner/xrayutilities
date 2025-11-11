@@ -21,13 +21,15 @@ import unittest
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'fastscan.spec.gz'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "fastscan.spec.gz"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_FastScan(unittest.TestCase):
     dshape = (62500,)
     dshape_retrace = (61992,)
@@ -37,8 +39,8 @@ class TestIO_FastScan(unittest.TestCase):
     xmin = 40.283199
     ymin = 138.61099
     ymax = 180.02901
-    cname = 'mpx4int'
-    timer = 'timer'
+    cname = "mpx4int"
+    timer = "timer"
     timermax = 1285.15
 
     @classmethod
@@ -48,9 +50,12 @@ class TestIO_FastScan(unittest.TestCase):
     def test_grid2D(self):
         N = 200
         self.fs.retrace_clean()
-        g2d = self.fs.grid2D(N, N+1, gridrange=((self.xmin, self.xmax),
-                                                (self.ymin, self.ymax)))
-        self.assertEqual(g2d.data.shape, (N, N+1))
+        g2d = self.fs.grid2D(
+            N,
+            N + 1,
+            gridrange=((self.xmin, self.xmax), (self.ymin, self.ymax)),
+        )
+        self.assertEqual(g2d.data.shape, (N, N + 1))
         self.assertAlmostEqual(g2d.xaxis.min(), self.xmin, places=4)
         self.assertAlmostEqual(g2d.xaxis.max(), self.xmax, places=4)
         self.assertAlmostEqual(g2d.yaxis.min(), self.ymin, places=4)
@@ -66,17 +71,20 @@ class TestIO_FastScan(unittest.TestCase):
         self.assertEqual(self.fs.yvalues.shape, self.dshape_retrace)
 
     def test_datavalues(self):
-        self.assertAlmostEqual(self.fs.motorposition(self.timer).max(),
-                               self.timermax, places=2)
+        self.assertAlmostEqual(
+            self.fs.motorposition(self.timer).max(), self.timermax, places=2
+        )
         self.assertAlmostEqual(self.fs.xvalues.min(), self.xmin, places=5)
         self.assertAlmostEqual(self.fs.xvalues.max(), self.xmax, places=5)
         self.assertAlmostEqual(self.fs.yvalues.min(), self.ymin, places=5)
         self.assertAlmostEqual(self.fs.yvalues.max(), self.ymax, places=5)
-        self.assertAlmostEqual(self.fs.data[self.cname].min(), self.dmin,
-                               places=5)
-        self.assertAlmostEqual(self.fs.data[self.cname].max(), self.dmax,
-                               places=5)
+        self.assertAlmostEqual(
+            self.fs.data[self.cname].min(), self.dmin, places=5
+        )
+        self.assertAlmostEqual(
+            self.fs.data[self.cname].max(), self.dmax, places=5
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -22,13 +22,15 @@ import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0  # make no output during test
-testfile = 'rigaku_rsm.ras.gz'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "rigaku_rsm.ras.gz"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_Rigaku(unittest.TestCase):
     nscans = 401
     dshape = (301,)
@@ -39,15 +41,16 @@ class TestIO_Rigaku(unittest.TestCase):
     motmin = 26.90
     tpos = 34
     dtpos = 164.0
-    motorname = 'TwoTheta'
-    countername = 'int'
+    motorname = "TwoTheta"
+    countername = "int"
 
     @classmethod
     def setUpClass(cls):
         cls.rasfile = xu.io.RASFile(testfile, path=datadir)
         cls.sdata = cls.rasfile.scans[cls.scannr].data
-        cls.motor, data = xu.io.getras_scan(testfile+'%s', '',
-                                            cls.motorname, path=datadir)
+        cls.motor, data = xu.io.getras_scan(
+            testfile + "%s", "", cls.motorname, path=datadir
+        )
         cls.inte = data[cls.countername]
 
     def test_datashape_ras(self):
@@ -55,8 +58,8 @@ class TestIO_Rigaku(unittest.TestCase):
         self.assertEqual(self.dshape, self.sdata.shape)
 
     def test_datashape_all(self):
-        self.assertEqual(self.dshape[0]*self.nscans, self.inte.size)
-        self.assertEqual(self.dshape[0]*self.nscans, self.motor.size)
+        self.assertEqual(self.dshape[0] * self.nscans, self.inte.size)
+        self.assertEqual(self.dshape[0] * self.nscans, self.motor.size)
 
     def test_datavalues(self):
         mot = self.sdata[self.motorname]
@@ -68,10 +71,16 @@ class TestIO_Rigaku(unittest.TestCase):
         self.assertAlmostEqual(self.dtpos, inte[self.tpos], places=6)
 
     def test_datamethods(self):
-        self.assertTrue(numpy.all(self.sdata[self.countername] ==
-                                  self.inte[self.scannr*self.dshape[0]:
-                                            (self.scannr+1)*self.dshape[0]]))
+        self.assertTrue(
+            numpy.all(
+                self.sdata[self.countername]
+                == self.inte[
+                    self.scannr * self.dshape[0] : (self.scannr + 1)
+                    * self.dshape[0]
+                ]
+            )
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

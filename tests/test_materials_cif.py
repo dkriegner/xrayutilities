@@ -22,15 +22,17 @@ import numpy
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0
-testfile = 'rg5041sup1.cif'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "rg5041sup1.cif"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestMAT_CIF(unittest.TestCase):
-    sg = '129:2'
+    sg = "129:2"
     mata = 3.820
     matc = 6.318
 
@@ -47,10 +49,12 @@ class TestMAT_CIF(unittest.TestCase):
 
     def test_structurefactor(self):
         Q = self.mat.Q(numpy.random.randint(-3, 4, size=3))
-        self.assertAlmostEqual(self.mat.StructureFactor(Q),
-                               xu.materials.CuMnAs.StructureFactor(Q),
-                               places=3)
+        self.assertAlmostEqual(
+            self.mat.StructureFactor(Q),
+            xu.materials.CuMnAs.StructureFactor(Q),
+            places=3,
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

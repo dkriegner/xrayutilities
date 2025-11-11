@@ -47,8 +47,7 @@ re_col_index = re.compile(r"\d+\s+")
 re_col_type = re.compile(r"\[.+\]")
 re_num = re.compile(r"[0-9]")
 
-dtype_map = {"FLOAT": "f4",
-             "DOUBLE": "f8"}
+dtype_map = {"FLOAT": "f4", "DOUBLE": "f8"}
 
 
 class SPECTRAFileComments(dict):
@@ -67,7 +66,6 @@ class SPECTRAFileComments(dict):
 
 
 class SPECTRAFileParameters(dict):
-
     def __init__(self):
         pass
 
@@ -120,7 +118,6 @@ class SPECTRAFileParameters(dict):
 
 
 class SPECTRAFileDataColumn:
-
     def __init__(self, index, name, unit, type):
         self.index = int(index)
         self.name = name
@@ -133,7 +130,6 @@ class SPECTRAFileDataColumn:
 
 
 class SPECTRAFileData:
-
     def __init__(self):
         self.collist = []
         self.data = None
@@ -145,8 +141,10 @@ class SPECTRAFileData:
         try:
             return self.data[key]
         except IndexError as exc:
-            print("XU.io.specta.SPECTRAFileData: data contains no column "
-                  "named: %s!" % key)
+            print(
+                "XU.io.specta.SPECTRAFileData: data contains no column "
+                "named: %s!" % key
+            )
             raise exc
 
     def __str__(self):
@@ -178,7 +176,7 @@ class SPECTRAFileData:
             ostr += fmtstr % (c1.__str__(), c2.__str__(), c3.__str__())
 
         # residual output row
-        c = ['', '', '']
+        c = ["", "", ""]
         for j in range(nres):
             c[j] = self.collist[-nres + j]
 
@@ -189,7 +187,6 @@ class SPECTRAFileData:
 
 
 class SPECTRAFile:
-
     """
     Represents a SPECTRA data file. The file is read during the
     Constructor call. This class should work for data stored at
@@ -261,13 +258,15 @@ class SPECTRAFile:
             The method returns None in the case of everything went fine, True
             otherwise.
         """
-        with xu_h5open(h5file, 'w') as h5:
+        with xu_h5open(h5file, "w") as h5:
             # create the group where to store the data
             try:
-                g = h5.create_group(group + '/' + name)
+                g = h5.create_group(group + "/" + name)
             except ValueError:
-                print("XU.io.spectra.Save2HDF5: cannot create group %s for "
-                      "writing data!" % name)
+                print(
+                    "XU.io.spectra.Save2HDF5: cannot create group %s for "
+                    "writing data!" % name
+                )
                 return True
 
             # start with saving scan comments
@@ -275,25 +274,31 @@ class SPECTRAFile:
                 try:
                     g.attrs[k] = self.comments[k]
                 except IndexError:
-                    print("XU.io.spectra.Save2HDF5: cannot save file comment "
-                          "%s = %s to group %s!" % (k, self.comments[k], name))
+                    print(
+                        "XU.io.spectra.Save2HDF5: cannot save file comment "
+                        "%s = %s to group %s!" % (k, self.comments[k], name)
+                    )
 
             # save scan parameters
             for k in self.params:
                 try:
                     g.attrs[k] = self.params[k]
                 except IndexError:
-                    print("XU.io.spectra.Save2HDF5: cannot save file parametes"
-                          " %s to group %s!" % (k, name))
+                    print(
+                        "XU.io.spectra.Save2HDF5: cannot save file parametes"
+                        " %s to group %s!" % (k, name)
+                    )
 
             # ----------finally we need to save the data -------------------
-            kwds = {'fletcher32': True, 'compression': 'gzip'}
+            kwds = {"fletcher32": True, "compression": "gzip"}
 
             try:
                 g.create_dataset("data", data=self.data.data, **kwds)
             except (RuntimeError, ValueError):
-                print("XU.io.spectra.Save2HDF5: cannot create table for "
-                      "storing scan data!")
+                print(
+                    "XU.io.spectra.Save2HDF5: cannot create table for "
+                    "storing scan data!"
+                )
                 return True
 
             # if there is MCA data - store this
@@ -301,8 +306,10 @@ class SPECTRAFile:
                 try:
                     c = g.create_dataset(mcaname, data=self.mca, **kwds)
                 except (RuntimeError, ValueError):
-                    print("XU.io.spectra.Save2HDF5: cannot create carray %s "
-                          "for MCA data!" % mcaname)
+                    print(
+                        "XU.io.spectra.Save2HDF5: cannot create carray %s "
+                        "for MCA data!" % mcaname
+                    )
                     return True
 
                 # set MCA specific attributes
@@ -367,9 +374,9 @@ class SPECTRAFile:
         col_names = []
         col_types = []
         rec_list = []
-        with open(self.filename, 'rb') as fid:
+        with open(self.filename, "rb") as fid:
             for line in fid:
-                line = line.decode('utf8', 'ignore')
+                line = line.decode("utf8", "ignore")
                 line = line.strip()
 
                 # read the next line if the line starts with a "!"
@@ -395,21 +402,24 @@ class SPECTRAFile:
                     except ValueError:
                         # avoid annoying output
                         if config.VERBOSITY >= config.INFO_ALL:
-                            print("XU.io.SPECTRAFile.Read: cannot interpret "
-                                  "the comment string: %s" % (line))
+                            print(
+                                "XU.io.SPECTRAFile.Read: cannot interpret "
+                                "the comment string: %s" % (line)
+                            )
                         continue
 
                     key = key.strip()
                     # remove whitespaces to be conform with natural naming
-                    key = key.replace(' ', '')
-                    key = key.replace(':', '_')
+                    key = key.replace(" ", "")
+                    key = key.replace(":", "_")
                     # remove possible number at first position
                     if re_num.findall(key[0]) != []:
                         key = "_" + key
                     value = value.strip()
                     if config.VERBOSITY >= config.DEBUG:
-                        print("XU.io.SPECTRAFile.Read: "
-                              f"comment({key}): {value}")
+                        print(
+                            f"XU.io.SPECTRAFile.Read: comment({key}): {value}"
+                        )
 
                     try:
                         value = float(value)
@@ -425,20 +435,24 @@ class SPECTRAFile:
                     try:
                         (key, value) = line.split("=")
                     except ValueError:
-                        print("XU.io.SPECTRAFile.Read: cannot interpret the "
-                              f"parameter string: {line}")
+                        print(
+                            "XU.io.SPECTRAFile.Read: cannot interpret the "
+                            f"parameter string: {line}"
+                        )
 
                     key = key.strip()
                     # remove whitespaces to be conform with natural naming
-                    key = key.replace(' ', '')
-                    key = key.replace(':', '_')
+                    key = key.replace(" ", "")
+                    key = key.replace(":", "_")
                     # remove possible number at first position
                     if re_num.findall(key[0]) != []:
                         key = "_" + key
                     value = value.strip()
                     if config.VERBOSITY >= config.DEBUG:
-                        print("XU.io.SPECTRAFile.Read: parameter: k, v: %s, %s"
-                              % (key, value))
+                        print(
+                            "XU.io.SPECTRAFile.Read: parameter: k, v: %s, %s"
+                            % (key, value)
+                        )
 
                     try:
                         value = float(value)
@@ -468,17 +482,18 @@ class SPECTRAFile:
                             lv = re_wspaces.split(lval)
                             index = int(lv[1])
                             name = "".join(lv[2:])
-                            name = name.replace(':', '_')
+                            name = name.replace(":", "_")
                         except IndexError:
                             lv = re_wspaces.split(line)
                             index = int(lv[1])
                             dtype = lv[-1]
                             name = "".join(lv[2:-1])
-                            name = name.replace(':', '_')
+                            name = name.replace(":", "_")
 
                         # store column definition
                         self.data.append(
-                            SPECTRAFileDataColumn(index, name, unit, dtype))
+                            SPECTRAFileDataColumn(index, name, unit, dtype)
+                        )
 
                         if name in col_names:
                             name += f"{name}_1"
@@ -494,11 +509,14 @@ class SPECTRAFile:
                         rec_list.append(tuple(dlist))
 
         if config.VERBOSITY >= config.DEBUG:
-            print("XU.io.SPECTRAFile.Read: data columns: name, type: %s, %s"
-                  % (col_names, col_types))
+            print(
+                "XU.io.SPECTRAFile.Read: data columns: name, type: %s, %s"
+                % (col_names, col_types)
+            )
         if rec_list:
-            self.data.data = rec.fromrecords(rec_list, formats=col_types,
-                                             names=col_names)
+            self.data.data = rec.fromrecords(
+                rec_list, formats=col_types, names=col_names
+            )
         else:
             self.data.data = None
 
@@ -543,7 +561,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
     """
 
     with xu_h5open(h5file) as h5:
-        mca = kwargs.get('mca', 'MCA')
+        mca = kwargs.get("mca", "MCA")
 
         if "samplename" in kwargs:
             basename = kwargs["samplename"]
@@ -552,8 +570,10 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
             basenlist = re_underscore.split(nodename)
             basename = "_".join(basenlist[:-1])
             if config.VERBOSITY >= config.DEBUG:
-                print("XU.io.spectra.geth5_spectra_map: using \'%s\' as "
-                      "basename" % (basename))
+                print(
+                    "XU.io.spectra.geth5_spectra_map: using '%s' as "
+                    "basename" % (basename)
+                )
 
         if isinstance(scans, (list, tuple)):
             scanlist = scans
@@ -568,14 +588,15 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
 
         for nr in scanlist:
             h5scan = h5.get(basename + "_%05d" % nr)
-            sdata = h5scan.get('data')
+            sdata = h5scan.get("data")
             mcanode = h5.get(basename + "_%05d/%s" % (nr, mca))
             mcadata = numpy.asarray(mcanode)
 
             # append scan data to MAP, where all data are stored
             mcatemp = mcadata.view([(mca, (mcadata.dtype, mcadata.shape[1]))])
-            sdtmp = numpy.lib.recfunctions.merge_arrays([sdata, mcatemp],
-                                                        flatten=True)
+            sdtmp = numpy.lib.recfunctions.merge_arrays(
+                [sdata, mcatemp], flatten=True
+            )
             if MAP.dtype == numpy.float64:
                 MAP.dtype = sdtmp.dtype
             MAP = numpy.append(MAP, sdtmp)
@@ -592,8 +613,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
                     notscanmotors.append(i)
             for i in notscanmotors:
                 motname = args[i]
-                buf = numpy.ones(scanshape) * \
-                    h5scan.attrs.get(f"{motname}")
+                buf = numpy.ones(scanshape) * h5scan.attrs.get(f"{motname}")
                 angles[motname] = numpy.concatenate((angles[motname], buf))
 
     retval = []

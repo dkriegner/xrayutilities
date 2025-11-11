@@ -31,12 +31,14 @@ def _multiply(a, b):
     implement multiplication of SMaterial and MaterialList with integer
     """
     if not isinstance(b, int):
-        raise TypeError("unsupported operand type(s) for *: "
-                        "'%s' and '%s'" % (type(a), type(b)))
+        raise TypeError(
+            "unsupported operand type(s) for *: "
+            "'%s' and '%s'" % (type(a), type(b))
+        )
     if b < 1:
         raise ValueError("multiplication factor needs to be positive!")
-    m = MaterialList('%d * (%s)' % (b, a.name), a)
-    for _ in range(b-1):
+    m = MaterialList("%d * (%s)" % (b, a.name), a)
+    for _ in range(b - 1):
         m.append(copy.deepcopy(a))
     return m
 
@@ -87,53 +89,67 @@ class SMaterial:
             for i, wp in enumerate(material.lattice._wbase):
                 if wp[1][1] is not None:
                     for j, p in enumerate(wp[1][1]):
-                        name = '_'.join(('at%d' % i, wp[0].name,
-                                         wp[1][0], str(j), 'pos'))
+                        name = "_".join(
+                            ("at%d" % i, wp[0].name, wp[1][0], str(j), "pos")
+                        )
                         self._structural_params.append(name)
                         setattr(self, name, p)
             # make attributes from atom occupations
             for i, wp in enumerate(material.lattice._wbase):
-                name = '_'.join(('at%d' % i, wp[0].name,
-                                 wp[1][0], 'occupation'))
+                name = "_".join(
+                    ("at%d" % i, wp[0].name, wp[1][0], "occupation")
+                )
                 self._structural_params.append(name)
                 setattr(self, name, wp[2])
             # make attributes from Debye waller exponents
             for i, wp in enumerate(material.lattice._wbase):
-                name = '_'.join(('at%d' % i, wp[0].name, wp[1][0], 'biso'))
+                name = "_".join(("at%d" % i, wp[0].name, wp[1][0], "biso"))
                 self._structural_params.append(name)
                 setattr(self, name, wp[3])
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
-        if hasattr(self, 'material'):
+        if hasattr(self, "material"):
             if isinstance(self.material, Crystal):
                 if name in self.material.lattice.free_parameters:
                     setattr(self.material.lattice, name, value)
-                if name.startswith('at'):
-                    nsplit = name.split('_')
+                if name.startswith("at"):
+                    nsplit = name.split("_")
                     idx = int(nsplit[0][2:])
                     wp = self.material.lattice._wbase[idx]
                     # wyckoff position parameter
-                    if nsplit[-1] == 'pos':
+                    if nsplit[-1] == "pos":
                         pidx = int(nsplit[-2])
                         wyckpos = (wp[1][0], list(wp[1][1]))
                         wyckpos[1][pidx] = value
-                        self.material.lattice._wbase[idx] = (wp[0], wyckpos,
-                                                             wp[2], wp[3])
+                        self.material.lattice._wbase[idx] = (
+                            wp[0],
+                            wyckpos,
+                            wp[2],
+                            wp[3],
+                        )
                     # site occupation
-                    if nsplit[-1] == 'occupation':
-                        self.material.lattice._wbase[idx] = (wp[0], wp[1],
-                                                             value, wp[3])
+                    if nsplit[-1] == "occupation":
+                        self.material.lattice._wbase[idx] = (
+                            wp[0],
+                            wp[1],
+                            value,
+                            wp[3],
+                        )
                     # site DW exponent
-                    if nsplit[-1] == 'biso':
-                        self.material.lattice._wbase[idx] = (wp[0], wp[1],
-                                                             wp[2], value)
+                    if nsplit[-1] == "biso":
+                        self.material.lattice._wbase[idx] = (
+                            wp[0],
+                            wp[1],
+                            wp[2],
+                            value,
+                        )
 
     def __radd__(self, other):
-        return MaterialList(f'{other.name} + {self.name}', other, self)
+        return MaterialList(f"{other.name} + {self.name}", other, self)
 
     def __add__(self, other):
-        return MaterialList(f'{self.name} + {other.name}', self, other)
+        return MaterialList(f"{self.name} + {other.name}", self, other)
 
     def __mul__(self, other):
         return _multiply(self, other)
@@ -141,15 +157,15 @@ class SMaterial:
     __rmul__ = __mul__
 
     def __repr__(self):
-        s = f'{self.__class__.__name__}-{self.name} ('
+        s = f"{self.__class__.__name__}-{self.name} ("
         for k in self.__dict__:
-            if k not in ('name', '_material', '_structural_params'):
+            if k not in ("name", "_material", "_structural_params"):
                 v = getattr(self, k)
                 if isinstance(v, numbers.Number):
-                    s += f'{k}: {v:.5g}, '
+                    s += f"{k}: {v:.5g}, "
                 else:
-                    s += f'{k}: {v}, '
-        return s + ')'
+                    s += f"{k}: {v}, "
+        return s + ")"
 
 
 class MaterialList(collections.abc.MutableSequence):
@@ -168,34 +184,39 @@ class MaterialList(collections.abc.MutableSequence):
 
     def check(self, v):
         if not isinstance(v, SMaterial):
-            raise TypeError('%s can only contain SMaterial as entries!'
-                            % self.__class__.__name__)
+            raise TypeError(
+                "%s can only contain SMaterial as entries!"
+                % self.__class__.__name__
+            )
 
     def _set_unique_name(self, v):
         if v.name in self.namelist:
-            splitname = v.name.split('_')
+            splitname = v.name.split("_")
             if len(splitname) > 1:
                 try:
                     num = int(splitname[-1])
-                    basename = '_'.join(splitname[:-1])
+                    basename = "_".join(splitname[:-1])
                 except ValueError:
                     num = 1
                     basename = v.name
             else:
                 num = 1
                 basename = v.name
-            name = f'{basename}_{num:d}'
+            name = f"{basename}_{num:d}"
             while name in self.namelist:
                 num += 1
-                name = f'{basename}_{num:d}'
+                name = f"{basename}_{num:d}"
             v.name = name
         return v.name
 
-    def __len__(self): return len(self.list)
+    def __len__(self):
+        return len(self.list)
 
-    def __getitem__(self, i): return self.list[i]
+    def __getitem__(self, i):
+        return self.list[i]
 
-    def __delitem__(self, i): del self.list[i]
+    def __delitem__(self, i):
+        del self.list[i]
 
     def __setitem__(self, i, v):
         self.check(v)
@@ -206,20 +227,22 @@ class MaterialList(collections.abc.MutableSequence):
         if isinstance(v, MaterialList):
             vs = v
         else:
-            vs = [v, ]
+            vs = [
+                v,
+            ]
         for j, val in enumerate(vs):
             self.check(val)
-            self.namelist.insert(i+j, self._set_unique_name(val))
-            self.list.insert(i+j, val)
+            self.namelist.insert(i + j, self._set_unique_name(val))
+            self.list.insert(i + j, val)
 
     def __radd__(self, other):
-        ml = MaterialList(f'{other.name} + {self.name}')
+        ml = MaterialList(f"{other.name} + {self.name}")
         ml.append(other)
         ml.append(self)
         return ml
 
     def __add__(self, other):
-        ml = MaterialList(f'{self.name} + {other.name}')
+        ml = MaterialList(f"{self.name} + {other.name}")
         ml.append(self)
         ml.append(other)
         return ml
@@ -230,8 +253,8 @@ class MaterialList(collections.abc.MutableSequence):
     __rmul__ = __mul__
 
     def __str__(self):
-        layer = ',\n  '.join([str(entry) for entry in self.list])
-        s = f'{self.name} [\n  {layer}\n]'
+        layer = ",\n  ".join([str(entry) for entry in self.list])
+        s = f"{self.name} [\n  {layer}\n]"
         return s
 
     def __repr__(self):
@@ -253,11 +276,11 @@ class Layer(SMaterial):
     """
 
     _valid_init_kwargs = {
-        'name': 'Custom name of the Layer',
-        'roughness': 'root mean square roughness',
-        'density': 'density in kg/m^3',
-        'relaxation': 'degree of relaxation',
-        'lat_correl': 'lateral correlation length'
+        "name": "Custom name of the Layer",
+        "roughness": "root mean square roughness",
+        "density": "density in kg/m^3",
+        "relaxation": "degree of relaxation",
+        "lat_correl": "lateral correlation length",
     }
 
     def __init__(self, material, thickness, **kwargs):
@@ -284,9 +307,10 @@ class Layer(SMaterial):
             the lateral correlation length for diffuse reflectivity
             calculations
         """
-        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
-                               self.__class__.__name__)
-        kwargs['thickness'] = thickness
+        utilities.check_kwargs(
+            kwargs, self._valid_init_kwargs, self.__class__.__name__
+        )
+        kwargs["thickness"] = thickness
         super().__init__(material, **kwargs)
 
     def __getattr__(self, name):
@@ -312,7 +336,7 @@ class LayerStack(MaterialList):
 
     def check(self, v):
         if not isinstance(v, Layer):
-            raise TypeError('LayerStack can only contain Layer as entries!')
+            raise TypeError("LayerStack can only contain Layer as entries!")
 
 
 class CrystalStack(LayerStack):
@@ -324,8 +348,9 @@ class CrystalStack(LayerStack):
     def check(self, v):
         super().check(v)
         if not isinstance(v.material, Crystal):
-            raise TypeError('CrystalStack can only contain crystalline Layers'
-                            ' as entries!')
+            raise TypeError(
+                "CrystalStack can only contain crystalline Layers as entries!"
+            )
 
 
 class GradedLayerStack(CrystalStack):
@@ -353,9 +378,9 @@ class GradedLayerStack(CrystalStack):
         """
         nfrom = alloy(xfrom).name
         nto = alloy(xto).name
-        super().__init__('(' + nfrom + '-' + nto + ')')
+        super().__init__("(" + nfrom + "-" + nto + ")")
         for x in numpy.linspace(xfrom, xto, nsteps):
-            layer = Layer(alloy(x), thickness/nsteps, **kwargs)
+            layer = Layer(alloy(x), thickness / nsteps, **kwargs)
             self.append(layer)
 
 
@@ -364,6 +389,7 @@ class PseudomorphicStack001(CrystalStack):
     generate a sequence of pseudomorphic crystalline Layers. Surface
     orientation is assumed to be 001 and materials must be cubic/tetragonal.
     """
+
     trans = Transform(numpy.identity(3))
 
     def make_epitaxial(self, i):
@@ -371,9 +397,10 @@ class PseudomorphicStack001(CrystalStack):
         layer = self.list[i]
         if i == 0:
             return
-        psub = self.list[i-1].material
-        mpseudo = PseudomorphicMaterial(psub, layer.material, layer.relaxation,
-                                        trans=self.trans)
+        psub = self.list[i - 1].material
+        mpseudo = PseudomorphicMaterial(
+            psub, layer.material, layer.relaxation, trans=self.trans
+        )
         self.list[i].material = mpseudo
 
     def __delitem__(self, i):
@@ -392,12 +419,14 @@ class PseudomorphicStack001(CrystalStack):
         if isinstance(v, MaterialList):
             vs = v
         else:
-            vs = [v, ]
+            vs = [
+                v,
+            ]
         for j, val in enumerate(vs):
             self.check(val)
-            self.namelist.insert(i+j, self._set_unique_name(val))
-            self.list.insert(i+j, copy.copy(val))
-            for k in range(i+j, len(self)):
+            self.namelist.insert(i + j, self._set_unique_name(val))
+            self.list.insert(i + j, copy.copy(val))
+            for k in range(i + j, len(self)):
                 self.make_epitaxial(k)
 
 
@@ -406,6 +435,7 @@ class PseudomorphicStack111(PseudomorphicStack001):
     generate a sequence of pseudomorphic crystalline Layers. Surface
     orientation is assumed to be 111 and materials must be cubic.
     """
+
     trans = CoordinateTransform((1, -1, 0), (1, 1, -2), (1, 1, 1))
 
 
@@ -440,14 +470,13 @@ class Powder(SMaterial):
     """
 
     _valid_init_kwargs = {
-        'name': 'Custom name of the Powder',
-        'crystallite_size_lor': 'Lorentzian crystallite size',
-        'crystallite_size_gauss': 'Gaussian crystallite size',
-        'strain_lor': 'microstrain broadening',
-        'strain_gauss': 'microstrain broadening',
-        'preferred_orientation': 'HKL of the preferred orientation',
-        'preferred_orientation_factor':
-        'March-Dollase preferred orientation factor'
+        "name": "Custom name of the Powder",
+        "crystallite_size_lor": "Lorentzian crystallite size",
+        "crystallite_size_gauss": "Gaussian crystallite size",
+        "strain_lor": "microstrain broadening",
+        "strain_gauss": "microstrain broadening",
+        "preferred_orientation": "HKL of the preferred orientation",
+        "preferred_orientation_factor": "March-Dollase preferred orientation factor",
     }
 
     def __init__(self, material, volume, **kwargs):
@@ -472,9 +501,10 @@ class Powder(SMaterial):
             extra peak width proportional to tan(theta);
             typically interpreted as microstrain broadening
         """
-        utilities.check_kwargs(kwargs, self._valid_init_kwargs,
-                               self.__class__.__name__)
-        kwargs['volume'] = volume
+        utilities.check_kwargs(
+            kwargs, self._valid_init_kwargs, self.__class__.__name__
+        )
+        kwargs["volume"] = volume
         super().__init__(material, **kwargs)
 
 
@@ -486,4 +516,4 @@ class PowderList(MaterialList):
 
     def check(self, v):
         if not isinstance(v, Powder):
-            raise TypeError('PowderList can only contain Powder as entries!')
+            raise TypeError("PowderList can only contain Powder as entries!")

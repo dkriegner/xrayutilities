@@ -23,13 +23,15 @@ import h5py
 import numpy
 import xrayutilities as xu
 
-testfile = 'eiger.cbf'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "eiger.cbf"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_CBF(unittest.TestCase):
     dshape = (1065, 1030)
     dmax = 1576.0
@@ -48,30 +50,30 @@ class TestIO_CBF(unittest.TestCase):
     def test_datavalues(self):
         self.assertAlmostEqual(self.dmax, self.data.max(), places=10)
         self.assertAlmostEqual(self.dmin, self.data.min(), places=10)
-        self.assertAlmostEqual(self.dtpos,
-                               self.data[self.tpos[0], self.tpos[1]],
-                               places=10)
+        self.assertAlmostEqual(
+            self.dtpos, self.data[self.tpos[0], self.tpos[1]], places=10
+        )
 
     def test_savehdf5(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            fname = os.path.join(tmpdir, 'tmp.h5')
+            fname = os.path.join(tmpdir, "tmp.h5")
             self.cbffile.Save2HDF5(fname)
-            with h5py.File(fname, 'r') as h5f:
+            with h5py.File(fname, "r") as h5f:
                 h5d = h5f[list(h5f.keys())[0]]
                 h5d = numpy.asarray(h5d)
                 self.assertTrue(numpy.all(h5d == self.data))
 
     def test_CBFDirectory(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            fname = os.path.join(tmpdir, 'tmp.h5')
-            ed = xu.io.CBFDirectory(datadir, 'cbf')
+            fname = os.path.join(tmpdir, "tmp.h5")
+            ed = xu.io.CBFDirectory(datadir, "cbf")
             ed.Save2HDF5(fname)
-            with h5py.File(fname, 'r') as h5f:
+            with h5py.File(fname, "r") as h5f:
                 h5g = h5f[os.path.split(datadir)[-1]]
                 h5d = h5g[list(h5g.keys())[0]]
                 h5d = numpy.asarray(h5d)
                 self.assertTrue(numpy.all(h5d == self.data))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

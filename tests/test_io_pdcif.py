@@ -21,18 +21,20 @@ import unittest
 import xrayutilities as xu
 
 xu.config.VERBOSITY = 0
-testfile = 'NISI.cif'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "NISI.cif"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_pdCIF(unittest.TestCase):
-    dshape = (4495, )
+    dshape = (4495,)
     # dmax =  # needs update of pdCIF to handle value + error bar
     # dmin =
-    motorname = '_pd_meas_time_of_flight'
+    motorname = "_pd_meas_time_of_flight"
     motmin = 1000.0
     motmax = 8190.4
     # dtpos =
@@ -56,5 +58,5 @@ class TestIO_pdCIF(unittest.TestCase):
         #                        self.dtpos)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

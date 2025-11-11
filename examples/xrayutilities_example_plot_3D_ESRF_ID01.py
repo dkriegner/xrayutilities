@@ -22,7 +22,7 @@ import xrayutilities_id01_functions as id01
 
 import xrayutilities as xu
 
-sample = 'SAMPLENAME'  # here used for the specfilename
+sample = "SAMPLENAME"  # here used for the specfilename
 SCANNR = 200  # put your scan number here
 try:
     s
@@ -51,14 +51,25 @@ nx, ny, nz = 200, 201, 202
 # The outer most sample rotation (so the one mounted on the floor) is one
 # which turns left-handed (-) around the z-direction -> z- (mu)
 # The second sample rotation ('eta') is lefthanded (-) around y -> y-
-qconv = xu.experiment.QConversion(['z-', 'y-', 'z-'],
-                                  ['z-', 'y-', 'ty', 'tz'],
-                                  [1, 0, 0])
-hxrd = xu.HXRD([1, 1, 0], [0, 0, 1], qconv=qconv, sampleor='z+')
-hxrd._A2QConversion.init_area('z-', 'y+', cch1=333.94, cch2=235.62, Nch1=516,
-                              Nch2=516, pwidth1=5.5000e-02, pwidth2=5.5000e-02,
-                              distance=0.53588*1000, detrot=-1.495,
-                              tiltazimuth=155.0, tilt=0.745, Nav=(2, 2))
+qconv = xu.experiment.QConversion(
+    ["z-", "y-", "z-"], ["z-", "y-", "ty", "tz"], [1, 0, 0]
+)
+hxrd = xu.HXRD([1, 1, 0], [0, 0, 1], qconv=qconv, sampleor="z+")
+hxrd._A2QConversion.init_area(
+    "z-",
+    "y+",
+    cch1=333.94,
+    cch2=235.62,
+    Nch1=516,
+    Nch2=516,
+    pwidth1=5.5000e-02,
+    pwidth2=5.5000e-02,
+    distance=0.53588 * 1000,
+    detrot=-1.495,
+    tiltazimuth=155.0,
+    tilt=0.745,
+    Nav=(2, 2),
+)
 # all in mm since mm are used for mpxy,z in the spec-file
 
 qx, qy, qz, gint, gridder = id01.gridmap(s, SCANNR, hxrd, nx, ny, nz)

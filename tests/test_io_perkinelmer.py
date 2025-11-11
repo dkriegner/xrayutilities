@@ -21,13 +21,15 @@ import unittest
 import numpy
 import xrayutilities as xu
 
-testfile = 'perkinelmer.tif.bz2'
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+testfile = "perkinelmer.tif.bz2"
+datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
 
 
-@unittest.skipIf(not os.path.isfile(fullfilename),
-                 "additional test data needed (http://xrayutilities.sf.io)")
+@unittest.skipIf(
+    not os.path.isfile(fullfilename),
+    "additional test data needed (http://xrayutilities.sf.io)",
+)
 class TestIO_PerkinElmer(unittest.TestCase):
     dshape = (2048, 2048)
     dmax = 173359.0
@@ -46,14 +48,14 @@ class TestIO_PerkinElmer(unittest.TestCase):
     def test_datavalues(self):
         self.assertAlmostEqual(self.dmax, self.data.max(), places=10)
         self.assertAlmostEqual(self.dmin, self.data.min(), places=10)
-        self.assertAlmostEqual(self.dtpos,
-                               self.data[self.tpos[0], self.tpos[1]],
-                               places=10)
+        self.assertAlmostEqual(
+            self.dtpos, self.data[self.tpos[0], self.tpos[1]], places=10
+        )
 
     def test_tiffread(self):
         t = xu.io.TIFFRead(testfile, path=datadir)
         self.assertTrue(numpy.all(t.data == self.data))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
