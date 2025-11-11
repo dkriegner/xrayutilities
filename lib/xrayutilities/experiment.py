@@ -105,7 +105,8 @@ class QConversion:
         r_i :           array-like
             vector giving the direction of the primary beam, i.e. the beam
             propergation direction. The length is relevant only if translations
-            are involved.
+            are involved. Note that the vector length will be changed by the
+            init_linear and init_area methods.
 
         kwargs :        dict, optional
             optional keyword arguments
@@ -1115,7 +1116,9 @@ class QConversion:
         -------
         ndarray
             numpy array of length 3 with vector components of the detector
-            direction. The length of the vector is k.
+            direction. The length of the vector corresponds to the distance from
+            the center of rotation. The length unit is the same as the one of
+            the r_i.
         """
 
         valid_kwargs = copy.copy(self._valid_linear_kwargs)
@@ -1237,7 +1240,8 @@ class QConversion:
         Returns
         -------
         ndarray
-            numpy array with the detector distance
+            numpy array with the detector distance. The unit is the same as
+            the one of the r_i.
         """
         x, y, z = self.getDetectorPos(*args, **kwargs)
         return numpy.sqrt(x**2 + y**2 + z**2)
