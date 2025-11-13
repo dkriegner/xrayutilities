@@ -60,6 +60,19 @@ source = "https://github.com/dkriegner/xrayutilities"
 download = "https://pypi.org/project/xrayutilities/#files"
 tracker = "https://github.com/dkriegner/xrayutilities/issues"
 
+[tool.cibuildwheel]
+build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
+skip = "*-win32 *-manylinux_i686 *-musllinux_*"
+build-verbosity = 1
+
+[tool.cibuildwheel.macos]
+config-settings = "setup-args=-Duse_openmp=auto"
+
+[tool.cibuildwheel.windows]
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+config-settings = "setup-args=--vsenv"
+
 [tool.coverage.paths]
 source = ["lib", "*/site-packages"]
 
