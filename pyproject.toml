@@ -71,9 +71,7 @@ config-settings = "setup-args=-Duse_openmp=auto"
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
-
-[tool.meson-python]
-exclude = ["**/*.dll.a"]
+environment = { CC="cl", CXX="cl" }
 
 [tool.coverage.paths]
 source = ["lib", "*/site-packages"]
