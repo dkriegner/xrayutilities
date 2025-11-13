@@ -18,6 +18,7 @@ name = "xrayutilities"
 description = "Package for x-ray diffraction data evaluation"
 readme = "README.md"
 license = { text = "GPL-2.0-or-later" }
+license-files = ["LICENSE.txt"]
 authors = [
     { name = "Dominik Kriegner", email = "dominik.kriegner@gmail.com" },
     { name = "Eugen Wintersberger", email = "eugen.wintersberger@desy.de" },
