@@ -17,7 +17,7 @@ build-backend = "mesonpy"
 name = "xrayutilities"
 description = "Package for x-ray diffraction data evaluation"
 readme = "README.md"
-license = { text = "GPL-2.0-or-later" }
+license = "GPL-2.0-or-later"
 license-files = ["LICENSE.txt"]
 authors = [
     { name = "Dominik Kriegner", email = "dominik.kriegner@gmail.com" },
@@ -37,7 +37,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "Intended Audience :: Science/Research",
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
 ]
 requires-python = ">=3.7,<4.0"
 dynamic = ["version"]
