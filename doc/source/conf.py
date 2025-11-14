@@ -23,33 +23,36 @@ from xrayutilities import __version__ as xu_version
 
 config = SphinxConfig(
     Path(__file__).parent.parent.parent / "pyproject.toml",
-    config_overrides = {"version": xu_version},
+    config_overrides={"version": xu_version},
 )
 
 # Project information (auto-extracted from pyproject.toml)
-project = config.name     # Automatically gets the project name
-author = config.author    # Automatically gets the author(s)
+project = config.name  # Automatically gets the project name
+author = config.author  # Automatically gets the author(s)
 copyright = f"%Y, {config.author}"
 release = config.version  # Full version (e.g., "1.2.3")
-version = config.version.split(".")[0] + "." + config.version.split(".")[1]  # Short version (e.g., "1.2")
+version = (
+    config.version.split(".")[0] + "." + config.version.split(".")[1]
+)  # Short version (e.g., "1.2")
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.coverage',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'numpydoc',
-    'rst2pdf.pdfbuilder']
+    "sphinx.ext.autodoc",
+    "sphinx.ext.coverage",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.imgconverter",
+    "numpydoc",
+]
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'matplotlib': ('https://matplotlib.org/stable', None),
-    'lmfit': ('https://lmfit.github.io/lmfit-py/', None),
+    "python": ("https://docs.python.org/3", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
+    "lmfit": ("https://lmfit.github.io/lmfit-py/", None),
 }
 # Paths
 templates_path = ["_templates"]
@@ -61,64 +64,66 @@ numpydoc_show_class_members = False
 
 # HTML output options
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_options = {"logo_only": True}
 html_logo = "pics/xray-logo.png"
 html_favicon = "favicon.ico"
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'xrayutilitiesdoc'
+htmlhelp_basename = "xrayutilitiesdoc"
 
 # LaTeX options
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
-    'papersize': 'a4paper',
-
+    "papersize": "a4paper",
     # The font size ('10pt', '11pt' or '12pt').
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
-    'preamble': '\\usepackage{enumitem}\n\\setlistdepth{15}',
+    "preamble": r"""
+\usepackage{enumitem}
+\setlistdepth{15}
+""",
 }
 latex_documents = [
-    ('index', 'xrayutilities.tex', u'xrayutilities Documentation',
-     u'Dominik Kriegner \\and Eugen Wintersberger', 'manual'),
+    (
+        "index",
+        "xrayutilities.tex",
+        "xrayutilities Documentation",
+        "Dominik Kriegner \\and Eugen Wintersberger",
+        "manual",
+    ),
 ]
-
 
 
 # manual page options
 man_pages = [
-    ('index', 'xrayutilities', u'xrayutilities Documentation',
-     [u'Dominik Kriegner, Eugen Wintersberger'], 1)
+    (
+        "index",
+        "xrayutilities",
+        "xrayutilities Documentation",
+        ["Dominik Kriegner, Eugen Wintersberger"],
+        1,
+    )
 ]
 
 
 # Texinfo options
 texinfo_documents = [
-    ('index',
-     'xrayutilities',
-     u'xrayutilities Documentation',
-     u'Dominik Kriegner, Eugen Wintersberger',
-     'xrayutilities',
-     'a Python package for diffraction physicists',
-     'Miscellaneous'),
+    (
+        "index",
+        "xrayutilities",
+        "xrayutilities Documentation",
+        "Dominik Kriegner, Eugen Wintersberger",
+        "xrayutilities",
+        "a Python package for diffraction physicists",
+        "Miscellaneous",
+    ),
 ]
-
-
-# PDF output options
-pdf_documents = [
-    ("index", "xrayutilities", "xrayutilities", author),
-]
-pdf_stylesheets = ["sphinx", "onecolumn"]
-pdf_compressed = True
-pdf_default_dpi = 120
 
 
 def process_docstring(app, what, name, obj, options, lines):
     """my additions for pre-processing the docstring"""
     # insert note block
     for i in range(len(lines)):
-        lines[i] = re.sub(r'^\s*Note:', r'.. note::', lines[i])
+        lines[i] = re.sub(r"^\s*Note:", r".. note::", lines[i])
 
 
 def skip(app, what, name, obj, would_skip, options):
@@ -129,5 +134,5 @@ def skip(app, what, name, obj, would_skip, options):
 
 
 def setup(app):
-    app.connect('autodoc-process-docstring', process_docstring)
+    app.connect("autodoc-process-docstring", process_docstring)
     app.connect("autodoc-skip-member", skip)
