@@ -204,10 +204,9 @@ Additionally, the following Python modules are needed when building *xrayutiliti
 For building the documention (which you do not need to do) the requirements are:
  * **sphinx** the Python documentation generator
  * **numpydoc** sphinx-extension needed to parse the API-documention
- * **rst2pdf** pdf-generation using sphinx
+ * **latex** pdf-generation using sphinx
  * **sphinx_rtd_theme** sphinx theme used
  * **sphinx-pyproject** sphinx configuration support for the pyproject.toml file
- * **svglib** library needed by rst2pdf to include svg images into the pdf documentation
 
 After installing all required packages you can continue with installing and
 building the C library.

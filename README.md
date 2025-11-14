@@ -82,7 +82,7 @@ When building from source you also might need:
 - pytest (optional - only if you want to run the test environment)
 - sphinx (optional - only when you want to build the documentation)
 - numpydoc (optional - only when you want to build the documentation)
-- rst2pdf (optional - only when you want to build the documentation)
+- latex (optional - only when you want to build the PDF documentation)
 - sphinx_rtd_theme (optional - only when you want to build the documentation)
 - sphinx-pyproject (optional - only when you want to build the documentation)
 - svglib (optional - only when you want to build the pdf documentation)
