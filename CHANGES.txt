@@ -1,3 +1,5 @@
+* use latex pdf builder for documentation
+
 v1.7.12, 2025-11-13
 
 * fix wheel packages on windows (broken in 1.7.11). otherwise equivalent to 1.7.11
