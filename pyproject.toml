@@ -66,6 +66,7 @@ skip = "*-win32 *-manylinux_i686 *-musllinux_*"
 build-verbosity = 1
 
 [tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
 config-settings = "setup-args=-Duse_openmp=auto"
 
 [tool.cibuildwheel.windows]
