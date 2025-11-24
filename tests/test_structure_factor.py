@@ -46,6 +46,14 @@ class TestStructureFactor(unittest.TestCase):
         f = self.mat.StructureFactor(self.mat.Q(1, 2, 1))
         self.assertAlmostEqual(f, 0, places=10)
 
+    def test_StructureFactorHKL(self):
+        f = self.mat.StructureFactorForHKL((1, 3, 1))
+        self.assertAlmostEqual(f, 4 - 4j, places=10)
+        f = self.mat.StructureFactorForHKL([0, 4, 0])
+        self.assertAlmostEqual(f, 8, places=10)
+        f = self.mat.StructureFactorForHKL((1, 2, 1))
+        self.assertAlmostEqual(f, 0, places=10)
+
     def test_StructureFactorQ(self):
         q = (self.mat.Q(1, 1, 1), self.mat.Q(0, 4, 0), self.mat.Q(1, 2, 1))
         f = self.mat.StructureFactorForQ(q)

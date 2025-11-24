@@ -1375,6 +1375,35 @@ class Crystal(Material):
 
         return s
 
+    def StructureFactorForHKL(self, hkl, en="config", temp=0):
+        """
+        Calculate the structure factor for a single set of Miller indices.
+
+        Parameters
+        ----------
+        hkl : sequence of float
+            Miller indices (h, k, l) describing the desired reflection.
+        en : float or str, optional
+            X-ray energy in eV; the global configuration energy is used when
+            set to ``"config"``.
+        temp : float, optional
+            Temperature for the Debye-Waller-factor calculation.
+
+        Returns
+        -------
+        complex
+            Complex structure factor corresponding to the requested hkl.
+        """
+        if isinstance(hkl, (list, tuple, numpy.ndarray)):
+            miller = numpy.asarray(hkl, dtype=numpy.double)
+        else:
+            raise TypeError("hkl must be a list or numpy array!")
+        if miller.shape != (3,):
+            raise ValueError(f"hkl must contain exactly three entries ({hkl})")
+
+        q = self.Q(*miller)
+        return self.StructureFactor(q, en=en, temp=temp)
+
     def ApplyStrain(self, strain):
         """
         Applies a certain strain on the lattice of the material. The result is
