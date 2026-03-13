@@ -1712,11 +1712,32 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         R = R.mean(axis=0)
         return self.scale_simulation(self.convolute_resolution(lai, R))
 
-    def simulate_map(self, qL, qz):
+    @staticmethod
+    def _normalize_scan_mode(scan):
+        """
+        translate user-facing scan identifiers to internal mode indices
+        """
+        scan_modes = {
+            1: 1,
+            2: 2,
+            3: 3,
+            "coplanar": 1,
+            "gisaxs": 2,
+            "gisaxs_omega2theta": 3,
+            "omega2theta": 3,
+        }
+        try:
+            return scan_modes[scan]
+        except KeyError as exc:
+            raise ValueError(
+                "scan must be one of 'coplanar', 'gisaxs', "
+                "'gisaxs_omega2theta'"
+            ) from exc
+
+    def simulate_map(self, qL, qz, scan="coplanar", alphai=None):
         """
         performs diffuse reflectivity calculation for the rectangular grid of
-        reciprocal space positions define by qL and qz.  This method uses the
-        method and geometry set during the initialization of the class.
+        reciprocal space positions define by qL and qz.
 
         Parameters
         ----------
@@ -1725,6 +1746,15 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
         qz :    array-like
             vertical coordinate in reciprocal space (vector with Nqz
             components)
+        scan :  {'coplanar', 'gisaxs', 'gisaxs_omega2theta'}, optional
+            scattering geometry to use. ``'coplanar'`` is the standard
+            coplanar geometry, ``'gisaxs'`` is the standard GISAXS geometry
+            with constant incidence angle, and ``'gisaxs_omega2theta'`` is a
+            quasi omega/2theta scan in GISAXS geometry with equal incidence
+            and central-exit angles. default: ``'coplanar'``
+        alphai : float, optional
+            incidence angle in degrees for ``scan='gisaxs'``. Ignored for the
+            other scan modes.
 
         Returns
         -------
@@ -1732,6 +1762,9 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             matrix of intensities of the reflectivity signal, with shape
             (len(qL), len(qz))
         """
+        scan_mode = self._normalize_scan_mode(scan)
+        if scan_mode == 2 and alphai is None:
+            raise ValueError("alphai must be given for scan='gisaxs'")
         # get layer properties
         t, sig, _, delta, xiL = self._get_layer_prop()
 
@@ -1750,7 +1783,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             self.H,
             self.vert_correl,
             self.vert_nu,
-            None,
+            alphai,
             localqL,
             qz,
             self.sample_width,
@@ -1759,7 +1792,7 @@ class DiffuseReflectivityModel(SpecularReflectivityModel):
             1000,
             deltaA,
             self.method,
-            1,
+            scan_mode,
             self.vert,
         )
         return self.scale_simulation(R)
