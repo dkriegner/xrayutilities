@@ -204,6 +204,8 @@ Diffuse reflectivity calculations
 
 For the calculation of diffuse x-ray reflectivity the :class:`~xrayutilities.simpack.smaterials.LayerStack` is built equally as shown before. The only difference is that an additional parameter for the lateral correlation length of the roughness can be included: `lat_correl`. The :class:`~xrayutilities.simpack.models.DiffuseReflectivityModel` also takes special parameters which change the vertical correlection length and the way how the diffuse reflectivity is calculated (to be document in more detail). For a Si/Ge superlattice with 5 periods the calculation of the diffuse reflectivity signal at the specular rod is calculated using the :func:`~xrayutilities.simpack.models.DiffuseReflectivityModel.simulate` method. A map of the diffuse reflectivity which can be obtained in the coplanar reflection plane can be calculated with the :func:`~xrayutilities.simpack.models.DiffuseReflectivityModel.simulate_map` method.
 
+By default :func:`~xrayutilities.simpack.models.DiffuseReflectivityModel.simulate_map` uses the coplanar geometry. For a constant-incidence GISAXS calculation use ``scan='gisaxs'`` and provide the incidence angle with ``alphai=...``.
+
 .. testcode::
 
     from matplotlib.pylab import *
@@ -222,6 +224,7 @@ For the calculation of diffuse x-ray reflectivity the :class:`~xrayutilities.sim
                                             vert_nu=0, H=1, method=2, vert_int=0)
     d = m.simulate(alphai)
     imap = m.simulate_map(qL, qz)
+    # or imap = m.simulate_map(qL, qz, scan='gisaxs', alphai=0.17)
 
     figure()
     subplot(121)
