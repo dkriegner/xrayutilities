@@ -1,3 +1,4 @@
+* expose options to simulate GISAXS maps in DiffuseReflectivityModel
 * add StructureFactorForHKL convenience method and cover it in tests
 * use latex pdf builder for documentation
 
