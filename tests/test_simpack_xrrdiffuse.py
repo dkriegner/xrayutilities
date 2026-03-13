@@ -68,6 +68,27 @@ class Test_DiffuseReflectivityModel(unittest.TestCase):
         self.assertTrue(abs(numpy.mean(sim1) - numpy.mean(sim2)) < self.dmax)
         self.assertTrue(abs(numpy.mean(sim1) - numpy.mean(sim3)) < self.dmax)
 
+    def test_MapScan2RequiresIncidenceAngle(self):
+        qL = numpy.array([-0.01, 0.01])
+        qz = numpy.array([0.05, 0.06])
+
+        with self.assertRaises(ValueError):
+            self.m1.simulate_map(qL, qz, scan="gisaxs")
+
+    def test_MapScanModesProduceDifferentResults(self):
+        qL = numpy.array([0.0, 0.01])
+        qz = numpy.array([0.10, 0.12])
+        alphai = 0.3
+
+        sim = self.m1.simulate_map(qL, qz, scan="gisaxs", alphai=alphai)
+        sim_coplanar = self.m1.simulate_map(qL, qz, scan="coplanar")
+
+        self.assertEqual(sim.shape, (len(qL), len(qz)))
+        self.assertTrue(numpy.all(sim >= 0))
+        self.assertEqual(sim_coplanar.shape, (len(qL), len(qz)))
+        self.assertTrue(numpy.all(sim_coplanar >= 0))
+        self.assertFalse(numpy.allclose(sim, sim_coplanar))
+
 
 if __name__ == "__main__":
     unittest.main()
