@@ -34,26 +34,24 @@ contact one of the administrators.
 Installation
 ============
 
-Installing xrayutilities is a two step process. A few notes on how to install
-on the various can be found in the README shipped with the package's sources.
+xrayutilities can be installed using several methods:
 
-1. installing required third party software
-   requirements are:
+1. Using pip:
 
-   - C-compiler
-   - h5py (for HDF5 file access)
-   - scipy
-   - numpy
-   - matplotlib (optionally)
+    pip install xrayutilities
 
-   refer to your operating system documentation to find out how to install
-   those packages. On Windows we suggest to use Python(x,y)
+2. Using conda:
 
-2. install *xrayutilities* using
+    conda install -c conda-forge xrayutilities
+
+3. On Debian-based Linux (Debian, Ubuntu, ...):
+
+    sudo apt install python3-xrayutilities
+
+4. From source:
 
     pip install .
 
-
-For details of how to setup your Python installation to find xrayutilities
-after the installation please refer to the documention.
+A few notes on how to install on various systems can be found in the README
+shipped with the package's sources or on the `webpage <https://xrayutilities.sourceforge.io>`_.
 

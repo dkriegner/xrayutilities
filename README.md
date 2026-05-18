@@ -40,14 +40,38 @@ Contents
 * *pyproject.toml, meson\**: packaging configuration and build files
 
 
+Installation
+============
+
+xrayutilities can be installed in several ways depending on your operating
+system and preference.
+
 Installation (pip)
-==================
+------------------
 Using the python package manager pip you can install xrayutilities by executing
 
     pip install xrayutilities
 
+Note that on recent Linux distributions
+`pip install` outside of a virtual environment might fail with an
+`externally-managed-environment` error. In this case, it is recommended to
+use a virtual environment or one of the other installation methods below.
+
+Installation (Conda)
+--------------------
+xrayutilities is available via the conda-forge channel:
+
+    conda install -c conda-forge xrayutilities
+
+Installation (Linux system packages)
+------------------------------------
+On Debian-based distributions (Debian, Ubuntu, Mint, ...) xrayutilities is
+available as a system package:
+
+    sudo apt install python3-xrayutilities
+
 Installation (source)
-=====================
+---------------------
 Installing xrayutilities from source is an easy process done by executing
 
     pip install .
@@ -141,7 +165,20 @@ contact one of the administrators.
 Update
 ======
 
-if you already installed xrayutilities you can update it by navigating into
+If you installed xrayutilities via pip, you can update it by:
+
+    pip install -U xrayutilities
+
+If you installed via conda:
+
+    conda update xrayutilities
+
+If you installed via apt:
+
+    sudo apt update
+    sudo apt install python3-xrayutilities
+
+If you installed from source, you can update it by navigating into
 its source folder and obtain the new sources by ::
 
     git pull
