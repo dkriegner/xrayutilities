@@ -34,13 +34,47 @@ Read more about *xrayutilities* below or in `Journal of Applied Crystallography 
 Installation
 ============
 
-The easiest way to install *xrayutilities* is using the `Python package index version <https://pypi.python.org/pypi/xrayutilities>` and execute
+*xrayutilities* can be installed in several ways depending on your operating
+system and preference.
+
+Using pip
+---------
+
+The package is available on the `Python package index <https://pypi.python.org/pypi/xrayutilities>`_.
+You can install it by executing:
 
 .. code-block:: bash
 
  > pip install xrayutilities
 
-If you prefer the installation from sources see the `Source Installation`_ below.
+Note that on recent Linux distributions
+`pip install` outside of a virtual environment might fail with an
+`externally-managed-environment` error. In this case, it is recommended to
+use a virtual environment or one of the other installation methods below.
+
+Using Conda
+-----------
+
+*xrayutilities* is available via the `conda-forge <https://anaconda.org/conda-forge/xrayutilities>`_ channel:
+
+.. code-block:: bash
+
+ > conda install -c conda-forge xrayutilities
+
+Linux system packages
+---------------------
+
+On Debian-based distributions (Debian, Ubuntu, Mint, ...) *xrayutilities* is
+available as a system package:
+
+.. code-block:: bash
+
+ > sudo apt install python3-xrayutilities
+
+Source Installation
+-------------------
+
+If you prefer the installation from sources see the `Source Installation`_ section below.
 
 
 Introduction
