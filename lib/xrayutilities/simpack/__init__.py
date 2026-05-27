@@ -46,7 +46,7 @@ from .models import (  # noqa: F401
     SpecularReflectivityModel,
     effectiveDensitySlicing,
 )
-from .mosaicity import mosaic_analytic  # noqa: F401
+from .mosaicity import mosaic_analytic, mosaic_kinematic  # noqa: F401
 from .powder import FP_profile, PowderDiffraction  # noqa: F401
 from .powdermodel import (  # noqa: F401
     PowderModel,
