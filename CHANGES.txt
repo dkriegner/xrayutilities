@@ -1,3 +1,4 @@
+* corrected VO2 Baddeleyite lattice parameters
 * new kinematic mosaic block model with microstrain parameters
 * improve installation documentation to mention venv, conda, apt
 * expose options to simulate GISAXS maps in DiffuseReflectivityModel
