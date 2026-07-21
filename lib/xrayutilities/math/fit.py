@@ -15,9 +15,7 @@
 #
 # Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 """
-module with a function wrapper to scipy.optimize.leastsq
-for fitting of a 2D function to a peak or a 1D Gauss fit with
-the odr package
+module with fitting helpers using scipy.optimize and odrpack.
 """
 
 import time
@@ -25,7 +23,7 @@ import warnings
 
 import numpy
 import scipy.optimize as optimize
-from scipy import odr
+from odrpack import odr_fit
 
 from .. import config, utilities
 from ..exception import InputError
@@ -95,7 +93,7 @@ def peak_fit(
     func_out=False,
     debug=False,
 ):
-    """Fit function using odr-pack wrapper in scipy for peak shaped data.
+    """Fit function using odrpack for peak shaped data.
 
     This is similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
@@ -151,20 +149,23 @@ def peak_fit(
     if config.VERBOSITY >= config.DEBUG:
         print(f"XU.math.peak_fit: iparams: {str(tuple(iparams))}")
 
-    # set up odr fitting
-    peak = odr.Model(gfunc, fjacd=gfunc_dx, fjacb=gfunc_dp)
-
     sy = numpy.sqrt(ydata)
     sy[sy == 0] = 1
-    mydata = odr.RealData(xdata, ydata, sy=sy)
-
-    myodr = odr.ODR(mydata, peak, beta0=iparams, maxit=maxit)
-    myodr.set_job(fit_type=2)  # use least-square fit
-
-    fit = myodr.run()
+    jac_beta = None if gfunc_dp is None else lambda x, beta: gfunc_dp(beta, x)
+    fit = odr_fit(
+        lambda x, beta: gfunc(beta, x),
+        xdata,
+        ydata,
+        iparams,
+        weight_y=1 / sy**2,
+        jac_beta=jac_beta,
+        task="OLS",
+        maxit=maxit,
+        report="short" if debug else "none",
+    )
     if config.VERBOSITY >= config.DEBUG:
         print("XU.math.peak_fit:")
-        fit.pprint()  # prints final message from odrpack
+        print(fit)
 
     fparam = fit.beta
     etaidx = []
@@ -184,7 +185,7 @@ def peak_fit(
         fparam[e] = 1 if fparam[e] > 1 else fparam[e]
 
     itlim = False
-    if fit.stopreason[0] == "Iteration limit reached":
+    if fit.stopreason.rstrip(".") == "Iteration limit reached":
         itlim = True
         if config.VERBOSITY >= config.INFO_LOW:
             print(
@@ -393,7 +394,7 @@ def _guess_iparams(xdata, ydata, peaktype, background):
 
 def gauss_fit(xdata, ydata, iparams=None, maxit=300):
     """
-    Gauss fit function using odr-pack wrapper in scipy similar to
+    Gauss fit function using odrpack similar to
     https://github.com/tiagopereira/python_tips/wiki/Scipy%3A-curve-fitting
 
     Parameters
@@ -540,7 +541,7 @@ def multPeakFit(
         background values at positions `x`
     if returnerror == True:
      sd_pos :   list
-        standard error of peak positions as returned by scipy.odr.Output
+        standard error of peak positions as returned by odrpack
      sd_sigma : list
         standard error of the peak width
      sd_amp :   list
@@ -716,28 +717,21 @@ def multPeakFit(
         print(p)
 
     ##########################
-    # fit with odrpack
-    model = odr.Model(fsignal, fjacd=deriv_x, fjacb=deriv_p)
-    odata = odr.RealData(lx, ldata)
-    my_odr = odr.ODR(odata, model, beta0=p)
-    # fit type 2 for least squares
-    my_odr.set_job(fit_type=2)
-    fit = my_odr.run()
+    # fit with odrpack ordinary least squares
+    fit = odr_fit(
+        lambda x, beta: fsignal(beta, x),
+        lx,
+        ldata,
+        p,
+        jac_beta=lambda x, beta: deriv_p(beta, x),
+        task="OLS",
+    )
 
     if config.VERBOSITY >= config.DEBUG:
         print("XU.math.multPeakFit: fitted parameters")
         print(fit.beta)
-    try:
-        if fit.stopreason[0] not in ["Sum of squares convergence"]:
-            print(
-                f"XU.math.multPeakFit: fit NOT converged ({fit.stopreason[0]})"
-            )
-            return None, None, None, None
-    except IndexError:
-        print(
-            "XU.math.multPeakFit: fit most probably NOT converged (%s)"
-            % str(fit.stopreason)
-        )
+    if not fit.success:
+        print(f"XU.math.multPeakFit: fit NOT converged ({fit.stopreason})")
         return None, None, None, None
     # prepare return values
     fpos = fit.beta[:-2:3]
