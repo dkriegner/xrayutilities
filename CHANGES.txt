@@ -1,3 +1,4 @@
+v1.8.0, 2026-07-21
 
 * replace deprecated scipy.odr usage with direct odrpack calls
 * require Python >=3.10 and NumPy >=2.1.0;

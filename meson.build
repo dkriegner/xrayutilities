@@ -1,4 +1,4 @@
-project('xrayutilities', 'c', version : '1.7.12')
+project('xrayutilities', 'c', version : '1.8.0')
 
 use_openmp = get_option('use_openmp')
 

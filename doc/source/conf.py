@@ -15,7 +15,6 @@
 import re
 from pathlib import Path
 
-import sphinx_rtd_theme
 from sphinx_pyproject import SphinxConfig
 from xrayutilities import __version__ as xu_version
 
