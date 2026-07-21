@@ -16,6 +16,7 @@
 # Copyright (c) 2015-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import matplotlib.pyplot as plt
+import numpy
 from matplotlib.colors import LogNorm
 
 import xrayutilities as xu
@@ -79,9 +80,9 @@ plt.sca(ax[2])
 plt.title("pcolormesh")
 # using pcolor-variants
 npixel = 255
-qy.shape = (qy.size // npixel, npixel)
-qz.shape = qy.shape
-psd.shape = qy.shape
+qy = numpy.reshape(qy, (qy.size // npixel, npixel), copy=False)
+qz = numpy.reshape(qz, qy.shape, copy=False)
+psd = numpy.reshape(psd, qy.shape, copy=False)
 plt.pcolormesh(qy, qz, psd, norm=LogNorm(MIN, MAX))
 
 for a in ax:

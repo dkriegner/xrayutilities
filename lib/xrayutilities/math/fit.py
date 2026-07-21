@@ -639,7 +639,7 @@ def multPeakFit(
         derp = numpy.append(derp, numpy.ones(x.size))
 
         # reshape output
-        derp.shape = (len(p),) + x.shape
+        derp = numpy.reshape(derp, (len(p),) + x.shape, copy=False)
         return derp
 
     def fsignal(p, x):

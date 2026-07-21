@@ -1,3 +1,6 @@
+
+* require Python >=3.10 and NumPy >=2.1.0;
+  changes made necessary due to deprecation of setting shape of ndarray in NumPy >=2.5
 * corrected VO2 Baddeleyite lattice parameters
 * new kinematic mosaic block model with microstrain parameters
 * improve installation documentation to mention venv, conda, apt

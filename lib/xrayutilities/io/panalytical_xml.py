@@ -421,7 +421,7 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
 
         if len(detshape) == 2:
             angles = numpy.ravel(s.scanmot)
-            angles.shape = (1, angles.size)
+            angles = numpy.reshape(angles, (1, angles.size), copy=False)
             for mot in motnames:
                 if s[mot].shape != detshape:
                     angles = numpy.vstack(
@@ -438,12 +438,16 @@ def getxrdml_scan(filetemplate, *motors, **kwargs):
             dval = numpy.ravel(s["detector"])
             detvals = numpy.concatenate((detvals, dval))
             if not flatten:
-                detvals.shape = detshape
-                motvals.shape = (len(motnames) + 1, detshape[0], detshape[1])
+                detvals = numpy.reshape(detvals, detshape, copy=False)
+                motvals = numpy.reshape(
+                    motvals,
+                    (len(motnames) + 1, detshape[0], detshape[1]),
+                    copy=False,
+                )
         else:
             detvals = numpy.concatenate((detvals, s["detector"]))
             angles = s.scanmot
-            angles.shape = (1, angles.size)
+            angles = numpy.reshape(angles, (1, angles.size), copy=False)
             for mot in motnames:
                 try:
                     angles = numpy.vstack((angles, s[mot]))

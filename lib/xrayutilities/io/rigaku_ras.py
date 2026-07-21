@@ -252,14 +252,14 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
             raise InputError("*arg values need to be strings with motornames")
         angles[key] = numpy.zeros(0)
     buf = numpy.zeros(0)
-    MAP = numpy.zeros(0)
+    MAP = None
 
     for fn in filenames:
         rasfile = RASFile(fn, **kwargs)
         for scan in rasfile.scans:
             sdata = scan.data
-            if MAP.dtype == numpy.float64:
-                MAP.dtype = sdata.dtype
+            if MAP is None:
+                MAP = numpy.empty(0, dtype=sdata.dtype)
             # append scan data to MAP, where all data are stored
             MAP = numpy.append(MAP, sdata)
             # check type of scan
@@ -275,6 +275,9 @@ def getras_scan(scanname, scannumbers, *args, **kwargs):
     for motname in args:
         # create return values in correct order
         retval.append(angles[motname])
+
+    if MAP is None:
+        MAP = numpy.zeros(0)
 
     if not args:
         return MAP

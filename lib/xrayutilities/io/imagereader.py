@@ -177,7 +177,7 @@ class ImageReader:
             img = numpy.frombuffer(fh.read(rlen), dtype=self.dtype)
             if self.byteswap:
                 img = img.byteswap()
-            img.shape = (self.nop1, self.nop2)  # reshape the data
+            img = numpy.reshape(img, (self.nop1, self.nop2), copy=False)
             # darkfield correction
             if self.darkc:
                 img = (img - self.darkfield).astype(numpy.float32)

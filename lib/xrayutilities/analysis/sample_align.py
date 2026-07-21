@@ -173,7 +173,7 @@ def psd_chdeg(
                 * sin(rad - p2),
             ]
         )
-        r.shape = (3,) + x.shape
+        r = numpy.reshape(r, (3,) + x.shape, copy=False)
         return r
 
     # fit linear
@@ -1347,7 +1347,7 @@ def _area_detector_calib_fit(
             arg = numpy.array(arg, dtype=numpy.double)
         n2 = arg
 
-        dAngles.shape = (Nd, Npoints)
+        dAngles = numpy.reshape(dAngles, (Nd, Npoints), copy=False)
         dAngles = dAngles.transpose()
 
         if deg:
@@ -2329,9 +2329,9 @@ def _area_detector_calib_fit2(
             arg = numpy.array(arg, dtype=numpy.double)
         n2 = arg
 
-        sAngles.shape = (1, Npoints)
+        sAngles = numpy.reshape(sAngles, (1, Npoints), copy=False)
         sAngles = sAngles.transpose()
-        dAngles.shape = (Nd, Npoints)
+        dAngles = numpy.reshape(dAngles, (Nd, Npoints), copy=False)
         dAngles = dAngles.transpose()
 
         if deg:

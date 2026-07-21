@@ -188,13 +188,13 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
             raise InputError("*arg values need to be strings with motornames")
         angles[key] = numpy.zeros(0)
     buf = numpy.zeros(0)
-    MAP = numpy.zeros(0)
+    MAP = None
 
     for nr in scanlist:
         scan = tty08File(scanname % nr, **keyargs)
         sdata = scan.data
-        if MAP.dtype == numpy.float64:
-            MAP.dtype = sdata.dtype
+        if MAP is None:
+            MAP = numpy.empty(0, dtype=sdata.dtype)
         # append scan data to MAP, where all data are stored
         MAP = numpy.append(MAP, sdata)
         # check type of scan
@@ -211,6 +211,9 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
     for motname in args:
         # create return values in correct order
         retval.append(angles[motname])
+
+    if MAP is None:
+        MAP = numpy.zeros(0)
 
     if not args:
         return MAP

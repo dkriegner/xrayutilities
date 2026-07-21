@@ -183,9 +183,15 @@ class SeifertMultiScan:
         self.sm_pos = numpy.array(self.sm_pos, dtype=numpy.double)
         self.data = numpy.array(self.data, dtype=numpy.double)
 
-        self.data.shape = (self.nscans, self.n_sm_pos)
-        self.m2_pos.shape = (self.nscans, self.n_sm_pos)
-        self.sm_pos.shape = (self.nscans, self.n_sm_pos)
+        self.data = numpy.reshape(
+            self.data, (self.nscans, self.n_sm_pos), copy=False
+        )
+        self.m2_pos = numpy.reshape(
+            self.m2_pos, (self.nscans, self.n_sm_pos), copy=False
+        )
+        self.sm_pos = numpy.reshape(
+            self.sm_pos, (self.nscans, self.n_sm_pos), copy=False
+        )
 
 
 class SeifertScan:
@@ -216,10 +222,14 @@ class SeifertScan:
             self.parse()
 
         if self.hdr.NumScans != 1:
-            self.data.shape = (
-                int(self.data.shape[0] / self.hdr.NoValues),
-                int(self.hdr.NoValues),
-                2,
+            self.data = numpy.reshape(
+                self.data,
+                (
+                    int(self.data.shape[0] / self.hdr.NoValues),
+                    int(self.hdr.NoValues),
+                    2,
+                ),
+                copy=False,
             )
 
     def parse(self):

@@ -90,10 +90,10 @@ Requirements
 ------------
 The following requirements are needed for installing and using *xrayutilities*:
 
-- Python (>= 3.6)
+- Python (>= 3.10)
 - h5py
 - scipy (version >= 0.18.0)
-- numpy (version >= 1.9, >2.0 since xrayutilities-1.7.8)
+- numpy (version >= 2.1.0)
 - lmfit (>= 1.0.1)
 - matplotlib (optional, version >= 3.1.0)
 - mayavi (optional, only used optionally in `Crystal.show_unitcell`)
@@ -115,12 +115,20 @@ refer to your operating system documentation to find out how to install
 those packages. On Microsoft Windows refer to the Documentation for the
 easiest way of the installation (Anaconda, Python(x,y), or WinPython).
 
-Python-2.7 and Python-3.X compatibility
-=======================================
+Supported Python versions
+-------------------------
 
-The current development is for Python3 (version >=3.6) only. xrayutilities up
-to version 1.5.x can be used with Python-2.7 as well. Python 3.3 to 3.5 was
-supported up to 1.6.0.
+The table below summarizes the Python versions supported by recent
+xrayutilities release intervals. For exact packaging details of older releases,
+refer to the corresponding release tag.
+
+| xrayutilities version | Python support | Notes |
+| --- | --- | --- |
+| current development | >= 3.10 | Current development and tests target Python 3.10 and newer. NumPy >= 2.1.0 is required. |
+| 1.7.8 - 1.7.x | >= 3.7 | NumPy 2 support was added for PyPI wheels in 1.7.8. |
+| 1.7.0 - 1.7.7 | >= 3.6 | Python 3.6 became required in 1.7.0 due to f-strings. |
+| 1.6.x | Python 3 only | Python 2 code paths were removed in 1.6.0. |
+| <= 1.5.4 | Python 2.7 and Python 3 | 1.5.4 was the final Python 2 compatible release. |
 
 The Python package configuration
 ================================
@@ -191,10 +199,10 @@ need to reinstall the Python package. Thats easiest achieved by
 
 In case you are not certain about the installation location it can be determined by
 
-    python -c "import xrayutilities as xu; print xu.__file__"
-      /usr/local/lib64/python3.6/site-packages/xrayutilities/__init__.pyc
+    python -c "import xrayutilities as xu; print(xu.__file__)"
+      /usr/local/lib64/python3.10/site-packages/xrayutilities/__init__.py
 
-if the output is e.g.: */usr/local/lib64/python3.6/site-packages/xrayutilities/__init__.py*
+if the output is e.g.: */usr/local/lib64/python3.10/site-packages/xrayutilities/__init__.py*
 you previously installed xrayutilities in */usr/local*, which should be used
 again as install path. Use ::
 

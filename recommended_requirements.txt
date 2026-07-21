@@ -1,5 +1,5 @@
 # minimal requirements
-numpy
+numpy>=2.1.0
 scipy
 h5py
 lmfit
