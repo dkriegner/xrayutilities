@@ -40,14 +40,6 @@ class SqrtAllowNegScale(mscale.ScaleBase):
 
     name = "sqrt"
 
-    def __init__(self, axis, **kwargs):
-        """
-        Any keyword arguments passed to ``set_xscale`` and
-        ``set_yscale`` will be passed along to the scale's
-        constructor.
-        """
-        super().__init__(axis, **kwargs)
-
     def set_default_locators_and_formatters(self, axis):
         axis.set_major_locator(SqrtTickLocator())
 
