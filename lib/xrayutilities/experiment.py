@@ -921,9 +921,11 @@ class QConversion:
 
         # reshape output
         if Npoints == 1:
-            qpos.shape = (Npoints * (roi[1] - roi[0]), 3)
+            qpos = numpy.reshape(
+                qpos, (Npoints * (roi[1] - roi[0]), 3), copy=False
+            )
             return qpos[:, 0], qpos[:, 1], qpos[:, 2]
-        qpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+        qpos = numpy.reshape(qpos, (Npoints, (roi[1] - roi[0]), 3), copy=False)
         return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
 
     def init_area(
@@ -1258,9 +1260,17 @@ class QConversion:
 
         # reshape output
         if Npoints == 1:
-            qpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+            qpos = numpy.reshape(
+                qpos,
+                ((roi[1] - roi[0]), (roi[3] - roi[2]), 3),
+                copy=False,
+            )
             return qpos[:, :, 0], qpos[:, :, 1], qpos[:, :, 2]
-        qpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+        qpos = numpy.reshape(
+            qpos,
+            (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3),
+            copy=False,
+        )
         return qpos[:, :, :, 0], qpos[:, :, :, 1], qpos[:, :, :, 2]
 
     def transformSample2Lab(self, vector, *args):
@@ -1407,9 +1417,17 @@ class QConversion:
 
             # reshape output
             if Npoints == 1:
-                dpos.shape = ((roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+                dpos = numpy.reshape(
+                    dpos,
+                    ((roi[1] - roi[0]), (roi[3] - roi[2]), 3),
+                    copy=False,
+                )
                 return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
-            dpos.shape = (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3)
+            dpos = numpy.reshape(
+                dpos,
+                (Npoints, (roi[1] - roi[0]), (roi[3] - roi[2]), 3),
+                copy=False,
+            )
             return dpos[:, :, :, 0], dpos[:, :, :, 1], dpos[:, :, :, 2]
 
         if dim == 1:
@@ -1431,9 +1449,13 @@ class QConversion:
 
             # reshape output
             if Npoints == 1:
-                dpos.shape = (Npoints * (roi[1] - roi[0]), 3)
+                dpos = numpy.reshape(
+                    dpos, (Npoints * (roi[1] - roi[0]), 3), copy=False
+                )
                 return dpos[:, 0], dpos[:, 1], dpos[:, 2]
-            dpos.shape = (Npoints, (roi[1] - roi[0]), 3)
+            dpos = numpy.reshape(
+                dpos, (Npoints, (roi[1] - roi[0]), 3), copy=False
+            )
             return dpos[:, :, 0], dpos[:, :, 1], dpos[:, :, 2]
 
         cfunc = cxrayutilities.ang2q_detpos

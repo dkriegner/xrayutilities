@@ -272,7 +272,7 @@ def Q2AngFit(
     if bounds is None:
         bounds = numpy.zeros(2 * nangles) - 180.0
         bounds[::2] = 180.0
-        bounds.shape = (nangles, 2)
+        bounds = numpy.reshape(bounds, (nangles, 2), copy=False)
     elif len(bounds) != nangles:
         raise ValueError("XU.Q2AngFit: number of specified bounds invalid")
 

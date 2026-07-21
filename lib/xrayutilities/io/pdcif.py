@@ -343,4 +343,4 @@ class pdESG(pdCIF):
                 self.fileheader[key] = numpy.array(self.fileheader[key])
         self.data = numpy.empty(fdata.shape)
         self.data[...] = fdata[...]
-        self.data.shape = (nscan, datasize)
+        self.data = numpy.reshape(self.data, (nscan, datasize), copy=False)

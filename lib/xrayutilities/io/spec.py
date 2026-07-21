@@ -1220,13 +1220,13 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                 )
             angles[key] = numpy.zeros(0)
         buf = numpy.zeros(0)
-        MAP = numpy.zeros(0)
+        MAP = None
 
         for nr in scanlist:
             h5scan = h5g.get("scan_%d" % nr)
             sdata = numpy.asarray(h5scan.get("data"))
-            if MAP.dtype == numpy.float64:
-                MAP.dtype = sdata.dtype
+            if MAP is None:
+                MAP = numpy.empty(0, dtype=sdata.dtype)
             # append scan data to MAP, where all data are stored
             MAP = numpy.append(MAP, sdata)
             # check type of scan
@@ -1249,6 +1249,9 @@ def geth5_scan(h5f, scans, *args, **kwargs):
                     * h5scan.attrs[f"INIT_MOPO_{natmotname}"]
                 )
                 angles[motname] = numpy.concatenate((angles[motname], buf))
+
+    if MAP is None:
+        MAP = numpy.zeros(0)
 
     # create return values in correct order
     def create_retval():

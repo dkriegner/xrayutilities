@@ -27,8 +27,9 @@ import re
 import time
 
 import numpy
+from odrpack import odr_fit
 from numpy import cos, degrees, radians, sin, tan
-from scipy import odr, optimize
+from scipy import optimize
 from scipy.ndimage import center_of_mass
 
 from .. import config, cxrayutilities
@@ -122,6 +123,12 @@ def psd_chdeg(
     else:
         stdevu = stdev
 
+    def linear_model(x, beta):
+        return beta[0] * x + beta[1]
+
+    def linear_beta0(x, y):
+        return numpy.polyfit(x, y, 1)
+
     # define detector model and other functions needed for the tilt
     def straight_tilt(p, x):
         """
@@ -173,37 +180,43 @@ def psd_chdeg(
                 * sin(rad - p2),
             ]
         )
-        r.shape = (3,) + x.shape
+        r = numpy.reshape(r, (3,) + x.shape, copy=False)
         return r
 
+    weight_y = 1 / numpy.asarray(stdevu) ** 2
+
     # fit linear
-    model = odr.unilinear
-    data = odr.RealData(angles, channels, sy=stdevu)
-    my_odr = odr.ODR(data, model)
-    # fit type 2 for least squares
-    my_odr.set_job(fit_type=2)
-    fitlin = my_odr.run()
+    fitlin = odr_fit(
+        linear_model,
+        angles,
+        channels,
+        linear_beta0(angles, channels),
+        weight_y=weight_y,
+        task="OLS",
+    )
 
     # fit linear with tangens angle
-    model = odr.unilinear
-    data = odr.RealData(degrees(tan(radians(angles))), channels, sy=stdevu)
-    my_odr = odr.ODR(data, model)
-    # fit type 2 for least squares
-    my_odr.set_job(fit_type=2)
-    fittan = my_odr.run()
+    tan_angles = degrees(tan(radians(angles)))
+    fittan = odr_fit(
+        linear_model,
+        tan_angles,
+        channels,
+        linear_beta0(tan_angles, channels),
+        weight_y=weight_y,
+        task="OLS",
+    )
 
     if usetilt:
         # fit tilted straight detector model
-        model = odr.Model(
-            straight_tilt, fjacd=straight_tilt_der_x, fjacb=straight_tilt_der_p
+        fittilt = odr_fit(
+            lambda x, beta: straight_tilt(beta, x),
+            angles,
+            channels,
+            [fittan.beta[0], fittan.beta[1], 0],
+            weight_y=weight_y,
+            jac_beta=lambda x, beta: straight_tilt_der_p(beta, x),
+            task="OLS",
         )
-        data = odr.RealData(angles, channels, sy=stdevu)
-        my_odr = odr.ODR(
-            data, model, beta0=[fittan.beta[0], fittan.beta[1], 0]
-        )
-        # fit type 2 for least squares
-        my_odr.set_job(fit_type=2)
-        fittilt = my_odr.run()
 
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot("XU.analysis.psd_chdeg")
@@ -225,12 +238,12 @@ def psd_chdeg(
         if modelline:
             plt.plot(
                 angp,
-                odr.unilinear.fcn(fittan.beta, degrees(tan(radians(angp)))),
+                linear_model(degrees(tan(radians(angp))), fittan.beta),
                 modelline,
                 label=mlabel,
                 lw=linewidth,
             )
-        plt.plot(angp, odr.unilinear.fcn(fitlin.beta, angp), "-k", label="")
+        plt.plot(angp, linear_model(angp, fitlin.beta), "-k", label="")
         if usetilt:
             plt.plot(
                 angp,
@@ -274,8 +287,8 @@ def psd_chdeg(
         if modelline:
             plt.plot(
                 angp,
-                odr.unilinear.fcn(fittan.beta, degrees(tan(radians(angp))))
-                - odr.unilinear.fcn(fitlin.beta, angp),
+                linear_model(degrees(tan(radians(angp))), fittan.beta)
+                - linear_model(angp, fitlin.beta),
                 modelline,
                 label=mlabel,
                 lw=linewidth,
@@ -284,7 +297,7 @@ def psd_chdeg(
             plt.plot(
                 angp,
                 straight_tilt(fittilt.beta, angp)
-                - odr.unilinear.fcn(fitlin.beta, angp),
+                - linear_model(angp, fitlin.beta),
                 modeltilt,
                 label=mtiltlabel,
                 lw=linewidth,
@@ -292,7 +305,7 @@ def psd_chdeg(
         if stdev is None:
             plt.plot(
                 angles,
-                channels - odr.unilinear.fcn(fitlin.beta, angles),
+                channels - linear_model(angles, fitlin.beta),
                 datap,
                 ms=markersize,
                 mew=markeredgewidth,
@@ -303,7 +316,7 @@ def psd_chdeg(
         else:
             plt.errorbar(
                 angles,
-                channels - odr.unilinear.fcn(fitlin.beta, angles),
+                channels - linear_model(angles, fitlin.beta),
                 fmt=datap,
                 yerr=stdevu,
                 ms=markersize,
@@ -1347,7 +1360,7 @@ def _area_detector_calib_fit(
             arg = numpy.array(arg, dtype=numpy.double)
         n2 = arg
 
-        dAngles.shape = (Nd, Npoints)
+        dAngles = numpy.reshape(dAngles, (Nd, Npoints), copy=False)
         dAngles = dAngles.transpose()
 
         if deg:
@@ -1496,23 +1509,19 @@ def _area_detector_calib_fit(
     x[1, :] = ang2
     x[2, :] = n1
     x[3, :] = n2
-    data = odr.Data(x, y=1)
-    # define model for fitting
-    model = odr.Model(
-        afunc, extra_args=(detdir1, detdir2, r_i, detaxis, wl), implicit=True
-    )
     # check if parameters need to be fixed
-    ifixb = ()
-    for i in range(len(fix)):
-        ifixb += (int(not fix[i]),)
+    fix_beta = numpy.array((False, False) + tuple(fix), dtype=bool)
 
-    my_odr = odr.ODR(
-        data,
-        model,
-        beta0=param,
-        ifixb=(1, 1) + ifixb,
-        ifixx=(0, 0, 0, 0),
-        stpb=(
+    fit = odr_fit(
+        lambda x, beta: afunc(
+            beta.copy(), x, detdir1, detdir2, r_i, detaxis, wl
+        ),
+        x,
+        numpy.zeros(Npoints),
+        param,
+        task="OLS",
+        fix_beta=fix_beta,
+        step_beta=(
             0.4,
             0.4,
             pwidth1 / 50.0,
@@ -1523,7 +1532,7 @@ def _area_detector_calib_fit(
             0.01,
             0.01,
         ),
-        sclb=(
+        scale_beta=(
             1 / abs(cch1),
             1 / abs(cch2),
             1 / pwidth1,
@@ -1538,12 +1547,8 @@ def _area_detector_calib_fit(
         ndigit=12,
         sstol=1e-11,
         partol=1e-11,
+        report="iteration" if debug else "none",
     )
-    if debug:
-        my_odr.set_iprint(final=1)
-        my_odr.set_iprint(iter=2)
-
-    fit = my_odr.run()
 
     (
         cch1,
@@ -2329,9 +2334,9 @@ def _area_detector_calib_fit2(
             arg = numpy.array(arg, dtype=numpy.double)
         n2 = arg
 
-        sAngles.shape = (1, Npoints)
+        sAngles = numpy.reshape(sAngles, (1, Npoints), copy=False)
         sAngles = sAngles.transpose()
-        dAngles.shape = (Nd, Npoints)
+        dAngles = numpy.reshape(dAngles, (Nd, Npoints), copy=False)
         dAngles = dAngles.transpose()
 
         if deg:
@@ -2589,23 +2594,17 @@ def _area_detector_calib_fit2(
     x[6, :] = hkls[:, 1]
     x[7, :] = hkls[:, 2]
 
-    data = odr.Data(x, y=1)
-    # define model for fitting
-    model = odr.Model(
-        afunc, extra_args=(detdir1, detdir2, r_i, detaxis), implicit=True
-    )
     # check if parameters need to be fixed
-    ifixb = ()
-    for i in range(len(fix)):
-        ifixb += (int(not fix[i]),)
+    fix_beta = numpy.array((False, False) + tuple(fix), dtype=bool)
 
-    my_odr = odr.ODR(
-        data,
-        model,
-        beta0=param,
-        ifixb=(1, 1) + ifixb,
-        ifixx=(0, 0, 0, 0, 0, 0, 0, 0),
-        stpb=(
+    fit = odr_fit(
+        lambda x, beta: afunc(beta.copy(), x, detdir1, detdir2, r_i, detaxis),
+        x,
+        numpy.zeros(Npoints),
+        param,
+        task="OLS",
+        fix_beta=fix_beta,
+        step_beta=(
             0.4,
             0.4,
             pwidth1 / 50.0,
@@ -2619,7 +2618,7 @@ def _area_detector_calib_fit2(
             1.0,
             0.0001,
         ),
-        sclb=(
+        scale_beta=(
             1 / abs(cch1),
             1 / abs(cch2),
             1 / pwidth1,
@@ -2637,12 +2636,8 @@ def _area_detector_calib_fit2(
         ndigit=12,
         sstol=1e-11,
         partol=1e-11,
+        report="iteration" if debug else "none",
     )
-    if debug:
-        my_odr.set_iprint(final=1)
-        my_odr.set_iprint(iter=2)
-
-    fit = my_odr.run()
 
     (
         cch1,

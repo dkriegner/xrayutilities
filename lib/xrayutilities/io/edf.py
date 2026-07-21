@@ -303,7 +303,9 @@ class EDFFile:
                     "%d bytes per entry" % (fmt_str, len(bindata) / tot_nofp)
                 )
 
-        data.shape = (self._dimy[nimg], self._dimx[nimg])
+        data = numpy.reshape(
+            data, (self._dimy[nimg], self._dimx[nimg]), copy=False
+        )
 
         if self._byte_order[nimg] != "LowByteFirst":  # data = data.byteswap()
             print(

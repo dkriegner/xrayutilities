@@ -87,7 +87,9 @@ class CBFFile:
             self.ydim = int(tmp2[pos : pos + 6].strip())
 
             self.data = cxrayutilities.cbfread(tmp, self.xdim, self.ydim)
-            self.data.shape = (self.ydim, self.xdim)
+            self.data = numpy.reshape(
+                self.data, (self.ydim, self.xdim), copy=False
+            )
 
     def Save2HDF5(self, h5f, group="/", comp=True):
         """

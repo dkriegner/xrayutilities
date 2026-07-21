@@ -4,12 +4,7 @@ requires = [
     "scipy",
     "h5py",
     "wheel",
-    # Note for packagers: the numpy version constraint is specific to wheels
-    # for PyPI; it is also supported to build against 1.xx still.
-    # If you do so, please ensure to include a `numpy<2.0` runtime requirement
-    # for those binary packages.
-    "numpy>=2.0.0rc1; python_version >= '3.9'",
-    "numpy; python_version < '3.9'",
+    "numpy>=2.1.0",
 ]
 build-backend = "mesonpy"
 
@@ -38,9 +33,15 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Development Status :: 5 - Production/Stable",
 ]
-requires-python = ">=3.7,<4.0"
+requires-python = ">=3.10,<4.0"
 dynamic = ["version"]
-dependencies = ["numpy>=1.9.2", "scipy>=0.18.0", "h5py", "lmfit>=1.0.1"]
+dependencies = [
+    "numpy>=2.1.0",
+    "scipy>=0.18.0",
+    "h5py",
+    "lmfit>=1.0.1",
+    "odrpack",
+]
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.1.0"]

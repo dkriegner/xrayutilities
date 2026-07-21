@@ -584,7 +584,7 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
         for key in angles:
             angles[key] = numpy.zeros(0)
         buf = numpy.zeros(0)
-        MAP = numpy.zeros(0)
+        MAP = None
 
         for nr in scanlist:
             h5scan = h5.get(basename + "_%05d" % nr)
@@ -597,8 +597,8 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
             sdtmp = numpy.lib.recfunctions.merge_arrays(
                 [sdata, mcatemp], flatten=True
             )
-            if MAP.dtype == numpy.float64:
-                MAP.dtype = sdtmp.dtype
+            if MAP is None:
+                MAP = numpy.empty(0, dtype=sdtmp.dtype)
             MAP = numpy.append(MAP, sdtmp)
 
             # check type of scan
@@ -615,6 +615,9 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
                 motname = args[i]
                 buf = numpy.ones(scanshape) * h5scan.attrs.get(f"{motname}")
                 angles[motname] = numpy.concatenate((angles[motname], buf))
+
+    if MAP is None:
+        MAP = numpy.zeros(0)
 
     retval = []
     for motname in args:
