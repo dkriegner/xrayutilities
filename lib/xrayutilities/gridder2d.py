@@ -28,26 +28,16 @@ class Gridder2D(Gridder):
     def __init__(self, nx, ny):
         Gridder.__init__(self)
 
-        # check input
-        if nx <= 0 or ny <= 0:
-            raise exception.InputError(
-                "Neither nx nor ny can be smallerthan 1!"
-            )
-
         self.xmin = None
         self.ymin = None
         self.xmax = None
         self.ymax = None
 
-        self.nx = nx
-        self.ny = ny
-
-        self._allocate_memory()
+        self.SetResolution(nx, ny)
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx, ny
-        class attributes.
+        Allocate data and normalization arrays for the current resolution.
         """
 
         self._gdata = numpy.zeros((self.nx, self.ny), dtype=numpy.double)
@@ -77,16 +67,20 @@ class Gridder2D(Gridder):
 
     def SetResolution(self, nx, ny):
         """
-        Reset the resolution of the gridder. In this case the original data
-        stored in the object will be deleted.
+        Reset the 2D grid resolution and discard currently gridded data.
 
         Parameters
         ----------
-        nx :	 int
-            number of points in x-direction
-        ny :	 int
-            number of points in y-direction
+        nx :    int
+            Number of points in x-direction.
+        ny :    int
+            Number of points in y-direction.
         """
+        if nx <= 0 or ny <= 0:
+            raise exception.InputError(
+                "Neither nx nor ny can be smaller than 1!"
+            )
+
         self.nx = nx
         self.ny = ny
 
