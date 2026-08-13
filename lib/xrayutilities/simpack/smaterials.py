@@ -18,6 +18,7 @@
 import collections.abc
 import copy
 import numbers
+from typing import ClassVar
 
 import numpy
 
@@ -69,8 +70,8 @@ class SMaterial:
         else:
             self.name = utilities.makeNaturalName(material.name, check=True)
         self.material = copy.deepcopy(material)
-        for kw in kwargs:
-            setattr(self, kw, kwargs[kw])
+        for kw, value in kwargs.items():
+            setattr(self, kw, value)
 
     @property
     def material(self):
@@ -109,41 +110,40 @@ class SMaterial:
 
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
-        if hasattr(self, "material"):
-            if isinstance(self.material, Crystal):
-                if name in self.material.lattice.free_parameters:
-                    setattr(self.material.lattice, name, value)
-                if name.startswith("at"):
-                    nsplit = name.split("_")
-                    idx = int(nsplit[0][2:])
-                    wp = self.material.lattice._wbase[idx]
-                    # wyckoff position parameter
-                    if nsplit[-1] == "pos":
-                        pidx = int(nsplit[-2])
-                        wyckpos = (wp[1][0], list(wp[1][1]))
-                        wyckpos[1][pidx] = value
-                        self.material.lattice._wbase[idx] = (
-                            wp[0],
-                            wyckpos,
-                            wp[2],
-                            wp[3],
-                        )
-                    # site occupation
-                    if nsplit[-1] == "occupation":
-                        self.material.lattice._wbase[idx] = (
-                            wp[0],
-                            wp[1],
-                            value,
-                            wp[3],
-                        )
-                    # site DW exponent
-                    if nsplit[-1] == "biso":
-                        self.material.lattice._wbase[idx] = (
-                            wp[0],
-                            wp[1],
-                            wp[2],
-                            value,
-                        )
+        if hasattr(self, "material") and isinstance(self.material, Crystal):
+            if name in self.material.lattice.free_parameters:
+                setattr(self.material.lattice, name, value)
+            if name.startswith("at"):
+                nsplit = name.split("_")
+                idx = int(nsplit[0][2:])
+                wp = self.material.lattice._wbase[idx]
+                # wyckoff position parameter
+                if nsplit[-1] == "pos":
+                    pidx = int(nsplit[-2])
+                    wyckpos = (wp[1][0], list(wp[1][1]))
+                    wyckpos[1][pidx] = value
+                    self.material.lattice._wbase[idx] = (
+                        wp[0],
+                        wyckpos,
+                        wp[2],
+                        wp[3],
+                    )
+                # site occupation
+                if nsplit[-1] == "occupation":
+                    self.material.lattice._wbase[idx] = (
+                        wp[0],
+                        wp[1],
+                        value,
+                        wp[3],
+                    )
+                # site DW exponent
+                if nsplit[-1] == "biso":
+                    self.material.lattice._wbase[idx] = (
+                        wp[0],
+                        wp[1],
+                        wp[2],
+                        value,
+                    )
 
     def __radd__(self, other):
         return MaterialList(f"{other.name} + {self.name}", other, self)
@@ -274,7 +274,7 @@ class Layer(SMaterial):
         film thickness in angstrom
     """
 
-    _valid_init_kwargs = {
+    _valid_init_kwargs: ClassVar = {
         "name": "Custom name of the Layer",
         "roughness": "root mean square roughness",
         "density": "density in kg/m^3",
@@ -468,7 +468,7 @@ class Powder(SMaterial):
         crystallites.
     """
 
-    _valid_init_kwargs = {
+    _valid_init_kwargs: ClassVar = {
         "name": "Custom name of the Powder",
         "crystallite_size_lor": "Lorentzian crystallite size",
         "crystallite_size_gauss": "Gaussian crystallite size",

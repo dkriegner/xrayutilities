@@ -123,9 +123,10 @@ def VecCross(v1, v2, out=None):
     ndarray
         cross product either of shape (3, ) or (n, 3)
     """
-    if isinstance(v1, numpy.ndarray):
-        if len(v1.shape) >= 2 or len(v2.shape) >= 2:
-            return numpy.cross(v1, v2)
+    if isinstance(v1, numpy.ndarray) and (
+        len(v1.shape) >= 2 or len(v2.shape) >= 2
+    ):
+        return numpy.cross(v1, v2)
     if len(v1) != 3 or len(v2) != 3:
         raise ValueError(
             "Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
@@ -344,7 +345,7 @@ class Transform:
             try:
                 self._imatrix = numpy.linalg.inv(self.matrix)
             except numpy.linalg.LinAlgError:
-                raise Exception(
+                raise RuntimeError(
                     "XU.math.Transform: matrix cannot be inverted"
                     " - seems to be singular"
                 )

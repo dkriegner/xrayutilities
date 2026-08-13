@@ -18,6 +18,7 @@
 import os
 import unittest
 from multiprocessing import freeze_support
+from typing import ClassVar
 
 import numpy
 import xrayutilities as xu
@@ -61,7 +62,7 @@ class Test_PowderModel(unittest.TestCase):
         strain_lor=0,
     )
     # machine settings
-    settings = {
+    settings: ClassVar = {
         "classoptions": {"oversampling": 10},
         "global": {
             "diffractometer_radius": 0.337,

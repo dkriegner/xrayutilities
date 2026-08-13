@@ -22,6 +22,7 @@ module for reading ILL data files (station D23): numor files
 import collections.abc
 import os.path
 import re
+from typing import ClassVar
 
 import numpy
 
@@ -49,7 +50,7 @@ class numorFile:
         a string with the name of the data file
     """
 
-    columns = {
+    columns: ClassVar = {
         0: ("detector", "monitor", "time", "gamma", "omega", "psi"),
         1: ("detector", "monitor", "time", "gamma"),
         2: ("detector", "monitor", "time", "omega"),

@@ -97,7 +97,7 @@ class CIFFile:
         if os.path.isfile(filestr):
             self.filename = filestr
             try:
-                fid = open(self.filename, "rb")
+                fid = open(self.filename, "rb")  # noqa: SIM115
             except OSError as exc:
                 raise OSError(f"cannot open CIF file {self.filename}") from exc
         else:
@@ -224,10 +224,9 @@ class CIFDataset:
             if "+" in el or "-" in el:
                 # add oxidation number if not present
                 for sign in ("+", "-"):
-                    if sign in el:
-                        if not el[el.index(sign) - 1].isdigit():
-                            signidx = el.index(sign)
-                            el = el[:signidx] + "1" + el[signidx:]
+                    if sign in el and not el[el.index(sign) - 1].isdigit():
+                        signidx = el.index(sign)
+                        el = el[:signidx] + "1" + el[signidx:]
                 # replace special characters
                 for r, o in zip(("dot", "p", "m"), (".", "+", "-")):
                     el = el.replace(o, r)

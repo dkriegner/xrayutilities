@@ -112,7 +112,7 @@ def _makebounds(boundsin):
     return scipy.optimize.Bounds(lb, ub), constraints
 
 
-def _errornorm_q2ang(angles, qvec, hxrd, U=numpy.identity(3)):
+def _errornorm_q2ang(angles, qvec, hxrd, U=None):
     """
     function to determine the offset in the qposition calculated from
     a set of experimental angles and the given vector
@@ -134,6 +134,8 @@ def _errornorm_q2ang(angles, qvec, hxrd, U=numpy.identity(3)):
         q-space error between the current fit-guess and the user-specified
         position
     """
+    if U is None:
+        U = numpy.identity(3)
 
     qcalc = hxrd.Ang2Q.point(*angles, UB=U)
     dq = numpy.linalg.norm(qcalc - qvec)
@@ -195,7 +197,7 @@ def Q2AngFit(
     qvec,
     expclass,
     bounds=None,
-    ormat=numpy.identity(3),
+    ormat=None,
     startvalues=None,
     constraints=None,
 ):
@@ -249,6 +251,8 @@ def Q2AngFit(
         error-code of the scipy minimize function. for a successful fit the
         error code should be <=2
     """
+    if ormat is None:
+        ormat = numpy.identity(3)
 
     # check input parameters
     if len(qvec) != 3:

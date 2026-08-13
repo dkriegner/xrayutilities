@@ -1073,9 +1073,8 @@ class SGLattice:
     def _set_params_from_sym(self):
         for i, p in enumerate(("a", "b", "c", "alpha", "beta", "gamma")):
             key = sgrp_params[self.crystal_system][1][i]
-            if isinstance(key, str):
-                if p not in self.free_parameters:
-                    self._parameters[p] = self.free_parameters[key]
+            if isinstance(key, str) and p not in self.free_parameters:
+                self._parameters[p] = self.free_parameters[key]
 
     @property
     def ai(self):

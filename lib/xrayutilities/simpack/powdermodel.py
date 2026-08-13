@@ -146,17 +146,17 @@ class PowderModel:
                 set_splbkg = True
                 spliney[int(p.split("_")[-1])] = pv[p]
             else:  # instrument parameters
-                for k in settings:
+                for k, value in settings.items():
                     if p.startswith(k):
                         slist = p[len(k) + 1 :].split("_")
                         if len(slist) > 2 and slist[-2] == "item":
                             name = "_".join(slist[:-2])
                             if slist[-1] == "0":
-                                settings[k][name] = []
-                            settings[k][name].append(pv[p])
+                                value[name] = []
+                            value[name].append(pv[p])
                         else:
                             name = p[len(k) + 1 :]
-                            settings[k][name] = pv[p]
+                            value[name] = pv[p]
                         break
         if set_splbkg:
             self._bckg_spline = interpolate.InterpolatedUnivariateSpline(

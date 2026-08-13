@@ -16,6 +16,7 @@
 # Copyright (C) 2019-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import unittest
+from typing import ClassVar
 
 import numpy
 import xrayutilities as xu
@@ -36,8 +37,12 @@ class Test_SpecularReflectivityModel(unittest.TestCase):
     lCoFe = xu.simpack.Layer(mat_cf, 30, roughness=5.2)
 
     # simulation parameters
-    kwargs = {
-        "I0": 1e6, "background": 2, "sample_width": 10, "beam_width": 0.2, "energy": "MoKa1"
+    kwargs: ClassVar = {
+        "I0": 1e6,
+        "background": 2,
+        "sample_width": 10,
+        "beam_width": 0.2,
+        "energy": "MoKa1",
     }
 
     @classmethod

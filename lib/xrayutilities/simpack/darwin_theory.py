@@ -411,7 +411,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                 s.update({"d": dperp, "x": x, "ai": apar})
                 ml.insert(0, (nmono, s))
         else:
-            raise Exception(
+            raise TypeError(
                 f"wrong type ({type(s)}) of sublayer, must be tuple or dict"
             )
         return ml, apar

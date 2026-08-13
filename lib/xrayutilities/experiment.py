@@ -32,6 +32,7 @@ import enum
 import numbers
 import re
 import warnings
+from typing import ClassVar
 
 import numpy
 from numpy.linalg import norm
@@ -72,12 +73,12 @@ class QConversion:
     or init_area() routines were called
     """
 
-    _valid_init_kwargs = {
+    _valid_init_kwargs: ClassVar = {
         "en": "x-ray energy",
         "wl": "x-ray wavelength",
         "UB": "orientation/orthonormalization matrix",
     }
-    _valid_call_kwargs = {
+    _valid_call_kwargs: ClassVar = {
         "delta": "angle offsets",
         "wl": "x-ray wavelength",
         "en": "x-ray energy",
@@ -85,7 +86,7 @@ class QConversion:
         "deg": "True if angles are in degrees",
         "sampledis": "sample displacement vector",
     }
-    _valid_linear_kwargs = {
+    _valid_linear_kwargs: ClassVar = {
         "Nav": "number of channels for block-average",
         "roi": "region of interest",
     }
@@ -1497,7 +1498,7 @@ class Experiment:
     users should use the derived classes: HXRD, GID, PowderExperiment
     """
 
-    _valid_init_kwargs = {
+    _valid_init_kwargs: ClassVar = {
         "en": "x-ray energy",
         "wl": "x-ray wavelength",
         "qconv": "reciprocal space conversion",
@@ -2105,13 +2106,14 @@ class HXRD(Experiment):
         # spanned by qvec[1] and qvec[2] directions)
 
         chi = -numpy.arctan2(math.VecDot(q, x), math.VecDot(q, z))
-        if numpy.any(numpy.isclose(numpy.abs(math.VecDot(q, z)), 0)):
-            if config.VERBOSITY >= config.INFO_LOW:
-                print(
-                    "XU.HXRD: some position is perpendicular to ndir-"
-                    "reference direction (might be inplane or "
-                    "unreachable)"
-                )
+        if numpy.any(numpy.isclose(numpy.abs(math.VecDot(q, z)), 0)) and (
+            config.VERBOSITY >= config.INFO_LOW
+        ):
+            print(
+                "XU.HXRD: some position is perpendicular to ndir-"
+                "reference direction (might be inplane or "
+                "unreachable)"
+            )
 
         if geom == "hi_lo":
             # +: high incidence geometry

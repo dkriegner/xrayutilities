@@ -18,6 +18,7 @@
 import math
 import os.path
 import unittest
+from typing import ClassVar
 
 import xrayutilities as xu
 
@@ -32,7 +33,7 @@ fullfilename = os.path.join(datadir, testfile)
     "additional test data needed (http://xrayutilities.sf.io)",
 )
 class TestIO_SPEC_Sardana(unittest.TestCase):
-    scannrs = [4, 6, 8, 10]
+    scannrs: ClassVar = [4, 6, 8, 10]
     s4_init_motor_pos_len = 6
     s8_init_motor_pos_len = 2
     s8_init_mopo_mot12 = 20.0

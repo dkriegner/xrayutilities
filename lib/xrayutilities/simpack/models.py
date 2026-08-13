@@ -1533,8 +1533,6 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
 
         if self.polarization in ["S", "P"]:
             cd = cd + chihP
-        else:
-            cd = cd
 
         sai = numpy.sin(numpy.radians(lai))
 

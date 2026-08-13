@@ -261,7 +261,7 @@ class FastScanCCD(FastScan):
         elif isinstance(ccdnr, (list, tuple, numpy.ndarray)):
             ccdnumbers = ccdnr
         else:
-            raise ValueError(
+            raise TypeError(
                 "xu.FastScanCCD: wrong data type for argument 'ccdnr'"
             )
         return ccdnumbers
@@ -783,7 +783,7 @@ class FastScanSeries:
         # save motor names
         for arg in args:
             if not isinstance(arg, str):
-                raise ValueError(
+                raise TypeError(
                     "one of the motor name arguments is not of "
                     f"type 'str' but {type(arg)!s}"
                 )
@@ -802,7 +802,7 @@ class FastScanSeries:
                         FastScanCCD(specfile, snrs, **kwargs)
                     )
         else:
-            raise ValueError(
+            raise TypeError(
                 "argument 'filenames' is not of appropriate type!"
             )
 

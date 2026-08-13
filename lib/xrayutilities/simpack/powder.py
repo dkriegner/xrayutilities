@@ -98,6 +98,7 @@ import time
 import warnings
 from math import cos, pi, sin, sqrt, tan
 from multiprocessing.managers import BaseManager
+from typing import ClassVar
 
 import numpy
 from numpy import abs as nabs
@@ -247,7 +248,7 @@ class FP_profile:
             the the final result.
         """
         if anglemode not in ("d", "twotheta"):
-            raise Exception(
+            raise ValueError(
                 f"invalid angle mode {anglemode}, must be 'd' or 'twotheta'"
             )
         # set to either 'd' for d-spacing based position, or 'twotheta' for
@@ -568,7 +569,7 @@ class FP_profile:
     # A dictionary of default parameters for the global namespace,
     # used to seed a GUI which can harvest this for names, descriptions, and
     # initial values
-    info_global = {
+    info_global: ClassVar = {
         "group_name": "Global parameters",
         "help": "this should be help information",
         "param_info": {
@@ -1278,7 +1279,7 @@ class FP_profile:
     # A dictionary of default parameters for conv_emissions,
     # used to seed a GUI which can harvest this for names, descriptions, and
     # initial values
-    info_emission = {
+    info_emission: ClassVar = {
         "group_name": "Incident beam and crystal size",
         "help": "this should be help information",
         "param_info": {
@@ -2250,12 +2251,14 @@ class PowderDiffraction(PowderExperiment):
         """
         if newsettings is None:
             return
-        if "global" in newsettings:
-            if "dominant_wavelength" in newsettings["global"]:
-                print(
-                    "PowderDiffraction: dominant wavelength is a read only"
-                    "setting \n -> use emission: emiss_wavelength instead"
-                )
+        if (
+            "global" in newsettings
+            and "dominant_wavelength" in newsettings["global"]
+        ):
+            print(
+                "PowderDiffraction: dominant wavelength is a read only"
+                "setting \n -> use emission: emiss_wavelength instead"
+            )
         if "emission" in newsettings:
             nem = newsettings["emission"]
             for k in (
@@ -2264,9 +2267,8 @@ class PowderDiffraction(PowderExperiment):
                 "emiss_gauss_widths",
                 "emiss_lor_widths",
             ):
-                if k in nem:
-                    if isinstance(nem[k], numbers.Number):
-                        nem[k] = (nem[k],)
+                if k in nem and isinstance(nem[k], numbers.Number):
+                    nem[k] = (nem[k],)
         for k in newsettings:
             if k == "classoptions":
                 continue
@@ -2518,14 +2520,15 @@ class PowderDiffraction(PowderExperiment):
                     # and convolver symmetries
                     added = False
                     for i, m in enumerate(currhkl):
-                        if self.mat.material.lattice.isequivalent(m, r[2]):
-                            if self.fpclass.isequivalent(
-                                m,
-                                r[2],
-                                self.mat.material.lattice.crystal_system,
-                            ):
-                                curref[i] += r[1]
-                                added = True
+                        if self.mat.material.lattice.isequivalent(
+                            m, r[2]
+                        ) and self.fpclass.isequivalent(
+                            m,
+                            r[2],
+                            self.mat.material.lattice.crystal_system,
+                        ):
+                            curref[i] += r[1]
+                            added = True
                     if not added:
                         curref.append(r[1])
                         currhkl.append(r[2])

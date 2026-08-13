@@ -185,7 +185,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             0,
         )
-        x, d, m = xu.analysis.get_qz_scan(
+        x, d, _m = xu.analysis.get_qz_scan(
             [self.QY, self.QZ], data, self.qyp, self.Ncut, 0.1, intdir="q"
         )
         self.assertEqual(x.size, self.Ncut)

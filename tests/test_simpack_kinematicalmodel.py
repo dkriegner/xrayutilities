@@ -18,6 +18,7 @@
 
 
 import unittest
+from typing import ClassVar
 
 import numpy
 import xrayutilities as xu
@@ -37,7 +38,11 @@ class Test_KinematicalModel(unittest.TestCase):
     hkl = (0, 0, 4)
 
     # simulation parameters
-    kwargs = {"I0": 1e6, "background": 0, "resolution_width": 0.0001}
+    kwargs: ClassVar = {
+        "I0": 1e6,
+        "background": 0,
+        "resolution_width": 0.0001,
+    }
 
     @classmethod
     def setUpClass(cls):

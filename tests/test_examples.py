@@ -90,14 +90,15 @@ class TestExampleScripts(unittest.TestCase):
         """Testrun example scripts."""
         for sf in scriptfiles:
             print(f"starting script {sf}")
-            with self.subTest(script=sf):
-                with tempfile.TemporaryFile(mode="w") as fid:
-                    env = os.environ.copy()
-                    env["MPLBACKEND"] = "agg"
-                    cmd = [sys.executable, sf]
-                    subprocess.run(
-                        cmd, env=env, cwd=scriptdir, stdout=fid, check=True
-                    )
+            with self.subTest(script=sf), tempfile.TemporaryFile(
+                mode="w"
+            ) as fid:
+                env = os.environ.copy()
+                env["MPLBACKEND"] = "agg"
+                cmd = [sys.executable, sf]
+                subprocess.run(
+                    cmd, env=env, cwd=scriptdir, stdout=fid, check=True
+                )
 
     @classmethod
     def tearDownClass(cls):

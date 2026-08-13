@@ -88,7 +88,7 @@ class Atom:
 
     @property
     def radius(self):
-        if self.__radius is numpy.nan:
+        if numpy.isnan(self.__radius):
             _db.SetMaterial(self.basename)
             self.__radius = _db.radius
         return self.__radius

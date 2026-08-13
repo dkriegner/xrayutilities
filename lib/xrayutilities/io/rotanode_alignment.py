@@ -86,7 +86,7 @@ class RA_Alignment:
         iteration = 0
 
         if self.fid is None:
-            raise Exception(
+            raise RuntimeError(
                 "RA_Alignment: file was not opened by initialization!"
             )
 
