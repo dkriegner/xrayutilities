@@ -19,6 +19,7 @@ import unittest
 
 import numpy
 import xrayutilities as xu
+from xrayutilities.exception import InputError
 
 
 class TestGridder1D(unittest.TestCase):
@@ -47,6 +48,21 @@ class TestGridder1D(unittest.TestCase):
             self.assertAlmostEqual(
                 self.gridder.data[i], self.data[i], places=12
             )
+
+    def test_gridder1d_set_resolution(self):
+        gridder = xu.Gridder1D(self.num)
+        gridder(self.x, self.data)
+
+        new_num = self.num + 7
+        gridder.SetResolution(new_num)
+
+        self.assertEqual(gridder.nx, new_num)
+        self.assertEqual(gridder.data.shape, (new_num,))
+        self.assertTrue(numpy.all(gridder.data == 0))
+
+    def test_gridder1d_set_resolution_invalid(self):
+        with self.assertRaises(InputError):
+            xu.Gridder1D(self.num).SetResolution(0)
 
 
 if __name__ == "__main__":

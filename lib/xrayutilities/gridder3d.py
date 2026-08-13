@@ -28,12 +28,6 @@ class Gridder3D(Gridder):
     def __init__(self, nx, ny, nz):
         Gridder.__init__(self)
 
-        # check input
-        if nx <= 0 or ny <= 0 or nz <= 0:
-            raise exception.InputError(
-                "None of nx, ny and nz can be smaller than 1!"
-            )
-
         self.xmin = 0
         self.xmax = 0
         self.ymin = 0
@@ -41,16 +35,11 @@ class Gridder3D(Gridder):
         self.zmin = 0
         self.zmax = 0
 
-        self.nx = nx
-        self.nz = nz
-        self.ny = ny
-
-        self._allocate_memory()
+        self.SetResolution(nx, ny, nz)
 
     def _allocate_memory(self):
         """
-        Class method to allocate memory for the gridder based on the nx, ny
-        class attributes.
+        Allocate data and normalization arrays for the current resolution.
         """
         self._gdata = numpy.zeros(
             (self.nx, self.ny, self.nz), dtype=numpy.double
@@ -60,6 +49,23 @@ class Gridder3D(Gridder):
         )
 
     def SetResolution(self, nx, ny, nz):
+        """
+        Reset the 3D grid resolution and discard currently gridded data.
+
+        Parameters
+        ----------
+        nx :    int
+            Number of points in x-direction.
+        ny :    int
+            Number of points in y-direction.
+        nz :    int
+            Number of points in z-direction.
+        """
+        if nx <= 0 or ny <= 0 or nz <= 0:
+            raise exception.InputError(
+                "None of nx, ny and nz can be smaller than 1!"
+            )
+
         self.nx = nx
         self.ny = ny
         self.nz = nz

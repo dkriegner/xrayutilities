@@ -1,3 +1,5 @@
+* add Gridder1D.SetResolution and use it more consistently in all Gridder
+
 v1.8.0, 2026-07-21
 
 * replace deprecated scipy.odr usage with direct odrpack calls

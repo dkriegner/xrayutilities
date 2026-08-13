@@ -131,6 +131,15 @@ class Gridder(utilities.ABC):
         override
         """
 
+    def SetResolution(self, *resolution):
+        """
+        Reset the grid resolution and discard currently gridded data.
+
+        The number of resolution arguments depends on the dimensionality of the
+        concrete gridder.
+        """
+        raise NotImplementedError
+
     def Normalize(self, bool):
         """
         set or unset the normalization flag.  Normalization needs to be done to
@@ -187,14 +196,16 @@ class Gridder(utilities.ABC):
 class Gridder1D(Gridder):
     def __init__(self, nx):
         Gridder.__init__(self)
-        if nx <= 0:
-            raise InputError("nx must be a positiv integer!")
-
-        self.nx = nx
         self.xmin = 0
         self.xmax = 0
-        self._gdata = numpy.zeros(nx, dtype=numpy.double)
-        self._gnorm = numpy.zeros(nx, dtype=numpy.double)
+        self.SetResolution(nx)
+
+    def _allocate_memory(self):
+        """
+        Allocate data and normalization arrays for the current resolution.
+        """
+        self._gdata = numpy.zeros(self.nx, dtype=numpy.double)
+        self._gnorm = numpy.zeros(self.nx, dtype=numpy.double)
 
     def savetxt(self, filename, header=""):
         """
@@ -214,6 +225,22 @@ class Gridder1D(Gridder):
             header=header,
             fmt="%.6g %.4g",
         )
+
+    def SetResolution(self, nx):
+        """
+        Reset the 1D grid resolution and discard currently gridded data.
+
+        Parameters
+        ----------
+        nx :    int
+            Number of points in x-direction.
+        """
+        if nx <= 0:
+            raise InputError("nx must be a positive integer!")
+
+        self.nx = nx
+
+        self._allocate_memory()
 
     def __get_xaxis(self):
         """
