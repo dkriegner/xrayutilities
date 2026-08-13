@@ -17,7 +17,7 @@
 
 import time
 
-from numpy import arange, inf
+import xrayutilities as xu
 from matplotlib.pylab import (
     figure,
     legend,
@@ -26,8 +26,7 @@ from matplotlib.pylab import (
     xlabel,
     ylabel,
 )
-
-import xrayutilities as xu
+from numpy import arange, inf
 
 sub = xu.simpack.Layer(xu.materials.Si, inf, roughness=1, lat_correl=100)
 lay1 = xu.simpack.Layer(xu.materials.Si, 200, roughness=1, lat_correl=200)

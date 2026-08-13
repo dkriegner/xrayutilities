@@ -20,9 +20,8 @@
 import collections.abc
 import re
 
-from numpy import float32, identity, newaxis, ones, zeros
-
 import xrayutilities as xu
+from numpy import float32, identity, newaxis, ones, zeros
 
 # define root of the local data directory (needed because we assume the data
 # path of detector frames from the specfile are not correct anymore)

@@ -290,14 +290,14 @@ class EDFFile:
                         bindata, count=tot_nofp, dtype=fmt_str
                     )
                 except ValueError:
-                    raise IOError(
+                    raise OSError(
                         "XU.io.EDFFile: data format (%s) has "
                         "different byte-length, from amount of data "
                         "one expects %d bytes per entry"
                         % (fmt_str, len(bindata) / tot_nofp)
                     )
             else:
-                raise IOError(
+                raise OSError(
                     "XU.io.EDFFile: data format (%s) has different "
                     "byte-length, from amount of data one expects "
                     "%d bytes per entry" % (fmt_str, len(bindata) / tot_nofp)

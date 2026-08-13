@@ -176,7 +176,7 @@ for k in ("main_width", "tail_left", "tail_right", "tail_intens"):
     trytomake(POWDER[subsec], k, float)
 
 if VERBOSITY >= DEBUG:
-    print(f"XU.config: xrayutilities configuration files: {repr(cfiles)}")
+    print(f"XU.config: xrayutilities configuration files: {cfiles!r}")
     print("xrayutilities configuration:")
     for name, value in xuParser.items("xrayutilities"):
         print(f"{name}: {value}")

@@ -17,9 +17,8 @@
 
 import matplotlib.pyplot as plt
 import numpy
-from matplotlib.colors import LogNorm
-
 import xrayutilities as xu
+from matplotlib.colors import LogNorm
 
 # mpl >= 3.3.0
 # mpl.rcParams["pcolor.shading"] = 'auto'

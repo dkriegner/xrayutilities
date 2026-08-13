@@ -81,16 +81,14 @@ class SPECTRAFileParameters(dict):
 
         # find the length of the longest key
         for k in self:
-            if len(k) > lmax_key:
-                lmax_key = len(k)
+            lmax_key = max(lmax_key, len(k))
 
             i = self[k]
             if not isinstance(i, str):
                 # if the item is not a string it must be converted
                 i = f"{i:f}"
 
-            if len(i) > lmax_item:
-                lmax_item = len(i)
+            lmax_item = max(lmax_item, len(i))
 
         # define the format string for a single key-value pair
         kvfmt = "|%%-%is = %%-%is" % (lmax_key, lmax_item)
@@ -153,8 +151,7 @@ class SPECTRAFileData:
         # determine the maximum lenght of every column string
         lmax = 0
         for c in self.collist:
-            if len(c.__str__()) > lmax:
-                lmax = len(c.__str__())
+            lmax = max(lmax, len(c.__str__()))
 
         lmax += 3
 

@@ -107,10 +107,10 @@ def Cij2Cijkl(cij):
     # now create the full tensor
     cijkl = numpy.empty((3, 3, 3, 3), dtype=numpy.double)
 
-    for i in range(0, 3):
-        for j in range(0, 3):
-            for k in range(0, 3):
-                for n in range(0, 3):
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for n in range(3):
                     mi = index_map_ijkl2ij(i, j)
                     mj = index_map_ijkl2ij(k, n)
                     cijkl[i, j, k, n] = m[mi, mj]

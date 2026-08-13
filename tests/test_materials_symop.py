@@ -53,7 +53,7 @@ class TestMaterialsSymOp(unittest.TestCase):
         of the Wyckoff positions is reproducible/reversable
         """
         for lat, gp in zip(self.lats, self.gps):
-            symopsxyz = map(lambda s: "({})".format(s.xyz()), lat.symops)
+            symopsxyz = map(lambda s: f"({s.xyz()})", lat.symops)
             self.assertCountEqual(symopsxyz, gp)
 
     def test_equivalent_hkl(self):

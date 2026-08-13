@@ -18,7 +18,6 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 import xrayutilities as xu
 
 # the script below currently only works for Amorphous materials.

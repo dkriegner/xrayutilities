@@ -818,14 +818,10 @@ class FastScanSeries:
         self.ymax = numpy.max(self.fastscans[0].yvalues)
 
     def _update_minmax(self, fs):
-        if numpy.max(fs.xvalues) > self.xmax:
-            self.xmax = numpy.max(fs.xvalues)
-        if numpy.max(fs.yvalues) > self.ymax:
-            self.ymax = numpy.max(fs.yvalues)
-        if numpy.min(fs.xvalues) < self.xmin:
-            self.xmin = numpy.min(fs.xvalues)
-        if numpy.min(fs.yvalues) < self.ymin:
-            self.ymin = numpy.min(fs.yvalues)
+        self.xmax = max(self.xmax, numpy.max(fs.xvalues))
+        self.ymax = max(self.ymax, numpy.max(fs.yvalues))
+        self.xmin = min(self.xmin, numpy.min(fs.xvalues))
+        self.ymin = min(self.ymin, numpy.min(fs.yvalues))
 
     def retrace_clean(self):
         """

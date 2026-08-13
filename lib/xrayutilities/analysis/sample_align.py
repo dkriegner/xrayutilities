@@ -27,14 +27,13 @@ import re
 import time
 
 import numpy
-from odrpack import odr_fit
 from numpy import cos, degrees, radians, sin, tan
+from odrpack import odr_fit
 from scipy import optimize
 from scipy.ndimage import center_of_mass
 
-from .. import config, cxrayutilities
+from .. import config, cxrayutilities, utilities
 from .. import math as xumath
-from .. import utilities
 from ..exception import InputError
 from ..math import fwhm_exp
 
@@ -740,7 +739,7 @@ def area_detector_calib(
 
     startparam = start[:5] + (detrot,) + (start[6],)
     if debug:
-        print(f"start params: {str(startparam)}")
+        print(f"start params: {startparam!s}")
 
     Ntot = Ntiltaz * Ntilt * Noffset
     ict = 0
@@ -3008,8 +3007,7 @@ def fit_bragg_peak(
     )
     # correct params
     params[6] = params[6] % (numpy.pi)
-    if params[5] < 0:
-        params[5] = 0
+    params[5] = max(params[5], 0)
 
     [omfit, _, _, ttfit] = exphxrd.Q2Ang(
         (0, params[0], params[1]), trans=False, geometry="real"

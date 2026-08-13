@@ -198,7 +198,7 @@ class RASScan:
                 print(f"XU.io.RASScan: offset {offset}; data-length {dlength}")
             self.fid.seek(offset + dlength)
         else:
-            raise IOError("File handle at wrong position to read data!")
+            raise OSError("File handle at wrong position to read data!")
 
 
 def getras_scan(scanname, scannumbers, *args, **kwargs):

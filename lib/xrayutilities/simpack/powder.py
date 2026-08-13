@@ -637,7 +637,7 @@ class FP_profile:
         *None*
             always returns None
         """
-        return None
+        return
 
     def axial_helper(
         self,
@@ -1157,8 +1157,7 @@ class FP_profile:
         kwargs = {}
         kwargs.update(self.param_dicts[me])  # get all of our parameters
         kwargs.update(self.param_dicts["conv_global"])
-        if "equatorial_divergence_deg" in kwargs:
-            del kwargs["equatorial_divergence_deg"]  # not used
+        kwargs.pop("equatorial_divergence_deg", None)  # not used
 
         flag, axfn = self.get_conv(me, kwargs, complex)
         if flag:
@@ -2291,9 +2290,7 @@ class PowderDiffraction(PowderExperiment):
         self.__tt = tt
         if oldtt is None:
             self.set_window()
-        elif len(oldtt) != len(self.__tt):
-            self.set_window(force=True)
-        elif not numpy.all(numpy.equal(oldtt, self.__tt)):
+        elif len(oldtt) != len(self.__tt) or not numpy.all(numpy.equal(oldtt, self.__tt)):
             self.set_window(force=True)
 
     @property
@@ -2795,8 +2792,7 @@ class PowderDiffraction(PowderExperiment):
         ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
         rmax = 0
         for d in self.data.values():
-            if d["r"] > rmax:
-                rmax = d["r"]
+            rmax = max(rmax, d["r"])
         ostr += "\nReflections:\n"
         ostr += "------------\n"
         ostr += (

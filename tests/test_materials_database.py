@@ -42,7 +42,6 @@ class TestDatabase(unittest.TestCase):
             os.remove(cls.dbfilename)
         except OSError:
             print("OSError during cleaning up of temporary database file!")
-            pass
 
     def test_db_f0(self):
         f0 = self.el.f0(0)

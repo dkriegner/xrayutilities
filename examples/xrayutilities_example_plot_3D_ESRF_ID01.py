@@ -18,9 +18,8 @@
 # ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
 
 import matplotlib.pyplot as plt
-import xrayutilities_id01_functions as id01
-
 import xrayutilities as xu
+import xrayutilities_id01_functions as id01
 
 sample = "SAMPLENAME"  # here used for the specfilename
 SCANNR = 200  # put your scan number here

@@ -15,7 +15,7 @@
 #
 # Copyright (c) 2019-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from numpy import arcsin, cos, inf
+import xrayutilities as xu
 from matplotlib.pylab import (
     figure,
     legend,
@@ -28,9 +28,7 @@ from matplotlib.pylab import (
     ylabel,
     ylim,
 )
-
-import xrayutilities as xu
-
+from numpy import arcsin, cos, inf
 
 # global parameters
 wavelength = xu.wavelength("CuKa1")

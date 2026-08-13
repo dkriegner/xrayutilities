@@ -21,9 +21,8 @@
 # 2. Code needs to be tested for roughness.
 
 import numpy
-from matplotlib.pylab import plt, suptitle, tight_layout
-
 import xrayutilities as xu
+from matplotlib.pylab import plt, suptitle, tight_layout
 
 # Thin-film of (20 nm) CaTiO$_3$/SrTiO$_3$
 CTO = xu.materials.CaTiO3

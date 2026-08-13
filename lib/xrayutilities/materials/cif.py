@@ -26,9 +26,8 @@ import shlex
 import numpy
 
 from .. import config
-from . import elements
+from . import elements, wyckpos
 from . import spacegrouplattice as sgl
-from . import wyckpos
 
 re_data = re.compile(r"^data_", re.IGNORECASE)
 re_loop = re.compile(r"^loop_", re.IGNORECASE)
@@ -100,7 +99,7 @@ class CIFFile:
             try:
                 fid = open(self.filename, "rb")
             except OSError as exc:
-                raise IOError(f"cannot open CIF file {self.filename}") from exc
+                raise OSError(f"cannot open CIF file {self.filename}") from exc
         else:
             if filestr.count("\n") == 0:
                 print(

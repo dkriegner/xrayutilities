@@ -18,7 +18,6 @@
 from multiprocessing import freeze_support
 
 import numpy
-
 import xrayutilities as xu
 
 

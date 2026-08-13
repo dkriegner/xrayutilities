@@ -19,7 +19,6 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
-
 import xrayutilities as xu
 
 # plot settings for matplotlib

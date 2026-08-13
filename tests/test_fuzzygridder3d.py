@@ -71,7 +71,7 @@ class TestFuzzyGridder3D(unittest.TestCase):
         self.assertEqual(self.gridder.data.shape[1], self.n)
         self.assertEqual(self.gridder.data.shape[2], self.n)
         # test values of data
-        vg = numpy.zeros((self.gridder.data.shape))
+        vg = numpy.zeros(self.gridder.data.shape)
         norm = numpy.copy(vg)
         ix, iy, iz = self.x - 1, self.y - 1, self.z - 1
         for i in range(ix - 1, ix + 2):

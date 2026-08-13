@@ -220,7 +220,7 @@ def show_reciprocal_space_plane(
     def update_annot(ind):
         pos = h.get_offsets()[ind["ind"][0]]
         annot.xy = pos
-        text = f"{mat.name}\n{str(d['hkl'][m][ind['ind'][0]])}"
+        text = f"{mat.name}\n{d['hkl'][m][ind['ind'][0]]!s}"
         annot.set_text(text)
         if h.get_facecolor().size > 0:
             color = h.get_facecolor()[0]

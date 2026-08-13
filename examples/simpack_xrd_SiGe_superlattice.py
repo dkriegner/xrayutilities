@@ -17,7 +17,7 @@
 
 import time
 
-from numpy import arcsin, cos, inf, linalg, linspace, mean, pi, sqrt
+import xrayutilities as xu
 from matplotlib.pylab import (
     clf,
     figure,
@@ -31,8 +31,7 @@ from matplotlib.pylab import (
     xlim,
     ylabel,
 )
-
-import xrayutilities as xu
+from numpy import arcsin, cos, inf, linalg, linspace, mean, pi, sqrt
 
 mpl.rcParams["font.size"] = 16.0
 

@@ -167,8 +167,7 @@ def coplanar_intensity(
     L = 1 / numpy.sin(numpy.radians(tt))
     # shape factor: changing illumination with the incidence angle
     shapef = beam_width / (numpy.sin(numpy.radians(om)) * sample_width)
-    if shapef > 1:
-        shapef = 1
+    shapef = min(shapef, 1)
 
     # absorption correction
     mu = 1 / (mat.absorption_length() * 1e3)

@@ -606,7 +606,7 @@ class WyckoffBase(list):
     def __str__(self):
         ostr = ""
         for i, (atom, p, occ, b) in enumerate(self):
-            ostr += f"{i}: {str(atom)} {p[0]} "
+            ostr += f"{i}: {atom!s} {p[0]} "
             if p[1] is not None:
                 ostr += " ".join(map(utilities.frac2str, p[1]))
             ostr += f" occ={occ:5.3f} b={b:5.3f}\n"
@@ -696,7 +696,7 @@ class WyckoffBase(list):
                 and isclose(b, item[3], abs_tol=1e-4)
             ):
                 return i
-        raise ValueError(f"{str(item)} is not in list")
+        raise ValueError(f"{item!s} is not in list")
 
 
 class SymOp:
@@ -1381,9 +1381,7 @@ class SGLattice:
             self._hklcond = hklcond_group.findall(self._gp[2])
         if self._hklcond_wp == []:
             for lab in set(e[1][0] for e in self._wbase):
-                if lab == self._gplabel:  # if gen. pos. is occupied skip it
-                    self._hklcond_wp.append(None)
-                elif wp[self.space_group][lab][2] is None:
+                if lab == self._gplabel or wp[self.space_group][lab][2] is None:  # if gen. pos. is occupied skip it
                     self._hklcond_wp.append(None)
                 else:
                     self._hklcond_wp.append(
@@ -1410,7 +1408,7 @@ class SGLattice:
          set of allowed hkl reflections
         """
 
-        def recurse_hkl(h, k, l, kstep):  # noqa: E741
+        def recurse_hkl(h, k, l, kstep):
             if (h, k, l) in hkltested:
                 return
             m = self.B
@@ -1446,9 +1444,9 @@ class SGLattice:
         and of Wyckoff positions
         """
         ostr = "Reflection conditions:\n"
-        ostr += f" general: {str(self._gp[2])}\n"
+        ostr += f" general: {self._gp[2]!s}\n"
         for wplabel in set(e[1][0] for e in self._wbase):
-            ostr += f"{wplabel:8s}: {str(wp[self.space_group][wplabel][2])}\n"
+            ostr += f"{wplabel:8s}: {wp[self.space_group][wplabel][2]!s}\n"
         return ostr
 
     def __str__(self):

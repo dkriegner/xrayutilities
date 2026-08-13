@@ -657,8 +657,8 @@ class QConversion:
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns, Nd))
             print(
-                f"XU.QConversion: sAngles / dAngles {str(sAngles)} / "
-                f"{str(dAngles)}"
+                f"XU.QConversion: sAngles / dAngles {sAngles!s} / "
+                f"{dAngles!s}"
             )
 
         qpos = cxrayutilities.ang2q_conversion(
@@ -2123,7 +2123,7 @@ class HXRD(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.DEBUG:
-            print(f"XU.HXRD.Q2Ang: q= {repr(q)}")
+            print(f"XU.HXRD.Q2Ang: q= {q!r}")
 
         qa = math.VecNorm(q)
         tth = 2.0 * numpy.arcsin(qa / 2.0 / k)
@@ -2211,7 +2211,7 @@ class HXRD(Experiment):
             om[mnot] = math.VecAngle(ki0, y)
             psi_i[mnot] = numpy.arcsin(math.VecDot(ki0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
-                print(f"XU.HXRD.Q2Ang: ki, ki0 = {repr(ki)} {repr(ki0)}")
+                print(f"XU.HXRD.Q2Ang: ki, ki0 = {ki!r} {ki0!r}")
 
             # refraction at exit facet
             m = math.VecDot(kd, fd) < 0
@@ -2236,7 +2236,7 @@ class HXRD(Experiment):
             tth[mnot] = math.VecAngle(ki0, kd0)
             psi_d[mnot] = numpy.arcsin(numpy.dot(kd0, x) / self.k0)
             if config.VERBOSITY >= config.DEBUG:
-                print(f"XU.HXRD.Q2Ang: kd, kd0 = {repr(kd)} {repr(kd0)}")
+                print(f"XU.HXRD.Q2Ang: kd, kd0 = {kd!r} {kd0!r}")
 
         if geom == "realTilt":
             angle[0, :] = om
@@ -2423,7 +2423,7 @@ class NonCOP(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.DEBUG:
-            print(f"XU.NonCOP.Q2Ang: q= {repr(q)}")
+            print(f"XU.NonCOP.Q2Ang: q= {q!r}")
 
         qa = math.VecNorm(q)
         tth = 2.0 * numpy.arcsin(qa / 2.0 / self.k0)
@@ -2446,7 +2446,7 @@ class NonCOP(Experiment):
         if q.shape[0] == 1:
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
-                print(f"XU.HXRD.Q2Ang: [om, chi, phi, tth] = {repr(angle)}")
+                print(f"XU.HXRD.Q2Ang: [om, chi, phi, tth] = {angle!r}")
 
         if deg:
             return numpy.degrees(angle)
@@ -2547,7 +2547,7 @@ class GID(Experiment):
             q = self.Transform(q)
 
         if config.VERBOSITY >= config.INFO_ALL:
-            print(f"XU.GID.Q2Ang: q = {repr(q)}")
+            print(f"XU.GID.Q2Ang: q = {q!r}")
 
         # set parameters for the calculation
         z = self.Transform(self.ndir)  # z
@@ -2557,7 +2557,7 @@ class GID(Experiment):
         # check if reflection is inplane
         if numpy.abs(math.VecDot(q, z)) >= 0.001:
             raise InputError(
-                f"Reflection not reachable in GID geometry (Q: {str(q)})"
+                f"Reflection not reachable in GID geometry (Q: {q!s})"
             )
 
         # calculate angle to inplane reference direction
@@ -2575,7 +2575,7 @@ class GID(Experiment):
 
         if config.VERBOSITY >= config.INFO_ALL:
             print(
-                f"XU.GID.Q2Ang: [ai, azimuth, tth, beta] = {str(ang)}\n"
+                f"XU.GID.Q2Ang: [ai, azimuth, tth, beta] = {ang!s}\n"
                 f"difference to inplane reference which is {aref:5.2f}"
             )
 

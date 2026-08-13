@@ -558,9 +558,9 @@ def PseudoVoigt1dasym2(x, *p):
         the value of the PseudoVoigt described by the parameters p
         at position `x`
     """
-    pvl = p[5] if p[5] < 1.0 else 1.0
+    pvl = min(1.0, p[5])
     pvl = pvl if p[5] > 0.0 else 0.0
-    pvr = p[6] if p[6] < 1.0 else 1.0
+    pvr = min(1.0, p[6])
     pvr = pvr if p[6] > 0.0 else 0.0
 
     sigmal = p[1] / (2 * numpy.sqrt(2 * numpy.log(2)))

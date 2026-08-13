@@ -18,7 +18,7 @@
 import numpy
 
 from . import elements as e
-from .heuslerlib import *  # noqa: F401, F403
+from .heuslerlib import *
 from .material import (
     Crystal,
     CubicAlloy,

@@ -28,7 +28,6 @@ import gzip
 import io
 import lzma
 import string
-
 from operator import itemgetter
 
 import h5py

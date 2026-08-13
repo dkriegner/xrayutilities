@@ -15,7 +15,7 @@
 #
 # Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-__all__ = ["RangeDict", "eqhkl_default", "eqhkl_custom", "wp"]
+__all__ = ["RangeDict", "eqhkl_custom", "eqhkl_default", "wp"]
 
 
 class RangeDict(dict):

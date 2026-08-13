@@ -352,7 +352,7 @@ def getSeifert_map(
             psd = numpy.concatenate((psd, d.data[:, :, 1]))
         elif scantype == "O2T":
             d = SeifertScan(os.path.join(path, f))
-            if getattr(d.hdr, "RSMmode") != scantype:
+            if d.hdr.RSMmode != scantype:
                 raise ValueError(f"Scan {scantype} incompatible with RSMmode")
             om = numpy.concatenate((om, d.data[:, 0]))
             tt = numpy.concatenate((tt, d.data[:, 1]))

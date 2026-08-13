@@ -102,7 +102,7 @@ def blockAverage2D(data2d, Nav1, Nav2, **kwargs):
 
     if config.VERBOSITY >= config.DEBUG:
         N, M = (roi[1] - roi[0], roi[3] - roi[2])
-        print(f"xu.normalize.blockAverage2D: roi: {str(roi)}")
+        print(f"xu.normalize.blockAverage2D: roi: {roi!s}")
         print("xu.normalize.blockAverage2D: Nav1, 2: %d,%d" % (Nav1, Nav2))
         print(
             "xu.normalize.blockAverage2D: number of points: (%d,%d)"
@@ -187,7 +187,7 @@ def blockAverageCCD(data3d, Nav1, Nav2, **kwargs):
 
     if config.VERBOSITY >= config.DEBUG:
         N, M = (roi[1] - roi[0], roi[3] - roi[2])
-        print(f"xu.normalize.blockAverageCCD: roi: {str(roi)}")
+        print(f"xu.normalize.blockAverageCCD: roi: {roi!s}")
         print("xu.normalize.blockAverageCCD: Nav1, 2: %d,%d" % (Nav1, Nav2))
         print(
             "xu.normalize.blockAverageCCD: number of points: (%d,%d)"
@@ -308,7 +308,7 @@ class IntensityNormalizer:
             self._time = time
         elif isinstance(time, (float, int)):
             self._time = float(time)
-        elif isinstance(time, type(None)):
+        elif time is None:
             self._time = None
         else:
             raise TypeError("argument time must be of type str, float or None")
@@ -329,7 +329,7 @@ class IntensityNormalizer:
         """
         if isinstance(mon, str):
             self._mon = mon
-        elif isinstance(mon, type(None)):
+        elif mon is None:
             self._mon = None
         else:
             raise TypeError("argument mon must be of type str")
@@ -351,7 +351,7 @@ class IntensityNormalizer:
         """
         if isinstance(avmon, (float, int)):
             self._avmon = float(avmon)
-        elif isinstance(avmon, type(None)):
+        elif avmon is None:
             self._avmon = None
         else:
             raise TypeError("argument avmon must be of type float or None")
@@ -377,7 +377,7 @@ class IntensityNormalizer:
                     "argument absfun must be a function with one "
                     "argument (data object)"
                 )
-        elif isinstance(absfun, type(None)):
+        elif absfun is None:
             self._absfun = None
         else:
             raise TypeError("argument absfun must be of type function or None")
@@ -403,7 +403,7 @@ class IntensityNormalizer:
                 self._flatfield[self._flatfield.nonzero()]
             )
             self._flatfield[self.flatfield < 1.0e-5] = 1.0
-        elif isinstance(flatf, type(None)):
+        elif flatf is None:
             self._flatfield = None
         else:
             raise TypeError(
@@ -429,7 +429,7 @@ class IntensityNormalizer:
         if isinstance(darkf, (list, tuple, numpy.ndarray)):
             self._darkfield = numpy.array(darkf, dtype=float)
             self._darkfieldav = numpy.mean(self._darkfield)
-        elif isinstance(darkf, type(None)):
+        elif darkf is None:
             self._darkfield = None
         else:
             raise TypeError(

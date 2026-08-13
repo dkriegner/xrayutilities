@@ -176,7 +176,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                 kma,
                 lma,
             )
-            for h, k, l in zip(  # noqa: E741
+            for h, k, l in zip(
                 numpy.random.randint(hmi, hma, N),
                 numpy.random.randint(kmi, kma, N),
                 numpy.random.randint(lmi, lma, N),

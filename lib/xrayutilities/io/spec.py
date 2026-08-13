@@ -308,7 +308,7 @@ class SPECScan:
                     "no data available!" % self.name
                 )
             self.data = None
-            return None
+            return
 
         if not self.has_mca:
             if config.VERBOSITY >= config.INFO_ALL:
@@ -351,7 +351,7 @@ class SPECScan:
             if config.VERBOSITY >= config.DEBUG:
                 print(
                     "xu.io.SPECScan.ReadData: type descriptor: "
-                    f"{repr(type_desc)}"
+                    f"{type_desc!r}"
                 )
 
             record_list = []  # from this list the record array while be built
