@@ -334,13 +334,11 @@ def psd_chdeg(
         if figtitle:
             if usetilt:
                 plt.suptitle(
-                    "L/w*pi/180: %8.2f; center channel: %8.2f; tilt: %5.2fdeg"
-                    % (fittilt.beta[0], fittilt.beta[1], fittilt.beta[2])
+                    f"L/w*pi/180: {fittilt.beta[0]:8.2f}; center channel: {fittilt.beta[1]:8.2f}; tilt: {fittilt.beta[2]:5.2f}deg"
                 )
             else:
                 plt.suptitle(
-                    "L/w*pi/180: %8.2f; center channel: %8.2f"
-                    % (fittan.beta[0], fittan.beta[1])
+                    f"L/w*pi/180: {fittan.beta[0]:8.2f}; center channel: {fittan.beta[1]:8.2f}"
                 )
 
     if usetilt:
@@ -352,34 +350,20 @@ def psd_chdeg(
         if usetilt:
             print(
                 "XU.analysis.psd_chdeg:  channelwidth@1m / center channel /"
-                " tilt: %8.4e / %8.2f / %6.3fdeg"
-                % (
-                    abs(1 / math.degrees(fit.beta[0])),
-                    fit.beta[1],
-                    fit.beta[2],
-                )
+                f" tilt: {abs(1 / math.degrees(fit.beta[0])):8.4e} / {fit.beta[1]:8.2f} / {fit.beta[2]:6.3f}deg"
             )
             print(
                 "XU.analysis.psd_chdeg:  error of channelwidth / "
-                "center channel / tilt: %8.4e / %8.3f / %6.3fdeg"
-                % (
-                    math.radians(fit.sd_beta[0] / fit.beta[0] ** 2),
-                    fit.sd_beta[1],
-                    fit.sd_beta[2],
-                )
+                f"center channel / tilt: {math.radians(fit.sd_beta[0] / fit.beta[0] ** 2):8.4e} / {fit.sd_beta[1]:8.3f} / {fit.sd_beta[2]:6.3f}deg"
             )
         else:
             print(
                 "XU.analysis.psd_chdeg:  channelwidth@1m / center channel: "
-                "%8.4e / %8.2f" % (1 / math.degrees(fit.beta[0]), fit.beta[1])
+                f"{1 / math.degrees(fit.beta[0]):8.4e} / {fit.beta[1]:8.2f}"
             )
             print(
                 "XU.analysis.psd_chdeg:  error of channelwidth / "
-                "center channel: %8.4e / %8.3f"
-                % (
-                    math.radians(fit.sd_beta[0] / fit.beta[0] ** 2),
-                    fit.sd_beta[1],
-                )
+                f"center channel: {math.radians(fit.sd_beta[0] / fit.beta[0] ** 2):8.4e} / {fit.sd_beta[1]:8.3f}"
             )
 
     if usetilt:
@@ -801,8 +785,8 @@ def area_detector_calib(
                     parammin = param
                     fitmin = fit
                     print(
-                        "new best parameters: %.2f %.2f %10.4e %10.4e %8.4f "
-                        "%.1f %.2f %.3f %.3f" % parammin
+                        "new best parameters: {:.2f} {:.2f} {:10.4e} {:10.4e} {:8.4f} "
+                        "{:.1f} {:.2f} {:.3f} {:.3f}".format(*parammin)
                     )
                     print("************************\n")
 
@@ -875,9 +859,8 @@ def area_detector_calib(
                 )
                 plt.ylim(epsmin * 0.7, epsmin * 2.0)
             plt.locator_params(nbins=4, axis="x")
-            if p > 1:
-                if fix[p - 2]:
-                    ax.set_facecolor("0.85")
+            if p > 1 and fix[p - 2]:
+                ax.set_facecolor("0.85")
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
@@ -892,25 +875,14 @@ def area_detector_calib(
             "detrot, outerangle_offset)"
         )
         print(
-            "param: %.2f %.2f %10.4e %10.4e %.4f %.1f %.2f %.3f %.3f"
-            % (
-                cch1,
-                cch2,
-                pwidth1,
-                pwidth2,
-                distance,
-                tiltazimuth,
-                tilt,
-                detrot,
-                outerangle_offset,
-            )
+            f"param: {cch1:.2f} {cch2:.2f} {pwidth1:10.4e} {pwidth2:10.4e} {distance:.4f} {tiltazimuth:.1f} {tilt:.2f} {detrot:.3f} {outerangle_offset:.3f}"
         )
 
     if config.VERBOSITY > 0:
         print("please check the resulting data (consider setting plot=True)")
         print(
             "detector rotation axis / primary beam direction "
-            "(given by user): %s / %s" % (repr(detaxis), r_i)
+            f"(given by user): {detaxis!r} / {r_i}"
         )
         print(
             f"detector pixel directions / distance: {detdir1} {detdir2} / "
@@ -1218,19 +1190,19 @@ def _area_detector_calib_fit(
         # check detector circle argument
         if isinstance(detectorAxis, (str, list, tuple)):
             if isinstance(detectorAxis, str):
-                dAxis = list([detectorAxis])
+                dAxis = [detectorAxis]
             else:
                 dAxis = list(detectorAxis)
             for circ in dAxis:
                 if not isinstance(circ, str) or len(circ) != 2:
                     raise InputError(
                         "QConversionPixel: incorrect detector "
-                        "circle type or syntax (%s)" % repr(circ)
+                        f"circle type or syntax ({circ!r})"
                     )
                 if not circleSyntax.search(circ):
                     raise InputError(
                         "QConversionPixel: incorrect detector "
-                        "circle syntax (%s)" % circ
+                        f"circle syntax ({circ})"
                     )
         else:
             raise TypeError(
@@ -1250,23 +1222,23 @@ def _area_detector_calib_fit(
         if not isinstance(detectorDir1, str) or len(detectorDir1) != 2:
             raise InputError(
                 "QConversionPixel: incorrect detector direction1 "
-                "type or syntax (%s)" % repr(detectorDir1)
+                f"type or syntax ({detectorDir1!r})"
             )
         if not circleSyntax.search(detectorDir1):
             raise InputError(
                 "QConversionPixel: incorrect detector direction1 "
-                "syntax (%s)" % detectorDir1
+                f"syntax ({detectorDir1})"
             )
         _area_detdir1 = detectorDir1
         if not isinstance(detectorDir2, str) or len(detectorDir2) != 2:
             raise InputError(
                 "QConversionPixel: incorrect detector direction2 "
-                "type or syntax (%s)" % repr(detectorDir2)
+                f"type or syntax ({detectorDir2!r})"
             )
         if not circleSyntax.search(detectorDir2):
             raise InputError(
                 "QConversionPixel: incorrect detector direction2 "
-                "syntax (%s)" % detectorDir2
+                f"syntax ({detectorDir2})"
             )
         _area_detdir2 = detectorDir2
 
@@ -1492,14 +1464,14 @@ def _area_detector_calib_fit(
         print("initial parameters: ")
         print(
             "primary beam / detector pixel directions / distance: "
-            "%s / %s %s / %e" % (r_i, detdir1, detdir2, distance)
+            f"{r_i} / {detdir1} {detdir2} / {distance:e}"
         )
         print(
             "param: (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, "
             "tilt, detrot, outerangle_offset)"
         )
         print(
-            "param: %.2f %.2f %10.4e %10.4e %.3f %.1f %.2f %.3f %.3f" % param
+            "param: {:.2f} {:.2f} {:10.4e} {:10.4e} {:.3f} {:.1f} {:.2f} {:.3f} {:.3f}".format(*param)
         )
 
     # set data
@@ -1593,25 +1565,14 @@ def _area_detector_calib_fit(
         )
         print(
             "primary beam / detector pixel directions / distance: "
-            "%s / %s %s / %e" % (r_i, detdir1, detdir2, distance)
+            f"{r_i} / {detdir1} {detdir2} / {distance:e}"
         )
         print(
             "param: (cch1, cch2, pwidth1, pwidth2, disance, tiltazimuth, "
             "tilt, detrot, outerangle_offset)"
         )
         print(
-            "param: %.2f %.2f %10.4e %10.4e %.3f %.1f %.2f %.3f %.3f"
-            % (
-                cch1,
-                cch2,
-                pwidth1,
-                pwidth2,
-                distance,
-                tiltazimuth,
-                tilt,
-                detrot,
-                outerangle_offset,
-            )
+            f"param: {cch1:.2f} {cch2:.2f} {pwidth1:10.4e} {pwidth2:10.4e} {distance:.3f} {tiltazimuth:.1f} {tilt:.2f} {detrot:.3f} {outerangle_offset:.3f}"
         )
 
     if full_output:
@@ -1914,8 +1875,8 @@ def area_detector_calib_hkl(
                     parammin = param
                     fitmin = fit
                     print(
-                        "new best parameters: %.2f %.2f %10.4e %10.4e %8.4f "
-                        "%.1f %.2f %.3f %.3f %.3f %.2f %.4f" % parammin
+                        "new best parameters: {:.2f} {:.2f} {:10.4e} {:10.4e} {:8.4f} "
+                        "{:.1f} {:.2f} {:.3f} {:.3f} {:.3f} {:.2f} {:.4f}".format(*parammin)
                     )
                     print("************************\n")
 
@@ -2010,9 +1971,8 @@ def area_detector_calib_hkl(
                 )
                 plt.ylim(epsmin * 0.7, epsmin * 2.0)
             plt.locator_params(nbins=4, axis="x")
-            if p > 1:
-                if fix[p - 2]:
-                    ax.set_facecolor("0.85")
+            if p > 1 and fix[p - 2]:
+                ax.set_facecolor("0.85")
         plt.tight_layout()
 
     if config.VERBOSITY >= config.INFO_LOW:
@@ -2028,33 +1988,18 @@ def area_detector_calib_hkl(
             "wavelength)"
         )
         print(
-            "param: %.2f %.2f %10.4e %10.4e %.4f %.1f %.2f %.3f %.3f %.3f "
-            "%.2f %.4f"
-            % (
-                cch1,
-                cch2,
-                pwidth1,
-                pwidth2,
-                distance,
-                tiltazimuth,
-                tilt,
-                detrot,
-                outerangle_offset,
-                stilt,
-                stazimuth,
-                wavelength,
-            )
+            f"param: {cch1:.2f} {cch2:.2f} {pwidth1:10.4e} {pwidth2:10.4e} {distance:.4f} {tiltazimuth:.1f} {tilt:.2f} {detrot:.3f} {outerangle_offset:.3f} {stilt:.3f} "
+            f"{stazimuth:.2f} {wavelength:.4f}"
         )
 
     if config.VERBOSITY > 0:
         print("please check the resulting data (consider setting plot=True)")
         print(
             "detector rotation axis / primary beam direction (given by user)"
-            ": %s / %s" % (repr(detaxis), r_i)
+            f": {detaxis!r} / {r_i}"
         )
         print(
-            "detector pixel directions / distance: %s %s / %e"
-            % (detdir1, detdir2, distance)
+            f"detector pixel directions / distance: {detdir1} {detdir2} / {distance:e}"
         )
         print(
             "\tdetector initialization with: init_area('%s', '%s', "
@@ -2077,8 +2022,8 @@ def area_detector_calib_hkl(
             )
         )
         print(
-            "AND ALWAYS USE an (additional) OFFSET of %.4fdeg in the "
-            "OUTER DETECTOR ANGLE!" % (outerangle_offset)
+            f"AND ALWAYS USE an (additional) OFFSET of {outerangle_offset:.4f}deg in the "
+            "OUTER DETECTOR ANGLE!"
         )
 
     return (
@@ -2234,7 +2179,7 @@ def _area_detector_calib_fit2(
 
         # check detector circle argument
         if isinstance(detectorAxis, str):
-            dAxis = list([detectorAxis])
+            dAxis = [detectorAxis]
         else:
             dAxis = list(detectorAxis)
 
@@ -2569,8 +2514,8 @@ def _area_detector_calib_fit2(
     if debug:
         print("initial parameters: ")
         print(
-            "primary beam / detector pixel directions / distance: %s / "
-            "%s %s / %e" % (r_i, detdir1, detdir2, distance)
+            f"primary beam / detector pixel directions / distance: {r_i} / "
+            f"{detdir1} {detdir2} / {distance:e}"
         )
         print(
             "param: (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, "
@@ -2578,8 +2523,8 @@ def _area_detector_calib_fit2(
             "wavelength)"
         )
         print(
-            "param: %.2f %.2f %10.4e %10.4e %.3f %.1f %.2f %.3f %.3f %.3f "
-            "%.2f %.4f" % param
+            "param: {:.2f} {:.2f} {:10.4e} {:10.4e} {:.3f} {:.1f} {:.2f} {:.3f} {:.3f} {:.3f} "
+            "{:.2f} {:.4f}".format(*param)
         )
 
     # set data
@@ -2688,8 +2633,8 @@ def _area_detector_calib_fit2(
             % (final_error, fit.info, repr(fit.stopreason))
         )
         print(
-            "primary beam / detector pixel directions / distance: %s / %s "
-            "%s / %e" % (r_i, detdir1, detdir2, distance)
+            f"primary beam / detector pixel directions / distance: {r_i} / {detdir1} "
+            f"{detdir2} / {distance:e}"
         )
         print(
             "param: (cch1, cch2, pwidth1, pwidth2, distance, tiltazimuth, "
@@ -2697,22 +2642,8 @@ def _area_detector_calib_fit2(
             " wavelength)"
         )
         print(
-            "param: %.2f %.2f %10.4e %10.4e %.3f %.1f %.2f %.3f %.3f %.3f "
-            "%.2f %.4f"
-            % (
-                cch1,
-                cch2,
-                pwidth1,
-                pwidth2,
-                distance,
-                tiltazimuth,
-                tilt,
-                detrot,
-                outerangle_offset,
-                sampletilt,
-                stazimuth,
-                wavelength,
-            )
+            f"param: {cch1:.2f} {cch2:.2f} {pwidth1:10.4e} {pwidth2:10.4e} {distance:.3f} {tiltazimuth:.1f} {tilt:.2f} {detrot:.3f} {outerangle_offset:.3f} {sampletilt:.3f} "
+            f"{stazimuth:.2f} {wavelength:.4f}"
         )
 
     if full_output:
@@ -2809,7 +2740,7 @@ def psd_refl_align(primarybeam, angles, channels, plot=True):
     if config.VERBOSITY >= config.INFO_LOW:
         print(
             "XU.analysis.psd_refl_align: sample is parallel to beam at "
-            "goniometer angle %7.4f (R^2=%6.4f)" % (zeropos, rsq)
+            f"goniometer angle {zeropos:7.4f} (R^2={rsq:6.4f})"
         )
     return zeropos
 
@@ -2906,9 +2837,9 @@ def miscut_calc(phi, aomega, zeros=None, omega0=None, plot=True):
     if config.VERBOSITY >= config.INFO_LOW:
         print(
             "xu.analysis.miscut_calc: \n"
-            "\t fitted reflection angle: %8.3f \n"
-            "\t looking upstairs at phi: %8.2f \n"
-            "\t miscut angle: %8.3f \n" % (ret[0], ret[1], ret[2])
+            f"\t fitted reflection angle: {ret[0]:8.3f} \n"
+            f"\t looking upstairs at phi: {ret[1]:8.2f} \n"
+            f"\t miscut angle: {ret[2]:8.3f} \n"
         )
 
     return ret
@@ -3014,8 +2945,8 @@ def fit_bragg_peak(
     )
     if config.VERBOSITY >= config.INFO_LOW:
         print(
-            "XU.analysis.fit_bragg_peak:fitted peak angles: \n\tom =%8.4f\n"
-            "\ttt =%8.4f" % (omfit, ttfit)
+            f"XU.analysis.fit_bragg_peak:fitted peak angles: \n\tom ={omfit:8.4f}\n"
+            f"\ttt ={ttfit:8.4f}"
         )
 
     if plot:

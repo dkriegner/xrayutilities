@@ -27,4 +27,4 @@ hkllist = [[1, 1, 1], [2, 2, 2], [3, 3, 3]]
 for hkl in hkllist:
     qvec = InAs.Q(hkl)
     F = InAs.StructureFactor(qvec, energy)
-    print(" |F| = %8.3f" % numpy.abs(F))
+    print(f" |F| = {numpy.abs(F):8.3f}")

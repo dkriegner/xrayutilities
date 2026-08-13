@@ -370,7 +370,7 @@ class IntensityNormalizer:
 
         sets the costum correction function
         """
-        if hasattr(absfun, "__call__"):
+        if callable(absfun):
             self._absfun = absfun
             if self._absfun.__code__.co_argcount != 1:
                 raise TypeError(

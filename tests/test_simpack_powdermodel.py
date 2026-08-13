@@ -174,7 +174,7 @@ class Test_PowderModel(unittest.TestCase):
             p, self.tt[self.mask], self.det[self.mask], std=self.sig[self.mask]
         )
         fitsim = self.pm.simulate(self.tt[self.mask])
-        M, Rp, Rwp, Rwpexp, chi2 = xu.simpack.Rietveld_error_metrics(
+        _M, _Rp, _Rwp, _Rwpexp, chi2 = xu.simpack.Rietveld_error_metrics(
             self.det[self.mask],
             fitsim,
             std=self.sig[self.mask],

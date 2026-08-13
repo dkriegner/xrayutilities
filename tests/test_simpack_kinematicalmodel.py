@@ -37,7 +37,7 @@ class Test_KinematicalModel(unittest.TestCase):
     hkl = (0, 0, 4)
 
     # simulation parameters
-    kwargs = dict(I0=1e6, background=0, resolution_width=0.0001)
+    kwargs = {"I0": 1e6, "background": 0, "resolution_width": 0.0001}
 
     @classmethod
     def setUpClass(cls):

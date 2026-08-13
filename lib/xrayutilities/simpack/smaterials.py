@@ -33,7 +33,7 @@ def _multiply(a, b):
     if not isinstance(b, int):
         raise TypeError(
             "unsupported operand type(s) for *: "
-            "'%s' and '%s'" % (type(a), type(b))
+            f"'{type(a)}' and '{type(b)}'"
         )
     if b < 1:
         raise ValueError("multiplication factor needs to be positive!")
@@ -178,15 +178,14 @@ class MaterialList(collections.abc.MutableSequence):
         if not isinstance(name, str):
             raise TypeError("'name' argument must be a string")
         self.name = name
-        self.list = list()
-        self.namelist = list()
+        self.list = []
+        self.namelist = []
         self.extend(list(args))
 
     def check(self, v):
         if not isinstance(v, SMaterial):
             raise TypeError(
-                "%s can only contain SMaterial as entries!"
-                % self.__class__.__name__
+                f"{self.__class__.__name__} can only contain SMaterial as entries!"
             )
 
     def _set_unique_name(self, v):

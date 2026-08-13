@@ -36,9 +36,9 @@ class Test_SpecularReflectivityModel(unittest.TestCase):
     lCoFe = xu.simpack.Layer(mat_cf, 30, roughness=5.2)
 
     # simulation parameters
-    kwargs = dict(
-        I0=1e6, background=2, sample_width=10, beam_width=0.2, energy="MoKa1"
-    )
+    kwargs = {
+        "I0": 1e6, "background": 2, "sample_width": 10, "beam_width": 0.2, "energy": "MoKa1"
+    }
 
     @classmethod
     def setUpClass(cls):

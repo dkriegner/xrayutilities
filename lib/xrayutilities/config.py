@@ -109,7 +109,7 @@ KAPPA_PLANE = xuParser.get(sect, "kappa_plane")
 KAPPA_ANGLE = xuParser.getfloat(sect, "kappa_angle")
 
 # parser Powder profile related variables
-POWDER = dict()
+POWDER = {}
 
 subsec = "classoptions"
 POWDER[subsec] = dict(xuParser.items("powder"))

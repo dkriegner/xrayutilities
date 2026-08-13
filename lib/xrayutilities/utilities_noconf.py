@@ -305,6 +305,6 @@ def check_kwargs(kwargs, valid_kwargs, identifier):
     for k in kwargs:
         if k not in valid_kwargs:
             raise TypeError(
-                "%s: unknown keyword argument ('%s') given; "
-                "allowed are %s" % (identifier, k, desc)
+                f"{identifier}: unknown keyword argument ('{k}') given; "
+                f"allowed are {desc}"
             )

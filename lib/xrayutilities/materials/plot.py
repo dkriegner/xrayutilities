@@ -212,8 +212,8 @@ def show_reciprocal_space_plane(
         xy=(0, 0),
         xytext=(20, 20),
         textcoords="offset points",
-        bbox=dict(boxstyle="round", fc="w"),
-        arrowprops=dict(arrowstyle="->"),
+        bbox={"boxstyle": "round", "fc": "w"},
+        arrowprops={"arrowstyle": "->"},
     )
     annot.set_visible(False)
 

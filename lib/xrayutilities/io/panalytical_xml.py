@@ -24,7 +24,7 @@ want to keep the number of dependancies as small as possible
 
 import os.path
 import warnings
-from xml.etree import ElementTree as ElementTree
+from xml.etree import ElementTree
 
 import numpy
 

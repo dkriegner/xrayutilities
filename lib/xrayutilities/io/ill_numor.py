@@ -220,7 +220,7 @@ def numor_scan(scannumbers, *args, **kwargs):
     """
 
     if isinstance(scannumbers, (str, int)):
-        scanlist = list([scannumbers])
+        scanlist = [scannumbers]
     elif isinstance(scannumbers, collections.abc.Iterable):
         scanlist = scannumbers
     else:
@@ -248,7 +248,7 @@ def numor_scan(scannumbers, *args, **kwargs):
             try:
                 buf = sdata[motname]
             except ValueError:
-                mv = [v for k, v in scan.init_mopo.items() if motname in k][0]
+                mv = next(v for k, v in scan.init_mopo.items() if motname in k)
                 buf = mv * numpy.ones(scanlength)
             angles[motname] = numpy.concatenate((angles[motname], buf))
 

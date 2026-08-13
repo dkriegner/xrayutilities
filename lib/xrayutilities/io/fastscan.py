@@ -785,7 +785,7 @@ class FastScanSeries:
             if not isinstance(arg, str):
                 raise ValueError(
                     "one of the motor name arguments is not of "
-                    "type 'str' but %s" % str(type(arg))
+                    f"type 'str' but {type(arg)!s}"
                 )
             self.gonio_motors.append(arg)
 

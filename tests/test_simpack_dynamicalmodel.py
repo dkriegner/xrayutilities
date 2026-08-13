@@ -35,7 +35,7 @@ class Test_DynamicalModel(unittest.TestCase):
     hkl = (0, 0, 4)
 
     # simulation parameters
-    kwargs = dict(I0=1e6, background=0, resolution_width=1e-5)
+    kwargs = {"I0": 1e6, "background": 0, "resolution_width": 1e-5}
 
     @classmethod
     def setUpClass(cls):

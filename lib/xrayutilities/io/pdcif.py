@@ -280,8 +280,8 @@ class pdCIF:
                     else:
                         fh.seek(fh.tell() - len(line2))
                         raise ValueError(
-                            "a column is missing for label %s "
-                            "in a loop" % fields[i]
+                            f"a column is missing for label {fields[i]} "
+                            "in a loop"
                         )
 
 

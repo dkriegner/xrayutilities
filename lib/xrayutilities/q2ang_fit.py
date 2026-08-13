@@ -79,11 +79,11 @@ def _makebounds(boundsin):
                     ub.append(numpy.inf)
                     # see scipy/scipy#12433
                     constraints.append(
-                        dict(
-                            type="eq",
-                            fun=lambda x, j=j, v=b[0]: x[j] - v,
+                        {
+                            "type": "eq",
+                            "fun": lambda x, j=j, v=b[0]: x[j] - v,
                             # lambda j=j to bind var. by value
-                        )
+                        }
                     )
             else:
                 raise InputError("bound values must have two or one elements")
@@ -97,11 +97,11 @@ def _makebounds(boundsin):
                 ub.append(numpy.inf)
                 # see scipy/scipy#12433
                 constraints.append(
-                    dict(
-                        type="eq",
-                        fun=lambda x, j=j, v=b: x[j] - v,
+                    {
+                        "type": "eq",
+                        "fun": lambda x, j=j, v=b: x[j] - v,
                         # lambda j=j to bind var. by value
-                    )
+                    }
                 )
         elif b is None:
             lb.append(-numpy.inf)

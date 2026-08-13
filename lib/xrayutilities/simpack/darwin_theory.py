@@ -36,8 +36,7 @@ def getit(it, key):
             if key in elem:
                 yield elem[key]
             else:
-                for subelem in getit(elem, key):
-                    yield subelem
+                yield from getit(elem, key)
 
 
 def getfirst(iterable, key):
@@ -371,7 +370,7 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
                 sd = [
                     sd,
                 ]
-            if any([r > 0 for r in getit(sd, "r")]):  # if relaxation
+            if any(r > 0 for r in getit(sd, "r")):  # if relaxation
                 for _ in range(nrep):
                     for subsd in sd:
                         ml, apar = self._recur_makeml(subsd, ml, apar=apar)
@@ -385,14 +384,13 @@ class DarwinModelAlloy(DarwinModel, utilities.ABC):
             if callable(x):  # composition profile in layer
                 t = 0
                 T = s.pop("t")
-                if "r" in s:
-                    if s["r"] > 0:
-                        warnings.warn(
-                            """relaxation for composition gradient may yield
+                if "r" in s and s["r"] > 0:
+                    warnings.warn(
+                        """relaxation for composition gradient may yield
                             weird lattice parameter variation! Consider
                             supplying the inplane lattice parameter 'ai'
                             directly!"""
-                        )
+                    )
                 while t < T:
                     if "r" in s:
                         r = abs(derivative(x, t, dx=1.4)) * s["r"]

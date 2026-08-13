@@ -24,7 +24,7 @@ class Test_findsym(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.materials = []
-        for name, obj in xu.materials.predefined_materials.__dict__.items():
+        for obj in xu.materials.predefined_materials.__dict__.values():
             if isinstance(obj, xu.materials.Crystal):
                 cls.materials.append(obj)
 

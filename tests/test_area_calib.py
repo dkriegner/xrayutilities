@@ -27,7 +27,7 @@ def getimage(fname, hotpixelmap, roi=None):
     ccdr = removehotpixel(cbf.data, hotpixelmap)
     ccd = xu.blockAverage2D(ccdr, 1, 1, roi=roi)
     if ccd.max() / ccd.mean() < 1e2:
-        print("no clear maximum in %s?" % fname)
+        print(f"no clear maximum in {fname}?")
     ccd[ccd < 2 * ccd.mean()] = 0  # make center of mass position easier
     return ccd
 
@@ -133,7 +133,7 @@ class TestArea_calib(unittest.TestCase):
             detdata = numpy.concatenate((detdata, intensity))
 
         # start calibration
-        param, eps = xu.analysis.sample_align.area_detector_calib(
+        _param, _eps = xu.analysis.sample_align.area_detector_calib(
             ang1, ang2, detdata, ["z+", "y-"], "x+", debug=False, plot=False
         )
 
@@ -178,7 +178,7 @@ class TestArea_calib(unittest.TestCase):
             GaAs.Q(1, 1, 0), GaAs.Q(0, 0, 1), en=self.en, qconv=qconv
         )
 
-        param, eps = xu.analysis.sample_align.area_detector_calib_hkl(
+        _param, _eps = xu.analysis.sample_align.area_detector_calib_hkl(
             sang,
             ang1,
             ang2,

@@ -34,17 +34,17 @@ class TestMaterialsSymOp(unittest.TestCase):
 
         cls.lats = []
         cls.gps = []
-        for sg in xu.materials.spacegrouplattice.wp.keys():
+        for sg in xu.materials.spacegrouplattice.wp:
             # determine parameters for this space group
             sgnr = int(sg.split(":")[0])
-            csys, nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
+            csys, _nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
             params = xu.materials.spacegrouplattice.sgrp_params[csys][0]
             p = [eval(par, pdict) for par in params]
             # generate test lattice
             cls.lats.append(xu.materials.SGLattice(sg, *p))
             # get general Wyckoff position of space group
             wp = xu.materials.spacegrouplattice.wp
-            gplabel = sorted(wp[sg], key=lambda s: int(s[:-1]))[-1]
+            gplabel = max(wp[sg], key=lambda s: int(s[:-1]))
             cls.gps.append(wp[sg][gplabel][1])
 
     def test_SymOp_fromxyz(self):
@@ -53,7 +53,7 @@ class TestMaterialsSymOp(unittest.TestCase):
         of the Wyckoff positions is reproducible/reversable
         """
         for lat, gp in zip(self.lats, self.gps):
-            symopsxyz = map(lambda s: f"({s.xyz()})", lat.symops)
+            symopsxyz = (f"({s.xyz()})" for s in lat.symops)
             self.assertCountEqual(symopsxyz, gp)
 
     def test_equivalent_hkl(self):
@@ -62,7 +62,7 @@ class TestMaterialsSymOp(unittest.TestCase):
             ehkl = numpy.unique(
                 numpy.einsum("...ij,j", lat._hklsym, hkl), axis=0
             )
-            ehkl = set(tuple(e) for e in ehkl)
+            ehkl = {tuple(e) for e in ehkl}
             self.assertEqual(lat.equivalent_hkls(hkl), ehkl)
 
     def test_iscentrosymmetric(self):
@@ -100,12 +100,7 @@ class TestMaterialsSymOp(unittest.TestCase):
             for wpkey in wp[lat.space_group]:
                 uniquepos = []
                 poscount = int(reint.match(wpkey).group())
-                thispositions = list(
-                    map(
-                        lambda p: SymOp.foldback(eval(p, pardict)),
-                        wp[lat.space_group][wpkey][1],
-                    )
-                )
+                thispositions = [SymOp.foldback(eval(p, pardict)) for p in wp[lat.space_group][wpkey][1]]
                 pos0 = SymOp.foldback(thispositions[0])
                 genpos = [s.apply(pos0) for s in lat.symops]
                 uniquepos = [

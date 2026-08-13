@@ -754,8 +754,7 @@ def Debye1(x):
 
     if config.VERBOSITY >= config.DEBUG:
         print(
-            "XU.math.Debye1: Debye integral value/error estimate: %g %g"
-            % (integral[0], integral[1])
+            f"XU.math.Debye1: Debye integral value/error estimate: {integral[0]:g} {integral[1]:g}"
         )
 
     return d1

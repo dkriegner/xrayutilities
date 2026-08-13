@@ -140,7 +140,7 @@ def peak_fit(
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot("XU.math.peak_fit")
 
-    gfunc, gfunc_dx, gfunc_dp = _getfit_func(peaktype, background)
+    gfunc, _gfunc_dx, gfunc_dp = _getfit_func(peaktype, background)
 
     # determine initial parameters
     _check_iparams(iparams, peaktype, background)

@@ -59,7 +59,7 @@ class TestIO_EDF(unittest.TestCase):
             fname = os.path.join(tmpdir, "tmp.h5")
             self.edffile.Save2HDF5(fname)
             with h5py.File(fname, "r") as h5f:
-                h5d = h5f[list(h5f.keys())[0]]
+                h5d = h5f[next(iter(h5f.keys()))]
                 h5d = numpy.asarray(h5d)
                 self.assertTrue(numpy.all(h5d == self.data))
 
@@ -70,7 +70,7 @@ class TestIO_EDF(unittest.TestCase):
             ed.Save2HDF5(fname)
             with h5py.File(fname, "r") as h5f:
                 h5g = h5f[os.path.split(datadir)[-1]]
-                h5d = h5g[list(h5g.keys())[0]]
+                h5d = h5g[next(iter(h5g.keys()))]
                 h5d = numpy.asarray(h5d)
                 self.assertTrue(numpy.all(h5d == self.data))
 

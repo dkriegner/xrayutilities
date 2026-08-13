@@ -17,6 +17,7 @@
 
 import abc
 import copy
+import itertools
 import math as pymath
 
 import numpy
@@ -1294,7 +1295,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
                 [
                     [
                         (kz + kz_next) / (2 * kz)
-                        for kz, kz_next in zip(kz_1angle, kz_1angle[1:])
+                        for kz, kz_next in itertools.pairwise(kz_1angle)
                     ]
                     for kz_1angle in kz_angles
                 ]
@@ -1304,7 +1305,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
                 [
                     [
                         (kz - kz_next) / (2 * kz)
-                        for kz, kz_next in zip(kz_1angle, kz_1angle[1:])
+                        for kz, kz_next in itertools.pairwise(kz_1angle)
                     ]
                     for kz_1angle in kz_angles
                 ]

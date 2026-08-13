@@ -33,16 +33,16 @@ class Test_DiffuseReflectivityModel(unittest.TestCase):
     ls = xu.simpack.LayerStack("SL 5", sub + 5 * (lay2 + lay1))
 
     # simulation parameters
-    kwargs = dict(
-        sample_width=10,
-        beam_width=1,
-        energy="CuKa1",
-        vert_correl=1000,
-        vert_nu=0,
-        H=1,
-        method=1,
-        vert_int=0,
-    )
+    kwargs = {
+        "sample_width": 10,
+        "beam_width": 1,
+        "energy": "CuKa1",
+        "vert_correl": 1000,
+        "vert_nu": 0,
+        "H": 1,
+        "method": 1,
+        "vert_int": 0,
+    }
 
     @classmethod
     def setUpClass(cls):

@@ -189,26 +189,25 @@ class QConversion:
 
         if isinstance(sampleAxis, (str, list, tuple)):
             if isinstance(sampleAxis, str):
-                sAxis = list([sampleAxis])
+                sAxis = [sampleAxis]
             else:
                 sAxis = list(sampleAxis)
             for circ in sAxis:
                 if not isinstance(circ, str) or len(circ) != 2:
                     raise InputError(
                         "QConversion: incorrect sample circle "
-                        "type or syntax (%s)" % repr(circ)
+                        f"type or syntax ({circ!r})"
                     )
                 if not circleSyntaxSample.search(circ):
                     raise InputError(
                         "QConversion: incorrect sample circle "
-                        "syntax (%s)" % circ
+                        f"syntax ({circ})"
                     )
                 if circ[0] == "k":  # determine kappa rotation axis
                     self._kappa_dir = math.getVector(circ)
                     if config.VERBOSITY >= config.DEBUG:
                         print(
-                            "XU.QConversion: kappa_dir: (%5.3f %5.3f %5.3f)"
-                            % tuple(self._kappa_dir)
+                            "XU.QConversion: kappa_dir: ({:5.3f} {:5.3f} {:5.3f})".format(*tuple(self._kappa_dir))
                         )
 
         else:
@@ -248,19 +247,19 @@ class QConversion:
         has_translations = False
         if isinstance(detectorAxis, (str, list, tuple)):
             if isinstance(detectorAxis, str):
-                dAxis = list([detectorAxis])
+                dAxis = [detectorAxis]
             else:
                 dAxis = list(detectorAxis)
             for circ in dAxis:
                 if not isinstance(circ, str) or len(circ) != 2:
                     raise InputError(
                         "QConversion: incorrect detector circle "
-                        "type or syntax (%s)" % repr(circ)
+                        f"type or syntax ({circ!r})"
                     )
                 if not circleSyntaxDetector.search(circ):
                     raise InputError(
                         "QConversion: incorrect detector circle "
-                        "syntax (%s)" % circ
+                        f"syntax ({circ})"
                     )
                 if circ[0] == "t":
                     has_translations = True
@@ -301,7 +300,7 @@ class QConversion:
         if tmp.shape != (3, 3) and tmp.size != 9:
             raise InputError(
                 "QConversion: incorrect shape of UB matrix "
-                "(shape: %s)" % str(tmp.shape)
+                f"(shape: {tmp.shape!s})"
             )
         self._UB = tmp.reshape((3, 3))
 
@@ -320,19 +319,15 @@ class QConversion:
             + "\n"
         )
         if self._sampleAxis_str.find("k") != -1:
-            pstr += "kappa rotation axis (%5.3f %5.3f %5.3f)\n" % tuple(
+            pstr += "kappa rotation axis ({:5.3f} {:5.3f} {:5.3f})\n".format(*tuple(
                 self._kappa_dir
-            )
+            ))
         pstr += (
             f"detector geometry({len(self._detectorAxis)}): "
             + self._detectorAxis_str
             + "\n"
         )
-        pstr += "primary beam direction: (%5.2f %5.2f %5.2f) \n" % (
-            self.r_i[0],
-            self.r_i[1],
-            self.r_i[2],
-        )
+        pstr += f"primary beam direction: ({self.r_i[0]:5.2f} {self.r_i[1]:5.2f} {self.r_i[2]:5.2f}) \n"
 
         if self._linear_init:
             pstr += "\n linear detector initialized:\n"
@@ -347,8 +342,7 @@ class QConversion:
             )
             pstr += (
                 "distance to center of rotation/pixel width: "
-                "%10.4g/%10.4g\n"
-                % (self._linear_distance, self._linear_pixwidth)
+                f"{self._linear_distance:10.4g}/{self._linear_pixwidth:10.4g}\n"
             )
             chpdeg = (
                 2
@@ -359,10 +353,7 @@ class QConversion:
             pstr += f"corresponds to channel per degree: {chpdeg:8.2f}\n"
         if self._area_init:
             pstr += "\n area detector initialized:\n"
-            pstr += "area detector mount directions: %s/%s\n" % (
-                self._area_detdir1,
-                self._area_detdir2,
-            )
+            pstr += f"area detector mount directions: {self._area_detdir1}/{self._area_detdir2}\n"
             pstr += (
                 "number of channels/center channels: (%d,%d) / (%d,%d)\n"
                 % (
@@ -374,8 +365,7 @@ class QConversion:
             )
             pstr += (
                 "distance to center of rotation/pixel width: "
-                "%10.4g/ (%10.4g,%10.4g) \n"
-                % (self._area_distance, self._area_pwidth1, self._area_pwidth2)
+                f"{self._area_distance:10.4g}/ ({self._area_pwidth1:10.4g},{self._area_pwidth2:10.4g}) \n"
             )
             chpdeg1 = (
                 2
@@ -389,10 +379,7 @@ class QConversion:
                 / self._area_pwidth2
                 * numpy.tan(numpy.radians(0.5))
             )
-            pstr += "corresponds to channel per degree: (%8.2f,%8.2f)\n" % (
-                chpdeg1,
-                chpdeg2,
-            )
+            pstr += f"corresponds to channel per degree: ({chpdeg1:8.2f},{chpdeg2:8.2f})\n"
 
         return pstr
 
@@ -739,12 +726,12 @@ class QConversion:
         if not isinstance(detectorDir, str) or len(detectorDir) != 2:
             raise InputError(
                 "QConversion: incorrect detector direction type "
-                "or syntax (%s)" % repr(detectorDir)
+                f"or syntax ({detectorDir!r})"
             )
         if not directionSyntax.search(detectorDir):
             raise InputError(
                 "QConversion: incorrect detector direction "
-                "syntax (%s)" % detectorDir
+                f"syntax ({detectorDir})"
             )
         self._linear_detdir = detectorDir
 
@@ -1001,23 +988,23 @@ class QConversion:
         if not isinstance(detectorDir1, str) or len(detectorDir1) != 2:
             raise InputError(
                 "QConversion: incorrect detector direction1 type "
-                "or syntax (%s)" % repr(detectorDir1)
+                f"or syntax ({detectorDir1!r})"
             )
         if not directionSyntax.search(detectorDir1):
             raise InputError(
                 "QConversion: incorrect detector direction1 "
-                "syntax (%s)" % detectorDir1
+                f"syntax ({detectorDir1})"
             )
         self._area_detdir1 = detectorDir1
         if not isinstance(detectorDir2, str) or len(detectorDir2) != 2:
             raise InputError(
                 "QConversion: incorrect detector direction2 type "
-                "or syntax (%s)" % repr(detectorDir2)
+                f"or syntax ({detectorDir2!r})"
             )
         if not directionSyntax.search(detectorDir2):
             raise InputError(
                 "QConversion: incorrect detector direction2 "
-                "syntax (%s)" % detectorDir2
+                f"syntax ({detectorDir2})"
             )
         self._area_detdir2 = detectorDir2
 
@@ -1599,8 +1586,7 @@ class Experiment:
                 "Experiment: given inplane direction is not "
                 "perpendicular to normal direction\n -> Experiment "
                 "class uses the following direction with the same "
-                "azimuth:\n %s"
-                % (" ".join(map(str, numpy.round(self.idir, 3))))
+                "azimuth:\n {}".format(" ".join(map(str, numpy.round(self.idir, 3))))
             )
 
         # initialize Ang2Q conversion
@@ -1623,21 +1609,9 @@ class Experiment:
             self._set_energy(keyargs["en"])
 
     def __str__(self):
-        ostr = "scattering plane normal: (%f %f %f)\n" % (
-            self.scatplane[0],
-            self.scatplane[1],
-            self.scatplane[2],
-        )
-        ostr += "inplane azimuth: (%f %f %f)\n" % (
-            self.idir[0],
-            self.idir[1],
-            self.idir[2],
-        )
-        ostr += "second refercence direction: (%f %f %f)\n" % (
-            self.ndir[0],
-            self.ndir[1],
-            self.ndir[2],
-        )
+        ostr = f"scattering plane normal: ({self.scatplane[0]:f} {self.scatplane[1]:f} {self.scatplane[2]:f})\n"
+        ostr += f"inplane azimuth: ({self.idir[0]:f} {self.idir[1]:f} {self.idir[2]:f})\n"
+        ostr += f"second refercence direction: ({self.ndir[0]:f} {self.ndir[1]:f} {self.ndir[2]:f})\n"
         ostr += f"energy: {self._en:f} (eV)\n"
         ostr += f"wavelength: {self._wl:f} (angstrom)\n"
         ostr += self._A2QConversion.__str__()
@@ -1688,8 +1662,8 @@ class Experiment:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print(
                         "XU.Experiment: Warning, sample orientation "
-                        "convention failed. Using (%.3f %.3f %.3f) "
-                        "as internal z-axis" % (zi[0], zi[1], zi[2])
+                        f"convention failed. Using ({zi[0]:.3f} {zi[1]:.3f} {zi[2]:.3f}) "
+                        "as internal z-axis"
                     )
             xi = math.VecUnit(numpy.cross(yi, zi))
         else:
@@ -1706,8 +1680,8 @@ class Experiment:
                 if config.VERBOSITY >= config.INFO_LOW:
                     print(
                         "XU.Experiment: Warning, sample orientation "
-                        "convention failed. Using (%.3f %.3f %.3f) "
-                        "as internal z-axis" % (zi[0], zi[1], zi[2])
+                        f"convention failed. Using ({zi[0]:.3f} {zi[1]:.3f} {zi[2]:.3f}) "
+                        "as internal z-axis"
                     )
             xi = math.VecUnit(numpy.cross(yi, zi))
         # turn r_i to Y and Z defined by detector rotation plane
@@ -1953,8 +1927,7 @@ class HXRD(Experiment):
 
         if config.VERBOSITY >= config.DEBUG:
             print(
-                "XU.HXRD.__init__: \nEnergy: %s \nGeometry: %s \n%s---"
-                % (self._en, self.geometry, str(self.Ang2Q))
+                f"XU.HXRD.__init__: \nEnergy: {self._en} \nGeometry: {self.geometry} \n{self.Ang2Q!s}---"
             )
 
     # pylint: disable-next=method-hidden
@@ -2254,8 +2227,7 @@ class HXRD(Experiment):
             angle = angle.flatten()
             if config.VERBOSITY >= config.INFO_ALL:
                 print(
-                    "XU.HXRD.Q2Ang: om, chi, phi, tth,[psi_i, psi_d] = %s"
-                    % repr(angle)
+                    f"XU.HXRD.Q2Ang: om, chi, phi, tth,[psi_i, psi_d] = {angle!r}"
                 )
 
         if deg:

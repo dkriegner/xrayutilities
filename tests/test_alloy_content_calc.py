@@ -38,7 +38,7 @@ class TestAlloyContentCalc(unittest.TestCase):
             )
         )
         self.assertAlmostEqual(content, self.x, places=6)
-        content, [ainp, aperp, abulk, eps_inp, eps_perp] = (
+        content, [_ainp, _aperp, _abulk, _eps_inp, _eps_perp] = (
             self.alloy.ContentBasym(
                 self.qxa[1], self.qza[1], [2, 2, 4], [0, 0, 1]
             )

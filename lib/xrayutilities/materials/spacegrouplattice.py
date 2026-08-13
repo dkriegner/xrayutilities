@@ -435,9 +435,7 @@ def testwp(parint, wyckpos, cifpos, digits=config.DIGITS):
     def check_positions_match(p1, p2, digits):
         p1 = p1 - numpy.round(p1, digits) // 1
         p2 = p2 - numpy.round(p2, digits) // 1
-        if numpy.round(p1, digits) == numpy.round(p2, digits):
-            return True
-        return False
+        return numpy.round(p1, digits) == numpy.round(p2, digits)
 
     wyckp = wyckpos.strip("()").split(",")
     # test agreement in positions witout variables
@@ -647,13 +645,7 @@ class WyckoffBase(list):
             tuples with length 4 containing the entries of WyckoffBase which
             should be compared
         """
-        if (
-            e1[0] == e2[0]
-            and WyckoffBase.pos_eq(e1[1], e2[1])
-            and numpy.allclose(e1[2:], e2[2:], atol=1e-4)
-        ):
-            return True
-        return False
+        return bool(e1[0] == e2[0] and WyckoffBase.pos_eq(e1[1], e2[1]) and numpy.allclose(e1[2:], e2[2:], atol=0.0001))
 
     @staticmethod
     def pos_eq(pos1, pos2):
@@ -918,9 +910,7 @@ class SGLattice:
         ]
         self._setlat()
         # save general Wyckoff position
-        self._gplabel = sorted(
-            wp[self.space_group], key=lambda s: int(s[:-1])
-        )[-1]
+        self._gplabel = max(wp[self.space_group], key=lambda s: int(s[:-1]))
         self._gp = wp[self.space_group][self._gplabel]
 
         # set atom positions in the lattice base
@@ -1012,7 +1002,7 @@ class SGLattice:
         sgwp = wp[self.space_group]
         for atom, w, occ, b in self._wbase:
             x, y, z = None, None, None
-            parint, poslist, dummy = sgwp[w[0]]
+            parint, poslist, _dummy = sgwp[w[0]]
             i = 0
             if parint & 1:
                 try:
@@ -1047,12 +1037,11 @@ class SGLattice:
                     )
                     raise
                 i += 1
-            if w[1]:
-                if i != len(w[1]):
-                    raise TypeError(
-                        "XU.materials: too many parameters for "
-                        "Wyckoff position"
-                    )
+            if w[1] and i != len(w[1]):
+                raise TypeError(
+                    "XU.materials: too many parameters for "
+                    "Wyckoff position"
+                )
 
             for p in poslist:
                 pos = eval(p, {"x": x, "y": y, "z": z})
@@ -1342,7 +1331,7 @@ class SGLattice:
             ehkl = numpy.unique(
                 numpy.einsum("...ij,j", self._hklsym, hkl), axis=0
             )
-            ehkl = set(tuple(e) for e in ehkl)
+            ehkl = {tuple(e) for e in ehkl}
         return ehkl
 
     def hkl_allowed(self, hkl, returnequivalents=False):
@@ -1380,7 +1369,7 @@ class SGLattice:
         if self._hklcond == [] and self._gp[2] is not None:
             self._hklcond = hklcond_group.findall(self._gp[2])
         if self._hklcond_wp == []:
-            for lab in set(e[1][0] for e in self._wbase):
+            for lab in {e[1][0] for e in self._wbase}:
                 if lab == self._gplabel or wp[self.space_group][lab][2] is None:  # if gen. pos. is occupied skip it
                     self._hklcond_wp.append(None)
                 else:
@@ -1445,7 +1434,7 @@ class SGLattice:
         """
         ostr = "Reflection conditions:\n"
         ostr += f" general: {self._gp[2]!s}\n"
-        for wplabel in set(e[1][0] for e in self._wbase):
+        for wplabel in {e[1][0] for e in self._wbase}:
             ostr += f"{wplabel:8s}: {wp[self.space_group][wplabel][2]!s}\n"
         return ostr
 
@@ -1549,7 +1538,7 @@ class SGLattice:
             success = True
 
             # check all atomic species seperately
-            for el in set(at[0] for at in atoms):
+            for el in {at[0] for at in atoms}:
                 catoms = list(filter(lambda at: at[0] == el, atoms))
                 found = numpy.zeros(len(catoms), dtype=bool)
                 # see if atomic positions fit to Wyckoff positions
@@ -1715,7 +1704,7 @@ class SGLattice:
         allatoms = {"atoms": [], "pos": [], "occ": [], "b": []}
         invmat = numpy.linalg.inv(mat)
         # check all atomic species seperately
-        for el in set(at[0] for at in self.base()):
+        for el in {at[0] for at in self.base()}:
             catoms = list(filter(lambda at: at[0] == el, self.base()))
             elset = set()
             for at in catoms:

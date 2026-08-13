@@ -87,7 +87,7 @@ class SeifertHeader:
 
     def __str__(self):
         ostr = ""
-        for k in self.__dict__.keys():
+        for k in self.__dict__:
             value = self.__getattribute__(k)
             if isinstance(value, float):
                 ostr += k + f" = {value:f}\n"
@@ -122,8 +122,8 @@ class SeifertMultiScan:
         self.nscans = 0  # total number of scans
         self.npscan = 0  # number of points per scan
         self.ctime = 0  # counting time
-        self.re_m2 = re.compile(r"^&Axis=%s\s+&Task=Drive" % m2)
-        self.re_sm = re.compile(r"^&ScanAxis=%s" % m_scan)
+        self.re_m2 = re.compile(rf"^&Axis={m2}\s+&Task=Drive")
+        self.re_sm = re.compile(rf"^&ScanAxis={m_scan}")
         self.scan_motor_name = m_scan
         self.sec_motor_name = m2
 

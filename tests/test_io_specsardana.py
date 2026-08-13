@@ -49,7 +49,7 @@ class TestIO_SPEC_Sardana(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.specfile = xu.io.SPECFile(testfile, path=datadir)
-        cls.scans = dict()
+        cls.scans = {}
         for nr in cls.scannrs:
             cls.scans[nr] = getattr(cls.specfile, "scan%d" % nr)
             cls.scans[nr].ReadData()
