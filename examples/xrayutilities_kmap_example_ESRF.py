@@ -17,6 +17,7 @@
 # Copyright (c) 2014-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
+import xrayutilities as xu
 import xrayutilities_id01_functions as id01
 from matplotlib.pylab import (
     axis,
@@ -29,8 +30,6 @@ from matplotlib.pylab import (
     xlabel,
     ylabel,
 )
-
-import xrayutilities as xu
 from xrayutilities_id01_functions import datadir, deadpixelkill
 
 # 3S+2D goniometer (ID01 goniometer, sample mu, eta, phi detector

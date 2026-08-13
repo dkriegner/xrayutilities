@@ -107,10 +107,10 @@ def Cij2Cijkl(cij):
     # now create the full tensor
     cijkl = numpy.empty((3, 3, 3, 3), dtype=numpy.double)
 
-    for i in range(0, 3):
-        for j in range(0, 3):
-            for k in range(0, 3):
-                for n in range(0, 3):
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for n in range(3):
                     mi = index_map_ijkl2ij(i, j)
                     mj = index_map_ijkl2ij(k, n)
                     cijkl[i, j, k, n] = m[mi, mj]
@@ -863,13 +863,13 @@ class Crystal(Material):
             base = [(elements.Dummy, (0, 0, 0), 1, 0)]
 
         # find maximally needed super cell
-        na = int(ceil(maxdist / math.VecNorm(self.a1)))
-        nb = int(ceil(maxdist / math.VecNorm(self.a2)))
-        nc = int(ceil(maxdist / math.VecNorm(self.a3)))
-        nab = int(ceil(maxdist / math.VecNorm(self.a1 + self.a2)))
-        nac = int(ceil(maxdist / math.VecNorm(self.a1 + self.a3)))
-        nbc = int(ceil(maxdist / math.VecNorm(self.a2 + self.a3)))
-        nabc = int(ceil(maxdist / math.VecNorm(self.a1 + self.a2 + self.a3)))
+        na = ceil(maxdist / math.VecNorm(self.a1))
+        nb = ceil(maxdist / math.VecNorm(self.a2))
+        nc = ceil(maxdist / math.VecNorm(self.a3))
+        nab = ceil(maxdist / math.VecNorm(self.a1 + self.a2))
+        nac = ceil(maxdist / math.VecNorm(self.a1 + self.a3))
+        nbc = ceil(maxdist / math.VecNorm(self.a2 + self.a3))
+        nabc = ceil(maxdist / math.VecNorm(self.a1 + self.a2 + self.a3))
         Na = max(na, nab, nac, nabc)
         Nb = max(nb, nab, nbc, nabc)
         Nc = max(nc, nac, nbc, nabc)

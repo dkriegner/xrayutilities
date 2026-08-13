@@ -24,7 +24,7 @@ Fe = xu.materials.elements.Fe  # iron atom
 Q = numpy.array([0, 0, 1.9], dtype=numpy.double)
 en = 10000  # energy in eV
 
-print("Iron (Fe): E: %9.1f eV" % en)
-print("f0: %8.4g" % Fe.f0(numpy.linalg.norm(Q)))
-print("f1: %8.4g" % Fe.f1(en))
-print("f2: %8.4g" % Fe.f2(en))
+print(f"Iron (Fe): E: {en:9.1f} eV")
+print(f"f0: {Fe.f0(numpy.linalg.norm(Q)):8.4g}")
+print(f"f1: {Fe.f1(en):8.4g}")
+print(f"f2: {Fe.f2(en):8.4g}")

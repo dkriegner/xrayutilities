@@ -16,7 +16,6 @@
 # Copyright (c) 2012-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import matplotlib.pyplot as plt
-
 import xrayutilities as xu
 
 matA = xu.materials.InAs

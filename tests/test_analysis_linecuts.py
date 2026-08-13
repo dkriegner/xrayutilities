@@ -47,7 +47,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             omegaang,
         )
-        x, d, m = xu.analysis.get_radial_scan(
+        x, d, _m = xu.analysis.get_radial_scan(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),
@@ -55,7 +55,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             1,
             intdir="2theta",
         )
-        x2, d2, m2 = xu.analysis.get_radial_scan(
+        x2, d2, _m2 = xu.analysis.get_radial_scan(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),
@@ -79,7 +79,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             radialang,
         )
-        x, d, m = xu.analysis.get_omega_scan(
+        x, d, _m = xu.analysis.get_omega_scan(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),
@@ -87,7 +87,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             1,
             intdir="2theta",
         )
-        x2, d2, m2 = xu.analysis.get_omega_scan(
+        x2, d2, _m2 = xu.analysis.get_omega_scan(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),
@@ -111,7 +111,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             omegaang,
         )
-        x, d, m = xu.analysis.get_ttheta_scan(
+        x, d, _m = xu.analysis.get_ttheta_scan(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),
@@ -119,7 +119,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             1,
             intdir="radial",
         )
-        x2, d2, m2 = xu.analysis.get_ttheta_scan(
+        x2, d2, _m2 = xu.analysis.get_ttheta_scan(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),
@@ -143,10 +143,10 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             omegaang,
         )
-        x, d, m = xu.analysis.get_qz_scan(
+        x, d, _m = xu.analysis.get_qz_scan(
             [self.QY, self.QZ], data, self.qyp, self.Ncut, 1, intdir="2theta"
         )
-        x2, d2, m2 = xu.analysis.get_qz_scan(
+        x2, d2, _m2 = xu.analysis.get_qz_scan(
             [self.QY, self.QZ], data, self.qyp, self.Ncut, 1, intdir="omega"
         )
         self.assertEqual(x.size, self.Ncut)
@@ -165,10 +165,10 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             omegaang,
         )
-        x, d, m = xu.analysis.get_qy_scan(
+        x, d, _m = xu.analysis.get_qy_scan(
             [self.QY, self.QZ], data, self.qzp, self.Ncut, 1, intdir="2theta"
         )
-        x2, d2, m2 = xu.analysis.get_qy_scan(
+        x2, d2, _m2 = xu.analysis.get_qy_scan(
             [self.QY, self.QZ], data, self.qzp, self.Ncut, 1, intdir="omega"
         )
         self.assertTrue(xu.math.fwhm_exp(x, d) > xu.math.fwhm_exp(x2, d2))
@@ -185,7 +185,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             0,
         )
-        x, d, m = xu.analysis.get_qz_scan(
+        x, d, _m = xu.analysis.get_qz_scan(
             [self.QY, self.QZ], data, self.qyp, self.Ncut, 0.1, intdir="q"
         )
         self.assertEqual(x.size, self.Ncut)
@@ -194,7 +194,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             self.width2,
             places=4,
         )
-        x, d, m = xu.analysis.get_qy_scan(
+        x, d, _m = xu.analysis.get_qy_scan(
             [self.QY, self.QZ], data, self.qzp, self.Ncut, 0.1, intdir="q"
         )
         self.assertAlmostEqual(
@@ -215,7 +215,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             0,
             0,
         )
-        x, d, m = xu.analysis.get_arbitrary_line(
+        x, d, _m = xu.analysis.get_arbitrary_line(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),
@@ -223,7 +223,7 @@ class Test_analysis_linecuts(unittest.TestCase):
             self.Ncut,
             0.01,
         )
-        x2, d2, m2 = xu.analysis.get_arbitrary_line(
+        x2, d2, _m2 = xu.analysis.get_arbitrary_line(
             [self.QY, self.QZ],
             data,
             (self.qyp, self.qzp),

@@ -42,7 +42,7 @@ class TestPeakFit(unittest.TestCase):
         cls.fv = xu.math.PseudoVoigt1d(cls.x, *p)
 
     def test_gaussfit(self):
-        params, sd_params, itlim = xu.math.gauss_fit(self.x, self.fg)
+        params, _sd_params, _itlim = xu.math.gauss_fit(self.x, self.fg)
         self.assertAlmostEqual(params[0], self.pos, places=digits)
         self.assertAlmostEqual(abs(params[1]), self.width, places=digits)
         self.assertAlmostEqual(params[2], self.amp, places=digits)
@@ -50,7 +50,7 @@ class TestPeakFit(unittest.TestCase):
 
     def test_gaussfit_linear(self):
         f = self.fg + self.sl * self.x
-        params, sd_params, itlim, ffunc = xu.math.peak_fit(
+        params, _sd_params, _itlim, _ffunc = xu.math.peak_fit(
             self.x, f, peaktype="Gauss", background="linear", func_out=True
         )
         params[1] = abs(params[1])
@@ -62,7 +62,7 @@ class TestPeakFit(unittest.TestCase):
         )
 
     def test_lorentzfit(self):
-        params, sd_params, itlim = xu.math.peak_fit(
+        params, _sd_params, _itlim = xu.math.peak_fit(
             self.x, self.fl, peaktype="Lorentz", background="constant"
         )
         self.assertAlmostEqual(params[0], self.pos, places=digits)
@@ -76,7 +76,7 @@ class TestPeakFit(unittest.TestCase):
         )
         iparam += (numpy.random.rand(5) - 0.5) * 0.05
         f = self.fl + self.sl * self.x
-        params, sd_params, itlim = xu.math.peak_fit(
+        params, _sd_params, _itlim = xu.math.peak_fit(
             self.x, f, peaktype="Lorentz", background="linear", iparams=iparam
         )
         params[1] = abs(params[1])
@@ -88,7 +88,7 @@ class TestPeakFit(unittest.TestCase):
         )
 
     def test_pvoigtfit(self):
-        params, sd_params, itlim = xu.math.peak_fit(
+        params, _sd_params, _itlim = xu.math.peak_fit(
             self.x, self.fv, peaktype="PseudoVoigt", background="constant"
         )
         self.assertAlmostEqual(params[0], self.pos, places=digits)
@@ -99,7 +99,7 @@ class TestPeakFit(unittest.TestCase):
 
     def test_pvoigtfit_linear(self):
         f = self.fv + self.sl * self.x
-        params, sd_params, itlim = xu.math.peak_fit(
+        params, _sd_params, _itlim = xu.math.peak_fit(
             self.x, f, peaktype="PseudoVoigt", background="linear"
         )
         params[1] = abs(params[1])

@@ -15,7 +15,7 @@
 #
 # Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from numpy import linspace
+import xrayutilities as xu
 from matplotlib.pylab import (
     clf,
     figure,
@@ -33,9 +33,8 @@ from matplotlib.pylab import (
     ylabel,
     ylim,
 )
+from numpy import linspace
 from scipy.special import erf
-
-import xrayutilities as xu
 
 mpl.rcParams["font.size"] = 16.0
 en = "CuKa1"

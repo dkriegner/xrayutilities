@@ -20,9 +20,8 @@
 import collections.abc
 import re
 
-from numpy import float32, identity, newaxis, ones, zeros
-
 import xrayutilities as xu
+from numpy import float32, identity, newaxis, ones, zeros
 
 # define root of the local data directory (needed because we assume the data
 # path of detector frames from the specfile are not correct anymore)
@@ -105,14 +104,14 @@ def getmono_energy(specscan, key="UMONO", motor="mononrj"):
     return en
 
 
-def rawmap(
-    specfile, scannr, experiment, angdelta=None, U=identity(3), norm=True
-):
+def rawmap(specfile, scannr, experiment, angdelta=None, U=None, norm=True):
     """
     read ccd frames and and convert them in reciprocal space
     angular coordinates are taken from the spec file. A single
     or multiple scan-numbers can be given.
     """
+    if U is None:
+        U = identity(3)
 
     [mu, eta, phi, nu, delta, ty, tz, ccdn] = xu.io.getspec_scan(
         specfile,

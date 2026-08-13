@@ -97,5 +97,8 @@ count = true
 [tool.ruff]
 line-length = 79
 
+[tool.ruff.lint]
+ignore = ["UP031"]
+
 [tool.ruff.lint.extend-per-file-ignores]
 "lib/xrayutilities/materials/wyckpos.py" = ["E741"]

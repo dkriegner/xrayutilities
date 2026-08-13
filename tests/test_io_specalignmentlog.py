@@ -17,6 +17,7 @@
 
 import os.path
 import unittest
+from typing import ClassVar
 
 import xrayutilities as xu
 
@@ -31,7 +32,7 @@ fullfilename = os.path.join(datadir, testfile)
     "additional test data needed (http://xrayutilities.sf.io)",
 )
 class TestIO_SPEC_RA_Log(unittest.TestCase):
-    peaks = ["asymaz1", "symaz1"]
+    peaks: ClassVar = ["asymaz1", "symaz1"]
     niterations = 639
 
     @classmethod

@@ -180,7 +180,7 @@ def gettty08_scan(scanname, scannumbers, *args, **keyargs):
     if isinstance(scannumbers, (list, tuple)):
         scanlist = scannumbers
     else:
-        scanlist = list([scannumbers])
+        scanlist = [scannumbers]
 
     angles = dict.fromkeys(args)
     for key in angles:

@@ -94,7 +94,7 @@ class FitModel(Model):
         funcstr += "    return lmodel.simulate(x, **kwargs)"
 
         namespace = {"self": self}
-        exec(funcstr, {"lmodel": self.lmodel}, namespace)
+        exec(funcstr, {"lmodel": self.lmodel}, namespace)  # noqa: S102
         self.func = namespace["func"]
         self.emetricfunc = numpy.log10 if self.elog else lambda x: x
 

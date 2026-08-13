@@ -15,7 +15,7 @@
 #
 # Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-__all__ = ["RangeDict", "eqhkl_default", "eqhkl_custom", "wp"]
+__all__ = ["RangeDict", "eqhkl_custom", "eqhkl_default", "wp"]
 
 
 class RangeDict(dict):
@@ -573,8 +573,8 @@ wp = {
                 "(-x, y, -z)",
                 "(-x+1/2, y+1/2, -z)",
             ),
-            "hkl: h+k=2n, h0l: h=2n, 0kl: k=2n, hk0: h+k=2n, "
-            "0k0: k=2n, h00: h=2n",
+            ("hkl: h+k=2n, h0l: h=2n, 0kl: k=2n, hk0: h+k=2n, "
+            "0k0: k=2n, h00: h=2n"),
         ),
     },
     "5:c": {
@@ -615,8 +615,8 @@ wp = {
                 "(x, -y, z)",
                 "(x+1/2, -y+1/2, z)",
             ),
-            "hkl: h+k=2n, h0l: h=2n, 0kl: k=2n, hk0: h+k=2n, "
-            "0k0: k=2n, h00: h=2n",
+            ("hkl: h+k=2n, h0l: h=2n, 0kl: k=2n, hk0: h+k=2n, "
+            "0k0: k=2n, h00: h=2n"),
         ),
     },
     "8:c": {
@@ -641,8 +641,8 @@ wp = {
                 "(x, -y, z+1/2)",
                 "(x+1/2, -y+1/2, z+1/2)",
             ),
-            "hkl: h+k=2n, h0l: h,l=2n, 0kl: k=2n, hk0: h+k=2n, "
-            "0k0: k=2n, h00: h=2n, 00l: l=2n",
+            ("hkl: h+k=2n, h0l: h,l=2n, 0kl: k=2n, hk0: h+k=2n, "
+            "0k0: k=2n, h00: h=2n, 00l: l=2n"),
         )
     },
     "9:c": {
@@ -785,8 +785,8 @@ wp = {
                 "(x, -y, z)",
                 "(x+1/2, -y+1/2, z)",
             ),
-            "hkl: h+k=2n, h0l: h=2n, 0kl: k=2n, hk0: h+k=2n, "
-            "0k0: k=2n, h00: h=2n",
+            ("hkl: h+k=2n, h0l: h=2n, 0kl: k=2n, hk0: h+k=2n, "
+            "0k0: k=2n, h00: h=2n"),
         ),
     },
     "12:c": {
@@ -965,8 +965,8 @@ wp = {
                 "(x, -y, z+1/2)",
                 "(x+1/2, -y+1/2, z+1/2)",
             ),
-            "hkl: h+k=2n, h0l: h,l=2n, 0kl: k=2n, hk0: h+k=2n, "
-            "0k0: k=2n, h00: h=2n, 00l: l=2n",
+            ("hkl: h+k=2n, h0l: h,l=2n, 0kl: k=2n, hk0: h+k=2n, "
+            "0k0: k=2n, h00: h=2n, 00l: l=2n"),
         ),
     },
     "15:c": {
@@ -1122,8 +1122,8 @@ wp = {
                 "(x, -y, -z)",
                 "(x+1/2, -y+1/2, -z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "21": {
@@ -1193,8 +1193,8 @@ wp = {
                 "(x, -y, -z)",
                 "(x+1/2, -y+1/2, -z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n"),
         ),
     },
     "22": {
@@ -1332,8 +1332,8 @@ wp = {
                 "(x+1/2, -y, -z+1/2)",
                 "(x+1/2, -y+1/2, -z)",
             ),
-            "hkl: h+k,h+l,k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, "
-            "hk0: h,k=2n, h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k,h+l,k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, "
+            "hk0: h,k=2n, h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "23": {
@@ -1413,8 +1413,8 @@ wp = {
                 "(x, -y, -z)",
                 "(x+1/2, -y+1/2, -z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "24": {
@@ -1460,8 +1460,8 @@ wp = {
                 "(x+1/2, -y+1/2, -z)",
                 "(x, -y, -z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "25": {
@@ -1623,8 +1623,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n"),
         ),
     },
     "36": {
@@ -1650,8 +1650,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h,l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h,l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "37": {
@@ -1697,8 +1697,8 @@ wp = {
                 "(-x, y, z+1/2)",
                 "(-x+1/2, y+1/2, z+1/2)",
             ),
-            "hkl: h+k=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "38": {
@@ -1741,8 +1741,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x, y+1/2, z+1/2)",
             ),
-            "hkl: k+l=2n, 0kl: k+l=2n, h0l: l=2n, hk0: k=2n, "
-            "0k0: k=2n, 00l: l=2n",
+            ("hkl: k+l=2n, 0kl: k+l=2n, h0l: l=2n, hk0: k=2n, "
+            "0k0: k=2n, 00l: l=2n"),
         ),
     },
     "39": {
@@ -1783,8 +1783,8 @@ wp = {
                 "(-x, y+1/2, z)",
                 "(-x, y, z+1/2)",
             ),
-            "hkl: k+l=2n, 0kl: k,l=2n, h0l: l=2n, hk0: k=2n, "
-            "0k0: k=2n, 00l: l=2n",
+            ("hkl: k+l=2n, 0kl: k,l=2n, h0l: l=2n, hk0: k=2n, "
+            "0k0: k=2n, 00l: l=2n"),
         ),
     },
     "40": {
@@ -1820,8 +1820,8 @@ wp = {
                 "(-x+1/2, y, z)",
                 "(-x+1/2, y+1/2, z+1/2)",
             ),
-            "hkl: k+l=2n, 0kl: k+l=2n, h0l: h,l=2n, hk0: k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: k+l=2n, 0kl: k+l=2n, h0l: h,l=2n, hk0: k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "41": {
@@ -1847,8 +1847,8 @@ wp = {
                 "(-x+1/2, y+1/2, z)",
                 "(-x+1/2, y, z+1/2)",
             ),
-            "hkl: k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "42": {
@@ -1924,8 +1924,8 @@ wp = {
                 "(-x+1/2, y, z+1/2)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k,h+l,k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, "
-            "hk0: h,k=2n, h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k,h+l,k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, "
+            "hk0: h,k=2n, h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "43": {
@@ -1963,8 +1963,8 @@ wp = {
                 "(-x+1/4, y+3/4, z+3/4)",
                 "(-x+3/4, y+3/4, z+1/4)",
             ),
-            "hkl: h+k,h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, h0l: h+l=4n, "
-            "h,l=2n, hk0: h,k=2n, h00: h=4n, 0k0: k=4n, 00l: l=4n",
+            ("hkl: h+k,h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, h0l: h+l=4n, "
+            "h,l=2n, hk0: h,k=2n, h00: h=4n, 0k0: k=4n, 00l: l=4n"),
         ),
     },
     "44": {
@@ -2002,8 +2002,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "45": {
@@ -2039,8 +2039,8 @@ wp = {
                 "(-x+1/2, y+1/2, z)",
                 "(-x, y, z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "46": {
@@ -2076,8 +2076,8 @@ wp = {
                 "(-x+1/2, y, z)",
                 "(-x, y+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h,l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h,l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "47": {
@@ -2243,8 +2243,8 @@ wp = {
                 "(x+1/2, -y+1/2, z+1/2)",
                 "(-x+1/2, y+1/2, z+1/2)",
             ),
-            "0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, h00: h=2n, "
-            "0k0: k=2n, 00l: l=2n",
+            ("0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, h00: h=2n, "
+            "0k0: k=2n, 00l: l=2n"),
         ),
     },
     "48:2": {
@@ -2701,8 +2701,8 @@ wp = {
                 "(x+1/2, -y+1/2, z+1/2)",
                 "(-x, y+1/2, z+1/2)",
             ),
-            "0kl: k+l=2n, h0l: h+l=2n, hk0: h=2n, h00: h=2n, "
-            "0k0: k=2n, 00l: l=2n",
+            ("0kl: k+l=2n, h0l: h+l=2n, hk0: h=2n, h00: h=2n, "
+            "0k0: k=2n, 00l: l=2n"),
         ),
     },
     "53": {
@@ -2909,8 +2909,8 @@ wp = {
                 "(x, -y+1/2, z+1/2)",
                 "(-x+1/2, y, z+1/2)",
             ),
-            "0kl: l=2n, h0l: l=2n, hk0: h+k=2n, h00: h=2n, 0k0: k=2n, "
-            "00l: l=2n",
+            ("0kl: l=2n, h0l: l=2n, hk0: h+k=2n, h00: h=2n, 0k0: k=2n, "
+            "00l: l=2n"),
         ),
     },
     "57": {
@@ -3153,8 +3153,8 @@ wp = {
                 "(x, -y, z+1/2)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "0kl: k=2n, h0l: l=2n, hk0: h+k=2n, h00: h=2n, 0k0: k=2n, "
-            "00l: l=2n",
+            ("0kl: k=2n, h0l: l=2n, hk0: h+k=2n, h00: h=2n, 0k0: k=2n, "
+            "00l: l=2n"),
         ),
     },
     "61": {
@@ -3316,8 +3316,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h,l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h,l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "64": {
@@ -3407,8 +3407,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h,l=2n, hk0: h,k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h,l=2n, hk0: h,k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "65": {
@@ -3566,8 +3566,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n"),
         ),
     },
     "66": {
@@ -3725,8 +3725,8 @@ wp = {
                 "(-x, y, z+1/2)",
                 "(-x+1/2, y+1/2, z+1/2)",
             ),
-            "hkl: h+k=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "67": {
@@ -3903,8 +3903,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h,k=2n, "
-            "h00: h=2n, 0k0: k=2n",
+            ("hkl: h+k=2n, 0kl: k=2n, h0l: h=2n, hk0: h,k=2n, "
+            "h00: h=2n, 0k0: k=2n"),
         ),
     },
     "68:1": {
@@ -4022,8 +4022,8 @@ wp = {
                 "(-x+1/2, y, z+1/2)",
                 "(-x, y+1/2, z+1/2)",
             ),
-            "hkl: h+k=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h,k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h,k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "68:2": {
@@ -4431,8 +4431,8 @@ wp = {
                 "(-x+1/2, y, z+1/2)",
                 "(-x+1/2, y+1/2, z)",
             ),
-            "hkl: h+k,h+l,k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, "
-            "hk0: h,k=2n, h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k,h+l,k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, "
+            "hk0: h,k=2n, h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "70:1": {
@@ -4610,9 +4610,9 @@ wp = {
                 "(-x+3/4, y+1/4, z+3/4)",
                 "(-x+3/4, y+3/4, z+1/4)",
             ),
-            "hkl: h+k,h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, "
+            ("hkl: h+k,h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, "
             "h0l: h+l=4n, h,l=2n, hk0: h+k=4n, h,k=2n, h00: h=4n, "
-            "0k0: k=4n, 00l: l=4n",
+            "0k0: k=4n, 00l: l=4n"),
         ),
     },
     "70:2": {
@@ -4934,8 +4934,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "72": {
@@ -5073,8 +5073,8 @@ wp = {
                 "(-x+1/2, y+1/2, z)",
                 "(-x, y, z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h+k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "73": {
@@ -5168,8 +5168,8 @@ wp = {
                 "(-x+1/2, y+1/2, z)",
                 "(-x, y, z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h,k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k,l=2n, h0l: h,l=2n, hk0: h,k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "74": {
@@ -5289,8 +5289,8 @@ wp = {
                 "(-x, y, z)",
                 "(-x+1/2, y+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h,k=2n, "
-            "h00: h=2n, 0k0: k=2n, 00l: l=2n",
+            ("hkl: h+k+l=2n, 0kl: k+l=2n, h0l: h+l=2n, hk0: h,k=2n, "
+            "h00: h=2n, 0k0: k=2n, 00l: l=2n"),
         ),
     },
     "75": {
@@ -5361,8 +5361,8 @@ wp = {
                 "(y, -x, z)",
                 "(y+1/2, -x+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "80": {
@@ -5388,8 +5388,8 @@ wp = {
                 "(y+1/2, -x, z+3/4)",
                 "(y, -x+1/2, z+1/4)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=4n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=4n, h00: h=2n"),
         ),
     },
     "81": {
@@ -5443,8 +5443,8 @@ wp = {
                 "(-y, x, -z)",
                 "(-y+1/2, x+1/2, -z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "83": {
@@ -5822,8 +5822,8 @@ wp = {
                 "(-y, x, -z)",
                 "(-y+1/2, x+1/2, -z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "88:1": {
@@ -5899,8 +5899,8 @@ wp = {
                 "(-y+1/2, x+1/2, -z+1/2)",
                 "(-y, x, -z)",
             ),
-            "hkl: h+k+l=2n, hk0: h,k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=4n, h00: h=2n, h-h0: h=2n",
+            ("hkl: h+k+l=2n, hk0: h,k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=4n, h00: h=2n, h-h0: h=2n"),
         ),
     },
     "88:2": {
@@ -6474,8 +6474,8 @@ wp = {
                 "(-y, -x, -z)",
                 "(-y+1/2, -x+1/2, -z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "98": {
@@ -6565,8 +6565,8 @@ wp = {
                 "(-y, -x, -z)",
                 "(-y+1/2, -x+1/2, -z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=4n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=4n, h00: h=2n"),
         ),
     },
     "99": {
@@ -6886,8 +6886,8 @@ wp = {
                 "(y, x, z)",
                 "(y+1/2, x+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "108": {
@@ -6945,8 +6945,8 @@ wp = {
                 "(y, x, z+1/2)",
                 "(y+1/2, x+1/2, z)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "109": {
@@ -6994,8 +6994,8 @@ wp = {
                 "(y+1/2, x, z+3/4)",
                 "(y, x+1/2, z+1/4)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: 2h+l=4n, "
-            "00l: l=4n, h00: h=2n, h-h0: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: 2h+l=4n, "
+            "00l: l=4n, h00: h=2n, h-h0: h=2n"),
         ),
     },
     "110": {
@@ -7033,8 +7033,8 @@ wp = {
                 "(y+1/2, x, z+1/4)",
                 "(y, x+1/2, z+3/4)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: 2h+l=4n, "
-            "00l: l=4n, h00: h=2n, h-h0: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: 2h+l=4n, "
+            "00l: l=4n, h00: h=2n, h-h0: h=2n"),
         ),
     },
     "111": {
@@ -7540,8 +7540,8 @@ wp = {
                 "(-y, -x, -z)",
                 "(-y+1/2, -x+1/2, -z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "120": {
@@ -7651,8 +7651,8 @@ wp = {
                 "(-y, -x, -z+1/2)",
                 "(-y+1/2, -x+1/2, -z)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "121": {
@@ -7759,8 +7759,8 @@ wp = {
                 "(y, x, z)",
                 "(y+1/2, x+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "122": {
@@ -7822,8 +7822,8 @@ wp = {
                 "(y+1/2, x, z+3/4)",
                 "(y, x+1/2, z+1/4)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: 2h+l=4n, "
-            "00l: l=4n, h00: h=2n, h-h0: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: 2h+l=4n, "
+            "00l: l=4n, h00: h=2n, h-h0: h=2n"),
         ),
     },
     "123": {
@@ -10926,8 +10926,8 @@ wp = {
                 "(y, x, z)",
                 "(y+1/2, x+1/2, z+1/2)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k+l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "140": {
@@ -11141,8 +11141,8 @@ wp = {
                 "(y, x, z+1/2)",
                 "(y+1/2, x+1/2, z)",
             ),
-            "hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: l=2n, "
-            "00l: l=2n, h00: h=2n",
+            ("hkl: h+k+l=2n, hk0: h+k=2n, 0kl: k,l=2n, hhl: l=2n, "
+            "00l: l=2n, h00: h=2n"),
         ),
     },
     "141:1": {
@@ -11300,8 +11300,8 @@ wp = {
                 "(y, x+1/2, z+1/4)",
                 "(y+1/2, x, z+3/4)",
             ),
-            "hkl: h+k+l=2n, hk0: h,k=2n, 0kl: k+l=2n, "
-            "hhl: 2h+l=4n, 00l: l=4n, h00: h=2n, h-h0: h=2n",
+            ("hkl: h+k+l=2n, hk0: h,k=2n, 0kl: k+l=2n, "
+            "hhl: 2h+l=4n, 00l: l=4n, h00: h=2n, h-h0: h=2n"),
         ),
     },
     "141:2": {
@@ -11625,8 +11625,8 @@ wp = {
                 "(y, x+1/2, z+3/4)",
                 "(y+1/2, x, z+1/4)",
             ),
-            "hkl: h+k+l=2n, hk0: h,k=2n, 0kl: k,l=2n, "
-            "hhl: 2h+l=4n, 00l: l=4n, h00: h=2n, h-h0: h=2n",
+            ("hkl: h+k+l=2n, hk0: h,k=2n, 0kl: k,l=2n, "
+            "hhl: 2h+l=4n, 00l: l=4n, h00: h=2n, h-h0: h=2n"),
         ),
     },
     "142:2": {
@@ -11824,8 +11824,8 @@ wp = {
                 "(-x+y+2/3, -x+1/3, z+1/3)",
                 "(-x+y+1/3, -x+2/3, z+2/3)",
             ),
-            "hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
-            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n",
+            ("hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
+            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n"),
         ),
     },
     "146:R": {
@@ -11919,8 +11919,8 @@ wp = {
                 "(x-y+2/3, x+1/3, -z+1/3)",
                 "(x-y+1/3, x+2/3, -z+2/3)",
             ),
-            "hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
-            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n",
+            ("hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
+            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n"),
         ),
     },
     "148:R": {
@@ -12118,8 +12118,8 @@ wp = {
                 "(-x+2/3, -x+y+1/3, -z+1/3)",
                 "(-x+1/3, -x+y+2/3, -z+2/3)",
             ),
-            "hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
-            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n",
+            ("hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
+            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n"),
         ),
     },
     "155:R": {
@@ -12256,8 +12256,8 @@ wp = {
                 "(x+2/3, x-y+1/3, z+1/3)",
                 "(x+1/3, x-y+2/3, z+2/3)",
             ),
-            "hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
-            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n",
+            ("hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
+            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n"),
         ),
     },
     "160:R": {
@@ -12311,8 +12311,8 @@ wp = {
                 "(x+2/3, x-y+1/3, z+5/6)",
                 "(x+1/3, x-y+2/3, z+1/6)",
             ),
-            "hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
-            "h-h0l: h+l=3n, l=2n, 000l: l=6n, h-h00: h=3n",
+            ("hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
+            "h-h0l: h+l=3n, l=2n, 000l: l=6n, h-h00: h=3n"),
         ),
     },
     "161:R": {
@@ -12754,8 +12754,8 @@ wp = {
                 "(x+2/3, x-y+1/3, z+1/3)",
                 "(x+1/3, x-y+2/3, z+2/3)",
             ),
-            "hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
-            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n",
+            ("hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
+            "h-h0l: h+l=3n, 000l: l=3n, h-h00: h=3n"),
         ),
     },
     "166:R": {
@@ -12950,8 +12950,8 @@ wp = {
                 "(x+2/3, x-y+1/3, z+5/6)",
                 "(x+1/3, x-y+2/3, z+1/6)",
             ),
-            "hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
-            "h-h0l: h+l=3n, l=2n, 000l: l=6n, h-h00: h=3n",
+            ("hkil: -h+k+l=3n, hki0: -h+k=3n, hh(-2h)l: l=3n, "
+            "h-h0l: h+l=3n, l=2n, 000l: l=6n, h-h00: h=3n"),
         ),
     },
     "167:R": {
@@ -18347,11 +18347,11 @@ wp = {
                 "(0, 3/4, 3/8)",
                 "(1/2, 1/4, 7/8)",
             ),
-            "hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
+            ("hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
             "l=4n+2 or h=8n, k=8n+4, "
             "h+k+l=4n+2 or h,k=8n+1, l=4n or h=8n+1, "
             "k=8n-1, l=4n or h,k=8n+3, l=4n or "
-            "h=8n+3, k=8n-3, l=4n",
+            "h=8n+3, k=8n-3, l=4n"),
         ),
         "12d": (
             0,
@@ -18369,11 +18369,11 @@ wp = {
                 "(0, 3/4, 7/8)",
                 "(1/2, 1/4, 3/8)",
             ),
-            "hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
+            ("hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
             "l=4n+2 or h=8n, k=8n+4, "
             "h+k+l=4n+2 or h,k=8n+1, l=4n or h=8n+1, "
             "k=8n-1, l=4n or h,k=8n+3, l=4n or "
-            "h=8n+3, k=8n-3, l=4n",
+            "h=8n+3, k=8n-3, l=4n"),
         ),
         "16e": (
             1,
@@ -19584,10 +19584,10 @@ wp = {
                 "(0, 3/4, 1/8)",
                 "(1/2, 1/4, 5/8)",
             ),
-            "hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
+            ("hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
             "l=4n+2 or h=8n, k=8n+4, h+k+l=4n+2 or h=8n+1, "
             "k=8n+3, l=4n or h=8n+1, k=8n+5, l=4n or h=8n+7, "
-            "k=8n+3, l=4n or h=8n+7, k=8n+5, l=4n",
+            "k=8n+3, l=4n or h=8n+7, k=8n+5, l=4n"),
         ),
         "12b": (
             0,
@@ -19605,10 +19605,10 @@ wp = {
                 "(0, 3/4, 5/8)",
                 "(1/2, 1/4, 1/8)",
             ),
-            "hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
+            ("hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
             "l=4n+2 or h=8n, k=8n+4, h+k+l=4n+2 or h=8n+1, "
             "k=8n+3, l=4n or h=8n+1, k=8n+5, l=4n or h=8n+7, "
-            "k=8n+3, l=4n or h=8n+7, k=8n+5, l=4n",
+            "k=8n+3, l=4n or h=8n+7, k=8n+5, l=4n"),
         ),
         "16c": (
             1,
@@ -23035,8 +23035,8 @@ wp = {
                 "(z+1/2, y, x+1/2)",
                 "(z+1/2, y+1/2, x)",
             ),
-            "hkl: h+k=2n, h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, "
-            "hhl: h+l=2n, h00: h=4n",
+            ("hkl: h+k=2n, h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, "
+            "hhl: h+l=2n, h00: h=4n"),
         ),
     },
     "227:2": {
@@ -24230,8 +24230,8 @@ wp = {
                 "(z, y+1/2, x)",
                 "(z, y, x+1/2)",
             ),
-            "hkl: h+k=2n, h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, "
-            "hhl: h,l=2n, h00: h=4n",
+            ("hkl: h+k=2n, h+l,k+l=2n, 0kl: k+l=4n, k,l=2n, "
+            "hhl: h,l=2n, h00: h=4n"),
         ),
     },
     "228:2": {
@@ -25344,8 +25344,8 @@ wp = {
                 "(0, 1/4, 5/8)",
                 "(1/2, 3/4, 1/8)",
             ),
-            "hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
-            "l=4n+2 or h=8n, k=8n+4, h+k+l=4n+2",
+            ("hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
+            "l=4n+2 or h=8n, k=8n+4, h+k+l=4n+2"),
         ),
         "24d": (
             0,
@@ -25375,8 +25375,8 @@ wp = {
                 "(1/2, 1/4, 1/8)",
                 "(0, 3/4, 5/8)",
             ),
-            "hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
-            "l=4n+2 or h=8n, k=8n+4, h+k+l=4n+2",
+            ("hkl: h,k=2n, h+k+l=4n or h,k=2n+1, "
+            "l=4n+2 or h=8n, k=8n+4, h+k+l=4n+2"),
         ),
         "32e": (
             1,

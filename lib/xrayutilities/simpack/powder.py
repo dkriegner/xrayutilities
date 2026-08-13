@@ -98,6 +98,7 @@ import time
 import warnings
 from math import cos, pi, sin, sqrt, tan
 from multiprocessing.managers import BaseManager
+from typing import ClassVar
 
 import numpy
 from numpy import abs as nabs
@@ -247,7 +248,7 @@ class FP_profile:
             the the final result.
         """
         if anglemode not in ("d", "twotheta"):
-            raise Exception(
+            raise ValueError(
                 f"invalid angle mode {anglemode}, must be 'd' or 'twotheta'"
             )
         # set to either 'd' for d-spacing based position, or 'twotheta' for
@@ -568,18 +569,18 @@ class FP_profile:
     # A dictionary of default parameters for the global namespace,
     # used to seed a GUI which can harvest this for names, descriptions, and
     # initial values
-    info_global = dict(
-        group_name="Global parameters",
-        help="this should be help information",
-        param_info=dict(
-            twotheta0_deg=("Bragg center of peak (degrees)", 30.0),
-            d=("d spacing (m)", 4.00e-10),
-            dominant_wavelength=(
+    info_global: ClassVar = {
+        "group_name": "Global parameters",
+        "help": "this should be help information",
+        "param_info": {
+            "twotheta0_deg": ("Bragg center of peak (degrees)", 30.0),
+            "d": ("d spacing (m)", 4.00e-10),
+            "dominant_wavelength": (
                 "wavelength of most intense line (m)",
                 1.5e-10,
             ),
-        ),
-    )
+        },
+    }
 
     def __str__(self):
         """
@@ -621,9 +622,8 @@ class FP_profile:
         # in case it's not initialized
         self.param_dicts["conv_global"].setdefault("d", 0)
         return (
-            "global: peak center=%(twotheta0_deg).4f, d=%(d).8g, eq. "
-            "div=%(equatorial_divergence_deg).3f"
-            % self.param_dicts["conv_global"]
+            "global: peak center={twotheta0_deg:.4f}, d={d:.8g}, eq. "
+            "div={equatorial_divergence_deg:.3f}".format(**self.param_dicts["conv_global"])
         )
 
     def conv_global(self):
@@ -637,7 +637,7 @@ class FP_profile:
         *None*
             always returns None
         """
-        return None
+        return
 
     def axial_helper(
         self,
@@ -1157,8 +1157,7 @@ class FP_profile:
         kwargs = {}
         kwargs.update(self.param_dicts[me])  # get all of our parameters
         kwargs.update(self.param_dicts["conv_global"])
-        if "equatorial_divergence_deg" in kwargs:
-            del kwargs["equatorial_divergence_deg"]  # not used
+        kwargs.pop("equatorial_divergence_deg", None)  # not used
 
         flag, axfn = self.get_conv(me, kwargs, complex)
         if flag:
@@ -1280,24 +1279,24 @@ class FP_profile:
     # A dictionary of default parameters for conv_emissions,
     # used to seed a GUI which can harvest this for names, descriptions, and
     # initial values
-    info_emission = dict(
-        group_name="Incident beam and crystal size",
-        help="this should be help information",
-        param_info=dict(
-            emiss_wavelengths=("wavelengths (m)", (1.58e-10,)),
-            emiss_intensities=("relative intensities", (1.00,)),
-            emiss_lor_widths=("Lorenztian emission fwhm (m)", (1e-13,)),
-            emiss_gauss_widths=("Gaussian emissions fwhm (m)", (1e-13,)),
-            crystallite_size_gauss=(
+    info_emission: ClassVar = {
+        "group_name": "Incident beam and crystal size",
+        "help": "this should be help information",
+        "param_info": {
+            "emiss_wavelengths": ("wavelengths (m)", (1.58e-10,)),
+            "emiss_intensities": ("relative intensities", (1.00,)),
+            "emiss_lor_widths": ("Lorenztian emission fwhm (m)", (1e-13,)),
+            "emiss_gauss_widths": ("Gaussian emissions fwhm (m)", (1e-13,)),
+            "crystallite_size_gauss": (
                 "Gaussian crystallite size fwhm (m)",
                 1e-6,
             ),
-            crystallite_size_lor=(
+            "crystallite_size_lor": (
                 "Lorentzian crystallite size fwhm (m)",
                 1e-6,
             ),
-        ),
-    )
+        },
+    }
 
     def str_emission(self):
         """
@@ -1832,7 +1831,7 @@ class FP_profile:
         Instance can no longer be used after doing this, but can be pickled.
         """
         clean = self._clean_on_pickle
-        pd = dict()
+        pd = {}
         pd.update(self.__dict__)
         for thing in pd:
             x = getattr(self, thing)
@@ -1863,7 +1862,7 @@ class FP_profile:
         #  do some cleanup on state before we get pickled
         # (even if main class not cleaned)
         clean = self._clean_on_pickle
-        pd = dict()
+        pd = {}
         pd.update(self.__dict__)
         for thing in pd:
             x = getattr(self, thing)
@@ -2046,7 +2045,7 @@ class PowderDiffraction(PowderExperiment):
                 "xrayutilities.simpack.Powder"
             )
 
-        self.data = dict()
+        self.data = {}
         self._tt_cutoff = kwargs.pop("tt_cutoff", 180)
         self.fpclass = kwargs.pop("fpclass", FP_profile)
         self.settings = self.load_settings_from_config(
@@ -2088,9 +2087,8 @@ class PowderDiffraction(PowderExperiment):
 
         if self.settings["global"]["geometry"] != "symmetric":
             warnings.warn(
-                "PowderDiffraction: geometry '%s' not fully "
-                "supported, proceed with caution!"
-                % self.settings["global"]["geometry"]
+                "PowderDiffraction: geometry '{}' not fully "
+                "supported, proceed with caution!".format(self.settings["global"]["geometry"])
             )
 
     def _init_multiprocessing(self):
@@ -2154,15 +2152,15 @@ class PowderDiffraction(PowderExperiment):
         load parameters from the config and update these settings with the
         options from the settings parameter
         """
-        params = dict()
+        params = {}
         for k in config.POWDER:
-            params[k] = dict()
+            params[k] = {}
             params[k].update(config.POWDER[k])
             if k in settings:
                 params[k].update(settings[k])
         for k in settings:
             if k not in config.POWDER:
-                params[k] = dict()
+                params[k] = {}
                 params[k].update(settings[k])
         return params
 
@@ -2181,7 +2179,7 @@ class PowderDiffraction(PowderExperiment):
         fpclass
             instance of fpclass
         """
-        classparams = dict()
+        classparams = {}
         classparams.update(self.settings["classoptions"])
         classparams.pop("window_width")
         p = fpclass(**classparams)
@@ -2253,12 +2251,14 @@ class PowderDiffraction(PowderExperiment):
         """
         if newsettings is None:
             return
-        if "global" in newsettings:
-            if "dominant_wavelength" in newsettings["global"]:
-                print(
-                    "PowderDiffraction: dominant wavelength is a read only"
-                    "setting \n -> use emission: emiss_wavelength instead"
-                )
+        if (
+            "global" in newsettings
+            and "dominant_wavelength" in newsettings["global"]
+        ):
+            print(
+                "PowderDiffraction: dominant wavelength is a read only"
+                "setting \n -> use emission: emiss_wavelength instead"
+            )
         if "emission" in newsettings:
             nem = newsettings["emission"]
             for k in (
@@ -2267,9 +2267,8 @@ class PowderDiffraction(PowderExperiment):
                 "emiss_gauss_widths",
                 "emiss_lor_widths",
             ):
-                if k in nem:
-                    if isinstance(nem[k], numbers.Number):
-                        nem[k] = (nem[k],)
+                if k in nem and isinstance(nem[k], numbers.Number):
+                    nem[k] = (nem[k],)
         for k in newsettings:
             if k == "classoptions":
                 continue
@@ -2277,7 +2276,7 @@ class PowderDiffraction(PowderExperiment):
                 fp = d["conv"]
                 fp.set_parameters(convolver=k, **newsettings[k])
             if k not in self.settings:
-                self.settings[k] = dict()
+                self.settings[k] = {}
             self.settings[k].update(newsettings[k])
         self.set_wavelength_from_params()
 
@@ -2291,9 +2290,7 @@ class PowderDiffraction(PowderExperiment):
         self.__tt = tt
         if oldtt is None:
             self.set_window()
-        elif len(oldtt) != len(self.__tt):
-            self.set_window(force=True)
-        elif not numpy.all(numpy.equal(oldtt, self.__tt)):
+        elif len(oldtt) != len(self.__tt) or not numpy.all(numpy.equal(oldtt, self.__tt)):
             self.set_window(force=True)
 
     @property
@@ -2318,8 +2315,8 @@ class PowderDiffraction(PowderExperiment):
         tt = self.twotheta
         if not ww or tt is None:  # not all necessary information is set up
             return
-        npoints = dict()
-        nset = dict()
+        npoints = {}
+        nset = {}
         ttmax = tt.max()
         ttmin = tt.min()
         for h, d in self.data.items():
@@ -2330,9 +2327,7 @@ class PowderDiffraction(PowderExperiment):
                 numpy.logical_and(tt > ttpeak - ww / 2, tt < ttpeak + ww / 2)
             )
             try:
-                np = int(
-                    math.ceil(len(idx) / (tt[idx[-1, 0]] - tt[idx[0, 0]]) * ww)
-                )
+                np = math.ceil(len(idx) / (tt[idx[-1, 0]] - tt[idx[0, 0]]) * ww)
             except OverflowError:
                 np = 1
             npoints[h] = np
@@ -2456,7 +2451,7 @@ class PowderDiffraction(PowderExperiment):
             else:
                 raise ValueError(
                     "xu.simpack.PowderDiffraction: invalid "
-                    "geometry mode (%s)" % mode
+                    f"geometry mode ({mode})"
                 )
 
         # assemble return value
@@ -2525,14 +2520,15 @@ class PowderDiffraction(PowderExperiment):
                     # and convolver symmetries
                     added = False
                     for i, m in enumerate(currhkl):
-                        if self.mat.material.lattice.isequivalent(m, r[2]):
-                            if self.fpclass.isequivalent(
-                                m,
-                                r[2],
-                                self.mat.material.lattice.crystal_system,
-                            ):
-                                curref[i] += r[1]
-                                added = True
+                        if self.mat.material.lattice.isequivalent(
+                            m, r[2]
+                        ) and self.fpclass.isequivalent(
+                            m,
+                            r[2],
+                            self.mat.material.lattice.crystal_system,
+                        ):
+                            curref[i] += r[1]
+                            added = True
                     if not added:
                         curref.append(r[1])
                         currhkl.append(r[2])
@@ -2594,7 +2590,7 @@ class PowderDiffraction(PowderExperiment):
         rs *= corrfact
         ids = [tuple(idx) for idx in hkl]
         for i, q, a, r in zip(ids, qpos, ang, rs):
-            active = True if r / rs.max() > config.EPSILON else False
+            active = r / rs.max() > config.EPSILON
             self.data[i] = {"qpos": q, "ang": a, "r": r, "active": active}
 
     def update_powder_lines(self, tt_cutoff):
@@ -2614,7 +2610,7 @@ class PowderDiffraction(PowderExperiment):
         ids = [tuple(idx) for idx in hkl]
         rsmax = rs.max()
         for h, q, a, r in zip(ids, qpos, ang, rs):
-            active = True if r / rsmax > config.EPSILON else False
+            active = r / rsmax > config.EPSILON
             if h in self.data:
                 self.data[h]["qpos"] = q
                 self.data[h]["ang"] = a
@@ -2795,8 +2791,7 @@ class PowderDiffraction(PowderExperiment):
         ostr += "Lattice:\n" + self.mat.material.lattice.__str__()
         rmax = 0
         for d in self.data.values():
-            if d["r"] > rmax:
-                rmax = d["r"]
+            rmax = max(rmax, d["r"])
         ostr += "\nReflections:\n"
         ostr += "------------\n"
         ostr += (

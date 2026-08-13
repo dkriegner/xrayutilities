@@ -22,6 +22,7 @@ module for reading ILL data files (station D23): numor files
 import collections.abc
 import os.path
 import re
+from typing import ClassVar
 
 import numpy
 
@@ -49,7 +50,7 @@ class numorFile:
         a string with the name of the data file
     """
 
-    columns = {
+    columns: ClassVar = {
         0: ("detector", "monitor", "time", "gamma", "omega", "psi"),
         1: ("detector", "monitor", "time", "gamma"),
         2: ("detector", "monitor", "time", "omega"),
@@ -220,7 +221,7 @@ def numor_scan(scannumbers, *args, **kwargs):
     """
 
     if isinstance(scannumbers, (str, int)):
-        scanlist = list([scannumbers])
+        scanlist = [scannumbers]
     elif isinstance(scannumbers, collections.abc.Iterable):
         scanlist = scannumbers
     else:
@@ -248,7 +249,7 @@ def numor_scan(scannumbers, *args, **kwargs):
             try:
                 buf = sdata[motname]
             except ValueError:
-                mv = [v for k, v in scan.init_mopo.items() if motname in k][0]
+                mv = next(v for k, v in scan.init_mopo.items() if motname in k)
                 buf = mv * numpy.ones(scanlength)
             angles[motname] = numpy.concatenate((angles[motname], buf))
 

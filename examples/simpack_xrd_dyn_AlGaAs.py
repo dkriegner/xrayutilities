@@ -41,10 +41,9 @@
 # Ge(220)x2 triple axis detection
 
 
-import xrayutilities as xu
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
+import xrayutilities as xu
 
 # read experimental file
 

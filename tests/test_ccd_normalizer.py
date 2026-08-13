@@ -56,7 +56,7 @@ class TestCCD_Normalizer(unittest.TestCase):
     def test_datavalues(self):
         self.assertAlmostEqual(self.dmax, self.normdata.max(), places=10)
         self.assertAlmostEqual(self.dmin, self.normdata.min(), places=10)
-        testhist, binedges = numpy.histogram(self.normdata, bins=30)
+        testhist, _binedges = numpy.histogram(self.normdata, bins=30)
         self.assertEqual(self.nmax, testhist[-1])
 
 

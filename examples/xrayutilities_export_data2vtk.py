@@ -21,10 +21,9 @@ import os
 
 import numpy
 import vtk
+import xrayutilities as xu
 import xrayutilities_id01_functions as id01
 from vtk.util import numpy_support
-
-import xrayutilities as xu
 
 home = "DATADIR"  # data path (root)
 datadir = os.path.join(home, "FOLDERNAME")  # data path for CCD/Maxipix files
@@ -67,7 +66,7 @@ dqy = (qy.max() - qy.min()) / ny
 qz0 = qz.min()
 dqz = (qz.max() - qz.min()) / nz
 
-INT = numpy.transpose(INT).reshape((INT.size))
+INT = numpy.transpose(INT).reshape(INT.size)
 data_array = numpy_support.numpy_to_vtk(INT)
 
 image_data = vtk.vtkImageData()

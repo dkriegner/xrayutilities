@@ -18,15 +18,12 @@
 # ALSO LOOK AT THE FILE xrayutilities_id01_functions.py
 
 import matplotlib.pyplot as plt
-import xrayutilities_id01_functions as id01
-
 import xrayutilities as xu
+import xrayutilities_id01_functions as id01
 
 sample = "SAMPLENAME"  # here used for the specfilename
 SCANNR = 200  # put your scan number here
-try:
-    s
-except NameError:
+if "s" not in globals():
     s = xu.io.SPECFile(sample + ".spec", path=id01.datadir)
 else:
     # in ipython run with: "run -i script" to just update the spec file and

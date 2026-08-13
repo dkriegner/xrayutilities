@@ -174,12 +174,12 @@ class RASScan:
 
         # generate header dictionary
         self.init_mopo = {}
-        for k in keys:
+        for k, value in keys.items():
             try:
-                self.init_mopo[keys[k]] = position[k]
+                self.init_mopo[value] = position[k]
             except KeyError:
                 # in case of missing position entry in the datafile header
-                self.init_mopo[keys[k]] = None
+                self.init_mopo[value] = None
         self.fid.seek(offset)
 
     def _parse_data(self):
@@ -198,7 +198,7 @@ class RASScan:
                 print(f"XU.io.RASScan: offset {offset}; data-length {dlength}")
             self.fid.seek(offset + dlength)
         else:
-            raise IOError("File handle at wrong position to read data!")
+            raise OSError("File handle at wrong position to read data!")
 
 
 def getras_scan(scanname, scannumbers, *args, **kwargs):

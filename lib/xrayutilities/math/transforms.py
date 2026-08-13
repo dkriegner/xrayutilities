@@ -50,9 +50,8 @@ def VecNorm(v):
     float or ndarray
         vector norm, either a single float or shape (n, )
     """
-    if isinstance(v, numpy.ndarray):
-        if len(v.shape) >= 2:
-            return numpy.linalg.norm(v, axis=-1)
+    if isinstance(v, numpy.ndarray) and len(v.shape) >= 2:
+        return numpy.linalg.norm(v, axis=-1)
     if len(v) != 3:
         raise ValueError(
             f"Vector must be of length 3, but has length {len(v)}!"
@@ -96,9 +95,8 @@ def VecDot(v1, v2):
     float or ndarray
         innter product of the vectors, either a single float or (n, )
     """
-    if isinstance(v1, numpy.ndarray):
-        if len(v1.shape) >= 2:
-            return numpy.einsum("...i, ...i", v1, v2)
+    if isinstance(v1, numpy.ndarray) and len(v1.shape) >= 2:
+        return numpy.einsum("...i, ...i", v1, v2)
     if len(v1) != 3 or len(v2) != 3:
         raise ValueError(
             "Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
@@ -125,9 +123,10 @@ def VecCross(v1, v2, out=None):
     ndarray
         cross product either of shape (3, ) or (n, 3)
     """
-    if isinstance(v1, numpy.ndarray):
-        if len(v1.shape) >= 2 or len(v2.shape) >= 2:
-            return numpy.cross(v1, v2)
+    if isinstance(v1, numpy.ndarray) and (
+        len(v1.shape) >= 2 or len(v2.shape) >= 2
+    ):
+        return numpy.cross(v1, v2)
     if len(v1) != 3 or len(v2) != 3:
         raise ValueError(
             "Vectors must be of size 3! (len(v1)=%d len(v2)=%d)"
@@ -346,7 +345,7 @@ class Transform:
             try:
                 self._imatrix = numpy.linalg.inv(self.matrix)
             except numpy.linalg.LinAlgError:
-                raise Exception(
+                raise RuntimeError(
                     "XU.math.Transform: matrix cannot be inverted"
                     " - seems to be singular"
                 )
@@ -444,20 +443,9 @@ class CoordinateTransform(Transform):
         if config.VERBOSITY >= config.INFO_ALL:
             print(
                 "XU.math.CoordinateTransform: new basis set: \n"
-                " x: (%5.2f %5.2f %5.2f) \n"
-                " y: (%5.2f %5.2f %5.2f) \n"
-                " z: (%5.2f %5.2f %5.2f)"
-                % (
-                    e1[0],
-                    e1[1],
-                    e1[2],
-                    e2[0],
-                    e2[1],
-                    e2[2],
-                    e3[0],
-                    e3[1],
-                    e3[2],
-                )
+                f" x: ({e1[0]:5.2f} {e1[1]:5.2f} {e1[2]:5.2f}) \n"
+                f" y: ({e2[0]:5.2f} {e2[1]:5.2f} {e2[2]:5.2f}) \n"
+                f" z: ({e3[0]:5.2f} {e3[1]:5.2f} {e3[2]:5.2f})"
             )
 
         # assemble the transformation matrix

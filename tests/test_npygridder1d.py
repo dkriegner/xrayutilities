@@ -33,7 +33,7 @@ class TestNpyGridder1D(unittest.TestCase):
         cls.gridder(cls.x, cls.data)
 
     def test_npygridder1d_axis(self):
-        hist, bins = numpy.histogram(self.x, bins=self.num)
+        _hist, bins = numpy.histogram(self.x, bins=self.num)
         x = (bins[0:-1] + bins[1:]) / 2.0
         # test length of xaxis
         self.assertEqual(len(self.gridder.xaxis), self.num)

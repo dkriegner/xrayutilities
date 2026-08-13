@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # xrayutilities documentation build configuration file, created by
 # sphinx-quickstart on Sat Mar  2 11:39:01 2013.

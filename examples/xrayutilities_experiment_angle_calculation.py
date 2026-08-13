@@ -16,7 +16,6 @@
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
-
 import xrayutilities as xu
 
 Si = xu.materials.Si  # load material from materials submodule
@@ -27,34 +26,33 @@ exp = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1))
 # calculate angles and print them to the screen
 angs = exp.Q2Ang(Si.Q(1, 1, 1))
 print(
-    "|F000|: %8.3f"
-    % (numpy.abs(Si.StructureFactor(Si.Q(0, 0, 0), exp.energy)))
+    f"|F000|: {numpy.abs(Si.StructureFactor(Si.Q(0, 0, 0), exp.energy)):8.3f}"
 )
 
 print("Si (111)")
-print("phi:%8.4f" % angs[2])
-print("om: %8.4f" % angs[0])
-print("tt: %8.4f" % angs[3])
+print(f"phi:{angs[2]:8.4f}")
+print(f"om: {angs[0]:8.4f}")
+print(f"tt: {angs[3]:8.4f}")
 print(
-    "|F|: %8.3f" % (numpy.abs(Si.StructureFactor(Si.Q(1, 1, 1), exp.energy)))
+    f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(1, 1, 1), exp.energy)):8.3f}"
 )
 
 
 angs = exp.Q2Ang(Si.Q(2, 2, 4))
 print("Si (224)")
-print("phi:%8.4f" % angs[2])
-print("om: %8.4f" % angs[0])
-print("tt: %8.4f" % angs[3])
+print(f"phi:{angs[2]:8.4f}")
+print(f"om: {angs[0]:8.4f}")
+print(f"tt: {angs[3]:8.4f}")
 print(
-    "|F|: %8.3f" % (numpy.abs(Si.StructureFactor(Si.Q(2, 2, 4), exp.energy)))
+    f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(2, 2, 4), exp.energy)):8.3f}"
 )
 
 
 angs = exp.Q2Ang(Si.Q(3, 3, 1))
 print("Si (331)")
-print("phi:%8.4f" % angs[2])
-print("om: %8.4f" % angs[0])
-print("tt: %8.4f" % angs[3])
+print(f"phi:{angs[2]:8.4f}")
+print(f"om: {angs[0]:8.4f}")
+print(f"tt: {angs[3]:8.4f}")
 print(
-    "|F|: %8.3f" % (numpy.abs(Si.StructureFactor(Si.Q(3, 3, 1), exp.energy)))
+    f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(3, 3, 1), exp.energy)):8.3f}"
 )

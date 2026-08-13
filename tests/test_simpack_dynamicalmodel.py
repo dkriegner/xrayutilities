@@ -16,6 +16,7 @@
 # Copyright (C) 2019-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import unittest
+from typing import ClassVar
 
 import numpy
 import xrayutilities as xu
@@ -35,7 +36,7 @@ class Test_DynamicalModel(unittest.TestCase):
     hkl = (0, 0, 4)
 
     # simulation parameters
-    kwargs = dict(I0=1e6, background=0, resolution_width=1e-5)
+    kwargs: ClassVar = {"I0": 1e6, "background": 0, "resolution_width": 1e-5}
 
     @classmethod
     def setUpClass(cls):

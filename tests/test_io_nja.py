@@ -17,6 +17,7 @@
 
 import os.path
 import unittest
+from typing import ClassVar
 
 import numpy
 import xrayutilities as xu
@@ -38,7 +39,7 @@ class TestIO_NJA(unittest.TestCase):
     motmin = -0.05
     motmax = 0.15
     axisT = 1.5
-    dtpos = [5.00000000e-02, 5.64250000e03]
+    dtpos: ClassVar = [5.00000000e-02, 5.64250000e03]
     tpos = 250
 
     @classmethod

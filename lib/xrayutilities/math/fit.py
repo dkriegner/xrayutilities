@@ -22,8 +22,8 @@ import time
 import warnings
 
 import numpy
-import scipy.optimize as optimize
 from odrpack import odr_fit
+from scipy import optimize
 
 from .. import config, utilities
 from ..exception import InputError
@@ -140,14 +140,14 @@ def peak_fit(
     if plot:
         plot, plt = utilities.import_matplotlib_pyplot("XU.math.peak_fit")
 
-    gfunc, gfunc_dx, gfunc_dp = _getfit_func(peaktype, background)
+    gfunc, _gfunc_dx, gfunc_dp = _getfit_func(peaktype, background)
 
     # determine initial parameters
     _check_iparams(iparams, peaktype, background)
     if iparams is None:
         iparams = _guess_iparams(xdata, ydata, peaktype, background)
     if config.VERBOSITY >= config.DEBUG:
-        print(f"XU.math.peak_fit: iparams: {str(tuple(iparams))}")
+        print(f"XU.math.peak_fit: iparams: {tuple(iparams)!s}")
 
     sy = numpy.sqrt(ydata)
     sy[sy == 0] = 1
@@ -181,8 +181,8 @@ def peak_fit(
     elif peaktype == "PseudoVoigtAsym2":
         etaidx = [5, 6]
     for e in etaidx:
-        fparam[e] = 0 if fparam[e] < 0 else fparam[e]
-        fparam[e] = 1 if fparam[e] > 1 else fparam[e]
+        fparam[e] = max(fparam[e], 0)
+        fparam[e] = min(fparam[e], 1)
 
     itlim = False
     if fit.stopreason.rstrip(".") == "Iteration limit reached":
@@ -373,7 +373,7 @@ def _guess_iparams(xdata, ydata, peaktype, background):
         / numpy.abs(numpy.sum(ld))
     )
     sigma2 = fwhm_exp(xdata, ld) / (2 * numpy.sqrt(2 * numpy.log(2)))
-    sigma = sigma1 if sigma1 < sigma2 else sigma2
+    sigma = min(sigma2, sigma1)
 
     # build initial parameters
     iparams = [ipos, sigma, numpy.max(ld), back]

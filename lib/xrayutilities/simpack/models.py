@@ -17,12 +17,11 @@
 
 import abc
 import copy
+import itertools
 import math as pymath
 
 import numpy
-import scipy.constants as constants
-import scipy.integrate as integrate
-import scipy.interpolate as interpolate
+from scipy import constants, integrate, interpolate
 from scipy.special import erf, j0
 
 from .. import config, utilities
@@ -1296,7 +1295,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
                 [
                     [
                         (kz + kz_next) / (2 * kz)
-                        for kz, kz_next in zip(kz_1angle, kz_1angle[1:])
+                        for kz, kz_next in itertools.pairwise(kz_1angle)
                     ]
                     for kz_1angle in kz_angles
                 ]
@@ -1306,7 +1305,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
                 [
                     [
                         (kz - kz_next) / (2 * kz)
-                        for kz, kz_next in zip(kz_1angle, kz_1angle[1:])
+                        for kz, kz_next in itertools.pairwise(kz_1angle)
                     ]
                     for kz_1angle in kz_angles
                 ]
@@ -1392,8 +1391,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
         self._setOpticalConstants()
         lai = alphai - self.offset
         # Get Refraction and Translation Matrices for each angle of incidence
-        if lai[0] < 1.0e-5:
-            lai[0] = 1.0e-5  # cutoff
+        lai[0] = max(lai[0], 1.0e-5)  # cutoff
 
         T_matrices, R_matrices = self._getTransferMatrices(lai)
 
@@ -1408,9 +1406,9 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
 
         # Reflectance and Transmittance
         R = numpy.array(
-            [numpy.abs((M[0, 1] / M[1, 1])) ** 2 for M in M_angles]
+            [numpy.abs(M[0, 1] / M[1, 1]) ** 2 for M in M_angles]
         )
-        T = numpy.array([numpy.abs((1.0 / M[1, 1])) ** 2 for M in M_angles])
+        T = numpy.array([numpy.abs(1.0 / M[1, 1]) ** 2 for M in M_angles])
 
         return R, T
 
@@ -1535,8 +1533,6 @@ class ResonantReflectivityModel(SpecularReflectivityModel):
 
         if self.polarization in ["S", "P"]:
             cd = cd + chihP
-        else:
-            cd = cd
 
         sai = numpy.sin(numpy.radians(lai))
 

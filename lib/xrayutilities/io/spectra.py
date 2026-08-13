@@ -81,16 +81,14 @@ class SPECTRAFileParameters(dict):
 
         # find the length of the longest key
         for k in self:
-            if len(k) > lmax_key:
-                lmax_key = len(k)
+            lmax_key = max(lmax_key, len(k))
 
             i = self[k]
             if not isinstance(i, str):
                 # if the item is not a string it must be converted
                 i = f"{i:f}"
 
-            if len(i) > lmax_item:
-                lmax_item = len(i)
+            lmax_item = max(lmax_item, len(i))
 
         # define the format string for a single key-value pair
         kvfmt = "|%%-%is = %%-%is" % (lmax_key, lmax_item)
@@ -140,12 +138,12 @@ class SPECTRAFileData:
     def __getitem__(self, key):
         try:
             return self.data[key]
-        except IndexError as exc:
+        except IndexError:
             print(
                 "XU.io.specta.SPECTRAFileData: data contains no column "
-                "named: %s!" % key
+                f"named: {key}!"
             )
-            raise exc
+            raise
 
     def __str__(self):
         ostr = ""
@@ -153,8 +151,7 @@ class SPECTRAFileData:
         # determine the maximum lenght of every column string
         lmax = 0
         for c in self.collist:
-            if len(c.__str__()) > lmax:
-                lmax = len(c.__str__())
+            lmax = max(lmax, len(c.__str__()))
 
         lmax += 3
 
@@ -264,8 +261,8 @@ class SPECTRAFile:
                 g = h5.create_group(group + "/" + name)
             except ValueError:
                 print(
-                    "XU.io.spectra.Save2HDF5: cannot create group %s for "
-                    "writing data!" % name
+                    f"XU.io.spectra.Save2HDF5: cannot create group {name} for "
+                    "writing data!"
                 )
                 return True
 
@@ -276,7 +273,7 @@ class SPECTRAFile:
                 except IndexError:
                     print(
                         "XU.io.spectra.Save2HDF5: cannot save file comment "
-                        "%s = %s to group %s!" % (k, self.comments[k], name)
+                        f"{k} = {self.comments[k]} to group {name}!"
                     )
 
             # save scan parameters
@@ -286,7 +283,7 @@ class SPECTRAFile:
                 except IndexError:
                     print(
                         "XU.io.spectra.Save2HDF5: cannot save file parametes"
-                        " %s to group %s!" % (k, name)
+                        f" {k} to group {name}!"
                     )
 
             # ----------finally we need to save the data -------------------
@@ -307,8 +304,8 @@ class SPECTRAFile:
                     c = g.create_dataset(mcaname, data=self.mca, **kwds)
                 except (RuntimeError, ValueError):
                     print(
-                        "XU.io.spectra.Save2HDF5: cannot create carray %s "
-                        "for MCA data!" % mcaname
+                        f"XU.io.spectra.Save2HDF5: cannot create carray {mcaname} "
+                        "for MCA data!"
                     )
                     return True
 
@@ -404,7 +401,7 @@ class SPECTRAFile:
                         if config.VERBOSITY >= config.INFO_ALL:
                             print(
                                 "XU.io.SPECTRAFile.Read: cannot interpret "
-                                "the comment string: %s" % (line)
+                                f"the comment string: {line}"
                             )
                         continue
 
@@ -450,8 +447,7 @@ class SPECTRAFile:
                     value = value.strip()
                     if config.VERBOSITY >= config.DEBUG:
                         print(
-                            "XU.io.SPECTRAFile.Read: parameter: k, v: %s, %s"
-                            % (key, value)
+                            f"XU.io.SPECTRAFile.Read: parameter: k, v: {key}, {value}"
                         )
 
                     try:
@@ -510,8 +506,7 @@ class SPECTRAFile:
 
         if config.VERBOSITY >= config.DEBUG:
             print(
-                "XU.io.SPECTRAFile.Read: data columns: name, type: %s, %s"
-                % (col_names, col_types)
+                f"XU.io.SPECTRAFile.Read: data columns: name, type: {col_names}, {col_types}"
             )
         if rec_list:
             self.data.data = rec.fromrecords(
@@ -566,19 +561,19 @@ def geth5_spectra_map(h5file, scans, *args, **kwargs):
         if "samplename" in kwargs:
             basename = kwargs["samplename"]
         else:
-            nodename = list(h5)[0]
+            nodename = next(iter(h5))
             basenlist = re_underscore.split(nodename)
             basename = "_".join(basenlist[:-1])
             if config.VERBOSITY >= config.DEBUG:
                 print(
-                    "XU.io.spectra.geth5_spectra_map: using '%s' as "
-                    "basename" % (basename)
+                    f"XU.io.spectra.geth5_spectra_map: using '{basename}' as "
+                    "basename"
                 )
 
         if isinstance(scans, (list, tuple)):
             scanlist = scans
         else:
-            scanlist = list([scans])
+            scanlist = [scans]
 
         angles = dict.fromkeys(args)
         for key in angles:

@@ -53,7 +53,7 @@ class TestParallelPerformance(unittest.TestCase):
         for nthreads in n_threads_tested:
             xu.config.NTHREADS = nthreads
             start_time = time.time()
-            qx, qy, qz = self.hxrd.Ang2Q(self.pp_angles, self.tt_angles)
+            _qx, _qy, _qz = self.hxrd.Ang2Q(self.pp_angles, self.tt_angles)
             end_time = time.time()
             times[nthreads] = end_time - start_time
             print(f"Nthreads: {nthreads}, Time: {times[nthreads]:.4f} seconds")

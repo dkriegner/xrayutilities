@@ -63,7 +63,7 @@ class RA_Alignment:
             self.fid = xu_open(self.filename)
         except OSError:
             self.fid = None
-            raise IOError(f"error opening alignment log file {self.filename}")
+            raise OSError(f"error opening alignment log file {self.filename}")
 
         self.peaks = []
         self.alignnames = []
@@ -86,7 +86,7 @@ class RA_Alignment:
         iteration = 0
 
         if self.fid is None:
-            raise Exception(
+            raise RuntimeError(
                 "RA_Alignment: file was not opened by initialization!"
             )
 

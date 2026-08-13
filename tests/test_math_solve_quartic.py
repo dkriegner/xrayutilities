@@ -16,6 +16,7 @@
 # Copyright (C) 2012-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import unittest
+from typing import ClassVar
 
 import numpy
 import xrayutilities as xu
@@ -24,7 +25,7 @@ digits = 10
 
 
 class TestSolveQuartic(unittest.TestCase):
-    z = [
+    z: ClassVar = [
         (-2.1120821587966274 - 2.945550430762482j),
         (-2.1120821587966274 + 2.945550430762482j),
         0.6655848599174902,

@@ -256,8 +256,7 @@ class SPECScan:
 
         if config.VERBOSITY >= config.DEBUG:
             print(
-                "XU.io.SPECScan.SetMCAParams: channel names: %s"
-                % self.mca_channel_names
+                f"XU.io.SPECScan.SetMCAParams: channel names: {self.mca_channel_names}"
             )
             print(
                 "XU.io.SPECScan.SetMCAParams: number of channels: %d"
@@ -304,18 +303,17 @@ class SPECScan:
         if self.scan_status == "NODATA":
             if config.VERBOSITY >= config.INFO_LOW:
                 print(
-                    "XU.io.SPECScan.ReadData: %s has been aborted - "
-                    "no data available!" % self.name
+                    f"XU.io.SPECScan.ReadData: {self.name} has been aborted - "
+                    "no data available!"
                 )
             self.data = None
-            return None
+            return
 
-        if not self.has_mca:
-            if config.VERBOSITY >= config.INFO_ALL:
-                print(
-                    "XU.io.SPECScan.ReadData: scan %d contains no MCA data"
-                    % self.nr
-                )
+        if not self.has_mca and config.VERBOSITY >= config.INFO_ALL:
+            print(
+                "XU.io.SPECScan.ReadData: scan %d contains no MCA data"
+                % self.nr
+            )
 
         with xu_open(self.fname) as self.fid:
             # read header lines
@@ -351,7 +349,7 @@ class SPECScan:
             if config.VERBOSITY >= config.DEBUG:
                 print(
                     "xu.io.SPECScan.ReadData: type descriptor: "
-                    f"{repr(type_desc)}"
+                    f"{type_desc!r}"
                 )
 
             record_list = []  # from this list the record array while be built
@@ -463,8 +461,8 @@ class SPECScan:
                 except ValueError:
                     self.scan_status = "NODATA"
                     print(
-                        "XU.io.SPECScan.ReadData: %s exception while "
-                        "parsing data" % self.name
+                        f"XU.io.SPECScan.ReadData: {self.name} exception while "
+                        "parsing data"
                     )
             else:
                 self.scan_status = "NODATA"
@@ -1123,7 +1121,7 @@ class SPECLog:
         self.full_filename = os.path.join(path, self.filename)
 
         self.prompt = prompt
-        self.prompt_re = re.compile(r"%s>" % self.prompt)
+        self.prompt_re = re.compile(rf"{self.prompt}>")
 
         self.cmdl_list = []
         self.line_counter = 0
@@ -1204,13 +1202,13 @@ def geth5_scan(h5f, scans, *args, **kwargs):
     """
 
     with xu_h5open(h5f) as h5:
-        gname = kwargs.get("samplename", list(h5.keys())[0])
+        gname = kwargs.get("samplename", next(iter(h5.keys())))
         h5g = h5.get(gname)
 
         if numpy.iterable(scans):
             scanlist = scans
         else:
-            scanlist = list([scans])
+            scanlist = [scans]
 
         angles = dict.fromkeys(args)
         for key in angles:
@@ -1310,7 +1308,7 @@ def getspec_scan(specf, scans, *args, **kwargs):
     if numpy.iterable(scans):
         scanlist = scans
     else:
-        scanlist = list([scans])
+        scanlist = [scans]
 
     angles = dict.fromkeys(args)
     for key in angles:
@@ -1340,7 +1338,7 @@ def getspec_scan(specf, scans, *args, **kwargs):
             buf = (
                 numpy.ones(scanshape)
                 * sscan.init_motor_pos[
-                    "INIT_MOPO_%s" % utilities.makeNaturalName(motname)
+                    f"INIT_MOPO_{utilities.makeNaturalName(motname)}"
                 ]
             )
             angles[motname] = numpy.concatenate((angles[motname], buf))

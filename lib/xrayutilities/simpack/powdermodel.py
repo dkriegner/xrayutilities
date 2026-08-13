@@ -121,12 +121,12 @@ class PowderModel:
             lmfit Parameters list of sample and instrument parameters
         """
         pv = lmparams.valuesdict()
-        settings = dict()
-        h = list(self.pdiff[0].data)[0]
+        settings = {}
+        h = next(iter(self.pdiff[0].data))
         fp = self.pdiff[0].data[h]["conv"].convolvers
         for conv in fp:
             name = conv[5:]
-            settings[name] = dict()
+            settings[name] = {}
 
         self.I0 = pv.pop("primary_beam_intensity", 1)
         set_splbkg = False
@@ -146,17 +146,17 @@ class PowderModel:
                 set_splbkg = True
                 spliney[int(p.split("_")[-1])] = pv[p]
             else:  # instrument parameters
-                for k in settings:
+                for k, value in settings.items():
                     if p.startswith(k):
                         slist = p[len(k) + 1 :].split("_")
                         if len(slist) > 2 and slist[-2] == "item":
                             name = "_".join(slist[:-2])
                             if slist[-1] == "0":
-                                settings[k][name] = []
-                            settings[k][name].append(pv[p])
+                                value[name] = []
+                            value[name].append(pv[p])
                         else:
                             name = p[len(k) + 1 :]
-                            settings[k][name] = pv[p]
+                            value[name] = pv[p]
                         break
         if set_splbkg:
             self._bckg_spline = interpolate.InterpolatedUnivariateSpline(
@@ -182,7 +182,7 @@ class PowderModel:
                 attr = getattr(mat, k)
                 if isinstance(attr, numbers.Number):
                     params.add(
-                        "_".join(("phase", name, k)), value=attr, vary=False
+                        f"phase_{name}_{k}", value=attr, vary=False
                     )
 
         # instrument parameters
@@ -194,7 +194,7 @@ class PowderModel:
                     # wavelength must be fit using emission_emiss_wavelength
                     continue
                 if isinstance(val, numbers.Number):
-                    params.add("_".join((pg, p)), value=val, vary=False)
+                    params.add(f"{pg}_{p}", value=val, vary=False)
                 elif isinstance(val, (numpy.ndarray, tuple, list)):
                     for j, item in enumerate(val):
                         params.add(
@@ -393,7 +393,7 @@ class PowderModel:
             fig = ax.figure
             iax = ax
 
-        plotkwargs = dict(label=label)
+        plotkwargs = {"label": label}
         if color is not None:
             plotkwargs["color"] = color
         iax.plot(
@@ -446,8 +446,8 @@ class PowderModel:
                     xy=(0, 0),
                     xytext=(20, 0),
                     textcoords="offset points",
-                    bbox=dict(boxstyle="round,pad=0.1", fc="w", alpha=0.8),
-                    arrowprops=dict(arrowstyle="->"),
+                    bbox={"boxstyle": "round,pad=0.1", "fc": "w", "alpha": 0.8},
+                    arrowprops={"arrowstyle": "->"},
                     fontsize="x-small",
                 )
                 annot.set_visible(False)

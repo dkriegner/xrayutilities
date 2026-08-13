@@ -26,9 +26,8 @@ import shlex
 import numpy
 
 from .. import config
-from . import elements
+from . import elements, wyckpos
 from . import spacegrouplattice as sgl
-from . import wyckpos
 
 re_data = re.compile(r"^data_", re.IGNORECASE)
 re_loop = re.compile(r"^loop_", re.IGNORECASE)
@@ -98,9 +97,9 @@ class CIFFile:
         if os.path.isfile(filestr):
             self.filename = filestr
             try:
-                fid = open(self.filename, "rb")
+                fid = open(self.filename, "rb")  # noqa: SIM115
             except OSError as exc:
-                raise IOError(f"cannot open CIF file {self.filename}") from exc
+                raise OSError(f"cannot open CIF file {self.filename}") from exc
         else:
             if filestr.count("\n") == 0:
                 print(
@@ -225,10 +224,9 @@ class CIFDataset:
             if "+" in el or "-" in el:
                 # add oxidation number if not present
                 for sign in ("+", "-"):
-                    if sign in el:
-                        if not el[el.index(sign) - 1].isdigit():
-                            signidx = el.index(sign)
-                            el = el[:signidx] + "1" + el[signidx:]
+                    if sign in el and not el[el.index(sign) - 1].isdigit():
+                        signidx = el.index(sign)
+                        el = el[:signidx] + "1" + el[signidx:]
                 # replace special characters
                 for r, o in zip(("dot", "p", "m"), (".", "+", "-")):
                     el = el.replace(o, r)
@@ -243,10 +241,10 @@ class CIFDataset:
                     element = elements.Dummy
                 elif f is None:
                     raise ValueError(
-                        "XU.materials: element ('%s') could not"
+                        f"XU.materials: element ('{cifstring}') could not"
                         " be identified as chemical element. Only"
                         " abbreviations of element names are "
-                        "supported." % (cifstring)
+                        "supported."
                     )
                 else:
                     elname = el[: f.start()]
@@ -262,8 +260,8 @@ class CIFDataset:
                         element = getattr(elements, elname)
                     else:
                         raise ValueError(
-                            "XU.materials: element ('%s') could "
-                            "not be found" % (cifstring)
+                            f"XU.materials: element ('{cifstring}') could "
+                            "not be found"
                         )
             return element
 
@@ -422,8 +420,7 @@ class CIFDataset:
                 except IndexError:
                     if config.VERBOSITY >= config.INFO_LOW:
                         print(
-                            'XU.materials: could not parse atom line: "%s"'
-                            % line.strip()
+                            f'XU.materials: could not parse atom line: "{line.strip()}"'
                         )
         if self.atoms:
             self.has_atoms = True
@@ -613,17 +610,17 @@ class CIFDataset:
         ostr = ""
         ostr += "unit cell structure:"
         if hasattr(self, "sgrp"):
-            ostr += " %s %s %s\n" % (
+            ostr += " {} {} {}\n".format(
                 self.sgrp,
                 self.crystal_system,
                 getattr(self, "sgrp_name", ""),
             )
         else:
             ostr += "\n"
-        ostr += "a: %8.4f b: %8.4f c: %8.4f\n" % tuple(self.lattice_const)
-        ostr += "alpha: %6.2f beta: %6.2f gamma: %6.2f\n" % tuple(
+        ostr += "a: {:8.4f} b: {:8.4f} c: {:8.4f}\n".format(*tuple(self.lattice_const))
+        ostr += "alpha: {:6.2f} beta: {:6.2f} gamma: {:6.2f}\n".format(*tuple(
             self.lattice_angles
-        )
+        ))
         if self.unique_positions:
             ostr += "Unique atom positions in unit cell\n"
         for atom in self.unique_positions:

@@ -22,9 +22,8 @@ example script for determining ESRF/ID01 detector parameters using a specfile
 from the second half of 2017
 """
 
-import xrayutilities_id01_functions as id01
-
 import xrayutilities as xu
+import xrayutilities_id01_functions as id01
 
 s = xu.io.SPECFile("<your_spec_file>")  # insert specfile name here
 specscan = s.scan3

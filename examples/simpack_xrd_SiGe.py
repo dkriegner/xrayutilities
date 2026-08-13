@@ -15,7 +15,7 @@
 #
 # Copyright (c) 2016-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
 
-from numpy import inf, linspace, mean, pi, sqrt
+import xrayutilities as xu
 from matplotlib.pylab import (
     clf,
     figure,
@@ -29,8 +29,7 @@ from matplotlib.pylab import (
     xlim,
     ylabel,
 )
-
-import xrayutilities as xu
+from numpy import inf, linspace, mean, pi, sqrt
 
 mpl.rcParams["font.size"] = 16.0
 

@@ -18,6 +18,7 @@
 import os
 import unittest
 from multiprocessing import freeze_support
+from typing import ClassVar
 
 import numpy
 import xrayutilities as xu
@@ -61,7 +62,7 @@ class Test_PowderModel(unittest.TestCase):
         strain_lor=0,
     )
     # machine settings
-    settings = {
+    settings: ClassVar = {
         "classoptions": {"oversampling": 10},
         "global": {
             "diffractometer_radius": 0.337,
@@ -174,7 +175,7 @@ class Test_PowderModel(unittest.TestCase):
             p, self.tt[self.mask], self.det[self.mask], std=self.sig[self.mask]
         )
         fitsim = self.pm.simulate(self.tt[self.mask])
-        M, Rp, Rwp, Rwpexp, chi2 = xu.simpack.Rietveld_error_metrics(
+        _M, _Rp, _Rwp, _Rwpexp, chi2 = xu.simpack.Rietveld_error_metrics(
             self.det[self.mask],
             fitsim,
             std=self.sig[self.mask],

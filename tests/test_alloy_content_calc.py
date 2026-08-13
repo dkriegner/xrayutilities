@@ -32,13 +32,13 @@ class TestAlloyContentCalc(unittest.TestCase):
     [qxs, qzs] = alloy.RelaxationTriangle([0, 0, 4], substrate, hxrd001)
 
     def test_ContentAsym(self):
-        content, [ainp, aperp, abulk, eps_inp, eps_perp] = (
+        content, [_ainp, _aperp, _abulk, _eps_inp, _eps_perp] = (
             self.alloy.ContentBasym(
                 self.qxa[0], self.qza[0], [2, 2, 4], [0, 0, 1]
             )
         )
         self.assertAlmostEqual(content, self.x, places=6)
-        content, [ainp, aperp, abulk, eps_inp, eps_perp] = (
+        content, [_ainp, _aperp, _abulk, _eps_inp, _eps_perp] = (
             self.alloy.ContentBasym(
                 self.qxa[1], self.qza[1], [2, 2, 4], [0, 0, 1]
             )

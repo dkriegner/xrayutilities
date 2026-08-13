@@ -44,5 +44,5 @@ from .material import (  # noqa: F401
     WZTensorFromCub,
 )
 from .plot import show_reciprocal_space_plane  # noqa: F401
-from .predefined_materials import *  # noqa: F403
+from .predefined_materials import *
 from .spacegrouplattice import SGLattice, SymOp  # noqa: F401

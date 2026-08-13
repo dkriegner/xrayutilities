@@ -16,7 +16,6 @@
 # Copyright (C) 2012 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import numpy
-
 import xrayutilities as xu
 
 # config for kappa geometry
@@ -34,20 +33,17 @@ print(qconv)
 print("angles: 0, 0, 0, 90")
 (qx, qy, qz) = qconv(0, 0, 0, 90)
 print(
-    "Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
-    % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz)))
+    f"Q= {qx:6.3f} {qy:6.3f} {qz:6.3f} (Abs: {numpy.linalg.norm((qx, qy, qz)):6.3f})"
 )
 
 print("angles: 90, 0, 0, 90")
 (qx, qy, qz) = qconv(90, 0, 0, 90)
 print(
-    "Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
-    % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz)))
+    f"Q= {qx:6.3f} {qy:6.3f} {qz:6.3f} (Abs: {numpy.linalg.norm((qx, qy, qz)):6.3f})"
 )
 
 print("angles: 0, 90, 0, 90")
 (qx, qy, qz) = qconv(0, 90, 0, 90)
 print(
-    "Q= %6.3f %6.3f %6.3f (Abs: %6.3f)"
-    % (qx, qy, qz, numpy.linalg.norm((qx, qy, qz)))
+    f"Q= {qx:6.3f} {qy:6.3f} {qz:6.3f} (Abs: {numpy.linalg.norm((qx, qy, qz)):6.3f})"
 )

@@ -28,7 +28,6 @@ import gzip
 import io
 import lzma
 import string
-
 from operator import itemgetter
 
 import h5py
@@ -123,13 +122,13 @@ def xu_open(filename, mode="rb"):
     if isinstance(filename, bytes):
         fid = io.BytesIO(filename)
     elif filename.endswith(".gz"):
-        fid = gzip.open(filename, mode)
+        fid = gzip.open(filename, mode)  # noqa: SIM115
     elif filename.endswith(".bz2"):
         fid = bz2.BZ2File(filename, mode)
     elif filename.endswith(".xz"):
-        fid = lzma.open(filename, mode)
+        fid = lzma.open(filename, mode)  # noqa: SIM115
     else:
-        fid = open(filename, mode)
+        fid = open(filename, mode)  # noqa: SIM115
 
     return fid
 

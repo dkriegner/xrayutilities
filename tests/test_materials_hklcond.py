@@ -32,7 +32,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
         cls.p = xu.PowderExperiment(en=10000)
         cls.ksinmax = cls.p.k0 * math.sin(math.radians(179.9) / 2)
         cls.materials = []
-        for name, obj in xu.materials.predefined_materials.__dict__.items():
+        for obj in xu.materials.predefined_materials.__dict__.values():
             if isinstance(obj, xu.materials.Crystal):
                 cls.materials.append(obj)
 
@@ -53,11 +53,11 @@ class Test_Materials_reflection_condition(unittest.TestCase):
          default: False
         """
         # calculate maximal Bragg indices
-        hma = int(math.ceil(m.a / math.pi * self.ksinmax))
+        hma = math.ceil(m.a / math.pi * self.ksinmax)
         hmi = -hma
-        kma = int(math.ceil(m.b / math.pi * self.ksinmax))
+        kma = math.ceil(m.b / math.pi * self.ksinmax)
         kmi = -kma
-        lma = int(math.ceil(m.c / math.pi * self.ksinmax))
+        lma = math.ceil(m.c / math.pi * self.ksinmax)
         lmi = -lma
 
         # calculate structure factors
@@ -86,7 +86,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
             for h, sf in zip(
                 hkl[mask][numpy.logical_not(allowed)][mviolate], s[mviolate]
             ):
-                errorinfo += "%s\t%s\n" % (h, sf)
+                errorinfo += f"{h}\t{sf}\n"
         self.assertTrue(numpy.allclose(s, 0), msg=errorinfo)
         # check if atoms are too near (reduce chance of accidental extinction)
         if test_allowed:
@@ -103,7 +103,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
             mviolate = numpy.isclose(s, 0)
             if numpy.any(mviolate):
                 for h, sf in zip(hkl[mask][allowed][mviolate], s[mviolate]):
-                    errorinfo += "%s\t%s\n" % (h, sf)
+                    errorinfo += f"{h}\t{sf}\n"
             self.assertTrue(
                 numpy.all(numpy.logical_not(numpy.isclose(s, 0))),
                 msg=errorinfo,
@@ -121,14 +121,14 @@ class Test_Materials_reflection_condition(unittest.TestCase):
         pdict = {"a": a, "b": b, "c": c, "alpha": al, "beta": be, "gamma": gam}
         wp = xu.materials.spacegrouplattice.wp
 
-        for sg in wp.keys():
+        for sg in wp:
             # determine parameters for this space group
             sgnr = int(sg.split(":")[0])
-            csys, nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
+            csys, _nargs = xu.materials.spacegrouplattice.sgrp_sym[sgnr]
             params = xu.materials.spacegrouplattice.sgrp_params[csys][0]
             p = [eval(par, pdict) for par in params]
             # test all Wyckoff positions
-            for wplabel in wp[sg].keys():
+            for wplabel in wp[sg]:
                 wpentry = wp[sg][wplabel]
                 wppar = []
                 if wpentry[0] & 1:
@@ -147,7 +147,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                 }
                 # generate test lattice
                 lat = xu.materials.SGLattice(sg, *p, **kwdict)
-                self._test_material(xu.materials.Crystal("SG%s" % sg, lat))
+                self._test_material(xu.materials.Crystal(f"SG{sg}", lat))
 
     def test_get_allowed_hkl(self):
         """
@@ -161,11 +161,11 @@ class Test_Materials_reflection_condition(unittest.TestCase):
             if "n/a" in m.lattice.reflection_conditions():
                 continue
             hkls = m.lattice.get_allowed_hkl(qmax)
-            hma = int(math.ceil(m.a / math.pi * self.ksinmax))
+            hma = math.ceil(m.a / math.pi * self.ksinmax)
             hmi = -hma
-            kma = int(math.ceil(m.b / math.pi * self.ksinmax))
+            kma = math.ceil(m.b / math.pi * self.ksinmax)
             kmi = -kma
-            lma = int(math.ceil(m.c / math.pi * self.ksinmax))
+            lma = math.ceil(m.c / math.pi * self.ksinmax)
             lmi = -lma
             errorinfo = str(m)
             errorinfo += "HKL min/max: %d %d %d / %d %d %d" % (
@@ -176,7 +176,7 @@ class Test_Materials_reflection_condition(unittest.TestCase):
                 kma,
                 lma,
             )
-            for h, k, l in zip(  # noqa: E741
+            for h, k, l in zip(
                 numpy.random.randint(hmi, hma, N),
                 numpy.random.randint(kmi, kma, N),
                 numpy.random.randint(lmi, lma, N),

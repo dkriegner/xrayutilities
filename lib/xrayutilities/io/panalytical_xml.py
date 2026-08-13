@@ -24,7 +24,7 @@ want to keep the number of dependancies as small as possible
 
 import os.path
 import warnings
-from xml.etree import cElementTree as ElementTree
+from xml.etree import ElementTree
 
 import numpy
 
@@ -189,9 +189,9 @@ class XRDMLMeasurement:
     def __str__(self):
         ostr = "XRDML Measurement\n"
         if self.material:
-            ostr += f"Material: '{self.material}'; hkl: {str(self.hkl)}\n"
+            ostr += f"Material: '{self.material}'; hkl: {self.hkl!s}\n"
         for k, v in self.ddict.items():
-            ostr += f"{k} with {str(v.shape)} points\n"
+            ostr += f"{k} with {v.shape!s} points\n"
 
         return ostr
 

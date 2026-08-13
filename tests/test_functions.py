@@ -157,11 +157,11 @@ class TestMathFunctions(unittest.TestCase):
                 errinfo = (
                     f"maximum difference, idx/npoints: "
                     f"{numpy.max(diff)}, {numpy.argmax(diff)}/{len(diff)}\n"
-                    f"parameters: {str(p)}"
+                    f"parameters: {p!s}"
                 )
                 self.assertTrue(
                     numpy.allclose(deriv[argidx], findiff, atol=1e3 * eps),
-                    f"{str(f)}, {argidx}, derivatives not close "
+                    f"{f!s}, {argidx}, derivatives not close "
                     f"to numerical approximation ({errinfo})",
                 )
 

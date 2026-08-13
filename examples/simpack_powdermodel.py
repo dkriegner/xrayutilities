@@ -20,9 +20,8 @@ import os
 
 import lmfit
 import numpy
-from matplotlib.pylab import mpl
-
 import xrayutilities as xu
+from matplotlib.pylab import mpl
 
 
 def main():

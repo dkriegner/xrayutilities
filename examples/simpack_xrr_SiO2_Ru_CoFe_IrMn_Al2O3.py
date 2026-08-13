@@ -18,10 +18,9 @@
 import os
 
 import lmfit
-import matplotlib.pylab as pylab
 import numpy
-
 import xrayutilities as xu
+from matplotlib import pylab
 
 # load experimental data
 ai, edata, eps = numpy.loadtxt(

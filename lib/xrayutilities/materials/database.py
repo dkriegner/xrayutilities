@@ -773,7 +773,7 @@ def add_color_from_JMOL(db, cfile, verbose=False):
     Read color from JMOL color table and save it to the database.
     """
     with open(cfile, "r") as f:
-        for line in f.readlines():
+        for line in f:
             s = line.split()
             ename = s[1]
             color = [float(num) / 255.0 for num in s[2].strip("[]").split(",")]
@@ -789,7 +789,7 @@ def add_radius_from_WIKI(db, dfile, verbose=False):
     Read radius from Wikipedia radius table and save it to the database.
     """
     with open(dfile, "r") as f:
-        for line in f.readlines():
+        for line in f:
             s = line.split(",")
             ename = s[1]
             radius = float(s[3]) / 100.0
