@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2016-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 IsaacHome <isaacyong@naver.com>
 
 import abc
 import copy
