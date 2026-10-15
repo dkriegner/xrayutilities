@@ -443,8 +443,8 @@ class KinematicalMultiBeamModel(KinematicalModel):
     the truncation rod and considers the variation of the structure factor.
     In order to use a analytical description for the kinematic diffraction
     signal all layer thicknesses are changed to a multiple of the respective
-    lattice parameter along qz. Therefore this description only works for (001)
-    surfaces.
+    lattice parameter along qz (see `integer_thickness`). Therefore this
+    description only works for (001) surfaces.
     """
 
     def __init__(self, *args, **kwargs):
@@ -463,8 +463,14 @@ class KinematicalMultiBeamModel(KinematicalModel):
             Experiment class containing geometry and energy of the experiment.
         surface_hkl : list or tuple
             Miller indices of the surface (default: (0, 0, 1))
+        integer_thickness : bool, optional
+            if True (default) layer thicknesses are rounded down to an integer
+            number of unit cells, for which the model is exact. If False the
+            thicknesses are used as given, which can help fitting since the
+            simulation then changes smoothly with the thickness.
         """
         self.surface_hkl = kwargs.pop("surface_hkl", (0, 0, 1))
+        self.integer_thickness = kwargs.pop("integer_thickness", True)
         super().__init__(*args, **kwargs)
 
     def simulate(
@@ -509,10 +515,11 @@ class KinematicalMultiBeamModel(KinematicalModel):
         for i, layer in enumerate(self.lstack[-1:0:-1]):
             lat = layer.material.lattice
             a3 = t(lat.GetPoint(*self.surface_hkl))[-1]
-            n3 = layer.thickness // a3
+            n3 = self._num_unit_cells(layer.thickness, a3)
             z[-i - 2] = z[-i - 1] - a3 * n3
             if (
-                config.VERBOSITY >= config.INFO_LOW
+                self.integer_thickness
+                and config.VERBOSITY >= config.INFO_LOW
                 and numpy.abs(layer.thickness / a3 - n3) > 0.01
             ):
                 print(
@@ -535,7 +542,7 @@ class KinematicalMultiBeamModel(KinematicalModel):
                     / (1 - numpy.exp(1j * q * a3))
                 )
             else:
-                n3 = layer.thickness // a3
+                n3 = self._num_unit_cells(layer.thickness, a3)
                 E += (
                     f[i, :]
                     * a3
@@ -554,6 +561,12 @@ class KinematicalMultiBeamModel(KinematicalModel):
             * E
         )
         return self._create_return(qz, wf, ai, af, rettype=rettype)
+
+    def _num_unit_cells(self, thickness, a3):
+        """number of unit cells of height a3 in a layer of given thickness"""
+        if self.integer_thickness:
+            return thickness // a3
+        return thickness / a3
 
 
 class SimpleDynamicalCoplanarModel(KinematicalModel):
