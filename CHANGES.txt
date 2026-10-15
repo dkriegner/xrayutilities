@@ -1,3 +1,4 @@
+* KinematicalMultiBeamModel: add integer_thickness option to allow non-integer thicknesses
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
 
 v1.8.0, 2026-07-21
