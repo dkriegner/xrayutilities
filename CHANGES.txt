@@ -1,4 +1,5 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
+* align smoothed monitor values with their scan points in intensity normalization
 
 v1.8.0, 2026-07-21
 

@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 Davis Rens
 
 """
 module with several common function needed in xray data analysis
@@ -43,6 +44,11 @@ def smooth(x, n):
     -------
     xsmooth: array-like
         smoothed array with same length as x
+
+    Notes
+    -----
+    Odd-length windows are centered on each input sample. Even-length windows
+    are centered half a sample before it, as in ``numpy.convolve(..., "same")``.
     """
     if x.ndim != 1:
         raise ValueError("smooth only accepts 1 dimension arrays.")
@@ -54,7 +60,7 @@ def smooth(x, n):
     s = numpy.r_[x[n - 1 : 0 : -1], x, x[-1 : -n - 1 : -1]]
     w = numpy.ones(n, "d")
     y = numpy.convolve(w / w.sum(), s, mode="same")
-    return y[n : -n + 1]
+    return y[n - 1 : -n]
 
 
 def kill_spike(data, threshold=2.0, offset=None):
