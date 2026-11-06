@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2016-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 Davis Rens
 
 import math
 
@@ -79,7 +80,9 @@ def fwhm_exp(pos, data):
     Returns
     -------
     float
-        fwhm value
+        fwhm value in the units of pos. If only one half-maximum crossing
+        is available, twice its distance from the peak position is returned,
+        assuming a symmetric peak.
     """
 
     m = data.max()
@@ -118,9 +121,9 @@ def fwhm_exp(pos, data):
         pr = None
 
     if pl is None:
-        return numpy.abs(pr - p0) * 2
+        return numpy.abs(pr - pos[p0]) * 2
     if pr is None:
-        return numpy.abs(pl - p0) * 2
+        return numpy.abs(pl - pos[p0]) * 2
     return numpy.abs(pr - pl)
 
 
