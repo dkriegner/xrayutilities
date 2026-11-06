@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 Davis Rens <166565828+davrens101@users.noreply.github.com>
 
 import copy
 import unittest
@@ -117,6 +118,41 @@ class TestMathFunctions(unittest.TestCase):
         digits = int(numpy.abs(numpy.log10(err))) - 3
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
+
+    def test_twogauss2d_shared_background(self):
+        x, y = numpy.meshgrid(
+            numpy.linspace(-4, 4, 13), numpy.linspace(-4, 4, 11)
+        )
+        p = [
+            1,
+            -0.5,
+            0.6,
+            1.2,
+            7,
+            0.35,
+            -1,
+            1,
+            0.9,
+            0.4,
+            4,
+            -0.6,
+            3.5,
+        ]
+        expected = numpy.full_like(x, p[12])
+        for start in (0, 6):
+            cx, cy, sx, sy, amp, angle = p[start : start + 6]
+            c, s = numpy.cos(angle), numpy.sin(angle)
+            rotation = numpy.array([[c, -s], [s, c]])
+            precision = rotation.T @ numpy.diag([sx**-2, sy**-2]) @ rotation
+            delta = numpy.stack((x - cx, y - cy), axis=-1)
+            exponent = numpy.einsum(
+                "...i,ij,...j->...", delta, precision, delta
+            )
+            expected += amp * numpy.exp(-0.5 * exponent)
+        numpy.testing.assert_allclose(
+            xu.math.TwoGauss2d(x, y, *p), expected, rtol=1e-13, atol=1e-13
+        )
+        self.assertEqual(xu.math.TwoGauss2d(100.0, 100.0, *p), p[12])
 
     def test_derivatives(self):
         eps = 1e-9
