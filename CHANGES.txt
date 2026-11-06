@@ -1,4 +1,5 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
+* fix Gaussian and pseudo-Voigt parameter derivatives at zero peak amplitude
 
 v1.8.0, 2026-07-21
 
