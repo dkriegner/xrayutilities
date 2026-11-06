@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 Davis Rens <166565828+davrens101@users.noreply.github.com>
 
 """
 module with several common function needed in xray data analysis
@@ -279,7 +280,9 @@ def TwoGauss2d(x, y, *p):
         [XCEN1, YCEN1, SIGMAX1, SIGMAY1, AMP1, ANGLE1, XCEN2, YCEN2, SIGMAX2,
         SIGMAY2, AMP2, ANGLE2, BACKGROUND];
         SIGMA = FWHM / (2*sqrt(2*log(2)))
-        ANGLE = rotation of the X, Y direction of the Gaussian in radians
+        ANGLE = rotation of the X, Y direction of the Gaussian in radians;
+        BACKGROUND is the common background of both Gaussians and is added
+        to the sum only once
 
     Returns
     -------
@@ -301,7 +304,7 @@ def TwoGauss2d(x, y, *p):
     p2 = (
         p[6:11]
         + [
-            p[12],
+            0.0,
         ]
         + [
             p[11],

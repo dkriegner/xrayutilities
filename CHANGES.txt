@@ -1,4 +1,5 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
+* fix TwoGauss2d to add its shared background once instead of twice
 
 v1.8.0, 2026-07-21
 
