@@ -14,11 +14,14 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 Davis Rens
 
 import math
 import os
 import tempfile
 import unittest
+
+import numpy
 
 import xrayutilities as xu
 
@@ -82,6 +85,43 @@ class TestDatabase(unittest.TestCase):
     def test_owndb_f2(self):
         f2 = self.db.GetF2(1000)
         self.assertAlmostEqual(f2, 0.0, places=10)
+
+    def test_atomic_array_shape_cache(self):
+        for method in ("f0", "f", "f1", "f2"):
+            values = numpy.linspace(
+                0 if method in ("f0", "f") else 7000,
+                3 if method in ("f0", "f") else 10000,
+                6,
+            )
+            grid = values.reshape(2, 3)
+            for first, second in ((values, grid), (grid, values)):
+                with self.subTest(method=method, shape=second.shape):
+                    atom = xu.materials.Atom("Si", 14)
+                    scatter = getattr(atom, method)
+                    expected = numpy.array(
+                        [scatter(float(value)) for value in values]
+                    ).reshape(second.shape)
+                    scatter(first)
+                    actual = scatter(second)
+                    self.assertEqual(actual.shape, second.shape)
+                    numpy.testing.assert_allclose(
+                        actual, expected, rtol=1e-6, atol=1e-9
+                    )
+
+    def test_atomic_noncontiguous_arrays(self):
+        for method, start, stop in (("f0", 0, 3), ("f1", 7000, 10000)):
+            values = numpy.linspace(start, stop, 6)
+            grid = values.reshape(2, 3)
+            for view in (values[::2], grid.T, numpy.asfortranarray(grid)):
+                with self.subTest(method=method, shape=view.shape):
+                    atom = xu.materials.Atom("Si", 14)
+                    scatter = getattr(atom, method)
+                    expected = numpy.array(
+                        [scatter(float(value)) for value in view.flat]
+                    ).reshape(view.shape)
+                    numpy.testing.assert_allclose(
+                        scatter(view), expected, rtol=1e-6, atol=1e-9
+                    )
 
 
 if __name__ == "__main__":
