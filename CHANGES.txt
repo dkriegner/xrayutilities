@@ -1,4 +1,5 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
+* preserve distinct ionic scattering factors in mixed-valence crystals
 
 v1.8.0, 2026-07-21
 

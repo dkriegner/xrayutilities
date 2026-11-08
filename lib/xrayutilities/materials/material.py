@@ -17,6 +17,7 @@
 # Copyright (c) 2009-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2012 Tanja Etzelstorfer <tanja.etzelstorfer@jku.at>
 # Copyright (C) 2022 Vinícius Frehse <vinifrehse@gmail.com>
+# Copyright (C) 2026 Davis Rens
 
 """
 Classes decribing materials. Materials are devided with respect to their
@@ -961,6 +962,8 @@ class Crystal(Material):
         """
         optimized method to calculate the atomic scattering factor for all
         atoms in the unit cell by calling the database only as much as needed.
+        Different Atom instances, including different oxidation states of the
+        same element, retain their own scattering factors.
 
         Parameters
         ----------
@@ -978,9 +981,9 @@ class Crystal(Material):
         f = {}
         if self.lattice.nsites > 0:
             for at, _, _, _ in self.lattice.base():
-                if at.num not in f:
-                    f[at.num] = at.f(q, en)
-            return [f[a.num] for a, _, _, _ in self.lattice.base()]
+                if at not in f:
+                    f[at] = at.f(q, en)
+            return [f[a] for a, _, _, _ in self.lattice.base()]
         return None
 
     def _get_lamen(self, en):
