@@ -1,4 +1,5 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
+* preserve array shapes and support noncontiguous atomic scattering inputs
 
 v1.8.0, 2026-07-21
 
