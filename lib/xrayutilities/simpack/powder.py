@@ -16,6 +16,7 @@
 #
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
 # Copyright (c) 2017-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 CAOShurong
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
 
@@ -2364,9 +2365,13 @@ class PowderDiffraction(PowderExperiment):
             except TypeError:
                 break
             handler = self.conv_handlers[idx]
-            handler.update_parameters(settings)
-            results = handler.calc(run, ttpeaks)
-            qoutput.put((idx, results))  # put results on output queue
+            try:
+                handler.update_parameters(settings)
+                results = handler.calc(run, ttpeaks)
+            except Exception as error:  # noqa: BLE001 - propagate to the caller
+                qoutput.put((idx, None, error))
+            else:
+                qoutput.put((idx, results, None))
         self._running = False
 
     def reflection_strength(self, tt_cutoff):
@@ -2720,9 +2725,15 @@ class PowderDiffraction(PowderExperiment):
                     # start calculation in other processes
                     self.threads[idx][1].put((self.settings, run, ttpeaks))
                 gotit = set(range(self.nproc))
+                error = None
                 while gotit:
                     # receive ready calculations
-                    idx, res = self.output_queue.get(True)
+                    idx, res, worker_error = self.output_queue.get(True)
+                    gotit.discard(idx)  # got that result, don't expect more
+                    if worker_error is not None:
+                        if error is None:
+                            error = worker_error
+                        continue
                     chunk = self.chunks[idx]
                     for h, r in zip(chunk, res):
                         if r is None:
@@ -2741,7 +2752,9 @@ class PowderDiffraction(PowderExperiment):
                             left=0,
                             right=0,
                         )
-                    gotit.discard(idx)  # got that result, don't expect more
+                if error is not None:
+                    # Drain this batch before raising so workers can be reused.
+                    raise error
 
             if config.VERBOSITY >= config.INFO_ALL:
                 print("XU.Powder.Convolute: exec time=", time.time() - t_start)
