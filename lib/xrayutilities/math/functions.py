@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 Davis Rens
 
 """
 module with several common function needed in xray data analysis
@@ -186,15 +187,15 @@ def Gauss1d_der_p(x, *p):
     function to calculate the derivative of a Gaussian with respect the
     parameters p
 
-    for parameter description see Gauss1d
+    for parameter description see Gauss1d. The amplitude derivative is the
+    unit-amplitude Gaussian, including when the amplitude is zero.
     """
-    lp = numpy.copy(p)
-    lp[3] = 0
+    g = numpy.exp(-(((p[0] - x) / p[1]) ** 2) / 2.0)
     r = numpy.vstack(
         (
-            -(p[0] - x) / p[1] ** 2 * Gauss1d(x, *lp),
-            (p[0] - x) ** 2 / (p[1] ** 3) * Gauss1d(x, *lp),
-            Gauss1d(x, *lp) / p[2],
+            -(p[0] - x) / p[1] ** 2 * p[2] * g,
+            (p[0] - x) ** 2 / (p[1] ** 3) * p[2] * g,
+            g,
             numpy.ones(x.shape, dtype=float),
         )
     )

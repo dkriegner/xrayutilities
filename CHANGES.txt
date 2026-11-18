@@ -1,4 +1,5 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
+* fix Gaussian and pseudo-Voigt parameter derivatives at zero peak amplitude
 * fix experimental peak widths with a missing half-maximum crossing to use
   physical positions instead of array indices
 
