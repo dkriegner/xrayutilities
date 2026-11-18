@@ -213,6 +213,31 @@ class TestMathFunctions(unittest.TestCase):
                     f"to numerical approximation ({errinfo})",
                 )
 
+    def test_zero_amplitude_derivatives(self):
+        x = numpy.linspace(-3, 3, 17)
+        cases = [
+            (xu.math.Gauss1d, xu.math.Gauss1d_der_p, [0.3, 0.8, 0.0, 2.0]),
+        ]
+        cases.extend(
+            (
+                xu.math.PseudoVoigt1d,
+                xu.math.PseudoVoigt1d_der_p,
+                [0.3, 1.2, 0.0, 2.0, eta],
+            )
+            for eta in (0.0, 0.4, 1.0)
+        )
+        for func, derivative, params in cases:
+            with self.subTest(function=func.__name__, parameters=params):
+                actual = derivative(x, *params)
+                for index in range(len(params)):
+                    left, right = params.copy(), params.copy()
+                    left[index] -= 1e-6
+                    right[index] += 1e-6
+                    expected = (func(x, *right) - func(x, *left)) / 2e-6
+                    numpy.testing.assert_allclose(
+                        actual[index], expected, rtol=1e-5, atol=1e-8
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()
