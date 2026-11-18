@@ -89,6 +89,33 @@ class Test_KinematicalModel(unittest.TestCase):
             xu.math.fwhm_exp(self.qz, sim1) >= self.kwargs["resolution_width"]
         )
 
+    def test_MultiBeam_integer_thickness(self):
+        # out-of-plane lattice parameter of the strained layer
+        a3 = self.pls[-1].material.lattice.c
+        kw = dict(self.kwargs, integer_thickness=False)
+        sims = {}
+        for nuc in (100, 100.5):
+            # small offset avoids rounding down to 99 unit cells
+            lay = xu.simpack.Layer(
+                xu.materials.AlGaAs(0.75), (nuc + 1e-9) * a3, relaxation=0.0
+            )
+            pls = xu.simpack.PseudomorphicStack001("pls", self.sub, lay)
+            sims[nuc] = (
+                xu.simpack.KinematicalMultiBeamModel(pls, **self.kwargs),
+                xu.simpack.KinematicalMultiBeamModel(pls, **kw),
+            )
+        sim = {
+            (nuc, i): m.simulate(self.qz, hkl=self.hkl)
+            for nuc, models in sims.items()
+            for i, m in enumerate(models)
+        }
+        # identical for an integer number of unit cells
+        numpy.testing.assert_allclose(sim[100, 0], sim[100, 1], rtol=1e-6)
+        # by default the thickness is rounded down to 100 unit cells
+        numpy.testing.assert_allclose(sim[100, 0], sim[100.5, 0], rtol=1e-10)
+        # otherwise the thickness is used as given
+        self.assertFalse(numpy.allclose(sim[100, 1], sim[100.5, 1]))
+
 
 if __name__ == "__main__":
     unittest.main()

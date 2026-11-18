@@ -1,3 +1,4 @@
+* KinematicalMultiBeamModel: add integer_thickness option to allow non-integer thicknesses
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
 * fix experimental peak widths with a missing half-maximum crossing to use
   physical positions instead of array indices
