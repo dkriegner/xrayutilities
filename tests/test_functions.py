@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 Davis Rens <166565828+davrens101@users.noreply.github.com>
 
 import copy
 import unittest
@@ -47,6 +48,18 @@ class TestMathFunctions(unittest.TestCase):
         f = xu.math.Gauss1d(self.x, *p)
         fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
+
+    def test_truncated_peak_width(self):
+        x = numpy.linspace(10, 20, 1001)
+        expected = 2 * numpy.sqrt(2 * numpy.log(2))
+        for center in (10.5, 19.5):
+            data = numpy.exp(-0.5 * (x - center) ** 2)
+            for offset, scale in ((0, 1), (100, 1), (-50, 0.1)):
+                with self.subTest(center=center, offset=offset, scale=scale):
+                    width = xu.math.fwhm_exp(offset + scale * x, data)
+                    numpy.testing.assert_allclose(
+                        width, scale * expected, rtol=1e-5
+                    )
 
     def test_lorentz1dwidth(self):
         p = numpy.copy(self.p)
@@ -118,6 +131,41 @@ class TestMathFunctions(unittest.TestCase):
         self.assertTrue(digits >= 3)
         self.assertAlmostEqual(area, numarea, places=digits)
 
+    def test_twogauss2d_shared_background(self):
+        x, y = numpy.meshgrid(
+            numpy.linspace(-4, 4, 13), numpy.linspace(-4, 4, 11)
+        )
+        p = [
+            1,
+            -0.5,
+            0.6,
+            1.2,
+            7,
+            0.35,
+            -1,
+            1,
+            0.9,
+            0.4,
+            4,
+            -0.6,
+            3.5,
+        ]
+        expected = numpy.full_like(x, p[12])
+        for start in (0, 6):
+            cx, cy, sx, sy, amp, angle = p[start : start + 6]
+            c, s = numpy.cos(angle), numpy.sin(angle)
+            rotation = numpy.array([[c, -s], [s, c]])
+            precision = rotation.T @ numpy.diag([sx**-2, sy**-2]) @ rotation
+            delta = numpy.stack((x - cx, y - cy), axis=-1)
+            exponent = numpy.einsum(
+                "...i,ij,...j->...", delta, precision, delta
+            )
+            expected += amp * numpy.exp(-0.5 * exponent)
+        numpy.testing.assert_allclose(
+            xu.math.TwoGauss2d(x, y, *p), expected, rtol=1e-13, atol=1e-13
+        )
+        self.assertEqual(xu.math.TwoGauss2d(100.0, 100.0, *p), p[12])
+
     def test_derivatives(self):
         eps = 1e-9
         # generate test input parameters (valid for Gauss, Lorentz, and Voigt)
@@ -164,6 +212,31 @@ class TestMathFunctions(unittest.TestCase):
                     f"{f!s}, {argidx}, derivatives not close "
                     f"to numerical approximation ({errinfo})",
                 )
+
+    def test_zero_amplitude_derivatives(self):
+        x = numpy.linspace(-3, 3, 17)
+        cases = [
+            (xu.math.Gauss1d, xu.math.Gauss1d_der_p, [0.3, 0.8, 0.0, 2.0]),
+        ]
+        cases.extend(
+            (
+                xu.math.PseudoVoigt1d,
+                xu.math.PseudoVoigt1d_der_p,
+                [0.3, 1.2, 0.0, 2.0, eta],
+            )
+            for eta in (0.0, 0.4, 1.0)
+        )
+        for func, derivative, params in cases:
+            with self.subTest(function=func.__name__, parameters=params):
+                actual = derivative(x, *params)
+                for index in range(len(params)):
+                    left, right = params.copy(), params.copy()
+                    left[index] -= 1e-6
+                    right[index] += 1e-6
+                    expected = (func(x, *right) - func(x, *left)) / 2e-6
+                    numpy.testing.assert_allclose(
+                        actual[index], expected, rtol=1e-5, atol=1e-8
+                    )
 
 
 if __name__ == "__main__":

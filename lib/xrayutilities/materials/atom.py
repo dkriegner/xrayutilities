@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2015-2025 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 Davis Rens
 
 """module handling physical properties of elements.
 
@@ -36,11 +37,12 @@ _db.Open()
 
 
 def get_key(*args):
-    """Generate a hash key for several possible types of arguments"""
+    """Generate a hash key including array shape, dtype, and logical values."""
     tup = []
     for a in args:
         if isinstance(a, numpy.ndarray):
-            tup.append(hashlib.md5(a).digest())
+            buffer = a if a.flags.c_contiguous else numpy.ascontiguousarray(a)
+            tup.append((a.shape, a.dtype.str, hashlib.md5(buffer).digest()))
         elif isinstance(a, list):
             tup.append(hash(tuple(a)))
         else:
