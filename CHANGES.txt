@@ -1,5 +1,7 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
 * fix TwoGauss2d to add its shared background once instead of twice
+* fix experimental peak widths with a missing half-maximum crossing to use
+  physical positions instead of array indices
 
 v1.8.0, 2026-07-21
 
