@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2014-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 Davis Rens
 
 import copy
 import unittest
@@ -47,6 +48,18 @@ class TestMathFunctions(unittest.TestCase):
         f = xu.math.Gauss1d(self.x, *p)
         fwhm = xu.math.fwhm_exp(self.x, f)
         self.assertAlmostEqual(fwhm, self.p[1], places=4)
+
+    def test_truncated_peak_width(self):
+        x = numpy.linspace(10, 20, 1001)
+        expected = 2 * numpy.sqrt(2 * numpy.log(2))
+        for center in (10.5, 19.5):
+            data = numpy.exp(-0.5 * (x - center) ** 2)
+            for offset, scale in ((0, 1), (100, 1), (-50, 0.1)):
+                with self.subTest(center=center, offset=offset, scale=scale):
+                    width = xu.math.fwhm_exp(offset + scale * x, data)
+                    numpy.testing.assert_allclose(
+                        width, scale * expected, rtol=1e-5
+                    )
 
     def test_lorentz1dwidth(self):
         p = numpy.copy(self.p)
