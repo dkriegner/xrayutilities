@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2012-2021, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 Davis Rens
 
 """
 module with several common function needed in xray data analysis
@@ -43,6 +44,11 @@ def smooth(x, n):
     -------
     xsmooth: array-like
         smoothed array with same length as x
+
+    Notes
+    -----
+    Odd-length windows are centered on each input sample. Even-length windows
+    are centered half a sample before it, as in ``numpy.convolve(..., "same")``.
     """
     if x.ndim != 1:
         raise ValueError("smooth only accepts 1 dimension arrays.")
@@ -54,7 +60,7 @@ def smooth(x, n):
     s = numpy.r_[x[n - 1 : 0 : -1], x, x[-1 : -n - 1 : -1]]
     w = numpy.ones(n, "d")
     y = numpy.convolve(w / w.sum(), s, mode="same")
-    return y[n : -n + 1]
+    return y[n - 1 : -n]
 
 
 def kill_spike(data, threshold=2.0, offset=None):
@@ -186,15 +192,15 @@ def Gauss1d_der_p(x, *p):
     function to calculate the derivative of a Gaussian with respect the
     parameters p
 
-    for parameter description see Gauss1d
+    for parameter description see Gauss1d. The amplitude derivative is the
+    unit-amplitude Gaussian, including when the amplitude is zero.
     """
-    lp = numpy.copy(p)
-    lp[3] = 0
+    g = numpy.exp(-(((p[0] - x) / p[1]) ** 2) / 2.0)
     r = numpy.vstack(
         (
-            -(p[0] - x) / p[1] ** 2 * Gauss1d(x, *lp),
-            (p[0] - x) ** 2 / (p[1] ** 3) * Gauss1d(x, *lp),
-            Gauss1d(x, *lp) / p[2],
+            -(p[0] - x) / p[1] ** 2 * p[2] * g,
+            (p[0] - x) ** 2 / (p[1] ** 3) * p[2] * g,
+            g,
             numpy.ones(x.shape, dtype=float),
         )
     )
@@ -279,7 +285,9 @@ def TwoGauss2d(x, y, *p):
         [XCEN1, YCEN1, SIGMAX1, SIGMAY1, AMP1, ANGLE1, XCEN2, YCEN2, SIGMAX2,
         SIGMAY2, AMP2, ANGLE2, BACKGROUND];
         SIGMA = FWHM / (2*sqrt(2*log(2)))
-        ANGLE = rotation of the X, Y direction of the Gaussian in radians
+        ANGLE = rotation of the X, Y direction of the Gaussian in radians;
+        BACKGROUND is the common background of both Gaussians and is added
+        to the sum only once
 
     Returns
     -------
@@ -301,7 +309,7 @@ def TwoGauss2d(x, y, *p):
     p2 = (
         p[6:11]
         + [
-            p[12],
+            0.0,
         ]
         + [
             p[11],
