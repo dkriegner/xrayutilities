@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2015-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 Davis Rens
 
 import os.path
 import unittest
@@ -24,6 +25,29 @@ import xrayutilities as xu
 testfile = "pilatus100K.tif"
 datadir = os.path.join(os.path.dirname(__file__), "data")
 fullfilename = os.path.join(datadir, testfile)
+
+
+class TestPointNormalizer(unittest.TestCase):
+    def test_smoothed_linear_monitor(self):
+        monitor = numpy.arange(1.0, 22.0)
+        data = numpy.rec.fromarrays(
+            [10 * monitor, monitor, numpy.ones_like(monitor)],
+            names=["counts", "monitor", "time"],
+        )
+        for window in (3, 5, 7):
+            with self.subTest(window=window):
+                normalizer = xu.IntensityNormalizer(
+                    "counts",
+                    mon="monitor",
+                    time="time",
+                    av_mon=1.0,
+                    smoothmon=window,
+                )
+                corrected = normalizer(data)
+                margin = window // 2
+                numpy.testing.assert_allclose(
+                    corrected[margin:-margin], 10.0, rtol=0, atol=1e-12
+                )
 
 
 @unittest.skipIf(

@@ -1,4 +1,5 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
+* align smoothed monitor values with their scan points in intensity normalization
 * preserve distinct ionic scattering factors in mixed-valence crystals
 * preserve array shapes and support noncontiguous atomic scattering inputs
 * fix TwoGauss2d to add its shared background once instead of twice
