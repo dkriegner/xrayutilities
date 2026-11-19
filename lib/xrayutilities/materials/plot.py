@@ -14,12 +14,14 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2018-2020, 2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 CAOShurong
 
 import math
 
 import numpy
 
 from .. import utilities
+from ..exception import InputError
 
 
 def show_reciprocal_space_plane(
@@ -34,25 +36,27 @@ def show_reciprocal_space_plane(
     show_legend=True,
     projection="perpendicular",
     label=None,
+    *,
+    plane="coplanar",
     **kwargs,
 ):
     """
-    show a plot of the coplanar diffraction plane with peak positions for the
-    respective material. the size of the spots is scaled with the strength of
-    the structure factor
+    Plot Bragg peak positions in a slice of reciprocal space. The marker
+    sizes are scaled by the structure factors.
 
     Parameters
     ----------
     mat:        Crystal
         instance of Crystal for structure factor calculations
     exp:        Experiment
-        instance of Experiment (needs to be HXRD, or FourC for onclick action
-        to work correctly). defines the inplane and out of plane direction as
-        well as the sample azimuth
+        Defines the sample orientation and azimuth. Clicks use the angle
+        conversion for HXRD or FourC in the coplanar view. For a surface
+        view they use the experiment's angle conversion, such as GID.
     ttmax:      float, optional
         maximal 2Theta angle to consider, by default 180deg
     maxqout:    float, optional
-        maximal out of plane q for plotted Bragg peaks as fraction of exp.k0
+        Maximum deviation normal to the selected cut, as a fraction of
+        exp.k0.
     scalef:     float, or callable, optional
         scale factor or function for the marker size. If this is a function it
         should take only one float argument and return another float which is
@@ -62,7 +66,7 @@ def show_reciprocal_space_plane(
         should be plotted in one plot
     color:      matplotlib color, optional
     show_Laue:  bool, optional
-        flag to indicate if the Laue zones should be indicated
+        Show the Laue guides in the coplanar view.
     show_legend:    bool, optional
         flag to indiate if a legend should be shown
     projection: 'perpendicular', 'polar', optional
@@ -70,10 +74,15 @@ def show_reciprocal_space_plane(
         diffraction plane. 'perpendicular' (default) uses only the inplane
         component in the scattering plane, whereas 'polar' uses the vectorial
         absolute value of the two inplane components. See also the 'maxqout'
-        option.
+        option. The inplane view uses 'perpendicular' only.
     label:  None or str, optional
         label to be used for the legend. If 'None' the name of the material
         will be used.
+    plane: 'coplanar', 'inplane', optional
+        'coplanar' uses the experiment-frame qy and qz near qx = 0.
+        'inplane' uses the sample-frame qx and qy near qz = 0. Its
+        y direction is the in-plane reference direction and z is
+        the surface normal, independent of the goniometer axes.
     kwargs: optional
         kwargs are forwarded to matplotlib.pyplot.scatter and allow to change
         the appearance of the points.
@@ -114,7 +123,13 @@ def show_reciprocal_space_plane(
                 ("hkl", numpy.ndarray),
             ],
         )
-        qvec = exp.Transform(q)
+        if plane == "inplane":
+            sample_basis = numpy.column_stack(
+                (exp.scatplane, exp.idir, exp.ndir)
+            )
+            qvec = q @ sample_basis
+        else:
+            qvec = exp.Transform(q)
         data["qx"] = qvec[:, 0]
         data["qy"] = qvec[:, 1]
         data["qz"] = qvec[:, 2]
@@ -124,6 +139,21 @@ def show_reciprocal_space_plane(
         data["hkl"] = hkls
 
         return data
+
+    if plane == "coplanar":
+        normal, horizontal, vertical = "qx", "qy", "qz"
+        xlabel = r"$Q$ inplane ($\mathrm{\AA^{-1}}$)"
+        ylabel = r"$Q$ out of plane ($\mathrm{\AA^{-1}}$)"
+    elif plane == "inplane":
+        if projection != "perpendicular":
+            raise ValueError(
+                "The inplane view requires perpendicular projection"
+            )
+        normal, horizontal, vertical = "qz", "qx", "qy"
+        xlabel = r"$Q_x$ ($\mathrm{\AA^{-1}}$)"
+        ylabel = r"$Q_y$ ($\mathrm{\AA^{-1}}$)"
+    else:
+        raise ValueError("plane must be 'coplanar' or 'inplane'")
 
     plot, plt = utilities.import_matplotlib_pyplot("XU.materials")
 
@@ -148,9 +178,10 @@ def show_reciprocal_space_plane(
     ax.set_autoscaley_on(False)
     ax.set_autoscalex_on(False)
     plt.xlim(-2.05 * k0, 2.05 * k0)
-    plt.ylim(-0.05 * k0, 2.05 * k0)
+    ymin = -0.05 * k0 if plane == "coplanar" else -2.05 * k0
+    plt.ylim(ymin, 2.05 * k0)
 
-    if show_Laue:
+    if show_Laue and plane == "coplanar":
         c = plt.matplotlib.patches.Circle(
             (0, 0), 2 * k0, facecolor="#FF9180", edgecolor="none"
         )
@@ -177,15 +208,15 @@ def show_reciprocal_space_plane(
         plt.vlines(0, -2 * k0, 2 * k0, color="0.5", lw=0.5)
 
     # mask for plotting
-    m = numpy.abs(d["qx"]) < maxqout * k0
+    m = numpy.abs(d[normal]) < maxqout * k0
 
     if projection == "perpendicular":
-        x = d["qy"][m]
+        x = d[horizontal][m]
     else:
         x = numpy.sign(d["qy"][m]) * numpy.sqrt(
             d["qx"][m] ** 2 + d["qy"][m] ** 2
         )
-    y = d["qz"][m]
+    y = d[vertical][m]
     s = numpy.empty_like(d["r"][m])
     if callable(scalef):
         s[...] = [scalef(r) for r in d["r"][m]]
@@ -198,8 +229,8 @@ def show_reciprocal_space_plane(
     kwargs.setdefault("c", color)
     h = plt.scatter(x, y, **kwargs)
 
-    plt.xlabel(r"$Q$ inplane ($\mathrm{\AA^{-1}}$)")
-    plt.ylabel(r"$Q$ out of plane ($\mathrm{\AA^{-1}}$)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
     if show_legend:
         if len(fig.legends) == 1:
@@ -248,19 +279,22 @@ def show_reciprocal_space_plane(
         if event.inaxes == ax:
             cont, ind = h.contains(event)
             if cont:
-                popts = numpy.get_printoptions()
-                numpy.set_printoptions(precision=4, suppress=True)
-                q = (
-                    d["qx"][m][ind["ind"][0]],
-                    d["qy"][m][ind["ind"][0]],
-                    d["qz"][m][ind["ind"][0]],
-                )
-                angles = exp.Q2Ang(q, trans=False, geometry="real")
-                text = f"""{mat.name}
-hkl: {d["hkl"][m][ind["ind"][0]]}
-exp.Q2Ang angles (om, tilt, azimuth, 2th): {angles}"""
-                numpy.set_printoptions(**popts)
-                print(text)
+                peak = d[m][ind["ind"][0]]
+                with numpy.printoptions(precision=4, suppress=True):
+                    print(f"{mat.name}\nhkl: {peak['hkl']}")
+                    if plane == "inplane":
+                        try:
+                            angles = exp.Q2Ang(mat.Q(peak["hkl"]))
+                        except InputError as exc:
+                            print(exc)
+                        else:
+                            print(f"exp.Q2Ang angles: {angles}")
+                    else:
+                        q = (peak["qx"], peak["qy"], peak["qz"])
+                        angles = exp.Q2Ang(q, trans=False, geometry="real")
+                        print(
+                            f"exp.Q2Ang angles (om, tilt, azimuth, 2th): {angles}"
+                        )
 
     fig.canvas.mpl_connect("motion_notify_event", hover)
     fig.canvas.mpl_connect("button_press_event", click)
