@@ -543,6 +543,20 @@ The generated plot shows all the existing Bragg spots, their `(hkl)` label is sh
    :alt: cut of reciprocal space for cubic Si(111) and a hexagonal material with c-axis along [111] of the substrate
    :width: 500 px
 
+For a cut in the sample surface, select ``plane="inplane"``. This plots
+:math:`Q_x` and :math:`Q_y` for peaks near :math:`Q_z = 0`. The
+``maxqout`` tolerance applies to :math:`Q_z` in this view. For example,
+use a grazing-incidence geometry to inspect the in-plane peaks of Si(001).
+
+.. testcode::
+
+    import xrayutilities as xu
+    si = xu.materials.Si
+    gid = xu.GID(si.Q(1, -1, 0), si.Q(0, 0, 1))
+    ax, peaks = xu.materials.show_reciprocal_space_plane(
+        si, gid, ttmax=65, plane="inplane"
+    )
+
 Calculation of diffraction angles for a general geometry
 --------------------------------------------------------
 
