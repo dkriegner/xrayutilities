@@ -1914,6 +1914,40 @@ class FP_profile:
             pass
 
 
+class _LowMemoryProfile(FP_profile):
+    """Keep window metadata and rebuild the numeric buffers for each calculation."""
+
+    def set_window(
+        self,
+        twotheta_window_center_deg,
+        twotheta_window_fullwidth_deg,
+        twotheta_output_points,
+    ):
+        self.twotheta_window_center_deg = twotheta_window_center_deg
+        self.twotheta_window_fullwidth_deg = twotheta_window_fullwidth_deg
+        self.twotheta_output_points = twotheta_output_points
+        self.lor_widths = {}
+
+    def compute_line_profile(self, *args, **kwargs):
+        profile = FP_profile(
+            anglemode=self.anglemode,
+            gaussian_smoother_bins_sigma=self.gaussian_smoother_bins_sigma,
+            oversampling=self.oversampling,
+        )
+        profile.param_dicts = self.param_dicts
+        try:
+            profile.set_window(
+                self.twotheta_window_center_deg,
+                self.twotheta_window_fullwidth_deg,
+                self.twotheta_output_points,
+            )
+            return profile.compute_line_profile(*args, **kwargs)
+        finally:
+            # Bound methods otherwise keep the temporary profile and its buffers
+            # alive until cyclic garbage collection runs.
+            profile.convolver_funcs.clear()
+
+
 class convolver_handler:
     """
     manage the convolvers of on process
@@ -1994,6 +2028,7 @@ class PowderDiffraction(PowderExperiment):
     _valid_init_kwargs["fpclass"] = "FP_profile derived class"
     _valid_init_kwargs["fpsettings"] = "settings dictionaries"
     _valid_init_kwargs["enable_simulation"] = "flag to enable simulation mode"
+    _valid_init_kwargs["low_memory"] = "compute convolution buffers on demand"
     del _valid_init_kwargs["sampleor"]
 
     def __init__(self, mat, **kwargs):
@@ -2031,6 +2066,11 @@ class PowderDiffraction(PowderExperiment):
         fpsettings :    dict
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
+        low_memory :    bool, optional
+            Allocate convolution buffers during each calculation instead of
+            keeping them for each reflection. This uses less memory at the
+            cost of slower repeated calculations. Requires the default
+            FP_profile class and defaults to False.
         """
         utilities.check_kwargs(
             kwargs, self._valid_init_kwargs, self.__class__.__name__
@@ -2049,6 +2089,10 @@ class PowderDiffraction(PowderExperiment):
         self.data = {}
         self._tt_cutoff = kwargs.pop("tt_cutoff", 180)
         self.fpclass = kwargs.pop("fpclass", FP_profile)
+        if kwargs.pop("low_memory", False):
+            if self.fpclass is not FP_profile:
+                raise ValueError("low_memory requires the default FP_profile")
+            self.fpclass = _LowMemoryProfile
         self.settings = self.load_settings_from_config(
             kwargs.pop("fpsettings", {})
         )

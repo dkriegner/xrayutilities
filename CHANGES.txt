@@ -1,3 +1,4 @@
+* allow low-memory powder simulations with on-demand convolution buffers
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
 * propagate powder simulation worker errors instead of waiting indefinitely
 * align smoothed monitor values with their scan points in intensity normalization
