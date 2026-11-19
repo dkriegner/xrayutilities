@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 CAOShurong
 
 import numbers
 from math import sqrt
@@ -52,6 +53,10 @@ class PowderModel:
         fpsettings : dict
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
+        low_memory : bool, optional
+            Allocate convolution buffers on demand for the default FP_profile.
+            This reduces memory use and may slow repeated calculations.
+            Defaults to False.
         I0 : float, optional
             scaling factor for the simulation result
 
