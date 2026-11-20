@@ -17,6 +17,7 @@
 # Copyright (C) 2015-2017 Marcus H. Mendenhall <marcus.mendenhall@nist.gov>
 # Copyright (c) 2017-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
 # Copyright (C) 2026 CAOShurong
+# Copyright (C) 2026 CAOShurong
 
 # FP_profile was derived from http://dx.doi.org/10.6028/jres.120.014.c
 
@@ -1863,12 +1864,7 @@ class FP_profile:
         #  do some cleanup on state before we get pickled
         # (even if main class not cleaned)
         clean = self._clean_on_pickle
-        pd = {}
-        pd.update(self.__dict__)
-        for thing in pd:
-            x = getattr(self, thing)
-            if id(x) in clean:
-                del pd[thing]
+        pd = {key: value for key, value in vars(self).items() if id(value) not in clean}
         # delete extra attributes cautiously, in case we have already been
         # cleaned
         for k in (
@@ -1993,6 +1989,7 @@ class PowderDiffraction(PowderExperiment):
     _valid_init_kwargs["tt_cutoff"] = "2Theta cut off value in degree"
     _valid_init_kwargs["fpclass"] = "FP_profile derived class"
     _valid_init_kwargs["fpsettings"] = "settings dictionaries"
+    _valid_init_kwargs["mode"] = "default convolution mode"
     _valid_init_kwargs["enable_simulation"] = "flag to enable simulation mode"
     del _valid_init_kwargs["sampleor"]
 
@@ -2028,6 +2025,10 @@ class PowderDiffraction(PowderExperiment):
         fpclass :       FP_profile
             FP_profile derived class with possible convolver mixins.
             (default: FP_profile)
+        mode : {'multi', 'local'}, optional
+            Default convolution mode. The default, 'multi', starts worker
+            processes during construction. With 'local', workers are only
+            started if a calculation explicitly requests 'multi'.
         fpsettings :    dict
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
@@ -2054,6 +2055,9 @@ class PowderDiffraction(PowderExperiment):
         )
         self.set_sample_parameters()  # initialize local settings
         self._enable_sim = kwargs.pop("enable_simulation", False)
+        self._mode = kwargs.pop("mode", "multi")
+        if self._mode not in ("multi", "local"):
+            raise ValueError("mode must be 'multi' or 'local'")
 
         PowderExperiment.__init__(self, **kwargs)
 
@@ -2078,7 +2082,9 @@ class PowderDiffraction(PowderExperiment):
         self.__ww = None
 
         # initialize multiprocessing
-        if self._enable_sim:
+        self.chunks = []
+        self.conv_handlers = []
+        if self._enable_sim and self._mode == "multi":
             self._init_multiprocessing()
         # set wavelength from class constructor
         if "wl" in kwargs:
@@ -2105,27 +2111,35 @@ class PowderDiffraction(PowderExperiment):
         self.chunks = chunkify(list(self.data), self.nproc)
         self.next_proc = len(self.data) % self.nproc
         manager.register("conv", convolver_handler)
-        self.managers = [manager() for idx in range(self.nproc)]
+        self.managers = []
         self.conv_handlers = []
         self.threads = []
         self.output_queue = queue.Queue()
-        for idx, mg in enumerate(self.managers):
-            mg.start()
-            m = mg.conv()
-            for h in self.chunks[idx]:
-                m.add_convolver(self.data[h]["conv"])
-            self.conv_handlers.append(m)
-            self.threads.append(
-                (
-                    threading.Thread(target=self._send_work, args=(idx,)),
-                    queue.Queue(),
-                    self.output_queue,
+        try:
+            for idx, chunk in enumerate(self.chunks):
+                mg = manager()
+                mg.start()
+                self.managers.append(mg)
+                m = mg.conv()
+                for h in chunk:
+                    m.add_convolver(self.data[h]["conv"])
+                self.conv_handlers.append(m)
+                self.threads.append(
+                    (
+                        threading.Thread(target=self._send_work, args=(idx,)),
+                        queue.Queue(),
+                        self.output_queue,
+                    )
                 )
-            )
-        self._running = True
-        for th, _, _ in self.threads:
-            th.daemon = True
-            th.start()
+            self._running = True
+            for th, _, _ in self.threads:
+                th.daemon = True
+                th.start()
+        except BaseException:
+            self.__stop__()
+            self.chunks = []
+            self.conv_handlers = []
+            raise
         atexit.register(self.__stop__)
 
     def close(self):
@@ -2136,8 +2150,9 @@ class PowderDiffraction(PowderExperiment):
         try:  # try/except needed only for python2 compatibility
             # end daemon threads which distribute the work load
             for th, q1, _ in self.threads:
-                q1.put(None)
-                th.join()
+                if th.is_alive():
+                    q1.put(None)
+                    th.join()
             delattr(self, "threads")
             # end managers which handle the convolvers
             delattr(self, "conv_handlers")
@@ -2635,7 +2650,7 @@ class PowderDiffraction(PowderExperiment):
                     "conv": fp,
                     "active": active,
                 }
-                if self._enable_sim:
+                if self.conv_handlers:
                     self.conv_handlers[self.next_proc].add_convolver(fp)
                     self.chunks[self.next_proc].append(h)
                     self.next_proc = (self.next_proc + 1) % self.nproc
@@ -2644,7 +2659,7 @@ class PowderDiffraction(PowderExperiment):
                 # make entry inactive
                 self.data[h]["active"] = False
 
-    def Convolve(self, twotheta, window_width="config", mode="multi"):
+    def Convolve(self, twotheta, window_width="config", mode=None):
         """
         convolute the powder lines with the resolution function and map them
         onto the twotheta positions. This calculates the powder pattern
@@ -2656,9 +2671,9 @@ class PowderDiffraction(PowderExperiment):
             two theta values at which the powder pattern should be calculated.
         window_width :  float, optional
             width of the calculation window of a single peak
-        mode :          {'multi, 'local'}, optional
-            multiprocessing mode, either 'multi' to use multiple processes or
-            'local' to restrict the calculation to a single process
+        mode :          {'multi', 'local'}, optional
+            Use worker processes or calculate in the current process. The
+            constructor's mode is used by default.
 
         Note:
             Bragg peaks are only included up to tt_cutoff set in the class
@@ -2669,6 +2684,10 @@ class PowderDiffraction(PowderExperiment):
          output intensity values for the twotheta values given in the input
         """
         if self._enable_sim:
+            if mode is None:
+                mode = self._mode
+            if mode != "local" and not self.conv_handlers:
+                self._init_multiprocessing()
             t_start = time.time()
 
             out = numpy.zeros_like(twotheta)

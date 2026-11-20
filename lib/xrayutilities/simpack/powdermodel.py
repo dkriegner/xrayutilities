@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (c) 2017-2023 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (C) 2026 CAOShurong
 
 import numbers
 from math import sqrt
@@ -49,6 +50,10 @@ class PowderModel:
         fpclass :   FP_profile, optional
             derived class with possible convolver mixins.  (default:
             FP_profile)
+        mode : {'multi', 'local'}, optional
+            Default simulation mode. Set 'local' to construct and run the
+            model in the current process without a multiprocessing main
+            guard. The default 'multi' starts worker processes.
         fpsettings : dict
             settings dictionaries for the convolvers. Default settings are
             loaded from the config file.
