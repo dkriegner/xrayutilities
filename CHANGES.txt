@@ -1,5 +1,6 @@
 * add Gridder1D.SetResolution and use it more consistently in all Gridder
 * propagate powder simulation worker errors instead of waiting indefinitely
+* allow opting into local powder simulation without starting worker processes
 * align smoothed monitor values with their scan points in intensity normalization
 * preserve distinct ionic scattering factors in mixed-valence crystals
 * preserve array shapes and support noncontiguous atomic scattering inputs
