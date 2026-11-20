@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
+# Copyright (c) 2026 CAOShurong
 # Copyright (c) 2016-2024 Dominik Kriegner <dominik.kriegner@gmail.com>
 
 import abc
@@ -1095,7 +1096,8 @@ class SpecularReflectivityModel(LayerModel):
         nz :    int
             number of values on which the profile should be calculated
         plot :  bool, optional
-            flag to tell if a plot of the profile should be created
+            plot the total profile and the individual contributions with
+            a legend showing the layer names.
         individual_layers : bool, optional
             return the density contributions of all layers as additional return
             value.
@@ -1174,10 +1176,17 @@ class SpecularReflectivityModel(LayerModel):
         if plot:
             plt.figure("XU:density_profile", figsize=(5, 3))
             for i, layer in enumerate(self.lstack):
-                plt.plot(z, layer_prof[i, :], ":r", lw=1, label=layer.name)
+                label = layer.name
+                if label.startswith("_"):
+                    # Matplotlib hides legend labels that start with an underscore.
+                    label = f"Layer {label}"
+                plt.plot(z, layer_prof[i, :], ":", lw=1, label=label)
             plt.plot(z, prof, "-k", lw=2, label="electron density")
             plt.xlabel(r"z ($\mathrm{\AA}$)")
             plt.ylabel(r"electron density (e$^-$ cm$^{-3}$)")
+            plt.legend(
+                loc="upper left", bbox_to_anchor=(1, 1), fontsize="small"
+            )
             plt.tight_layout()
 
         if individual_layers:
