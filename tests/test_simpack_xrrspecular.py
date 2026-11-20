@@ -14,6 +14,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2019-2020 Dominik Kriegner <dominik.kriegner@gmail.com>
+# Copyright (c) 2026 CAOShurong
 
 import unittest
 from typing import ClassVar
@@ -71,6 +72,47 @@ class Test_SpecularReflectivityModel(unittest.TestCase):
         z, d = self.model.densityprofile(N)
         self.assertEqual(len(z), N)
         self.assertEqual(len(d), N)
+
+    def test_densityprofile_plot_labels_layer_contributions(self):
+        try:
+            from matplotlib import pyplot as plt
+        except ImportError:
+            self.skipTest("matplotlib is needed to test the plot")
+
+        top = xu.simpack.Layer(self.mat_cf, 30, roughness=5.2, name="_CoFe")
+        model = xu.simpack.SpecularReflectivityModel(
+            self.lSiO2, self.lRu, top, **self.kwargs
+        )
+        fig = plt.figure("XU:density_profile")
+        try:
+            z, total, contributions = model.densityprofile(
+                123, plot=True, individual_layers=True
+            )
+            ax = fig.axes[0]
+            legend = ax.get_legend()
+            self.assertIsNotNone(legend)
+            self.assertEqual(
+                [text.get_text() for text in legend.get_texts()],
+                [
+                    self.lSiO2.name,
+                    self.lRu.name,
+                    "Layer _CoFe",
+                    "electron density",
+                ],
+            )
+            lines = ax.get_lines()
+            self.assertEqual(len({line.get_color() for line in lines[:-1]}), 3)
+            self.assertEqual(
+                [line.get_color() for line in legend.get_lines()],
+                [line.get_color() for line in lines],
+            )
+            for line, profile in zip(
+                lines, [*contributions, total], strict=True
+            ):
+                numpy.testing.assert_array_equal(line.get_xdata(), z)
+                numpy.testing.assert_array_equal(line.get_ydata(), profile)
+        finally:
+            plt.close(fig)
 
 
 if __name__ == "__main__":
