@@ -645,7 +645,11 @@ class WyckoffBase(list):
             tuples with length 4 containing the entries of WyckoffBase which
             should be compared
         """
-        return bool(e1[0] == e2[0] and WyckoffBase.pos_eq(e1[1], e2[1]) and numpy.allclose(e1[2:], e2[2:], atol=0.0001))
+        return bool(
+            e1[0] == e2[0]
+            and WyckoffBase.pos_eq(e1[1], e2[1])
+            and numpy.allclose(e1[2:], e2[2:], atol=0.0001)
+        )
 
     @staticmethod
     def pos_eq(pos1, pos2):
@@ -1039,8 +1043,7 @@ class SGLattice:
                 i += 1
             if w[1] and i != len(w[1]):
                 raise TypeError(
-                    "XU.materials: too many parameters for "
-                    "Wyckoff position"
+                    "XU.materials: too many parameters for Wyckoff position"
                 )
 
             for p in poslist:
@@ -1369,7 +1372,10 @@ class SGLattice:
             self._hklcond = hklcond_group.findall(self._gp[2])
         if self._hklcond_wp == []:
             for lab in {e[1][0] for e in self._wbase}:
-                if lab == self._gplabel or wp[self.space_group][lab][2] is None:  # if gen. pos. is occupied skip it
+                if (
+                    lab == self._gplabel
+                    or wp[self.space_group][lab][2] is None
+                ):  # if gen. pos. is occupied skip it
                     self._hklcond_wp.append(None)
                 else:
                     self._hklcond_wp.append(

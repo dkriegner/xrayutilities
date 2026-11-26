@@ -624,7 +624,9 @@ class FP_profile:
         self.param_dicts["conv_global"].setdefault("d", 0)
         return (
             "global: peak center={twotheta0_deg:.4f}, d={d:.8g}, eq. "
-            "div={equatorial_divergence_deg:.3f}".format(**self.param_dicts["conv_global"])
+            "div={equatorial_divergence_deg:.3f}".format(
+                **self.param_dicts["conv_global"]
+            )
         )
 
     def conv_global(self):
@@ -2089,7 +2091,9 @@ class PowderDiffraction(PowderExperiment):
         if self.settings["global"]["geometry"] != "symmetric":
             warnings.warn(
                 "PowderDiffraction: geometry '{}' not fully "
-                "supported, proceed with caution!".format(self.settings["global"]["geometry"])
+                "supported, proceed with caution!".format(
+                    self.settings["global"]["geometry"]
+                )
             )
 
     def _init_multiprocessing(self):
@@ -2291,7 +2295,9 @@ class PowderDiffraction(PowderExperiment):
         self.__tt = tt
         if oldtt is None:
             self.set_window()
-        elif len(oldtt) != len(self.__tt) or not numpy.all(numpy.equal(oldtt, self.__tt)):
+        elif len(oldtt) != len(self.__tt) or not numpy.all(
+            numpy.equal(oldtt, self.__tt)
+        ):
             self.set_window(force=True)
 
     @property
@@ -2328,7 +2334,9 @@ class PowderDiffraction(PowderExperiment):
                 numpy.logical_and(tt > ttpeak - ww / 2, tt < ttpeak + ww / 2)
             )
             try:
-                np = math.ceil(len(idx) / (tt[idx[-1, 0]] - tt[idx[0, 0]]) * ww)
+                np = math.ceil(
+                    len(idx) / (tt[idx[-1, 0]] - tt[idx[0, 0]]) * ww
+                )
             except OverflowError:
                 np = 1
             npoints[h] = np

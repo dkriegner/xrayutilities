@@ -20,5 +20,6 @@ spectra = s.data[:, :, 1]  # detector spectra aquired
 # determine detector parameters
 # this function accepts some optional arguments to describe the goniometer
 # see the API documentation
-pwidth, cch, tilt = xu.analysis.linear_detector_calib(ang, spectra,
-                                                      usetilt=True)
+pwidth, cch, tilt = xu.analysis.linear_detector_calib(
+    ang, spectra, usetilt=True
+)

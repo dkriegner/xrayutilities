@@ -19,7 +19,6 @@
 import unittest
 
 import numpy
-
 import xrayutilities as xu
 
 
@@ -96,14 +95,14 @@ class TestStructureFactor(unittest.TestCase):
                 q = numpy.array([mat.Q(*h) for h in ((0, 0, 0), (1, 0, 0))])
                 energies = numpy.array([6000.0, 8000.0, 10000.0])
 
-                def site_sum(momentum, energy):
+                def site_sum(momentum, energy, mat=mat, sites=ordered_sites):
                     qnorm = numpy.linalg.norm(momentum, axis=-1)
                     return sum(
                         atom.f(qnorm, energy)
                         * occupancy
                         * numpy.exp(-1j * (momentum @ mat.lattice.GetPoint(p)))
                         * numpy.exp(-factor * qnorm**2 / (4 * numpy.pi) ** 2)
-                        for atom, p, occupancy, factor in ordered_sites
+                        for atom, p, occupancy, factor in sites
                     )
 
                 numpy.testing.assert_allclose(

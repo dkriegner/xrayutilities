@@ -33,8 +33,7 @@ def _multiply(a, b):
     """
     if not isinstance(b, int):
         raise TypeError(
-            "unsupported operand type(s) for *: "
-            f"'{type(a)}' and '{type(b)}'"
+            f"unsupported operand type(s) for *: '{type(a)}' and '{type(b)}'"
         )
     if b < 1:
         raise ValueError("multiplication factor needs to be positive!")

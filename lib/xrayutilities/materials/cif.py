@@ -617,10 +617,12 @@ class CIFDataset:
             )
         else:
             ostr += "\n"
-        ostr += "a: {:8.4f} b: {:8.4f} c: {:8.4f}\n".format(*tuple(self.lattice_const))
-        ostr += "alpha: {:6.2f} beta: {:6.2f} gamma: {:6.2f}\n".format(*tuple(
-            self.lattice_angles
-        ))
+        ostr += "a: {:8.4f} b: {:8.4f} c: {:8.4f}\n".format(
+            *tuple(self.lattice_const)
+        )
+        ostr += "alpha: {:6.2f} beta: {:6.2f} gamma: {:6.2f}\n".format(
+            *tuple(self.lattice_angles)
+        )
         if self.unique_positions:
             ostr += "Unique atom positions in unit cell\n"
         for atom in self.unique_positions:

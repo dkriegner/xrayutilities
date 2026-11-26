@@ -90,9 +90,10 @@ class TestExampleScripts(unittest.TestCase):
         """Testrun example scripts."""
         for sf in scriptfiles:
             print(f"starting script {sf}")
-            with self.subTest(script=sf), tempfile.TemporaryFile(
-                mode="w"
-            ) as fid:
+            with (
+                self.subTest(script=sf),
+                tempfile.TemporaryFile(mode="w") as fid,
+            ):
                 env = os.environ.copy()
                 env["MPLBACKEND"] = "agg"
                 cmd = [sys.executable, sf]

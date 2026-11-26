@@ -181,9 +181,7 @@ class PowderModel:
             for k in mat.__dict__:
                 attr = getattr(mat, k)
                 if isinstance(attr, numbers.Number):
-                    params.add(
-                        f"phase_{name}_{k}", value=attr, vary=False
-                    )
+                    params.add(f"phase_{name}_{k}", value=attr, vary=False)
 
         # instrument parameters
         settings = self.pdiff[0].settings
@@ -446,7 +444,11 @@ class PowderModel:
                     xy=(0, 0),
                     xytext=(20, 0),
                     textcoords="offset points",
-                    bbox={"boxstyle": "round,pad=0.1", "fc": "w", "alpha": 0.8},
+                    bbox={
+                        "boxstyle": "round,pad=0.1",
+                        "fc": "w",
+                        "alpha": 0.8,
+                    },
                     arrowprops={"arrowstyle": "->"},
                     fontsize="x-small",
                 )

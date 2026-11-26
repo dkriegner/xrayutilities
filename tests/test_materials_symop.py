@@ -100,7 +100,10 @@ class TestMaterialsSymOp(unittest.TestCase):
             for wpkey in wp[lat.space_group]:
                 uniquepos = []
                 poscount = int(reint.match(wpkey).group())
-                thispositions = [SymOp.foldback(eval(p, pardict)) for p in wp[lat.space_group][wpkey][1]]
+                thispositions = [
+                    SymOp.foldback(eval(p, pardict))
+                    for p in wp[lat.space_group][wpkey][1]
+                ]
                 pos0 = SymOp.foldback(thispositions[0])
                 genpos = [s.apply(pos0) for s in lat.symops]
                 uniquepos = [

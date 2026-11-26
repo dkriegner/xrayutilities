@@ -201,14 +201,15 @@ class QConversion:
                     )
                 if not circleSyntaxSample.search(circ):
                     raise InputError(
-                        "QConversion: incorrect sample circle "
-                        f"syntax ({circ})"
+                        f"QConversion: incorrect sample circle syntax ({circ})"
                     )
                 if circ[0] == "k":  # determine kappa rotation axis
                     self._kappa_dir = math.getVector(circ)
                     if config.VERBOSITY >= config.DEBUG:
                         print(
-                            "XU.QConversion: kappa_dir: ({:5.3f} {:5.3f} {:5.3f})".format(*tuple(self._kappa_dir))
+                            "XU.QConversion: kappa_dir: ({:5.3f} {:5.3f} {:5.3f})".format(
+                                *tuple(self._kappa_dir)
+                            )
                         )
 
         else:
@@ -320,9 +321,9 @@ class QConversion:
             + "\n"
         )
         if self._sampleAxis_str.find("k") != -1:
-            pstr += "kappa rotation axis ({:5.3f} {:5.3f} {:5.3f})\n".format(*tuple(
-                self._kappa_dir
-            ))
+            pstr += "kappa rotation axis ({:5.3f} {:5.3f} {:5.3f})\n".format(
+                *tuple(self._kappa_dir)
+            )
         pstr += (
             f"detector geometry({len(self._detectorAxis)}): "
             + self._detectorAxis_str
@@ -645,8 +646,7 @@ class QConversion:
         if config.VERBOSITY >= config.DEBUG:
             print("XU.QConversion: Ns, Nd: %d %d" % (Ns, Nd))
             print(
-                f"XU.QConversion: sAngles / dAngles {sAngles!s} / "
-                f"{dAngles!s}"
+                f"XU.QConversion: sAngles / dAngles {sAngles!s} / {dAngles!s}"
             )
 
         qpos = cxrayutilities.ang2q_conversion(
@@ -1587,7 +1587,9 @@ class Experiment:
                 "Experiment: given inplane direction is not "
                 "perpendicular to normal direction\n -> Experiment "
                 "class uses the following direction with the same "
-                "azimuth:\n {}".format(" ".join(map(str, numpy.round(self.idir, 3))))
+                "azimuth:\n {}".format(
+                    " ".join(map(str, numpy.round(self.idir, 3)))
+                )
             )
 
         # initialize Ang2Q conversion
