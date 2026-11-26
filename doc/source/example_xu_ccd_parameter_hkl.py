@@ -11,7 +11,7 @@ import xrayutilities as xu
 
 Si = xu.materials.Si
 
-datadir = 'data'
+datadir = "data"
 specfile = "si_align.spec"
 
 en = 15000  # eV
@@ -19,7 +19,7 @@ wl = xu.en2lam(en)
 imgdir = os.path.join(datadir, "si_align_")  # data path for CCD files
 filetmp = "si_align_12_%04d.edf.gz"
 
-qconv = xu.QConversion(['z+', 'y-'], ['z+', 'y-'], [1, 0, 0])
+qconv = xu.QConversion(["z+", "y-"], ["z+", "y-"], [1, 0, 0])
 hxrd = xu.HXRD(Si.Q(1, 1, -2), Si.Q(1, 1, 1), wl=wl, qconv=qconv)
 
 # manually selected images
@@ -28,13 +28,39 @@ s = xu.io.SPECFile(specfile, path=datadir)
 imagenrs = []
 for num in [61, 62, 63, 20, 21, 26, 27, 28]:
     s[num].ReadData()
-    imagenrs = numpy.append(imagenrs, s[num].data['ccd_n'])
+    imagenrs = numpy.append(imagenrs, s[num].data["ccd_n"])
 
 # avoid images which do not have to full beam on the detector as well as
 # other which show signal due to cosmic radiation
-avoid_images = [37, 57, 62, 63, 65, 87, 99, 106, 110, 111, 126, 130, 175,
-                181, 183, 185, 204, 206, 207, 208, 211, 212, 233, 237, 261,
-                275, 290]
+avoid_images = [
+    37,
+    57,
+    62,
+    63,
+    65,
+    87,
+    99,
+    106,
+    110,
+    111,
+    126,
+    130,
+    175,
+    181,
+    183,
+    185,
+    204,
+    206,
+    207,
+    208,
+    211,
+    212,
+    233,
+    237,
+    261,
+    275,
+    290,
+]
 
 images = []
 ang1 = []  # outer detector angle
@@ -61,10 +87,10 @@ for imgnr in numpy.sort(list(set(imagenrs) - set(avoid_images))[::4]):
     edf = xu.io.EDFFile(filename)
     ccd = hotpixelkill(edf.data)
     images.append(ccd)
-    ang1.append(float(edf.header['motor_pos'].split()[4]))
-    ang2.append(float(edf.header['motor_pos'].split()[3]))
-    sang.append(float(edf.header['motor_pos'].split()[1]))
-    if imgnr > 1293.:
+    ang1.append(float(edf.header["motor_pos"].split()[4]))
+    ang2.append(float(edf.header["motor_pos"].split()[3]))
+    sang.append(float(edf.header["motor_pos"].split()[1]))
+    if imgnr > 1293.0:
         hkls.append((0, 0, 0))
     elif imgnr < 139:
         hkls.append((0, 0, numpy.sqrt(27)))  # (3,3,3))
@@ -82,10 +108,19 @@ for imgnr in numpy.sort(list(set(imagenrs) - set(avoid_images))[::4]):
 # Additionally if accurately known the detector pixel size can be given and
 # fixed and instead the detector distance can be fitted.
 param, eps = xu.analysis.area_detector_calib_hkl(
-    sang, ang1, ang2, images, hkls, hxrd, Si, ['z+', 'y-'], 'x+',
-    start=(None, None, 1.0, 45, 1.69, -0.55, -1.0, 1.3, 60., wl),
+    sang,
+    ang1,
+    ang2,
+    images,
+    hkls,
+    hxrd,
+    Si,
+    ["z+", "y-"],
+    "x+",
+    start=(None, None, 1.0, 45, 1.69, -0.55, -1.0, 1.3, 60.0, wl),
     fix=(False, False, True, False, False, False, False, False, False, False),
-    plot=True)
+    plot=True,
+)
 
 # Following is an example of the output of the summary of the
 # area_detector_calib_hkl function

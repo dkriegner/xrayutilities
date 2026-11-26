@@ -802,9 +802,7 @@ class FastScanSeries:
                         FastScanCCD(specfile, snrs, **kwargs)
                     )
         else:
-            raise TypeError(
-                "argument 'filenames' is not of appropriate type!"
-            )
+            raise TypeError("argument 'filenames' is not of appropriate type!")
 
         self._init_minmax()
         for fs in self.fastscans:

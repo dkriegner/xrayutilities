@@ -58,8 +58,8 @@ def period(xavg, xwell, wellratio, thick, sigmaup, sigmadown):
         "using barrier Al-content, well thickness, barrier thickness/2: "
         f"{xb:.3f} {twell:.1f} {tb:.1f}"
     )
-    return (
-        lambda z: xb
+    return lambda z: (
+        xb
         + (xwell - xb)
         * (erf((z - tb) / sigmaup) + erf(-(z - (tb + twell)) / sigmadown))
         / 2.0

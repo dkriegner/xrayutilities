@@ -1471,7 +1471,9 @@ def _area_detector_calib_fit(
             "tilt, detrot, outerangle_offset)"
         )
         print(
-            "param: {:.2f} {:.2f} {:10.4e} {:10.4e} {:.3f} {:.1f} {:.2f} {:.3f} {:.3f}".format(*param)
+            "param: {:.2f} {:.2f} {:10.4e} {:10.4e} {:.3f} {:.1f} {:.2f} {:.3f} {:.3f}".format(
+                *param
+            )
         )
 
     # set data
@@ -1876,7 +1878,9 @@ def area_detector_calib_hkl(
                     fitmin = fit
                     print(
                         "new best parameters: {:.2f} {:.2f} {:10.4e} {:10.4e} {:8.4f} "
-                        "{:.1f} {:.2f} {:.3f} {:.3f} {:.3f} {:.2f} {:.4f}".format(*parammin)
+                        "{:.1f} {:.2f} {:.3f} {:.3f} {:.3f} {:.2f} {:.4f}".format(
+                            *parammin
+                        )
                     )
                     print("************************\n")
 

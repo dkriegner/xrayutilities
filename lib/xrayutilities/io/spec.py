@@ -348,8 +348,7 @@ class SPECScan:
 
             if config.VERBOSITY >= config.DEBUG:
                 print(
-                    "xu.io.SPECScan.ReadData: type descriptor: "
-                    f"{type_desc!r}"
+                    f"xu.io.SPECScan.ReadData: type descriptor: {type_desc!r}"
                 )
 
             record_list = []  # from this list the record array while be built

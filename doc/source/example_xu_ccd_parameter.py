@@ -14,8 +14,40 @@ filetmp = os.path.join(datadir, "wire_12_%05d.edf.gz")
 
 # manually selected images
 # select images which have the primary beam fully on the CCD
-imagenrs = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-            20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+imagenrs = [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+]
 
 images = []
 ang1 = []
@@ -28,8 +60,8 @@ for imgnr in imagenrs:
     filename = filetmp % imgnr
     edf = xu.io.EDFFile(filename)
     images.append(edf.data)
-    ang1.append(float(edf.header['ESRF_ID01_PSIC_NANO_NU']))
-    ang2.append(float(edf.header['ESRF_ID01_PSIC_NANO_DEL']))
+    ang1.append(float(edf.header["ESRF_ID01_PSIC_NANO_NU"]))
+    ang2.append(float(edf.header["ESRF_ID01_PSIC_NANO_DEL"]))
 
 
 # call the fit for the detector parameters
@@ -40,7 +72,12 @@ for imgnr in imagenrs:
 # The detector pixel size or the detector distance should be kept unfixed to
 # be optimized by the fit.
 param, eps = xu.analysis.sample_align.area_detector_calib(
-    ang1, ang2, images, ['z+', 'y-'], 'x+',
+    ang1,
+    ang2,
+    images,
+    ["z+", "y-"],
+    "x+",
     start=(None, None, 1.0, 45, 0, -0.7, 0),
     fix=(False, False, True, False, False, False, False),
-    wl=xu.en2lam(en))
+    wl=xu.en2lam(en),
+)

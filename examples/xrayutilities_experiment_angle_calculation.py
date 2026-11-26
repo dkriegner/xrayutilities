@@ -33,9 +33,7 @@ print("Si (111)")
 print(f"phi:{angs[2]:8.4f}")
 print(f"om: {angs[0]:8.4f}")
 print(f"tt: {angs[3]:8.4f}")
-print(
-    f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(1, 1, 1), exp.energy)):8.3f}"
-)
+print(f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(1, 1, 1), exp.energy)):8.3f}")
 
 
 angs = exp.Q2Ang(Si.Q(2, 2, 4))
@@ -43,9 +41,7 @@ print("Si (224)")
 print(f"phi:{angs[2]:8.4f}")
 print(f"om: {angs[0]:8.4f}")
 print(f"tt: {angs[3]:8.4f}")
-print(
-    f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(2, 2, 4), exp.energy)):8.3f}"
-)
+print(f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(2, 2, 4), exp.energy)):8.3f}")
 
 
 angs = exp.Q2Ang(Si.Q(3, 3, 1))
@@ -53,6 +49,4 @@ print("Si (331)")
 print(f"phi:{angs[2]:8.4f}")
 print(f"om: {angs[0]:8.4f}")
 print(f"tt: {angs[3]:8.4f}")
-print(
-    f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(3, 3, 1), exp.energy)):8.3f}"
-)
+print(f"|F|: {numpy.abs(Si.StructureFactor(Si.Q(3, 3, 1), exp.energy)):8.3f}")

@@ -1405,9 +1405,7 @@ class DynamicalReflectivityModel(SpecularReflectivityModel):
             M_angles[angle] = M
 
         # Reflectance and Transmittance
-        R = numpy.array(
-            [numpy.abs(M[0, 1] / M[1, 1]) ** 2 for M in M_angles]
-        )
+        R = numpy.array([numpy.abs(M[0, 1] / M[1, 1]) ** 2 for M in M_angles])
         T = numpy.array([numpy.abs(1.0 / M[1, 1]) ** 2 for M in M_angles])
 
         return R, T
